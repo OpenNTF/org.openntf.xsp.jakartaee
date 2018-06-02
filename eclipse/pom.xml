@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.openntf.xsp</groupId>
+	<artifactId>cdi</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>XPages CDI Support</name>
+
+	<url>https://github.com/OpenNTF/org.openntf.xsp.cdi</url>
+	<inceptionYear>2018</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	
+	<distributionManagement>
+		<repository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+		</repository>
+	</distributionManagement>
+
+	<developers>
+		<developer>
+			<name>Jesse Gallagher</name>
+			<email>jesse@frostillic.us</email>
+		</developer>
+	</developers>
+
+	<modules>
+		<module>plugins/org.openntf.xsp.cdi</module>
+		<module>features/org.openntf.xsp.cdi.feature</module>
+		<module>releng/org.openntf.xsp.cdi.updatesite</module>
+		<module>releng/xspcdi-dist</module>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<tycho-version>1.1.0</tycho-version>
+		<compiler>1.8</compiler>
+		
+		<!-- Maven API version. This version should be supported by m2e -->
+		<maven.api.version>3.3.9</maven.api.version>
+	</properties>
+	
+	<prerequisites>
+		<maven>3.0.1</maven>
+	</prerequisites>
+
+	<repositories>
+		<repository>
+			<id>Neon</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/releases/neon/</url>
+		</repository>
+		<repository>
+			<id>notes</id>
+			<layout>p2</layout>
+			<url>${notes-platform}</url>
+		</repository>
+	</repositories>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-core</artifactId>
+			<version>${maven.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>${maven.api.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<source>${compiler}</source>
+					<target>${compiler}</target>
+					<compilerArgument>-err:-forbidden,discouraged,deprecation</compilerArgument>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.10</version>
+				<configuration>
+					<source>${compiler}</source>
+					<target>${compiler}</target>
+					<compilerArgument>-err:-forbidden,discouraged,deprecation</compilerArgument>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- enable tycho build extension -->
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<!-- enable tycho versions extension -->
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-versions-plugin</artifactId>
+				<version>${tycho-version}</version>
+			</plugin>
+			<plugin>
+				<!-- enable tycho packaging extension -->
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
+				<configuration>
+					<strictVersions>false</strictVersions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<configuration>
+					<source>${compiler}</source>
+					<target>${compiler}</target>
+					<compilerArgument>-err:-forbidden,discouraged,deprecation</compilerArgument>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>plugin-source</id>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<configuration>
+
+					<pomDependencies>consider</pomDependencies>
+					<dependency-resolution>
+						<extraRequirements>
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>com.ibm.notes.java.api.win32.linux</id>
+								<versionRange>[9.0.1,9.0.2)</versionRange>
+							</requirement>
+						</extraRequirements>
+						<optionalDependencies>ignore</optionalDependencies>
+					</dependency-resolution>
+
+					<filters>
+						<!-- work around Equinox bug 348045 -->
+						<filter>
+							<type>p2-installable-unit</type>
+							<id>org.eclipse.equinox.servletbridge.extensionbundle</id>
+							<removeAll />
+						</filter>
+					</filters>
+
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+					<resolver>p2</resolver>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.mycila</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<aggregate>true</aggregate>
+					<header>license.txt</header>
+					<excludes>
+						<exclude>**/pom.xml</exclude>
+			            <exclude>**/README</exclude>
+			            <exclude>src/test/resources/**</exclude>
+			            <exclude>src/main/resources/**</exclude>
+						<exclude>**/build.properties</exclude>
+					</excludes>
+					<properties>
+						<owner>Jesse Gallagher</owner>
+						<copyrightYear>2018</copyrightYear>
+					</properties>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>3.0.0-M1</version>
+				<executions>
+					<execution>
+						<id>enforce-maven-and-java</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>3.0.1</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>1.8.0</version>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<!-- javadoc configuration -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.0.0</version>
+					<configuration>
+						<!-- Activated by profile below -->
+						<skip>true</skip>
+
+						<failOnError>false</failOnError>
+						<excludePackageNames>com.sun.*:com.ibm.commons.*:com.ibm.sbt.core.*:com.ibm.sbt.plugin.*:com.ibm.sbt.jslibrray.*:com.ibm.sbt.proxy.*:com.ibm.sbt.security.*:*.util.*:com.ibm.sbt.portlet.*:com.ibm.sbt.playground.*:demo.*:acme.*</excludePackageNames>
+
+						<charset>UTF-8</charset>
+						<encoding>UTF-8</encoding>
+						<docencoding>UTF-8</docencoding>
+						<breakiterator>true</breakiterator>
+						<version>true</version>
+						<author>true</author>
+						<keywords>true</keywords>
+					</configuration>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.0.2</version>
+					<configuration>
+						<archive>
+							<manifestFile>${manifest-location}/MANIFEST.MF</manifestFile>
+						</archive>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.21.0</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+						<inputEncoding>UTF-8</inputEncoding>
+						<outputEncoding>UTF-8</outputEncoding>
+						<argLine>-ea -Dfile.encoding=UTF-8</argLine>
+					</configuration>
+				</plugin>
+				<!-- This is to enable test execution only on supported platforms below -->
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-surefire-plugin</artifactId>
+					<version>${tycho-version}</version>
+					
+					<configuration>
+						<skip>true</skip>
+						<encoding>UTF-8</encoding>
+						<inputEncoding>UTF-8</inputEncoding>
+						<outputEncoding>UTF-8</outputEncoding>
+						<argLine>-Dfile.encoding=UTF-8</argLine>
+						<providerHint>junit4</providerHint>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>target-platform-configuration</artifactId>
+					<version>${tycho-version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-compiler-plugin</artifactId>
+					<version>${tycho-version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-p2-plugin</artifactId>
+					<version>${tycho-version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-packaging-plugin</artifactId>
+					<version>${tycho-version}</version>
+				</plugin>
+				
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.5.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.0.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.8.2</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.7</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.0.2</version>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-enforcer-plugin</artifactId>
+										<versionRange>[1.0,)</versionRange>
+										<goals>
+											<goal>enforce</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

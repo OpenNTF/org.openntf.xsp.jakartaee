@@ -1,0 +1,10 @@
+# Eclipse Stuff
+.project
+.classpath
+.settings/
+
+.vscode/
+
+target/
+
+pom.xml.versionsBackup

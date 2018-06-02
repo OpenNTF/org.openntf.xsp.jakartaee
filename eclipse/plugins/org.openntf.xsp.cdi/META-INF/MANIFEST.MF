@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages CDI Support
+Bundle-SymbolicName: org.openntf.xsp.cdi;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.cdi
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.osgi,
+ org.eclipse.core.runtime,
+ com.ibm.commons;bundle-version="9.0.1",
+ com.ibm.commons.xml;bundle-version="9.0.1",
+ com.ibm.xsp.core;bundle-version="9.0.1",
+ com.ibm.xsp.domino;bundle-version="9.0.1",
+ com.ibm.domino.xsp.adapter;bundle-version="9.0.1",
+ com.ibm.designer.runtime
+Bundle-Activator: org.openntf.xsp.cdi.Activator
+Bundle-ClassPath: .,
+ lib/weld-se-2.4.7.Final.jar
+Import-Package: lotus.domino
+Export-Package: javax.enterprise.context,
+ javax.inject
+Bundle-ActivationPolicy: lazy
