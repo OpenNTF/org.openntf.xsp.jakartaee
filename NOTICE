@@ -1,0 +1,14 @@
+XPages CDI Support
+
+Portions (c) Copyright 2018 Jesse Gallagher
+
+This product includes software contributed to
+OpenNTF Alliance (http://www.OpenNTF.org/)
+
+This product is licensed under the terms of the Apache 2.0 license.
+
+The project contains the following 3rd party code:
+
+Weld
+Available from http://weld.cdi-spec.org/
+Licensed under Apache 2.0

@@ -1,0 +1,44 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Weld SE (Uber Jar)
+
+
+From: 'an unknown organization'
+  - javax.inject (http://code.google.com/p/atinject/) javax.inject:javax.inject:jar:1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Weld APIs (http://weld.cdi-spec.org) org.jboss.weld:weld-api:jar:2.4.SP2
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+  - Weld Implementation (Core) (http://weld.cdi-spec.org) org.jboss.weld:weld-core-impl:jar:2.4.7.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+  - Weld SPIs for container integration (http://weld.cdi-spec.org) org.jboss.weld:weld-spi:jar:2.4.SP2
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+  - Weld Environment Common (http://weld.cdi-spec.org) org.jboss.weld.environment:weld-environment-common:jar:2.4.7.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+  - Weld Probe Core (http://weld.cdi-spec.org/weld-core-parent/weld-probe-parent/weld-probe-core) org.jboss.weld.probe:weld-probe-core:jar:2.4.7.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+  - Weld SE (Core) (http://weld.cdi-spec.org) org.jboss.weld.se:weld-se-core:jar:2.4.7.Final
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+
+From: 'JBoss by Red Hat' (http://www.jboss.org)
+  - JBoss Logging 3 (http://www.jboss.org) org.jboss.logging:jboss-logging:jar:3.2.1.Final
+    License: Apache License, version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Common Annotations 1.2 API (http://www.jboss.org/jboss-annotations-api_1.2_spec) org.jboss.spec.javax.annotation:jboss-annotations-api_1.2_spec:jar:1.0.0.Final
+    License: CDDL or GPLv2 with exceptions  (https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html)
+  - Expression Language 3.0 API (http://www.jboss.org/jboss-el-api_3.0_spec) org.jboss.spec.javax.el:jboss-el-api_3.0_spec:jar:1.0.0.Alpha1
+    License: Common Development and Distribution License  (http://repository.jboss.org/licenses/cddl.txt)    License: GNU General Public License, Version 2 with the Classpath Exception  (http://repository.jboss.org/licenses/gpl-2.0-ce.txt)
+  - Java(TM) EE Interceptors 1.2 API (http://www.jboss.org/jboss-interceptors-api_1.2_spec) org.jboss.spec.javax.interceptor:jboss-interceptors-api_1.2_spec:jar:1.0.0.Final
+    License: Common Development and Distribution License  (http://repository.jboss.org/licenses/cddl.txt)    License: GNU General Public License, Version 2 with the Classpath Exception  (http://repository.jboss.org/licenses/gpl-2.0-ce.txt)
+
+From: 'JBoss by Red Hat, Inc.' (http://jboss.org)
+  - CDI APIs (http://cdi-spec.org) javax.enterprise:cdi-api:jar:1.2
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+
+From: 'JBoss, a division of Red Hat, Inc.' (http://www.jboss.org)
+  - classfilewriter (https://github.com/jbossas/jboss-classfilewriter) org.jboss.classfilewriter:jboss-classfilewriter:jar:1.1.2.Final
+    License: Apache License, version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
+
