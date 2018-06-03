@@ -14,6 +14,10 @@ public class ApplicationGuy {
 }
 ```
 
+```xml
+<xp:text value="#{applicationGuy.foo}"/>
+```
+
 These beans are managed and instantiated by [Weld](http://weld.cdi-spec.org) and support injection with other annotated beans:
 
 ```java
