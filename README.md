@@ -28,6 +28,26 @@ public class RequestGuy {
 }
 ```
 
+Additionally, the CDI system can inject implementations of interfaces based on available concrete implementations:
+
+```java
+public class RequestGuy extends AbstractBean {
+	static interface AppModel {
+
+	}
+	static class SomeModelClass implements AppModel {
+		
+	}
+	@Inject AppModel model; // Will be a new instance of SomeModelClass each request
+	
+	// ...
+}
+```
+
+## Limitations
+
+Currently, the CDI environment for the application acts as if there is a `META-INF/beans.xml` file with `bean-discovery-mode="all"` set, but only resolves within the active NSF. So, while NSF beans and classes can reference each other, plugin and system classes are not available for CDI injection.
+
 ## Requirements
 
 - Domino FP8+
