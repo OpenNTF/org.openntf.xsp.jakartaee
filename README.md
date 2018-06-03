@@ -1,6 +1,6 @@
 # XPages CDI Support
 
-This project adds partial support for the [Context and Dependency Injection for Java EE (CDI) 1.0](http://cdi-spec.org/) for XPages applications.
+This project adds partial support for the [Context and Dependency Injection for Java EE (CDI) 1.2](http://cdi-spec.org/) for XPages applications.
 
 Currently, this support is focused around adding annotated CDI managed bean classes in an NSF and having them picked up by the variable resolver. For example:
 
