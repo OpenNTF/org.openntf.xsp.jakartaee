@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.openntf.xsp</groupId>
-		<artifactId>cdi</artifactId>
+		<artifactId>xsp-jakartaee</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
-	<artifactId>org.openntf.xsp.cdi.updatesite</artifactId>
+	<artifactId>org.openntf.xsp.jakartaee.updatesite</artifactId>
 
 	<packaging>eclipse-update-site</packaging>
 
