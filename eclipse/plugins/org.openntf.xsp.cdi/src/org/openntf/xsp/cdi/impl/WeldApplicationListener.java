@@ -16,21 +16,14 @@
 package org.openntf.xsp.cdi.impl;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Named;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
@@ -100,7 +93,6 @@ public class WeldApplicationListener implements ApplicationListener2 {
 				.map(key -> key.replace('/', '.'))
 				.filter(className -> !IGNORE_CLASSES.matcher(className).matches())
 				.map(className -> loadClass(classLoader, className))
-				.filter(WeldApplicationListener::isBeanClass)
 				.forEach(weld::addBeanClass);
 			
 			weld.initialize();
@@ -173,21 +165,5 @@ public class WeldApplicationListener implements ApplicationListener2 {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-	private static final List<Class<? extends Annotation>> SCOPE_ANNOTATIONS = Arrays.asList(
-		ApplicationScoped.class,
-		SessionScoped.class,
-		RequestScoped.class
-	);
-	
-	private static boolean isBeanClass(Class<?> clazz) {
-		if(!SCOPE_ANNOTATIONS.stream().anyMatch(a -> clazz.getAnnotation(a) != null)) {
-			return false;
-		}
-		if(clazz.getAnnotation(Named.class) == null) {
-			return false;
-		}
-		return true;
 	}
 }
