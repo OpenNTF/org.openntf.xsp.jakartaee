@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.jboss.weld.context.http.HttpRequestContextImpl;
 import org.jboss.weld.manager.BeanManagerImpl;
+import org.openntf.xsp.cdi.util.ContainerUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 
@@ -41,7 +42,7 @@ public class WeldPhaseListener implements PhaseListener {
 	@Override
 	public void beforePhase(PhaseEvent event) {
 		ApplicationEx application = ApplicationEx.getInstance();
-		BeanManagerImpl manager = WeldApplicationListener.getBeanManager(application);
+		BeanManagerImpl manager = ContainerUtil.getBeanManager(application);
 		if(!manager.isContextActive(RequestScoped.class)) {
 			// Build up the request context
 			HttpRequestContextImpl requestScope = new HttpRequestContextImpl(manager.getContextId());
@@ -58,7 +59,7 @@ public class WeldPhaseListener implements PhaseListener {
 		if(PhaseId.RENDER_RESPONSE.equals(event.getPhaseId())) {
 			// Tear down the request context
 			ApplicationEx application = ApplicationEx.getInstance();
-			BeanManagerImpl beanManager = WeldApplicationListener.getBeanManager(application);
+			BeanManagerImpl beanManager = ContainerUtil.getBeanManager(application);
 			HttpRequestContextImpl requestScope = (HttpRequestContextImpl)beanManager.getContext(RequestScoped.class);
 			requestScope.invalidate();
 			requestScope.deactivate();

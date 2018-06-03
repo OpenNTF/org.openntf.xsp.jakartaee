@@ -19,5 +19,6 @@ Bundle-ClassPath: .,
  lib/weld-se-2.4.7.Final.jar
 Import-Package: lotus.domino
 Export-Package: javax.enterprise.context,
- javax.inject
+ javax.inject,
+ org.openntf.xsp.cdi.discovery
 Bundle-ActivationPolicy: lazy

@@ -22,6 +22,7 @@ import javax.faces.el.VariableResolver;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.inject.WeldInstance;
 import org.jboss.weld.literal.NamedLiteral;
+import org.openntf.xsp.cdi.util.ContainerUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 
@@ -48,7 +49,7 @@ public class CDIResolver extends VariableResolver {
 		}
 		
 		// Finally, ask CDI for a named bean
-		WeldContainer container = WeldApplicationListener.getContainer(ApplicationEx.getInstance(facesContext));
+		WeldContainer container = ContainerUtil.getContainer(ApplicationEx.getInstance(facesContext));
 		WeldInstance<Object> instance = container.select(new NamedLiteral(name));
 		if(instance.isResolvable()) {
 			return instance.get();
