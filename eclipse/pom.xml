@@ -35,7 +35,8 @@
 	</developers>
 
 	<modules>
-		<module>plugins/org.openntf.xsp.cdi</module>
+		<module>bundles/org.openntf.xsp.cdi</module>
+		<module>bundles/org.openntf.xsp.cdi.provider</module>
 		<module>features/org.openntf.xsp.cdi.feature</module>
 		<module>releng/org.openntf.xsp.cdi.updatesite</module>
 		<module>releng/xspcdi-dist</module>

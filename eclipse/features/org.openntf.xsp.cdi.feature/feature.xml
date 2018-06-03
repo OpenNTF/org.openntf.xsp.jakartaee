@@ -238,6 +238,25 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+   <plugin
+         id="org.openntf.xsp.cdi.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+         
+   <plugin
+         id="org.openntf.xsp.cdi.provider"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+         
+   <plugin
+         id="org.openntf.xsp.cdi.provider.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
          
 	<plugin id="javax.enterprise.cdi-api" version="2.0.0"/>
 	<plugin id="org.jboss.spec.javax.annotation.jboss-annotations-api_1.3_spec" version="1.0.0.Final"/>
