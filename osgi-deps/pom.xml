@@ -220,6 +220,16 @@
 										</Import-Package>
 									</instructions>
 								</artifact>
+
+								<!-- Avoid trouble with OSGi not resolving its Import-Package to itself -->
+								<artifact>
+									<id>org.glassfish:javax.el:3.0.0</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Import-Package/>
+									</instructions>
+								</artifact>
 							</artifacts>
 
 							<compressSite>true</compressSite>

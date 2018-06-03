@@ -17,8 +17,8 @@
 
 -->
 <feature
-      id="org.openntf.xsp.jakartaee.feature"
-      label="XPages Jakarta EE Platform Feature"
+      id="org.openntf.xsp.el3.feature"
+      label="XPages EL3 Support Feature"
       version="1.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.cdi">
@@ -233,17 +233,36 @@
    limitations under the License.
    </license>
    
-   <plugin id="org.openntf.xsp.jakartaee.commons" version="0.0.0"/>
-   <plugin id="org.openntf.xsp.jakartaee.commons.source" version="0.0.0"/>
+   <requires>
+      <import feature="org.openntf.xsp.jakartaee.feature"/>
+   </requires>
+
+   <plugin
+         id="org.openntf.xsp.el3"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+   <plugin
+         id="org.openntf.xsp.el3.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
          
-	<plugin id="javax.enterprise.cdi-api" version="2.0.0"/>
-	<plugin id="org.jboss.spec.javax.annotation.jboss-annotations-api_1.3_spec" version="1.0.0.Final"/>
-	<plugin id="org.jboss.spec.javax.el.jboss-el-api_3.0_spec" version="1.0.7.Final"/>
-	<plugin id="org.jboss.spec.javax.interceptor.jboss-interceptors-api_1.2_spec" version="1.0.0.Final"/>
-	<!-- Use javax.inject from Neon -->
-	<plugin id="javax.inject" version="1.0.0.v20091030"/>
-	<plugin id="jboss-classfilewriter" version="1.2.2.Final"/>
-	<plugin id="org.jboss.logging.jboss-logging" version="3.2.1.Final"/>
-	<plugin id="org.apache.logging.log4j.api" version="2.11.0"/>
+   <plugin
+         id="org.openntf.xsp.cdi.provider"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+         
+   <plugin
+         id="org.openntf.xsp.cdi.provider.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+         
+	<plugin id="com.sun.el.javax.el" version="3.0.0"/>
+	<plugin id="com.sun.el.javax.el.source" version="3.0.0"/>
 
 </feature>

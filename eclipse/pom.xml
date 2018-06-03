@@ -36,12 +36,17 @@
 
 	<modules>
 		<!-- General Jakarta EE platform -->
+		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
 		<!-- CDI Support -->
 		<module>bundles/org.openntf.xsp.cdi</module>
 		<module>bundles/org.openntf.xsp.cdi.provider</module>
 		<module>features/org.openntf.xsp.cdi.feature</module>
+		
+		<!-- Expression Language 3.0 -->
+		<module>bundles/org.openntf.xsp.el3</module>
+		<module>features/org.openntf.xsp.el3.feature</module>
 		
 		<module>releng/org.openntf.xsp.cdi.updatesite</module>
 		<module>releng/xspcdi-dist</module>

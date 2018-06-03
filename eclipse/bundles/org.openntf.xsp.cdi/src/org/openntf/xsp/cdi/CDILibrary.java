@@ -15,9 +15,6 @@
  */
 package org.openntf.xsp.cdi;
 
-import java.util.Arrays;
-
-import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.library.AbstractXspLibrary;
 
 public class CDILibrary extends AbstractXspLibrary {
@@ -52,11 +49,6 @@ public class CDILibrary extends AbstractXspLibrary {
 		return new String[] {
 			"/res/jsf.xml" //$NON-NLS-1$
 		};
-	}
-
-	public static boolean usesLibrary(ApplicationEx app) {
-		String prop = app.getProperty("xsp.library.depends", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		return Arrays.asList(prop.split(",")).contains(LIBRARY_ID); //$NON-NLS-1$
 	}
 
 }

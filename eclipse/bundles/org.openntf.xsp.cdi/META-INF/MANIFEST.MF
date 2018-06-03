@@ -20,7 +20,8 @@ Require-Bundle: org.eclipse.osgi,
  org.jboss.weld.spi;bundle-version="3.0.0";visibility:=reexport,
  org.jboss.weld.core-impl;bundle-version="3.0.4";visibility:=reexport,
  org.jboss.weld.environment.weld-environment-common;bundle-version="3.0.4";visibility:=reexport,
- org.jboss.weld.se.weld-se-core;bundle-version="3.0.4";visibility:=reexport
+ org.jboss.weld.se.weld-se-core;bundle-version="3.0.4";visibility:=reexport,
+ org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0"
 Bundle-Activator: org.openntf.xsp.cdi.Activator
 Bundle-ClassPath: .
 Import-Package: lotus.domino

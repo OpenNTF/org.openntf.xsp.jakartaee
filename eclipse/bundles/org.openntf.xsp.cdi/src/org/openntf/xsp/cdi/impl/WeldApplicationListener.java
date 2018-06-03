@@ -18,6 +18,7 @@ package org.openntf.xsp.cdi.impl;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.LibraryUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.events.ApplicationListener2;
@@ -35,7 +36,7 @@ public class WeldApplicationListener implements ApplicationListener2 {
 
 	@Override
 	public void applicationCreated(ApplicationEx application) {
-		if(CDILibrary.usesLibrary(application)) {
+		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			// Ensure that the container exists
 			ContainerUtil.getContainer(application);
 		}
@@ -43,7 +44,7 @@ public class WeldApplicationListener implements ApplicationListener2 {
 
 	@Override
 	public void applicationDestroyed(ApplicationEx application) {
-		if(CDILibrary.usesLibrary(application)) {
+		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			WeldContainer container = ContainerUtil.getContainer(application);
 			if(container.isRunning()) {
 				container.shutdown();
@@ -53,7 +54,7 @@ public class WeldApplicationListener implements ApplicationListener2 {
 
 	@Override
 	public void applicationRefreshed(ApplicationEx application) {
-		if(CDILibrary.usesLibrary(application)) {
+		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			applicationDestroyed(application);
 			applicationCreated(application);
 		}

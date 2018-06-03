@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSessionEvent;
 import org.jboss.weld.manager.BeanManagerImpl;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.LibraryUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.events.SessionListener;
@@ -61,7 +62,7 @@ public class WeldSessionListener implements SessionListener {
 
 	@Override
 	public void sessionCreated(ApplicationEx application, HttpSessionEvent event) {
-		if(CDILibrary.usesLibrary(application)) {
+		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			String sessionId = event.getSession().getId();
 			BeanManagerImpl beanManager = ContainerUtil.getBeanManager(application);
 			
@@ -73,7 +74,7 @@ public class WeldSessionListener implements SessionListener {
 
 	@Override
 	public void sessionDestroyed(ApplicationEx application, HttpSessionEvent event) {
-		if(CDILibrary.usesLibrary(application)) {
+		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			String sessionId = event.getSession().getId();
 			SessionScopeContext context = contexts.get(sessionId);
 			if(context != null) {

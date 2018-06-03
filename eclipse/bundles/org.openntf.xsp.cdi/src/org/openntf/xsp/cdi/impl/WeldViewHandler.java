@@ -26,6 +26,7 @@ import javax.faces.context.FacesContext;
 import org.jboss.weld.manager.BeanManagerImpl;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.LibraryUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.ViewHandlerExImpl;
@@ -69,7 +70,7 @@ public class WeldViewHandler extends ViewHandlerExImpl {
 		UIViewRootEx viewRoot = (UIViewRootEx)super.createView(facesContext, pageName);
 		
 		ApplicationEx application = ApplicationEx.getInstance(facesContext);
-		if(CDILibrary.usesLibrary(application)) {
+		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			String viewId = viewRoot.getUniqueViewId();
 			BeanManagerImpl beanManager = ContainerUtil.getBeanManager(application);
 			
