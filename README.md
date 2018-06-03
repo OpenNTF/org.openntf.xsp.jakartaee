@@ -22,7 +22,7 @@ These beans are managed and instantiated by [Weld](http://weld.cdi-spec.org) and
 public class RequestGuy {
 	@Inject private ApplicationGuy applicationGuy;
 	// Or with a name:
-  @Inject @Named("applicationGuy") private ApplicationGuy applicationGuy;
+	@Inject @Named("applicationGuy") private ApplicationGuy applicationGuy;
   
 	// ...
 }
