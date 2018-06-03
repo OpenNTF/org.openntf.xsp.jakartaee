@@ -32,7 +32,7 @@ public class RequestGuy {
 }
 ```
 
-Additionally, the CDI system can inject implementations of interfaces based on available concrete implementations:
+Additionally, the CDI system can inject implementations of interfaces based on available concrete implementations, as well as use `@PostConstruct` and `@PreDestroy` annotations:
 
 ```java
 public class RequestGuy extends AbstractBean {
@@ -44,9 +44,18 @@ public class RequestGuy extends AbstractBean {
 	}
 	@Inject AppModel model; // Will be a new instance of SomeModelClass each request
 	
-	// ...
+	@PostConstruct
+	public void postConstruct() { System.out.println("Created with " + model); }
+	@PreDestroy
+	public void preDestroy() { System.out.println("Destroying!"); }
 }
 ```
+
+
+
+## Conversation Scope
+
+This implementation maps CDI `@ConversationScoped` beans to the XPages view scope. This isn't necessarily a [direct analogue](https://stackoverflow.com/questions/7788430/how-does-jsf-2-conversationscope-work), but it's close enough.
 
 ## Limitations
 
