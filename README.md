@@ -66,6 +66,10 @@ Currently, the CDI environment for the application acts as if there is a `META-I
 - Domino FP8+
 - Designer FP10+ (for compiling the NSF)
 
+## Building
+
+To build this application, first `package` the `osgi-deps` Maven project, which will provide the target platform dependencies used by the `eclipse` Maven tree.
+
 ## License
 
 Apache License 2.0

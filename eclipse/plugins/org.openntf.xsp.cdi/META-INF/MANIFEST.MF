@@ -13,13 +13,16 @@ Require-Bundle: org.eclipse.osgi,
  com.ibm.xsp.core;bundle-version="9.0.1",
  com.ibm.xsp.domino;bundle-version="9.0.1",
  com.ibm.domino.xsp.adapter;bundle-version="9.0.1",
- com.ibm.designer.runtime
+ com.ibm.designer.runtime,
+ javax.enterprise.cdi-api;bundle-version="2.0.0";visibility:=reexport,
+ org.jboss.spec.javax.annotation.jboss-annotations-api_1.3_spec;bundle-version="1.0.0";visibility:=reexport,
+ org.jboss.weld.api;bundle-version="3.0.0";visibility:=reexport,
+ org.jboss.weld.spi;bundle-version="3.0.0";visibility:=reexport,
+ org.jboss.weld.core-impl;bundle-version="3.0.4";visibility:=reexport,
+ org.jboss.weld.environment.weld-environment-common;bundle-version="3.0.4";visibility:=reexport,
+ org.jboss.weld.se.weld-se-core;bundle-version="3.0.4";visibility:=reexport
 Bundle-Activator: org.openntf.xsp.cdi.Activator
-Bundle-ClassPath: .,
- lib/weld-se-2.4.7.Final.jar
+Bundle-ClassPath: .
 Import-Package: lotus.domino
-Export-Package: javax.annotation,
- javax.enterprise.context,
- javax.inject,
- org.openntf.xsp.cdi.discovery
+Export-Package: org.openntf.xsp.cdi.discovery
 Bundle-ActivationPolicy: lazy

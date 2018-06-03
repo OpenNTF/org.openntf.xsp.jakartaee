@@ -1,6 +1,5 @@
 package org.openntf.xsp.cdi.impl;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -9,7 +8,6 @@ import javax.faces.application.ViewHandler;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 
-import org.jboss.weld.context.AbstractSharedContext;
 import org.jboss.weld.manager.BeanManagerImpl;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
@@ -23,17 +21,9 @@ public class WeldViewHandler extends ViewHandlerExImpl {
 	
 	private static final Map<String, ViewScopeContext> contexts = new ConcurrentHashMap<>();
 	
-	private static class ViewScopeContext extends AbstractSharedContext {
-		private final String viewId;
-		
+	private static class ViewScopeContext extends AbstractIdentifiedContext {
 		protected ViewScopeContext(String contextId, String viewId) {
-			super(contextId);
-			this.viewId = viewId;
-		}
-
-		@Override
-		public Class<? extends Annotation> getScope() {
-			return ConversationScoped.class;
+			super(contextId, viewId, ConversationScoped.class);
 		}
 		
 		@Override
@@ -47,7 +37,7 @@ public class WeldViewHandler extends ViewHandlerExImpl {
 			if(facesContext != null) {
 				UIViewRootEx viewRoot = (UIViewRootEx)facesContext.getViewRoot();
 				String viewId = viewRoot.getUniqueViewId();
-				return this.viewId.equals(viewId);
+				return getId().equals(viewId);
 			}
 			
 			return true;

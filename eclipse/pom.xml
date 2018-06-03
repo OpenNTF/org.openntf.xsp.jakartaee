@@ -65,6 +65,11 @@
 			<layout>p2</layout>
 			<url>${notes-platform}</url>
 		</repository>
+		<repository>
+			<id>osgi-deps</id>
+			<layout>p2</layout>
+			<url>${project.baseUri}../../../osgi-deps/target/repository</url>
+		</repository>
 	</repositories>
 	
 	<dependencies>

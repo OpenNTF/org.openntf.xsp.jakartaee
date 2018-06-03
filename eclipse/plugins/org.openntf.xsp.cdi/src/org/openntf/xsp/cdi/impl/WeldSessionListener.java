@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.cdi.impl;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 
-import org.jboss.weld.context.AbstractSharedContext;
 import org.jboss.weld.manager.BeanManagerImpl;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
@@ -37,17 +35,9 @@ public class WeldSessionListener implements SessionListener {
 	
 	private static final Map<String, SessionScopeContext> contexts = new ConcurrentHashMap<>();
 	
-	private static class SessionScopeContext extends AbstractSharedContext {
-		private final String sessionId;
-		
+	private static class SessionScopeContext extends AbstractIdentifiedContext {
 		protected SessionScopeContext(String contextId, String sessionId) {
-			super(contextId);
-			this.sessionId = sessionId;
-		}
-
-		@Override
-		public Class<? extends Annotation> getScope() {
-			return SessionScoped.class;
+			super(contextId, sessionId, SessionScoped.class);
 		}
 		
 		@Override
@@ -61,7 +51,7 @@ public class WeldSessionListener implements SessionListener {
 			if(facesContext != null) {
 				HttpServletRequest req = (HttpServletRequest)facesContext.getExternalContext().getRequest();
 				HttpSession session = req.getSession();
-				return sessionId.equals(session.getId());
+				return getId().equals(session.getId());
 			}
 			
 			return true;

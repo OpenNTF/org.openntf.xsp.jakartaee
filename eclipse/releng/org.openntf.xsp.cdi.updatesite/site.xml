@@ -18,8 +18,8 @@
 -->
 <site>
 	<feature url="features/org.openntf.xsp.cdi.feature_1.0.0.qualifier.jar" id="org.openntf.xsp.cdi.feature" version="1.0.0.qualifier">
-		<category name="XPages CDI Support"/>
+		<category name="XPages JEE"/>
 	</feature>
    
-	<category-def name="XPages CDI Support" label="XPages CDI Support"/>
+	<category-def name="XPages JEE" label="XPages JEE"/>
 </site>
