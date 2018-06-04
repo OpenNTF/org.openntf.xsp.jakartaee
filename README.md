@@ -1,10 +1,16 @@
 # XPages Jakarta EE Support
 
-This project adds partial support for several Java/Jakarta EE technologies to XPages applications.
+This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](http://www.oracle.com/technetwork/java/javaee/tech/index.html) included in the full JEE 8 spec, this project currently provides:
 
-## CDI 1.2
+- Expression Language 3.0
+- Context and Dependency Injection for Java 2.0
+  - Common Annotations for the Java Platform 1.3
+  - Interceptors 1.2
+- Java API for RESTful Web Services (JAX-RS) 2.1
 
-The [Context and Dependency Injection for Java EE (CDI) 1.2](http://cdi-spec.org/) specification provides for managed beans and dependency injection. To use this feature, add the "org.openntf.xsp.cdi" library to your XPages app.
+## CDI 2.0
+
+The [Context and Dependency Injection for Java EE (CDI) 2.0](http://cdi-spec.org/) specification provides for managed beans and dependency injection. To use this feature, add the "org.openntf.xsp.cdi" library to your XPages app.
 
 Currently, this support is focused around adding annotated CDI managed bean classes in an NSF and having them picked up by the variable resolver. For example:
 
