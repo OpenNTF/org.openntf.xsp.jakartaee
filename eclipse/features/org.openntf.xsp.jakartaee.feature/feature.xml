@@ -236,7 +236,6 @@
    <plugin id="org.openntf.xsp.jakartaee.commons" version="0.0.0"/>
    <plugin id="org.openntf.xsp.jakartaee.commons.source" version="0.0.0"/>
          
-	<plugin id="javax.enterprise.cdi-api" version="2.0.0"/>
 	<plugin id="org.jboss.spec.javax.annotation.jboss-annotations-api_1.3_spec" version="1.0.0.Final"/>
 	<plugin id="org.jboss.spec.javax.el.jboss-el-api_3.0_spec" version="1.0.7.Final"/>
 	<plugin id="org.jboss.spec.javax.interceptor.jboss-interceptors-api_1.2_spec" version="1.0.0.Final"/>
