@@ -79,6 +79,41 @@ Note that Designer attempts to validate the syntax of runtime EL bindings; to wo
 <xp:text value="#{el:requestGuy.hello()}"/>
 ```
 
+## JAX-RS 2.1
+
+The [JAX-RS](https://jcp.org/en/jsr/detail?id=370) specification is the standard way to provide web services in Java EE applications. A version of it has been included for a long time in Domino by way of the Extension Library. However, this version is also out of date, with Apache Wink implementing JAX-RS 1.1.1.
+
+This library is based on [the work of Martin Pradny](https://www.pradny.com/2017/11/using-jax-rs-inside-nsf.html) and provides JAX-RS 2.1 support by way of [Jersey 2.27](https://jersey.github.io) for classes inside the NSF. When a class is or has a method annotated with `@Path`, it is included as a service beneath `/xsp/.jaxrs` inside the NSF. For example:
+
+```java
+package servlet;
+
+import javax.enterprise.inject.spi.CDI;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import beans.ApplicationGuy;
+
+@Path("/sample")
+public class Sample {
+	@GET
+	public Response hello() {
+		try {
+			return Response.ok()
+				.type(MediaType.TEXT_PLAIN)
+				.entity(CDI.current().select(ApplicationGuy.class).get().toString())
+				.build();
+		} catch(Throwable t) {
+			return Response.serverError().build();
+		}
+	}
+}
+```
+
+As intimated there, it has access to the CDI environment if enabled, though it doesn't yet have proper lifecycle support for `ConversationScoped` or `RequestScoped` beans.
+
 ## Requirements
 
 - Domino FP8+
