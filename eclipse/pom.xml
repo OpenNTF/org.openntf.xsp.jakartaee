@@ -48,6 +48,11 @@
 		<module>bundles/org.openntf.xsp.el3</module>
 		<module>features/org.openntf.xsp.el3.feature</module>
 		
+		<!-- JAX-RS 2.1 -->
+		<module>bundles/org.openntf.xsp.jaxrs</module>
+		<module>bundles/org.openntf.xsp.jaxrs.generator</module>
+		<module>features/org.openntf.xsp.jaxrs.feature</module>
+		
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
 		<module>releng/xsp-jakartaee-dist</module>
 	</modules>

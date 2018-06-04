@@ -18,7 +18,7 @@
 -->
 <feature
       id="org.openntf.xsp.cdi.feature"
-      label="XPages CDI Support Feature"
+      label="XPages CDI 2.0 Support Feature"
       version="1.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.cdi">
@@ -232,7 +232,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
    </license>
-   
+
    <requires>
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
@@ -242,31 +242,61 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
    <plugin
          id="org.openntf.xsp.cdi.source"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-         
+
    <plugin
          id="org.openntf.xsp.cdi.provider"
          download-size="0"
          install-size="0"
          version="0.0.0"
          fragment="true"/>
-         
+
    <plugin
          id="org.openntf.xsp.cdi.provider.source"
          download-size="0"
          install-size="0"
          version="0.0.0"
          fragment="true"/>
-         
-	<plugin id="org.jboss.weld.api" version="3.0.0.SP3"/>
-	<plugin id="org.jboss.weld.spi" version="3.0.0.SP3"/>
-	<plugin id="org.jboss.weld.core-impl" version="3.0.4.Final"/>
-	<plugin id="org.jboss.weld.environment.weld-environment-common" version="3.0.4.Final"/>
-	<plugin id="org.jboss.weld.se.weld-se-core" version="3.0.4.Final"/>
-	<plugin id="org.jboss.weld.probe.weld-probe-core" version="3.0.4.Final"/>
+
+   <plugin
+         id="org.jboss.weld.api"
+         download-size="0"
+         install-size="0"
+         version="3.0.0.SP3"/>
+
+   <plugin
+         id="org.jboss.weld.spi"
+         download-size="0"
+         install-size="0"
+         version="3.0.0.SP3"/>
+
+   <plugin
+         id="org.jboss.weld.core-impl"
+         download-size="0"
+         install-size="0"
+         version="3.0.4.Final"/>
+
+   <plugin
+         id="org.jboss.weld.environment.weld-environment-common"
+         download-size="0"
+         install-size="0"
+         version="3.0.4.Final"/>
+
+   <plugin
+         id="org.jboss.weld.se.weld-se-core"
+         download-size="0"
+         install-size="0"
+         version="3.0.4.Final"/>
+
+   <plugin
+         id="org.jboss.weld.probe.weld-probe-core"
+         download-size="0"
+         install-size="0"
+         version="3.0.4.Final"/>
 
 </feature>

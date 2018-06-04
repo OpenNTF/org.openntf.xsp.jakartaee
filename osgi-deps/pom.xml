@@ -40,6 +40,9 @@
 						<configuration>
 							<artifacts>
 								<artifact><id>org.jboss.weld.se:weld-se-core:3.0.4.Final</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.jersey.core:jersey-server:2.27</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.jersey.containers:jersey-container-servlet:2.27</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.jersey.inject:jersey-hk2:2.27</id><source>true</source></artifact>
 								
 								<!-- Include log4j to satisfy runtime expectations -->
 								<artifact><id>org.apache.logging.log4j:log4j-api:2.11.0</id><source>true</source></artifact>
@@ -228,6 +231,48 @@
 									<override>true</override>
 									<instructions>
 										<Import-Package/>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.glassfish.hk2:osgi-resource-locator:1.0.1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Import-Package>org.osgi.framework</Import-Package>
+										<Export-Package>org.glassfish.hk2.osgiresourcelocator;version="1.0.1"</Export-Package>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.glassfish.jersey.core:jersey-common:2.27</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Export-Package>*;version="2.27.0"</Export-Package>
+										<Import-Package>
+											sun.misc;resolution:=optional,
+											javax.activation,
+											javax.annotation;version="[1.2,2)",
+											javax.imageio,
+											javax.imageio.spi,
+											javax.imageio.stream,
+											javax.inject;version="[1.0,2)",
+											javax.net.ssl,
+											javax.ws.rs;version="[2.1,3)",
+											javax.ws.rs.client;version="[2.1,3)",
+											javax.ws.rs.container;version="[2.1,3)",
+											javax.ws.rs.core;version="[2.1,3)",
+											javax.ws.rs.ext;version="[2.1,3)",
+											javax.xml.namespace,
+											javax.xml.parsers,
+											javax.xml.transform,
+											javax.xml.transform.dom,
+											javax.xml.transform.sax,
+											javax.xml.transform.stream,
+											org.glassfish.hk2.osgiresourcelocator;resolution:=optional,
+											org.osgi.framework;version="[1.5,2)",
+											org.w3c.dom,
+											org.xml.sax
+										</Import-Package>
 									</instructions>
 								</artifact>
 							</artifacts>

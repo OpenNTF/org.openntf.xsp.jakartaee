@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages JAX-RS Generator Supplier
+Bundle-SymbolicName: org.openntf.xsp.jaxrs.generator
+Automatic-Module-Name: org.openntf.xsp.jaxrs.generator
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Fragment-Host: org.glassfish.hk2.api
+Require-Bundle: org.glassfish.hk2.locator;bundle-version="2.5.0"

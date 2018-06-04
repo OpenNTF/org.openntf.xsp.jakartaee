@@ -1,4 +1,4 @@
-XPages CDI Support
+XPages Jakarta EE Support
 
 Portions (c) Copyright 2018 Jesse Gallagher
 
@@ -7,8 +7,22 @@ OpenNTF Alliance (http://www.OpenNTF.org/)
 
 This product is licensed under the terms of the Apache 2.0 license.
 
-The project contains the following 3rd party code:
+The project contains the following third-party code:
+
+pristo_rest by Martin Pradny
+Available from https://bitbucket.org/pradnik/pristo_rest/src/master/to.pris.rest.xsp/src/to/pris/rest/
+Used with permission
+
+The binary distribution contains the following 3rd party code:
 
 Weld
 Available from http://weld.cdi-spec.org/
 Licensed under Apache 2.0
+
+GlassFish EL
+Available from https://mvnrepository.com/artifact/org.glassfish/javax.el
+Licensed under CDDL
+
+Jersey
+Available from https://jersey.github.io
+Licensed Under CDDL

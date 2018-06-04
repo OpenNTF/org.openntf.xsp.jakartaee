@@ -17,8 +17,8 @@
 
 -->
 <feature
-      id="org.openntf.xsp.el3.feature"
-      label="XPages EL 3.0 Support Feature"
+      id="org.openntf.xsp.jaxrs.feature"
+      label="XPages JAX-RS 2.1 Support Feature"
       version="1.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.cdi">
@@ -232,23 +232,71 @@
    See the License for the specific language governing permissions and
    limitations under the License.
    </license>
-   
+
    <requires>
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
    <plugin
-         id="org.openntf.xsp.el3"
+         id="org.openntf.xsp.jaxrs"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
    <plugin
-         id="org.openntf.xsp.el3.source"
+         id="org.openntf.xsp.jaxrs.source"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-         
-	<plugin id="com.sun.el.javax.el" version="3.0.0"/>
-	<plugin id="com.sun.el.javax.el.source" version="3.0.0"/>
+
+   <plugin
+         id="javax.ws.rs-api"
+         download-size="0"
+         install-size="0"
+         version="2.1.0"/>
+
+   <plugin
+         id="javax.ws.rs-api.source"
+         download-size="0"
+         install-size="0"
+         version="2.1.0"/>
+
+   <plugin
+         id="org.glassfish.jersey.core.jersey-common"
+         download-size="0"
+         install-size="0"
+         version="2.27.0"/>
+
+   <plugin
+         id="org.glassfish.jersey.core.jersey-server"
+         download-size="0"
+         install-size="0"
+         version="2.27.0"/>
+
+   <plugin
+         id="org.glassfish.jersey.core.jersey-client"
+         download-size="0"
+         install-size="0"
+         version="2.27.0"/>
+
+   <plugin
+         id="org.glassfish.jersey.containers.jersey-container-servlet-core"
+         download-size="0"
+         install-size="0"
+         version="2.27.0"/>
+
+   <plugin
+         id="org.glassfish.jersey.inject.jersey-hk2"
+         download-size="0"
+         install-size="0"
+         version="2.27.0"/>
+
+   <plugin id="org.glassfish.hk2.api" version="2.5.0.b42"/>
+   <plugin id="org.glassfish.hk2.external.aopalliance-repackaged" version="2.5.0.b42"/>
+   <plugin id="org.glassfish.hk2.external.javax.inject" version="2.5.0.b42"/>
+   <plugin id="org.glassfish.hk2.locator" version="2.5.0.b42"/>
+   <plugin id="org.glassfish.hk2.osgi-resource-locator" version="1.0.1"/>
+   <plugin id="org.glassfish.hk2.utils" version="2.5.0.b42"/>
+   <plugin id="javassist" version="3.22.0.CR2"/>
 
 </feature>
