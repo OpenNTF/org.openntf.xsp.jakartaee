@@ -25,6 +25,7 @@ import javax.faces.context.FacesContext;
 
 import org.jboss.weld.manager.BeanManagerImpl;
 import org.openntf.xsp.cdi.CDILibrary;
+import org.openntf.xsp.cdi.context.AbstractIdentifiedContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 

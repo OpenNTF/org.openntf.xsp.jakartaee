@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
+import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.openntf.xsp.jaxrs.impl.FacesJerseyServletContainer;
 import org.openntf.xsp.jaxrs.impl.NSFJAXRSApplication;

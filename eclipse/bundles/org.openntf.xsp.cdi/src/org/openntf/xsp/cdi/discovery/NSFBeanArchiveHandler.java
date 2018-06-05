@@ -15,8 +15,6 @@
  */
 package org.openntf.xsp.cdi.discovery;
 
-import java.util.regex.Pattern;
-
 import javax.annotation.Priority;
 
 import org.jboss.weld.bootstrap.spi.BeansXml;

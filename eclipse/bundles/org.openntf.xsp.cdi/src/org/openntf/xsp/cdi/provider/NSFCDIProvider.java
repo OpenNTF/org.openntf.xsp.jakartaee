@@ -17,7 +17,6 @@ package org.openntf.xsp.cdi.provider;
 
 import javax.enterprise.inject.spi.CDI;
 import javax.enterprise.inject.spi.CDIProvider;
-import javax.faces.context.FacesContext;
 
 import org.openntf.xsp.cdi.util.ContainerUtil;
 
@@ -33,12 +32,9 @@ public class NSFCDIProvider implements CDIProvider {
 
 	@Override
 	public CDI<Object> getCDI() {
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		if(facesContext != null) {
-			ApplicationEx application = ApplicationEx.getInstance(facesContext);
-			if(application != null) {
-				return ContainerUtil.getContainer(application);
-			}
+		ApplicationEx application = ApplicationEx.getInstance();
+		if(application != null) {
+			return ContainerUtil.getContainer(application);
 		}
 		
 		return null;

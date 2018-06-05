@@ -42,7 +42,7 @@
 								<artifact><id>org.jboss.weld.se:weld-se-core:3.0.4.Final</id><source>true</source></artifact>
 								<artifact><id>org.glassfish.jersey.core:jersey-server:2.27</id><source>true</source></artifact>
 								<artifact><id>org.glassfish.jersey.containers:jersey-container-servlet:2.27</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.jersey.inject:jersey-hk2:2.27</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.jersey.inject:jersey-cdi2-se:2.27</id><source>true</source></artifact>
 								
 								<!-- Include log4j to satisfy runtime expectations -->
 								<artifact><id>org.apache.logging.log4j:log4j-api:2.11.0</id><source>true</source></artifact>
@@ -231,15 +231,6 @@
 									<override>true</override>
 									<instructions>
 										<Import-Package/>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.glassfish.hk2:osgi-resource-locator:1.0.1</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Import-Package>org.osgi.framework</Import-Package>
-										<Export-Package>org.glassfish.hk2.osgiresourcelocator;version="1.0.1"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>

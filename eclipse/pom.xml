@@ -50,7 +50,8 @@
 		
 		<!-- JAX-RS 2.1 -->
 		<module>bundles/org.openntf.xsp.jaxrs</module>
-		<module>bundles/org.openntf.xsp.jaxrs.generator</module>
+		<module>bundles/org.openntf.xsp.jaxrs.weld</module>
+		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
 		<module>features/org.openntf.xsp.jaxrs.feature</module>
 		
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>

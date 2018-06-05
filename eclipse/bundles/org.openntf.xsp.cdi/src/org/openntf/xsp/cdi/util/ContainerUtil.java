@@ -15,12 +15,17 @@
  */
 package org.openntf.xsp.cdi.util;
 
+import java.util.Collection;
+import java.util.List;
+
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.Extension;
 
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.manager.BeanManagerImpl;
 import org.jboss.weld.util.ForwardingBeanManager;
+import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 
 import com.ibm.xsp.application.ApplicationEx;
 
@@ -39,15 +44,28 @@ public enum ContainerUtil {
 	 * @param application the active {@link ApplicationEx}
 	 * @return an existing or new {@link WeldContainer}
 	 */
+	@SuppressWarnings("unchecked")
 	public static synchronized WeldContainer getContainer(ApplicationEx application) {
 		WeldContainer instance = WeldContainer.instance(application.getApplicationId());
 		if(instance == null) {
-			instance = new Weld()
+			Weld weld = new Weld()
 				.containerId(application.getApplicationId())
 				.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true)
 				// Disable concurrent deployment to avoid Notes thread init trouble
-				.property("org.jboss.weld.bootstrap.concurrentDeployment", false) //$NON-NLS-1$
-				.initialize();
+				.property("org.jboss.weld.bootstrap.concurrentDeployment", false); //$NON-NLS-1$
+			
+			for(WeldBeanClassContributor service : (List<WeldBeanClassContributor>)application.findServices(WeldBeanClassContributor.EXTENSION_POINT)) {
+				Collection<Class<?>> beanClasses = service.getBeanClasses();
+				if(beanClasses != null) {
+					weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+				}
+				Collection<Extension> extensions = service.getExtensions();
+				if(extensions != null) {
+					weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+				}
+			}
+			
+			instance = weld.initialize();
 		}
 		return instance;
 	}

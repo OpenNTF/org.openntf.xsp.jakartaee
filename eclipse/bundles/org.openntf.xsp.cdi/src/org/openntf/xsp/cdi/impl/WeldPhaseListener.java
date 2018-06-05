@@ -24,6 +24,7 @@ import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 
 import org.jboss.weld.manager.BeanManagerImpl;
+import org.openntf.xsp.cdi.context.AbstractIdentifiedContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 
 import com.ibm.xsp.application.ApplicationEx;

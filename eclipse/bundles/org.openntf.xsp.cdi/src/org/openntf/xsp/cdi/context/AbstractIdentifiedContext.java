@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.cdi.impl;
+package org.openntf.xsp.cdi.context;
 
 import java.lang.annotation.Annotation;
 

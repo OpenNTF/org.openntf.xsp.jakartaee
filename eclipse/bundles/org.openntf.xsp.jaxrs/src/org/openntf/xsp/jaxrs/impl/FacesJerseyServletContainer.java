@@ -16,6 +16,7 @@
 package org.openntf.xsp.jaxrs.impl;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.faces.FacesException;
 import javax.faces.FactoryFinder;
@@ -30,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
+import org.glassfish.jersey.servlet.WebComponent;
+import org.openntf.xsp.jaxrs.ServiceParticipant;
 
 import com.ibm.commons.util.NotImplementedException;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
@@ -74,7 +77,7 @@ public class FacesJerseyServletContainer extends ServletContainer {
 		String str = "WEB-INF/classes/" + javaClassValue.replace('.', '/') + ".class"; //$NON-NLS-1$ //$NON-NLS-2$
 		nc.setSignerSessionRights(str);
 		if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
-			super.init();
+//			super.init();
 		}
 		FacesContext fc=null;
 		try {
@@ -86,7 +89,21 @@ public class FacesJerseyServletContainer extends ServletContainer {
 	    		controller.init(null);
 	    	}
 	    	
-			super.service(request, response);
+	    	@SuppressWarnings("unchecked")
+			List<ServiceParticipant> participants = (List<ServiceParticipant>)ape.findServices(ServiceParticipant.EXTENSION_POINT);
+	    	for(ServiceParticipant participant : participants) {
+	    		participant.doBeforeService(request, response);
+	    	}
+	    	try {
+	    		WebComponent comp = getWebComponent();
+	    		super.service(request, response);
+	    		
+	    		response.getOutputStream().println("Well, it finished");
+	    	} finally {
+	    		for(ServiceParticipant participant : participants) {
+		    		participant.doAfterService(request, response);
+		    	}
+	    	}
 		} catch(Throwable t) {
 			t.printStackTrace();
 			response.sendError(500, "Application failed!"); //$NON-NLS-1$
