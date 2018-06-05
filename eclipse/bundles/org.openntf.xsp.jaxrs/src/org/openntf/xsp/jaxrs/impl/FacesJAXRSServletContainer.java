@@ -29,9 +29,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.servlet.ServletContainer;
-import org.glassfish.jersey.servlet.WebComponent;
+import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 
 import com.ibm.commons.util.NotImplementedException;
@@ -49,25 +47,21 @@ import com.ibm.xsp.controller.FacesControllerFactoryImpl;
  * @author Jesse Gallagher
  * @since 1.0.0
  */
-public class FacesJerseyServletContainer extends ServletContainer {
+public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	private static final long serialVersionUID = 1L;
 	
 	private ServletConfig config;
 	private FacesContextFactory contextFactory;
-	private Boolean initialized = false;
+	private boolean initialized = false;
 
-	public FacesJerseyServletContainer() {
-	}
-
-	public FacesJerseyServletContainer(ResourceConfig resourceConfig) {
-		super(resourceConfig);
+	public FacesJAXRSServletContainer() {
+		
 	}
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		this.config = config;
 		contextFactory = (FacesContextFactory) FactoryFinder.getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
-		super.init(config);
 	}
 	
 	@Override
@@ -76,29 +70,30 @@ public class FacesJerseyServletContainer extends ServletContainer {
     	String javaClassValue = "plugin.Activator"; //$NON-NLS-1$
 		String str = "WEB-INF/classes/" + javaClassValue.replace('.', '/') + ".class"; //$NON-NLS-1$ //$NON-NLS-2$
 		nc.setSignerSessionRights(str);
-		if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
-//			super.init();
-		}
 		FacesContext fc=null;
 		try {
 			fc = initContext(request, response);
 	    	FacesContextEx exc = (FacesContextEx)fc;
-	    	ApplicationEx ape = exc.getApplicationEx();
-	    	if (ape.getController() == null) {
+	    	ApplicationEx application = exc.getApplicationEx();
+	    	if (application.getController() == null) {
 	    		FacesController controller = new FacesControllerFactoryImpl().createFacesController(getServletContext());
 	    		controller.init(null);
 	    	}
 	    	
 	    	@SuppressWarnings("unchecked")
-			List<ServiceParticipant> participants = (List<ServiceParticipant>)ape.findServices(ServiceParticipant.EXTENSION_POINT);
+			List<ServiceParticipant> participants = (List<ServiceParticipant>)application.findServices(ServiceParticipant.EXTENSION_POINT);
 	    	for(ServiceParticipant participant : participants) {
 	    		participant.doBeforeService(request, response);
 	    	}
+			if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
+				super.init();
+				super.init(config);
+				
+				initialized = true;
+			}
+	    	
 	    	try {
-	    		WebComponent comp = getWebComponent();
 	    		super.service(request, response);
-	    		
-	    		response.getOutputStream().println("Well, it finished");
 	    	} finally {
 	    		for(ServiceParticipant participant : participants) {
 		    		participant.doAfterService(request, response);

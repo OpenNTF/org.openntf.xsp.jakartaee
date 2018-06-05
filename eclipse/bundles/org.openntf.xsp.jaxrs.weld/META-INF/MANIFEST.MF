@@ -7,14 +7,12 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-X-Fragment-Host: org.glassfish.jersey.core.jersey-common;bundle-version="2.27.0"
-Require-Bundle: org.glassfish.jersey.core.jersey-common;bundle-version="2.27.0";visibility:=reexport,
- org.glassfish.jersey.inject.jersey-cdi2-se;bundle-version="2.27.0";visibility:=reexport,
- org.openntf.xsp.cdi;bundle-version="1.0.0",
+Fragment-Host: org.openntf.xsp.jaxrs
+Require-Bundle: org.openntf.xsp.cdi;bundle-version="1.0.0",
  com.ibm.xsp.core;bundle-version="9.0.1",
  com.ibm.commons;bundle-version="9.0.1",
- javax.ws.rs-api;bundle-version="2.1.0",
- org.glassfish.jersey.core.jersey-server;bundle-version="2.27.0",
  org.openntf.xsp.jaxrs;bundle-version="1.0.0",
- javax.enterprise.cdi-api
-Export-Package: org.openntf.xsp.jaxrs.weld
+ javax.enterprise.cdi-api,
+ org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec;bundle-version="1.0.0",
+ org.jboss.resteasy.jaxrs;bundle-version="3.5.1",
+ org.jboss.resteasy.cdi;bundle-version="3.5.1"

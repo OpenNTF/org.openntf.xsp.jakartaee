@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Application;
 
@@ -37,8 +36,6 @@ import com.ibm.domino.xsp.module.nsf.NotesContext;
 public class NSFJAXRSApplication extends Application {
 
 	public NSFJAXRSApplication() {
-//		System.out.println(getClass().getName() + " init in:");
-//		new Throwable().printStackTrace();
 	}
 	
 	@Override
@@ -69,14 +66,6 @@ public class NSFJAXRSApplication extends Application {
 			return module.getModuleClassLoader().loadClass(className);
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
-		}
-	}
-	
-	private Object instantiate(Class<?> clazz) {
-		try {
-			return clazz.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new RuntimeException();
 		}
 	}
 

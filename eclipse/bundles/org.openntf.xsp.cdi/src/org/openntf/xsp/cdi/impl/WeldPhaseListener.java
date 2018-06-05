@@ -15,19 +15,11 @@
  */
 package org.openntf.xsp.cdi.impl;
 
-import java.util.Map;
-
-import javax.enterprise.context.RequestScoped;
-import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 
-import org.jboss.weld.manager.BeanManagerImpl;
-import org.openntf.xsp.cdi.context.AbstractIdentifiedContext;
-import org.openntf.xsp.cdi.util.ContainerUtil;
-
-import com.ibm.xsp.application.ApplicationEx;
+import org.openntf.xsp.cdi.context.RequestContext;
 
 /**
  * This simulates a "request listener" to build and tear down
@@ -39,37 +31,15 @@ import com.ibm.xsp.application.ApplicationEx;
 public class WeldPhaseListener implements PhaseListener {
 	private static final long serialVersionUID = 1L;
 
-	private static class RequestContext extends AbstractIdentifiedContext {
-		public RequestContext(String contextId) {
-			super(contextId, null, RequestScoped.class);
-		}
-	}
-	
-	private static final String CACHE_KEY = WeldPhaseListener.class.getName();
-
-	@SuppressWarnings("unchecked")
 	@Override
 	public void beforePhase(PhaseEvent event) {
-		ApplicationEx application = ApplicationEx.getInstance();
-		BeanManagerImpl manager = ContainerUtil.getBeanManager(application);
-		if(!manager.isContextActive(RequestScoped.class)) {
-			// Build up the request context
-			Map<String, Object> requestScope = FacesContext.getCurrentInstance().getExternalContext().getRequestMap();
-			manager.addContext((RequestContext)requestScope.compute(CACHE_KEY, (key, val) -> new RequestContext(manager.getContextId())));
-			
-		}
+		RequestContext.inject();
 	}
 	
 	@Override
 	public void afterPhase(PhaseEvent event) {
 		if(PhaseId.RENDER_RESPONSE.equals(event.getPhaseId())) {
-			// Tear down the request context
-			@SuppressWarnings("unchecked")
-			Map<String, Object> requestScope = FacesContext.getCurrentInstance().getExternalContext().getRequestMap();
-			RequestContext context = (RequestContext)requestScope.get(CACHE_KEY);
-			if(context != null) {
-				context.invalidate();
-			}
+			RequestContext.eject();
 		}
 	}
 
