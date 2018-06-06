@@ -76,13 +76,13 @@ The [Expression Language 3.0](https://jcp.org/en/jsr/detail?id=341) spec is the 
 When the library is enabled, the EL 3 processor takes over for all normal expression language bindings and so can be used without a prefix in some cases:
 
 ```xml
-<xp:text value="${dataObjectExample.calculateFoo('some arg')}"/>
+<xp:text value="${someBean.calculateFoo('some arg')}"/>
 ```
 
 Note that Designer attempts to validate the syntax of runtime EL bindings; to work around this, add an "el:" prefix to the binding. This will leave a warning in Designer, but it will work:
 
 ```xml
-<xp:text value="#{el:requestGuy.hello()}"/>
+<xp:text value="#{el:someBean.hello()}"/>
 ```
 
 ## JAX-RS 2.1
