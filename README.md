@@ -71,7 +71,7 @@ Currently, the CDI environment for the application acts as if there is a `META-I
 
 ## Expression Language 3.0
 
-The [Expression Language 3.0](https://jcp.org/en/jsr/detail?id=341) spec is the evolved version of the original Expression Language as used in XPages. It contains numerous improvements over its predecessors, such as method parameters and [lamba expressions](http://www.baeldung.com/jsf-expression-language-el-3). To use this feature, add the "org.openntf.xsp.el3" library to your XPages app.
+The [Expression Language 3.0](https://jcp.org/en/jsr/detail?id=341) spec is the evolved version of the original Expression Language as used in XPages. It contains numerous improvements over its predecessors, such as method parameters and [lambda expressions](http://www.baeldung.com/jsf-expression-language-el-3). To use this feature, add the "org.openntf.xsp.el3" library to your XPages app.
 
 When the library is enabled, the EL 3 processor takes over for all normal expression language bindings and so can be used without a prefix in some cases:
 
