@@ -6,6 +6,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Context and Dependency Injection for Java 2.0
   - Common Annotations for the Java Platform 1.3
   - Interceptors 1.2
+  - Dependency Injection for Java 1.0
 - Java API for RESTful Web Services (JAX-RS) 2.1
 
 ## CDI 2.0
