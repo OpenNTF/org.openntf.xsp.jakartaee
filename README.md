@@ -86,6 +86,16 @@ Note that Designer attempts to validate the syntax of runtime EL bindings; to wo
 <xp:text value="#{el:someBean.hello()}"/>
 ```
 
+### Implementation Details
+
+The EL 3 handler is currently stricter about null values than the default handler in XPages. For example, take this binding:
+
+```xml
+<xp:text value="${beanThatDoesNotExist.someProp}"/>
+```
+
+In standard XPages, this will result in an empty output. With the EL 3 resolver, however, this will cause an exception like `ELResolver cannot handle a null base Object with identifier 'beanThatDoesNotExist'`. I'm considering changing this behavior to match the XPages default, but there's also some value in the strictness, especially because the exception is helpful in referencing the object it's trying to resolve against, which could help track down subtle bugs.
+
 ## JAX-RS 2.1
 
 The [JAX-RS](https://jcp.org/en/jsr/detail?id=370) specification is the standard way to provide web services in Java EE applications. A version of it has been included for a long time in Domino by way of the Extension Library. However, this version is also out of date, with Apache Wink implementing JAX-RS 1.1.1.
