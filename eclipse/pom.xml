@@ -54,6 +54,10 @@
 		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
 		<module>features/org.openntf.xsp.jaxrs.feature</module>
 		
+		<!-- Bean Validation 2.0 -->
+		<module>bundles/org.openntf.xsp.beanvalidation</module>
+		<module>features/org.openntf.xsp.beanvalidation.feature</module>
+		
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
 		<module>releng/xsp-jakartaee-dist</module>
 	</modules>
