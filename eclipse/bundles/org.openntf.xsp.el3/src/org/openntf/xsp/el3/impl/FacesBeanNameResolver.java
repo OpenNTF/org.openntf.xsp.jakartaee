@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.el3.impl;
 
+import java.util.Collections;
+
 import javax.el.BeanNameResolver;
 import javax.faces.context.FacesContext;
 import javax.faces.el.VariableResolver;
@@ -36,7 +38,19 @@ public class FacesBeanNameResolver extends BeanNameResolver {
 	public Object getBean(String beanName) {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		VariableResolver vr = facesContext.getApplication().getVariableResolver();
-		return vr.resolveVariable(facesContext, beanName);
+		Object result = vr.resolveVariable(facesContext, beanName);
+		
+		// Check for known "environmental" beans that may not exist in edge cases
+		if(result == null) {
+			switch(beanName) {
+			case "compositeData":
+				return Collections.emptyMap();
+			default:
+				break;
+			}
+		}
+		
+		return result;
 	}
 
 }
