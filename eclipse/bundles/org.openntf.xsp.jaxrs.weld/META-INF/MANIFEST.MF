@@ -11,7 +11,6 @@ Fragment-Host: org.openntf.xsp.jaxrs
 Require-Bundle: org.openntf.xsp.cdi;bundle-version="1.0.0",
  com.ibm.xsp.core;bundle-version="9.0.1",
  com.ibm.commons;bundle-version="9.0.1",
- org.openntf.xsp.jaxrs;bundle-version="1.0.0",
  javax.enterprise.cdi-api,
  org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec;bundle-version="1.0.0",
  org.jboss.resteasy.jaxrs;bundle-version="3.5.1",
