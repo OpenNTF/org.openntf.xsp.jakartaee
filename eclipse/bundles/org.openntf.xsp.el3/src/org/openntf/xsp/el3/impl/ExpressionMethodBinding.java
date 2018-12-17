@@ -25,6 +25,8 @@ import javax.faces.el.MethodNotFoundException;
 
 import org.openntf.xsp.el3.EL3BindingFactory;
 
+import com.ibm.xsp.util.ValueBindingUtil;
+
 public class ExpressionMethodBinding extends MethodBinding implements StateHolder {
 	
 	private MethodExpression exp;
@@ -72,6 +74,11 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	@Override
 	public void setTransient(boolean isTransient) {
 		this.isTransient = isTransient;
+	}
+	
+	@Override
+	public String getExpressionString() {
+		return ValueBindingUtil.getExpressionString(EL3BindingFactory.PREFIX, this.exp.getExpressionString(), 1);
 	}
 
 }

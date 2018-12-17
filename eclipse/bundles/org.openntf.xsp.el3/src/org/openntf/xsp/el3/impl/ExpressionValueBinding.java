@@ -25,6 +25,8 @@ import javax.faces.el.ValueBinding;
 
 import org.openntf.xsp.el3.EL3BindingFactory;
 
+import com.ibm.xsp.util.ValueBindingUtil;
+
 public class ExpressionValueBinding extends ValueBinding implements StateHolder {
 	
 	private ValueExpression exp;
@@ -82,6 +84,11 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	@Override
 	public void setTransient(boolean isTransient) {
 		this.isTransient = isTransient;
+	}
+	
+	@Override
+	public String getExpressionString() {
+		return ValueBindingUtil.getExpressionString(EL3BindingFactory.PREFIX, this.exp.getExpressionString(), 1);
 	}
 	
 }
