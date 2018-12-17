@@ -8,6 +8,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
   - Interceptors 1.2
   - Dependency Injection for Java 1.0
 - Java API for RESTful Web Services (JAX-RS) 2.1
+- Bean Validation 2.0
 
 ## CDI 2.0
 
@@ -132,6 +133,41 @@ public class Sample {
 ```
 
 As intimated there, it has access to the CDI environment if enabled, though it doesn't yet have proper lifecycle support for `ConversationScoped` beans.
+
+## Bean Validation
+
+The [Bean Validation](https://beanvalidation.org/2.0/spec/) spec provides a standard mechanism for performing validation of arbitrary objects via annotations. XPages doesn't provide any type of bean validation mechanism - the closest things it provides are UI component validators, but those don't connect to the back-end objects at all.
+
+This library provides validation annotations and a processor via [Hibernate Validator 6.0.13.Final](http://hibernate.org/validator/). Since there is no existing structure to hook into in the XPages runtime, bean validation must be called explicitly by your code, such as in a common "save" method in model objects. This is done by constructing a `Validator` object using the builder and then running it against a given bean. Due to the intricacies of the XPages runtime, code performing validation should be run from an OSGi plugin.
+
+For generic use, this library provides an `org.openntf.xsp.beanvalidation.XPagesValidationUtil` class with methods to construct a `Validator` object and to use that validator to validate a bean:
+
+```java
+import org.openntf.xsp.beanvalidation.XPagesValidationUtil;
+import javax.validation.Validator;
+import javax.validation.ConstraintViolation;
+import javax.validation.constraints.NotEmpty;
+
+public class Tester {
+  public static class ExampleBean {
+    private @NotEmpty String id;
+    public ExampleBean(String id) {
+      this.id = id;
+    }
+  }
+  
+  public void test() {
+    ExampleBean bean = new ExampleBean("");
+    Validator validator = XPagesValidationUtil.constructXPagesValidator();
+    Set<ConstraintViolation<ExampleBean>> violations = XPagesValidationUtil.validate(bean, validator);
+    if(!violations.isEmpty()) {
+      // Handle error message here
+    }
+  }
+}
+```
+
+
 
 ## Requirements
 

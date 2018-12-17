@@ -16,3 +16,6 @@ The binary distribution contains the following 3rd party code:
 - Weld, vailable from http://weld.cdi-spec.org/ and licensed under Apache 2.0
 - GlassFish EL, available from https://mvnrepository.com/artifact/org.glassfish/javax.el and licensed under CDDL
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
+- ClassMate, available from https://github.com/FasterXML/java-classmate and licensed under Apache 2.0
+- Hibernate Validator, available from http://hibernate.org/validator/ and licensed under Apache 2.0
+- The Bean Validation 2.0 API, available from https://beanvalidation.org/2.0/ and licensed under Apache 2.0

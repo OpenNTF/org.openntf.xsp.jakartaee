@@ -21,7 +21,8 @@ public class ValidationLibrary extends AbstractXspLibrary {
 		return new String[] {
 			"com.ibm.xsp.core.library", //$NON-NLS-1$
 			"com.ibm.xsp.extsn.library", //$NON-NLS-1$
-			"com.ibm.xsp.designer.library" //$NON-NLS-1$
+			"com.ibm.xsp.designer.library", //$NON-NLS-1$
+			org.openntf.xsp.el3.EL3Library.LIBRARY_ID
 		};
 	}
 	
