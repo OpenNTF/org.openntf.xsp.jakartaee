@@ -167,7 +167,9 @@ public class Tester {
 }
 ```
 
+### Implementation Details
 
+Using Bean Validation 2.0 requires also having Expression Language 3.0 installed, even if it is not active for the current application.
 
 ## Requirements
 

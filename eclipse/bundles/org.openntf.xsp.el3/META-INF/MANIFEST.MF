@@ -17,4 +17,3 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.el3.Activator
 Import-Package: lotus.domino
-Export-Package: org.openntf.xsp.el3
