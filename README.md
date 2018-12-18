@@ -9,6 +9,8 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
   - Dependency Injection for Java 1.0
 - Java API for RESTful Web Services (JAX-RS) 2.1
 - Bean Validation 2.0
+- Java API for JSON Processing 1.1
+- Java API for JSON Binding 1.0
 
 ## CDI 2.0
 
@@ -134,7 +136,7 @@ public class Sample {
 
 As intimated there, it has access to the CDI environment if enabled, though it doesn't yet have proper lifecycle support for `ConversationScoped` beans.
 
-## Bean Validation
+## Bean Validation 2.0
 
 The [Bean Validation](https://beanvalidation.org/2.0/spec/) spec provides a standard mechanism for performing validation of arbitrary objects via annotations. XPages doesn't provide any type of bean validation mechanism - the closest things it provides are UI component validators, but those don't connect to the back-end objects at all.
 
@@ -170,6 +172,49 @@ public class Tester {
 ### Implementation Details
 
 Using Bean Validation 2.0 requires also having Expression Language 3.0 installed, even if it is not active for the current application.
+
+## JSON-P and JSON-B
+
+The [Java API for JSON Processing](https://javaee.github.io/jsonp/index.html) spec is the standardized JSON library for Jakarta EE. The lack of a standard API led to the proliferation of similar-but-incompatible libraries like the initial json.org implementation, Google Gson, and (mostly for XPages developers) the IBM Commons JSON implementation. JSON-P is intended to be a simple and functional unified implementation.
+
+The [Java API for JSON Binding](http://json-b.net/index.html) spec is a standardization of JSON serialization of Java objects, something that libraries like Gson specialize in. It allows for converting objects to and from a JSON representation, either with its default guesses or by customizing the processor or annotating the Java class.
+
+The "org.openntf.xsp.jsonapi" library provides both of these libraries to XPages, though they don't replace any standard behavior in the environment. To avoid permissions problems, it contains an `org.openntf.xsp.jsonapi.JSONBindUtil` class to serialize and deserialize objects in `AccessController` blocks:
+
+```java
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+
+import org.openntf.xsp.jsonapi.JSONBindUtil;
+
+public class JsonTest {
+	public static class TestBean {
+		private String firstName;
+		private String lastName;
+		
+		public TestBean() { }
+		public String getFirstName() { return firstName; }
+		public void setFirstName(String firstName) { this.firstName = firstName; }
+		public String getLastName() { return lastName; }
+		public void setLastName(String lastName) { this.lastName = lastName; }
+	}
+	
+	public String getJson() {
+		TestBean foo = new TestBean();
+		foo.setFirstName("foo");
+		foo.setLastName("fooson");
+		Jsonb jsonb = JsonbBuilder.create();
+		return JSONBindUtil.toJson(foo, jsonb);
+	}
+	
+	public Object getObject() {
+		Jsonb jsonb = JsonbBuilder.create();
+		String json = getJson();
+		return JSONBindUtil.fromJson(json, jsonb, TestBean.class);
+	}
+}
+
+```
 
 ## Requirements
 
