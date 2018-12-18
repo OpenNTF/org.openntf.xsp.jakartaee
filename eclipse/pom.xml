@@ -62,7 +62,12 @@
 		<module>bundles/org.openntf.xsp.jsonapi</module>
 		<module>features/org.openntf.xsp.jsonapi.feature</module>
 		
+		<!-- JNoSQL -->
+		<module>bundles/org.openntf.xsp.jnosql</module>
+		<module>features/org.openntf.xsp.jnosql.feature</module>
+		
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
+		<module>releng/org.openntf.xsp.jakartaee.source.updatesite</module>
 		<module>releng/xsp-jakartaee-dist</module>
 	</modules>
 
@@ -171,6 +176,38 @@
 						<id>plugin-source</id>
 						<goals>
 							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-source-feature-plugin</artifactId>
+				<version>${tycho-version}</version>
+		
+				<executions>
+					<execution>
+						<id>source-feature</id>
+						<phase>package</phase>
+						<goals>
+							<goal>source-feature</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<includeBinaryFeature>false</includeBinaryFeature>
+					<labelSuffix> Source</labelSuffix>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attached-p2-metadata</id>
+						<phase>package</phase>
+						<goals>
+							<goal>p2-metadata</goal>
 						</goals>
 					</execution>
 				</executions>

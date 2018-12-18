@@ -35,6 +35,9 @@
 	<feature url="features/org.openntf.xsp.jsonapi.feature_1.0.0.qualifier.jar" id="org.openntf.xsp.jsonapi.feature" version="1.0.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
+	<feature url="features/org.openntf.xsp.jnosql.feature_1.0.0.qualifier.jar" id="org.openntf.xsp.jnosql.feature" version="1.0.0.qualifier">
+		<category name="XPages Jakarta EE"/>
+	</feature>
    
 	<category-def name="XPages Jakarta EE" label="XPages Jakarta EE"/>
 </site>

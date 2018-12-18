@@ -53,5 +53,17 @@
 				<includeDependencies>false</includeDependencies>
 			</binaries>
 		</moduleSet>
+		<moduleSet>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>org.openntf.xsp:org.openntf.xsp.jakartaee.source.updatesite</include>
+			</includes>
+			
+			<binaries>
+				<outputDirectory>SourceUpdateSite</outputDirectory>
+				<unpack>true</unpack>
+				<includeDependencies>false</includeDependencies>
+			</binaries>
+		</moduleSet>
 	</moduleSets>
 </assembly>

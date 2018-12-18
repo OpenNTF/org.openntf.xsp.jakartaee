@@ -242,13 +242,7 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-   <plugin
-         id="org.openntf.xsp.el3.source"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
          
 	<plugin id="com.sun.el.javax.el" version="3.0.0"/>
-	<plugin id="com.sun.el.javax.el.source" version="3.0.0"/>
 
 </feature>
