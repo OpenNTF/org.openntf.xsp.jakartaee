@@ -58,6 +58,10 @@
 		<module>bundles/org.openntf.xsp.beanvalidation</module>
 		<module>features/org.openntf.xsp.beanvalidation.feature</module>
 		
+		<!-- JSON-P 1.1 and JSON-B 1.0 -->
+		<module>bundles/org.openntf.xsp.jsonapi</module>
+		<module>features/org.openntf.xsp.jsonapi.feature</module>
+		
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
 		<module>releng/xsp-jakartaee-dist</module>
 	</modules>

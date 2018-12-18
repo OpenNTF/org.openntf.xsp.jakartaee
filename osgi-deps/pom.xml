@@ -41,8 +41,11 @@
 							<artifacts>
 								<artifact><id>org.jboss.weld.se:weld-se-core:3.0.4.Final</id><source>true</source></artifact>
 								<artifact><id>org.jboss.resteasy:resteasy-cdi:3.5.1.Final</id><source>true</source></artifact>
-								<artifact><id>javax.json:javax.json-api:1.1.2</id><source>true</source></artifact>
+								<artifact><id>javax.json:javax.json-api:1.1.4</id><source>true</source></artifact>
 								<artifact><id>com.fasterxml:classmate:1.3.4</id><source>true</source></artifact>
+								<artifact><id>org.glassfish:javax.json:1.1.4</id><source>true</source></artifact>
+								<artifact><id>org.eclipse:yasson:1.0.2</id><source>true</source></artifact>
+								<artifact><id>javax.json.bind:javax.json.bind-api:1.0</id><source>true</source></artifact>
 								
 								<!-- Include log4j to satisfy runtime expectations -->
 								<artifact><id>org.apache.logging.log4j:log4j-api:2.11.0</id><source>true</source></artifact>

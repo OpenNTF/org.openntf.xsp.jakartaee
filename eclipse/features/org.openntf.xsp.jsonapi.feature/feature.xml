@@ -17,8 +17,8 @@
 
 -->
 <feature
-      id="org.openntf.xsp.jakartaee.feature"
-      label="XPages Jakarta EE Platform Feature"
+      id="org.openntf.xsp.jsonapi.feature"
+      label="XPages JSON-P 1.1 and JSON-B 1.0 Support Feature"
       version="1.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.cdi">
@@ -232,27 +232,26 @@
    See the License for the specific language governing permissions and
    limitations under the License.
    </license>
-   
-   <plugin id="org.openntf.xsp.jakartaee.commons" version="0.0.0"/>
-   <plugin id="org.openntf.xsp.jakartaee.commons.source" version="0.0.0"/>
+
+   <requires>
+      <import feature="org.openntf.xsp.jakartaee.feature"/>
+   </requires>
+
+   <plugin
+         id="org.openntf.xsp.jsonapi"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.openntf.xsp.jsonapi.source"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
          
-	<plugin id="org.jboss.spec.javax.annotation.jboss-annotations-api_1.3_spec" version="1.0.0.Final"/>
-	<plugin id="org.jboss.spec.javax.annotation.jboss-annotations-api_1.3_spec.source" version="1.0.0.Final"/>
-	<plugin id="org.jboss.spec.javax.el.jboss-el-api_3.0_spec" version="1.0.7.Final"/>
-	<plugin id="org.jboss.spec.javax.el.jboss-el-api_3.0_spec.source" version="1.0.7.Final"/>
-	<plugin id="org.jboss.spec.javax.interceptor.jboss-interceptors-api_1.2_spec" version="1.0.0.Final"/>
-	<plugin id="org.jboss.spec.javax.interceptor.jboss-interceptors-api_1.2_spec.source" version="1.0.0.Final"/>
-	<!-- Use javax.inject from Neon -->
-	<plugin id="javax.inject" version="1.0.0.v20091030"/>
-	<plugin id="jboss-classfilewriter" version="1.2.2.Final"/>
-	<plugin id="org.jboss.logging.jboss-logging" version="3.2.1.Final"/>
-	<plugin id="org.apache.logging.log4j.api" version="2.11.0"/>
-	<plugin id="javax.validation.api" version="1.1.0.Final"/>
-	<plugin id="javax.validation.api.source" version="1.1.0.Final"/>
-	<plugin id="javax.json.bind-api" version="1.0.0"/>
-	<plugin id="javax.json.bind-api.source" version="1.0.0"/>
-	<plugin id="javax.json-api" version="1.1.4"/>
-	<plugin id="javax.json-api.source" version="1.1.4"/>
-	
+   <plugin id="org.glassfish.javax.json" version="1.1.4"/>
+   <plugin id="org.glassfish.javax.json.source" version="1.1.4"/>
+   <plugin id="yasson" version="1.0.2"/>
+   <plugin id="yasson.source" version="1.0.2"/>
 
 </feature>
