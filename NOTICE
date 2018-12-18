@@ -23,3 +23,4 @@ The binary distribution contains the following 3rd party code:
 - Eclipse Yasson, available from https://mvnrepository.com/artifact/org.eclipse/yasson/1.0.2 and licensed under the EPL 1.0
 - GlassFish JSON-P Provider, available from https://mvnrepository.com/artifact/org.glassfish/javax.json/1.1.4 and licensed under the CDDL
 - The JSON-P API, available from https://mvnrepository.com/artifact/javax.json/javax.json-api/1.1.4 and licensed under the CDDL
+- JNoSQL, available from http://www.jnosql.org and licensed under Apache 2.0 and the EPL 1.0
