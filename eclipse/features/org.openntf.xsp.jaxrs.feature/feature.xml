@@ -21,12 +21,12 @@
       label="XPages JAX-RS 2.1 Support Feature"
       version="1.0.0.qualifier">
 
-   <description url="https://github.com/OpenNTF/org.openntf.xsp.cdi">
+   <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+      Copyright 2018 Jesse Gallagher
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
