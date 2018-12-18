@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages JNoSQL 0.0.7 Support
+Bundle-SymbolicName: org.openntf.xsp.jnosql;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.jnosql
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
+ com.ibm.xsp.core;bundle-version="9.0.1",
+ org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0",
+ com.ibm.xsp.domino;bundle-version="9.0.1",
+ com.ibm.commons,
+ com.ibm.xsp.extsn;bundle-version="9.0.1",
+ com.ibm.xsp.designer;bundle-version="9.0.1",
+ org.jnosql.query.jnosql-query-api;bundle-version="0.0.7";visibility:=reexport,
+ org.jnosql.query.jnosql-query-antlr;bundle-version="0.0.7";visibility:=reexport,
+ org.jnosql.diana.core;bundle-version="0.0.7";visibility:=reexport,
+ org.jnosql.diana.document;bundle-version="0.0.7";visibility:=reexport,
+ org.jnosql.diana.driver-commons;bundle-version="0.0.7";visibility:=reexport,
+ org.jnosql.artemis.core;bundle-version="0.0.7";visibility:=reexport,
+ org.jnosql.artemis.document;bundle-version="0.0.7";visibility:=reexport,
+ org.jnosql.artemis.validation;bundle-version="0.0.7";visibility:=reexport
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.openntf.xsp.jnosql.Activator
