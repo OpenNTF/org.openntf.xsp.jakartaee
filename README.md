@@ -227,6 +227,7 @@ For now, this plugin just adds the core JNoSQL libraries but no drivers. It shou
 
 - Domino FP8+
 - Designer FP10+ (for compiling the NSF)
+- Some of the APIs require setting the project Java compiler level to 1.8
 
 ## Building
 
