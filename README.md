@@ -11,6 +11,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Bean Validation 2.0
 - Java API for JSON Processing 1.1
 - Java API for JSON Binding 1.0
+- JNoSQL 0.0.7
 
 ## CDI 2.0
 
@@ -215,6 +216,12 @@ public class JsonTest {
 }
 
 ```
+
+## JNoSQL
+
+[JNoSQL](http://www.jnosql.org) is a nascent project that is slated to be added to the first officially-branded Jakarta EE release.
+
+For now, this plugin just adds the core JNoSQL libraries but no drivers. It should allow working with existing drivers if installed separately, but it is primarily waiting in the wings for the Domino JNoSQL driver to reach maturity.
 
 ## Requirements
 
