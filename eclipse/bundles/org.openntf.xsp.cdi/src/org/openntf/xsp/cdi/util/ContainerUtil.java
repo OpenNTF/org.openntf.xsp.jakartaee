@@ -15,18 +15,24 @@
  */
 package org.openntf.xsp.cdi.util;
 
+import java.net.URL;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.Extension;
 
+import org.jboss.weld.config.ConfigurationKey;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.manager.BeanManagerImpl;
+import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.util.ForwardingBeanManager;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 
+import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
 /**
@@ -50,9 +56,10 @@ public enum ContainerUtil {
 		if(instance == null) {
 			Weld weld = new Weld()
 				.containerId(application.getApplicationId())
-				.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true)
+//				.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true)
 				// Disable concurrent deployment to avoid Notes thread init trouble
-				.property("org.jboss.weld.bootstrap.concurrentDeployment", false); //$NON-NLS-1$
+				.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
+				.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
 			
 			for(WeldBeanClassContributor service : (List<WeldBeanClassContributor>)application.findServices(WeldBeanClassContributor.EXTENSION_POINT)) {
 				Collection<Class<?>> beanClasses = service.getBeanClasses();
@@ -82,4 +89,21 @@ public enum ContainerUtil {
 		}
 	}
 
+	private static class ModuleContextResourceLoader extends ClassLoaderResourceLoader {
+		private final NSFComponentModule module;
+
+		public ModuleContextResourceLoader(NSFComponentModule module) {
+			super(module.getModuleClassLoader());
+			this.module = module;
+		}
+		
+		@Override
+		public Collection<URL> getResources(String name) {
+			Collection<URL> result = new HashSet<>(super.getResources(name));
+			System.out.println("Found resources for " + name + ": " + result);
+			return result;
+		}
+		
+		
+	}
 }
