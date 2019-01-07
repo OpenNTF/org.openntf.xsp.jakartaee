@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.cdi.util;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -31,7 +32,7 @@ import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.util.ForwardingBeanManager;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 
-import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
@@ -90,9 +91,9 @@ public enum ContainerUtil {
 	}
 
 	private static class ModuleContextResourceLoader extends ClassLoaderResourceLoader {
-		private final NSFComponentModule module;
+		private final ComponentModule module;
 
-		public ModuleContextResourceLoader(NSFComponentModule module) {
+		public ModuleContextResourceLoader(ComponentModule module) {
 			super(module.getModuleClassLoader());
 			this.module = module;
 		}
@@ -100,7 +101,14 @@ public enum ContainerUtil {
 		@Override
 		public Collection<URL> getResources(String name) {
 			Collection<URL> result = new HashSet<>(super.getResources(name));
-			System.out.println("Found resources for " + name + ": " + result);
+			try {
+				URL moduleRes = module.getResource(name);
+				if(moduleRes != null) {
+					result.add(moduleRes);
+				}
+			} catch (MalformedURLException e) {
+				// Ignore
+			}
 			return result;
 		}
 		
