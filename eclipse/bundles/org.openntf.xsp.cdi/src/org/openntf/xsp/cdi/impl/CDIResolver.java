@@ -15,14 +15,16 @@
  */
 package org.openntf.xsp.cdi.impl;
 
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.spi.CDI;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.VariableResolver;
 
-import org.jboss.weld.environment.se.WeldContainer;
-import org.jboss.weld.inject.WeldInstance;
 import org.jboss.weld.literal.NamedLiteral;
+import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.LibraryUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 
@@ -49,10 +51,15 @@ public class CDIResolver extends VariableResolver {
 		}
 		
 		// Finally, ask CDI for a named bean
-		WeldContainer container = ContainerUtil.getContainer(ApplicationEx.getInstance(facesContext));
-		WeldInstance<Object> instance = container.select(new NamedLiteral(name));
-		if(instance.isResolvable()) {
-			return instance.get();
+		ApplicationEx app = ApplicationEx.getInstance(facesContext);
+		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, app)) {
+			CDI<Object> container = ContainerUtil.getContainer(app);
+			if(container != null) {
+				Instance<Object> instance = container.select(new NamedLiteral(name));
+				if(instance.isResolvable()) {
+					return instance.get();
+				}
+			}
 		}
 		
 		return null;

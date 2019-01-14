@@ -85,7 +85,6 @@ public class WeldViewHandler extends ViewHandlerExImpl {
 	
 	@Override
 	public UIViewRoot restoreView(FacesContext facesContext, String pageName) {
-		// TODO Auto-generated method stub
 		return super.restoreView(facesContext, pageName);
 	}
 

@@ -395,6 +395,25 @@
 									</instructions>
 								</artifact>
 								
+								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to jvm/lib/ext on Domino -->
+								<artifact>
+									<id>org.jboss.logging:jboss-logging:3.2.1.Final</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Export-Package>org.jboss.logging;version="3.2.1.Final"</Export-Package>
+										<Import-Package>
+											org.apache.log4j;resolution:=optional,
+											org.apache.logging.log4j;version="[2.0,3)";resolution:=optional,
+											org.apache.logging.log4j.message;version="[2.0,3)";resolution:=optional,
+											org.apache.logging.log4j.spi;version="[2.0,3)";resolution:=optional,
+											org.jboss.logmanager;version="[1.5,2)";resolution:=optional,
+											org.slf4j;version="[1.7,2)";resolution:=optional,
+											org.slf4j.spi;version="[1.7,2)";resolution:=optional
+										</Import-Package>
+									</instructions>
+								</artifact>
+								
 								<!-- JNoSQL -->
 								<artifact><id>org.jnosql.query:jnosql-query-antlr:${jnosql-version}</id><source>true</source></artifact>
 								<artifact><id>org.jnosql.query:jnosql-query-api:${jnosql-version}</id><source>true</source></artifact>

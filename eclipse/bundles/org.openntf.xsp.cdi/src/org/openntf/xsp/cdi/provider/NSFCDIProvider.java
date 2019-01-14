@@ -42,7 +42,7 @@ public class NSFCDIProvider implements CDIProvider {
 	
 	@Override
 	public int getPriority() {
-		return DEFAULT_CDI_PROVIDER_PRIORITY+1;
+		return DEFAULT_CDI_PROVIDER_PRIORITY+2;
 	}
 
 }

@@ -20,6 +20,9 @@
 	<feature url="features/org.openntf.xsp.jakartaee.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.jakartaee.feature" version="1.1.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
+	<feature url="features/org.openntf.xsp.log4j.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.log4j.feature" version="1.1.0.qualifier">
+		<category name="XPages Jakarta EE"/>
+	</feature>
 	<feature url="features/org.openntf.xsp.cdi.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.cdi.feature" version="1.1.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>

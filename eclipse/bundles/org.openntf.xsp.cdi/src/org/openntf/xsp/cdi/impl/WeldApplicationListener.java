@@ -15,11 +15,14 @@
  */
 package org.openntf.xsp.cdi.impl;
 
+import javax.enterprise.inject.spi.CDI;
+
 import org.jboss.weld.environment.se.WeldContainer;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.events.ApplicationListener2;
 
@@ -45,9 +48,19 @@ public class WeldApplicationListener implements ApplicationListener2 {
 	@Override
 	public void applicationDestroyed(ApplicationEx application) {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
-			WeldContainer container = ContainerUtil.getContainer(application);
-			if(container.isRunning()) {
-				container.shutdown();
+			String bundleId = ContainerUtil.getApplicationCDIBundle(application);
+			if(StringUtil.isEmpty(bundleId)) {
+				// Leave it alive
+				return;
+			}
+			
+			CDI<Object> container = ContainerUtil.getContainer(application);
+			if(container instanceof WeldContainer) {
+				try(WeldContainer c = (WeldContainer)container) {
+					if(c.isRunning()) {
+						c.shutdown();
+					}
+				}
 			}
 		}
 	}

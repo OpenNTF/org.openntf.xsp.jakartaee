@@ -33,31 +33,36 @@ public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 
 	@Override
 	public BeanArchiveBuilder handle(String beanArchiveReference) {
-		NotesContext context = NotesContext.getCurrent();
-		NSFComponentModule module = context.getModule();
-		// Slightly customize the builder to keep some extra metadata
-		BeanArchiveBuilder builder = new BeanArchiveBuilder() {
-			{
-				super.setBeansXml(BeansXml.EMPTY_BEANS_XML);
-				super.setId(module.getDatabasePath());
-			}
+		NotesContext context = NotesContext.getCurrentUnchecked();
+		if(context != null) {
+			NSFComponentModule module = context.getModule();
+			// Slightly customize the builder to keep some extra metadata
+			BeanArchiveBuilder builder = new BeanArchiveBuilder() {
+				{
+					super.setBeansXml(BeansXml.EMPTY_BEANS_XML);
+					super.setId(module.getDatabasePath());
+				}
+				
+				@Override
+				public BeanArchiveBuilder setBeansXml(BeansXml beansXml) {
+					return this;
+				}
+			};
 			
-			@Override
-			public BeanArchiveBuilder setBeansXml(BeansXml beansXml) {
-				return this;
-			}
-		};
-		
-		ModuleUtil.getClassNames(module)
-			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-			.forEach(builder::addClass);
-		
-		// Manually look for class names in plug-in dependencies, since the normal code
-		//  path only looks in the system class path and I haven't figured out the right
-		//  way to override that yet
-		
-		
-		return builder;
+			ModuleUtil.getClassNames(module)
+				.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
+				.forEach(builder::addClass);
+			
+			
+			// Manually look for class names in plug-in dependencies, since the normal code
+			//  path only looks in the system class path and I haven't figured out the right
+			//  way to override that yet
+			
+			
+			return builder;
+		} else {
+			return null;
+		}
 	}
 
 }

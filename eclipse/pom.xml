@@ -38,6 +38,7 @@
 		<!-- General Jakarta EE platform -->
 		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
+		<module>features/org.openntf.xsp.log4j.feature</module>
 		
 		<!-- CDI Support -->
 		<module>bundles/org.openntf.xsp.cdi</module>
