@@ -23,7 +23,7 @@ Currently, this support is focused around adding annotated CDI managed bean clas
 @ApplicationScoped
 @Named("applicationGuy")
 public class ApplicationGuy {
-  public void getFoo() {
+  public String getFoo() {
     return "hello";
   }
 }
