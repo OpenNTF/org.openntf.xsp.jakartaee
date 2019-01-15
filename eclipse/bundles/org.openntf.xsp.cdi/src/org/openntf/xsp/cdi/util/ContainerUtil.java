@@ -76,7 +76,7 @@ public enum ContainerUtil {
 			if(instance == null) {
 				Weld weld = new Weld()
 					.containerId(application.getApplicationId())
-	//				.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true)
+					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true)
 					// Disable concurrent deployment to avoid Notes thread init trouble
 					.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
 					.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
