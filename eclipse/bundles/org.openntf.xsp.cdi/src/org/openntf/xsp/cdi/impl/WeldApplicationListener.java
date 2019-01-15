@@ -49,17 +49,17 @@ public class WeldApplicationListener implements ApplicationListener2 {
 	public void applicationDestroyed(ApplicationEx application) {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			String bundleId = ContainerUtil.getApplicationCDIBundle(application);
-			if(StringUtil.isEmpty(bundleId)) {
+			if(StringUtil.isNotEmpty(bundleId)) {
 				// Leave it alive
 				return;
 			}
 			
 			CDI<Object> container = ContainerUtil.getContainer(application);
 			if(container instanceof WeldContainer) {
-				try(WeldContainer c = (WeldContainer)container) {
-					if(c.isRunning()) {
-						c.shutdown();
-					}
+				@SuppressWarnings("resource")
+				WeldContainer c = (WeldContainer)container;
+				if(c.isRunning()) {
+					c.shutdown();
 				}
 			}
 		}
