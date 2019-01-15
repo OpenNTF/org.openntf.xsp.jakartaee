@@ -25,6 +25,7 @@ import org.openntf.xsp.jakartaee.ModuleUtil;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
+@SuppressWarnings("restriction")
 @Priority(Integer.MAX_VALUE)
 public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 

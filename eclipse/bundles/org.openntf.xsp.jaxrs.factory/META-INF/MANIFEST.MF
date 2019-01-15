@@ -6,7 +6,7 @@ Automatic-Module-Name: org.openntf.xsp.jaxrs.factory
 Bundle-Version: 1.1.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Fragment-Host: org.jboss.resteasy.cdi
+Fragment-Host: org.openntf.org.jboss.resteasy.cdi
 Require-Bundle: org.jboss.weld.api;bundle-version="3.0.0",
- org.jboss.weld.core-impl;bundle-version="3.0.4",
+ org.openntf.org.jboss.weld.core-impl;bundle-version="3.0.0",
  org.jboss.weld.spi;bundle-version="3.0.0"

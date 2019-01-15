@@ -249,31 +249,19 @@
          install-size="0"
          version="0.0.0"
          fragment="true"/>
-
-   <plugin
-         id="org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec"
-         download-size="0"
-         install-size="0"
-         version="1.0.0.Final"/>
-
-   <plugin
-         id="org.jboss.resteasy.jaxrs"
-         download-size="0"
-         install-size="0"
-         version="3.5.1.Final"/>
-
-   <plugin
-         id="org.jboss.resteasy.cdi"
-         download-size="0"
-         install-size="0"
-         version="3.5.1.Final"/>
          
-	<plugin id="org.jboss.spec.javax.xml.bind.jboss-jaxb-api_2.3_spec" version="1.0.0.Final"/>
-	<plugin id="org.jboss.spec.javax.annotation.jboss-annotations-api_1.2_spec" version="1.0.0.Final"/>
-	<plugin id="org.jboss.spec.javax.annotation.jboss-annotations-api_1.3_spec" version="1.0.0.Final"/>
-	<plugin id="org.osgi.annotation.versioning" version="1.0.0.201505202023"/>
-	<plugin id="org.reactivestreams.reactive-streams" version="1.0.2"/>
-	<plugin id="org.eclipse.microprofile.rest.client" version="1.1.0"/>
-	
+   <plugin id="org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec" version="1.0.2.Final"/>
+   <plugin
+         id="org.openntf.org.jboss.resteasy.jaxrs"
+         download-size="0"
+         install-size="0"
+         version="3.6.2.Final_b"/>
 
+   <plugin
+         id="org.openntf.org.jboss.resteasy.cdi"
+         download-size="0"
+         install-size="0"
+         version="3.6.2.Final_e"/>
+         
+	<plugin id="org.reactivestreams.reactive-streams" version="1.0.2"/>
 </feature>
