@@ -20,7 +20,7 @@ import com.ibm.xsp.library.AbstractXspLibrary;
 public class EL3Library extends AbstractXspLibrary {
 
 	public static final String LIBRARY_ID = EL3Library.class.getPackage().getName();
-
+	public static final String PROP_PREFIX = EL3Library.class.getPackage().getName() + ".prefix";
 	@Override
 	public String getLibraryId() {
 		return LIBRARY_ID;

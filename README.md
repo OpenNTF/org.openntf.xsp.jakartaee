@@ -90,6 +90,19 @@ Note that Designer attempts to validate the syntax of runtime EL bindings; to wo
 <xp:text value="#{el:someBean.hello()}"/>
 ```
 
+### Overriding the Prefix
+
+If you don't want EL 3 to take over the default handling of EL in the app, you can specify a different prefix using the `org.openntf.xsp.el3.prefix` in your app's Xsp Properties file. For example:
+
+```properties
+xsp.library.depends=org.openntf.xsp.el3
+org.openntf.xsp.el3.prefix=ex
+```
+
+Note that Designer refuses to compile XPages with runtime-bound expressions that use a number in the prefix, so this should be letters only.
+
+Regardless of whether or not you specify an alternate prefix, the original XPages EL parser will be available by using expressions like `#{xspel:someBean}`.
+
 ### Implementation Details
 
 The EL 3 handler is currently stricter about null values than the default handler in XPages. For example, take this binding:

@@ -48,15 +48,20 @@ public class EL3BindingFactory implements BindingFactory {
 	public static ExpressionFactory getExpressionFactory() {
 		return fac;
 	}
+	
+	private final String prefix;
+	public EL3BindingFactory(String prefix) {
+		this.prefix = prefix;
+	}
 
 	@Override
 	public MethodBinding createMethodBinding(Application application, String expression, @SuppressWarnings("rawtypes") Class[] args) {
 		ELContext context = new FacesELContext(fac);
 		
 		String cleanExp;
-		int prefixIndex = expression.indexOf(PREFIX + ':');
+		int prefixIndex = expression.indexOf(prefix + ':');
 		if(prefixIndex > -1) {
-			cleanExp = expression.substring(0, prefixIndex) + expression.substring(prefixIndex+PREFIX.length()+1);
+			cleanExp = expression.substring(0, prefixIndex) + expression.substring(prefixIndex+prefix.length()+1);
 		} else {
 			cleanExp = expression;
 		}
@@ -70,9 +75,9 @@ public class EL3BindingFactory implements BindingFactory {
 		ELContext context = new FacesELContext(fac);
 		
 		String cleanExp;
-		int prefixIndex = expression.indexOf(PREFIX + ':');
+		int prefixIndex = expression.indexOf(prefix + ':');
 		if(prefixIndex > -1) {
-			cleanExp = expression.substring(0, prefixIndex) + expression.substring(prefixIndex+PREFIX.length()+1);
+			cleanExp = expression.substring(0, prefixIndex) + expression.substring(prefixIndex+prefix.length()+1);
 		} else {
 			cleanExp = expression;
 		}
@@ -84,6 +89,6 @@ public class EL3BindingFactory implements BindingFactory {
 
 	@Override
 	public String getPrefix() {
-		return PREFIX;
+		return prefix;
 	}
 }
