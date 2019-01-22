@@ -32,14 +32,16 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	private MethodExpression exp;
 	private ELContext elContext;
 	private boolean isTransient;
+	private String prefix;
 	
 	public ExpressionMethodBinding() {
 		
 	}
 
-	public ExpressionMethodBinding(MethodExpression exp, ELContext elContext) {
+	public ExpressionMethodBinding(MethodExpression exp, ELContext elContext, String prefix) {
 		this.exp = exp;
 		this.elContext = elContext;
+		this.prefix = prefix;
 	}
 
 	@Override
@@ -62,12 +64,14 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 		Object[] stateArray = (Object[])state;
 		this.exp = (MethodExpression)stateArray[0];
 		this.elContext = new FacesELContext(EL3BindingFactory.getExpressionFactory());
+		this.prefix = (String)stateArray[1];
 	}
 
 	@Override
 	public Object saveState(FacesContext facesContext) {
 		return new Object[] {
-			exp
+			this.exp,
+			this.prefix
 		};
 	}
 
@@ -78,7 +82,7 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	
 	@Override
 	public String getExpressionString() {
-		return ValueBindingUtil.getExpressionString(EL3BindingFactory.PREFIX, this.exp.getExpressionString(), 1);
+		return ValueBindingUtil.getExpressionString(prefix, this.exp.getExpressionString(), 1);
 	}
 
 }

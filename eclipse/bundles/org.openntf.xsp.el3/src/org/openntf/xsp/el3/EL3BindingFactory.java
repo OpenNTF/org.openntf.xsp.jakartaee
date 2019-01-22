@@ -67,7 +67,7 @@ public class EL3BindingFactory implements BindingFactory {
 		}
 		MethodExpression exp = fac.createMethodExpression(context, cleanExp, Object.class, args == null ? new Class[0] : args);
 		
-		return new ExpressionMethodBinding(exp, context);
+		return new ExpressionMethodBinding(exp, context, prefix);
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class EL3BindingFactory implements BindingFactory {
 		
 		ValueExpression exp = fac.createValueExpression(context, cleanExp, Object.class);
 		
-		return new ExpressionValueBinding(exp, context);
+		return new ExpressionValueBinding(exp, context, prefix);
 	}
 
 	@Override
