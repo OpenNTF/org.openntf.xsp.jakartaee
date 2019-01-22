@@ -9,16 +9,36 @@
 	</parent>
 	<artifactId>org.openntf.xsp.jakartaee.updatesite</artifactId>
 
-	<packaging>eclipse-update-site</packaging>
+	<packaging>eclipse-repository</packaging>
 
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.darwino</groupId>
+				<artifactId>p2sitexml-maven-plugin</artifactId>
+				<version>1.1.0</version>
+				<executions>
+					<execution>
+						<id>generate-sitexml</id>
+						<goals>
+							<goal>generate-site-xml</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-packaging-plugin</artifactId>
-				<configuration>
-					<archiveSite>true</archiveSite>
-				</configuration>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>archive-repository</id>
+						<goals>
+							<goal>archive-repository</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
