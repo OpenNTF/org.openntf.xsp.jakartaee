@@ -15,6 +15,9 @@
  */
 package org.openntf.xsp.el3.impl;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import javax.el.BeanNameELResolver;
 import javax.el.ExpressionFactory;
 import javax.el.StandardELContext;
@@ -31,5 +34,10 @@ public class FacesELContext extends StandardELContext {
 		super(factory);
 		addELResolver(new BeanNameELResolver(new FacesBeanNameResolver()));
 		addELResolver(new XSPELResolver());
+	}
+	
+	@Override
+	public Object convertToType(Object obj, Class<?> targetType) {
+		return AccessController.doPrivileged((PrivilegedAction<Object>)() -> super.convertToType(obj, targetType));
 	}
 }
