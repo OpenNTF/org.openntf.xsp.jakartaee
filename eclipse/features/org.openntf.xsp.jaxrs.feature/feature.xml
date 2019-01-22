@@ -249,6 +249,13 @@
          install-size="0"
          version="0.0.0"
          fragment="true"/>
+
+   <plugin
+         id="org.openntf.xsp.jaxrs.factory"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
          
    <plugin id="org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec" version="1.0.2.Final"/>
    <plugin
@@ -262,6 +269,24 @@
          download-size="0"
          install-size="0"
          version="3.6.2.Final_e"/>
+
+   <plugin
+         id="org.openntf.org.jboss.resteasy.multipart-provider"
+         download-size="0"
+         install-size="0"
+         version="3.6.2.Final_a"/>
+
+   <plugin
+         id="org.jboss.resteasy.jaxb-provider"
+         download-size="0"
+         install-size="0"
+         version="3.6.2.Final"/>
+
+   <plugin
+         id="org.jboss.resteasy.client"
+         download-size="0"
+         install-size="0"
+         version="3.6.2.Final"/>
          
 	<plugin id="org.reactivestreams.reactive-streams" version="1.0.2"/>
 </feature>

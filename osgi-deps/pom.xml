@@ -176,6 +176,18 @@
 										</Require-Bundle>
 									</instructions>
 								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-multipart-provider:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.multipart-provider</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_a</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.jaxrs
+										</Require-Bundle>
+									</instructions>
+								</artifact>
 								
 								<!-- Relax restriction on CDI version -->
 <!-- 								<artifact> -->
