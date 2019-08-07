@@ -15,6 +15,10 @@
  */
 package org.openntf.xsp.el3.impl;
 
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+
 import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.faces.component.StateHolder;
@@ -46,22 +50,93 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 
 	@Override
 	public Class<?> getType(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
-		return exp.getType(elContext);
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)() -> exp.getType(elContext));
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t instanceof EvaluationException) {
+				throw (EvaluationException)t;
+			} else if(t instanceof PropertyNotFoundException) {
+				throw (PropertyNotFoundException)t;
+			} else if(t instanceof Error) {
+				throw (Error)t;
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else if(t != null) {
+				throw new RuntimeException(t);
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
 	public Object getValue(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
-		return exp.getValue(elContext);
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<Object>)() -> exp.getValue(elContext));
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t instanceof EvaluationException) {
+				throw (EvaluationException)t;
+			} else if(t instanceof PropertyNotFoundException) {
+				throw (PropertyNotFoundException)t;
+			} else if(t instanceof Error) {
+				throw (Error)t;
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else if(t != null) {
+				throw new RuntimeException(t);
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
 	public boolean isReadOnly(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
-		return exp.isReadOnly(elContext);
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() -> exp.isReadOnly(elContext));
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t instanceof EvaluationException) {
+				throw (EvaluationException)t;
+			} else if(t instanceof PropertyNotFoundException) {
+				throw (PropertyNotFoundException)t;
+			} else if(t instanceof Error) {
+				throw (Error)t;
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else if(t != null) {
+				throw new RuntimeException(t);
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
 	public void setValue(FacesContext facesContext, Object value) throws EvaluationException, PropertyNotFoundException {
-		exp.setValue(elContext, value);
+		try {
+			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
+				exp.setValue(elContext, value);
+				return null;
+			});
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t instanceof EvaluationException) {
+				throw (EvaluationException)t;
+			} else if(t instanceof PropertyNotFoundException) {
+				throw (PropertyNotFoundException)t;
+			} else if(t instanceof Error) {
+				throw (Error)t;
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else if(t != null) {
+				throw new RuntimeException(t);
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
