@@ -58,7 +58,7 @@
 									JSON-P and JSON-B
 								-->
 								<artifact><id>jakarta.json:jakarta.json-api:1.1.5</id><source>true</source></artifact>
-								<artifact><id>org.glassfish:javax.json:1.1.4</id><source>true</source></artifact>
+								<artifact><id>org.glassfish:jakarta.json:1.1.5</id><source>true</source></artifact>
 								<artifact><id>org.eclipse:yasson:1.0.3</id><source>true</source></artifact>
 								<artifact><id>jakarta.json.bind:jakarta.json.bind-api:1.0.1</id><source>true</source></artifact>
 								

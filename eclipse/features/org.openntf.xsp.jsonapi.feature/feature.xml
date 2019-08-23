@@ -243,7 +243,6 @@
          install-size="0"
          version="0.0.0"/>
          
-   <plugin id="org.glassfish.javax.json" version="1.1.4"/>
    <plugin id="yasson" version="1.0.3"/>
 
 </feature>
