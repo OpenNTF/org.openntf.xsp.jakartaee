@@ -17,6 +17,8 @@ package org.openntf.xsp.cdi.util;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -131,28 +133,38 @@ public enum ContainerUtil {
 			// Register a new one
 			Weld weld = new Weld()
 				.containerId(bundle.getSymbolicName())
-				.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true)
+				.scanClasspathEntries()
 				// Disable concurrent deployment to avoid Notes thread init trouble
 				.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false);
-			@SuppressWarnings("rawtypes")
-			ServiceRegistration<CDI> reg = bundle.getBundleContext().registerService(CDI.class, weld.initialize(), new Hashtable<>());
-			bundle.getBundleContext().addBundleListener(e -> {
-				if(e.getType() == BundleEvent.STOPPING) {
-					@SuppressWarnings("rawtypes")
-					CDI cdi = bundle.getBundleContext().getService(reg.getReference());
-					if(cdi instanceof WeldContainer) {
-						try(WeldContainer c = (WeldContainer)cdi) {
-							c.shutdown();
+			try {
+				@SuppressWarnings("rawtypes")
+				ServiceRegistration<CDI> reg = bundle.getBundleContext().registerService(CDI.class, weld.initialize(), new Hashtable<>());
+				bundle.getBundleContext().addBundleListener(e -> {
+					if(e.getType() == BundleEvent.STOPPING) {
+						@SuppressWarnings("rawtypes")
+						CDI cdi = bundle.getBundleContext().getService(reg.getReference());
+						if(cdi instanceof WeldContainer) {
+							try(WeldContainer c = (WeldContainer)cdi) {
+								c.shutdown();
+							}
 						}
 					}
+				});
+				return bundle.getBundleContext().getService(reg.getReference());
+			} catch(IllegalStateException e) {
+				System.err.println("Encountered exception while initializing CDI container for " + bundle.getSymbolicName());
+				if(e.getMessage().contains("Class path entry does not exist or cannot be read")) {
+					String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path"));
+					System.err.println("Current class path: " + classpath);
 				}
-			});
-			return bundle.getBundleContext().getService(reg.getReference());
+				e.printStackTrace();
+				return null;
+			}
 		}
 	}
 
 	public static BeanManagerImpl getBeanManager(ApplicationEx application) {
-		CDI<Object> container = CDI.current();
+		CDI<Object> container = getContainer(application);
 		BeanManager manager = container.getBeanManager();
 		if(manager instanceof BeanManagerImpl) {
 			return (BeanManagerImpl)manager;
