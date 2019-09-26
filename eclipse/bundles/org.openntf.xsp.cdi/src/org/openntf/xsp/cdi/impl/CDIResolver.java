@@ -15,6 +15,9 @@
  */
 package org.openntf.xsp.cdi.impl;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.CDI;
 import javax.faces.context.FacesContext;
@@ -55,10 +58,14 @@ public class CDIResolver extends VariableResolver {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, app)) {
 			CDI<Object> container = ContainerUtil.getContainer(app);
 			if(container != null) {
-				Instance<Object> instance = container.select(new NamedLiteral(name));
-				if(instance.isResolvable()) {
-					return instance.get();
-				}
+				return AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
+					Instance<Object> instance = container.select(new NamedLiteral(name));
+					if(instance.isResolvable()) {
+						return instance.get();
+					} else {
+						return null;
+					}
+				});
 			}
 		}
 		
