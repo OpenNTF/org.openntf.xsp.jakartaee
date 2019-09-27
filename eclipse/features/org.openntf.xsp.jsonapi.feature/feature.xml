@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018 Jesse Gallagher
+    Copyright © 2019 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jsonapi.feature"
       label="XPages JSON-P 1.1 and JSON-B 1.0 Support Feature"
-      version="1.0.0.qualifier">
+      version="1.1.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -243,7 +243,6 @@
          install-size="0"
          version="0.0.0"/>
          
-   <plugin id="org.glassfish.javax.json" version="1.1.4"/>
-   <plugin id="yasson" version="1.0.2"/>
+   <plugin id="yasson" version="1.0.3"/>
 
 </feature>

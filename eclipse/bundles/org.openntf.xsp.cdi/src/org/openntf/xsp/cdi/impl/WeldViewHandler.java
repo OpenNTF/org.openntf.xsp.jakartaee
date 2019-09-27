@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,6 @@ public class WeldViewHandler extends ViewHandlerExImpl {
 	
 	@Override
 	public UIViewRoot restoreView(FacesContext facesContext, String pageName) {
-		// TODO Auto-generated method stub
 		return super.restoreView(facesContext, pageName);
 	}
 

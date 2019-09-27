@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018 Jesse Gallagher
+    Copyright © 2019 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jnosql.feature"
       label="XPages JNoSQL 0.0.7 Support Feature"
-      version="1.0.0.qualifier">
+      version="1.1.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]

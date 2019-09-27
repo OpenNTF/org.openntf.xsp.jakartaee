@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package org.openntf.xsp.el3.impl;
+
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import javax.el.BeanNameELResolver;
 import javax.el.ExpressionFactory;
@@ -31,5 +34,10 @@ public class FacesELContext extends StandardELContext {
 		super(factory);
 		addELResolver(new BeanNameELResolver(new FacesBeanNameResolver()));
 		addELResolver(new XSPELResolver());
+	}
+	
+	@Override
+	public Object convertToType(Object obj, Class<?> targetType) {
+		return AccessController.doPrivileged((PrivilegedAction<Object>)() -> super.convertToType(obj, targetType));
 	}
 }

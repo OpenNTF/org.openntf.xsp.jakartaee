@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.openntf.xsp.jakartaee.ModuleUtil;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
+@SuppressWarnings("restriction")
 @Priority(Integer.MAX_VALUE)
 public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 
@@ -33,26 +34,36 @@ public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 
 	@Override
 	public BeanArchiveBuilder handle(String beanArchiveReference) {
-		NotesContext context = NotesContext.getCurrent();
-		NSFComponentModule module = context.getModule();
-		// Slightly customize the builder to keep some extra metadata
-		BeanArchiveBuilder builder = new BeanArchiveBuilder() {
-			{
-				super.setBeansXml(BeansXml.EMPTY_BEANS_XML);
-				super.setId(module.getDatabasePath());
-			}
+		NotesContext context = NotesContext.getCurrentUnchecked();
+		if(context != null) {
+			NSFComponentModule module = context.getModule();
+			// Slightly customize the builder to keep some extra metadata
+			BeanArchiveBuilder builder = new BeanArchiveBuilder() {
+				{
+					super.setBeansXml(BeansXml.EMPTY_BEANS_XML);
+					super.setId(module.getDatabasePath());
+				}
+				
+				@Override
+				public BeanArchiveBuilder setBeansXml(BeansXml beansXml) {
+					return this;
+				}
+			};
 			
-			@Override
-			public BeanArchiveBuilder setBeansXml(BeansXml beansXml) {
-				return this;
-			}
-		};
-		
-		ModuleUtil.getClassNames(module)
-			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-			.forEach(builder::addClass);
-		
-		return builder;
+			ModuleUtil.getClassNames(module)
+				.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
+				.forEach(builder::addClass);
+			
+			
+			// Manually look for class names in plug-in dependencies, since the normal code
+			//  path only looks in the system class path and I haven't figured out the right
+			//  way to override that yet
+			
+			
+			return builder;
+		} else {
+			return null;
+		}
 	}
 
 }

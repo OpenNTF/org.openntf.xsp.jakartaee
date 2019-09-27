@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,19 @@
  */
 package org.openntf.xsp.cdi.impl;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.spi.CDI;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.VariableResolver;
 
-import org.jboss.weld.environment.se.WeldContainer;
-import org.jboss.weld.inject.WeldInstance;
 import org.jboss.weld.literal.NamedLiteral;
+import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.LibraryUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 
@@ -49,10 +54,19 @@ public class CDIResolver extends VariableResolver {
 		}
 		
 		// Finally, ask CDI for a named bean
-		WeldContainer container = ContainerUtil.getContainer(ApplicationEx.getInstance(facesContext));
-		WeldInstance<Object> instance = container.select(new NamedLiteral(name));
-		if(instance.isResolvable()) {
-			return instance.get();
+		ApplicationEx app = ApplicationEx.getInstance(facesContext);
+		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, app)) {
+			CDI<Object> container = ContainerUtil.getContainer(app);
+			if(container != null) {
+				return AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
+					Instance<Object> instance = container.select(new NamedLiteral(name));
+					if(instance.isResolvable()) {
+						return instance.get();
+					} else {
+						return null;
+					}
+				});
+			}
 		}
 		
 		return null;

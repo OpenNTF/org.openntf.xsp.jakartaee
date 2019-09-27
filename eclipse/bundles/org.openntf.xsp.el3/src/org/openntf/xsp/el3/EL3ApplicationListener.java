@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,12 @@ public class EL3ApplicationListener implements ApplicationListener2 {
 		if(LibraryUtil.usesLibrary(EL3Library.LIBRARY_ID, application)) {
 			@SuppressWarnings("deprecation")
 			FactoryLookup facts = application.getFactoryLookup();
-			facts.setFactory(EL3BindingFactory.PREFIX, new EL3BindingFactory());
+			
+			String prefix = application.getProperty(EL3Library.PROP_PREFIX, EL3BindingFactory.PREFIX);
+			facts.setFactory(prefix, new EL3BindingFactory(prefix));
+			
+			// Create a binding factory for default bindings
+			facts.setFactory(XSPELBindingFactory.IBM_PREFIX, new XSPELBindingFactory(XSPELBindingFactory.IBM_PREFIX));
 		}
 	}
 
@@ -39,7 +44,7 @@ public class EL3ApplicationListener implements ApplicationListener2 {
 
 	@Override
 	public void applicationRefreshed(ApplicationEx application) {
-		
+		applicationCreated(application);
 	}
 
 }

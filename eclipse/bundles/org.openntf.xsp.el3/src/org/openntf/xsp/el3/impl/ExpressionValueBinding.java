@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 package org.openntf.xsp.el3.impl;
+
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 import javax.el.ELContext;
 import javax.el.ValueExpression;
@@ -32,34 +36,107 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	private ValueExpression exp;
 	private ELContext elContext;
 	private boolean isTransient;
+	private String prefix;
 	
 	public ExpressionValueBinding() {
 		
 	}
 	
-	public ExpressionValueBinding(ValueExpression exp, ELContext elContext) {
+	public ExpressionValueBinding(ValueExpression exp, ELContext elContext, String prefix) {
 		this.exp = exp;
 		this.elContext = elContext;
+		this.prefix = prefix;
 	}
 
 	@Override
 	public Class<?> getType(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
-		return exp.getType(elContext);
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)() -> exp.getType(elContext));
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t instanceof EvaluationException) {
+				throw (EvaluationException)t;
+			} else if(t instanceof PropertyNotFoundException) {
+				throw (PropertyNotFoundException)t;
+			} else if(t instanceof Error) {
+				throw (Error)t;
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else if(t != null) {
+				throw new RuntimeException(t);
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
 	public Object getValue(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
-		return exp.getValue(elContext);
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<Object>)() -> exp.getValue(elContext));
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t instanceof EvaluationException) {
+				throw (EvaluationException)t;
+			} else if(t instanceof PropertyNotFoundException) {
+				throw (PropertyNotFoundException)t;
+			} else if(t instanceof Error) {
+				throw (Error)t;
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else if(t != null) {
+				throw new RuntimeException(t);
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
 	public boolean isReadOnly(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
-		return exp.isReadOnly(elContext);
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() -> exp.isReadOnly(elContext));
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t instanceof EvaluationException) {
+				throw (EvaluationException)t;
+			} else if(t instanceof PropertyNotFoundException) {
+				throw (PropertyNotFoundException)t;
+			} else if(t instanceof Error) {
+				throw (Error)t;
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else if(t != null) {
+				throw new RuntimeException(t);
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
 	public void setValue(FacesContext facesContext, Object value) throws EvaluationException, PropertyNotFoundException {
-		exp.setValue(elContext, value);
+		try {
+			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
+				exp.setValue(elContext, value);
+				return null;
+			});
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t instanceof EvaluationException) {
+				throw (EvaluationException)t;
+			} else if(t instanceof PropertyNotFoundException) {
+				throw (PropertyNotFoundException)t;
+			} else if(t instanceof Error) {
+				throw (Error)t;
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else if(t != null) {
+				throw new RuntimeException(t);
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
@@ -72,12 +149,14 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 		Object[] stateArray = (Object[])state;
 		this.exp = (ValueExpression)stateArray[0];
 		this.elContext = new FacesELContext(EL3BindingFactory.getExpressionFactory());
+		this.prefix = (String)stateArray[1];
 	}
 
 	@Override
 	public Object saveState(FacesContext facesContext) {
 		return new Object[] {
-			this.exp
+			this.exp,
+			this.prefix
 		};
 	}
 
@@ -88,7 +167,7 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	
 	@Override
 	public String getExpressionString() {
-		return ValueBindingUtil.getExpressionString(EL3BindingFactory.PREFIX, this.exp.getExpressionString(), 1);
+		return ValueBindingUtil.getExpressionString(prefix, this.exp.getExpressionString(), 1);
 	}
 	
 }

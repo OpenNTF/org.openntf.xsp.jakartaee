@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  */
 package org.openntf.xsp.cdi;
 
+import javax.enterprise.inject.spi.CDI;
+
 import org.eclipse.core.runtime.Plugin;
+import org.openntf.xsp.cdi.provider.NSFCDIProvider;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends Plugin {
@@ -28,6 +31,9 @@ public class Activator extends Plugin {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		instance = this;
+		
+		// Install the CDI provider
+		CDI.setCDIProvider(new NSFCDIProvider());
 	}
 
 	@Override

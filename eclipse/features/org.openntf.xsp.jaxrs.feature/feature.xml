@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018 Jesse Gallagher
+    Copyright © 2019 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jaxrs.feature"
       label="XPages JAX-RS 2.1 Support Feature"
-      version="1.0.0.qualifier">
+      version="1.1.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -251,29 +251,42 @@
          fragment="true"/>
 
    <plugin
-         id="org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec"
+         id="org.openntf.xsp.jaxrs.factory"
          download-size="0"
          install-size="0"
-         version="1.0.0.Final"/>
-
-   <plugin
-         id="org.jboss.resteasy.jaxrs"
-         download-size="0"
-         install-size="0"
-         version="3.5.1.Final"/>
-
-   <plugin
-         id="org.jboss.resteasy.cdi"
-         download-size="0"
-         install-size="0"
-         version="3.5.1.Final"/>
+         version="0.0.0"
+         fragment="true"/>
          
-	<plugin id="org.jboss.spec.javax.xml.bind.jboss-jaxb-api_2.3_spec" version="1.0.0.Final"/>
-	<plugin id="org.jboss.spec.javax.annotation.jboss-annotations-api_1.2_spec" version="1.0.0.Final"/>
-	<plugin id="org.jboss.spec.javax.annotation.jboss-annotations-api_1.3_spec" version="1.0.0.Final"/>
-	<plugin id="org.osgi.annotation.versioning" version="1.0.0.201505202023"/>
-	<plugin id="org.reactivestreams.reactive-streams" version="1.0.2"/>
-	<plugin id="org.eclipse.microprofile.rest.client" version="1.1.0"/>
-	
+   <plugin id="org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec" version="1.0.2.Final"/>
+   <plugin
+         id="org.openntf.org.jboss.resteasy.jaxrs"
+         download-size="0"
+         install-size="0"
+         version="3.6.2.Final_b"/>
 
+   <plugin
+         id="org.openntf.org.jboss.resteasy.cdi"
+         download-size="0"
+         install-size="0"
+         version="3.6.2.Final_e"/>
+
+   <plugin
+         id="org.openntf.org.jboss.resteasy.multipart-provider"
+         download-size="0"
+         install-size="0"
+         version="3.6.2.Final_a"/>
+
+   <plugin
+         id="org.jboss.resteasy.jaxb-provider"
+         download-size="0"
+         install-size="0"
+         version="3.6.2.Final"/>
+
+   <plugin
+         id="org.jboss.resteasy.client"
+         download-size="0"
+         install-size="0"
+         version="3.6.2.Final"/>
+         
+	<plugin id="org.reactivestreams.reactive-streams" version="1.0.2"/>
 </feature>

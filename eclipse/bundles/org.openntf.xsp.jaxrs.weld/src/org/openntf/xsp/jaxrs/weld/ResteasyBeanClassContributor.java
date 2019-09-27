@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.util.Collections;
 import javax.enterprise.inject.spi.Extension;
 
 import org.jboss.resteasy.cdi.ResteasyCdiExtension;
-import org.jboss.resteasy.cdi.microprofile.RestClientExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 
 public class ResteasyBeanClassContributor implements WeldBeanClassContributor {
@@ -35,8 +34,7 @@ public class ResteasyBeanClassContributor implements WeldBeanClassContributor {
 	@Override
 	public Collection<Extension> getExtensions() {
 		return Arrays.asList(
-			new ResteasyCdiExtension(),
-			new RestClientExtension()
+			new ResteasyCdiExtension()
 		);
 	}
 

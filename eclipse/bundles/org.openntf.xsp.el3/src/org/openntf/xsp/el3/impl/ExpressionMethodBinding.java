@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 package org.openntf.xsp.el3.impl;
+
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 import javax.el.ELContext;
 import javax.el.MethodExpression;
@@ -32,24 +36,58 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	private MethodExpression exp;
 	private ELContext elContext;
 	private boolean isTransient;
+	private String prefix;
 	
 	public ExpressionMethodBinding() {
 		
 	}
 
-	public ExpressionMethodBinding(MethodExpression exp, ELContext elContext) {
+	public ExpressionMethodBinding(MethodExpression exp, ELContext elContext, String prefix) {
 		this.exp = exp;
 		this.elContext = elContext;
+		this.prefix = prefix;
 	}
 
 	@Override
 	public Class<?> getType(FacesContext facesContext) throws MethodNotFoundException {
-		return exp.getMethodInfo(elContext).getReturnType();
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)() -> exp.getMethodInfo(elContext).getReturnType());
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t instanceof MethodNotFoundException) {
+				throw (MethodNotFoundException)t;
+			} else if(t instanceof Error) {
+				throw (Error)t;
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else if(t != null) {
+				throw new RuntimeException(t);
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
 	public Object invoke(FacesContext facesContext, Object[] params) throws EvaluationException, MethodNotFoundException {
-		return exp.invoke(elContext, params);
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<Object>)() -> exp.invoke(elContext, params));
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t instanceof MethodNotFoundException) {
+				throw (MethodNotFoundException)t;
+			} else if(t instanceof EvaluationException) {
+				throw (EvaluationException)t;
+			} else if(t instanceof Error) {
+				throw (Error)t;
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else if(t != null) {
+				throw new RuntimeException(t);
+			} else {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
@@ -62,12 +100,14 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 		Object[] stateArray = (Object[])state;
 		this.exp = (MethodExpression)stateArray[0];
 		this.elContext = new FacesELContext(EL3BindingFactory.getExpressionFactory());
+		this.prefix = (String)stateArray[1];
 	}
 
 	@Override
 	public Object saveState(FacesContext facesContext) {
 		return new Object[] {
-			exp
+			this.exp,
+			this.prefix
 		};
 	}
 
@@ -78,7 +118,7 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	
 	@Override
 	public String getExpressionString() {
-		return ValueBindingUtil.getExpressionString(EL3BindingFactory.PREFIX, this.exp.getExpressionString(), 1);
+		return ValueBindingUtil.getExpressionString(prefix, this.exp.getExpressionString(), 1);
 	}
 
 }

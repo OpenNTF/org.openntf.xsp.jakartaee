@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,21 +48,26 @@ public class EL3BindingFactory implements BindingFactory {
 	public static ExpressionFactory getExpressionFactory() {
 		return fac;
 	}
+	
+	private final String prefix;
+	public EL3BindingFactory(String prefix) {
+		this.prefix = prefix;
+	}
 
 	@Override
 	public MethodBinding createMethodBinding(Application application, String expression, @SuppressWarnings("rawtypes") Class[] args) {
 		ELContext context = new FacesELContext(fac);
 		
 		String cleanExp;
-		int prefixIndex = expression.indexOf(PREFIX + ':');
+		int prefixIndex = expression.indexOf(prefix + ':');
 		if(prefixIndex > -1) {
-			cleanExp = expression.substring(0, prefixIndex) + expression.substring(prefixIndex+PREFIX.length()+1);
+			cleanExp = expression.substring(0, prefixIndex) + expression.substring(prefixIndex+prefix.length()+1);
 		} else {
 			cleanExp = expression;
 		}
 		MethodExpression exp = fac.createMethodExpression(context, cleanExp, Object.class, args == null ? new Class[0] : args);
 		
-		return new ExpressionMethodBinding(exp, context);
+		return new ExpressionMethodBinding(exp, context, prefix);
 	}
 
 	@Override
@@ -70,20 +75,20 @@ public class EL3BindingFactory implements BindingFactory {
 		ELContext context = new FacesELContext(fac);
 		
 		String cleanExp;
-		int prefixIndex = expression.indexOf(PREFIX + ':');
+		int prefixIndex = expression.indexOf(prefix + ':');
 		if(prefixIndex > -1) {
-			cleanExp = expression.substring(0, prefixIndex) + expression.substring(prefixIndex+PREFIX.length()+1);
+			cleanExp = expression.substring(0, prefixIndex) + expression.substring(prefixIndex+prefix.length()+1);
 		} else {
 			cleanExp = expression;
 		}
 		
 		ValueExpression exp = fac.createValueExpression(context, cleanExp, Object.class);
 		
-		return new ExpressionValueBinding(exp, context);
+		return new ExpressionValueBinding(exp, context, prefix);
 	}
 
 	@Override
 	public String getPrefix() {
-		return PREFIX;
+		return prefix;
 	}
 }

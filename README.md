@@ -23,7 +23,7 @@ Currently, this support is focused around adding annotated CDI managed bean clas
 @ApplicationScoped
 @Named("applicationGuy")
 public class ApplicationGuy {
-  public void getFoo() {
+  public String getFoo() {
     return "hello";
   }
 }
@@ -89,6 +89,19 @@ Note that Designer attempts to validate the syntax of runtime EL bindings; to wo
 ```xml
 <xp:text value="#{el:someBean.hello()}"/>
 ```
+
+### Overriding the Prefix
+
+If you don't want EL 3 to take over the default handling of EL in the app, you can specify a different prefix using the `org.openntf.xsp.el3.prefix` in your app's Xsp Properties file. For example:
+
+```properties
+xsp.library.depends=org.openntf.xsp.el3
+org.openntf.xsp.el3.prefix=ex
+```
+
+Note that Designer refuses to compile XPages with runtime-bound expressions that use a number in the prefix, so this should be letters only.
+
+Regardless of whether or not you specify an alternate prefix, the original XPages EL parser will be available by using expressions like `#{xspel:someBean}`.
 
 ### Implementation Details
 
@@ -225,13 +238,19 @@ For now, this plugin just adds the core JNoSQL libraries but no drivers. It shou
 
 ## Requirements
 
-- Domino FP8+
+- Domino FP10+
 - Designer FP10+ (for compiling the NSF)
 - Some of the APIs require setting the project Java compiler level to 1.8
 
 ## Building
 
 To build this application, first `package` the `osgi-deps` Maven project, which will provide the target platform dependencies used by the `eclipse` Maven tree.
+
+## Known Issues
+
+If your Domino Java classpath has any invalid entries in it, the CDI portion of the tooling will complain and fail to load, which may cause XPages apps generally to throw an error 500.
+
+The workaround for this is to check your classpath (jvm/lib/ext and ndext, primarily) for any files that the Domino process user can't access (usually the local system on Windows, or `notes` on Linux). Additionally, look for a `JavaUserClassesExt` entry in the server's notes.ini and make sure that all of the files or directories it references exist and are readable.
 
 ## License
 

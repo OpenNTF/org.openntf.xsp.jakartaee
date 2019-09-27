@@ -1,12 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: XPages JAX-RS Weld Integrator
+Bundle-Name: XPages JAX-RS OSGi Service Bridge
 Bundle-SymbolicName: org.openntf.xsp.jaxrs.factory
 Automatic-Module-Name: org.openntf.xsp.jaxrs.factory
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.1.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Fragment-Host: org.jboss.resteasy.cdi
-Require-Bundle: org.jboss.weld.api;bundle-version="3.0.0",
- org.jboss.weld.core-impl;bundle-version="3.0.4",
- org.jboss.weld.spi;bundle-version="3.0.0"
+Fragment-Host: org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec
+Require-Bundle: org.openntf.org.jboss.resteasy.jaxrs;bundle-version="3.6.2",
+ org.jboss.resteasy.jaxb-provider;bundle-version="3.6.2",
+ org.glassfish.jakarta.json;bundle-version="1.1.5",
+ org.openntf.org.jboss.resteasy.multipart-provider;bundle-version="3.6.2"

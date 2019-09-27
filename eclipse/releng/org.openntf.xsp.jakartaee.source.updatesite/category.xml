@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018 Jesse Gallagher
+    Copyright © 2019 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,25 +17,25 @@
 
 -->
 <site>
-	<feature id="org.openntf.xsp.jakartaee.feature.source" version="1.0.0.qualifier">
+	<feature id="org.openntf.xsp.jakartaee.feature.source" version="1.1.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.cdi.feature.source" version="1.0.0.qualifier">
+	<feature id="org.openntf.xsp.cdi.feature.source" version="1.1.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.el3.feature.source" version="1.0.0.qualifier">
+	<feature id="org.openntf.xsp.el3.feature.source" version="1.1.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.jaxrs.feature.source" version="1.0.0.qualifier">
+	<feature id="org.openntf.xsp.jaxrs.feature.source" version="1.1.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.beanvalidation.feature.source" version="1.0.0.qualifier">
+	<feature id="org.openntf.xsp.beanvalidation.feature.source" version="1.1.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.jsonapi.feature.source" version="1.0.0.qualifier">
+	<feature id="org.openntf.xsp.jsonapi.feature.source" version="1.1.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.jnosql.feature.source" version="1.0.0.qualifier">
+	<feature id="org.openntf.xsp.jnosql.feature.source" version="1.1.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
    

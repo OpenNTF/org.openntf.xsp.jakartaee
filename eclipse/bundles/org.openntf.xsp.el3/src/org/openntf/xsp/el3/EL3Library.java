@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Jesse Gallagher
+ * Copyright © 2019 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.ibm.xsp.library.AbstractXspLibrary;
 public class EL3Library extends AbstractXspLibrary {
 
 	public static final String LIBRARY_ID = EL3Library.class.getPackage().getName();
-
+	public static final String PROP_PREFIX = EL3Library.class.getPackage().getName() + ".prefix";
 	@Override
 	public String getLibraryId() {
 		return LIBRARY_ID;
