@@ -6,7 +6,7 @@ Automatic-Module-Name: org.openntf.xsp.jaxrs.factory
 Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Fragment-Host: org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec
+Fragment-Host: jakarta.ws.rs-api;bundle-version="2.1.0"
 Require-Bundle: org.openntf.org.jboss.resteasy.jaxrs;bundle-version="3.6.2",
  org.jboss.resteasy.jaxb-provider;bundle-version="3.6.2",
  org.glassfish.jakarta.json;bundle-version="1.1.5",
