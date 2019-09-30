@@ -55,6 +55,26 @@
 								<versionRange>1.0.0</versionRange>
 							</requirement>
 							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.openntf.xsp.cdi.feature</id>
+								<versionRange>1.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.openntf.xsp.el3.feature</id>
+								<versionRange>1.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.openntf.xsp.jaxrs.feature</id>
+								<versionRange>1.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-feature</type>
+								<id>org.openntf.xsp.jnosql.feature</id>
+								<versionRange>1.0.0</versionRange>
+							</requirement>
+							<requirement>
 								<type>eclipse-plugin</type>
 								<id>org.openntf.domino.java.api.corba.patch</id>
 								<versionRange>0.0.0</versionRange>
