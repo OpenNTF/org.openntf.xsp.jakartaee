@@ -69,6 +69,7 @@
 		<module>bundles/org.openntf.xsp.jnosql</module>
 		<module>features/org.openntf.xsp.jnosql.feature</module>
 		
+		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
 		<module>releng/org.openntf.xsp.jakartaee.source.updatesite</module>
 		<module>releng/xsp-jakartaee-dist</module>
