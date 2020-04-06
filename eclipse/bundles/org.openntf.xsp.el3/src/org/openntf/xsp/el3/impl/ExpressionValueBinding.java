@@ -74,20 +74,14 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	public Object getValue(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Object>)() -> exp.getValue(elContext));
-		} catch (PrivilegedActionException e) {
+		} catch (Throwable e) {
 			Throwable t = e.getCause();
-			if(t instanceof EvaluationException) {
-				throw (EvaluationException)t;
-			} else if(t instanceof PropertyNotFoundException) {
-				throw (PropertyNotFoundException)t;
-			} else if(t instanceof Error) {
-				throw (Error)t;
-			} else if(t instanceof RuntimeException) {
-				throw (RuntimeException)t;
+			if(t instanceof PropertyNotFoundException) {
+				throw new PropertyNotFoundException("Encountered exception processing expression " + exp, t);
 			} else if(t != null) {
-				throw new RuntimeException(t);
+				throw new EvaluationException("Encountered exception processing expression " + exp, t);
 			} else {
-				throw new RuntimeException(e);
+				throw new EvaluationException("Encountered exception processing expression " + exp, e);
 			}
 		}
 	}
