@@ -26,7 +26,7 @@ import com.sun.faces.util.Util;
 
 public class XSPELBindingFactory implements BindingFactory {
 
-	public static final String IBM_PREFIX = "xspel";
+	public static final String IBM_PREFIX = "xspel"; //$NON-NLS-1$
 	
 	private final String prefix;
 	
@@ -52,7 +52,7 @@ public class XSPELBindingFactory implements BindingFactory {
 	}
 
 	private String cleanRef(String ref) {
-		if(ref.startsWith("#{" + prefix + ':')) {
+		if(ref.startsWith("#{" + prefix + ':')) { //$NON-NLS-1$
 			return ref.substring(0, 2) + ref.substring(prefix.length()+3);
 		} else {
 			return ref;

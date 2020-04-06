@@ -17,10 +17,17 @@ package org.openntf.xsp.el3.impl;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Collection;
+import java.util.List;
 
 import javax.el.BeanNameELResolver;
+import javax.el.ELResolver;
 import javax.el.ExpressionFactory;
 import javax.el.StandardELContext;
+
+import org.openntf.xsp.el3.ext.ELResolverProvider;
+
+import com.ibm.commons.extension.ExtensionManager;
 
 /**
  * A subclass of {@link StandardELContext} that adds a resolver for an
@@ -34,6 +41,19 @@ public class FacesELContext extends StandardELContext {
 		super(factory);
 		addELResolver(new BeanNameELResolver(new FacesBeanNameResolver()));
 		addELResolver(new XSPELResolver());
+		
+		// Add any other available resolvers
+		List<ELResolverProvider> providers = AccessController.doPrivileged((PrivilegedAction<List<ELResolverProvider>>)() ->
+			ExtensionManager.findServices(null, Thread.currentThread().getContextClassLoader(), ELResolverProvider.class.getName(), ELResolverProvider.class)
+		);
+		if(providers != null) {
+			for(ELResolverProvider provider : providers) {
+				Collection<ELResolver> resolvers = provider.provide();
+				if(resolvers != null) {
+					resolvers.forEach(this::addELResolver);
+				}
+			}
+		}
 	}
 	
 	@Override

@@ -43,7 +43,7 @@ public class FacesBeanNameResolver extends BeanNameResolver {
 		// Check for known "environmental" beans that may not exist in edge cases
 		if(result == null) {
 			switch(beanName) {
-			case "compositeData":
+			case "compositeData": //$NON-NLS-1$
 				return Collections.emptyMap();
 			default:
 				break;
