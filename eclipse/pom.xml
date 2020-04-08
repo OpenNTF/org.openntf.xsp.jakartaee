@@ -197,7 +197,11 @@
 				</executions>
 				<configuration>
 					<includeBinaryFeature>false</includeBinaryFeature>
-					<labelSuffix> Source</labelSuffix>
+					<excludes>
+						<plugin id="org.openntf.xsp.el3.factory"/>
+						<plugin id="org.openntf.xsp.jaxrs.factory"/>
+						<plugin id="org.openntf.xsp.jsonp.jaxrs"/>
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
