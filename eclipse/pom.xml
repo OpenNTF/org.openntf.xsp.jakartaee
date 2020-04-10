@@ -625,5 +625,43 @@
 				</repository>
 			</repositories>
 		</profile>
+		
+		<!--
+			This profile adds code signing for the final jars 
+		 -->
+		<profile>
+			<id>codesigning</id>
+			
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jarsigner-plugin</artifactId>
+						<version>3.0.0</version>
+						<executions>
+							<execution>
+								<id>sign</id>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>verify</id>
+								<goals>
+									<goal>verify</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<storetype>${keystore.type}</storetype>
+							<keystore>${keystore.path}</keystore>
+							<alias>${keystore.alias}</alias>
+							<storepass>${keystore.store.password}</storepass>
+							<keypass>${keystore.key.password}</keypass>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 </project>
