@@ -238,6 +238,10 @@
    </requires>
 
 	<plugin id="org.openntf.xsp.jsonapi" version="0.0.0"/>
+	<plugin id="org.openntf.xsp.jsonapi.jaxrs" version="0.0.0"/>
+	
 	<plugin id="yasson" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.resteasy.json-binding-provider" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.resteasy.json-p-provider" version="0.0.0"/>
 
 </feature>
