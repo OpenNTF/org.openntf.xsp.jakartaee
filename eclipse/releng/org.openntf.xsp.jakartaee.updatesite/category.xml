@@ -17,28 +17,28 @@
 
 -->
 <site>
-	<feature url="features/org.openntf.xsp.jakartaee.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.jakartaee.feature" version="1.1.0.qualifier">
+	<feature url="features/org.openntf.xsp.jakartaee.feature_1.2.0.qualifier.jar" id="org.openntf.xsp.jakartaee.feature" version="1.2.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature url="features/org.openntf.xsp.log4j.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.log4j.feature" version="1.1.0.qualifier">
+	<feature url="features/org.openntf.xsp.log4j.feature_1.2.0.qualifier.jar" id="org.openntf.xsp.log4j.feature" version="1.2.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature url="features/org.openntf.xsp.cdi.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.cdi.feature" version="1.1.0.qualifier">
+	<feature url="features/org.openntf.xsp.cdi.feature_1.2.0.qualifier.jar" id="org.openntf.xsp.cdi.feature" version="1.2.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature url="features/org.openntf.xsp.el3.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.el3.feature" version="1.1.0.qualifier">
+	<feature url="features/org.openntf.xsp.el3.feature_1.2.0.qualifier.jar" id="org.openntf.xsp.el3.feature" version="1.2.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature url="features/org.openntf.xsp.jaxrs.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.jaxrs.feature" version="1.1.0.qualifier">
+	<feature url="features/org.openntf.xsp.jaxrs.feature_1.2.0.qualifier.jar" id="org.openntf.xsp.jaxrs.feature" version="1.2.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature url="features/org.openntf.xsp.beanvalidation.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.beanvalidation.feature" version="1.1.0.qualifier">
+	<feature url="features/org.openntf.xsp.beanvalidation.feature_1.2.0.qualifier.jar" id="org.openntf.xsp.beanvalidation.feature" version="1.2.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature url="features/org.openntf.xsp.jsonapi.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.jsonapi.feature" version="1.1.0.qualifier">
+	<feature url="features/org.openntf.xsp.jsonapi.feature_1.2.0.qualifier.jar" id="org.openntf.xsp.jsonapi.feature" version="1.2.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature url="features/org.openntf.xsp.jnosql.feature_1.1.0.qualifier.jar" id="org.openntf.xsp.jnosql.feature" version="1.1.0.qualifier">
+	<feature url="features/org.openntf.xsp.jnosql.feature_1.2.0.qualifier.jar" id="org.openntf.xsp.jnosql.feature" version="1.2.0.qualifier">
 		<category name="XPages Jakarta EE"/>
 	</feature>
    

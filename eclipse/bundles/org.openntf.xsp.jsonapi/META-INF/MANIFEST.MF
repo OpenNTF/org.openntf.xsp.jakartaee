@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Json-P 1.1 and JSON-B 1.0 Support
 Bundle-SymbolicName: org.openntf.xsp.jsonapi;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jsonapi
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",

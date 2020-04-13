@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.log4j.feature"
       label="XPages Log4J 2 API Feature"
-      version="1.1.0.qualifier">
+      version="1.2.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
