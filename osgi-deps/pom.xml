@@ -44,6 +44,15 @@
 							<goal>site</goal>
 						</goals>
 						<configuration>
+							<p2>
+								<artifact><id>javax.inject:1.0.0.v20091030</id><source>true</source></artifact>
+							
+								<!-- Testing Runtime -->
+								<artifact><id>org.eclipse.equinox.launcher:1.3.201.v20161025-1711</id><source>true</source></artifact>
+								<artifact><id>org.junit:4.12.0.v201504281640</id><source>true</source></artifact>
+								<artifact><id>org.slf4j.api:1.7.2.v20121108-1250</id><source>true</source></artifact>
+								<artifact><id>org.hamcrest.core:1.3.0.v201303031735</id><source>true</source></artifact>
+							</p2>
 							<artifacts>
 								<!--
 									General Platform

@@ -87,11 +87,6 @@
 
 	<repositories>
 		<repository>
-			<id>Neon</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/neon/</url>
-		</repository>
-		<repository>
 			<id>notes</id>
 			<layout>p2</layout>
 			<url>${notes-platform}</url>
