@@ -53,6 +53,7 @@
 		<module>bundles/org.openntf.xsp.jaxrs</module>
 		<module>bundles/org.openntf.xsp.jaxrs.weld</module>
 		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
+		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
 		<module>features/org.openntf.xsp.jaxrs.feature</module>
 		
 		<!-- Bean Validation 2.0 -->
@@ -62,6 +63,7 @@
 		
 		<!-- JSON-P 1.1 and JSON-B 1.0 -->
 		<module>bundles/org.openntf.xsp.jsonapi</module>
+		<module>bundles/org.openntf.xsp.jsonapi.jaxrs</module>
 		<module>features/org.openntf.xsp.jsonapi.feature</module>
 		<module>tests/org.openntf.xsp.jsonapi.test</module>
 		
@@ -198,7 +200,7 @@
 					<excludes>
 						<plugin id="org.openntf.xsp.el3.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.factory"/>
-						<plugin id="org.openntf.xsp.jsonp.jaxrs"/>
+						<plugin id="org.openntf.xsp.jaxrs.providers"/>
 					</excludes>
 				</configuration>
 			</plugin>

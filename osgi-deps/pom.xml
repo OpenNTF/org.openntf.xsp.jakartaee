@@ -189,11 +189,47 @@
 									</instructions>
 								</artifact>
 								<artifact>
+									<id>org.jboss.resteasy:resteasy-jaxb-provider:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.jaxb-provider</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.jaxrs
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
 									<id>org.jboss.resteasy:resteasy-multipart-provider:${resteasy-version}</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.multipart-provider</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.jaxrs
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-json-p-provider:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.json-p-provider</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.jaxrs
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-json-binding-provider:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.json-binding-provider</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											org.openntf.org.jboss.resteasy.jaxrs

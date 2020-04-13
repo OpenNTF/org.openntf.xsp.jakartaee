@@ -240,12 +240,13 @@
 	<plugin id="org.openntf.xsp.jaxrs" version="0.0.0"/>
 	<plugin id="org.openntf.xsp.jaxrs.weld" version="0.0.0" fragment="true"/>
 	<plugin id="org.openntf.xsp.jaxrs.factory" version="0.0.0" fragment="true"/>
+	<plugin id="org.openntf.xsp.jaxrs.providers" version="0.0.0" fragment="true"/>
 
 	<plugin id="org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.resteasy.jaxrs" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.resteasy.cdi" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.resteasy.multipart-provider" version="0.0.0"/>
-	<plugin id="org.jboss.resteasy.jaxb-provider" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.resteasy.jaxb-provider" version="0.0.0"/>
 	<plugin id="org.jboss.resteasy.client" version="0.0.0"/>
 	<plugin id="org.reactivestreams.reactive-streams" version="0.0.0"/>
 </feature>

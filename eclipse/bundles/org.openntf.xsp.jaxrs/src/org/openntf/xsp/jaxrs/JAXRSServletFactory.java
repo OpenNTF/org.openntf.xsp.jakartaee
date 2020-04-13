@@ -46,7 +46,6 @@ public class JAXRSServletFactory implements IServletFactory {
 
 	@Override
 	public ServletMatch getServletMatch(String contextPath, String path) throws ServletException {
-
 		if (path.startsWith(SERVLET_PATH)) { // $NON-NLS-1$
 			int len = SERVLET_PATH.length(); // $NON-NLS-1$
 			String servletPath = path.substring(0, len);
