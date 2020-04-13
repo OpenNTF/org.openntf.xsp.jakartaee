@@ -237,12 +237,7 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-   <plugin
-         id="org.openntf.xsp.jsonapi"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-         
-   <plugin id="yasson" version="1.0.3"/>
+	<plugin id="org.openntf.xsp.jsonapi" version="0.0.0"/>
+	<plugin id="yasson" version="0.0.0"/>
 
 </feature>

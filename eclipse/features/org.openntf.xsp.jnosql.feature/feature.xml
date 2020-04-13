@@ -237,64 +237,16 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-   <plugin
-         id="org.openntf.xsp.jnosql"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+	<plugin id="org.openntf.xsp.jnosql" version="0.0.0"/>
 
-   <plugin
-         id="org.jnosql.query.jnosql-query-api"
-         download-size="0"
-         install-size="0"
-         version="0.0.7"/>
-
-   <plugin
-         id="org.jnosql.query.jnosql-query-antlr"
-         download-size="0"
-         install-size="0"
-         version="0.0.7"/>
-
-   <plugin
-         id="org.jnosql.diana.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.7"/>
-
-   <plugin
-         id="org.jnosql.diana.document"
-         download-size="0"
-         install-size="0"
-         version="0.0.7"/>
-
-   <plugin
-         id="org.jnosql.diana.driver-commons"
-         download-size="0"
-         install-size="0"
-         version="0.0.7"/>
-
-   <plugin
-         id="org.jnosql.artemis.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.7"/>
-
-   <plugin
-         id="org.jnosql.artemis.document"
-         download-size="0"
-         install-size="0"
-         version="0.0.7"/>
-
-   <plugin
-         id="org.jnosql.artemis.validation"
-         download-size="0"
-         install-size="0"
-         version="0.0.7"/>
-
-   <plugin
-         id="org.antlr.antlr4-runtime"
-         download-size="0"
-         install-size="0"
-         version="4.7.1"/>
+	<plugin id="org.jnosql.query.jnosql-query-api" version="0.0.0"/>
+	<plugin id="org.jnosql.query.jnosql-query-antlr" version="0.0.0"/>
+	<plugin id="org.jnosql.diana.core" version="0.0.0"/>
+	<plugin id="org.jnosql.diana.document" version="0.0.0"/>
+	<plugin id="org.jnosql.diana.driver-commons" version="0.0.0"/>
+	<plugin id="org.jnosql.artemis.core" version="0.0.0"/>
+	<plugin id="org.jnosql.artemis.document" version="0.0.0"/>
+	<plugin id="org.jnosql.artemis.validation" version="0.0.0"/>
+	<plugin id="org.antlr.antlr4-runtime" version="0.0.0"/>
 
 </feature>

@@ -233,10 +233,6 @@
    limitations under the License.
    </license>
 
-   <plugin
-         id="org.apache.logging.log4j.api"
-         download-size="0"
-         install-size="0"
-         version="2.11.0"/>
+   <plugin id="org.apache.logging.log4j.api" version="0.0.0"/>
 
 </feature>

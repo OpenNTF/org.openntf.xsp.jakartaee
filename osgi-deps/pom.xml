@@ -26,6 +26,9 @@
 		<jnosql-version>0.0.7</jnosql-version>
 		<weld-version>3.0.5.Final</weld-version>
 		<resteasy-version>3.6.2.Final</resteasy-version>
+		
+		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
 	</properties>
 	
 	<build>
@@ -80,7 +83,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.jaxrs</Bundle-SymbolicName>
-										<Bundle-Version>${resteasy-version}_b</Bundle-Version>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											javax.annotation-api,
 											com.ibm.pvc.servlet
@@ -176,7 +179,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.cdi</Bundle-SymbolicName>
-										<Bundle-Version>${resteasy-version}_e</Bundle-Version>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											org.openntf.org.jboss.resteasy.jaxrs,
 											org.jboss.weld.api,
@@ -191,7 +194,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.multipart-provider</Bundle-SymbolicName>
-										<Bundle-Version>${resteasy-version}_a</Bundle-Version>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											org.openntf.org.jboss.resteasy.jaxrs
 										</Require-Bundle>
@@ -205,7 +208,7 @@
 <!-- 									<override>true</override> -->
 <!-- 									<instructions> -->
 <!-- 										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.rest.client</Bundle-SymbolicName> -->
-<!-- 										<Bundle-Version>1.1.0.a</Bundle-Version> -->
+<!-- 										<Bundle-Version>1.1.0.${osgi.qualifier}</Bundle-Version> -->
 <!-- 										<Import-Package> -->
 <!-- 											javax.annotation;version="[1.2,2)", -->
 <!-- 											javax.enterprise.context, -->
@@ -227,7 +230,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.javax.el</Bundle-SymbolicName>
-										<Bundle-Version>3.0.0.b</Bundle-Version>
+										<Bundle-Version>3.0.0.${osgi.qualifier}</Bundle-Version>
 										<Import-Package/>
 										<Export-Package>*;version="3.0.0"</Export-Package>
 									</instructions>
@@ -243,7 +246,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.hibernate.validator.hibernate-validator</Bundle-SymbolicName>
-										<Bundle-Version>6.0.13.a</Bundle-Version>
+										<Bundle-Version>6.0.13.${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>org.openntf.javax.el;bundle-version="3.0.0"</Require-Bundle>
 										<Import-Package>
 											javax.persistence;version="[2.0.0,3.0.0)";resolution:=optional,
@@ -293,6 +296,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.environment.weld-environment-common</Bundle-SymbolicName>
+										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											javax.annotation-api
 										</Require-Bundle>
@@ -330,6 +334,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.core-impl</Bundle-SymbolicName>
+										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											javax.annotation-api
 										</Require-Bundle>
@@ -460,6 +465,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.jboss-classfilewriter</Bundle-SymbolicName>
+										<Bundle-Version>1.2.3.Final_${osgi.qualifier}</Bundle-Version>
 										<Import-Package>
 											sun.misc;resolution:=optional
 										</Import-Package>
@@ -474,6 +480,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.logging.jboss-logging</Bundle-SymbolicName>
+										<Bundle-Version>3.2.1.Final_${osgi.qualifier}</Bundle-Version>
 										<Export-Package>org.jboss.logging;version="3.2.1.Final"</Export-Package>
 										<Import-Package>
 											org.apache.log4j;resolution:=optional,
