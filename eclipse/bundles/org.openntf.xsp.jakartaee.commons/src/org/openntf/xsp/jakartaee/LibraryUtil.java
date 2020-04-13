@@ -15,8 +15,12 @@
  */
 package org.openntf.xsp.jakartaee;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Properties;
 
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.xsp.application.ApplicationEx;
 
 /**
@@ -41,4 +45,22 @@ public enum LibraryUtil {
 		return Arrays.asList(prop.split(",")).contains(libraryId); //$NON-NLS-1$
 	}
 
+	/**
+	 * Determines whether the provided {@link ComponentModule} uses the provided library
+	 * ID.
+	 * 
+	 * @param libraryId the library ID to look for
+	 * @param module the component module to check
+	 * @return whether the library is loaded by the application
+	 * @since 1.2.0
+	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 */
+	public static boolean usesLibrary(String libraryId, ComponentModule module) throws IOException {
+		Properties props = new Properties();
+		try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
+			props.load(is);
+		}
+		String prop = props.getProperty("xsp.library.depends", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		return Arrays.asList(prop.split(",")).contains(libraryId); //$NON-NLS-1$
+	}
 }
