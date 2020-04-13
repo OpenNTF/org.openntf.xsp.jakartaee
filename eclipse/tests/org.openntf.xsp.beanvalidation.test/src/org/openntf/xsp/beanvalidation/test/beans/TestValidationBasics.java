@@ -12,13 +12,14 @@ import javax.validation.constraints.Size;
 import org.junit.Test;
 import org.openntf.xsp.beanvalidation.XPagesValidationUtil;
 
+@SuppressWarnings("nls")
 public class TestValidationBasics {
 
 	@Test
 	public void testExampleBean() {
 		ExampleBean bean = new ExampleBean();
 		
-		Validator validator = XPagesValidationUtil.constructXPagesValidator();
+		Validator validator = XPagesValidationUtil.constructGenericValidator();
 		
 		{
 			Set<ConstraintViolation<ExampleBean>> violations = XPagesValidationUtil.validateBean(bean, validator);
