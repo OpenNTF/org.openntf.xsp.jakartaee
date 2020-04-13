@@ -111,7 +111,7 @@ public enum ContainerUtil {
 	 * @since 1.1.0
 	 */
 	public static String getApplicationCDIBundle(ApplicationEx application) {
-		return application.getProperty(CDILibrary.LIBRARY_ID + ".cdibundle", null);
+		return application.getProperty(CDILibrary.LIBRARY_ID + ".cdibundle", null); //$NON-NLS-1$
 	}
 	
 	/**
