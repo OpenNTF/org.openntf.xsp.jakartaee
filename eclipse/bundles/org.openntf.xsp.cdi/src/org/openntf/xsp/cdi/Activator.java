@@ -15,10 +15,7 @@
  */
 package org.openntf.xsp.cdi;
 
-import javax.enterprise.inject.spi.CDI;
-
 import org.eclipse.core.runtime.Plugin;
-import org.openntf.xsp.cdi.provider.NSFCDIProvider;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends Plugin {
@@ -31,9 +28,6 @@ public class Activator extends Plugin {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		instance = this;
-		
-		// Install the CDI provider
-		CDI.setCDIProvider(new NSFCDIProvider());
 	}
 
 	@Override

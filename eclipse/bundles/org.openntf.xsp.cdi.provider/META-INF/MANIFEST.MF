@@ -11,3 +11,4 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
  org.openntf.xsp.cdi;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Fragment-Host: javax.enterprise.cdi-api
+Export-Package: org.openntf.xsp.cdi.provider
