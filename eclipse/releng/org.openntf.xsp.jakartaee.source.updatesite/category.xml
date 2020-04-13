@@ -17,25 +17,25 @@
 
 -->
 <site>
-	<feature id="org.openntf.xsp.jakartaee.feature.source" version="1.2.0.qualifier">
+	<feature id="org.openntf.xsp.jakartaee.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.cdi.feature.source" version="1.2.0.qualifier">
+	<feature id="org.openntf.xsp.cdi.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.el3.feature.source" version="1.2.0.qualifier">
+	<feature id="org.openntf.xsp.el3.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.jaxrs.feature.source" version="1.2.0.qualifier">
+	<feature id="org.openntf.xsp.jaxrs.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.beanvalidation.feature.source" version="1.2.0.qualifier">
+	<feature id="org.openntf.xsp.beanvalidation.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.jsonapi.feature.source" version="1.2.0.qualifier">
+	<feature id="org.openntf.xsp.jsonapi.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.jnosql.feature.source" version="1.2.0.qualifier">
+	<feature id="org.openntf.xsp.jnosql.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
    
