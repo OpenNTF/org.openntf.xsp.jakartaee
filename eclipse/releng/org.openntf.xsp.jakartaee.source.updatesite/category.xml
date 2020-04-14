@@ -38,6 +38,9 @@
 	<feature id="org.openntf.xsp.jnosql.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
+	<feature id="org.openntf.xsp.jsp.feature.source">
+		<category name="XPages Jakarta EE"/>
+	</feature>
    
    <category-def name="XPages Jakarta EE" label="XPages Jakarta EE"/>
 </site>
