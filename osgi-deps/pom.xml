@@ -86,10 +86,11 @@
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											javax.annotation-api,
-											com.ibm.pvc.servlet
+											com.ibm.pvc.servlet,
+											org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec;visibility:=reexport
 										</Require-Bundle>
 										<Import-Package>
-											javax.activation;resolution:=optional,
+											javax.activation;resolution:=optional;bundle-symbolic-name="com.ibm.designer.lib.javamail",
 											javax.imageio;resolution:=optional,
 											javax.imageio.metadata;resolution:=optional,
 											javax.imageio.plugins.jpeg;resolution:=optional,
@@ -542,6 +543,11 @@
 								<artifact><id>org.jnosql.artemis:artemis-document:${jnosql-version}</id><source>true</source></artifact>
 								<artifact><id>org.jnosql.artemis:artemis-validation:${jnosql-version}</id><source>true</source></artifact>
 								<artifact><id>org.antlr:antlr4-runtime:4.7.1</id><source>true</source></artifact>
+								
+								<!--
+									JSP 
+								-->
+								<artifact><id>jstl:jstl:1.2</id><source>true</source></artifact>
 							</artifacts>
 
 							<compressSite>true</compressSite>
