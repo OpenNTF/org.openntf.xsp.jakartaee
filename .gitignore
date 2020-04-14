@@ -9,3 +9,8 @@
 target/
 
 pom.xml.versionsBackup
+
+# Java crash leftovers
+Snap.*.trc
+jitdump.*.dmp
+javacore.*.txt
