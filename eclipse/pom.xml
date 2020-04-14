@@ -205,6 +205,7 @@
 						<plugin id="org.openntf.xsp.el3.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.providers"/>
+						<plugin id="jstl"/>
 					</excludes>
 				</configuration>
 			</plugin>
