@@ -31,33 +31,39 @@ import org.osgi.framework.wiring.BundleWiring;
  */
 @Priority(Integer.MAX_VALUE-1)
 public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
+	public static final ThreadLocal<Bundle> PROCESSING_BUNDLE = ThreadLocal.withInitial(() -> null);
 
 	@Override
 	public BeanArchiveBuilder handle(String beanArchiveReference) {
 		try {
-			NotesDatabase database = ContextInfo.getServerDatabase();
-			if(database != null) {
-				String bundleName = ContainerUtil.getApplicationCDIBundle(database);
-				Bundle bundle = Platform.getBundle(bundleName);
-				if(bundle != null) {
-					// Slightly customize the builder to keep some extra metadata
-					BeanArchiveBuilder builder = new BeanArchiveBuilder() {
-						{
-							super.setBeansXml(BeansXml.EMPTY_BEANS_XML);
-							super.setId(bundle.getSymbolicName());
-						}
-						
-						@Override
-						public BeanArchiveBuilder setBeansXml(BeansXml beansXml) {
-							return this;
-						}
-					};
-					
-					Collection<String> bundleNames = new HashSet<>();
-					addClasses(bundle, builder, bundleNames);
-					
-					return builder;
+			Bundle bundle = PROCESSING_BUNDLE.get();
+			if(bundle == null) {
+				NotesDatabase database = ContextInfo.getServerDatabase();
+				if(database != null) {
+					String bundleName = ContainerUtil.getApplicationCDIBundle(database);
+					bundle = Platform.getBundle(bundleName);
 				}
+			}
+			
+			if(bundle != null) {
+				String symbolicName = bundle.getSymbolicName();
+				// Slightly customize the builder to keep some extra metadata
+				BeanArchiveBuilder builder = new BeanArchiveBuilder() {
+					{
+						super.setBeansXml(BeansXml.EMPTY_BEANS_XML);
+						super.setId(symbolicName);
+					}
+					
+					@Override
+					public BeanArchiveBuilder setBeansXml(BeansXml beansXml) {
+						return this;
+					}
+				};
+				
+				Collection<String> bundleNames = new HashSet<>();
+				addClasses(bundle, builder, bundleNames);
+				
+				return builder;
 			}
 		} catch (NotesAPIException | IOException | BundleException e) {
 			e.printStackTrace();

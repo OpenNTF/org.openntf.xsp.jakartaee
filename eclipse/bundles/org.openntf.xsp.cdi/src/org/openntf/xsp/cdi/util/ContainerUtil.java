@@ -41,6 +41,7 @@ import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoader;
 import org.jboss.weld.util.ForwardingBeanManager;
 import org.openntf.xsp.cdi.CDILibrary;
+import org.openntf.xsp.cdi.discovery.OSGiServletBeanArchiveHandler;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 import org.osgi.framework.Bundle;
@@ -134,7 +135,12 @@ public enum ContainerUtil {
 					.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
 					.setResourceLoader(new BundleDependencyResourceLoader(bundle));
 				
-				instance = weld.initialize();
+				OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
+				try {
+					instance = weld.initialize();
+				} finally {
+					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
+				}
 				
 				bundle.getBundleContext().addBundleListener(e -> {
 					if(e.getType() == BundleEvent.STOPPING) {
@@ -296,7 +302,7 @@ public enum ContainerUtil {
 
 		@Override
 		public URL getResource(String name) {
-			return bundle.getResource(name);
+			return bundle.adapt(BundleWiring.class).getClassLoader().getResource(name);
 		}
 
 		@Override
