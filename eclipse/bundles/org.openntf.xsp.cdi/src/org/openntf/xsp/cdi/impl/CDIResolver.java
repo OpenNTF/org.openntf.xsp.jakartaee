@@ -28,6 +28,7 @@ import javax.faces.el.VariableResolver;
 import org.jboss.weld.literal.NamedLiteral;
 import org.jboss.weld.manager.BeanManagerImpl;
 import org.openntf.xsp.cdi.CDILibrary;
+import org.openntf.xsp.cdi.context.ViewScopeContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 

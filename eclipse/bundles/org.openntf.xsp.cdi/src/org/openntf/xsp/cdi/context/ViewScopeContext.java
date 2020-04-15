@@ -1,11 +1,9 @@
-package org.openntf.xsp.cdi.impl;
+package org.openntf.xsp.cdi.context;
 
 import java.io.Serializable;
 
 import javax.enterprise.context.ConversationScoped;
 import javax.faces.context.FacesContext;
-
-import org.openntf.xsp.cdi.context.AbstractIdentifiedContext;
 
 import com.ibm.xsp.component.UIViewRootEx;
 
@@ -17,7 +15,7 @@ import com.ibm.xsp.component.UIViewRootEx;
 public class ViewScopeContext extends AbstractIdentifiedContext implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	protected ViewScopeContext(String contextId, String uuid) {
+	public ViewScopeContext(String contextId, String uuid) {
 		super(contextId, uuid, ConversationScoped.class);
 	}
 	
