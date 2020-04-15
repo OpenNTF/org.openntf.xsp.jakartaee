@@ -17,11 +17,12 @@ package org.openntf.xsp.jsp.nsf;
 
 import java.io.IOException;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.jasper.servlet.JspServlet;
+import org.eclipse.equinox.jsp.jasper.JspServlet;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -37,13 +38,17 @@ public class NSFJspServlet extends JspServlet {
 	private final ComponentModule module;
 	
 	public NSFJspServlet(ComponentModule module) {
+		super(new ComponentModuleBundle(module), null);
 		this.module = module;
 	}
 
 	@Override
 	public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String jspPath = StringUtil.toString(req.getServletPath());
-		req.setAttribute("org.apache.catalina.jsp_file", module.getModuleClassLoader().getResource(jspPath)); //$NON-NLS-1$
+//		System.out.println("looking for " + jspPath);
+//		System.out.println("JSP is " + Thread.currentThread().getContextClassLoader().getResource(jspPath));
+//		System.out.println("context class loader is " + Thread.currentThread().getContextClassLoader());
+//		System.out.println("module has " + module.getResource(jspPath));
 		try {
 			super.service(req, resp);
 		} catch(Throwable t) {

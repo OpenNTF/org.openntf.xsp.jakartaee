@@ -13,12 +13,16 @@ Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="1.2.0",
  com.ibm.pvc.servlet.jsp;bundle-version="2.1.0";visibility:=reexport,
  org.apache.jasper;bundle-version="5.5.17",
  org.eclipse.equinox.jsp.jasper;bundle-version="1.0.0",
- org.eclipse.equinox.jsp.jasper.registry;bundle-version="1.0.0"
+ org.eclipse.equinox.jsp.jasper.registry;bundle-version="1.0.0",
+ jstl;bundle-version="1.2.0"
 Import-Package: com.ibm.commons.util,
  com.ibm.commons.util.io,
  com.ibm.designer.runtime.domino.adapter,
  javax.servlet;version="2.5.0",
  javax.servlet.http;version="2.5.0",
+ org.eclipse.core.runtime;version="3.5.0",
+ org.eclipse.osgi.container;version="1.1.0",
+ org.eclipse.osgi.internal.framework,
  org.osgi.framework;version="1.8.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jsp.JspActivator
