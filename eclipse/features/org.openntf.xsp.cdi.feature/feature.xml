@@ -242,11 +242,11 @@
          
 	<plugin id="javax.enterprise.cdi-api" version="0.0.0"/>
 	<plugin id="org.jboss.spec.javax.interceptor.jboss-interceptors-api_1.2_spec" version="0.0.0"/>
-	<plugin id="org.jboss.weld.api" version="0.0.0"/>
-	<plugin id="org.jboss.weld.spi" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.weld.api" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.weld.spi" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.weld.core-impl" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.weld.environment.weld-environment-common" version="0.0.0"/>
-	<plugin id="org.jboss.weld.se.weld-se-core" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.weld.se.weld-se-core" version="0.0.0"/>
 	<plugin id="org.jboss.weld.probe.weld-probe-core" version="0.0.0"/>
 	
 </feature>

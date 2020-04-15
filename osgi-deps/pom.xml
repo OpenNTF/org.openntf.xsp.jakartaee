@@ -183,8 +183,8 @@
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											org.openntf.org.jboss.resteasy.jaxrs,
-											org.jboss.weld.api,
-											org.jboss.weld.spi,
+											org.openntf.org.jboss.weld.api,
+											org.openntf.org.jboss.weld.spi,
 											org.openntf.org.jboss.weld.core-impl
 										</Require-Bundle>
 									</instructions>
@@ -321,7 +321,18 @@
 								<!--
 									CDI 
 								-->
-								<artifact><id>org.jboss.weld.se:weld-se-core:${weld-version}</id><source>true</source></artifact>
+								<artifact>
+									<id>org.jboss.weld.se:weld-se-core:${weld-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.weld.se.weld-se-core</Bundle-SymbolicName>
+										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											javax.annotation-api
+										</Require-Bundle>
+									</instructions>
+								</artifact>
 								<artifact><id>com.fasterxml:classmate:1.3.4</id><source>true</source></artifact>
 								<!--
 									Override use of Import-Package because Domino's org.eclipse.osgi provides
@@ -491,6 +502,58 @@
 											org.xml.sax.helpers;resolution:=optional,
 											sun.misc;resolution:=optional,
 											sun.reflect;resolution:=optional
+										</Import-Package>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.weld:weld-api:3.0.SP4</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.weld.api</Bundle-SymbolicName>
+										<Bundle-Version>3.0.0.SP4_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											javax.annotation-api
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.weld:weld-spi:3.0.SP4</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.weld.spi</Bundle-SymbolicName>
+										<Bundle-Version>3.0.0.SP4_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											javax.annotation-api
+										</Require-Bundle>
+										<Import-Package>
+											javax.annotation;resolution:=optional,
+											javax.enterprise.context.spi;resolution:=optional,
+											javax.enterprise.inject;resolution:=optional,
+											javax.enterprise.inject.spi;resolution:=optional,
+											javax.naming;resolution:=optional,
+											javax.persistence;resolution:=optional,
+											javax.servlet;resolution:=optional,
+											javax.servlet.http;resolution:=optional,
+											javax.validation;resolution:=optional,
+											org.jboss.weld.bootstrap.api;resolution:=optional,
+											org.jboss.weld.bootstrap.api.helpers;resolution:=optional,
+											org.jboss.weld.bootstrap.spi;resolution:=optional,
+											org.jboss.weld.configuration.spi;resolution:=optional,
+											org.jboss.weld.construction.api;resolution:=optional,
+											org.jboss.weld.context.api;resolution:=optional,
+											org.jboss.weld.ejb.api;resolution:=optional,
+											org.jboss.weld.ejb.spi;resolution:=optional,
+											org.jboss.weld.injection.spi;resolution:=optional,
+											org.jboss.weld.manager.api;resolution:=optional,
+											org.jboss.weld.resources.spi;resolution:=optional,
+											org.jboss.weld.security.spi;resolution:=optional,
+											org.jboss.weld.serialization.spi;resolution:=optional,
+											org.jboss.weld.serialization.spi.helpers;resolution:=optional,
+											org.jboss.weld.servlet.api;resolution:=optional,
+											org.jboss.weld.servlet.spi;resolution:=optional,
+											org.jboss.weld.transaction.spi;resolution:=optional
 										</Import-Package>
 									</instructions>
 								</artifact>
