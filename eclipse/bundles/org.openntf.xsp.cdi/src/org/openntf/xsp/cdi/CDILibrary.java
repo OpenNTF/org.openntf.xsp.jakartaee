@@ -47,7 +47,7 @@ public class CDILibrary extends AbstractXspLibrary {
 	@Override
 	public String[] getFacesConfigFiles() {
 		return new String[] {
-			"/res/jsf.xml" //$NON-NLS-1$
+			"/jsf.xml" //$NON-NLS-1$
 		};
 	}
 

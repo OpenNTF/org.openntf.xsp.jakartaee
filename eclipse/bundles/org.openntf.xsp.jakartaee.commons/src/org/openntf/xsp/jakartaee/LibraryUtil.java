@@ -20,6 +20,10 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
 
+import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesDatabase;
+import com.ibm.designer.domino.napi.NotesNote;
+import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.xsp.application.ApplicationEx;
 
@@ -52,8 +56,8 @@ public enum LibraryUtil {
 	 * @param libraryId the library ID to look for
 	 * @param module the component module to check
 	 * @return whether the library is loaded by the application
-	 * @since 1.2.0
 	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 * @since 1.2.0
 	 */
 	public static boolean usesLibrary(String libraryId, ComponentModule module) throws IOException {
 		Properties props = new Properties();
@@ -62,5 +66,42 @@ public enum LibraryUtil {
 		}
 		String prop = props.getProperty("xsp.library.depends", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return Arrays.asList(prop.split(",")).contains(libraryId); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Determines whether the provided {@link NotesDatabase} uses the provided library
+	 * ID.
+	 * 
+	 * @param libraryId the library ID to look for
+	 * @param module the database to check
+	 * @return whether the library is loaded by the application
+	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 * @throws NotesAPIException if there is a problem reading the xsp.properties file in the module
+	 * @since 1.2.0
+	 */
+	public static boolean usesLibrary(String libraryId, NotesDatabase database) throws NotesAPIException, IOException {
+		Properties props = getXspProperties(database);
+		String prop = props.getProperty("xsp.library.depends", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		return Arrays.asList(prop.split(",")).contains(libraryId); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Reads the xsp.properties file for the provided database. 
+	 * 
+	 * @param database the database to read
+	 * @return a {@link Properties} file with the database's XSP properties loaded, if available
+	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 * @throws NotesAPIException if there is a problem reading the xsp.properties file in the module
+	 * @since 1.2.0
+	 */
+	public static Properties getXspProperties(NotesDatabase database) throws NotesAPIException, IOException {
+		Properties props = new Properties();
+		NotesNote xspProperties = FileAccess.getFileByPath(database, "/WEB-INF/xsp.properties"); //$NON-NLS-1$
+		if(xspProperties != null) {
+			try(InputStream is = FileAccess.readFileContentAsInputStream(xspProperties)) {
+				props.load(is);
+			}
+		}
+		return props;
 	}
 }

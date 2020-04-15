@@ -7,8 +7,14 @@ Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
+ com.ibm.commons;bundle-version="9.0.0",
+ com.ibm.domino.osgi.core;bundle-version="9.0.1",
+ com.ibm.domino.napi,
  com.ibm.xsp.core;bundle-version="9.0.1",
- org.openntf.xsp.cdi;bundle-version="1.0.0"
+ org.openntf.xsp.cdi;bundle-version="1.0.0",
+ com.ibm.xsp.domino,
+ com.ibm.domino.xsp.adapter
 Bundle-ActivationPolicy: lazy
 Fragment-Host: javax.enterprise.cdi-api
 Export-Package: org.openntf.xsp.cdi.provider
+Import-Package: lotus.domino

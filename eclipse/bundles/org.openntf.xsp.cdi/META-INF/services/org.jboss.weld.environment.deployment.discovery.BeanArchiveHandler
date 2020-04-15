@@ -1,1 +1,2 @@
 org.openntf.xsp.cdi.discovery.NSFBeanArchiveHandler
+org.openntf.xsp.cdi.discovery.OSGiServletBeanArchiveHandler

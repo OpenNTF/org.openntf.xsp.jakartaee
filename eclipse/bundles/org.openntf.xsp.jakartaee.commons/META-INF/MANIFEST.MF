@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.osgi,
  org.eclipse.core.runtime,
  com.ibm.commons;bundle-version="9.0.1",
  com.ibm.commons.xml;bundle-version="9.0.1",
+ com.ibm.domino.napi,
  com.ibm.xsp.core;bundle-version="9.0.1",
  com.ibm.xsp.domino
 Bundle-ClassPath: .

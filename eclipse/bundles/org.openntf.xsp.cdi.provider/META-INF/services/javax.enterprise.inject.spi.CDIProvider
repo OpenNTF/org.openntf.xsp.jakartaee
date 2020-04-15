@@ -1,1 +1,2 @@
 org.openntf.xsp.cdi.provider.NSFCDIProvider
+org.openntf.xsp.cdi.provider.OSGiServletCDIProvider
