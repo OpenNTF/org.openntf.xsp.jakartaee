@@ -16,24 +16,30 @@
 package org.openntf.xsp.jaxrs.weld;
 
 import java.io.IOException;
+import java.util.HashMap;
 
+import javax.enterprise.inject.spi.CDI;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openntf.xsp.cdi.context.RequestContext;
+import org.jboss.weld.context.RequestContext;
+import org.jboss.weld.context.bound.BoundLiteral;
+import org.jboss.weld.context.bound.BoundRequestContext;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 
 public class WeldServiceParticipant implements ServiceParticipant {
 
 	@Override
 	public void doBeforeService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		RequestContext.inject();
+		BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
+		context.associate(new HashMap<>());
+		context.activate();
 	}
 
 	@Override
 	public void doAfterService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		RequestContext.eject();
+		CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get().deactivate();
 	}
 
 }

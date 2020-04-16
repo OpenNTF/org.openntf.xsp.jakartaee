@@ -15,11 +15,22 @@
  */
 package org.openntf.xsp.cdi.impl;
 
+import java.util.HashMap;
+
+import javax.enterprise.inject.spi.CDI;
+import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 
-import org.openntf.xsp.cdi.context.RequestContext;
+import org.jboss.weld.context.RequestContext;
+import org.jboss.weld.context.bound.BoundLiteral;
+import org.jboss.weld.context.bound.BoundRequestContext;
+import org.openntf.xsp.cdi.util.ContainerUtil;
+
+import com.ibm.xsp.application.ApplicationEx;
+import com.ibm.xsp.context.FacesContextEx;
+import com.ibm.xsp.event.FacesContextListener;
 
 /**
  * This simulates a "request listener" to build and tear down
@@ -30,17 +41,45 @@ import org.openntf.xsp.cdi.context.RequestContext;
  */
 public class WeldPhaseListener implements PhaseListener {
 	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * @since 1.2.0
+	 */
+	private enum RequestTermListener implements FacesContextListener {
+		instance;
+
+		@Override
+		public void beforeRenderingPhase(FacesContext facesContext) {
+		}
+		
+		@Override
+		public void beforeContextReleased(FacesContext facesContext) {
+			CDI<Object> cdi = ContainerUtil.getContainer(ApplicationEx.getInstance(facesContext));
+			BoundRequestContext context = (BoundRequestContext)cdi.select(RequestContext.class, BoundLiteral.INSTANCE).get();
+			context.deactivate();
+			context.invalidate();
+			context.dissociate(null);
+		}
+	}
 
 	@Override
 	public void beforePhase(PhaseEvent event) {
-		RequestContext.inject();
+		if(PhaseId.RESTORE_VIEW.equals(event.getPhaseId()) || PhaseId.RENDER_RESPONSE.equals(event.getPhaseId())) {
+			FacesContextEx facesContext = (FacesContextEx)event.getFacesContext();
+			CDI<Object> cdi = ContainerUtil.getContainer(ApplicationEx.getInstance(facesContext));
+			BoundRequestContext context = (BoundRequestContext)cdi.select(RequestContext.class, BoundLiteral.INSTANCE).get();
+			if(!context.isActive()) {
+				context.associate(new HashMap<>());
+				context.activate();
+			}
+			
+			facesContext.addRequestListener(RequestTermListener.instance);
+		}
 	}
 	
 	@Override
 	public void afterPhase(PhaseEvent event) {
-		if(PhaseId.RENDER_RESPONSE.equals(event.getPhaseId())) {
-			RequestContext.eject();
-		}
+		
 	}
 
 
