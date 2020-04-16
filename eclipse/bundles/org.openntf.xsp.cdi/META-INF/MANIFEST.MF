@@ -29,7 +29,9 @@ Require-Bundle: org.eclipse.osgi,
 Bundle-Activator: org.openntf.xsp.cdi.Activator
 Bundle-ClassPath: .
 Import-Package: lotus.domino
-Export-Package: org.openntf.xsp.cdi.context,
+Export-Package: org.openntf.xsp.cdi,
+ org.openntf.xsp.cdi.context,
  org.openntf.xsp.cdi.discovery,
+ org.openntf.xsp.cdi.impl,
  org.openntf.xsp.cdi.util
 Bundle-ActivationPolicy: lazy
