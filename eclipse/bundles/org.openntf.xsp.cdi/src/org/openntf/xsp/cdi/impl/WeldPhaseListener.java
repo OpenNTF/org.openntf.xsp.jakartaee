@@ -22,10 +22,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
+import javax.servlet.http.HttpServletRequest;
 
 import org.jboss.weld.context.RequestContext;
 import org.jboss.weld.context.bound.BoundLiteral;
 import org.jboss.weld.context.bound.BoundRequestContext;
+import org.openntf.xsp.cdi.context.SessionScopeContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
@@ -66,7 +68,8 @@ public class WeldPhaseListener implements PhaseListener {
 	public void beforePhase(PhaseEvent event) {
 		if(PhaseId.RESTORE_VIEW.equals(event.getPhaseId()) || PhaseId.RENDER_RESPONSE.equals(event.getPhaseId())) {
 			FacesContextEx facesContext = (FacesContextEx)event.getFacesContext();
-			CDI<Object> cdi = ContainerUtil.getContainer(ApplicationEx.getInstance(facesContext));
+			ApplicationEx app = ApplicationEx.getInstance(facesContext);
+			CDI<Object> cdi = ContainerUtil.getContainer(app);
 			BoundRequestContext context = (BoundRequestContext)cdi.select(RequestContext.class, BoundLiteral.INSTANCE).get();
 			if(!context.isActive()) {
 				context.associate(new HashMap<>());
@@ -74,6 +77,10 @@ public class WeldPhaseListener implements PhaseListener {
 			}
 			
 			facesContext.addRequestListener(RequestTermListener.instance);
+			
+			// Also inject the session scope, as XPages may not have called the SessionListener yet
+			HttpServletRequest req = (HttpServletRequest)event.getFacesContext().getExternalContext().getRequest();
+			SessionScopeContext.inject(app, req.getSession());
 		}
 	}
 	

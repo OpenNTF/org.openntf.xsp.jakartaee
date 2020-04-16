@@ -15,74 +15,32 @@
  */
 package org.openntf.xsp.cdi.impl;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.enterprise.context.SessionScoped;
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 
-import org.jboss.weld.manager.BeanManagerImpl;
 import org.openntf.xsp.cdi.CDILibrary;
-import org.openntf.xsp.cdi.context.AbstractIdentifiedContext;
-import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.cdi.context.SessionScopeContext;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.events.SessionListener;
 
+/**
+ * 
+ * @author Jesse Gallagher
+ * @since 1.0.0
+ */
 public class WeldSessionListener implements SessionListener {
-	
-	private static final Map<String, SessionScopeContext> contexts = new ConcurrentHashMap<>();
-	
-	private static class SessionScopeContext extends AbstractIdentifiedContext {
-		protected SessionScopeContext(String contextId, String sessionId) {
-			super(contextId, sessionId, SessionScoped.class);
-		}
-		
-		@Override
-		public boolean isActive() {
-			if(!super.isActive()) {
-				return false;
-			}
-			
-			// Check the active session
-			FacesContext facesContext = FacesContext.getCurrentInstance();
-			if(facesContext != null) {
-				HttpServletRequest req = (HttpServletRequest)facesContext.getExternalContext().getRequest();
-				HttpSession session = req.getSession();
-				return getId().equals(session.getId());
-			}
-			
-			return true;
-		}
-		
-	}
-
 	@Override
 	public synchronized void sessionCreated(ApplicationEx application, HttpSessionEvent event) {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
-			String sessionId = event.getSession().getId();
-			contexts.computeIfAbsent(sessionId, id -> {
-				BeanManagerImpl beanManager = ContainerUtil.getBeanManager(application);
-				
-				SessionScopeContext context = new SessionScopeContext(beanManager.getContextId(), id);
-				beanManager.addContext(context);
-				return context;
-			});
+			SessionScopeContext.inject(application, event.getSession());
 		}
 	}
 
 	@Override
 	public synchronized void sessionDestroyed(ApplicationEx application, HttpSessionEvent event) {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
-			String sessionId = event.getSession().getId();
-			SessionScopeContext context = contexts.remove(sessionId);
-			if(context != null) {
-				context.invalidate();
-			}
+			SessionScopeContext.eject(application, event.getSession());
 		}
 	}
 
