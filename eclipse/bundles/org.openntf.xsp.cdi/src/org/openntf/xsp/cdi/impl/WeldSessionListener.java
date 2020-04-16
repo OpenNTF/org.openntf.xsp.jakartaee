@@ -67,7 +67,7 @@ public class WeldSessionListener implements SessionListener {
 			String sessionId = event.getSession().getId();
 			BeanManagerImpl beanManager = ContainerUtil.getBeanManager(application);
 			
-			beanManager.addContext(contexts.compute(sessionId, (id, old) -> 
+			beanManager.addContext(contexts.computeIfAbsent(sessionId, id -> 
 				new SessionScopeContext(beanManager.getContextId(), sessionId)
 			));
 		}
@@ -77,7 +77,7 @@ public class WeldSessionListener implements SessionListener {
 	public void sessionDestroyed(ApplicationEx application, HttpSessionEvent event) {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			String sessionId = event.getSession().getId();
-			SessionScopeContext context = contexts.get(sessionId);
+			SessionScopeContext context = contexts.remove(sessionId);
 			if(context != null) {
 				context.invalidate();
 			}
