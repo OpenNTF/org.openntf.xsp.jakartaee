@@ -252,6 +252,20 @@ public enum ContainerUtil {
 		}
 	}
 	
+	/**
+	 * @since 1.2.0
+	 */
+	public static BeanManagerImpl getBeanManager(CDI<Object> container) {
+		BeanManager manager = container.getBeanManager();
+		if(manager instanceof BeanManagerImpl) {
+			return (BeanManagerImpl)manager;
+		} else if(manager instanceof ForwardingBeanManager) {
+			return (BeanManagerImpl) ((ForwardingBeanManager)manager).delegate();
+		} else {
+			throw new IllegalStateException("Cannot find BeanManagerImpl in " + manager); //$NON-NLS-1$
+		}
+	}
+	
 	// *******************************************************************************
 	// * Internal utilities
 	// *******************************************************************************
