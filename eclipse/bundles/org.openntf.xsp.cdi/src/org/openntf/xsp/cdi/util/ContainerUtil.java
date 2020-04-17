@@ -58,13 +58,19 @@ import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
 /**
- * Utility methods for working with Weld containers based on a given XPages application.
+ * Utility methods for working with Weld containers based on a given XPages application
+ * or running environment.
  * 
  * @author Jesse Gallagher
  * @since 1.0.0
  */
 public enum ContainerUtil {
 	;
+	
+	/**
+	 * @since 1.2.0
+	 */
+	private static final ThreadLocal<String> threadContextDatabasePath = new ThreadLocal<>();
 
 	/**
 	 * Gets or created a {@link WeldContainer} instance for the provided Application.
@@ -264,6 +270,31 @@ public enum ContainerUtil {
 		} else {
 			throw new IllegalStateException("Cannot find BeanManagerImpl in " + manager); //$NON-NLS-1$
 		}
+	}
+	
+	/**
+	 * Sets the database path to use when determining the active container for dynamic lookups. When
+	 * set to a non-empty value, this value takes priority over XPages or OSGi servlet contextual
+	 * information.
+	 * 
+	 * @param databasePath the path of the contextual database to use when looking up containers;
+	 * 		may be {@code null} to disable an override
+	 * @since 1.2.0
+	 */
+	public static void setThreadContextDatabasePath(String databasePath) {
+		threadContextDatabasePath.set(databasePath);
+	}
+	
+	/**
+	 * Retrieves the value set by {@linlk #setThreadContextDatabasePath(String)} for an overridden
+	 * contextual database path for containers.
+	 * 
+	 * @return the path of the set contextual database to use when looking up containers; may be
+	 * 		{@code null} or empty
+	 * @since 1.2.0
+	 */
+	public static String getThreadContextDatabasePath() {
+		return threadContextDatabasePath.get();
 	}
 	
 	// *******************************************************************************

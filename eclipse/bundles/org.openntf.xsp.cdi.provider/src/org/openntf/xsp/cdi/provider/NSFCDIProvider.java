@@ -20,6 +20,10 @@ import javax.enterprise.inject.spi.CDIProvider;
 
 import org.openntf.xsp.cdi.util.ContainerUtil;
 
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.domino.napi.NotesDatabase;
+import com.ibm.designer.domino.napi.NotesSession;
+import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.xsp.application.ApplicationEx;
 
 /**
@@ -31,10 +35,53 @@ import com.ibm.xsp.application.ApplicationEx;
 public class NSFCDIProvider implements CDIProvider {
 
 	@Override
-	public CDI<Object> getCDI() {
+	public synchronized CDI<Object> getCDI() {
+		CDI<Object> result = null;
+		
+		String databasePath = ContainerUtil.getThreadContextDatabasePath();
+		if(StringUtil.isNotEmpty(databasePath)) {
+			try {
+				NotesSession session = new NotesSession();
+				try {
+					NotesDatabase database = session.getDatabase(databasePath);
+					if(database != null) {
+						database.open();
+						try {
+							result = ContainerUtil.getContainer(database);
+						} finally {
+							database.recycle();
+						}
+					}
+				} finally {
+					session.recycle();
+				}
+			} catch(Throwable t) {
+				t.printStackTrace();
+			}
+		}
+		if(result != null) {
+			return result;
+		}
+			
+		
 		ApplicationEx application = ApplicationEx.getInstance();
 		if(application != null) {
-			return ContainerUtil.getContainer(application);
+			result = ContainerUtil.getContainer(application);
+		}
+		if(result != null) {
+			return result;
+		}
+		
+		try {
+			NotesDatabase database = ContextInfo.getServerDatabase();
+			if(database != null) {
+				result = ContainerUtil.getContainer(database);
+			}
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+		if(result != null) {
+			return result;
 		}
 		
 		return null;

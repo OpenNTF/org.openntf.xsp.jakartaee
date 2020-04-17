@@ -25,10 +25,12 @@ Require-Bundle: org.eclipse.osgi,
  org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0",
  org.jboss.spec.javax.interceptor.jboss-interceptors-api_1.2_spec;bundle-version="1.0.0";visibility:=reexport,
  com.ibm.domino.osgi.core,
- com.ibm.xsp.extsn
+ com.ibm.xsp.extsn,
+ com.ibm.xsp.designer
 Bundle-Activator: org.openntf.xsp.cdi.Activator
 Bundle-ClassPath: .
-Import-Package: lotus.domino
+Import-Package: com.ibm.domino.xsp.adapter.osgi,
+ lotus.domino
 Export-Package: org.openntf.xsp.cdi,
  org.openntf.xsp.cdi.context,
  org.openntf.xsp.cdi.discovery,
