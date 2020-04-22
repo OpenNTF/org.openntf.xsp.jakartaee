@@ -39,13 +39,12 @@ import com.ibm.commons.extension.ExtensionManager;
 public class FacesELContext extends StandardELContext {
 	public FacesELContext(ExpressionFactory factory) {
 		super(factory);
-		addELResolver(new BeanNameELResolver(new FacesBeanNameResolver()));
-		addELResolver(new XSPELResolver());
 		
 		// Add any other available resolvers
 		List<ELResolverProvider> providers = AccessController.doPrivileged((PrivilegedAction<List<ELResolverProvider>>)() ->
-			ExtensionManager.findServices(null, Thread.currentThread().getContextClassLoader(), ELResolverProvider.class.getName(), ELResolverProvider.class)
+			ExtensionManager.findServices(null, ELResolverProvider.class.getClassLoader(), ELResolverProvider.class.getName(), ELResolverProvider.class)
 		);
+		
 		if(providers != null) {
 			for(ELResolverProvider provider : providers) {
 				Collection<ELResolver> resolvers = provider.provide();
@@ -54,6 +53,9 @@ public class FacesELContext extends StandardELContext {
 				}
 			}
 		}
+		
+		addELResolver(new BeanNameELResolver(new FacesBeanNameResolver()));
+		addELResolver(new XSPELResolver());
 	}
 	
 	@Override
