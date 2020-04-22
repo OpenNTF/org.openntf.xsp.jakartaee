@@ -23,7 +23,7 @@ Require-Bundle: org.eclipse.osgi,
  org.openntf.org.jboss.weld.environment.weld-environment-common;bundle-version="3.0.4";visibility:=reexport,
  org.openntf.org.jboss.weld.se.weld-se-core;bundle-version="3.0.4";visibility:=reexport,
  org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0",
- org.jboss.spec.javax.interceptor.jboss-interceptors-api_1.2_spec;bundle-version="1.0.0";visibility:=reexport,
+ org.openntf.spec.javax.interceptor-api_1.2_spec;bundle-version="1.0.0";visibility:=reexport,
  com.ibm.domino.osgi.core,
  com.ibm.xsp.extsn,
  com.ibm.xsp.designer

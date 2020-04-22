@@ -25,7 +25,7 @@
 	<properties>
 		<jnosql-version>0.0.7</jnosql-version>
 		<weld-version>3.0.5.Final</weld-version>
-		<resteasy-version>3.7.0.Final</resteasy-version>
+		<resteasy-version>3.11.2.Final</resteasy-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
@@ -78,8 +78,29 @@
 									JAX-RS 
 								-->
 								<artifact>
+									<id>org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:2.0.1.Final</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Export-Package>*;version="2.1.0"</Export-Package>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.spec.javax.interceptor:jboss-interceptors-api_1.2_spec:2.0.0.Final</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.spec.javax.interceptor-api_1.2_spec</Bundle-SymbolicName>
+										<Bundle-Version>2.0.0.${osgi-qualifier}</Bundle-Version>
+										<Export-Package>*;version="1.2.0"</Export-Package>
+									</instructions>
+								</artifact>
+								<artifact>
 									<id>org.jboss.resteasy:resteasy-jaxrs:${resteasy-version}</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.jaxrs</Bundle-SymbolicName>
@@ -177,6 +198,9 @@
 								<artifact>
 									<id>org.jboss.resteasy:resteasy-cdi:${resteasy-version}</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.cdi</Bundle-SymbolicName>
@@ -192,6 +216,9 @@
 								<artifact>
 									<id>org.jboss.resteasy:resteasy-jaxb-provider:${resteasy-version}</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.jaxb-provider</Bundle-SymbolicName>
@@ -204,6 +231,9 @@
 								<artifact>
 									<id>org.jboss.resteasy:resteasy-multipart-provider:${resteasy-version}</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.multipart-provider</Bundle-SymbolicName>
@@ -216,6 +246,9 @@
 								<artifact>
 									<id>org.jboss.resteasy:resteasy-json-p-provider:${resteasy-version}</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.json-p-provider</Bundle-SymbolicName>
@@ -228,6 +261,9 @@
 								<artifact>
 									<id>org.jboss.resteasy:resteasy-json-binding-provider:${resteasy-version}</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.json-binding-provider</Bundle-SymbolicName>
@@ -240,6 +276,9 @@
 								<artifact>
 									<id>org.jboss.resteasy:resteasy-validator-provider:${resteasy-version}</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.validator-provider</Bundle-SymbolicName>
@@ -339,6 +378,10 @@
 								<artifact>
 									<id>org.jboss.weld.se:weld-se-core:${weld-version}</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.se.weld-se-core</Bundle-SymbolicName>
@@ -356,6 +399,10 @@
 								<artifact>
 									<id>org.jboss.weld.environment:weld-environment-common:${weld-version}</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.environment.weld-environment-common</Bundle-SymbolicName>
@@ -394,6 +441,10 @@
 								<artifact>
 									<id>org.jboss.weld:weld-core-impl:${weld-version}</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.core-impl</Bundle-SymbolicName>
@@ -523,6 +574,10 @@
 								<artifact>
 									<id>org.jboss.weld:weld-api:3.0.SP4</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.api</Bundle-SymbolicName>
@@ -535,6 +590,10 @@
 								<artifact>
 									<id>org.jboss.weld:weld-spi:3.0.SP4</id>
 									<source>true</source>
+									<excludes>
+										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.spi</Bundle-SymbolicName>
