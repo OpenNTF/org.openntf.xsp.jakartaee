@@ -25,7 +25,7 @@
 	<properties>
 		<jnosql-version>0.0.7</jnosql-version>
 		<weld-version>3.0.5.Final</weld-version>
-		<resteasy-version>3.6.2.Final</resteasy-version>
+		<resteasy-version>3.7.0.Final</resteasy-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
@@ -234,6 +234,21 @@
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											org.openntf.org.jboss.resteasy.jaxrs
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-validator-provider:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.validator-provider</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.jaxrs,
+											javax.validation.api;bundle-version="2.0.0",
+											org.openntf.javax.el;bundle-version="3.0.0",
+											org.openntf.org.hibernate.validator.hibernate-validator
 										</Require-Bundle>
 									</instructions>
 								</artifact>
