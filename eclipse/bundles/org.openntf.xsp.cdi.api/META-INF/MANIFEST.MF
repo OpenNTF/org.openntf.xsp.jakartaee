@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages CDI API and NSF Provider
+Bundle-SymbolicName: org.openntf.xsp.cdi.api;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.cdi.api
+Bundle-Version: 1.2.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: javax.decorator,
+ javax.enterprise.context;version="2.0.0",
+ javax.enterprise.context.control;version="2.0.0",
+ javax.enterprise.context.spi;version="2.0.0",
+ javax.enterprise.event;version="2.0.0",
+ javax.enterprise.inject;version="2.0.0",
+ javax.enterprise.inject.literal;version="2.0.0",
+ javax.enterprise.inject.se;version="2.0.0",
+ javax.enterprise.inject.spi;version="2.0.0",
+ javax.enterprise.inject.spi.configurator;version="2.0.0",
+ javax.enterprise.util;version="2.0.0"
+Require-Bundle: javax.inject;bundle-version="1.0.0",
+ org.openntf.javax.el;bundle-version="3.0.0",
+ org.openntf.spec.javax.interceptor-api_1.2_spec;bundle-version="2.0.0"
+DynamicImport-Package: *

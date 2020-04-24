@@ -32,4 +32,11 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.core.events.SessionListener" class="org.openntf.xsp.cdi.impl.WeldSessionListener" />
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="com.ibm.xsp.RequestParameters" class="org.openntf.xsp.cdi.impl.CDIRequestCustomizerFactory" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.cdi.ext.CDIContainerUtility" class="org.openntf.xsp.cdi.impl.ContainerUtilProvider" />
+	</extension>
 </plugin>

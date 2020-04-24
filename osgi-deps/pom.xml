@@ -200,6 +200,7 @@
 									<source>true</source>
 									<excludes>
 										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+										<exclude>:cdi-api::</exclude>
 									</excludes>
 									<override>true</override>
 									<instructions>
@@ -381,13 +382,15 @@
 									<excludes>
 										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
 										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+										<exclude>:cdi-api::</exclude>
 									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.se.weld-se-core</Bundle-SymbolicName>
 										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
-											javax.annotation-api
+											javax.annotation-api,
+											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 									</instructions>
 								</artifact>
@@ -402,13 +405,15 @@
 									<excludes>
 										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
 										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+										<exclude>:cdi-api::</exclude>
 									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.environment.weld-environment-common</Bundle-SymbolicName>
 										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
-											javax.annotation-api
+											javax.annotation-api,
+											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 										<Import-Package>
 											javax.enterprise.context;resolution:=optional,
@@ -444,13 +449,15 @@
 									<excludes>
 										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
 										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+										<exclude>:cdi-api::</exclude>
 									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.core-impl</Bundle-SymbolicName>
 										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
-											javax.annotation-api
+											javax.annotation-api,
+											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 										<Import-Package>
 											javax.decorator;resolution:=optional,
@@ -577,13 +584,15 @@
 									<excludes>
 										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
 										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+										<exclude>:cdi-api::</exclude>
 									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.api</Bundle-SymbolicName>
 										<Bundle-Version>3.0.0.SP4_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
-											javax.annotation-api
+											javax.annotation-api,
+											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 									</instructions>
 								</artifact>
@@ -593,13 +602,15 @@
 									<excludes>
 										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
 										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+										<exclude>:cdi-api::</exclude>
 									</excludes>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.weld.spi</Bundle-SymbolicName>
 										<Bundle-Version>3.0.0.SP4_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
-											javax.annotation-api
+											javax.annotation-api,
+											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 										<Import-Package>
 											javax.annotation;resolution:=optional,

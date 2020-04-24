@@ -97,6 +97,10 @@ public class SessionScopeContext extends AbstractIdentifiedContext {
 		contexts.computeIfAbsent(key, id -> {
 			try {
 				CDI<Object> container = ContainerUtil.getContainer(database);
+				if(container == null) {
+					// Try to find one from the main provider, which can use extensions
+					container = CDI.current();
+				}
 				BeanManagerImpl beanManager = ContainerUtil.getBeanManager(container);
 				
 				SessionScopeContext context = new SessionScopeContext(beanManager.getContextId(), id);

@@ -17,9 +17,13 @@ package org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
+import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesNote;
@@ -103,5 +107,20 @@ public enum LibraryUtil {
 			}
 		}
 		return props;
+	}
+	
+	/**
+	 * Finds extensions for the given class using the IBM Commons extension mechanism.
+	 * 
+	 * <p>This method assumes that the extension point name is the same as the qualified class name.</p>
+	 * 
+	 * @param <T> the class of extension to find
+	 * @param extensionClass the class object representing the extension point
+	 * @return a {@link List} of service objects for the class
+	 */
+	public static <T> List<T> findExtensions(Class<T> extensionClass) {
+		return AccessController.doPrivileged((PrivilegedAction<List<T>>)() ->
+			ExtensionManager.findServices(null, extensionClass.getClassLoader(), extensionClass.getName(), extensionClass)
+		);
 	}
 }

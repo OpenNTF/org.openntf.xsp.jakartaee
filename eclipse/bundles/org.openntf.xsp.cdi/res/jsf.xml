@@ -19,9 +19,5 @@
 <faces-config>
 	<application>
 		<variable-resolver>org.openntf.xsp.cdi.impl.CDIResolver</variable-resolver>
-<!-- 		<view-handler>org.openntf.xsp.cdi.impl.WeldViewHandler</view-handler> -->
 	</application>
-	<lifecycle>
-		<phase-listener>org.openntf.xsp.cdi.impl.WeldPhaseListener</phase-listener>
-	</lifecycle>
 </faces-config>

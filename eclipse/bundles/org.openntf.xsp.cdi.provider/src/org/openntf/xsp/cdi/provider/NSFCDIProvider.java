@@ -15,12 +15,20 @@
  */
 package org.openntf.xsp.cdi.provider;
 
+import java.io.IOException;
+import java.util.List;
+
 import javax.enterprise.inject.spi.CDI;
 import javax.enterprise.inject.spi.CDIProvider;
 
-import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.eclipse.core.runtime.Platform;
+import org.openntf.xsp.cdi.ext.CDIContainerLocator;
+import org.openntf.xsp.cdi.ext.CDIContainerUtility;
+import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.osgi.framework.Bundle;
 
 import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesSession;
 import com.ibm.domino.osgi.core.context.ContextInfo;
@@ -33,12 +41,14 @@ import com.ibm.xsp.application.ApplicationEx;
  * @since 1.0.0
  */
 public class NSFCDIProvider implements CDIProvider {
-
+	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized CDI<Object> getCDI() {
 		CDI<Object> result = null;
 		
-		String databasePath = ContainerUtil.getThreadContextDatabasePath();
+		CDIContainerUtility util = LibraryUtil.findExtensions(CDIContainerUtility.class).get(0);
+		
+		String databasePath = util.getThreadContextDatabasePath();
 		if(StringUtil.isNotEmpty(databasePath)) {
 			try {
 				NotesSession session = new NotesSession();
@@ -47,7 +57,7 @@ public class NSFCDIProvider implements CDIProvider {
 					if(database != null) {
 						database.open();
 						try {
-							result = ContainerUtil.getContainer(database);
+							result = (CDI<Object>)util.getContainer(database);
 						} finally {
 							database.recycle();
 						}
@@ -66,7 +76,7 @@ public class NSFCDIProvider implements CDIProvider {
 		
 		ApplicationEx application = ApplicationEx.getInstance();
 		if(application != null) {
-			result = ContainerUtil.getContainer(application);
+			result = (CDI<Object>)util.getContainer(application);
 		}
 		if(result != null) {
 			return result;
@@ -75,13 +85,55 @@ public class NSFCDIProvider implements CDIProvider {
 		try {
 			NotesDatabase database = ContextInfo.getServerDatabase();
 			if(database != null) {
-				result = ContainerUtil.getContainer(database);
+				result = (CDI<Object>)util.getContainer(database);
 			}
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 		if(result != null) {
 			return result;
+		}
+		
+		// Check in any available locator extensions
+		List<CDIContainerLocator> locators = LibraryUtil.findExtensions(CDIContainerLocator.class);
+		NotesSession session = new NotesSession();
+		try {
+			for(CDIContainerLocator locator : locators) {
+				String nsfPath = locator.getNsfPath();
+				if(StringUtil.isNotEmpty(nsfPath)) {
+					try {
+						NotesDatabase database = session.getDatabaseByPath(nsfPath);
+						try {
+							database.open();
+							result = (CDI<Object>)util.getContainer(database);
+							if(result != null) {
+								return result;
+							}
+						} finally {
+							if(database != null) {
+								database.recycle();
+							}
+						}
+					} catch (NotesAPIException | IOException e) {
+						// Log and move on
+						e.printStackTrace();
+					}
+				}
+				
+				String bundleId = locator.getBundleId();
+				if(StringUtil.isNotEmpty(bundleId)) {
+					Bundle bundle = Platform.getBundle(bundleId);
+					if(bundle != null) {
+						return (CDI<Object>)util.getContainer(bundle);
+					}
+				}
+			}
+		} finally {
+			try {
+				session.recycle();
+			} catch (NotesAPIException e) {
+				// Ignore
+			}
 		}
 		
 		return null;

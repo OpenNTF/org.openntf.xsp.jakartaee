@@ -41,6 +41,7 @@
 		<module>features/org.openntf.xsp.log4j.feature</module>
 		
 		<!-- CDI Support -->
+		<module>bundles/org.openntf.xsp.cdi.api</module>
 		<module>bundles/org.openntf.xsp.cdi</module>
 		<module>bundles/org.openntf.xsp.cdi.provider</module>
 		<module>features/org.openntf.xsp.cdi.feature</module>
@@ -292,6 +293,7 @@
 			            <exclude>src/test/resources/**</exclude>
 			            <exclude>src/main/resources/**</exclude>
 						<exclude>**/build.properties</exclude>
+						<exclude>**/javax/**</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
