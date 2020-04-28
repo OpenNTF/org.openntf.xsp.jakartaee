@@ -91,7 +91,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.spec.javax.interceptor-api_1.2_spec</Bundle-SymbolicName>
-										<Bundle-Version>2.0.0.${osgi-qualifier}</Bundle-Version>
+										<Bundle-Version>2.0.0.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="1.2.0"</Export-Package>
 									</instructions>
 								</artifact>
@@ -390,6 +390,7 @@
 										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											javax.annotation-api,
+											org.openntf.spec.javax.interceptor-api_1.2_spec,
 											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 									</instructions>
@@ -413,6 +414,7 @@
 										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											javax.annotation-api,
+											org.openntf.spec.javax.interceptor-api_1.2_spec,
 											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 										<Import-Package>
@@ -457,6 +459,7 @@
 										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											javax.annotation-api,
+											org.openntf.spec.javax.interceptor-api_1.2_spec,
 											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 										<Import-Package>
@@ -592,6 +595,7 @@
 										<Bundle-Version>3.0.0.SP4_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											javax.annotation-api,
+											org.openntf.spec.javax.interceptor-api_1.2_spec,
 											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 									</instructions>
@@ -610,6 +614,7 @@
 										<Bundle-Version>3.0.0.SP4_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											javax.annotation-api,
+											org.openntf.spec.javax.interceptor-api_1.2_spec,
 											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 										<Import-Package>

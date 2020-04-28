@@ -30,7 +30,7 @@ Require-Bundle: org.eclipse.osgi,
  com.ibm.xsp.designer
 Bundle-Activator: org.openntf.xsp.cdi.Activator
 Bundle-ClassPath: .
-Import-Package: com.ibm.domino.xsp.adapter.osgi,
+Import-Package: com.ibm.domino.xsp.adapter.osgi;resolution:=optional,
  lotus.domino
 Export-Package: org.openntf.xsp.cdi,
  org.openntf.xsp.cdi.context,
