@@ -98,6 +98,10 @@ public enum ContainerUtil {
 					.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
 					.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
 				
+				for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
+					weld.addExtension(extension);
+				}
+				
 				for(WeldBeanClassContributor service : (List<WeldBeanClassContributor>)application.findServices(WeldBeanClassContributor.EXTENSION_POINT)) {
 					Collection<Class<?>> beanClasses = service.getBeanClasses();
 					if(beanClasses != null) {
