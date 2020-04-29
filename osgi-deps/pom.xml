@@ -240,7 +240,8 @@
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.multipart-provider</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
-											org.openntf.org.jboss.resteasy.jaxrs
+											org.openntf.org.jboss.resteasy.jaxrs,
+											com.ibm.designer.lib.javamail
 										</Require-Bundle>
 									</instructions>
 								</artifact>
@@ -460,6 +461,7 @@
 										<Require-Bundle>
 											javax.annotation-api,
 											org.openntf.spec.javax.interceptor-api_1.2_spec,
+											org.openntf.javax.el,
 											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 										<Import-Package>
@@ -596,6 +598,7 @@
 										<Require-Bundle>
 											javax.annotation-api,
 											org.openntf.spec.javax.interceptor-api_1.2_spec,
+											org.openntf.javax.el,
 											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 									</instructions>
@@ -615,6 +618,7 @@
 										<Require-Bundle>
 											javax.annotation-api,
 											org.openntf.spec.javax.interceptor-api_1.2_spec,
+											org.openntf.javax.el,
 											org.openntf.xsp.cdi.api
 										</Require-Bundle>
 										<Import-Package>
