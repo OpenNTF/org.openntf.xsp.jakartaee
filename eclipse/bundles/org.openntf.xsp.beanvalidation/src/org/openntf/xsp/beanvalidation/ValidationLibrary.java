@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.beanvalidation;
 
+import org.osgi.framework.FrameworkUtil;
+
 import com.ibm.xsp.library.AbstractXspLibrary;
 
 public class ValidationLibrary extends AbstractXspLibrary {
@@ -28,7 +30,7 @@ public class ValidationLibrary extends AbstractXspLibrary {
 	
 	@Override
 	public String getPluginId() {
-		return Activator.getDefault().getBundle().getSymbolicName();
+		return FrameworkUtil.getBundle(getClass()).getSymbolicName();
 	}
 	
 	@Override

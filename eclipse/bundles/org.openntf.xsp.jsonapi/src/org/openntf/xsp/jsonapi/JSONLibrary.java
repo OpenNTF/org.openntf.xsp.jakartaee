@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jsonapi;
 
+import org.osgi.framework.FrameworkUtil;
+
 import com.ibm.xsp.library.AbstractXspLibrary;
 
 public class JSONLibrary extends AbstractXspLibrary {
@@ -28,7 +30,7 @@ public class JSONLibrary extends AbstractXspLibrary {
 	
 	@Override
 	public String getPluginId() {
-		return Activator.getDefault().getBundle().getSymbolicName();
+		return FrameworkUtil.getBundle(getClass()).getSymbolicName();
 	}
 	
 	@Override

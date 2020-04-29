@@ -16,6 +16,4 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
  org.openntf.org.hibernate.validator.hibernate-validator;bundle-version="6.0.13",
  org.openntf.xsp.el3;bundle-version="1.0.0";visibility:=reexport,
  com.ibm.xsp.designer;bundle-version="9.0.1"
-Bundle-ActivationPolicy: lazy
-Bundle-Activator: org.openntf.xsp.beanvalidation.Activator
 Export-Package: org.openntf.xsp.beanvalidation

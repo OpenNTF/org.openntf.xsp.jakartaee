@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jsp;
 
+import org.osgi.framework.FrameworkUtil;
+
 import com.ibm.xsp.library.AbstractXspLibrary;
 
 /**
@@ -35,7 +37,7 @@ public class JspLibrary extends AbstractXspLibrary {
 	
 	@Override
 	public String getPluginId() {
-		return JspActivator.getDefault().getBundleContext().getBundle().getSymbolicName();
+		return FrameworkUtil.getBundle(getClass()).getSymbolicName();
 	}
 	
 	@Override

@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.el3;
 
+import org.osgi.framework.FrameworkUtil;
+
 import com.ibm.xsp.library.AbstractXspLibrary;
 
 public class EL3Library extends AbstractXspLibrary {
@@ -28,7 +30,7 @@ public class EL3Library extends AbstractXspLibrary {
 	
 	@Override
 	public String getPluginId() {
-		return Activator.getDefault().getBundle().getSymbolicName();
+		return FrameworkUtil.getBundle(getClass()).getSymbolicName();
 	}
 	
 	@Override

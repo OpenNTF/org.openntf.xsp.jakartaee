@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.cdi;
 
+import org.osgi.framework.FrameworkUtil;
+
 import com.ibm.xsp.library.AbstractXspLibrary;
 
 public class CDILibrary extends AbstractXspLibrary {
@@ -27,7 +29,7 @@ public class CDILibrary extends AbstractXspLibrary {
 	
 	@Override
 	public String getPluginId() {
-		return Activator.getDefault().getBundle().getSymbolicName();
+		return FrameworkUtil.getBundle(getClass()).getSymbolicName();
 	}
 	
 	@Override
