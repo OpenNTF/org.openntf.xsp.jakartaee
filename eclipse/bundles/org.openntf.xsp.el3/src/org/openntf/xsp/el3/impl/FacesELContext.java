@@ -26,8 +26,7 @@ import javax.el.ExpressionFactory;
 import javax.el.StandardELContext;
 
 import org.openntf.xsp.el3.ext.ELResolverProvider;
-
-import com.ibm.commons.extension.ExtensionManager;
+import org.openntf.xsp.jakartaee.LibraryUtil;
 
 /**
  * A subclass of {@link StandardELContext} that adds a resolver for an
@@ -41,9 +40,7 @@ public class FacesELContext extends StandardELContext {
 		super(factory);
 		
 		// Add any other available resolvers
-		List<ELResolverProvider> providers = AccessController.doPrivileged((PrivilegedAction<List<ELResolverProvider>>)() ->
-			ExtensionManager.findServices(null, ELResolverProvider.class.getClassLoader(), ELResolverProvider.class.getName(), ELResolverProvider.class)
-		);
+		List<ELResolverProvider> providers = LibraryUtil.findExtensions(ELResolverProvider.class);
 		
 		if(providers != null) {
 			for(ELResolverProvider provider : providers) {
