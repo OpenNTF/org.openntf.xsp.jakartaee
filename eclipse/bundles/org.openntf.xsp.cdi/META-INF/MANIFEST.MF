@@ -35,5 +35,4 @@ Export-Package: org.openntf.xsp.cdi,
  org.openntf.xsp.cdi.context,
  org.openntf.xsp.cdi.discovery,
  org.openntf.xsp.cdi.impl,
- org.openntf.xsp.cdi.session,
  org.openntf.xsp.cdi.util

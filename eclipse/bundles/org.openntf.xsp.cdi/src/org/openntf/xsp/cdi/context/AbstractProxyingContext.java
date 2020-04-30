@@ -1,19 +1,18 @@
-package org.openntf.xsp.cdi.session;
+package org.openntf.xsp.cdi.context;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import javax.enterprise.context.SessionScoped;
 import javax.enterprise.context.spi.Context;
 import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+
+import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -23,14 +22,13 @@ import com.ibm.domino.xsp.adapter.osgi.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.DesignerApplicationEx;
 
-import org.openntf.xsp.cdi.session.SessionScopeContextHolder.SessionScopeInstance;
-
 /**
- * @since 2020-04
- *
+ * 
+ * @author Jesse Gallagher
+ * @since 1.2.0
  */
-public class SessionScopeContext implements Context, Serializable {
-	private static final long serialVersionUID = 1L;
+@SuppressWarnings("serial")
+public abstract class AbstractProxyingContext implements Context, Serializable {
 	
 	private static final Field notesContextRequestField;
 	static {
@@ -45,23 +43,17 @@ public class SessionScopeContext implements Context, Serializable {
 		});
 	}
 
-	public static final String KEY_ID = SessionScopeContext.class.getName();
-	public static final String KEY_BEANS = KEY_ID + "_beans"; //$NON-NLS-1$
-
-	@Override
-	public Class<? extends Annotation> getScope() {
-		return SessionScoped.class;
-	}
-
+	protected abstract BasicScopeContextHolder getHolder();
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T get(final Contextual<T> contextual, final CreationalContext<T> creationalContext) {
 		Bean<T> bean = (Bean<T>) contextual;
-		SessionScopeContextHolder beans = getHolder();
+		BasicScopeContextHolder beans = getHolder();
 		if(beans.getBeans().containsKey(bean.getBeanClass().getName())) {
 			return (T)beans.getBean(bean.getBeanClass().getName()).instance;
 		} else {
-			SessionScopeInstance<T> instance = new SessionScopeInstance<>();
+			BasicScopeInstance<T> instance = new BasicScopeInstance<>();
 			instance.beanClass = bean.getBeanClass().getName();
 			instance.ctx = creationalContext;
 			instance.instance = bean.create(creationalContext);
@@ -70,11 +62,11 @@ public class SessionScopeContext implements Context, Serializable {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "null" })
+	@SuppressWarnings({ "unchecked" })
 	@Override
 	public <T> T get(final Contextual<T> contextual) {
 		Bean<T> bean = (Bean<T>) contextual;
-		SessionScopeContextHolder beans = getHolder();
+		BasicScopeContextHolder beans = getHolder();
 		if(beans.getBeans().containsKey(bean.getBeanClass().getName())) {
 			return (T)beans.getBean(bean.getBeanClass().getName()).instance;
 		} else {
@@ -87,14 +79,12 @@ public class SessionScopeContext implements Context, Serializable {
 		return true;
 	}
 	
-	private SessionScopeContextHolder getHolder() {
-		HttpSession session = getHttpSession();
-		String key = null;
-		
+	protected String generateKey() {
+		String dbPath = null;
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		if(facesContext != null) {
 			ApplicationEx application = ApplicationEx.getInstance(facesContext);
-			key = generateKey(((DesignerApplicationEx)application).getDesignerApplication().getAppName(), session);
+			dbPath = ((DesignerApplicationEx)application).getDesignerApplication().getAppName();
 		}
 		
 		// If we're not in a Faces context, check the OSGi servlet context
@@ -102,50 +92,39 @@ public class SessionScopeContext implements Context, Serializable {
 		if(notesContext != null) {
 			try {
 				NotesDatabase database = ContextInfo.getServerDatabase();
-				key = generateKey(database.getDatabasePath(), session);
+				dbPath = database.getDatabasePath();
 			} catch (NotesAPIException e) {
 				throw new RuntimeException(e);
 			}
 		}
 		
-		if(key == null) {
+		if(StringUtil.isEmpty(dbPath)) {
 			throw new IllegalStateException("Unable to locate context database");
 		}
 		
-		SessionScopeContextHolder holder = (SessionScopeContextHolder)session.getAttribute(key);
-		if(holder == null) {
-			holder = new SessionScopeContextHolder();
-			session.setAttribute(key, holder);
-		}
-		return holder;
-	}
-	
-	private static String generateKey(String dbPath, HttpSession session) {
 		String normalizedPath = StringUtil.toString(dbPath)
 			.toLowerCase()
 			.replace('\\', '/');
-		return SessionScopeContext.class.getName() + '-' + normalizedPath + '-' + session.getId();
+		return getClass().getName() + '-' + normalizedPath;
 	}
-
-	private HttpSession getHttpSession() {
+	
+	protected HttpServletRequest getHttpServletRequest() {
 		// Check the active session
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		if(facesContext != null) {
-			HttpServletRequest req = (HttpServletRequest)facesContext.getExternalContext().getRequest();
-			return req.getSession();
+			return (HttpServletRequest)facesContext.getExternalContext().getRequest();
 		}
 		
 		// If we're not in a Faces context, check the OSGi servlet context
 		NotesContext notesContext = NotesContext.getCurrentUnchecked();
 		if(notesContext != null) {
-			HttpServletRequest req = getHttpServletRequest(notesContext);
-			return req.getSession();
+			return getHttpServletRequest(notesContext);
 		}
 		
 		return null;
 	}
 	
-	private static HttpServletRequest getHttpServletRequest(NotesContext context) {
+	protected HttpServletRequest getHttpServletRequest(NotesContext context) {
 		return AccessController.doPrivileged((PrivilegedAction<HttpServletRequest>)() -> {
 			try {
 				return (HttpServletRequest)notesContextRequestField.get(context);

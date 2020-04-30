@@ -1,4 +1,4 @@
-package org.openntf.xsp.cdi.session;
+package org.openntf.xsp.cdi.context;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -9,28 +9,28 @@ import javax.enterprise.context.spi.CreationalContext;
 /**
  * @since 2020-04
  */
-public class SessionScopeContextHolder implements Serializable {
+public class BasicScopeContextHolder implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private final Map<String, SessionScopeInstance<?>> beans = new HashMap<>();
+	private final Map<String, BasicScopeInstance<?>> beans = new HashMap<>();
 
-	public Map<String, SessionScopeInstance<?>> getBeans() {
+	public Map<String, BasicScopeInstance<?>> getBeans() {
 		return beans;
 	}
 
-	public SessionScopeInstance<?> getBean(final String className) {
+	public BasicScopeInstance<?> getBean(final String className) {
 		return getBeans().get(className);
 	}
 
-	public <T> void putBean(final SessionScopeInstance<T> instance) {
+	public <T> void putBean(final BasicScopeInstance<T> instance) {
 		getBeans().put(instance.beanClass, instance);
 	}
 
-	public <T> void destroyBean(final SessionScopeInstance<T> instance) {
+	public <T> void destroyBean(final BasicScopeInstance<T> instance) {
 		// Good to have a stub, but this currently can't happen
 	}
 
-	public static class SessionScopeInstance<T> implements Serializable {
+	public static class BasicScopeInstance<T> implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		String beanClass;
