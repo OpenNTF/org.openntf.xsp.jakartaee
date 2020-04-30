@@ -81,20 +81,23 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 	
 	protected String generateKey() {
 		String dbPath = null;
+		
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		if(facesContext != null) {
 			ApplicationEx application = ApplicationEx.getInstance(facesContext);
 			dbPath = ((DesignerApplicationEx)application).getDesignerApplication().getAppName();
 		}
-		
+
 		// If we're not in a Faces context, check the OSGi servlet context
-		NotesContext notesContext = NotesContext.getCurrentUnchecked();
-		if(notesContext != null) {
-			try {
-				NotesDatabase database = ContextInfo.getServerDatabase();
-				dbPath = database.getDatabasePath();
-			} catch (NotesAPIException e) {
-				throw new RuntimeException(e);
+		if(StringUtil.isEmpty(dbPath)) {
+			NotesContext notesContext = NotesContext.getCurrentUnchecked();
+			if(notesContext != null) {
+				try {
+					NotesDatabase database = ContextInfo.getServerDatabase();
+					dbPath = database.getDatabasePath();
+				} catch (NotesAPIException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 		
