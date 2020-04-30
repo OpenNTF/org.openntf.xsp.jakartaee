@@ -4,13 +4,11 @@ import java.util.HashMap;
 
 import javax.enterprise.inject.spi.CDI;
 import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
 
 import org.jboss.weld.context.RequestContext;
 import org.jboss.weld.context.bound.BoundLiteral;
 import org.jboss.weld.context.bound.BoundRequestContext;
 import org.openntf.xsp.cdi.CDILibrary;
-import org.openntf.xsp.cdi.context.SessionScopeContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 
@@ -62,10 +60,6 @@ public class CDIRequestCustomizerFactory extends RequestCustomizerFactory {
 			}
 			
 			facesContext.addRequestListener(RequestTermListener.instance);
-			
-			// Also inject the session scope, as XPages may not have called the SessionListener yet
-			HttpServletRequest req = (HttpServletRequest)facesContext.getExternalContext().getRequest();
-			SessionScopeContext.inject(app, req.getSession());
 		}
 	}
 
