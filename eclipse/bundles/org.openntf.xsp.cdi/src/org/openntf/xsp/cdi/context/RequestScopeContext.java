@@ -20,13 +20,18 @@ public class RequestScopeContext extends AbstractProxyingContext {
 	@Override
 	public BasicScopeContextHolder getHolder() {
 		HttpServletRequest req = getHttpServletRequest();
-		String key = generateKey();
-		
-		BasicScopeContextHolder holder = (BasicScopeContextHolder)req.getAttribute(key);
-		if(holder == null) {
-			holder = new BasicScopeContextHolder();
-			req.setAttribute(key, holder);
+		if(req != null) {
+			String key = generateKey();
+			
+			BasicScopeContextHolder holder = (BasicScopeContextHolder)req.getAttribute(key);
+			if(holder == null) {
+				holder = new BasicScopeContextHolder();
+				req.setAttribute(key, holder);
+			}
+			return holder;
+		} else {
+			// Must be in a non-HTTP task - just spin up a discardable one
+			return new BasicScopeContextHolder();
 		}
-		return holder;
 	}
 }

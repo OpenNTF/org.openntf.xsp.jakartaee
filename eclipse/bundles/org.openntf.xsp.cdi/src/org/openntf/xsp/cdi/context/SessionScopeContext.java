@@ -21,14 +21,19 @@ public class SessionScopeContext extends AbstractProxyingContext {
 	@Override
 	protected BasicScopeContextHolder getHolder() {
 		HttpServletRequest req = getHttpServletRequest();
-		HttpSession session = req.getSession();
-		String key = generateKey();
-		
-		BasicScopeContextHolder holder = (BasicScopeContextHolder)session.getAttribute(key);
-		if(holder == null) {
-			holder = new BasicScopeContextHolder();
-			session.setAttribute(key, holder);
+		if(req != null) {
+			HttpSession session = req.getSession(true);
+			String key = generateKey();
+			
+			BasicScopeContextHolder holder = (BasicScopeContextHolder)session.getAttribute(key);
+			if(holder == null) {
+				holder = new BasicScopeContextHolder();
+				session.setAttribute(key, holder);
+			}
+			return holder;
+		} else {
+			// Must be in a non-HTTP task - just spin up a discardable one
+			return new BasicScopeContextHolder();
 		}
-		return holder;
 	}
 }
