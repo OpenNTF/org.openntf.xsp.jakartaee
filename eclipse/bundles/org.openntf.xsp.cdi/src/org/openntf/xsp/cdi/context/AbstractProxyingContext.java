@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.UUID;
 
 import javax.enterprise.context.spi.Context;
 import javax.enterprise.context.spi.Contextual;
@@ -14,13 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
 
-import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.domino.napi.NotesAPIException;
-import com.ibm.designer.domino.napi.NotesDatabase;
-import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.domino.xsp.adapter.osgi.NotesContext;
-import com.ibm.xsp.application.ApplicationEx;
-import com.ibm.xsp.application.DesignerApplicationEx;
 
 /**
  * 
@@ -42,6 +37,8 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 			}
 		});
 	}
+	
+	private final String id = UUID.randomUUID().toString();
 
 	protected abstract BasicScopeContextHolder getHolder();
 	
@@ -80,35 +77,7 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 	}
 	
 	protected String generateKey() {
-		String dbPath = null;
-		
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		if(facesContext != null) {
-			ApplicationEx application = ApplicationEx.getInstance(facesContext);
-			dbPath = ((DesignerApplicationEx)application).getDesignerApplication().getAppName();
-		}
-
-		// If we're not in a Faces context, check the OSGi servlet context
-		if(StringUtil.isEmpty(dbPath)) {
-			NotesContext notesContext = NotesContext.getCurrentUnchecked();
-			if(notesContext != null) {
-				try {
-					NotesDatabase database = ContextInfo.getServerDatabase();
-					dbPath = database.getDatabasePath();
-				} catch (NotesAPIException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-		
-		if(StringUtil.isEmpty(dbPath)) {
-			throw new IllegalStateException("Unable to locate context database");
-		}
-		
-		String normalizedPath = StringUtil.toString(dbPath)
-			.toLowerCase()
-			.replace('\\', '/');
-		return getClass().getName() + '-' + normalizedPath;
+		return getClass().getName() + '-' + id;
 	}
 	
 	protected HttpServletRequest getHttpServletRequest() {
