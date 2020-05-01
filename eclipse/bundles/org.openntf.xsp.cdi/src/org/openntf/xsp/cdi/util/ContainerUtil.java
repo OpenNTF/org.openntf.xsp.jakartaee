@@ -41,6 +41,7 @@ import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoader;
 import org.jboss.weld.util.ForwardingBeanManager;
 import org.openntf.xsp.cdi.CDILibrary;
+import org.openntf.xsp.cdi.context.CDIScopesExtension;
 import org.openntf.xsp.cdi.discovery.OSGiServletBeanArchiveHandler;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.LibraryUtil;
@@ -49,7 +50,6 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.wiring.BundleWiring;
 
-import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
@@ -89,13 +89,10 @@ public enum ContainerUtil {
 				}
 			}
 			
-			WeldContainer instance = WeldContainer.instance(application.getApplicationId());
+			String id = application.getApplicationId();
+			WeldContainer instance = WeldContainer.instance(id);
 			if(instance == null) {
-				Weld weld = new Weld()
-					.containerId(application.getApplicationId())
-					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true)
-					// Disable concurrent deployment to avoid Notes thread init trouble
-					.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
+				Weld weld = constructWeld(id)
 					.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
 				
 				for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
@@ -137,19 +134,16 @@ public enum ContainerUtil {
 		if(instance == null) {
 			try {
 				// Register a new one
-				Weld weld = new Weld()
-					.containerId(id)
-					.scanClasspathEntries()
-					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true)
-					// Disable concurrent deployment to avoid Notes thread init trouble
-					.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
+				Weld weld = constructWeld(id)
 					.setResourceLoader(new BundleDependencyResourceLoader(bundle));
 				
 				OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
+				OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
 				try {
 					instance = weld.initialize();
 				} finally {
 					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
+					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
 				}
 				
 				bundle.getBundleContext().addBundleListener(e -> {
@@ -197,14 +191,10 @@ public enum ContainerUtil {
 			String id = database.getDatabasePath().replace('\\', '/');
 			WeldContainer instance = WeldContainer.instance(id);
 			if(instance == null) {
-				Weld weld = new Weld()
-					.containerId(id)
-					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true)
-					// Disable concurrent deployment to avoid Notes thread init trouble
-					.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
+				Weld weld = constructWeld(id)
 					.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
 				
-				for(WeldBeanClassContributor service : ExtensionManager.findServices(null, Thread.currentThread().getContextClassLoader(), WeldBeanClassContributor.EXTENSION_POINT, WeldBeanClassContributor.class)) {
+				for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
 					Collection<Class<?>> beanClasses = service.getBeanClasses();
 					if(beanClasses != null) {
 						weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
@@ -221,6 +211,15 @@ public enum ContainerUtil {
 		} else {
 			return null;
 		}
+	}
+	
+	private static Weld constructWeld(String id) {
+		return new Weld()
+			.containerId(id)
+			.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, false)
+			// Disable concurrent deployment to avoid Notes thread init trouble
+			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
+			.addExtension(new CDIScopesExtension());
 	}
 	
 	/**

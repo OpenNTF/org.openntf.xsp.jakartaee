@@ -8,7 +8,9 @@ import com.ibm.domino.osgi.core.context.ContextInfo;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,7 +33,9 @@ import org.osgi.framework.wiring.BundleWiring;
  */
 @Priority(Integer.MAX_VALUE-1)
 public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
-	public static final ThreadLocal<Bundle> PROCESSING_BUNDLE = ThreadLocal.withInitial(() -> null);
+	public static final ThreadLocal<Bundle> PROCESSING_BUNDLE = new ThreadLocal<>();
+	public static final ThreadLocal<String> PROCESSING_ID = new ThreadLocal<>();
+	private static final Map<String, Collection<String>> PROCESSED_BUNDLES_BY_ID = new HashMap<>();
 
 	@Override
 	public BeanArchiveBuilder handle(String beanArchiveReference) {
@@ -41,7 +45,9 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 				NotesDatabase database = ContextInfo.getServerDatabase();
 				if(database != null) {
 					String bundleName = ContainerUtil.getApplicationCDIBundle(database);
-					bundle = Platform.getBundle(bundleName);
+					if(StringUtil.isNotEmpty(bundleName)) {
+						bundle = Platform.getBundle(bundleName);
+					}
 				}
 			}
 			
@@ -60,8 +66,15 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 					}
 				};
 				
-				Collection<String> bundleNames = new HashSet<>();
-				addClasses(bundle, builder, bundleNames);
+				Collection<String> bundleNames;
+				String processingId = PROCESSING_ID.get();
+				if(StringUtil.isNotEmpty(processingId)) {
+					bundleNames = PROCESSED_BUNDLES_BY_ID.computeIfAbsent(processingId, k -> new HashSet<>());
+				} else {
+					bundleNames = new HashSet<>();
+				}
+				Collection<String> classNames = new HashSet<>();
+				addClasses(bundle, builder, bundleNames, classNames);
 				
 				return builder;
 			}
@@ -71,11 +84,12 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 		return null;
 	}
 	
-	public static void addClasses(Bundle bundle, BeanArchiveBuilder builder, Collection<String> bundleNames) throws BundleException {
-		if(bundleNames.contains(bundle.getSymbolicName())) {
+	public void addClasses(Bundle bundle, BeanArchiveBuilder builder, Collection<String> bundleNames, Collection<String> classNames) throws BundleException {
+		String symbolicName = bundle.getSymbolicName();
+		if(bundleNames.contains(symbolicName)) {
 			return;
 		}
-		bundleNames.add(bundle.getSymbolicName());
+		bundleNames.add(symbolicName);
 		
 		// Only look when there's a beans.xml, to be less costly
 		if(bundle.getResource("/META-INF/beans.xml") != null || bundle.getResource("/WEB-INF/beans.xml") != null) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -94,6 +108,8 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 					.map(OSGiServletBeanArchiveHandler::toClassName)
 					.filter(StringUtil::isNotEmpty)
 					.filter(className -> packages.contains(className.substring(0, className.lastIndexOf('.'))))
+					.filter(className -> !classNames.contains(className))
+					.peek(classNames::add)
 					.forEach(builder::addClass);
 			}
 		}
@@ -106,7 +122,7 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 				if(StringUtil.isNotEmpty(bundleName)) {
 					Bundle dependency = Platform.getBundle(bundleName);
 					if(dependency != null) {
-						addClasses(dependency, builder, bundleNames);
+						addClasses(dependency, builder, bundleNames, classNames);
 					}
 				}
 			}
