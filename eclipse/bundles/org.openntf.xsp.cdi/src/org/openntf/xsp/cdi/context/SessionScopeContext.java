@@ -19,7 +19,7 @@ public class SessionScopeContext extends AbstractProxyingContext {
 	}
 	
 	@Override
-	protected BasicScopeContextHolder getHolder() {
+	protected synchronized BasicScopeContextHolder getHolder() {
 		HttpServletRequest req = getHttpServletRequest();
 		if(req != null) {
 			HttpSession session = req.getSession(true);

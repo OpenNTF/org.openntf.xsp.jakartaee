@@ -44,28 +44,25 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T get(final Contextual<T> contextual, final CreationalContext<T> creationalContext) {
+	public synchronized <T> T get(final Contextual<T> contextual, final CreationalContext<T> creationalContext) {
 		Bean<T> bean = (Bean<T>) contextual;
-		BasicScopeContextHolder beans = getHolder();
-		if(beans.getBeans().containsKey(bean.getBeanClass().getName())) {
-			return (T)beans.getBean(bean.getBeanClass().getName()).instance;
-		} else {
+		BasicScopeContextHolder holder = getHolder();
+		return (T) holder.getBeans().computeIfAbsent(bean.getBeanClass().getName(), className -> {
 			BasicScopeInstance<T> instance = new BasicScopeInstance<>();
-			instance.beanClass = bean.getBeanClass().getName();
+			instance.beanClass = className;
 			instance.ctx = creationalContext;
 			instance.instance = bean.create(creationalContext);
-			beans.putBean(instance);
-			return instance.instance;
-		}
+			return instance;
+		}).instance;
 	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
-	public <T> T get(final Contextual<T> contextual) {
+	public synchronized <T> T get(final Contextual<T> contextual) {
 		Bean<T> bean = (Bean<T>) contextual;
-		BasicScopeContextHolder beans = getHolder();
-		if(beans.getBeans().containsKey(bean.getBeanClass().getName())) {
-			return (T)beans.getBean(bean.getBeanClass().getName()).instance;
+		BasicScopeContextHolder holder = getHolder();
+		if(holder.getBeans().containsKey(bean.getBeanClass().getName())) {
+			return (T)holder.getBean(bean.getBeanClass().getName()).instance;
 		} else {
 			return null;
 		}

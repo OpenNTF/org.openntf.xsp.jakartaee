@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.enterprise.context.spi.CreationalContext;
 
 /**
- * @since 2020-04
+ * @since 1.2.0
  */
 public class BasicScopeContextHolder implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -28,6 +28,7 @@ public class BasicScopeContextHolder implements Serializable {
 
 	public <T> void destroyBean(final BasicScopeInstance<T> instance) {
 		// Good to have a stub, but this currently can't happen
+		getBeans().remove(instance.beanClass);
 	}
 
 	public static class BasicScopeInstance<T> implements Serializable {
@@ -35,7 +36,6 @@ public class BasicScopeContextHolder implements Serializable {
 
 		String beanClass;
         CreationalContext<T> ctx;
-        @SuppressWarnings("null")
 		T instance;
     }
 }
