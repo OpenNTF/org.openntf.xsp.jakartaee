@@ -118,7 +118,14 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	
 	@Override
 	public String getExpressionString() {
-		return ValueBindingUtil.getExpressionString(prefix, this.exp.getExpressionString(), 1);
+		String expString = this.exp.getExpressionString();
+		if(ValueBindingUtil.isValueBindingExpression(expString)) {
+			// Then return it as-is
+			return expString;
+		} else {
+			// Then wrap it in binding brackets
+			return ValueBindingUtil.getExpressionString(prefix, this.exp.getExpressionString(), ValueBindingUtil.RUNTIME_EXPRESSION);
+		}
 	}
 
 }
