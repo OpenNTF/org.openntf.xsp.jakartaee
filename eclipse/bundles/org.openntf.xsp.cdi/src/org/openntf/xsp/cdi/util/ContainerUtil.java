@@ -46,7 +46,6 @@ import org.openntf.xsp.cdi.discovery.OSGiServletBeanArchiveHandler;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.wiring.BundleWiring;
 
@@ -145,19 +144,6 @@ public enum ContainerUtil {
 					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
 					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
 				}
-				
-				bundle.getBundleContext().addBundleListener(e -> {
-					if(e.getType() == BundleEvent.STOPPING) {
-						@SuppressWarnings("rawtypes")
-						CDI cdi = WeldContainer.instance(id);
-						if(cdi instanceof WeldContainer) {
-							try(WeldContainer c = (WeldContainer)cdi) {
-								c.shutdown();
-							}
-						}
-					}
-				});
-				
 			} catch(IllegalStateException e) {
 				System.err.println("Encountered exception while initializing CDI container for " + bundle.getSymbolicName());
 				if(e.getMessage().contains("Class path entry does not exist or cannot be read")) {
