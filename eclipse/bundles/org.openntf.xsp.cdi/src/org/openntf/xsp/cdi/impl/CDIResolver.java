@@ -28,7 +28,7 @@ import javax.faces.el.VariableResolver;
 import org.jboss.weld.literal.NamedLiteral;
 import org.jboss.weld.manager.BeanManagerImpl;
 import org.openntf.xsp.cdi.CDILibrary;
-import org.openntf.xsp.cdi.context.ViewScopeContext;
+import org.openntf.xsp.cdi.context.ConversationViewScopeContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 
@@ -67,7 +67,7 @@ public class CDIResolver extends VariableResolver {
 				if(viewRoot != null) {
 					BeanManagerImpl manager = ContainerUtil.getBeanManager(app);
 					if(!manager.isContextActive(ConversationScoped.class)) {
-						manager.addContext(new ViewScopeContext(manager.getContextId(), viewRoot.getUniqueViewId()));
+						manager.addContext(new ConversationViewScopeContext(manager.getContextId(), viewRoot.getUniqueViewId()));
 					}
 				}
 				

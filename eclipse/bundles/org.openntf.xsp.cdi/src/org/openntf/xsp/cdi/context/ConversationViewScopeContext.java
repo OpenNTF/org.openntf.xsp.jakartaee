@@ -12,10 +12,10 @@ import com.ibm.xsp.component.UIViewRootEx;
  * @author Jesse Gallagher
  * @since 1.2.0
  */
-public class ViewScopeContext extends AbstractIdentifiedContext implements Serializable {
+public class ConversationViewScopeContext extends AbstractIdentifiedContext implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	public ViewScopeContext(String contextId, String uuid) {
+	public ConversationViewScopeContext(String contextId, String uuid) {
 		super(contextId, uuid, ConversationScoped.class);
 	}
 	
