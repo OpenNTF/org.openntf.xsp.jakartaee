@@ -56,10 +56,14 @@ public class CDIResolver extends VariableResolver {
 		// Finally, ask CDI for a named bean
 		ApplicationEx app = ApplicationEx.getInstance(facesContext);
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, app)) {
-			CDI<Object> container = ContainerUtil.getContainer(app);
+			CDI<Object> container = CDI.current();
+			if(container == null) {
+				container = ContainerUtil.getContainer(app);
+			}
 			if(container != null) {
+				CDI<Object> cdi = container;
 				return AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
-					Instance<Object> instance = container.select(NamedLiteral.of(name));
+					Instance<Object> instance = cdi.select(NamedLiteral.of(name));
 					if(instance.isResolvable()) {
 						return instance.get();
 					} else {
