@@ -15,14 +15,12 @@
  */
 package org.openntf.xsp.el3;
 
-import org.osgi.framework.FrameworkUtil;
-
 import com.ibm.xsp.library.AbstractXspLibrary;
 
 public class EL3Library extends AbstractXspLibrary {
 
-	public static final String LIBRARY_ID = EL3Library.class.getPackage().getName();
-	public static final String PROP_PREFIX = EL3Library.class.getPackage().getName() + ".prefix"; //$NON-NLS-1$
+	public static final String LIBRARY_ID = "org.openntf.xsp.el3"; //$NON-NLS-1$
+	public static final String PROP_PREFIX =  "org.openntf.xsp.el3.prefix"; //$NON-NLS-1$
 	@Override
 	public String getLibraryId() {
 		return LIBRARY_ID;
@@ -30,7 +28,7 @@ public class EL3Library extends AbstractXspLibrary {
 	
 	@Override
 	public String getPluginId() {
-		return FrameworkUtil.getBundle(getClass()).getSymbolicName();
+		return getClass().getPackage().getName();
 	}
 	
 	@Override
