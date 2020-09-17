@@ -17,9 +17,6 @@
 
 package javax.enterprise.inject.spi;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.Default;
 import javax.enterprise.inject.spi.configurator.AnnotatedTypeConfigurator;
 
 /**

@@ -22,14 +22,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Set;
 
-import javax.enterprise.event.ObserverException;
 import javax.enterprise.event.Reception;
 import javax.enterprise.event.TransactionPhase;
-import javax.enterprise.inject.spi.AfterBeanDiscovery;
 import javax.enterprise.inject.spi.AnnotatedMethod;
 import javax.enterprise.inject.spi.EventContext;
 import javax.enterprise.inject.spi.ObserverMethod;
-import javax.enterprise.inject.spi.ProcessObserverMethod;
 
 /**
  * <p>

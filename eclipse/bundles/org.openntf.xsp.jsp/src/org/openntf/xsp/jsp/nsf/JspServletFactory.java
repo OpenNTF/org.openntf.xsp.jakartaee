@@ -26,11 +26,9 @@ import java.util.Map;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-import org.eclipse.core.runtime.Plugin;
-import org.eclipse.equinox.jsp.jasper.JspServlet;
+
 import org.openntf.xsp.jakartaee.LibraryUtil;
 import org.openntf.xsp.jsp.JspLibrary;
-import org.osgi.framework.Bundle;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;

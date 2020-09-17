@@ -17,7 +17,6 @@ package org.openntf.xsp.jsp.nsf;
 
 import java.io.IOException;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +34,7 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 public class NSFJspServlet extends JspServlet {
 	private static final long serialVersionUID = 1L;
 	
+	@SuppressWarnings("unused")
 	private final ComponentModule module;
 	
 	public NSFJspServlet(ComponentModule module) {
@@ -44,6 +44,7 @@ public class NSFJspServlet extends JspServlet {
 
 	@Override
 	public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		@SuppressWarnings("unused")
 		String jspPath = StringUtil.toString(req.getServletPath());
 //		System.out.println("looking for " + jspPath);
 //		System.out.println("JSP is " + Thread.currentThread().getContextClassLoader().getResource(jspPath));

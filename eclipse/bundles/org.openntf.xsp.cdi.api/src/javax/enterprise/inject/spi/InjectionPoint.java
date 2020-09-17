@@ -22,8 +22,6 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 import java.util.Set;
 
-import javax.enterprise.inject.Instance;
-
 /**
  * <p>
  * Provides access to metadata about an injection point. May represent an {@linkplain javax.inject.Inject injected field} or a

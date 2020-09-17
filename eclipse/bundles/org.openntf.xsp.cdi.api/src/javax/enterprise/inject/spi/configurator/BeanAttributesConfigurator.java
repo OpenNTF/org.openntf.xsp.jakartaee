@@ -16,12 +16,11 @@
  */
 package javax.enterprise.inject.spi.configurator;
 
-import javax.enterprise.inject.spi.BeanAttributes;
-import javax.enterprise.inject.spi.ProcessBeanAttributes;
-import javax.enterprise.util.TypeLiteral;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Set;
+
+import javax.enterprise.util.TypeLiteral;
 
 /**
  * This API is an helper to configure a new {@link BeanAttributes} instance.

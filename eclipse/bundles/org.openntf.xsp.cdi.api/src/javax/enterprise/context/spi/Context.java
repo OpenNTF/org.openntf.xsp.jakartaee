@@ -19,8 +19,6 @@ package javax.enterprise.context.spi;
 
 import java.lang.annotation.Annotation;
 
-import javax.enterprise.context.ContextNotActiveException;
-
 /**
  * <p>
  * Provides an operation for obtaining contextual instances with a particular scope of any contextual type. Any instance of

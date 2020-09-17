@@ -20,7 +20,6 @@ package javax.enterprise.inject.spi;
 import java.util.Set;
 
 import javax.enterprise.context.spi.Contextual;
-import javax.enterprise.context.spi.CreationalContext;
 
 /**
  * <p>

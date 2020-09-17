@@ -17,23 +17,18 @@
 
 package javax.enterprise.inject.spi;
 
-import javax.el.ELResolver;
-import javax.el.ExpressionFactory;
-import javax.enterprise.context.ContextNotActiveException;
-import javax.enterprise.context.spi.Context;
-import javax.enterprise.context.spi.Contextual;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.ObserverException;
-import javax.enterprise.inject.AmbiguousResolutionException;
-import javax.enterprise.inject.InjectionException;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.UnsatisfiedResolutionException;
-import javax.enterprise.util.Nonbinding;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
+
+import javax.el.ELResolver;
+import javax.el.ExpressionFactory;
+import javax.enterprise.context.spi.Context;
+import javax.enterprise.context.spi.Contextual;
+import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
 
 /**
  * <p>

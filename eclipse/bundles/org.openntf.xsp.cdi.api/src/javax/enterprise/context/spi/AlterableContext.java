@@ -17,8 +17,6 @@
 
 package javax.enterprise.context.spi;
 
-import javax.enterprise.context.ContextNotActiveException;
-
 /**
  * <p>
  * Provides an operation for obtaining and destroying contextual instances with a particular scope of any contextual type. Any

@@ -17,8 +17,6 @@
 
 package javax.enterprise.inject.spi.configurator;
 
-import javax.enterprise.inject.spi.InjectionPoint;
-import javax.enterprise.inject.spi.ProcessInjectionPoint;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Set;

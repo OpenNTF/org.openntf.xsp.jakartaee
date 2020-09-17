@@ -17,8 +17,6 @@
 
 package javax.enterprise.context.spi;
 
-import javax.enterprise.inject.CreationException;
-
 /**
  * <p>
  * Defines operations to create and destroy contextual instances of a certain type. Any implementation of {@code Contextual} is

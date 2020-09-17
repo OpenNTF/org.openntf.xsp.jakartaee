@@ -20,8 +20,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.ProcessProducer;
-import javax.enterprise.inject.spi.Producer;
 
 /**
  * <p>

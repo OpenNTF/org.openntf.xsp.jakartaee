@@ -21,9 +21,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Set;
 
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-
 /**
  * <p>
  * Provides access to metadata about an observed event payload. The metadata may be for events fired with either of

@@ -20,7 +20,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Set;
 
-import javax.enterprise.event.ObservesAsync;
 import javax.enterprise.event.Reception;
 import javax.enterprise.event.TransactionPhase;
 

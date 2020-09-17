@@ -11,12 +11,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.osgi.container.Module.Settings;
 import org.eclipse.osgi.internal.framework.EquinoxBundle;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 
