@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -126,6 +127,7 @@ public enum ContainerUtil {
 	 * @return the existing container or a newly-registered one if one did not exist
 	 * @since 1.1.0
 	 */
+	@SuppressWarnings("nls")
 	public static synchronized CDI<Object> getContainer(Bundle bundle) {
 		String id = bundle.getSymbolicName();
 
@@ -145,10 +147,10 @@ public enum ContainerUtil {
 					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
 				}
 			} catch(IllegalStateException e) {
-				System.err.println("Encountered exception while initializing CDI container for " + bundle.getSymbolicName());
-				if(e.getMessage().contains("Class path entry does not exist or cannot be read")) {
-					String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path"));
-					System.err.println("Current class path: " + classpath);
+				System.err.println(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
+				if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
+					String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path")); //$NON-NLS-1$
+					System.err.println(MessageFormat.format("Current class path: {0}", classpath));
 				}
 				e.printStackTrace();
 				return null;

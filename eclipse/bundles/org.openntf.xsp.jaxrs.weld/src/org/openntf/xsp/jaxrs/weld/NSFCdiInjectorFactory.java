@@ -28,6 +28,7 @@ public class NSFCdiInjectorFactory extends CdiInjectorFactory {
 	}
 	
 	@Override
+	@SuppressWarnings("nls")
 	protected BeanManager lookupBeanManager() {
 		ApplicationEx application = ApplicationEx.getInstance();
 		if(application == null) {

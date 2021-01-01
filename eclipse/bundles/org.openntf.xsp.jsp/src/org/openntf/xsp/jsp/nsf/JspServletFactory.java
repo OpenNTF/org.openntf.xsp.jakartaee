@@ -81,7 +81,7 @@ public class JspServletFactory implements IServletFactory {
 					ClassLoader current = Thread.currentThread().getContextClassLoader();
 					try {
 						Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], current));
-						return module.createServlet(new NSFJspServlet(module), "XSP JSP Servlet", params);
+						return module.createServlet(new NSFJspServlet(module), "XSP JSP Servlet", params); //$NON-NLS-1$
 					} finally {
 						Thread.currentThread().setContextClassLoader(current);
 					}

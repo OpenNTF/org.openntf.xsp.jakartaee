@@ -21,6 +21,7 @@ import javax.json.Json;
 
 import org.junit.Test;
 
+@SuppressWarnings("nls")
 public class TestJsonp {
 	@Test
 	public void testJsonpBasics() {

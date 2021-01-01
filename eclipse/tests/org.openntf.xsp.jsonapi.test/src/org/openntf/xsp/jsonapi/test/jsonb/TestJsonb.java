@@ -23,6 +23,7 @@ import javax.json.bind.JsonbBuilder;
 import org.junit.Test;
 import org.openntf.xsp.jsonapi.JSONBindUtil;
 
+@SuppressWarnings("nls")
 public class TestJsonb {
 	
 	@Test

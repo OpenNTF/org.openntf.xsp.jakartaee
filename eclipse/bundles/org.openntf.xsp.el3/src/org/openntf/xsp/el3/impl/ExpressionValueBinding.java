@@ -18,6 +18,7 @@ package org.openntf.xsp.el3.impl;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.text.MessageFormat;
 
 import javax.el.ELContext;
 import javax.el.ValueExpression;
@@ -77,11 +78,11 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 		} catch (Throwable e) {
 			Throwable t = e.getCause();
 			if(t instanceof PropertyNotFoundException) {
-				throw new PropertyNotFoundException("Encountered exception processing expression " + exp, t);
+				throw new PropertyNotFoundException(MessageFormat.format(Messages.getString("ExpressionValueBinding.exceptionProcessingExpression"), exp), t); //$NON-NLS-1$
 			} else if(t != null) {
-				throw new EvaluationException("Encountered exception processing expression " + exp, t);
+				throw new EvaluationException(MessageFormat.format(Messages.getString("ExpressionValueBinding.exceptionProcessingExpression"), exp), t); //$NON-NLS-1$
 			} else {
-				throw new EvaluationException("Encountered exception processing expression " + exp, e);
+				throw new EvaluationException(MessageFormat.format(Messages.getString("ExpressionValueBinding.exceptionProcessingExpression"), exp), e); //$NON-NLS-1$
 			}
 		}
 	}

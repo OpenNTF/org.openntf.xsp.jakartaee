@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.openntf.xsp.jakartaee.test.ExampleBean;
 import org.openntf.xsp.jsonapi.JSONBindUtil;
 
+@SuppressWarnings("nls")
 public class TestJsonb {
 	
 	@Test

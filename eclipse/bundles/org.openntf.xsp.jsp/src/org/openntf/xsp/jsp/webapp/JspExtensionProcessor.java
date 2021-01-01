@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -98,6 +99,7 @@ public class JspExtensionProcessor extends WebExtensionProcessor {
 	}
 
 	@Override
+	@SuppressWarnings("nls")
 	public void handleRequest(ServletRequest request, ServletResponse response) throws Exception {
 		HttpServletRequest req = (HttpServletRequest)request;
 		HttpServletResponse resp = (HttpServletResponse)response;
@@ -106,7 +108,7 @@ public class JspExtensionProcessor extends WebExtensionProcessor {
 		try {
 			this.delegate.service(request, response);
 		} catch(Throwable t) {
-			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Exception processing " + req.getServletPath());
+			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, MessageFormat.format("Exception processing {0}", req.getServletPath()));
 			t.printStackTrace();
 		}
 	}
