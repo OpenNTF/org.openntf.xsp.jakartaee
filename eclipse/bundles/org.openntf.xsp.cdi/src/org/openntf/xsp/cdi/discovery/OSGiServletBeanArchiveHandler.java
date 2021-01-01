@@ -110,6 +110,7 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 					.filter(className -> packages.contains(className.substring(0, className.lastIndexOf('.'))))
 					.filter(className -> !classNames.contains(className))
 					.peek(classNames::add)
+					.sequential()
 					.forEach(builder::addClass);
 			}
 		}
