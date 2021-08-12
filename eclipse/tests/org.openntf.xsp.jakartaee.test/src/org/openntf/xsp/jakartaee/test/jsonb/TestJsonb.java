@@ -17,8 +17,8 @@ package org.openntf.xsp.jakartaee.test.jsonb;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 
 import org.junit.Test;
 import org.openntf.xsp.jakartaee.test.ExampleBean;

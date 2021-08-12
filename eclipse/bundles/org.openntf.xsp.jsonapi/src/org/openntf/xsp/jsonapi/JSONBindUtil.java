@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 /**
  * Utility methods for working with JSON-B in an XPages context.

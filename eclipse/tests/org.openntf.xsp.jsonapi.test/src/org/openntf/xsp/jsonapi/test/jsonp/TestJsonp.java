@@ -17,7 +17,7 @@ package org.openntf.xsp.jsonapi.test.jsonp;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.json.Json;
+import jakarta.json.Json;
 
 import org.junit.Test;
 

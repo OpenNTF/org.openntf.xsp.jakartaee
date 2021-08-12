@@ -277,6 +277,7 @@
 			            <exclude>src/main/resources/**</exclude>
 						<exclude>**/build.properties</exclude>
 						<exclude>**/javax/**</exclude>
+						<exclude>**/org/jboss/**</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
