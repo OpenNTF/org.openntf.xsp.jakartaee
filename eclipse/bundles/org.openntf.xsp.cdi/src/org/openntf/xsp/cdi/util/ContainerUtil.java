@@ -93,7 +93,8 @@ public enum ContainerUtil {
 			WeldContainer instance = WeldContainer.instance(id);
 			if(instance == null) {
 				Weld weld = constructWeld(id)
-					.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
+					.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()))
+					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
 				
 				for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
 					weld.addExtension(extension);
