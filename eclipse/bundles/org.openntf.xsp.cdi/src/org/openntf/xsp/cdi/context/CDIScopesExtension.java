@@ -34,5 +34,6 @@ public class CDIScopesExtension implements Extension, Serializable {
 	public void registerContext(@Observes final AfterBeanDiscovery event) {
         event.addContext(new SessionScopeContext());
         event.addContext(new RequestScopeContext());
+        event.addContext(new ConversationScopeContext());
     }
 }
