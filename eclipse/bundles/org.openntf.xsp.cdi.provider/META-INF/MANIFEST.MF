@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages CDI Provider
 Bundle-SymbolicName: org.openntf.xsp.cdi.provider;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.cdi.provider
-Bundle-Version: 1.2.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.commons.util,

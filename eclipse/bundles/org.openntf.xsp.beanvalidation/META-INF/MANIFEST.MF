@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Bean Validation 2.0 Support
 Bundle-SymbolicName: org.openntf.xsp.beanvalidation;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.beanvalidation
-Bundle-Version: 1.2.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",

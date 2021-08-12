@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages JAX-RS Weld Integrator
 Bundle-SymbolicName: org.openntf.xsp.jaxrs.weld;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jaxrs.weld
-Bundle-Version: 1.2.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

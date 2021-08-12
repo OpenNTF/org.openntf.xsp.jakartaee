@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Runtime JSP Support
 Bundle-SymbolicName: org.openntf.xsp.jsp;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jsp
-Bundle-Version: 1.2.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="1.2.0",

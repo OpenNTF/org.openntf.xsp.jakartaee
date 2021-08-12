@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jakartaee.feature"
       label="XPages Jakarta EE Platform Feature"
-      version="1.2.0.qualifier">
+      version="2.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
