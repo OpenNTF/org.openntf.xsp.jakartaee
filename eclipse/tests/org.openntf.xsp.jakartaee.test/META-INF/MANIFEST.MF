@@ -9,6 +9,5 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  org.openntf.xsp.beanvalidation;bundle-version="1.2.0",
  org.openntf.xsp.el3;bundle-version="1.2.0",
  org.openntf.xsp.cdi;bundle-version="1.2.0",
- org.openntf.xsp.jaxrs;bundle-version="1.2.0",
- org.openntf.xsp.jnosql;bundle-version="1.2.0"
+ org.openntf.xsp.jaxrs;bundle-version="1.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

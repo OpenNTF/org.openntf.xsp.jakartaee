@@ -35,9 +35,6 @@
 	<feature id="org.openntf.xsp.jsonapi.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.jnosql.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
 	<feature id="org.openntf.xsp.jsp.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>

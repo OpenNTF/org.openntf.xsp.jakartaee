@@ -23,7 +23,6 @@
 	</repositories>
 	
 	<properties>
-		<jnosql-version>0.0.7</jnosql-version>
 		<weld-version>3.0.5.Final</weld-version>
 		<resteasy-version>3.11.2.Final</resteasy-version>
 		
@@ -687,19 +686,6 @@
 										</Import-Package>
 									</instructions>
 								</artifact>
-								
-								<!--
-									JNoSQL
-								-->
-								<artifact><id>org.jnosql.query:jnosql-query-antlr:${jnosql-version}</id><source>true</source></artifact>
-								<artifact><id>org.jnosql.query:jnosql-query-api:${jnosql-version}</id><source>true</source></artifact>
-								<artifact><id>org.jnosql.diana:diana-driver-commons:${jnosql-version}</id><source>true</source></artifact>
-								<artifact><id>org.jnosql.diana:diana-core:${jnosql-version}</id><source>true</source></artifact>
-								<artifact><id>org.jnosql.diana:diana-document:${jnosql-version}</id><source>true</source></artifact>
-								<artifact><id>org.jnosql.artemis:artemis-core:${jnosql-version}</id><source>true</source></artifact>
-								<artifact><id>org.jnosql.artemis:artemis-document:${jnosql-version}</id><source>true</source></artifact>
-								<artifact><id>org.jnosql.artemis:artemis-validation:${jnosql-version}</id><source>true</source></artifact>
-								<artifact><id>org.antlr:antlr4-runtime:4.7.1</id><source>true</source></artifact>
 								
 								<!--
 									JSP 

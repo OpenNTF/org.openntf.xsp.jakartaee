@@ -11,7 +11,6 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Bean Validation 2.0
 - Java API for JSON Processing 1.1
 - Java API for JSON Binding 1.0
-- JNoSQL 0.0.7
 
 ## CDI 2.0
 
