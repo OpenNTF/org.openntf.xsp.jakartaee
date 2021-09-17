@@ -17,11 +17,15 @@ package org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -39,6 +43,9 @@ import com.ibm.xsp.application.ApplicationEx;
  */
 public enum LibraryUtil {
 	;
+	
+	private static final Map<String, Long> NSF_MOD = new HashMap<>();
+	private static final Map<String, Properties> NSF_PROPS = new ConcurrentHashMap<>();
 	
 	/**
 	 * Determines whether the provided {@link ApplicationEx} uses the provided library
@@ -99,14 +106,39 @@ public enum LibraryUtil {
 	 * @since 1.2.0
 	 */
 	public static Properties getXspProperties(NotesDatabase database) throws NotesAPIException, IOException {
-		Properties props = new Properties();
-		NotesNote xspProperties = FileAccess.getFileByPath(database, "/WEB-INF/xsp.properties"); //$NON-NLS-1$
-		if(xspProperties != null) {
-			try(InputStream is = FileAccess.readFileContentAsInputStream(xspProperties)) {
-				props.load(is);
+		String dbReplicaId = database.getReplicaID();
+		
+		return NSF_PROPS.compute(dbReplicaId, (replicaId, existing) -> {
+			try {
+				// Check to see if we need a cache refresh
+				if(NSF_MOD.containsKey(replicaId)) {
+					long lastMod = database.getLastNonDataModificationDate();
+					if(lastMod < System.currentTimeMillis()) {
+						// Then we're good to use what's there
+						return existing;
+					}
+				}
+				NSF_MOD.put(replicaId, System.currentTimeMillis());
+				
+				// Read xsp.properties from the NSF
+				Properties props = new Properties();
+				NotesNote xspProperties = FileAccess.getFileByPath(database, "/WEB-INF/xsp.properties"); //$NON-NLS-1$
+				try {
+					if(xspProperties != null) {
+						try(InputStream is = FileAccess.readFileContentAsInputStream(xspProperties)) {
+							props.load(is);
+						}
+					}
+				} finally {
+					xspProperties.recycle();
+				}
+				return props;
+			} catch(IOException e) {
+				throw new UncheckedIOException(e);
+			} catch(NotesAPIException e) {
+				throw new RuntimeException(e);
 			}
-		}
-		return props;
+		});
 	}
 	
 	/**

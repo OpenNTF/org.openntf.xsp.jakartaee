@@ -17,7 +17,7 @@
 	<repositories>
 		<repository>
 			<id>eclipse-platform</id>
-			<url>http://download.eclipse.org/releases/neon/201612211000</url>
+			<url>https://download.eclipse.org/releases/neon/201612211000</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>
