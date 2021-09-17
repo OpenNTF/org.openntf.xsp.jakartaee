@@ -21,7 +21,7 @@ import java.util.Map;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
-import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
+import org.openntf.xsp.jakartaee.servlet.NewHttpServletWrapper;
 import org.openntf.xsp.jaxrs.impl.FacesJAXRSServletContainer;
 import org.openntf.xsp.jaxrs.impl.NSFJAXRSApplication;
 
@@ -66,10 +66,10 @@ public class JAXRSServletFactory implements IServletFactory {
 			Map<String, String> params = new HashMap<>();
 			params.put("javax.ws.rs.Application", NSFJAXRSApplication.class.getName()); //$NON-NLS-1$
 			// TODO move this to the fragment somehow
-			params.put("resteasy.injector.factory", "org.openntf.xsp.jaxrs.weld.NSFCdiInjectorFactory"); //$NON-NLS-1$ //$NON-NLS-2$
-			params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, SERVLET_PATH);
+			//params.put("resteasy.injector.factory", "org.openntf.xsp.jaxrs.weld.NSFCdiInjectorFactory"); //$NON-NLS-1$ //$NON-NLS-2$
+			//params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, SERVLET_PATH);
 			
-			servlet = module.createServlet(new FacesJAXRSServletContainer(), "XSP JAX-RS Servlet", params); //$NON-NLS-1$
+			servlet = module.createServlet(new NewHttpServletWrapper(new FacesJAXRSServletContainer()), "XSP JAX-RS Servlet", params); //$NON-NLS-1$
 			lastUpdate = this.module.getLastRefresh();
 		}
 		return servlet;

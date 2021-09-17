@@ -19,8 +19,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Application;
 
 import org.openntf.xsp.jakartaee.ModuleUtil;
 

@@ -17,7 +17,7 @@ package org.openntf.xsp.cdi.context;
 
 import java.lang.annotation.Annotation;
 
-import javax.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.RequestScoped;
 import javax.servlet.http.HttpServletRequest;
 
 /**

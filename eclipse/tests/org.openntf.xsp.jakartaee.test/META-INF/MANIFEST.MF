@@ -5,9 +5,9 @@ Bundle-SymbolicName: org.openntf.xsp.jakartaee.test
 Automatic-Module-Name: org.openntf.xsp.jakartaee.test
 Bundle-Version: 2.0.0.qualifier
 Require-Bundle: org.junit;bundle-version="4.0.0",
- org.openntf.xsp.jsonapi;bundle-version="1.2.0",
- org.openntf.xsp.beanvalidation;bundle-version="1.2.0",
- org.openntf.xsp.el3;bundle-version="1.2.0",
- org.openntf.xsp.cdi;bundle-version="1.2.0",
- org.openntf.xsp.jaxrs;bundle-version="1.2.0"
+ org.openntf.xsp.jsonapi;bundle-version="2.0.0",
+ org.openntf.xsp.beanvalidation;bundle-version="2.0.0",
+ org.openntf.xsp.el;bundle-version="2.0.0",
+ org.openntf.xsp.cdi;bundle-version="2.0.0",
+ org.openntf.xsp.jaxrs;bundle-version="2.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

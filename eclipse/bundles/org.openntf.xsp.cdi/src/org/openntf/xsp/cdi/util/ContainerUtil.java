@@ -28,9 +28,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.CDI;
-import javax.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.Extension;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;

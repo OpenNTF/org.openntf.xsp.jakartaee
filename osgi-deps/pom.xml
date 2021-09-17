@@ -30,8 +30,9 @@
 	</pluginRepositories>
 	
 	<properties>
-		<weld-version>3.0.5.Final</weld-version>
-		<resteasy-version>3.11.2.Final</resteasy-version>
+		<weld-version>4.0.2.Final</weld-version>
+		<jersey-version>3.0.2</jersey-version>
+		<hibernate-version>7.0.1.Final</hibernate-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
@@ -66,8 +67,11 @@
 								<!--
 									General Platform
 								-->
-								<!-- TODO switch to jakarta.annotation when CXF makes the switch -->
-								<artifact><id>javax.annotation:javax.annotation-api:1.3</id><source>true</source></artifact>
+								<artifact><id>jakarta.annotation:jakarta.annotation-api:2.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.activation:jakarta.activation-api:2.0.1</id><source>true</source></artifact>
+								<artifact><id>jakarta.inject:jakarta.inject-api:2.0.0</id><source>true</source></artifact>
+								<artfiact><id>jakarta.servlet:jakarta.servlet-api:5.0.0</id><source>true</source></artfiact>
+								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.0</id><source>true</source></artfiact>
 								<!-- Include log4j to satisfy runtime expectations -->
 								<artifact><id>org.apache.logging.log4j:log4j-api:2.11.0</id><source>true</source></artifact>
 								
@@ -92,569 +96,40 @@
 								<!--
 									JAX-RS 
 								-->
-								<artifact>
-									<id>org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:2.0.1.Final</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Export-Package>*;version="2.1.0"</Export-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.jboss.spec.javax.interceptor:jboss-interceptors-api_1.2_spec:2.0.0.Final</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.spec.javax.interceptor-api_1.2_spec</Bundle-SymbolicName>
-										<Bundle-Version>2.0.0.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="1.2.0"</Export-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.jboss.resteasy:resteasy-jaxrs:${resteasy-version}</id>
-									<source>true</source>
-									<excludes>
-										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
-									</excludes>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.jaxrs</Bundle-SymbolicName>
-										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											javax.annotation-api,
-											com.ibm.pvc.servlet,
-											org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec;visibility:=reexport
-										</Require-Bundle>
-										<Import-Package>
-											javax.activation;resolution:=optional;bundle-symbolic-name="com.ibm.designer.lib.javamail",
-											javax.imageio;resolution:=optional,
-											javax.imageio.metadata;resolution:=optional,
-											javax.imageio.plugins.jpeg;resolution:=optional,
-											javax.imageio.stream;resolution:=optional,
-											jakarta.json.bind.annotation;resolution:=optional,
-											javax.naming;resolution:=optional,
-											javax.servlet;resolution:=optional,
-											javax.servlet.annotation;resolution:=optional,
-											javax.servlet.http;resolution:=optional,
-											javax.validation;resolution:=optional,
-											javax.ws.rs;resolution:=optional,
-											javax.ws.rs.client;resolution:=optional,
-											javax.ws.rs.container;resolution:=optional,
-											javax.ws.rs.core;resolution:=optional,
-											javax.ws.rs.ext;resolution:=optional,
-											javax.ws.rs.sse;resolution:=optional,
-											javax.xml.bind.annotation;resolution:=optional,
-											javax.xml.parsers;resolution:=optional,
-											javax.xml.transform;resolution:=optional,
-											javax.xml.transform.dom;resolution:=optional,
-											javax.xml.transform.sax;resolution:=optional,
-											javax.xml.transform.stream;resolution:=optional,
-											org.apache.commons.codec.binary;resolution:=optional,
-											org.apache.commons.io.output;resolution:=optional,
-											org.apache.http;resolution:=optional,
-											org.apache.http.auth;resolution:=optional,
-											org.apache.http.client;resolution:=optional,
-											org.apache.http.client.entity;resolution:=optional,
-											org.apache.http.client.methods;resolution:=optional,
-											org.apache.http.client.params;resolution:=optional,
-											org.apache.http.conn;resolution:=optional,
-											org.apache.http.cookie;resolution:=optional,
-											org.apache.http.entity;resolution:=optional,
-											org.apache.http.impl.auth;resolution:=optional,
-											org.apache.http.impl.client;resolution:=optional,
-											org.apache.http.message;resolution:=optional,
-											org.apache.http.params;resolution:=optional,
-											org.apache.http.protocol;resolution:=optional,
-											org.apache.http.util;resolution:=optional,
-											org.apache.log4j;resolution:=optional,
-											org.jboss.logging;resolution:=optional,
-											org.jboss.resteasy.annotations;resolution:=optional,
-											org.jboss.resteasy.annotations.cache;resolution:=optional,
-											org.jboss.resteasy.annotations.interception;resolution:=optional,
-											org.jboss.resteasy.annotations.providers.img;resolution:=optional,
-											org.jboss.resteasy.api.validation;resolution:=optional,
-											org.jboss.resteasy.client;resolution:=optional,
-											org.jboss.resteasy.client.core;resolution:=optional,
-											org.jboss.resteasy.client.core.executors;resolution:=optional,
-											org.jboss.resteasy.client.core.extractors;resolution:=optional,
-											org.jboss.resteasy.client.core.marshallers;resolution:=optional,
-											org.jboss.resteasy.client.exception;resolution:=optional,
-											org.jboss.resteasy.client.exception.mapper;resolution:=optional,
-											org.jboss.resteasy.core;resolution:=optional,
-											org.jboss.resteasy.core.interception;resolution:=optional,
-											org.jboss.resteasy.core.interception.jaxrs;resolution:=optional,
-											org.jboss.resteasy.core.registry;resolution:=optional,
-											org.jboss.resteasy.core.request;resolution:=optional,
-											org.jboss.resteasy.logging;resolution:=optional,
-											org.jboss.resteasy.mock;resolution:=optional,
-											org.jboss.resteasy.plugins.delegates;resolution:=optional,
-											org.jboss.resteasy.plugins.interceptors;resolution:=optional,
-											org.jboss.resteasy.plugins.interceptors.encoding;resolution:=optional,
-											org.jboss.resteasy.plugins.providers;resolution:=optional,
-											org.jboss.resteasy.plugins.providers.sse;resolution:=optional,
-											org.jboss.resteasy.plugins.providers.validation;resolution:=optional,
-											org.jboss.resteasy.plugins.server;resolution:=optional,
-											org.jboss.resteasy.plugins.server.resourcefactory;resolution:=optional,
-											org.jboss.resteasy.plugins.server.servlet;resolution:=optional,
-											org.jboss.resteasy.resteasy_jaxrs.i18n;resolution:=optional,
-											org.jboss.resteasy.specimpl;resolution:=optional,
-											org.jboss.resteasy.spi;resolution:=optional,
-											org.jboss.resteasy.spi.interception;resolution:=optional,
-											org.jboss.resteasy.spi.metadata;resolution:=optional,
-											org.jboss.resteasy.spi.validation;resolution:=optional,
-											org.jboss.resteasy.util;resolution:=optional,
-											org.reactivestreams;resolution:=optional,
-											org.slf4j;resolution:=optional,
-											org.w3c.dom;resolution:=optional,
-											org.xml.sax;resolution:=optional
-										</Import-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.jboss.resteasy:resteasy-cdi:${resteasy-version}</id>
-									<source>true</source>
-									<excludes>
-										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
-										<exclude>:cdi-api::</exclude>
-									</excludes>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.cdi</Bundle-SymbolicName>
-										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											org.openntf.org.jboss.resteasy.jaxrs,
-											org.openntf.org.jboss.weld.api,
-											org.openntf.org.jboss.weld.spi,
-											org.openntf.org.jboss.weld.core-impl
-										</Require-Bundle>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.jboss.resteasy:resteasy-jaxb-provider:${resteasy-version}</id>
-									<source>true</source>
-									<excludes>
-										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
-									</excludes>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.jaxb-provider</Bundle-SymbolicName>
-										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											org.openntf.org.jboss.resteasy.jaxrs
-										</Require-Bundle>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.jboss.resteasy:resteasy-multipart-provider:${resteasy-version}</id>
-									<source>true</source>
-									<excludes>
-										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
-									</excludes>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.multipart-provider</Bundle-SymbolicName>
-										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											org.openntf.org.jboss.resteasy.jaxrs,
-											com.ibm.designer.lib.javamail
-										</Require-Bundle>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.jboss.resteasy:resteasy-validator-provider:${resteasy-version}</id>
-									<source>true</source>
-									<excludes>
-										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
-									</excludes>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.validator-provider</Bundle-SymbolicName>
-										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											org.openntf.org.jboss.resteasy.jaxrs,
-											javax.validation.api;bundle-version="2.0.0",
-											org.openntf.javax.el;bundle-version="3.0.0",
-											org.openntf.org.hibernate.validator.hibernate-validator
-										</Require-Bundle>
-									</instructions>
-								</artifact>
-								
-								<!-- Relax restriction on CDI version -->
-<!-- 								<artifact> -->
-<!-- 									<id>org.eclipse.microprofile.rest.client:microprofile-rest-client-api:1.1</id> -->
-<!-- 									<source>true</source> -->
-<!-- 									<override>true</override> -->
-<!-- 									<instructions> -->
-<!-- 										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.rest.client</Bundle-SymbolicName> -->
-<!-- 										<Bundle-Version>1.1.0.${osgi.qualifier}</Bundle-Version> -->
-<!-- 										<Import-Package> -->
-<!-- 											javax.annotation;version="[1.2,2)", -->
-<!-- 											javax.enterprise.context, -->
-<!-- 											javax.enterprise.inject, -->
-<!-- 											javax.enterprise.util, -->
-<!-- 											javax.inject, -->
-<!-- 											javax.ws.rs.core;version="[2.0,3)" -->
-<!-- 										</Import-Package> -->
-<!-- 									</instructions> -->
-<!-- 								</artifact> -->
+								<artifact><id>jakarta.ws.rs:jakarta.ws.rs-api:3.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.interceptor:jakarta.interceptor-api:2.0.0</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.jersey.core:jersey-server:${jersey-version}</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.jersey.containers:jersey-container-servlet-core:${jersey-version}</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.jersey.ext:jersey-bean-validation:${jersey-version}</id></artifact>
+								<artifact><id>org.glassfish.jersey.inject:jersey-cdi2-se:${jersey-version}</id></artifact>
+								<artifact><id>org.glassfish.jersey.media:jersey-media-json-binding:${jersey-version}</id></artifact>
+								<artifact><id>org.glassfish.jersey.media:jersey-media-multipart:${jersey-version}</id></artifact>
 								
 								<!--
 									EL
 								-->
-								<!-- Avoid trouble with OSGi not resolving its Import-Package to itself -->
-								<artifact>
-									<id>org.glassfish:javax.el:3.0.0</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.javax.el</Bundle-SymbolicName>
-										<Bundle-Version>3.0.0.${osgi.qualifier}</Bundle-Version>
-										<Import-Package/>
-										<Export-Package>*;version="3.0.0"</Export-Package>
-									</instructions>
-								</artifact>
+								<artifact><id>jakarta.el:jakarta.el-api:4.0.0</id><source>true</source></artifact>
+								<artifact><id>org.glassfish:jakarta.el:4.0.1</id><source>true</source></artifact>
 								
 								<!--
 									Bean Validation
 								-->
-								<!-- Add explicit dependency on EL3, so it doesn't pick up javax.el from the old JSP plugin in Domino -->
-								<artifact>
-									<id>org.hibernate.validator:hibernate-validator:6.0.13.Final</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.hibernate.validator.hibernate-validator</Bundle-SymbolicName>
-										<Bundle-Version>6.0.13.${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>org.openntf.javax.el;bundle-version="3.0.0"</Require-Bundle>
-										<Import-Package>
-											javax.persistence;version="[2.0.0,3.0.0)";resolution:=optional,
-											javax.validation;version="[2.0.0,3.0.0)",
-											javax.validation.constraints;version="[2.0.0,3.0.0)",
-											javax.validation.constraintvalidation;version="[2.0.0,3.0.0)",
-											javax.validation.executable;version="[2.0.0,3.0.0)",
-											javax.validation.groups;version="[2.0.0,3.0.0)",
-											javax.validation.metadata;version="[2.0.0,3.0.0)",
-											javax.validation.spi;version="[2.0.0,3.0.0)",
-											javax.validation.valueextraction;version="[2.0.0,3.0.0)",
-											javax.script;version=0,
-											javax.xml.namespace;version=0,
-											javax.xml.stream;version=0,
-											javax.xml.stream.events;version=0,
-											javax.xml.transform;version=0,
-											javax.xml.transform.stream;version=0,
-											javax.xml.validation;version=0,
-											org.xml.sax;version=0,
-											org.jboss.logging;version="[3.1.0,4.0.0)",
-											com.fasterxml.classmate;version="[1.3,2.0.0)",
-											com.fasterxml.classmate.members;version="[1.3,2.0.0)",
-											org.joda.time;version="[2.0.0,3.0.0)";resolution:=optional,
-											org.jsoup;version="[1.5.2,2.0.0)";resolution:=optional,
-											org.jsoup.nodes;version="[1.5.2,2.0.0)";resolution:=optional,
-											org.jsoup.parser;version="[1.5.2,2.0.0)";resolution:=optional,
-											org.jsoup.safety;version="[1.5.2,2.0.0)";resolution:=optional,
-											org.jsoup.select;version="[1.5.2,2.0.0)";resolution:=optional,
-											javax.money;version="[1.0.0,2.0.0)";resolution:=optional,
-											com.thoughtworks.paranamer;version="[2.5.5,3.0.0)";resolution:=optional
-										</Import-Package>
-									</instructions>
-								</artifact>
+								<artifact><id>jakarta.validation:jakarta.validation-api:3.0.0</id><source>true</source></artifact>
+								<artifact><id>org.hibernate.validator:hibernate-validator:${hibernate-version}</id><source>true</source></artifact>
 
 								<!--
 									CDI 
 								-->
-								<artifact>
-									<id>org.jboss.weld.se:weld-se-core:${weld-version}</id>
-									<source>true</source>
-									<excludes>
-										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
-										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
-										<exclude>:cdi-api::</exclude>
-									</excludes>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.jboss.weld.se.weld-se-core</Bundle-SymbolicName>
-										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											javax.annotation-api,
-											org.openntf.spec.javax.interceptor-api_1.2_spec,
-											org.openntf.xsp.cdi.api
-										</Require-Bundle>
-									</instructions>
-								</artifact>
-								<artifact><id>com.fasterxml:classmate:1.3.4</id><source>true</source></artifact>
-								<!--
-									Override use of Import-Package because Domino's org.eclipse.osgi provides
-									javax.annotation but not javax.annotation.Priority
-								-->
-								<artifact>
-									<id>org.jboss.weld.environment:weld-environment-common:${weld-version}</id>
-									<source>true</source>
-									<excludes>
-										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
-										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
-										<exclude>:cdi-api::</exclude>
-									</excludes>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.jboss.weld.environment.weld-environment-common</Bundle-SymbolicName>
-										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											javax.annotation-api,
-											org.openntf.spec.javax.interceptor-api_1.2_spec,
-											org.openntf.xsp.cdi.api
-										</Require-Bundle>
-										<Import-Package>
-											javax.enterprise.context;resolution:=optional,
-											javax.enterprise.inject;resolution:=optional,
-											javax.enterprise.inject.spi;resolution:=optional,
-											javax.inject;resolution:=optional,
-											org.jboss.jandex;resolution:=optional,
-											org.jboss.logging;resolution:=optional,
-											org.jboss.weld;resolution:=optional,
-											org.jboss.weld.bootstrap.api;resolution:=optional,
-											org.jboss.weld.bootstrap.api.helpers;resolution:=optional,
-											org.jboss.weld.bootstrap.spi;resolution:=optional,
-											org.jboss.weld.ejb.spi;resolution:=optional,
-											org.jboss.weld.environment.deployment;resolution:=optional,
-											org.jboss.weld.environment.deployment.discovery;resolution:=optional,
-											org.jboss.weld.environment.deployment.discovery.jandex;resolution:=optional,
-											org.jboss.weld.environment.logging;resolution:=optional,
-											org.jboss.weld.environment.util;resolution:=optional,
-											org.jboss.weld.exceptions;resolution:=optional,
-											org.jboss.weld.manager;resolution:=optional,
-											org.jboss.weld.resources.spi;resolution:=optional,
-											org.jboss.weld.security;resolution:=optional,
-											org.jboss.weld.util;resolution:=optional,
-											org.jboss.weld.util.cache;resolution:=optional,
-											org.jboss.weld.util.collections;resolution:=optional,
-											org.jboss.weld.xml;resolution:=optional
-										</Import-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.jboss.weld:weld-core-impl:${weld-version}</id>
-									<source>true</source>
-									<excludes>
-										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
-										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
-										<exclude>:cdi-api::</exclude>
-									</excludes>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.jboss.weld.core-impl</Bundle-SymbolicName>
-										<Bundle-Version>${weld-version}_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											javax.annotation-api,
-											org.openntf.spec.javax.interceptor-api_1.2_spec,
-											org.openntf.javax.el,
-											org.openntf.xsp.cdi.api
-										</Require-Bundle>
-										<Import-Package>
-											javax.decorator;resolution:=optional,
-											javax.el;resolution:=optional,
-											javax.enterprise.context;resolution:=optional,
-											javax.enterprise.context.control;resolution:=optional,
-											javax.enterprise.context.spi;resolution:=optional,
-											javax.enterprise.event;resolution:=optional,
-											javax.enterprise.inject;resolution:=optional,
-											javax.enterprise.inject.spi;resolution:=optional,
-											javax.enterprise.inject.spi.configurator;resolution:=optional,
-											javax.enterprise.util;resolution:=optional,
-											javax.inject;resolution:=optional,
-											javax.interceptor;resolution:=optional,
-											javax.naming;resolution:=optional,
-											javax.naming.spi;resolution:=optional,
-											javax.xml.namespace;resolution:=optional,
-											javax.xml.stream;resolution:=optional,
-											javax.xml.stream.events;resolution:=optional,
-											javax.xml.transform;resolution:=optional,
-											javax.xml.transform.stream;resolution:=optional,
-											javax.xml.validation;resolution:=optional,
-											org.apache.bcel.classfile;resolution:=optional,
-											org.jboss.classfilewriter;resolution:=optional,
-											org.jboss.classfilewriter.code;resolution:=optional,
-											org.jboss.classfilewriter.util;resolution:=optional,
-											org.jboss.logging;resolution:=optional,
-											org.jboss.weld;resolution:=optional,
-											org.jboss.weld.annotated;resolution:=optional,
-											org.jboss.weld.annotated.enhanced;resolution:=optional,
-											org.jboss.weld.annotated.enhanced.jlr;resolution:=optional,
-											org.jboss.weld.annotated.runtime;resolution:=optional,
-											org.jboss.weld.annotated.slim;resolution:=optional,
-											org.jboss.weld.annotated.slim.backed;resolution:=optional,
-											org.jboss.weld.annotated.slim.unbacked;resolution:=optional,
-											org.jboss.weld.bean;resolution:=optional,
-											org.jboss.weld.bean.attributes;resolution:=optional,
-											org.jboss.weld.bean.builtin;resolution:=optional,
-											org.jboss.weld.bean.builtin.ee;resolution:=optional,
-											org.jboss.weld.bean.interceptor;resolution:=optional,
-											org.jboss.weld.bean.proxy;resolution:=optional,
-											org.jboss.weld.bean.proxy.util;resolution:=optional,
-											org.jboss.weld.bootstrap;resolution:=optional,
-											org.jboss.weld.bootstrap.api;resolution:=optional,
-											org.jboss.weld.bootstrap.api.helpers;resolution:=optional,
-											org.jboss.weld.bootstrap.enablement;resolution:=optional,
-											org.jboss.weld.bootstrap.event;resolution:=optional,
-											org.jboss.weld.bootstrap.events;resolution:=optional,
-											org.jboss.weld.bootstrap.events.configurator;resolution:=optional,
-											org.jboss.weld.bootstrap.spi;resolution:=optional,
-											org.jboss.weld.bootstrap.spi.helpers;resolution:=optional,
-											org.jboss.weld.config;resolution:=optional,
-											org.jboss.weld.configuration.spi;resolution:=optional,
-											org.jboss.weld.construction.api;resolution:=optional,
-											org.jboss.weld.context;resolution:=optional,
-											org.jboss.weld.context.activator;resolution:=optional,
-											org.jboss.weld.context.api;resolution:=optional,
-											org.jboss.weld.context.bound;resolution:=optional,
-											org.jboss.weld.context.unbound;resolution:=optional,
-											org.jboss.weld.contexts;resolution:=optional,
-											org.jboss.weld.contexts.activator;resolution:=optional,
-											org.jboss.weld.contexts.beanstore;resolution:=optional,
-											org.jboss.weld.contexts.bound;resolution:=optional,
-											org.jboss.weld.contexts.cache;resolution:=optional,
-											org.jboss.weld.contexts.conversation;resolution:=optional,
-											org.jboss.weld.contexts.unbound;resolution:=optional,
-											org.jboss.weld.ejb.spi;resolution:=optional,
-											org.jboss.weld.event;resolution:=optional,
-											org.jboss.weld.events;resolution:=optional,
-											org.jboss.weld.exceptions;resolution:=optional,
-											org.jboss.weld.executor;resolution:=optional,
-											org.jboss.weld.inject;resolution:=optional,
-											org.jboss.weld.injection;resolution:=optional,
-											org.jboss.weld.injection.attributes;resolution:=optional,
-											org.jboss.weld.injection.producer;resolution:=optional,
-											org.jboss.weld.injection.spi;resolution:=optional,
-											org.jboss.weld.interceptor;resolution:=optional,
-											org.jboss.weld.interceptor.builder;resolution:=optional,
-											org.jboss.weld.interceptor.proxy;resolution:=optional,
-											org.jboss.weld.interceptor.reader;resolution:=optional,
-											org.jboss.weld.interceptor.spi.metadata;resolution:=optional,
-											org.jboss.weld.interceptor.spi.model;resolution:=optional,
-											org.jboss.weld.interceptor.util;resolution:=optional,
-											org.jboss.weld.interceptor.util.proxy;resolution:=optional,
-											org.jboss.weld.literal;resolution:=optional,
-											org.jboss.weld.logging;resolution:=optional,
-											org.jboss.weld.manager;resolution:=optional,
-											org.jboss.weld.manager.api;resolution:=optional,
-											org.jboss.weld.metadata;resolution:=optional,
-											org.jboss.weld.metadata.cache;resolution:=optional,
-											org.jboss.weld.module;resolution:=optional,
-											org.jboss.weld.persistence;resolution:=optional,
-											org.jboss.weld.proxy;resolution:=optional,
-											org.jboss.weld.resolution;resolution:=optional,
-											org.jboss.weld.resources;resolution:=optional,
-											org.jboss.weld.resources.spi;resolution:=optional,
-											org.jboss.weld.security;resolution:=optional,
-											org.jboss.weld.security.spi;resolution:=optional,
-											org.jboss.weld.serialization;resolution:=optional,
-											org.jboss.weld.serialization.spi;resolution:=optional,
-											org.jboss.weld.serialization.spi.helpers;resolution:=optional,
-											org.jboss.weld.servlet.spi;resolution:=optional,
-											org.jboss.weld.servlet.spi.helpers;resolution:=optional,
-											org.jboss.weld.transaction.spi;resolution:=optional,
-											org.jboss.weld.util;resolution:=optional,
-											org.jboss.weld.util.annotated;resolution:=optional,
-											org.jboss.weld.util.bean;resolution:=optional,
-											org.jboss.weld.util.bytecode;resolution:=optional,
-											org.jboss.weld.util.cache;resolution:=optional,
-											org.jboss.weld.util.collections;resolution:=optional,
-											org.jboss.weld.util.reflection;resolution:=optional,
-											org.jboss.weld.ws;resolution:=optional,
-											org.jboss.weld.xml;resolution:=optional,
-											org.xml.sax;resolution:=optional,
-											org.xml.sax.helpers;resolution:=optional,
-											sun.misc;resolution:=optional,
-											sun.reflect;resolution:=optional
-										</Import-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.jboss.weld:weld-api:3.0.SP4</id>
-									<source>true</source>
-									<excludes>
-										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
-										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
-										<exclude>:cdi-api::</exclude>
-									</excludes>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.jboss.weld.api</Bundle-SymbolicName>
-										<Bundle-Version>3.0.0.SP4_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											javax.annotation-api,
-											org.openntf.spec.javax.interceptor-api_1.2_spec,
-											org.openntf.javax.el,
-											org.openntf.xsp.cdi.api
-										</Require-Bundle>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.jboss.weld:weld-spi:3.0.SP4</id>
-									<source>true</source>
-									<excludes>
-										<exclude>:jboss-interceptors-api_1.2_spec::</exclude>
-										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
-										<exclude>:cdi-api::</exclude>
-									</excludes>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.jboss.weld.spi</Bundle-SymbolicName>
-										<Bundle-Version>3.0.0.SP4_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											javax.annotation-api,
-											org.openntf.spec.javax.interceptor-api_1.2_spec,
-											org.openntf.javax.el,
-											org.openntf.xsp.cdi.api
-										</Require-Bundle>
-										<Import-Package>
-											javax.annotation;resolution:=optional,
-											javax.enterprise.context.spi;resolution:=optional,
-											javax.enterprise.inject;resolution:=optional,
-											javax.enterprise.inject.spi;resolution:=optional,
-											javax.naming;resolution:=optional,
-											javax.persistence;resolution:=optional,
-											javax.servlet;resolution:=optional,
-											javax.servlet.http;resolution:=optional,
-											javax.validation;resolution:=optional,
-											org.jboss.weld.bootstrap.api;resolution:=optional,
-											org.jboss.weld.bootstrap.api.helpers;resolution:=optional,
-											org.jboss.weld.bootstrap.spi;resolution:=optional,
-											org.jboss.weld.configuration.spi;resolution:=optional,
-											org.jboss.weld.construction.api;resolution:=optional,
-											org.jboss.weld.context.api;resolution:=optional,
-											org.jboss.weld.ejb.api;resolution:=optional,
-											org.jboss.weld.ejb.spi;resolution:=optional,
-											org.jboss.weld.injection.spi;resolution:=optional,
-											org.jboss.weld.manager.api;resolution:=optional,
-											org.jboss.weld.resources.spi;resolution:=optional,
-											org.jboss.weld.security.spi;resolution:=optional,
-											org.jboss.weld.serialization.spi;resolution:=optional,
-											org.jboss.weld.serialization.spi.helpers;resolution:=optional,
-											org.jboss.weld.servlet.api;resolution:=optional,
-											org.jboss.weld.servlet.spi;resolution:=optional,
-											org.jboss.weld.transaction.spi;resolution:=optional
-										</Import-Package>
-									</instructions>
-								</artifact>
-								
-								<!-- Avoid trouble with sun.misc during compilation -->
-								<artifact>
-									<id>org.jboss.classfilewriter:jboss-classfilewriter:1.2.3.Final</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.jboss-classfilewriter</Bundle-SymbolicName>
-										<Bundle-Version>1.2.3.Final_${osgi.qualifier}</Bundle-Version>
-										<Import-Package>
-											sun.misc;resolution:=optional
-										</Import-Package>
-									</instructions>
-								</artifact>
-								
+								<artifact><id>jakarta.enterprise:jakarta.enterprise.cdi-api:3.0.0</id><source>true</source></artifact>
+								<artifact><id>org.jboss.weld.se:weld-se-core:${weld-version}</id><source>true</source></artifact>
+								<artifact><id>org.jboss.weld.environment:weld-environment-common:${weld-version}</id><source>true</source></artifact>
+								<artifact><id>org.jboss.weld:weld-core-impl:${weld-version}</id><source>true</source></artifact>
+								<artifact><id>org.jboss.weld:weld-api:4.0.SP1</id><source>true</source></artifact>
+								<artifact><id>org.jboss.weld:weld-spi:4.0.SP1</id><source>true</source></artifact>
 								
 								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to jvm/lib/ext on Domino -->
 								<artifact>
-									<id>org.jboss.logging:jboss-logging:3.2.1.Final</id>
+									<id>org.jboss.logging:jboss-logging:3.4.2.Final</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
@@ -676,10 +151,8 @@
 								<!--
 									JSP 
 								-->
-								<artifact><id>jstl:jstl:1.2</id><source>true</source></artifact>
+								<artifact><id>jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0</id><source>true</source></artifact>
 							</artifacts>
-
-							<compressSite>true</compressSite>
 						</configuration>
 					</execution>
 				</executions>

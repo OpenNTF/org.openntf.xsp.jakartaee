@@ -14,9 +14,14 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
  com.ibm.jscript,
  com.ibm.xsp.extsn;bundle-version="9.0.1",
  com.ibm.domino.xsp.adapter;bundle-version="9.0.1",
- javax.annotation-api;bundle-version="1.3.0",
- org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec;bundle-version="1.0.0";visibility:=reexport,
- org.openntf.org.jboss.resteasy.jaxrs;bundle-version="3.5.0"
-Import-Package: lotus.domino,
- javax.activation;bundle-symbolic-name="com.ibm.designer.lib.javamail"
+ jakarta.annotation-api;bundle-version="2.0.0",
+ jakarta.ws.rs-api;bundle-version="3.0.0",
+ org.glassfish.jersey.core.jersey-server;bundle-version="3.0.2",
+ org.glassfish.jersey.containers.jersey-container-servlet-core;bundle-version="3.0.2"
+Import-Package: jakarta.servlet;version="5.0.0",
+ jakarta.servlet.annotation;version="5.0.0",
+ jakarta.servlet.descriptor;version="5.0.0",
+ jakarta.servlet.http;version="5.0.0",
+ javax.activation;bundle-symbolic-name="com.ibm.designer.lib.javamail",
+ lotus.domino
 Export-Package: org.openntf.xsp.jaxrs

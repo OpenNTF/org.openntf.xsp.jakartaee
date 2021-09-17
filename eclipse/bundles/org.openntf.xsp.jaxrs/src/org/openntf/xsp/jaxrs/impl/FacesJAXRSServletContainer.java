@@ -24,12 +24,12 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextFactory;
 import javax.faces.event.PhaseListener;
 import javax.faces.lifecycle.Lifecycle;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 
 import com.ibm.commons.util.NotImplementedException;
@@ -47,7 +47,7 @@ import com.ibm.xsp.controller.FacesControllerFactoryImpl;
  * @author Jesse Gallagher
  * @since 1.0.0
  */
-public class FacesJAXRSServletContainer extends HttpServletDispatcher {
+public class FacesJAXRSServletContainer extends ServletContainer {
 	private static final long serialVersionUID = 1L;
 	
 	private ServletConfig config;
@@ -64,6 +64,10 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 		contextFactory = (FacesContextFactory) FactoryFinder.getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
 	}
 	
+	private javax.servlet.ServletContext getOldServletContext() {
+		return null;
+	}
+	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		NotesContext nc = NotesContext.getCurrentUnchecked();
@@ -76,7 +80,7 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	    	FacesContextEx exc = (FacesContextEx)fc;
 	    	ApplicationEx application = exc.getApplicationEx();
 	    	if (application.getController() == null) {
-	    		FacesController controller = new FacesControllerFactoryImpl().createFacesController(getServletContext());
+	    		FacesController controller = new FacesControllerFactoryImpl().createFacesController(getOldServletContext());
 	    		controller.init(null);
 	    	}
 	    	

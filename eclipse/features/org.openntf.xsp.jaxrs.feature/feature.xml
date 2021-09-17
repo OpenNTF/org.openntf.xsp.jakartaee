@@ -18,7 +18,7 @@
 -->
 <feature
       id="org.openntf.xsp.jaxrs.feature"
-      label="XPages JAX-RS 2.1 Support Feature"
+      label="XPages JAX-RS 3.0 Support Feature"
       version="2.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -26,7 +26,7 @@
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018-2020 Jesse Gallagher
+      Copyright 2018-2021 Jesse Gallagher
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
@@ -238,11 +238,11 @@
    </requires>
 
 	<plugin id="org.openntf.xsp.jaxrs" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.jaxrs.weld" version="0.0.0" fragment="true"/>
+	<plugin id="org.openntf.xsp.jaxrs.cdi" version="0.0.0" fragment="true"/>
 	<plugin id="org.openntf.xsp.jaxrs.factory" version="0.0.0" fragment="true"/>
 	<plugin id="org.openntf.xsp.jaxrs.providers" version="0.0.0" fragment="true"/>
 
-	<plugin id="org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec" version="0.0.0"/>
+	<plugin id="jakarta.ws.rs-api" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.resteasy.jaxrs" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.resteasy.cdi" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.resteasy.multipart-provider" version="0.0.0"/>
