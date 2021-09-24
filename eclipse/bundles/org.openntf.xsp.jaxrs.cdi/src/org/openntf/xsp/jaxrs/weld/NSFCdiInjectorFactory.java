@@ -15,25 +15,27 @@
  */
 package org.openntf.xsp.jaxrs.weld;
 
-import jakarta.enterprise.inject.spi.BeanManager;
-
-import org.jboss.resteasy.cdi.CdiInjectorFactory;
+import org.glassfish.jersey.inject.cdi.se.CdiSeInjectionManager;
+import org.glassfish.jersey.internal.inject.InjectionManager;
+import org.glassfish.jersey.internal.inject.InjectionManagerFactory;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 
-public class NSFCdiInjectorFactory extends CdiInjectorFactory {
+public class NSFCdiInjectorFactory implements InjectionManagerFactory {
 	public NSFCdiInjectorFactory() {
 		
 	}
-	
+
 	@Override
-	@SuppressWarnings("nls")
-	protected BeanManager lookupBeanManager() {
+	public InjectionManager create(Object parent) {
 		ApplicationEx application = ApplicationEx.getInstance();
 		if(application == null) {
 			throw new IllegalStateException("Unable to locate ApplicationEx!");
 		}
-		return ContainerUtil.getBeanManager(application);
+		
+		CdiSeInjectionManager manager = new CdiSeInjectionManager();
+		manager.setBeanManager(ContainerUtil.getBeanManager(application));
+		return manager;
 	}
 }

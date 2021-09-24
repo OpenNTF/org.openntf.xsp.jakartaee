@@ -18,10 +18,10 @@ package org.openntf.xsp.jaxrs.weld;
 import java.io.IOException;
 import java.util.HashMap;
 
-import javax.enterprise.inject.spi.CDI;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.jboss.weld.context.RequestContext;
 import org.jboss.weld.context.bound.BoundLiteral;

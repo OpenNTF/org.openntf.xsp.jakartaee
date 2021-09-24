@@ -12,6 +12,12 @@ Require-Bundle: org.openntf.xsp.cdi;bundle-version="1.0.0",
  com.ibm.xsp.core;bundle-version="9.0.1",
  com.ibm.commons;bundle-version="9.0.1",
  org.openntf.xsp.cdi.api,
- org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec;bundle-version="1.0.0",
- org.openntf.org.jboss.resteasy.jaxrs;bundle-version="3.5.0",
- org.openntf.org.jboss.resteasy.cdi;bundle-version="3.5.0"
+ jakarta.enterprise.cdi-api,
+ org.jboss.weld.core-impl;bundle-version="4.0.0",
+ org.jboss.weld.se.weld-se-core;bundle-version="4.0.0",
+ org.jboss.weld.spi;bundle-version="4.0.0",
+ org.glassfish.jersey.core.jersey-common;bundle-version="3.0.0",
+ org.glassfish.jersey.inject.jersey-cdi2-se;bundle-version="3.0.0"
+Import-Package: org.jboss.weld.context,
+ org.jboss.weld.context.bound,
+ org.jboss.weld.proxy
