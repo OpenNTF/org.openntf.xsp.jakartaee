@@ -6,7 +6,7 @@ Automatic-Module-Name: org.openntf.xsp.cdi.api
 Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: jakarta.decorator,
+Export-Package: jakarta.decorator;version="3.0.0",
  jakarta.enterprise.context;version="3.0.0",
  jakarta.enterprise.context.control;version="3.0.0",
  jakarta.enterprise.context.spi;version="3.0.0",
