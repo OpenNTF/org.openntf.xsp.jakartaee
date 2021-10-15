@@ -19,8 +19,10 @@ import com.ibm.xsp.library.AbstractXspLibrary;
 
 public class EL3Library extends AbstractXspLibrary {
 
-	public static final String LIBRARY_ID = "org.openntf.xsp.el3"; //$NON-NLS-1$
-	public static final String PROP_PREFIX =  "org.openntf.xsp.el3.prefix"; //$NON-NLS-1$
+	public static final String LIBRARY_ID = "org.openntf.xsp.el"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = LIBRARY_ID;
+	public static final String PROP_PREFIX =  "org.openntf.xsp.el.prefix"; //$NON-NLS-1$
+	
 	@Override
 	public String getLibraryId() {
 		return LIBRARY_ID;
@@ -28,7 +30,7 @@ public class EL3Library extends AbstractXspLibrary {
 	
 	@Override
 	public String getPluginId() {
-		return getClass().getPackage().getName();
+		return PLUGIN_ID;
 	}
 	
 	@Override

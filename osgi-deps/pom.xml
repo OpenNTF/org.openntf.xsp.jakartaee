@@ -72,20 +72,8 @@
 								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.0</id><source>true</source></artfiact>
 								<!-- Include log4j to satisfy runtime expectations -->
 								<artifact><id>org.apache.logging.log4j:log4j-api:2.11.0</id><source>true</source></artifact>
-								<artifact>
-									<id>org.jboss.classfilewriter:jboss-classfilewriter:1.2.5.Final</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.jboss-classfilewriter</Bundle-SymbolicName>
-										<Bundle-Version>1.2.5.Final_${osgi.qualifier}</Bundle-Version>
-										<Import-Package>
-											!sun.misc,
-											*
-										</Import-Package>
-										<DynamicImport-Package>sun.misc</DynamicImport-Package>
-									</instructions>
-								</artifact>
+								
+								<!-- Repackage to avoid trouble with a build finding a newer, beta-only version -->
 								<artifact>
 									<id>org.glassfish.hk2:osgi-resource-locator:1.0.3</id>
 									<source>true</source>
@@ -102,7 +90,6 @@
 								-->
 								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:3.0.0</id><source>true</source></artifact>
 								<artifact><id>com.sun.xml.bind:jaxb-impl:3.0.2</id><source>true</source></artifact>
-								
 								
 								<!--
 									JSON-P and JSON-B
@@ -149,13 +136,12 @@
 								<!--
 									CDI 
 								-->
-								<artifact><id>jakarta.enterprise:jakarta.enterprise.cdi-api:3.0.0</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.se:weld-se-core:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.environment:weld-environment-common:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-core-impl:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-api:4.0.SP1</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-spi:4.0.SP1</id><source>true</source></artifact>
-								<artifact><id>org.jboss.weld.probe:weld-probe-core:4.0.2.Final</id><source>true</source></artifact>
+								<artifact><id>org.jboss.weld.probe:weld-probe-core:${weld-version}</id><source>true</source></artifact>
 								
 								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to jvm/lib/ext on Domino -->
 								<artifact>
@@ -175,6 +161,22 @@
 											org.slf4j;version="[1.7,2)";resolution:=optional,
 											org.slf4j.spi;version="[1.7,2)";resolution:=optional
 										</Import-Package>
+									</instructions>
+								</artifact>
+								
+								<!-- Repackage to avoid sun.misc import trouble on build -->
+								<artifact>
+									<id>org.jboss.classfilewriter:jboss-classfilewriter:1.2.5.Final</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jboss-classfilewriter</Bundle-SymbolicName>
+										<Bundle-Version>1.2.5.Final_${osgi.qualifier}</Bundle-Version>
+										<Import-Package>
+											!sun.misc,
+											*
+										</Import-Package>
+										<DynamicImport-Package>sun.misc</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								
