@@ -62,6 +62,11 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 					String bundleName = ContainerUtil.getApplicationCDIBundle(database);
 					if(StringUtil.isNotEmpty(bundleName)) {
 						bundle = Platform.getBundle(bundleName);
+					} else {
+						bundleName = ContainerUtil.getApplicationCDIBundleBase(database);
+						if(StringUtil.isNotEmpty(bundleName)) {
+							bundle = Platform.getBundle(bundleName);
+						}
 					}
 				}
 			}
