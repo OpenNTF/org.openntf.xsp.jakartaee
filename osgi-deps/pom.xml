@@ -62,7 +62,7 @@
 								<!-- TODO switch to jakarta.annotation when CXF makes the switch -->
 								<artifact><id>javax.annotation:javax.annotation-api:1.3</id><source>true</source></artifact>
 								<!-- Include log4j to satisfy runtime expectations -->
-								<artifact><id>org.apache.logging.log4j:log4j-api:2.11.0</id><source>true</source></artifact>
+								<artifact><id>org.apache.logging.log4j:log4j-api:2.15.0</id><source>true</source></artifact>
 								
 								
 								<!--
