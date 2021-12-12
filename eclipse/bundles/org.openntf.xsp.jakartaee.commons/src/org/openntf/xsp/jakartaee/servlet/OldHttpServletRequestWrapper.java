@@ -248,9 +248,14 @@ public class OldHttpServletRequestWrapper implements HttpServletRequest {
 
 	@Override
 	public Cookie[] getCookies() {
-		return Arrays.stream(delegate.getCookies())
-			.map(c -> new Cookie(c.getName(), c.getValue()))
-			.toArray(Cookie[]::new);
+		javax.servlet.http.Cookie[] oldCookies = delegate.getCookies();
+		if(oldCookies == null) {
+			return null;
+		} else {
+			return Arrays.stream(oldCookies)
+				.map(c -> new Cookie(c.getName(), c.getValue()))
+				.toArray(Cookie[]::new);
+		}
 	}
 
 	@Override

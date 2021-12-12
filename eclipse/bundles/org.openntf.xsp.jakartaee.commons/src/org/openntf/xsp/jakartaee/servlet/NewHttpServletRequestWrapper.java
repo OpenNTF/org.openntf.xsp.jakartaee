@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -182,9 +183,14 @@ public class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServ
 
 	@Override
 	public javax.servlet.http.Cookie[] getCookies() {
-		return Arrays.stream(delegate.getCookies())
-		.map(c -> new javax.servlet.http.Cookie(c.getName(), c.getValue()))
-		.toArray(javax.servlet.http.Cookie[]::new);
+		Cookie[] newCookies = delegate.getCookies();
+		if(newCookies == null) {
+			return null;
+		} else {
+			return Arrays.stream(delegate.getCookies())
+					.map(c -> new javax.servlet.http.Cookie(c.getName(), c.getValue()))
+					.toArray(javax.servlet.http.Cookie[]::new);	
+		}
 	}
 
 	@Override
