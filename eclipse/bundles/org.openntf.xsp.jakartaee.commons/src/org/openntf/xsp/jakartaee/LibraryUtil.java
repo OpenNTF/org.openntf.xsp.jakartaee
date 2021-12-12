@@ -113,7 +113,7 @@ public enum LibraryUtil {
 				// Check to see if we need a cache refresh
 				if(NSF_MOD.containsKey(replicaId)) {
 					long lastMod = database.getLastNonDataModificationDate();
-					if(lastMod < System.currentTimeMillis()) {
+					if(lastMod < NSF_MOD.get(replicaId)) {
 						// Then we're good to use what's there
 						return existing;
 					}
@@ -123,14 +123,12 @@ public enum LibraryUtil {
 				// Read xsp.properties from the NSF
 				Properties props = new Properties();
 				NotesNote xspProperties = FileAccess.getFileByPath(database, "/WEB-INF/xsp.properties"); //$NON-NLS-1$
-				try {
-					if(xspProperties != null) {
-						try(InputStream is = FileAccess.readFileContentAsInputStream(xspProperties)) {
-							props.load(is);
-						}
+				if(xspProperties != null) {
+					try(InputStream is = FileAccess.readFileContentAsInputStream(xspProperties)) {
+						props.load(is);
+					} finally {
+						xspProperties.recycle();
 					}
-				} finally {
-					xspProperties.recycle();
 				}
 				return props;
 			} catch(IOException e) {
