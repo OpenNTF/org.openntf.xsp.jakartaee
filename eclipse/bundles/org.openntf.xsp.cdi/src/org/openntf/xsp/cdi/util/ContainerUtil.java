@@ -144,7 +144,8 @@ public enum ContainerUtil {
 					}
 				}
 				
-				instance = weld.initialize();
+				Weld fweld = weld;
+				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> fweld.initialize());
 			}
 			return instance;
 		} else {
