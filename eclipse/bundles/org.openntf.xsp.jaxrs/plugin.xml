@@ -23,7 +23,7 @@
 		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.jaxrs.JAXRSLibrary" />
 	</extension>
 	
-	<!-- The Jersey servlet factory -->
+	<!-- The RESTEasy servlet factory -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jaxrs.JAXRSServletFactory" />
 	</extension>

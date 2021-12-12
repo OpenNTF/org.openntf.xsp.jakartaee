@@ -7,8 +7,9 @@ Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.openntf.xsp.jaxrs
-Require-Bundle: org.glassfish.jersey.media.jersey-media-json-binding;bundle-version="3.0.3",
- org.glassfish.jersey.media.jersey-media-jaxb;bundle-version="3.0.3",
- org.glassfish.jersey.media.jersey-media-multipart;bundle-version="3.0.3",
- org.glassfish.jersey.ext.jersey-bean-validation;bundle-version="3.0.3",
- org.hibernate.validator;bundle-version="7.0.1"
+Require-Bundle: org.hibernate.validator;bundle-version="7.0.1",
+ org.openntf.org.jboss.resteasy.jaxb-provider;bundle-version="6.0.0",
+ org.openntf.org.jboss.resteasy.json-binding-provider;bundle-version="6.0.0",
+ org.openntf.org.jboss.resteasy.json-p-provider;bundle-version="6.0.0",
+ org.openntf.org.jboss.resteasy.multipart-provider;bundle-version="6.0.0",
+ org.openntf.org.jboss.resteasy.validator-provider;bundle-version="6.0.0"

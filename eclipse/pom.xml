@@ -220,7 +220,6 @@
 								<versionRange>9.0.1</versionRange>
 							</requirement>
 						</extraRequirements>
-						<optionalDependencies>ignore</optionalDependencies>
 					</dependency-resolution>
 
 					<filters>

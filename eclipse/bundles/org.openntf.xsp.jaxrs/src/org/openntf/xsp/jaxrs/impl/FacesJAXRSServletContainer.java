@@ -29,7 +29,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.glassfish.jersey.servlet.ServletContainer;
+import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.openntf.xsp.jakartaee.servlet.NewHttpServletRequestWrapper;
 import org.openntf.xsp.jakartaee.servlet.NewHttpServletResponseWrapper;
 import org.openntf.xsp.jakartaee.servlet.NewServletContextWrapper;
@@ -50,7 +50,7 @@ import com.ibm.xsp.controller.FacesControllerFactoryImpl;
  * @author Jesse Gallagher
  * @since 1.0.0
  */
-public class FacesJAXRSServletContainer extends ServletContainer {
+public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	private static final long serialVersionUID = 1L;
 	
 	private ServletConfig config;

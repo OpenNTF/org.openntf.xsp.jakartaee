@@ -31,7 +31,7 @@
 	
 	<properties>
 		<weld-version>4.0.2.Final</weld-version>
-		<jersey-version>3.0.3</jersey-version>
+		<resteasy-version>6.0.0.Beta1</resteasy-version>
 		<hibernate-version>7.0.1.Final</hibernate-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -113,13 +113,97 @@
 								-->
 								<artifact><id>jakarta.ws.rs:jakarta.ws.rs-api:3.0.0</id><source>true</source></artifact>
 								<artifact><id>jakarta.interceptor:jakarta.interceptor-api:2.0.0</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.jersey.core:jersey-server:${jersey-version}</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.jersey.containers:jersey-container-servlet-core:${jersey-version}</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.jersey.ext:jersey-bean-validation:${jersey-version}</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.jersey.inject:jersey-cdi2-se:${jersey-version}</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.jersey.media:jersey-media-json-binding:${jersey-version}</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.jersey.media:jersey-media-multipart:${jersey-version}</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.jersey.media:jersey-media-jaxb:${jersey-version}</id><source>true</source></artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-core:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.core</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											jakarta.ws.rs-api;visibility:=reexport
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-cdi:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.cdi</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.core,
+											org.jboss.weld.api,
+											org.jboss.weld.spi,
+											org.jboss.weld.core-impl
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-jaxb-provider:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.jaxb-provider</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.core
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-multipart-provider:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.multipart-provider</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.core
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-json-p-provider:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.json-p-provider</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.core
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-json-binding-provider:${resteasy-version}</id>
+									<source>true</source>
+									<excludes>
+										<exclude>:jboss-annotations-api_1.3_spec::</exclude>
+									</excludes>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.json-binding-provider</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.core
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-validator-provider:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.validator-provider</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.openntf.org.jboss.resteasy.core,
+											org.hibernate.validator
+										</Require-Bundle>
+									</instructions>
+								</artifact>
 								
 								<!--
 									EL
