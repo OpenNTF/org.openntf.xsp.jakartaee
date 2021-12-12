@@ -30,6 +30,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.glassfish.jersey.servlet.ServletContainer;
+import org.openntf.xsp.jakartaee.servlet.NewHttpServletRequestWrapper;
+import org.openntf.xsp.jakartaee.servlet.NewHttpServletResponseWrapper;
+import org.openntf.xsp.jakartaee.servlet.NewServletContextWrapper;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 
 import com.ibm.commons.util.NotImplementedException;
@@ -65,7 +68,7 @@ public class FacesJAXRSServletContainer extends ServletContainer {
 	}
 	
 	private javax.servlet.ServletContext getOldServletContext() {
-		return null;
+		return new NewServletContextWrapper(getServletContext());
 	}
 	
 	@Override
@@ -125,8 +128,11 @@ public class FacesJAXRSServletContainer extends ServletContainer {
 	
 	private FacesContext initContext(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Create a temporary FacesContext and make it available
-        FacesContext context = contextFactory.getFacesContext(getServletConfig().getServletContext(), request, response, dummyLifeCycle);
-        return context;
+		// TODO consider if it would be better to unwrap these instead of double-wrapping
+		javax.servlet.ServletContext context = new NewServletContextWrapper(getServletConfig().getServletContext());
+		javax.servlet.http.HttpServletRequest req = new NewHttpServletRequestWrapper(request);
+		javax.servlet.http.HttpServletResponse resp = new NewHttpServletResponseWrapper(response);
+        return contextFactory.getFacesContext(context, req, resp, dummyLifeCycle);
     }
 	
 	private void releaseContext(FacesContext context) throws ServletException, IOException {
