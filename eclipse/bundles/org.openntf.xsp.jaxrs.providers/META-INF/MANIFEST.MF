@@ -9,7 +9,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.openntf.xsp.jaxrs
 Require-Bundle: org.hibernate.validator;bundle-version="7.0.1",
  org.openntf.org.jboss.resteasy.jaxb-provider;bundle-version="6.0.0",
- org.openntf.org.jboss.resteasy.json-binding-provider;bundle-version="6.0.0",
- org.openntf.org.jboss.resteasy.json-p-provider;bundle-version="6.0.0",
  org.openntf.org.jboss.resteasy.multipart-provider;bundle-version="6.0.0",
  org.openntf.org.jboss.resteasy.validator-provider;bundle-version="6.0.0"

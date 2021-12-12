@@ -28,12 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
-import javax.faces.context.FacesContext;
-
-import jakarta.enterprise.inject.spi.BeanManager;
-import jakarta.enterprise.inject.spi.CDI;
-import jakarta.enterprise.inject.spi.Extension;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
 import org.jboss.weld.config.ConfigurationKey;
@@ -59,10 +53,10 @@ import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
-import com.ibm.xsp.util.FacesUtil;
 
-import lotus.domino.Database;
-import lotus.domino.NotesException;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.Extension;
 
 /**
  * Utility methods for working with Weld containers based on a given XPages application

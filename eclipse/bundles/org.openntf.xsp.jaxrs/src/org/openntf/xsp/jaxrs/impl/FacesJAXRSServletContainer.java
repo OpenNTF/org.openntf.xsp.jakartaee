@@ -30,6 +30,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+import org.openntf.xsp.cdi.ext.CDIConstants;
 import org.openntf.xsp.jakartaee.servlet.NewHttpServletRequestWrapper;
 import org.openntf.xsp.jakartaee.servlet.NewHttpServletResponseWrapper;
 import org.openntf.xsp.jakartaee.servlet.NewServletContextWrapper;
@@ -73,6 +74,8 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setAttribute(CDIConstants.CDI_JAXRS_REQUEST, "true"); //$NON-NLS-1$
+		
 		NotesContext nc = NotesContext.getCurrentUnchecked();
     	String javaClassValue = "plugin.Activator"; //$NON-NLS-1$
 		String str = "WEB-INF/classes/" + javaClassValue.replace('.', '/') + ".class"; //$NON-NLS-1$ //$NON-NLS-2$
