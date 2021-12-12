@@ -89,7 +89,26 @@
 									JAX-B 
 								-->
 								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:3.0.0</id><source>true</source></artifact>
-								<artifact><id>com.sun.xml.bind:jaxb-impl:3.0.2</id><source>true</source></artifact>
+								<artifact>
+									<id>com.sun.xml.bind:jaxb-core:3.0.2</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.com.sun.xml.bind.jaxb-core</Bundle-SymbolicName>
+										<Bundle-Version>3.0.2.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>jakarta.xml.bind-api</Fragment-Host>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>com.sun.xml.bind:jaxb-impl:3.0.2</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.com.sun.xml.bind.jaxb-impl</Bundle-SymbolicName>
+										<Bundle-Version>3.0.2.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>jakarta.xml.bind-api</Fragment-Host>
+									</instructions>
+								</artifact>
 								
 								<!--
 									JSON-P and JSON-B
