@@ -22,4 +22,4 @@ org.jboss.resteasy.plugins.providers.multipart.XopWithMultipartRelatedReader
 org.jboss.resteasy.plugins.providers.multipart.XopWithMultipartRelatedWriter
 org.jboss.resteasy.plugins.validation.ValidatorContextResolver
 org.jboss.resteasy.plugins.validation.ValidatorContextResolverCDI
-org.jboss.resteasy.api.validation.ResteasyViolationExceptionMapper
+org.jboss.resteasy.plugins.validation.ResteasyViolationExceptionMapper
