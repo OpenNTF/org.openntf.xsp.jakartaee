@@ -44,6 +44,7 @@ import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoader;
 import org.jboss.weld.util.ForwardingBeanManager;
 import org.openntf.xsp.cdi.CDILibrary;
+import org.openntf.xsp.cdi.NSFProxyServices;
 import org.openntf.xsp.cdi.context.CDIScopesExtension;
 import org.openntf.xsp.cdi.discovery.OSGiServletBeanArchiveHandler;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
@@ -111,25 +112,17 @@ public enum ContainerUtil {
 			}
 			
 			// Look for the database so we can share the replica ID
-			String id = null;
-			FacesContext facesContext = FacesContext.getCurrentInstance();
-			if(facesContext != null) {
-				Database database = (Database)FacesUtil.resolveVariable(facesContext, "database"); //$NON-NLS-1$
-				if(database != null) {
-					try {
-						id = database.getReplicaID();
-					} catch (NotesException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
-			if(id == null) {
-				id = application.getApplicationId();
+			String id;
+			try {
+				id = NotesContext.getCurrent().getNotesDatabase().getReplicaID();
+			} catch (NotesAPIException e) {
+				throw new RuntimeException(e);
 			}
 			
 			WeldContainer instance = WeldContainer.instance(id);
 			if(instance == null) {
 				Weld weld = constructWeld(id)
+					.addServices(new NSFProxyServices())
 					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
 
 				String baseBundleId = getApplicationCDIBundleBase(application);
