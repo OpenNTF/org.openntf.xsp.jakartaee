@@ -23,6 +23,7 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta RESTful Web Services API, available from https://github.com/eclipse-ee4j/jaxrs-api and licensed under the EPL 2.0
 - The Jakarta XML Binding API, available from https://github.com/eclipse-ee4j/jaxb-api and licensed under the EPL 2.0
 - The Jakarta Activation API, available from https://github.com/eclipse-ee4j/jaf and licensed under the EPL 2.0
+- The Jakarta Annotations API, available from https://github.com/eclipse-ee4j/common-annotations-api and licensed under the EPL 2.0
 - Weld, available from http://weld.cdi-spec.org/ and licensed under Apache 2.0
 - GlassFish EL, available from https://github.com/eclipse-ee4j/el-ri/tree/master/impl and licensed under the EPL 2.0
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
