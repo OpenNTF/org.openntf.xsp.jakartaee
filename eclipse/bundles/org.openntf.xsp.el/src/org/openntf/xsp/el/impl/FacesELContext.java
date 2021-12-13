@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.el3.impl;
+package org.openntf.xsp.el.impl;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -25,7 +25,7 @@ import jakarta.el.ELResolver;
 import jakarta.el.ExpressionFactory;
 import jakarta.el.StandardELContext;
 
-import org.openntf.xsp.el3.ext.ELResolverProvider;
+import org.openntf.xsp.el.ext.ELResolverProvider;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 
 /**

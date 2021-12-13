@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.el3;
+package org.openntf.xsp.el;
 
 import javax.faces.application.Application;
 import javax.faces.el.MethodBinding;

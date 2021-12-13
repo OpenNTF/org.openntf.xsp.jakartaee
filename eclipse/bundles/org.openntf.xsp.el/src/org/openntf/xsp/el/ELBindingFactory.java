@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.el3;
+package org.openntf.xsp.el;
 
 import jakarta.el.ELContext;
 import jakarta.el.ExpressionFactory;
@@ -23,14 +23,14 @@ import javax.faces.application.Application;
 import javax.faces.el.MethodBinding;
 import javax.faces.el.ValueBinding;
 
-import org.openntf.xsp.el3.impl.ExpressionMethodBinding;
-import org.openntf.xsp.el3.impl.ExpressionValueBinding;
-import org.openntf.xsp.el3.impl.FacesELContext;
+import org.openntf.xsp.el.impl.ExpressionMethodBinding;
+import org.openntf.xsp.el.impl.ExpressionValueBinding;
+import org.openntf.xsp.el.impl.FacesELContext;
 
 import com.ibm.xsp.binding.BindingFactory;
 
 /**
- * This class provides an Expression Language 3.0 interpreter instead of the stock
+ * This class provides an Expression Language 4.0 interpreter instead of the stock
  * XPages EL interpreter.
  * 
  * <p>Note: to get XPages to compile runtime bindings with method calls, prefix the
@@ -39,7 +39,7 @@ import com.ibm.xsp.binding.BindingFactory;
  * @author Jesse Gallagher
  * @since 1.0.0
  */
-public class EL3BindingFactory implements BindingFactory {
+public class ELBindingFactory implements BindingFactory {
 	
 	public static final String PREFIX = "el"; //$NON-NLS-1$
 	
@@ -50,7 +50,7 @@ public class EL3BindingFactory implements BindingFactory {
 	}
 	
 	private final String prefix;
-	public EL3BindingFactory(String prefix) {
+	public ELBindingFactory(String prefix) {
 		this.prefix = prefix;
 	}
 

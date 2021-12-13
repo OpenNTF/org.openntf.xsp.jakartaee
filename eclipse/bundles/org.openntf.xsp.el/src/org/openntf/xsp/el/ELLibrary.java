@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.el3;
+package org.openntf.xsp.el;
 
 import com.ibm.xsp.library.AbstractXspLibrary;
 
-public class EL3Library extends AbstractXspLibrary {
+public class ELLibrary extends AbstractXspLibrary {
 
 	public static final String LIBRARY_ID = "org.openntf.xsp.el"; //$NON-NLS-1$
 	public static final String PLUGIN_ID = LIBRARY_ID;

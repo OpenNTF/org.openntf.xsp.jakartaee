@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.el3;
+package org.openntf.xsp.el;
 
 import org.openntf.xsp.jakartaee.LibraryUtil;
 
@@ -21,16 +21,16 @@ import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.events.ApplicationListener2;
 import com.ibm.xsp.factory.FactoryLookup;
 
-public class EL3ApplicationListener implements ApplicationListener2 {
+public class ELApplicationListener implements ApplicationListener2 {
 
 	@Override
 	public void applicationCreated(ApplicationEx application) {
-		if(LibraryUtil.usesLibrary(EL3Library.LIBRARY_ID, application)) {
+		if(LibraryUtil.usesLibrary(ELLibrary.LIBRARY_ID, application)) {
 			@SuppressWarnings("deprecation")
 			FactoryLookup facts = application.getFactoryLookup();
 			
-			String prefix = application.getProperty(EL3Library.PROP_PREFIX, EL3BindingFactory.PREFIX);
-			facts.setFactory(prefix, new EL3BindingFactory(prefix));
+			String prefix = application.getProperty(ELLibrary.PROP_PREFIX, ELBindingFactory.PREFIX);
+			facts.setFactory(prefix, new ELBindingFactory(prefix));
 			
 			// Create a binding factory for default bindings
 			facts.setFactory(XSPELBindingFactory.IBM_PREFIX, new XSPELBindingFactory(XSPELBindingFactory.IBM_PREFIX));

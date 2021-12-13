@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.el3.impl;
+package org.openntf.xsp.el.impl;
 
 import java.beans.FeatureDescriptor;
 import java.util.Collections;

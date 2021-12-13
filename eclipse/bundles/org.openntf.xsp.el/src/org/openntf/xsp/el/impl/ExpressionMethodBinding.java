@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.el3.impl;
+package org.openntf.xsp.el.impl;
 
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -27,7 +27,7 @@ import javax.faces.el.EvaluationException;
 import javax.faces.el.MethodBinding;
 import javax.faces.el.MethodNotFoundException;
 
-import org.openntf.xsp.el3.EL3BindingFactory;
+import org.openntf.xsp.el.ELBindingFactory;
 
 import com.ibm.xsp.util.ValueBindingUtil;
 
@@ -99,7 +99,7 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	public void restoreState(FacesContext facesContext, Object state) {
 		Object[] stateArray = (Object[])state;
 		this.exp = (MethodExpression)stateArray[0];
-		this.elContext = new FacesELContext(EL3BindingFactory.getExpressionFactory());
+		this.elContext = new FacesELContext(ELBindingFactory.getExpressionFactory());
 		this.prefix = (String)stateArray[1];
 	}
 
