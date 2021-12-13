@@ -234,6 +234,9 @@
    </license>
 
 	<plugin id="org.openntf.xsp.jakartaee.commons" version="0.0.0"/>
+	
+	<!-- XML Binding -->
+	<plugin id="jakarta.xml.bind-api" version="0.0.0"/>
 
 	<plugin id="jakarta.annotation-api" version="0.0.0"/>
 	<plugin id="jakarta.el-api" version="0.0.0"/>
@@ -244,14 +247,9 @@
 	<plugin id="jakarta.json.bind-api" version="0.0.0"/>
 	<plugin id="org.glassfish.jakarta.json" version="0.0.0"/>
 	
-	<!-- XML Binding -->
-	<plugin id="jakarta.xml.bind-api" version="0.0.0"/>
-	<plugin id="org.openntf.com.sun.xml.bind.jaxb-core" version="0.0.0" fragment="true"/>
-	<plugin id="org.openntf.com.sun.xml.bind.jaxb-impl" version="0.0.0" fragment="true"/>
-	
 	<!-- Mail -->
-	<plugin id="org.openntf.xsp.mail.api" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.mail.impl" version="0.0.0" fragment="true"/>
+	<plugin id="org.openntf.xsp.jakartamail.api" version="0.0.0"/>
+	<plugin id="org.openntf.xsp.jakartamail.impl" version="0.0.0" fragment="true"/>
 	<plugin id="jakarta.activation-api" version="0.0.0"/>
 	<plugin id="angus-activation" version="0.0.0"/>
 	

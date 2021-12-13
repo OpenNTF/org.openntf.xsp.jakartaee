@@ -37,9 +37,11 @@
 	<modules>
 		<!-- General Jakarta EE platform -->
 		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
-		<module>bundles/org.openntf.xsp.mail.api</module>
-		<module>bundles/org.openntf.xsp.mail.impl</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
+		
+		<!-- Mail and Activation -->
+		<module>bundles/org.openntf.xsp.jakartamail.api</module>
+		<module>bundles/org.openntf.xsp.jakartamail.impl</module>
 		
 		<!-- CDI 3.0 -->
 		<module>bundles/org.openntf.xsp.cdi.api</module>
