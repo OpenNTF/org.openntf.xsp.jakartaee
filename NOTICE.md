@@ -1,6 +1,6 @@
 XPages Jakarta EE Support
 
-Portions (c) Copyright 2018 Jesse Gallagher
+Portions (c) Copyright 2018-2021 Jesse Gallagher
 
 This product includes software contributed to
 OpenNTF Alliance (http://www.OpenNTF.org/)
@@ -15,13 +15,22 @@ The project contains the following third-party code:
 
 The binary distribution contains the following 3rd party code:
 
-- Weld, vailable from http://weld.cdi-spec.org/ and licensed under Apache 2.0
-- GlassFish EL, available from https://mvnrepository.com/artifact/org.glassfish/javax.el and licensed under the CDDL
+- The Jakarta EL API, available from https://github.com/eclipse-ee4j/el-ri/tree/master/api and licensed under the EPL 2.0
+- The Jakarta Bean Validation API, available from https://github.com/eclipse-ee4j/beanvalidation-api and licensed under the EPL 2.0
+- The Jakarta JSON Binding API, available from https://github.com/eclipse-ee4j/jsonb-api and licensed under the EPL 2.0
+- The Jakarta JSON processing API, available from https://github.com/eclipse-ee4j/jsonp and licensed under the EPL 2.0
+- The Jakarta CDI API, available from https://github.com/eclipse-ee4j/cdi and licensed under the EPL 2.0
+- The Jakarta RESTful Web Services API, available from https://github.com/eclipse-ee4j/jaxrs-api and licensed under the EPL 2.0
+- The Jakarta XML Binding API, available from https://github.com/eclipse-ee4j/jaxb-api and licensed under the EPL 2.0
+- The Jakarta Activation API, available from https://github.com/eclipse-ee4j/jaf and licensed under the EPL 2.0
+- Weld, available from http://weld.cdi-spec.org/ and licensed under Apache 2.0
+- GlassFish EL, available from https://github.com/eclipse-ee4j/el-ri/tree/master/impl and licensed under the EPL 2.0
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
 - ClassMate, available from https://github.com/FasterXML/java-classmate and licensed under Apache 2.0
 - Hibernate Validator, available from http://hibernate.org/validator/ and licensed under Apache 2.0
-- The Bean Validation 2.0 API, available from https://beanvalidation.org/2.0/ and licensed under Apache 2.0
-- The JSON-B API, available from https://mvnrepository.com/artifact/javax.json.bind/javax.json.bind-api/1.0 and licensed under the CDDL
-- Eclipse Yasson, available from https://mvnrepository.com/artifact/org.eclipse/yasson/1.0.2 and licensed under the EPL 1.0
-- GlassFish JSON-P Provider, available from https://mvnrepository.com/artifact/org.glassfish/javax.json/1.1.4 and licensed under the CDDL
-- The JSON-P API, available from https://mvnrepository.com/artifact/javax.json/javax.json-api/1.1.4 and licensed under the CDDL
+- Eclipse Yasson, available from https://github.com/eclipse-ee4j/yasson and licensed under the EPL 2.0
+- GlassFish JSON-P Provider, available from https://projects.eclipse.org/projects/ee4j.jsonp and licensed under the EPL 2.0
+- The Eclipse Implementation of JAXB, available from https://github.com/eclipse-ee4j/jaxb-ri and licensed under the EPL 2.0
+- The Eclipse Angus Activation implementation, available from https://github.com/eclipse-ee4j/angus-activation and licensed under the EPL 2.0
+- Reactive Streams, available from https://github.com/reactive-streams/reactive-streams-jvm and licensed under MIT No Attribution
+- Apache Log4j, available from https://logging.apache.org/log4j/2.x/ and licensed under Apache 2.0
