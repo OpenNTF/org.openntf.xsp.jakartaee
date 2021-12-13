@@ -69,8 +69,7 @@
 								<artifact><id>jakarta.inject:jakarta.inject-api:2.0.0</id><source>true</source></artifact>
 								<artfiact><id>jakarta.servlet:jakarta.servlet-api:5.0.0</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.0</id><source>true</source></artfiact>
-								<!-- Include log4j to satisfy runtime expectations -->
-								<artifact><id>org.apache.logging.log4j:log4j-api:2.15.0</id><source>true</source></artifact>
+								
 								
 								<!-- Repackage to avoid trouble with a build finding a newer, beta-only version -->
 								<artifact>

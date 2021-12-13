@@ -40,7 +40,6 @@
 		<module>bundles/org.openntf.xsp.mail.api</module>
 		<module>bundles/org.openntf.xsp.mail.impl</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
-		<module>features/org.openntf.xsp.log4j.feature</module>
 		
 		<!-- CDI 3.0 -->
 		<module>bundles/org.openntf.xsp.cdi.api</module>

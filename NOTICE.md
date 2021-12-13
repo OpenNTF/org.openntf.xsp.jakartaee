@@ -34,4 +34,3 @@ The binary distribution contains the following 3rd party code:
 - The Eclipse Implementation of JAXB, available from https://github.com/eclipse-ee4j/jaxb-ri and licensed under the EPL 2.0
 - The Eclipse Angus Activation implementation, available from https://github.com/eclipse-ee4j/angus-activation and licensed under the EPL 2.0
 - Reactive Streams, available from https://github.com/reactive-streams/reactive-streams-jvm and licensed under MIT No Attribution
-- Apache Log4j, available from https://logging.apache.org/log4j/2.x/ and licensed under Apache 2.0
