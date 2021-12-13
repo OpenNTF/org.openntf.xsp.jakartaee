@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.cdi;
+package org.openntf.xsp.cdi.util;
 
 import java.security.ProtectionDomain;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.jboss.weld.bean.proxy.util.WeldDefaultProxyServices;
+
+import com.ibm.domino.xsp.module.nsf.ModuleClassLoader;
 
 /**
  * This subclass of {@link WeldDefaultProxyServices} keeps an internal cache of generated
@@ -29,14 +32,15 @@ import org.jboss.weld.bean.proxy.util.WeldDefaultProxyServices;
  * @since 2.0.0
  */
 public class NSFProxyServices extends WeldDefaultProxyServices {
-	private Map<String, Class<?>> classCache = new HashMap<>();
+	
+	private static Map<String, Class<?>> classCache = Collections.synchronizedMap(new HashMap<>());
 	
 	@Override
 	public Class<?> defineClass(Class<?> originalClass, String className, byte[] classBytes, int off, int len)
 			throws ClassFormatError {
 		Class<?> result = super.defineClass(originalClass, className, classBytes, off, len);
-		if(result != null) {
-			classCache.put(className, result);
+		if(result != null && !(originalClass.getClassLoader() instanceof ModuleClassLoader)) {
+			classCache.put(className + originalClass.hashCode(), result);
 		}
 		return result;
 	}
@@ -45,16 +49,17 @@ public class NSFProxyServices extends WeldDefaultProxyServices {
 	public Class<?> defineClass(Class<?> originalClass, String className, byte[] classBytes, int off, int len,
 			ProtectionDomain protectionDomain) throws ClassFormatError {
 		Class<?> result = super.defineClass(originalClass, className, classBytes, off, len, protectionDomain);
-		if(result != null) {
-			classCache.put(className, result);
+		if(result != null && !(originalClass.getClassLoader() instanceof ModuleClassLoader)) {
+			classCache.put(className + originalClass.hashCode(), result);
 		}
 		return result;
 	}
 	
 	@Override
 	public synchronized Class<?> loadClass(Class<?> originalClass, String classBinaryName) throws ClassNotFoundException {
-		if(classCache.containsKey(classBinaryName)) {
-			return classCache.get(classBinaryName);
+		String key = classBinaryName + originalClass.hashCode();
+		if(classCache.containsKey(key)) {
+			return classCache.get(key);
 		}
 		return super.loadClass(originalClass, classBinaryName);
 	}
