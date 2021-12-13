@@ -16,6 +16,7 @@ Require-Bundle: org.openntf.xsp.cdi;bundle-version="1.0.0",
  org.jboss.weld.se.weld-se-core;bundle-version="4.0.0",
  org.jboss.weld.spi;bundle-version="4.0.0",
  org.openntf.org.jboss.resteasy.cdi;bundle-version="6.0.0"
-Import-Package: org.jboss.weld.context,
+Import-Package: org.jboss.resteasy.spi,
+ org.jboss.weld.context,
  org.jboss.weld.context.bound,
  org.jboss.weld.proxy

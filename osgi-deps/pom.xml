@@ -66,7 +66,6 @@
 									General Platform
 								-->
 								<artifact><id>jakarta.annotation:jakarta.annotation-api:2.0.0</id><source>true</source></artifact>
-								<artifact><id>jakarta.activation:jakarta.activation-api:2.0.1</id><source>true</source></artifact>
 								<artifact><id>jakarta.inject:jakarta.inject-api:2.0.0</id><source>true</source></artifact>
 								<artfiact><id>jakarta.servlet:jakarta.servlet-api:5.0.0</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.0</id><source>true</source></artfiact>
@@ -282,6 +281,13 @@
 										<DynamicImport-Package>sun.misc</DynamicImport-Package>
 									</instructions>
 								</artifact>
+								
+								<!--
+									Mail
+								-->
+								<artifact><id>jakarta.mail:jakarta.mail-api:2.1.0-RC1</id><source>true</source></artifact>
+								<artifact><id>jakarta.activation:jakarta.activation-api:2.1.0-RC1</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.angus:angus-activation:1.0.0-M1</id><source>true</source></artifact>
 								
 								<!--
 									JSP 

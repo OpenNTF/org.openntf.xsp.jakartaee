@@ -10,6 +10,8 @@ This product is licensed under the terms of the Apache 2.0 license.
 The project contains the following third-party code:
 
 - pristo_rest by Martin Pradny, available from https://bitbucket.org/pradnik/pristo_rest/src/master/to.pris.rest.xsp/src/to/pris/rest/ and used with permission
+- The Jakarta Mail API, available from https://github.com/eclipse-ee4j/mail and licensed under the Eclipse Public License 2.0. See "LICENSE-mail.md" and "LICENSE-mail.md" in the "legal" directory
+- Portions of Eclipse Angus, available from https://github.com/eclipse-ee4j/angus-mail and licensed under the Eclipse Public License 2.0. See "LICENSE-angus.md" and "LICENSE-angus.md" in the "legal" directory
 
 The binary distribution contains the following 3rd party code:
 
