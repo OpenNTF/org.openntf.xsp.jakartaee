@@ -12,6 +12,8 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - JSON Processing 2.0
 - JSON Binding 2.0
 - XML Binding 3.0
+- Mail 2.1
+  - Activation 2.1
 
 ## CDI 3.0
 
