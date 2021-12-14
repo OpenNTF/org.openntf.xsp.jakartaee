@@ -17,7 +17,7 @@ package org.openntf.xsp.cdi.context;
 
 import java.lang.annotation.Annotation;
 
-import javax.enterprise.context.ConversationScoped;
+import jakarta.enterprise.context.ConversationScoped;
 import javax.faces.context.FacesContext;
 
 /**

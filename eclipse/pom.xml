@@ -38,39 +38,42 @@
 		<!-- General Jakarta EE platform -->
 		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
-		<module>features/org.openntf.xsp.log4j.feature</module>
 		
-		<!-- CDI Support -->
+		<!-- Mail and Activation -->
+		<module>bundles/org.openntf.xsp.jakartamail.api</module>
+		<module>bundles/org.openntf.xsp.jakartamail.impl</module>
+		
+		<!-- CDI 3.0 -->
 		<module>bundles/org.openntf.xsp.cdi.api</module>
 		<module>bundles/org.openntf.xsp.cdi</module>
 		<module>bundles/org.openntf.xsp.cdi.provider</module>
 		<module>features/org.openntf.xsp.cdi.feature</module>
 		
-		<!-- Expression Language 3.0 -->
-		<module>bundles/org.openntf.xsp.el3</module>
-		<module>features/org.openntf.xsp.el3.feature</module>
+		<!-- Expression Language 4.0 -->
+		<module>bundles/org.openntf.xsp.el</module>
+		<module>features/org.openntf.xsp.el.feature</module>
 		
-		<!-- JAX-RS 2.1 -->
+		<!-- JAX-RS 3.0 -->
 		<module>bundles/org.openntf.xsp.jaxrs</module>
-		<module>bundles/org.openntf.xsp.jaxrs.weld</module>
+		<module>bundles/org.openntf.xsp.jaxrs.cdi</module>
 		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
 		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
 		<module>features/org.openntf.xsp.jaxrs.feature</module>
 		
-		<!-- Bean Validation 2.0 -->
+		<!-- Bean Validation 3.0 -->
 		<module>bundles/org.openntf.xsp.beanvalidation</module>
 		<module>features/org.openntf.xsp.beanvalidation.feature</module>
 		<module>tests/org.openntf.xsp.beanvalidation.test</module>
 		
-		<!-- JSON-P 1.1 and JSON-B 1.0 -->
+		<!-- JSON-P 2.0 and JSON-B 2.0 -->
 		<module>bundles/org.openntf.xsp.jsonapi</module>
 		<module>bundles/org.openntf.xsp.jsonapi.jaxrs</module>
 		<module>features/org.openntf.xsp.jsonapi.feature</module>
 		<module>tests/org.openntf.xsp.jsonapi.test</module>
 		
 		<!-- JSP -->
-		<module>bundles/org.openntf.xsp.jsp</module>
-		<module>features/org.openntf.xsp.jsp.feature</module>
+<!-- 		<module>bundles/org.openntf.xsp.jsp</module> -->
+<!-- 		<module>features/org.openntf.xsp.jsp.feature</module> -->
 		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
@@ -186,7 +189,7 @@
 				<configuration>
 					<includeBinaryFeature>false</includeBinaryFeature>
 					<excludes>
-						<plugin id="org.openntf.xsp.el3.factory"/>
+						<plugin id="org.openntf.xsp.el.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.providers"/>
 						<plugin id="jstl"/>
@@ -220,7 +223,6 @@
 								<versionRange>9.0.1</versionRange>
 							</requirement>
 						</extraRequirements>
-						<optionalDependencies>ignore</optionalDependencies>
 					</dependency-resolution>
 
 					<filters>
@@ -276,8 +278,12 @@
 			            <exclude>src/test/resources/**</exclude>
 			            <exclude>src/main/resources/**</exclude>
 						<exclude>**/build.properties</exclude>
-						<exclude>**/javax/**</exclude>
+						<exclude>**/jakarta/**</exclude>
 						<exclude>**/org/jboss/**</exclude>
+						<exclude>**/org/openntf/com/sun/mail/**</exclude>
+						<exclude>**/gfprobe-provider.xml</exclude>
+						<exclude>**/LICENSE.txt</exclude>
+						<exclude>**/beans_*.xsd</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>

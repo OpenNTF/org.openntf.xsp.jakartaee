@@ -18,8 +18,8 @@ package org.openntf.xsp.cdi.provider;
 import java.io.IOException;
 import java.util.List;
 
-import javax.enterprise.inject.spi.CDI;
-import javax.enterprise.inject.spi.CDIProvider;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.CDIProvider;
 
 import org.eclipse.core.runtime.Platform;
 import org.openntf.xsp.cdi.ext.CDIContainerLocator;

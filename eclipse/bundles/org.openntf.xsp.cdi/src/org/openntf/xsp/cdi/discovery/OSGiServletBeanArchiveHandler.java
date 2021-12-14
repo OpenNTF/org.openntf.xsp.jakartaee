@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
@@ -62,6 +62,11 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 					String bundleName = ContainerUtil.getApplicationCDIBundle(database);
 					if(StringUtil.isNotEmpty(bundleName)) {
 						bundle = Platform.getBundle(bundleName);
+					} else {
+						bundleName = ContainerUtil.getApplicationCDIBundleBase(database);
+						if(StringUtil.isNotEmpty(bundleName)) {
+							bundle = Platform.getBundle(bundleName);
+						}
 					}
 				}
 			}

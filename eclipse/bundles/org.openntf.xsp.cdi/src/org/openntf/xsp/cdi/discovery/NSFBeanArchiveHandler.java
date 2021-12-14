@@ -17,7 +17,7 @@ package org.openntf.xsp.cdi.discovery;
 
 import java.io.IOException;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 
 import org.jboss.weld.bootstrap.spi.BeansXml;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveBuilder;

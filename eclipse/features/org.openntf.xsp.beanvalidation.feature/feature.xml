@@ -18,7 +18,7 @@
 -->
 <feature
       id="org.openntf.xsp.beanvalidation.feature"
-      label="XPages Bean Validation 2.0 Support Feature"
+      label="XPages Bean Validation 3.0 Support Feature"
       version="2.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -26,7 +26,7 @@
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018-2020 Jesse Gallagher
+      Copyright 2018-2021 Jesse Gallagher
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
@@ -218,7 +218,7 @@
       same &quot;printed page&quot; as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2018-2020 Jesse Gallagher
+   Copyright 2018-2021 Jesse Gallagher
 
    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -235,14 +235,31 @@
 
    <requires>
       <import feature="org.openntf.xsp.jakartaee.feature"/>
-      <import feature="org.openntf.xsp.el3.feature"/>
+      <import feature="org.openntf.xsp.el.feature"/>
    </requires>
 
-   <plugin id="org.openntf.xsp.beanvalidation" version="0.0.0"/>
-   
-   <!-- Implementation dependencies -->
-   <plugin id="com.fasterxml.classmate" version="0.0.0"/>
-   <plugin id="javax.validation.api" version="0.0.0"/>
-   <plugin id="org.openntf.org.hibernate.validator.hibernate-validator" version="0.0.0"/>
+   <plugin
+         id="org.openntf.xsp.beanvalidation"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.fasterxml.classmate"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="jakarta.validation.jakarta.validation-api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.hibernate.validator"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>

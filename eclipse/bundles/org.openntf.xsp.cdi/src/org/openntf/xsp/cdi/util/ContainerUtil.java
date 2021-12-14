@@ -28,10 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
-import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.CDI;
-import javax.enterprise.inject.spi.Extension;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
 import org.jboss.weld.config.ConfigurationKey;
@@ -57,6 +53,10 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.Extension;
+
 /**
  * Utility methods for working with Weld containers based on a given XPages application
  * or running environment.
@@ -71,6 +71,21 @@ public enum ContainerUtil {
 	 * @since 1.2.0
 	 */
 	private static final ThreadLocal<String> threadContextDatabasePath = new ThreadLocal<>();
+	
+	/**
+	 * The xsp.properties key used to determine an OSGi bundle to fully delegate CDI responsibilities
+	 * to. When this is set, the NSF will use the same CDI container returned by
+	 * {@link #getContainer(Bundle)}.
+	 * @since 1.1.0
+	 */
+	public static final String PROP_CDIBUNDLE = CDILibrary.LIBRARY_ID + ".cdibundle"; //$NON-NLS-1$
+	/**
+	 * The xsp.properties key used to determine an OSGi bundle to use as a baseline for CDI
+	 * beans for an NSF. When this is set, CDI will pull all classes and resources from the named
+	 * OSGi bundle, but will use a separate CDI container for each NSF.
+	 * @since 1.2.0
+	 */
+	public static final String PROP_CDIBUNDLEBASE = CDILibrary.LIBRARY_ID + ".cdibundlebase"; //$NON-NLS-1$
 
 	/**
 	 * Gets or created a {@link WeldContainer} instance for the provided Application.
@@ -89,12 +104,29 @@ public enum ContainerUtil {
 				}
 			}
 			
-			String id = application.getApplicationId();
+			// Look for the database so we can share the replica ID
+			String id;
+			try {
+				id = NotesContext.getCurrent().getNotesDatabase().getReplicaID();
+			} catch (NotesAPIException e) {
+				throw new RuntimeException(e);
+			}
+			
 			WeldContainer instance = WeldContainer.instance(id);
 			if(instance == null) {
 				Weld weld = constructWeld(id)
-					.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()))
+					.addServices(new NSFProxyServices())
 					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
+
+				String baseBundleId = getApplicationCDIBundleBase(application);
+				if(StringUtil.isNotEmpty(baseBundleId)) {
+					Bundle bundle = Platform.getBundle(baseBundleId);
+					if(bundle != null) {
+						weld = weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
+					}
+				} else {
+					weld = weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
+				}
 				
 				for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
 					weld.addExtension(extension);
@@ -111,7 +143,8 @@ public enum ContainerUtil {
 					}
 				}
 				
-				instance = weld.initialize();
+				Weld fweld = weld;
+				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> fweld.initialize());
 			}
 			return instance;
 		} else {
@@ -177,11 +210,18 @@ public enum ContainerUtil {
 				}
 			}
 			
-			String id = database.getDatabasePath().replace('\\', '/');
+			String id = database.getReplicaID();
 			WeldContainer instance = WeldContainer.instance(id);
 			if(instance == null) {
-				Weld weld = constructWeld(id)
-					.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
+				Weld weld = constructWeld(id);
+				String baseBundleId = getApplicationCDIBundleBase(database);
+				Bundle bundle = null;
+				if(StringUtil.isNotEmpty(baseBundleId)) {
+					bundle = Platform.getBundle(baseBundleId);
+					if(bundle != null) {
+						weld = weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
+					}
+				}
 				
 				for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
 					Collection<Class<?>> beanClasses = service.getBeanClasses();
@@ -194,7 +234,14 @@ public enum ContainerUtil {
 					}
 				}
 				
-				instance = weld.initialize();
+				OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
+				OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
+				try {
+					instance = weld.initialize();
+				} finally {
+					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
+					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
+				}
 			}
 			return instance;
 		} else {
@@ -220,7 +267,18 @@ public enum ContainerUtil {
 	 * @since 1.1.0
 	 */
 	public static String getApplicationCDIBundle(ApplicationEx application) {
-		return application.getProperty(CDILibrary.LIBRARY_ID + ".cdibundle", null); //$NON-NLS-1$
+		return application.getProperty(PROP_CDIBUNDLE, null);
+	}
+	
+	/**
+	 * Returns the configured baseline OSGi bundle for CDI beans, if any.
+	 * 
+	 * @param application the application to check
+	 * @return the name of the bundle to use as the baseline, or {@code null} if not specified
+	 * @since 2.0.0
+	 */
+	public static String getApplicationCDIBundleBase(ApplicationEx application) {
+		return application.getProperty(PROP_CDIBUNDLEBASE, null);
 	}
 	
 	/**
@@ -235,19 +293,29 @@ public enum ContainerUtil {
 	 */
 	public static String getApplicationCDIBundle(NotesDatabase database) throws NotesAPIException, IOException {
 		Properties props = LibraryUtil.getXspProperties(database);
-		return props.getProperty(CDILibrary.LIBRARY_ID + ".cdibundle", null); //$NON-NLS-1$
+		return props.getProperty(PROP_CDIBUNDLE, null);
+	}
+	
+	/**
+	 * Returns the configured baseline OSGi bundle for CDI beans, if any.
+	 * 
+	 * @param database the application to check
+	 * @return the name of the bundle to use as the baseline, or {@code null} if not specified
+	 * @since 2.0.0
+	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 * @throws NotesAPIException if there is a problem reading the xsp.properties file in the module
+	 */
+	public static String getApplicationCDIBundleBase(NotesDatabase database) throws NotesAPIException, IOException {
+		Properties props = LibraryUtil.getXspProperties(database);
+		return props.getProperty(PROP_CDIBUNDLEBASE, null);
 	}
 
 	public static BeanManagerImpl getBeanManager(ApplicationEx application) {
 		CDI<Object> container = getContainer(application);
-		BeanManager manager = container.getBeanManager();
-		if(manager instanceof BeanManagerImpl) {
-			return (BeanManagerImpl)manager;
-		} else if(manager instanceof ForwardingBeanManager) {
-			return (BeanManagerImpl) ((ForwardingBeanManager)manager).delegate();
-		} else {
-			throw new IllegalStateException("Cannot find BeanManagerImpl in " + manager); //$NON-NLS-1$
+		if(container == null) {
+			return null;
 		}
+		return getBeanManager(container);
 	}
 	
 	/**

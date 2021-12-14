@@ -18,7 +18,7 @@
 -->
 <feature
       id="org.openntf.xsp.cdi.feature"
-      label="XPages CDI 2.0 Support Feature"
+      label="XPages CDI 3.0 Support Feature"
       version="2.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -26,7 +26,7 @@
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018-2020 Jesse Gallagher
+      Copyright 2018-2021 Jesse Gallagher
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
@@ -218,7 +218,7 @@
       same &quot;printed page&quot; as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2018-2020 Jesse Gallagher
+   Copyright 2018-2021 Jesse Gallagher
 
    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -241,11 +241,11 @@
 	<plugin id="org.openntf.xsp.cdi.api" version="0.0.0"/>
 	<plugin id="org.openntf.xsp.cdi.provider" version="0.0.0"/>
     
-	<plugin id="org.openntf.org.jboss.weld.api" version="0.0.0"/>
-	<plugin id="org.openntf.org.jboss.weld.spi" version="0.0.0"/>
-	<plugin id="org.openntf.org.jboss.weld.core-impl" version="0.0.0"/>
-	<plugin id="org.openntf.org.jboss.weld.environment.weld-environment-common" version="0.0.0"/>
-	<plugin id="org.openntf.org.jboss.weld.se.weld-se-core" version="0.0.0"/>
+	<plugin id="org.jboss.weld.api" version="0.0.0"/>
+	<plugin id="org.jboss.weld.spi" version="0.0.0"/>
+	<plugin id="org.jboss.weld.core-impl" version="0.0.0"/>
+	<plugin id="org.jboss.weld.environment.weld-environment-common" version="0.0.0"/>
+	<plugin id="org.jboss.weld.se.weld-se-core" version="0.0.0"/>
 	<plugin id="org.jboss.weld.probe.weld-probe-core" version="0.0.0"/>
 	
 </feature>

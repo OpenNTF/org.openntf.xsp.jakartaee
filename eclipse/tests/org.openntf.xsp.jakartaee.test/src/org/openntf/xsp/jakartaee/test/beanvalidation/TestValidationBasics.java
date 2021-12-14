@@ -19,8 +19,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 
 import org.junit.Test;
 import org.openntf.xsp.beanvalidation.XPagesValidationUtil;

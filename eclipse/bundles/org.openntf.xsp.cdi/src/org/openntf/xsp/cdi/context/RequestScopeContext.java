@@ -17,8 +17,11 @@ package org.openntf.xsp.cdi.context;
 
 import java.lang.annotation.Annotation;
 
-import javax.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.RequestScoped;
+
 import javax.servlet.http.HttpServletRequest;
+
+import org.openntf.xsp.cdi.ext.CDIConstants;
 
 /**
  * @author Jesse Gallagher
@@ -48,5 +51,10 @@ public class RequestScopeContext extends AbstractProxyingContext {
 			// Must be in a non-HTTP task - just spin up a discardable one
 			return new BasicScopeContextHolder();
 		}
+	}
+	
+	@Override
+	public boolean isActive() {
+		return !"true".equals(getHttpServletRequest().getAttribute(CDIConstants.CDI_JAXRS_REQUEST)); //$NON-NLS-1$
 	}
 }

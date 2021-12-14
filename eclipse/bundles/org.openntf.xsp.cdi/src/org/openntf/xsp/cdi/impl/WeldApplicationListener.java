@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.cdi.impl;
 
-import javax.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.CDI;
 
 import org.jboss.weld.environment.se.WeldContainer;
 import org.openntf.xsp.cdi.CDILibrary;

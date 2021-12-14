@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2018 Martin Pradny and Jesse Gallagher
+ * Copyright © 2018-2021 Martin Pradny and Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Application;
 
 import org.openntf.xsp.jakartaee.ModuleUtil;
 
