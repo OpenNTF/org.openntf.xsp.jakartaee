@@ -21,8 +21,8 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionContext;
 
 @SuppressWarnings("deprecation")
-public class OldHttpSessionContextWrapper implements HttpSessionContext {
-	private final javax.servlet.http.HttpSessionContext delegate;
+class OldHttpSessionContextWrapper implements HttpSessionContext {
+	final javax.servlet.http.HttpSessionContext delegate;
 	
 	public OldHttpSessionContextWrapper(javax.servlet.http.HttpSessionContext delegate) {
 		this.delegate = delegate;
@@ -30,8 +30,7 @@ public class OldHttpSessionContextWrapper implements HttpSessionContext {
 	
 	@Override
 	public HttpSession getSession(String sessionId) {
-		javax.servlet.http.HttpSession result = delegate.getSession(sessionId);
-		return result == null ? null : new OldHttpSessionWrapper(result);
+		return ServletUtil.oldToNew(delegate.getSession(sessionId));
 	}
 
 	@SuppressWarnings("unchecked")

@@ -19,11 +19,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class NewHttpServletResponseWrapper implements javax.servlet.http.HttpServletResponse {
-	private final HttpServletResponse delegate;
+class NewHttpServletResponseWrapper implements javax.servlet.http.HttpServletResponse {
+	final HttpServletResponse delegate;
 	
 	public NewHttpServletResponseWrapper(HttpServletResponse delegate) {
 		this.delegate = delegate;
@@ -56,7 +55,7 @@ public class NewHttpServletResponseWrapper implements javax.servlet.http.HttpSer
 
 	@Override
 	public javax.servlet.ServletOutputStream getOutputStream() throws IOException {
-		return new NewServletOutputStreamWrapper(delegate.getOutputStream());
+		return ServletUtil.newToOld(delegate.getOutputStream());
 	}
 
 	@Override
@@ -106,7 +105,7 @@ public class NewHttpServletResponseWrapper implements javax.servlet.http.HttpSer
 
 	@Override
 	public void addCookie(javax.servlet.http.Cookie arg0) {
-		delegate.addCookie(new Cookie(arg0.getName(), arg0.getValue()));
+		delegate.addCookie(ServletUtil.oldToNew(arg0));
 	}
 
 	@Override

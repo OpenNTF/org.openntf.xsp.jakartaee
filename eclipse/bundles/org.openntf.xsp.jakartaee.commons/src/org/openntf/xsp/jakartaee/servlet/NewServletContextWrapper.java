@@ -23,14 +23,13 @@ import java.util.Enumeration;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 
 @SuppressWarnings("rawtypes")
-public class NewServletContextWrapper implements javax.servlet.ServletContext {
-	private final ServletContext delegate;
+class NewServletContextWrapper implements javax.servlet.ServletContext {
+	final ServletContext delegate;
 	
 	public NewServletContextWrapper(ServletContext delegate) {
 		this.delegate = delegate;
@@ -48,7 +47,7 @@ public class NewServletContextWrapper implements javax.servlet.ServletContext {
 
 	@Override
 	public javax.servlet.ServletContext getContext(String arg0) {
-		return new NewServletContextWrapper(delegate.getContext(arg0));
+		return ServletUtil.newToOld(delegate.getContext(arg0));
 	}
 
 	@Override
@@ -83,8 +82,7 @@ public class NewServletContextWrapper implements javax.servlet.ServletContext {
 
 	@Override
 	public javax.servlet.RequestDispatcher getNamedDispatcher(String arg0) {
-		RequestDispatcher result = delegate.getNamedDispatcher(arg0);
-		return result == null ? null : new NewRequestDispatcherWrapper(result);
+		return ServletUtil.newToOld(delegate.getNamedDispatcher(arg0));
 	}
 
 	@Override
@@ -94,8 +92,7 @@ public class NewServletContextWrapper implements javax.servlet.ServletContext {
 
 	@Override
 	public javax.servlet.RequestDispatcher getRequestDispatcher(String arg0) {
-		RequestDispatcher result = delegate.getRequestDispatcher(arg0);
-		return result == null ? null : new NewRequestDispatcherWrapper(result);
+		return ServletUtil.newToOld(delegate.getRequestDispatcher(arg0));
 	}
 
 	@Override
@@ -127,7 +124,7 @@ public class NewServletContextWrapper implements javax.servlet.ServletContext {
 		} catch (ServletException e) {
 			throw new javax.servlet.ServletException(e);
 		}
-		return result == null ? null : new NewHttpServletWrapper(result);
+		return ServletUtil.newToOld(result);
 	}
 
 	@Override
@@ -147,7 +144,7 @@ public class NewServletContextWrapper implements javax.servlet.ServletContext {
 		return Collections.enumeration(
 			Collections.list(delegate.getServlets())
 				.stream()
-				.map(NewHttpServletWrapper::new)
+				.map(ServletUtil::newToOld)
 				.collect(Collectors.toList())
 		);
 	}

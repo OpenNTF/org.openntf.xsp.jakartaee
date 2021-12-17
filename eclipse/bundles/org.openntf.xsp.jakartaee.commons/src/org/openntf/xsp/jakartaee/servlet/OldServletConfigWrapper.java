@@ -20,8 +20,8 @@ import java.util.Enumeration;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 
-public class OldServletConfigWrapper implements ServletConfig {
-	private final javax.servlet.ServletConfig delegate;
+class OldServletConfigWrapper implements ServletConfig {
+	final javax.servlet.ServletConfig delegate;
 	
 	public OldServletConfigWrapper(javax.servlet.ServletConfig delegate) {
 		this.delegate = delegate;
@@ -34,8 +34,7 @@ public class OldServletConfigWrapper implements ServletConfig {
 
 	@Override
 	public ServletContext getServletContext() {
-		javax.servlet.ServletContext result = delegate.getServletContext();
-		return result == null ? null : new OldServletContextWrapper(result);
+		return ServletUtil.oldToNew(delegate.getServletContext());
 	}
 
 	@Override

@@ -20,8 +20,8 @@ import java.io.IOException;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 
-public class NewRequestDispatcherWrapper implements javax.servlet.RequestDispatcher {
-	private final RequestDispatcher delegate;
+class NewRequestDispatcherWrapper implements javax.servlet.RequestDispatcher {
+	final RequestDispatcher delegate;
 	
 	public NewRequestDispatcherWrapper(RequestDispatcher delegate) {
 		this.delegate = delegate;
@@ -32,7 +32,7 @@ public class NewRequestDispatcherWrapper implements javax.servlet.RequestDispatc
 		javax.servlet.http.HttpServletRequest req = (javax.servlet.http.HttpServletRequest)arg0;
 		javax.servlet.http.HttpServletResponse resp = (javax.servlet.http.HttpServletResponse)arg1;
 		try {
-			delegate.forward(new OldHttpServletRequestWrapper(null, req), new OldHttpServletResponseWrapper(resp));
+			delegate.forward(ServletUtil.oldToNew(null, req), ServletUtil.oldToNew(resp));
 		} catch (ServletException e) {
 			throw new javax.servlet.ServletException(e);
 		}
@@ -43,7 +43,7 @@ public class NewRequestDispatcherWrapper implements javax.servlet.RequestDispatc
 		javax.servlet.http.HttpServletRequest req = (javax.servlet.http.HttpServletRequest)arg0;
 		javax.servlet.http.HttpServletResponse resp = (javax.servlet.http.HttpServletResponse)arg1;
 		try {
-			delegate.include(new OldHttpServletRequestWrapper(null, req), new OldHttpServletResponseWrapper(resp));
+			delegate.include(ServletUtil.oldToNew(null, req), ServletUtil.oldToNew(resp));
 		} catch (ServletException e) {
 			throw new javax.servlet.ServletException(e);
 		}

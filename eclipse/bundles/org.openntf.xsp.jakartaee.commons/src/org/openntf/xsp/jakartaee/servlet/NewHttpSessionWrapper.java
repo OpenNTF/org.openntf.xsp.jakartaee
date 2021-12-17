@@ -18,11 +18,10 @@ package org.openntf.xsp.jakartaee.servlet;
 import java.util.Enumeration;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpSessionContext;
 
 @SuppressWarnings({ "rawtypes", "deprecation" })
-public class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
-	private final HttpSession delegate;
+class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
+	final HttpSession delegate;
 	
 	public NewHttpSessionWrapper(HttpSession delegate) {
 		this.delegate = delegate;
@@ -45,7 +44,7 @@ public class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 
 	@Override
 	public javax.servlet.ServletContext getServletContext() {
-		return new NewServletContextWrapper(delegate.getServletContext());
+		return ServletUtil.newToOld(delegate.getServletContext());
 	}
 
 	@Override
@@ -60,8 +59,7 @@ public class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 
 	@Override
 	public javax.servlet.http.HttpSessionContext getSessionContext() {
-		HttpSessionContext result = delegate.getSessionContext();
-		return result == null ? null : new NewHttpSessionContextWrapper(result);
+		return ServletUtil.newToOld(delegate.getSessionContext());
 	}
 
 	@Override

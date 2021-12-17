@@ -39,9 +39,9 @@ import jakarta.servlet.SessionTrackingMode;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
 
 @SuppressWarnings({ "unchecked", "deprecation" })
-public class OldServletContextWrapper implements ServletContext {
+class OldServletContextWrapper implements ServletContext {
 	private static final String UNAVAILABLE_MESSAGE = "Unable to call method on Servlet 2.5 delegate"; //$NON-NLS-1$
-	private final javax.servlet.ServletContext delegate;
+	final javax.servlet.ServletContext delegate;
 	
 	public OldServletContextWrapper(javax.servlet.ServletContext delegate) {
 		this.delegate = delegate;
@@ -134,8 +134,7 @@ public class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public ServletContext getContext(String arg0) {
-		javax.servlet.ServletContext result = delegate.getContext(arg0);
-		return result == null ? null : new OldServletContextWrapper(result);
+		return ServletUtil.oldToNew(delegate.getContext(arg0));
 	}
 
 	@Override
@@ -207,8 +206,7 @@ public class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public RequestDispatcher getNamedDispatcher(String arg0) {
-		javax.servlet.RequestDispatcher result = delegate.getNamedDispatcher(arg0);
-		return result == null ? null : new OldRequestDispatcherWrapper(result);
+		return ServletUtil.oldToNew(delegate.getNamedDispatcher(arg0));
 	}
 
 	@Override
@@ -224,8 +222,7 @@ public class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public RequestDispatcher getRequestDispatcher(String arg0) {
-		javax.servlet.RequestDispatcher result = delegate.getRequestDispatcher(arg0);
-		return result == null ? null : new OldRequestDispatcherWrapper(result);
+		return ServletUtil.oldToNew(delegate.getRequestDispatcher(arg0));
 	}
 
 	@Override
@@ -261,7 +258,7 @@ public class OldServletContextWrapper implements ServletContext {
 		} catch (javax.servlet.ServletException e) {
 			throw new ServletException(e);
 		}
-		return result == null ? null : new OldHttpServletWrapper(result);
+		return ServletUtil.oldToNew(result);
 	}
 
 	@Override
@@ -295,7 +292,7 @@ public class OldServletContextWrapper implements ServletContext {
 			return Collections.enumeration(
 				Collections.list(result)
 					.stream()
-					.map(s -> new OldHttpServletWrapper(s))
+					.map(ServletUtil::oldToNew)
 					.collect(Collectors.toList())
 			);
 		}

@@ -20,8 +20,8 @@ import java.io.IOException;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
 
-public class OldServletOutputStreamWrapper extends ServletOutputStream {
-	private final javax.servlet.ServletOutputStream delegate;
+class OldServletOutputStreamWrapper extends ServletOutputStream {
+	final javax.servlet.ServletOutputStream delegate;
 	
 	public OldServletOutputStreamWrapper(javax.servlet.ServletOutputStream delegate) {
 		this.delegate = delegate;

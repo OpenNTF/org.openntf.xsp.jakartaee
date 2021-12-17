@@ -17,14 +17,15 @@ package org.openntf.xsp.jakartaee.servlet;
 
 import java.io.IOException;
 
+import javax.servlet.ServletContext;
+
 import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 
-public class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
+class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	private Servlet delegate;
+	Servlet delegate;
 	
 	public NewHttpServletWrapper(Servlet delegate) {
 		this.delegate = delegate;
@@ -37,8 +38,7 @@ public class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 
 	@Override
 	public javax.servlet.ServletConfig getServletConfig() {
-		ServletConfig result = delegate.getServletConfig();
-		return new NewServletConfigWrapper(result);
+		return ServletUtil.newToOld(delegate.getServletConfig());
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	@Override
 	public void init(javax.servlet.ServletConfig arg0) throws javax.servlet.ServletException {
 		try {
-			delegate.init(new OldServletConfigWrapper(arg0));
+			delegate.init(ServletUtil.oldToNew(arg0));
 		} catch (ServletException e) {
 			throw new javax.servlet.ServletException(e);
 		}
@@ -60,9 +60,9 @@ public class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 		javax.servlet.http.HttpServletRequest req = (javax.servlet.http.HttpServletRequest)arg0;
 		javax.servlet.http.HttpServletResponse resp = (javax.servlet.http.HttpServletResponse)arg1;
 		
-		NewServletContextWrapper context = new NewServletContextWrapper(delegate.getServletConfig().getServletContext());
+		ServletContext context = ServletUtil.newToOld(delegate.getServletConfig().getServletContext());
 		try {
-			delegate.service(new OldHttpServletRequestWrapper(context, req), new OldHttpServletResponseWrapper(resp));
+			delegate.service(ServletUtil.oldToNew(context, req), ServletUtil.oldToNew(resp));
 		} catch (ServletException e) {
 			throw new javax.servlet.ServletException(e);
 		}

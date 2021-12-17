@@ -25,10 +25,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class OldHttpServletWrapper extends HttpServlet {
+class OldHttpServletWrapper extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	private final javax.servlet.Servlet delegate;
+	final javax.servlet.Servlet delegate;
 	
 	public OldHttpServletWrapper(javax.servlet.Servlet delegate) {
 		this.delegate = delegate;
@@ -37,7 +37,7 @@ public class OldHttpServletWrapper extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		try {
-			delegate.init(new NewServletConfigWrapper(config));
+			delegate.init(ServletUtil.newToOld(config));
 		} catch (javax.servlet.ServletException e) {
 			throw new ServletException(e);
 		}
@@ -45,8 +45,7 @@ public class OldHttpServletWrapper extends HttpServlet {
 
 	@Override
 	public ServletConfig getServletConfig() {
-		javax.servlet.ServletConfig result = delegate.getServletConfig();
-		return ((NewServletConfigWrapper)result).getDelegate();
+		return ServletUtil.oldToNew(delegate.getServletConfig());
 	}
 
 	@Override
@@ -54,7 +53,7 @@ public class OldHttpServletWrapper extends HttpServlet {
 		HttpServletRequest req = (HttpServletRequest)request;
 		HttpServletResponse resp = (HttpServletResponse)response;
 		try {
-			delegate.service(new NewHttpServletRequestWrapper(req), new NewHttpServletResponseWrapper(resp));
+			delegate.service(ServletUtil.newToOld(req), ServletUtil.newToOld(resp));
 		} catch (javax.servlet.ServletException e) {
 			throw new ServletException(e);
 		}

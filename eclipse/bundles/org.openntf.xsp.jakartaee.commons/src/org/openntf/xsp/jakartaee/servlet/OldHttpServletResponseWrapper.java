@@ -25,8 +25,8 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class OldHttpServletResponseWrapper implements HttpServletResponse {
-	private final javax.servlet.http.HttpServletResponse delegate;
+class OldHttpServletResponseWrapper implements HttpServletResponse {
+	final javax.servlet.http.HttpServletResponse delegate;
 	
 	public OldHttpServletResponseWrapper(javax.servlet.http.HttpServletResponse delegate) {
 		this.delegate = delegate;
@@ -44,7 +44,7 @@ public class OldHttpServletResponseWrapper implements HttpServletResponse {
 
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
-		return new OldServletOutputStreamWrapper(delegate.getOutputStream());
+		return ServletUtil.oldToNew(delegate.getOutputStream());
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public class OldHttpServletResponseWrapper implements HttpServletResponse {
 
 	@Override
 	public void addCookie(Cookie cookie) {
-		delegate.addCookie(new javax.servlet.http.Cookie(cookie.getName(), cookie.getValue()));
+		delegate.addCookie(ServletUtil.newToOld(cookie));
 	}
 
 	@Override

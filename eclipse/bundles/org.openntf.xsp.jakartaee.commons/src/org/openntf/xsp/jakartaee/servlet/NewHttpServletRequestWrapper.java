@@ -27,11 +27,10 @@ import java.util.Map;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 
 @SuppressWarnings({ "rawtypes", "deprecation" })
-public class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequest {
-	private final HttpServletRequest delegate;
+class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequest {
+	final HttpServletRequest delegate;
 	
 	public NewHttpServletRequestWrapper(HttpServletRequest delegate) {
 		this.delegate = delegate;
@@ -68,7 +67,7 @@ public class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServ
 
 	@Override
 	public javax.servlet.ServletInputStream getInputStream() throws IOException {
-		return new NewServletInputStreamWrapper(delegate.getInputStream());
+		return ServletUtil.newToOld(delegate.getInputStream());
 	}
 
 	@Override
@@ -148,7 +147,7 @@ public class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServ
 
 	@Override
 	public javax.servlet.RequestDispatcher getRequestDispatcher(String arg0) {
-		return new NewRequestDispatcherWrapper(delegate.getRequestDispatcher(arg0));
+		return ServletUtil.newToOld(delegate.getRequestDispatcher(arg0));
 	}
 
 	@Override
@@ -203,8 +202,8 @@ public class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServ
 			return null;
 		} else {
 			return Arrays.stream(delegate.getCookies())
-					.map(c -> new javax.servlet.http.Cookie(c.getName(), c.getValue()))
-					.toArray(javax.servlet.http.Cookie[]::new);	
+				.map(ServletUtil::newToOld)
+				.toArray(javax.servlet.http.Cookie[]::new);	
 		}
 	}
 
@@ -280,14 +279,12 @@ public class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServ
 
 	@Override
 	public javax.servlet.http.HttpSession getSession() {
-		HttpSession result = delegate.getSession();
-		return result == null ? null : new NewHttpSessionWrapper(result);
+		return ServletUtil.newToOld(delegate.getSession());
 	}
 
 	@Override
 	public javax.servlet.http.HttpSession getSession(boolean arg0) {
-		HttpSession result = delegate.getSession(arg0);
-		return result == null ? null : new NewHttpSessionWrapper(result);
+		return ServletUtil.newToOld(delegate.getSession(arg0));
 	}
 
 	@Override
