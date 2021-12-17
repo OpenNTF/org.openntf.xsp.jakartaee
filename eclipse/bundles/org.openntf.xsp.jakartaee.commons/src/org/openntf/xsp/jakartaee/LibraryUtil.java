@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -152,5 +153,24 @@ public enum LibraryUtil {
 		return AccessController.doPrivileged((PrivilegedAction<List<T>>)() ->
 			ExtensionManager.findServices(null, extensionClass.getClassLoader(), extensionClass.getName(), extensionClass)
 		);
+	}
+	
+	/**
+	 * Finds an implementation of the given extension class, throwing an exception if no implementation
+	 * is found.
+	 * 
+	 * <p>This method has the same expectations as {@link #findExtensions(Class)}.</p>
+	 * 
+	 * @param <T> the class of extension to find
+	 * @param extensionClass the class object representing the extension point
+	 * @return the first available implementation of the class
+	 * @throws IllegalStateException if no implementation can be found
+	 */
+	public static <T> T findRequiredExtension(Class<T> extensionClass) {
+		List<T> extensions = findExtensions(extensionClass);
+		if(extensions.isEmpty()) {
+			throw new IllegalStateException(MessageFormat.format("Unable to find implementation for required service {0}", extensionClass.getName()));
+		}
+		return extensions.get(0);
 	}
 }

@@ -46,7 +46,7 @@ public class NSFCDIProvider implements CDIProvider {
 	public synchronized CDI<Object> getCDI() {
 		CDI<Object> result = null;
 		
-		CDIContainerUtility util = LibraryUtil.findExtensions(CDIContainerUtility.class).get(0);
+		CDIContainerUtility util = LibraryUtil.findRequiredExtension(CDIContainerUtility.class);
 		
 		String databasePath = util.getThreadContextDatabasePath();
 		if(StringUtil.isNotEmpty(databasePath)) {
