@@ -1,3 +1,4 @@
+org.jboss.resteasy.plugins.providers.AsyncStreamingOutputProvider
 org.jboss.resteasy.plugins.providers.DataSourceProvider
 org.jboss.resteasy.plugins.providers.DocumentProvider
 org.jboss.resteasy.plugins.providers.DefaultTextPlain
@@ -16,10 +17,10 @@ org.jboss.resteasy.plugins.providers.FileProvider
 org.jboss.resteasy.plugins.providers.FileRangeWriter
 org.jboss.resteasy.plugins.providers.StreamingOutputProvider
 org.jboss.resteasy.plugins.providers.IIOImageProvider
+org.jboss.resteasy.plugins.providers.MultiValuedParamConverterProvider
 org.jboss.resteasy.plugins.interceptors.CacheControlFeature
-org.jboss.resteasy.plugins.interceptors.encoding.ClientContentEncodingAnnotationFeature
-org.jboss.resteasy.plugins.interceptors.encoding.ServerContentEncodingAnnotationFeature
-org.jboss.resteasy.plugins.interceptors.encoding.MessageSanitizerContainerResponseFilter
+org.jboss.resteasy.plugins.interceptors.ClientContentEncodingAnnotationFeature
+org.jboss.resteasy.plugins.interceptors.ServerContentEncodingAnnotationFeature
+org.jboss.resteasy.plugins.interceptors.MessageSanitizerContainerResponseFilter
 org.jboss.resteasy.plugins.providers.sse.SseEventProvider
-org.jboss.resteasy.plugins.providers.sse.SseEventOutputProvider
 org.jboss.resteasy.plugins.providers.sse.SseEventSinkInterceptor
