@@ -237,6 +237,8 @@
 	
 	<!-- XML Binding -->
 	<plugin id="jakarta.xml.bind-api" version="0.0.0"/>
+	<plugin id="org.openntf.com.sun.xml.bind.jaxb-core" version="0.0.0" fragment="true"/>
+	<plugin id="org.openntf.com.sun.xml.bind.jaxb-impl" version="0.0.0" fragment="true"/>
 
 	<plugin id="jakarta.annotation-api" version="0.0.0"/>
 	<plugin id="jakarta.el-api" version="0.0.0"/>
