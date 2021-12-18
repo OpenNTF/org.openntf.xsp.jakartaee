@@ -23,13 +23,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.jasper.servlet.JspServlet;
 
-import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 /**
  * 
  * @author Jesse Gallagher
- * @since 1.2.0
+ * @since 2.1.0
  */
 public class NSFJspServlet extends JspServlet {
 	private static final long serialVersionUID = 1L;
@@ -44,17 +43,14 @@ public class NSFJspServlet extends JspServlet {
 
 	@Override
 	public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		@SuppressWarnings("unused")
-		String jspPath = StringUtil.toString(req.getServletPath());
-//		System.out.println("looking for " + jspPath);
-//		System.out.println("JSP is " + Thread.currentThread().getContextClassLoader().getResource(jspPath));
-//		System.out.println("context class loader is " + Thread.currentThread().getContextClassLoader());
-//		System.out.println("module has " + module.getResource(jspPath));
 		try {
 			super.service(req, resp);
 		} catch(Throwable t) {
 			t.printStackTrace();
 			throw t;
+		} finally {
+			// Looks like Jasper doesn't flush this on its own
+			resp.getWriter().flush();
 		}
 	}
 

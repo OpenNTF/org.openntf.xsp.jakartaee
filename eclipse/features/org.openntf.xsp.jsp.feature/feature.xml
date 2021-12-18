@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jsp.feature"
       label="XPages Runtime JSP Support Feature"
-      version="2.0.0.qualifier">
+      version="2.1.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -237,14 +237,52 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-	<plugin id="org.openntf.xsp.jsp" version="0.0.0"/>
-	<plugin id="jakarta.servlet.jsp-api" version="0.0.0"/>
-	<plugin id="jakarta.servlet.jsp.jstl-api" version="0.0.0"/>
-	
-	<plugin id="org.mortbay.jasper.apache-el" version="0.0.0"/>
-	<plugin id="org.mortbay.jasper.apache-jsp" version="0.0.0"/>
-	<plugin id="org.mortbay.jasper.taglibs-standard" version="0.0.0"/>
-	
-	<plugin id="org.eclipse.jdt.core" version="0.0.0"/>
+   <plugin
+         id="org.openntf.xsp.jsp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="jakarta.servlet.jsp-api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="jakarta.servlet.jsp.jstl-api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.glassfish.web.jakarta.servlet.jsp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.glassfish.web.jakarta.servlet.jsp.jstl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.jdt.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.core.resources"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.text"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>

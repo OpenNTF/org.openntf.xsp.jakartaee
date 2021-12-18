@@ -18,6 +18,7 @@ package org.openntf.xsp.jakartaee.servlet;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
@@ -37,6 +38,8 @@ import jakarta.servlet.ServletRegistration;
 import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.SessionTrackingMode;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
+import jakarta.servlet.descriptor.JspPropertyGroupDescriptor;
+import jakarta.servlet.descriptor.TaglibDescriptor;
 
 @SuppressWarnings({ "unchecked", "deprecation" })
 class OldServletContextWrapper implements ServletContext {
@@ -186,7 +189,19 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public JspConfigDescriptor getJspConfigDescriptor() {
-		throw unavailable();
+		return new JspConfigDescriptor() {
+
+			@Override
+			public Collection<TaglibDescriptor> getTaglibs() {
+				return Collections.emptyList();
+			}
+
+			@Override
+			public Collection<JspPropertyGroupDescriptor> getJspPropertyGroups() {
+				return Collections.emptyList();
+			}
+			
+		};
 	}
 
 	@Override

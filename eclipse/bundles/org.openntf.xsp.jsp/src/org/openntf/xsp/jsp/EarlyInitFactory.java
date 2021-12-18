@@ -18,14 +18,18 @@ package org.openntf.xsp.jsp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.openntf.xsp.jsp.webapp.JspExtensionFactory;
+import org.apache.jasper.runtime.JspFactoryImpl;
+
+//import org.openntf.xsp.jsp.webapp.JspExtensionFactory;
 
 import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.domino.xsp.module.nsf.NSFService;
-import com.ibm.ws.webcontainer.WebContainer;
-import com.ibm.wsspi.webcontainer.logging.LoggerFactory;
+//import com.ibm.ws.webcontainer.WebContainer;
+//import com.ibm.wsspi.webcontainer.logging.LoggerFactory;
+
+import jakarta.servlet.jsp.JspFactory;
 
 /**
  * This {@link IServiceFactory} doesn't provide any HTTP services, but is used to
@@ -50,6 +54,9 @@ public class EarlyInitFactory implements IServiceFactory {
 			t.printStackTrace();
 		}
 		
+		// 
+//		JspFactory.setDefaultFactory(new JspFactoryImpl());
+		
 		return null;
 	}
 	
@@ -57,11 +64,11 @@ public class EarlyInitFactory implements IServiceFactory {
 	 * Adds JSP support to bundle-based web applications.
 	 */
 	private void initWebContainer() {
-		if(debug) {
-			Logger logger = LoggerFactory.getInstance().getLogger("com.ibm.ws.webcontainer.servlet"); //$NON-NLS-1$
-			logger.setLevel(Level.ALL);
-		}
-		WebContainer.addExtensionFactory(new JspExtensionFactory());
+//		if(debug) {
+//			Logger logger = LoggerFactory.getInstance().getLogger("com.ibm.ws.webcontainer.servlet"); //$NON-NLS-1$
+//			logger.setLevel(Level.ALL);
+//		}
+//		WebContainer.addExtensionFactory(new JspExtensionFactory());
 	}
 	
 	/**
