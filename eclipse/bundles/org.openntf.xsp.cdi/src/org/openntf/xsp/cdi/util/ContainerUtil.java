@@ -249,16 +249,6 @@ public enum ContainerUtil {
 		}
 	}
 	
-	private static Weld constructWeld(String id) {
-		return new Weld()
-			.containerId(id)
-			.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, false)
-			// Disable concurrent deployment to avoid Notes thread init trouble
-			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
-			.property(ConfigurationKey.EXECUTOR_THREAD_POOL_TYPE.get(), "SINGLE_THREAD") //$NON-NLS-1$
-			.addExtension(new CDIScopesExtension());
-	}
-	
 	/**
 	 * Returns the configured override bundle ID for the application, if any.
 	 * 
@@ -361,7 +351,17 @@ public enum ContainerUtil {
 	// *******************************************************************************
 	// * Internal utilities
 	// *******************************************************************************
-
+	
+	private static Weld constructWeld(String id) {
+		return new Weld()
+			.containerId(id)
+			.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, false)
+			// Disable concurrent deployment to avoid Notes thread init trouble
+			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
+			.property(ConfigurationKey.EXECUTOR_THREAD_POOL_TYPE.get(), "SINGLE_THREAD") //$NON-NLS-1$
+			.addExtension(new CDIScopesExtension());
+	}
+	
 	private static class ModuleContextResourceLoader extends ClassLoaderResourceLoader {
 		private final ComponentModule module;
 
