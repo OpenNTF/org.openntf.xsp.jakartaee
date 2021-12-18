@@ -84,7 +84,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho-version>1.7.0</tycho-version>
-		<compiler>1.8</compiler>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		
 		<!-- Maven API version. This version should be supported by m2e -->
 		<maven.api.version>3.3.9</maven.api.version>
@@ -109,26 +110,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.7.0</version>
-				<configuration>
-					<source>${compiler}</source>
-					<target>${compiler}</target>
-					<compilerArgument>-err:-forbidden,discouraged,deprecation</compilerArgument>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.10</version>
-				<configuration>
-					<source>${compiler}</source>
-					<target>${compiler}</target>
-					<compilerArgument>-err:-forbidden,discouraged,deprecation</compilerArgument>
-				</configuration>
-			</plugin>
 			<plugin>
 				<!-- enable tycho build extension -->
 				<groupId>org.eclipse.tycho</groupId>
@@ -222,15 +203,6 @@
 							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
-
-					<filters>
-						<!-- work around Equinox bug 348045 -->
-						<filter>
-							<type>p2-installable-unit</type>
-							<id>org.eclipse.equinox.servletbridge.extensionbundle</id>
-							<removeAll />
-						</filter>
-					</filters>
 
 					<environments>
 						<environment>
@@ -347,6 +319,7 @@
 					</executions>
 				</plugin>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>3.0.2</version>
 					<configuration>
@@ -362,10 +335,6 @@
 					<version>${tycho-version}</version>
 					
 					<configuration>
-						<encoding>UTF-8</encoding>
-						<inputEncoding>UTF-8</inputEncoding>
-						<outputEncoding>UTF-8</outputEncoding>
-						<argLine>-Dfile.encoding=UTF-8</argLine>
 						<providerHint>junit4</providerHint>
 						<trimStackTrace>false</trimStackTrace>
 					</configuration>
@@ -463,21 +432,6 @@
     
     
 	<profiles>
-		<!-- Bring in support for packages removed in from the baseline in Java 9+, like java.sql -->
-		<profile>
-			<id>java9</id>
-			<activation>
-				<jdk>[9,</jdk>
-			</activation>
-			
-			<repositories>
-				<repository>
-					<id>oxygen</id>
-					<layout>p2</layout>
-					<url>https://download.eclipse.org/releases/oxygen</url>
-				</repository>
-			</repositories>
-		</profile>
 		
 		<!--
 			This profile adds code signing for the final jars 
