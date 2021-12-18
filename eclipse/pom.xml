@@ -154,8 +154,6 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
 				<configuration>
-					<source>${compiler}</source>
-					<target>${compiler}</target>
 					<compilerArgument>-err:-forbidden,discouraged,deprecation</compilerArgument>
 				</configuration>
 			</plugin>
