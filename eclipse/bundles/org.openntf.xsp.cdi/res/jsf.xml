@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2019 Jesse Gallagher
+    Copyright © 2018-2021 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,9 +19,5 @@
 <faces-config>
 	<application>
 		<variable-resolver>org.openntf.xsp.cdi.impl.CDIResolver</variable-resolver>
-		<view-handler>org.openntf.xsp.cdi.impl.WeldViewHandler</view-handler>
 	</application>
-	<lifecycle>
-		<phase-listener>org.openntf.xsp.cdi.impl.WeldPhaseListener</phase-listener>
-	</lifecycle>
 </faces-config>

@@ -3,14 +3,26 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta EE Commons
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.commons
 Automatic-Module-Name: org.openntf.xsp.jakartaee.commons
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.osgi,
  org.eclipse.core.runtime,
  com.ibm.commons;bundle-version="9.0.1",
  com.ibm.commons.xml;bundle-version="9.0.1",
+ com.ibm.domino.napi,
  com.ibm.xsp.core;bundle-version="9.0.1",
- com.ibm.xsp.domino
+ com.ibm.xsp.domino,
+ jakarta.activation-api;bundle-version="2.0.0";visibility:=reexport,
+ org.openntf.xsp.jakartamail.api;bundle-version="2.0.0";visibility:=reexport
 Bundle-ClassPath: .
-Export-Package: org.openntf.xsp.jakartaee
+Export-Package: org.openntf.xsp.cdi.ext,
+ org.openntf.xsp.jakartaee,
+ org.openntf.xsp.jakartaee.servlet,
+ org.openntf.xsp.jakartaee.xml
+Import-Package: com.ibm.designer.runtime.domino.adapter,
+ jakarta.servlet;version="5.0.0",
+ jakarta.servlet.annotation;version="5.0.0",
+ jakarta.servlet.descriptor;version="5.0.0",
+ jakarta.servlet.http;version="5.0.0",
+ jakarta.xml.bind;version="3.0.0"

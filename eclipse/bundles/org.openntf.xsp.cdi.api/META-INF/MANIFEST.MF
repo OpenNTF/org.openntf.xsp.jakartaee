@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages CDI API and NSF Provider
+Bundle-SymbolicName: org.openntf.xsp.cdi.api;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.cdi.api
+Bundle-Version: 2.0.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: jakarta.decorator;version="3.0.0",
+ jakarta.enterprise.context;version="3.0.0",
+ jakarta.enterprise.context.control;version="3.0.0",
+ jakarta.enterprise.context.spi;version="3.0.0",
+ jakarta.enterprise.event;version="3.0.0",
+ jakarta.enterprise.inject;version="3.0.0",
+ jakarta.enterprise.inject.literal;version="3.0.0",
+ jakarta.enterprise.inject.se;version="3.0.0",
+ jakarta.enterprise.inject.spi;version="3.0.0",
+ jakarta.enterprise.inject.spi.configurator;version="3.0.0",
+ jakarta.enterprise.util;version="3.0.0"
+Require-Bundle: jakarta.inject.jakarta.inject-api;bundle-version="2.0.0",
+ jakarta.el-api;bundle-version="4.0.0",
+ jakarta.interceptor-api;bundle-version="2.0.0"
+DynamicImport-Package: *
+Import-Package: jakarta.ejb;version="4.0.0";resolution:=optional

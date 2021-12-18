@@ -1,0 +1,6 @@
+org.openntf.com.sun.mail.imap.IMAPProvider
+org.openntf.com.sun.mail.imap.IMAPSSLProvider
+org.openntf.com.sun.mail.smtp.SMTPProvider
+org.openntf.com.sun.mail.smtp.SMTPSSLProvider
+org.openntf.com.sun.mail.pop3.POP3Provider
+org.openntf.com.sun.mail.pop3.POP3SSLProvider

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2019 Jesse Gallagher
+    Copyright © 2018-2021 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -28,8 +28,7 @@
 		<service type="com.ibm.xsp.core.events.ApplicationListener" class="org.openntf.xsp.cdi.impl.WeldApplicationListener" />
 	</extension>
 	
-	<!-- The SessionListener to simulate SessionScoped -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.core.events.SessionListener" class="org.openntf.xsp.cdi.impl.WeldSessionListener" />
+		<service type="org.openntf.xsp.cdi.ext.CDIContainerUtility" class="org.openntf.xsp.cdi.impl.ContainerUtilProvider" />
 	</extension>
 </plugin>

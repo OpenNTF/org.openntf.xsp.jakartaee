@@ -1,5 +1,5 @@
 /**
- * Copyright © 2019 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package org.openntf.xsp.cdi.impl;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.literal.NamedLiteral;
+import jakarta.enterprise.inject.spi.CDI;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.VariableResolver;
 
-import org.jboss.weld.literal.NamedLiteral;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.LibraryUtil;
@@ -56,10 +56,14 @@ public class CDIResolver extends VariableResolver {
 		// Finally, ask CDI for a named bean
 		ApplicationEx app = ApplicationEx.getInstance(facesContext);
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, app)) {
-			CDI<Object> container = ContainerUtil.getContainer(app);
+			CDI<Object> container = CDI.current();
+			if(container == null) {
+				container = ContainerUtil.getContainer(app);
+			}
 			if(container != null) {
+				CDI<Object> cdi = container;
 				return AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
-					Instance<Object> instance = container.select(new NamedLiteral(name));
+					Instance<Object> instance = cdi.select(NamedLiteral.of(name));
 					if(instance.isResolvable()) {
 						return instance.get();
 					} else {

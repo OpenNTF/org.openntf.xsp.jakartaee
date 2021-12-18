@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Martin Pradny and Jesse Gallagher
+ * Copyright © 2018-2021 Martin Pradny and Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jaxrs.impl.FacesJAXRSServletContainer;
 import org.openntf.xsp.jaxrs.impl.NSFJAXRSApplication;
 
@@ -46,7 +47,6 @@ public class JAXRSServletFactory implements IServletFactory {
 
 	@Override
 	public ServletMatch getServletMatch(String contextPath, String path) throws ServletException {
-
 		if (path.startsWith(SERVLET_PATH)) { // $NON-NLS-1$
 			int len = SERVLET_PATH.length(); // $NON-NLS-1$
 			String servletPath = path.substring(0, len);
@@ -65,12 +65,12 @@ public class JAXRSServletFactory implements IServletFactory {
 	public synchronized Servlet getExecutorServlet() throws ServletException {
 		if (servlet == null || lastUpdate < this.module.getLastRefresh()) {
 			Map<String, String> params = new HashMap<>();
-			params.put("javax.ws.rs.Application", NSFJAXRSApplication.class.getName()); //$NON-NLS-1$
+			params.put("jakarta.ws.rs.Application", NSFJAXRSApplication.class.getName()); //$NON-NLS-1$
 			// TODO move this to the fragment somehow
 			params.put("resteasy.injector.factory", "org.openntf.xsp.jaxrs.weld.NSFCdiInjectorFactory"); //$NON-NLS-1$ //$NON-NLS-2$
 			params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, SERVLET_PATH);
 			
-			servlet = module.createServlet(new FacesJAXRSServletContainer(), "XSP JAX-RS Servlet", params); //$NON-NLS-1$
+			servlet = module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new FacesJAXRSServletContainer()), "XSP JAX-RS Servlet", params); //$NON-NLS-1$
 			lastUpdate = this.module.getLastRefresh();
 		}
 		return servlet;

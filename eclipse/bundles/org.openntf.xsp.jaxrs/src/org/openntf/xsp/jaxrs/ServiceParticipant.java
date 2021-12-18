@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Martin Pradny and Jesse Gallagher
+ * Copyright © 2018-2021 Martin Pradny and Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ package org.openntf.xsp.jaxrs;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface ServiceParticipant {
 	public static final String EXTENSION_POINT = ServiceParticipant.class.getName();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2019 Jesse Gallagher
+    Copyright © 2018-2021 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@
 -->
 <feature
       id="org.openntf.xsp.jaxrs.feature"
-      label="XPages JAX-RS 2.1 Support Feature"
-      version="1.1.0.qualifier">
+      label="XPages JAX-RS 3.0 Support Feature"
+      version="2.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018 Jesse Gallagher
+      Copyright 2018-2021 Jesse Gallagher
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
@@ -218,7 +218,7 @@
       same &quot;printed page&quot; as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2018 Jesse Gallagher
+   Copyright 2018-2021 Jesse Gallagher
 
    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -237,56 +237,17 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-   <plugin
-         id="org.openntf.xsp.jaxrs"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+	<plugin id="org.openntf.xsp.jaxrs" version="0.0.0"/>
+	<plugin id="org.openntf.xsp.jaxrs.cdi" version="0.0.0" fragment="true"/>
+	<plugin id="org.openntf.xsp.jaxrs.factory" version="0.0.0" fragment="true"/>
+	<plugin id="org.openntf.xsp.jaxrs.providers" version="0.0.0" fragment="true"/>
 
-   <plugin
-         id="org.openntf.xsp.jaxrs.weld"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
-         id="org.openntf.xsp.jaxrs.factory"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-         
-   <plugin id="org.jboss.spec.javax.ws.rs.jboss-jaxrs-api_2.1_spec" version="1.0.2.Final"/>
-   <plugin
-         id="org.openntf.org.jboss.resteasy.jaxrs"
-         download-size="0"
-         install-size="0"
-         version="3.6.2.Final_b"/>
-
-   <plugin
-         id="org.openntf.org.jboss.resteasy.cdi"
-         download-size="0"
-         install-size="0"
-         version="3.6.2.Final_e"/>
-
-   <plugin
-         id="org.openntf.org.jboss.resteasy.multipart-provider"
-         download-size="0"
-         install-size="0"
-         version="3.6.2.Final_a"/>
-
-   <plugin
-         id="org.jboss.resteasy.jaxb-provider"
-         download-size="0"
-         install-size="0"
-         version="3.6.2.Final"/>
-
-   <plugin
-         id="org.jboss.resteasy.client"
-         download-size="0"
-         install-size="0"
-         version="3.6.2.Final"/>
-         
-	<plugin id="org.reactivestreams.reactive-streams" version="1.0.2"/>
+	<plugin id="jakarta.ws.rs-api" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.resteasy.core" version="0.0.0"/>
+	<plugin id="org.jboss.resteasy.core-spi" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.resteasy.cdi" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.resteasy.multipart-provider" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.resteasy.jaxb-provider" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.resteasy.validator-provider" version="0.0.0"/>
+	<plugin id="org.reactivestreams.reactive-streams" version="0.0.0"/>
 </feature>

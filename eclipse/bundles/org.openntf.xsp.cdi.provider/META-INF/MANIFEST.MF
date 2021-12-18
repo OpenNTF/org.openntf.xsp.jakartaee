@@ -1,13 +1,18 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XPages CDI Provider
-Bundle-SymbolicName: org.openntf.xsp.cdi.provider
+Bundle-SymbolicName: org.openntf.xsp.cdi.provider;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.cdi.provider
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
- com.ibm.xsp.core;bundle-version="9.0.1",
- org.openntf.xsp.cdi;bundle-version="1.0.0"
-Bundle-ActivationPolicy: lazy
-Fragment-Host: javax.enterprise.cdi-api
+Import-Package: com.ibm.commons.util,
+ com.ibm.designer.domino.napi,
+ com.ibm.domino.osgi.core.context,
+ com.ibm.xsp.application,
+ org.eclipse.core.runtime,
+ org.openntf.xsp.cdi.ext,
+ org.openntf.xsp.jakartaee,
+ org.osgi.framework
+Export-Package: org.openntf.xsp.cdi.provider
+Require-Bundle: org.openntf.xsp.cdi.api;bundle-version="1.2.0"

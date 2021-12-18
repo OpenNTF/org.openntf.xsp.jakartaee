@@ -1,5 +1,5 @@
 /**
- * Copyright © 2019 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,55 +15,69 @@
  */
 package org.openntf.xsp.cdi.discovery;
 
-import javax.annotation.Priority;
+import java.io.IOException;
+
+import jakarta.annotation.Priority;
 
 import org.jboss.weld.bootstrap.spi.BeansXml;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveBuilder;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
+import org.openntf.xsp.cdi.CDILibrary;
+import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.LibraryUtil;
 import org.openntf.xsp.jakartaee.ModuleUtil;
 
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
-@SuppressWarnings("restriction")
 @Priority(Integer.MAX_VALUE)
 public class NSFBeanArchiveHandler implements BeanArchiveHandler {
-
-	public NSFBeanArchiveHandler() {
-	}
 
 	@Override
 	public BeanArchiveBuilder handle(String beanArchiveReference) {
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
 			NSFComponentModule module = context.getModule();
-			// Slightly customize the builder to keep some extra metadata
-			BeanArchiveBuilder builder = new BeanArchiveBuilder() {
-				{
-					super.setBeansXml(BeansXml.EMPTY_BEANS_XML);
-					super.setId(module.getDatabasePath());
+			try {
+				if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, module)) {
+					// If it uses a CDI bundle ref, skip processing
+					String bundleId = ContainerUtil.getApplicationCDIBundle(context.getNotesDatabase());
+					if(StringUtil.isNotEmpty(bundleId)) {
+						return null;
+					}
+					
+					// Slightly customize the builder to keep some extra metadata
+					BeanArchiveBuilder builder = new BeanArchiveBuilder() {
+						{
+							super.setBeansXml(BeansXml.EMPTY_BEANS_XML);
+							super.setId(module.getDatabasePath());
+						}
+						
+						@Override
+						public BeanArchiveBuilder setBeansXml(BeansXml beansXml) {
+							return this;
+						}
+					};
+					
+					ModuleUtil.getClassNames(module)
+						.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
+						.forEach(builder::addClass);
+					// TODO look through embedded JARs with beans.xml
+					
+					
+					// Manually look for class names in plug-in dependencies, since the normal code
+					//  path only looks in the system class path and I haven't figured out the right
+					//  way to override that yet
+					
+					return builder;
 				}
-				
-				@Override
-				public BeanArchiveBuilder setBeansXml(BeansXml beansXml) {
-					return this;
-				}
-			};
-			
-			ModuleUtil.getClassNames(module)
-				.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-				.forEach(builder::addClass);
-			
-			
-			// Manually look for class names in plug-in dependencies, since the normal code
-			//  path only looks in the system class path and I haven't figured out the right
-			//  way to override that yet
-			
-			
-			return builder;
-		} else {
-			return null;
+			} catch (IOException | NotesAPIException e) {
+				e.printStackTrace();
+			}
 		}
+		return null;
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2019 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.openntf.xsp.cdi.discovery;
 
 import java.util.Collection;
 
-import javax.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.Extension;
 
 public interface WeldBeanClassContributor {
 	public static final String EXTENSION_POINT = WeldBeanClassContributor.class.getName();

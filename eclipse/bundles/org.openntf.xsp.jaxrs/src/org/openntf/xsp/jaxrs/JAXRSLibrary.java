@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Martin Pradny and Jesse Gallagher
+ * Copyright © 2018-2021 Martin Pradny and Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jaxrs;
 
+import org.osgi.framework.FrameworkUtil;
+
 import com.ibm.xsp.library.AbstractXspLibrary;
 
 public class JAXRSLibrary extends AbstractXspLibrary {
@@ -28,7 +30,7 @@ public class JAXRSLibrary extends AbstractXspLibrary {
 	
 	@Override
 	public String getPluginId() {
-		return Activator.getDefault().getBundle().getSymbolicName();
+		return FrameworkUtil.getBundle(getClass()).getSymbolicName();
 	}
 	
 	@Override

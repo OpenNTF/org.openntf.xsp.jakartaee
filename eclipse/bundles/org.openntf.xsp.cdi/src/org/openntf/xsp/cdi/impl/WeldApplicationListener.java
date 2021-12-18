@@ -1,5 +1,5 @@
 /**
- * Copyright © 2019 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.cdi.impl;
 
-import javax.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.CDI;
 
 import org.jboss.weld.environment.se.WeldContainer;
 import org.openntf.xsp.cdi.CDILibrary;

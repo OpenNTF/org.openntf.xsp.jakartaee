@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018 Martin Pradny and Jesse Gallagher
+ * Copyright © 2018-2021 Martin Pradny and Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,14 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextFactory;
 import javax.faces.event.PhaseListener;
 import javax.faces.lifecycle.Lifecycle;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+import org.openntf.xsp.cdi.ext.CDIConstants;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 
 import com.ibm.commons.util.NotImplementedException;
@@ -64,8 +66,14 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 		contextFactory = (FacesContextFactory) FactoryFinder.getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
 	}
 	
+	private javax.servlet.ServletContext getOldServletContext() {
+		return ServletUtil.newToOld(getServletContext());
+	}
+	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setAttribute(CDIConstants.CDI_JAXRS_REQUEST, "true"); //$NON-NLS-1$
+		
 		NotesContext nc = NotesContext.getCurrentUnchecked();
     	String javaClassValue = "plugin.Activator"; //$NON-NLS-1$
 		String str = "WEB-INF/classes/" + javaClassValue.replace('.', '/') + ".class"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -76,7 +84,7 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	    	FacesContextEx exc = (FacesContextEx)fc;
 	    	ApplicationEx application = exc.getApplicationEx();
 	    	if (application.getController() == null) {
-	    		FacesController controller = new FacesControllerFactoryImpl().createFacesController(getServletContext());
+	    		FacesController controller = new FacesControllerFactoryImpl().createFacesController(getOldServletContext());
 	    		controller.init(null);
 	    	}
 	    	
@@ -121,8 +129,11 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	
 	private FacesContext initContext(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Create a temporary FacesContext and make it available
-        FacesContext context = contextFactory.getFacesContext(getServletConfig().getServletContext(), request, response, dummyLifeCycle);
-        return context;
+		// TODO consider if it would be better to unwrap these instead of double-wrapping
+		javax.servlet.ServletContext context = ServletUtil.newToOld(getServletConfig().getServletContext());
+		javax.servlet.http.HttpServletRequest req = ServletUtil.newToOld(request);
+		javax.servlet.http.HttpServletResponse resp = ServletUtil.newToOld(response);
+        return contextFactory.getFacesContext(context, req, resp, dummyLifeCycle);
     }
 	
 	private void releaseContext(FacesContext context) throws ServletException, IOException {
