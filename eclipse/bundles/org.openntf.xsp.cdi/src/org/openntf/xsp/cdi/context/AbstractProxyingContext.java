@@ -26,9 +26,10 @@ import jakarta.enterprise.context.spi.Contextual;
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.enterprise.inject.spi.Bean;
 import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import com.ibm.domino.xsp.adapter.osgi.NotesContext;
 
@@ -39,6 +40,8 @@ import com.ibm.domino.xsp.adapter.osgi.NotesContext;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractProxyingContext implements Context, Serializable {
+	
+	private static final ThreadLocal<HttpServletRequest> THREAD_REQUESTS = new ThreadLocal<>();
 	
 	private static final Field notesContextRequestField;
 	static {
@@ -51,6 +54,10 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 				throw new RuntimeException(e);
 			}
 		});
+	}
+	
+	public static void setThreadContextRequest(HttpServletRequest request) {
+		THREAD_REQUESTS.set(request);
 	}
 	
 	private final String id = UUID.randomUUID().toString();
@@ -93,6 +100,10 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 	}
 	
 	protected HttpServletRequest getHttpServletRequest() {
+		if(THREAD_REQUESTS.get() != null) {
+			return THREAD_REQUESTS.get();
+		}
+		
 		// Check the active session
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		if(facesContext != null) {
@@ -102,16 +113,20 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 		// If we're not in a Faces context, check the OSGi servlet context
 		NotesContext notesContext = NotesContext.getCurrentUnchecked();
 		if(notesContext != null) {
-			return getHttpServletRequest(notesContext);
+			HttpServletRequest request = getHttpServletRequest(notesContext);
+			if(request != null) {
+				return request;
+			}
 		}
 		
-		return null;
+		throw new IllegalStateException("Unable to locate HttpServletRequest");
 	}
 	
 	protected HttpServletRequest getHttpServletRequest(NotesContext context) {
 		return AccessController.doPrivileged((PrivilegedAction<HttpServletRequest>)() -> {
 			try {
-				return (HttpServletRequest)notesContextRequestField.get(context);
+				javax.servlet.http.HttpServletRequest oldReq = (javax.servlet.http.HttpServletRequest)notesContextRequestField.get(context);
+				return ServletUtil.oldToNew(null, oldReq);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new RuntimeException(e);
 			}

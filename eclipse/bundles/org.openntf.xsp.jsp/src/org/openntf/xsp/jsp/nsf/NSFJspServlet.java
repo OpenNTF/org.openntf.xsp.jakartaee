@@ -16,12 +16,18 @@
 package org.openntf.xsp.jsp.nsf;
 
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.jasper.servlet.JspServlet;
+import org.openntf.xsp.cdi.context.AbstractProxyingContext;
+import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jsp.el.NSFELResolver;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
@@ -44,7 +50,29 @@ public class NSFJspServlet extends JspServlet {
 	@Override
 	public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
-			super.service(req, resp);
+			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> { 
+				
+				req.getServletContext().setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$
+				ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
+				AbstractProxyingContext.setThreadContextRequest(req);
+				try {
+					super.service(req, resp);
+				} finally {
+					req.getServletContext().setAttribute("org.glassfish.jsp.beanManagerELResolver", null); //$NON-NLS-1$
+					ContainerUtil.setThreadContextDatabasePath(null);
+					AbstractProxyingContext.setThreadContextRequest(null);
+				}
+				return null;
+			});
+		} catch(PrivilegedActionException e) {
+			Throwable cause = e.getCause();
+			if(cause instanceof ServletException) {
+				throw (ServletException)cause;
+			} else if(cause instanceof IOException) {
+				throw (IOException)cause;
+			} else {
+				throw new ServletException(e);
+			}
 		} catch(Throwable t) {
 			t.printStackTrace();
 			throw t;

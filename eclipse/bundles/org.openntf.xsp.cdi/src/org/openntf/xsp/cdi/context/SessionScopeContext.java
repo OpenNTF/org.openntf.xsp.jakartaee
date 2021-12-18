@@ -18,8 +18,8 @@ package org.openntf.xsp.cdi.context;
 import java.lang.annotation.Annotation;
 
 import jakarta.enterprise.context.SessionScoped;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * @author Jesse Gallagher

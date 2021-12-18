@@ -19,7 +19,7 @@ import java.lang.annotation.Annotation;
 
 import jakarta.enterprise.context.RequestScoped;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.openntf.xsp.cdi.ext.CDIConstants;
 

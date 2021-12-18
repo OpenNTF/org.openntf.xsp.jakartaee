@@ -30,6 +30,8 @@ Require-Bundle: org.eclipse.osgi,
  com.ibm.xsp.designer
 Bundle-ClassPath: .
 Import-Package: com.ibm.domino.xsp.adapter.osgi;resolution:=optional,
+ jakarta.servlet;version="5.0.0",
+ jakarta.servlet.http;version="5.0.0",
  lotus.domino
 Export-Package: org.openntf.xsp.cdi,
  org.openntf.xsp.cdi.context,
