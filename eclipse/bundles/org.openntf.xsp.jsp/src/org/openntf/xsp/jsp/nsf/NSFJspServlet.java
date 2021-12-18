@@ -16,6 +16,8 @@
 package org.openntf.xsp.jsp.nsf;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -50,14 +52,17 @@ public class NSFJspServlet extends JspServlet {
 	@Override
 	public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
-			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> { 
+			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 				
 				req.getServletContext().setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$
 				ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
 				AbstractProxyingContext.setThreadContextRequest(req);
+				ClassLoader current = Thread.currentThread().getContextClassLoader();
+				Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], current));
 				try {
 					super.service(req, resp);
 				} finally {
+					Thread.currentThread().setContextClassLoader(current);
 					req.getServletContext().setAttribute("org.glassfish.jsp.beanManagerELResolver", null); //$NON-NLS-1$
 					ContainerUtil.setThreadContextDatabasePath(null);
 					AbstractProxyingContext.setThreadContextRequest(null);
