@@ -32,7 +32,7 @@ import com.ibm.wsspi.webcontainer.logging.LoggerFactory;
  * enable hooks very early in the HTTP init process.
  * 
  * @author Jesse Gallagher
- * @since 1.2.0
+ * @since 2.1.0
  */
 public class EarlyInitFactory implements IServiceFactory {
 	public static boolean debug = true;

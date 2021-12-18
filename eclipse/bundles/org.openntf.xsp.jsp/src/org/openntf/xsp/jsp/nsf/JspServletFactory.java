@@ -28,6 +28,7 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jsp.JspLibrary;
 
 import com.ibm.commons.util.StringUtil;
@@ -38,7 +39,7 @@ import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 /**
  * 
  * @author Jesse Gallagher
- * @since 1.2.0
+ * @since 2.1.0
  */
 public class JspServletFactory implements IServletFactory {
 
@@ -81,7 +82,7 @@ public class JspServletFactory implements IServletFactory {
 					ClassLoader current = Thread.currentThread().getContextClassLoader();
 					try {
 						Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], current));
-						return module.createServlet(new NSFJspServlet(module), "XSP JSP Servlet", params); //$NON-NLS-1$
+						return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFJspServlet(module)), "XSP JSP Servlet", params); //$NON-NLS-1$
 					} finally {
 						Thread.currentThread().setContextClassLoader(current);
 					}

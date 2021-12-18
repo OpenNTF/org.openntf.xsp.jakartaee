@@ -17,11 +17,11 @@ package org.openntf.xsp.jsp.nsf;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.eclipse.equinox.jsp.jasper.JspServlet;
+import org.apache.jasper.servlet.JspServlet;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -38,7 +38,7 @@ public class NSFJspServlet extends JspServlet {
 	private final ComponentModule module;
 	
 	public NSFJspServlet(ComponentModule module) {
-		super(new ComponentModuleBundle(module), null);
+		super();
 		this.module = module;
 	}
 

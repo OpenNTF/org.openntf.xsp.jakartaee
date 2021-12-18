@@ -26,7 +26,7 @@
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018-2020 Jesse Gallagher
+      Copyright 2018-2021 Jesse Gallagher
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
@@ -238,6 +238,13 @@
    </requires>
 
 	<plugin id="org.openntf.xsp.jsp" version="0.0.0"/>
-	<plugin id="jstl" version="0.0.0"/>
+	<plugin id="jakarta.servlet.jsp-api" version="0.0.0"/>
+	<plugin id="jakarta.servlet.jsp.jstl-api" version="0.0.0"/>
+	
+	<plugin id="org.mortbay.jasper.apache-el" version="0.0.0"/>
+	<plugin id="org.mortbay.jasper.apache-jsp" version="0.0.0"/>
+	<plugin id="org.mortbay.jasper.taglibs-standard" version="0.0.0"/>
+	
+	<plugin id="org.eclipse.jdt.core" version="0.0.0"/>
 
 </feature>
