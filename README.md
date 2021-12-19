@@ -4,16 +4,17 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 
 - Expression Language 4.0
 - Contexts and Dependency Injection 3.0
-  - Annotations 2.0
-  - Interceptors 2.0
-  - Dependency Injection 2.0
+    - Annotations 2.0
+    - Interceptors 2.0
+    - Dependency Injection 2.0
 - RESTful Web Services (JAX-RS) 3.0
 - Bean Validation 3.0
 - JSON Processing 2.0
 - JSON Binding 2.0
 - XML Binding 3.0
 - Mail 2.1
-  - Activation 2.1
+    - Activation 2.1
+- Server Pages 3.0
 
 ## CDI 3.0
 
@@ -231,6 +232,33 @@ public class JsonTest {
 }
 
 ```
+
+## JSP and JSTL
+
+The [Jakarta Server Pages](https://jakarta.ee/specifications/pages/3.0/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/2.0/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
+
+When this library is enabled, .jsp files in the "Files" or "WebContent" parts of the NSF will be interpreted as live pages. For example:
+
+```jsp
+<%@page contentType="text/html" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>JSP Inside An NSF</title>
+	</head>
+	<body>
+		<p>My CDI Bean is: ${applicationGuy}</p>
+		<p>My requestScope is: ${requestScope}</p>
+		<p>JSTL XML-escaped content is: ${fn:escapeXml('<hello>')}</p>
+		
+		<t:example value="Value sent into the tag"/>
+	</body>
+</html>
+```
+
+As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and will allow the use of CDI beans.
 
 ## Requirements
 
