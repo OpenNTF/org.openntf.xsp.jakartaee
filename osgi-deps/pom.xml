@@ -60,6 +60,10 @@
 								<artifact><id>org.junit:4.12.0.v201504281640</id><source>true</source></artifact>
 								<artifact><id>org.slf4j.api:1.7.2.v20121108-1250</id><source>true</source></artifact>
 								<artifact><id>org.hamcrest.core:1.3.0.v201303031735</id><source>true</source></artifact>
+								
+								<!-- JDT Compiler support -->
+								<artifact><id>org.eclipse.core.resources:3.11.1.v20161107-2032</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.text:3.6.0.v20160503-1849</id><source>true</source></artifact>
 							</p2>
 							<artifacts>
 								<!--
@@ -293,6 +297,8 @@
 								-->
 								<artifact><id>jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.0.0</id><source>true</source></artifact>
 								<artifact><id>jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.web:jakarta.servlet.jsp:3.0.0</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0</id><source>true</source></artifact>
 							</artifacts>
 						</configuration>
 					</execution>

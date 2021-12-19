@@ -114,18 +114,18 @@ public enum ContainerUtil {
 			
 			WeldContainer instance = WeldContainer.instance(id);
 			if(instance == null) {
+				
 				Weld weld = constructWeld(id)
-					.addServices(new NSFProxyServices())
 					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
 
 				String baseBundleId = getApplicationCDIBundleBase(application);
 				if(StringUtil.isNotEmpty(baseBundleId)) {
 					Bundle bundle = Platform.getBundle(baseBundleId);
 					if(bundle != null) {
-						weld = weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
+						weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
 					}
 				} else {
-					weld = weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
+					weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
 				}
 				
 				for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
@@ -143,8 +143,7 @@ public enum ContainerUtil {
 					}
 				}
 				
-				Weld fweld = weld;
-				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> fweld.initialize());
+				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> weld.initialize());
 			}
 			return instance;
 		} else {
@@ -213,7 +212,8 @@ public enum ContainerUtil {
 			String id = database.getReplicaID();
 			WeldContainer instance = WeldContainer.instance(id);
 			if(instance == null) {
-				Weld weld = constructWeld(id);
+				Weld weld = constructWeld(id)
+					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
 				String baseBundleId = getApplicationCDIBundleBase(database);
 				Bundle bundle = null;
 				if(StringUtil.isNotEmpty(baseBundleId)) {
@@ -355,6 +355,7 @@ public enum ContainerUtil {
 	private static Weld constructWeld(String id) {
 		return new Weld()
 			.containerId(id)
+			.addServices(new NSFProxyServices())
 			.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, false)
 			// Disable concurrent deployment to avoid Notes thread init trouble
 			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)

@@ -72,8 +72,8 @@
 		<module>tests/org.openntf.xsp.jsonapi.test</module>
 		
 		<!-- JSP -->
-<!-- 		<module>bundles/org.openntf.xsp.jsp</module> -->
-<!-- 		<module>features/org.openntf.xsp.jsp.feature</module> -->
+ 		<module>bundles/org.openntf.xsp.jsp</module>
+ 		<module>features/org.openntf.xsp.jsp.feature</module>
 		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
@@ -171,7 +171,10 @@
 						<plugin id="org.openntf.xsp.el.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.providers"/>
-						<plugin id="jstl"/>
+						<plugin id="jakarta.servlet.jsp-api"/>
+						<plugin id="org.eclipse.jdt.core"/>
+						<!-- TODO figure out why this complains -->
+						<plugin id="org.openntf.xsp.jsp"/>
 					</excludes>
 				</configuration>
 			</plugin>

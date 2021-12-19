@@ -35,11 +35,9 @@
 	<feature id="org.openntf.xsp.jsonapi.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<!--
 	<feature id="org.openntf.xsp.jsp.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	-->
    
 	<category-def name="XPages Jakarta EE" label="XPages Jakarta EE"/>
 </site>
