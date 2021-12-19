@@ -18,7 +18,7 @@
 -->
 <feature
       id="org.openntf.xsp.mvc.feature"
-      label="XPages Jakarta MVC Support Feature"
+      label="XPages MVC 2.0 Support Feature"
       version="2.1.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
