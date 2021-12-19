@@ -44,7 +44,7 @@ import com.ibm.wsspi.webcontainer.servlet.IServletContext;
  * delegates web app JSP requests to the Equinox bundle JSP compiler.
  * 
  * @author Jesse Gallagher
- * @since 1.2.0
+ * @since 2.1.0
  */
 public class JspExtensionProcessor extends WebExtensionProcessor {
 	public class JspWebAppServletConfig implements ServletConfig {

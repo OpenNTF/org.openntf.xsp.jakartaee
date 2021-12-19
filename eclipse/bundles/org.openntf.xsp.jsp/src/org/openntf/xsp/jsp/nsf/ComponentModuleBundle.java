@@ -42,7 +42,7 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
  * {@link ComponentModule}.
  * 
  * @author Jesse Gallagher
- * @since 1.2.0
+ * @since 2.1.0
  */
 @SuppressWarnings("restriction")
 public class ComponentModuleBundle extends EquinoxBundle {

@@ -24,7 +24,7 @@ import com.ibm.xsp.library.AbstractXspLibrary;
  * opt in to JSP processing of file resources.
  * 
  * @author Jesse Gallagher
- * @since 1.2.0
+ * @since 2.1.0
  */
 public class JspLibrary extends AbstractXspLibrary {
 
