@@ -156,13 +156,13 @@ public enum ServletUtil {
 			return new NewServletContextWrapper(context);
 		}
 	}
-	public static jakarta.servlet.ServletContext oldToNew(javax.servlet.ServletContext context) {
+	public static jakarta.servlet.ServletContext oldToNew(String contextPath, javax.servlet.ServletContext context) {
 		if(context == null) {
 			return null;
 		} else if(context instanceof NewServletContextWrapper) {
 			return ((NewServletContextWrapper)context).delegate;
 		} else {
-			return new OldServletContextWrapper(context);
+			return new OldServletContextWrapper(contextPath, context);
 		}
 	}
 	

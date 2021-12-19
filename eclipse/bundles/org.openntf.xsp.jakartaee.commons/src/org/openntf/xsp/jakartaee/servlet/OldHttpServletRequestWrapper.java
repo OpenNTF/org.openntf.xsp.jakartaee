@@ -194,7 +194,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 
 	@Override
 	public ServletContext getServletContext() {
-		return ServletUtil.oldToNew(context);
+		return ServletUtil.oldToNew(getContextPath(), context);
 	}
 
 	@Override

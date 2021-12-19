@@ -28,7 +28,7 @@ import com.ibm.wsspi.webcontainer.servlet.IServletContext;
  * web apps.
  * 
  * @author Jesse Gallagher
- * @since 1.2.0
+ * @since 2.1.0
  */
 public class JspExtensionFactory implements ExtensionFactory {
 	public static final String BUNDLE_WEBAPP_NAME = "com.ibm.pvc.internal.webcontainer.webapp.BundleWebApp"; //$NON-NLS-1$

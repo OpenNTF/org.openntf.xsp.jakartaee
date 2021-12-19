@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jsp;
+package org.openntf.xsp.mvc;
 
 import org.osgi.framework.FrameworkUtil;
 
@@ -21,14 +21,14 @@ import com.ibm.xsp.library.AbstractXspLibrary;
 
 /**
  * {@link com.ibm.xsp.library.XspLibrary XspLibrary} that denotes that an NSF should
- * opt in to JSP processing of file resources.
+ * opt in to MVC components in JAX-RS.
  * 
  * @author Jesse Gallagher
  * @since 2.1.0
  */
-public class JspLibrary extends AbstractXspLibrary {
+public class MvcLibrary extends AbstractXspLibrary {
 
-	public static final String LIBRARY_ID = JspLibrary.class.getPackage().getName();
+	public static final String LIBRARY_ID = MvcLibrary.class.getPackage().getName();
 
 	@Override
 	public String getLibraryId() {

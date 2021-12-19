@@ -100,6 +100,7 @@ public class NSFJspServlet extends JspServlet {
 		} finally {
 			// Looks like Jasper doesn't flush this on its own
 			resp.getWriter().flush();
+			resp.flushBuffer();
 		}
 	}
 
