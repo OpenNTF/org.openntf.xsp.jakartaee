@@ -107,7 +107,9 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 		// Check the active session
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		if(facesContext != null) {
-			return (HttpServletRequest)facesContext.getExternalContext().getRequest();
+			javax.servlet.ServletContext context = (javax.servlet.ServletContext)facesContext.getExternalContext().getContext();
+			javax.servlet.http.HttpServletRequest request = (javax.servlet.http.HttpServletRequest)facesContext.getExternalContext().getRequest();
+			return ServletUtil.oldToNew(context, request);
 		}
 		
 		// If we're not in a Faces context, check the OSGi servlet context
