@@ -24,6 +24,7 @@ import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,9 +46,11 @@ import jakarta.servlet.descriptor.TaglibDescriptor;
 class OldServletContextWrapper implements ServletContext {
 	private static final String UNAVAILABLE_MESSAGE = "Unable to call method on Servlet 2.5 delegate"; //$NON-NLS-1$
 	final javax.servlet.ServletContext delegate;
+	private final String contextPath;
 	
-	public OldServletContextWrapper(javax.servlet.ServletContext delegate) {
+	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate) {
 		this.delegate = delegate;
+		this.contextPath = contextPath;
 	}
 
 	@Override
@@ -137,12 +140,12 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public ServletContext getContext(String arg0) {
-		return ServletUtil.oldToNew(delegate.getContext(arg0));
+		return ServletUtil.oldToNew(contextPath, delegate.getContext(arg0));
 	}
 
 	@Override
 	public String getContextPath() {
-		return delegate.getContextPath();
+		return Objects.requireNonNull(contextPath, "Context path requested but not initialized");
 	}
 
 	@Override

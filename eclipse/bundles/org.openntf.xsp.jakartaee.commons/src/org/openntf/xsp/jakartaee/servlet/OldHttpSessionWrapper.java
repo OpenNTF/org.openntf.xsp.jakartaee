@@ -46,7 +46,7 @@ class OldHttpSessionWrapper implements HttpSession {
 
 	@Override
 	public ServletContext getServletContext() {
-		return ServletUtil.oldToNew(delegate.getServletContext());
+		return ServletUtil.oldToNew(null, delegate.getServletContext());
 	}
 
 	@Override

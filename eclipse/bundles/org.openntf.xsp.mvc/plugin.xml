@@ -24,11 +24,7 @@
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="jakarta.ws.rs.ext.Providers" class="org.openntf.xsp.mvc.impl.CoreFeatureWrapper" />
-	</extension>
-	
-	<extension point="com.ibm.commons.Extension">
-		<service type="jakarta.enterprise.inject.spi.Extension" class="org.eclipse.krazo.cdi.KrazoCdiExtension" />
+		<service type="jakarta.ws.rs.core.Feature" class="org.openntf.xsp.mvc.impl.CoreFeatureWrapper" />
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
@@ -37,5 +33,9 @@
 	
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.mvc.bean.MvcBeanClassContributor" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="jakarta.servlet.ServletContainerInitializer" class="org.eclipse.krazo.servlet.KrazoContainerInitializer" />
 	</extension>
 </plugin>

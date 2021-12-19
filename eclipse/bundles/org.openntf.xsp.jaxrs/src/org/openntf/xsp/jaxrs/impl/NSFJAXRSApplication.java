@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.Feature;
 import jakarta.ws.rs.ext.Providers;
 
 import org.openntf.xsp.jakartaee.LibraryUtil;
@@ -48,6 +49,9 @@ public class NSFJAXRSApplication extends Application {
 		
 		List<Providers> providers = LibraryUtil.findExtensions(Providers.class);
 		result.addAll(providers);
+		
+		List<Feature> features = LibraryUtil.findExtensions(Feature.class);
+		result.addAll(features);
 		
 		return result;
 	}

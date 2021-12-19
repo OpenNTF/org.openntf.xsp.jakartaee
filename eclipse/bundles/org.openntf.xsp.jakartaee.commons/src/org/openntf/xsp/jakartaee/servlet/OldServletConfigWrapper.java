@@ -34,7 +34,7 @@ class OldServletConfigWrapper implements ServletConfig {
 
 	@Override
 	public ServletContext getServletContext() {
-		return ServletUtil.oldToNew(delegate.getServletContext());
+		return ServletUtil.oldToNew(null, delegate.getServletContext());
 	}
 
 	@Override

@@ -302,7 +302,20 @@
 								
 								<!-- MVC -->
 								<artifact><id>jakarta.mvc:jakarta.mvc-api:2.0.0</id><source>true</source></artifact>
-								<artifact><id>org.eclipse.krazo:krazo-core:2.0.1</id><source>true</source></artifact>
+								<artifact>
+									<id>org.eclipse.krazo:krazo-core:2.0.1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.krazo.core</Bundle-SymbolicName>
+										<Bundle-Version>2.0.1.${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.jboss.weld.api,
+											org.jboss.weld.spi,
+											org.jboss.weld.core-impl
+										</Require-Bundle>
+									</instructions>
+								</artifact>
 								<artifact>
 									<id>org.eclipse.krazo:krazo-resteasy:2.0.1</id>
 									<source>true</source>
@@ -310,7 +323,7 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.krazo.resteasy</Bundle-SymbolicName>
 										<Bundle-Version>2.0.1.${osgi.qualifier}</Bundle-Version>
-										<Fragment-Host>org.eclipse.krazo.core</Fragment-Host>
+										<Fragment-Host>org.openntf.org.eclipse.krazo.core</Fragment-Host>
 									</instructions>
 								</artifact>
 							</artifacts>
