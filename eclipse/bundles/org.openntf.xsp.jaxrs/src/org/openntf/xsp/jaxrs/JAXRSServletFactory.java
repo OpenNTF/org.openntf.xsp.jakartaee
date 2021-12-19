@@ -70,7 +70,7 @@ public class JAXRSServletFactory implements IServletFactory {
 			params.put("resteasy.injector.factory", "org.openntf.xsp.jaxrs.weld.NSFCdiInjectorFactory"); //$NON-NLS-1$ //$NON-NLS-2$
 			params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, SERVLET_PATH);
 			
-			servlet = module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new FacesJAXRSServletContainer()), "XSP JAX-RS Servlet", params); //$NON-NLS-1$
+			servlet = module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new FacesJAXRSServletContainer(module)), "XSP JAX-RS Servlet", params); //$NON-NLS-1$
 			lastUpdate = this.module.getLastRefresh();
 		}
 		return servlet;

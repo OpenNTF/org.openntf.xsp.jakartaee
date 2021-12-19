@@ -16,7 +16,10 @@
 package org.openntf.xsp.jaxrs.impl;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.faces.FacesException;
 import javax.faces.FactoryFinder;
@@ -24,22 +27,29 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.FacesContextFactory;
 import javax.faces.event.PhaseListener;
 import javax.faces.lifecycle.Lifecycle;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.openntf.xsp.cdi.ext.CDIConstants;
+import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.ModuleUtil;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 
 import com.ibm.commons.util.NotImplementedException;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.context.FacesContextEx;
 import com.ibm.xsp.controller.FacesController;
 import com.ibm.xsp.controller.FacesControllerFactoryImpl;
+
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.HandlesTypes;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * An {@link ServletContainer} subclass that provides a Faces context to the
@@ -55,15 +65,26 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	private ServletConfig config;
 	private FacesContextFactory contextFactory;
 	private boolean initialized = false;
+	private final ComponentModule module;
 
-	public FacesJAXRSServletContainer() {
-		
+	public FacesJAXRSServletContainer(ComponentModule module) {
+		this.module = module;
 	}
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		this.config = config;
 		contextFactory = (FacesContextFactory) FactoryFinder.getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
+		
+		// Look for registered ServletContainerInitializers and emulate the behavior
+		List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class);
+		for(ServletContainerInitializer initializer : initializers) {
+			Set<Class<?>> classes = null;
+			if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
+				classes = buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class));
+			}
+			initializer.onStartup(classes, config.getServletContext());
+		}
 	}
 	
 	private javax.servlet.ServletContext getOldServletContext() {
@@ -167,4 +188,38 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 		}
 	};
 
+	private Set<Class<?>> buildMatchingClasses(HandlesTypes types) {
+		if(module instanceof NSFComponentModule) {
+			// TODO consider whether we can handle other ComponentModules, were someone to make one
+			
+			@SuppressWarnings("unchecked")
+			Set<Class<?>> result = ModuleUtil.getClassNames((NSFComponentModule)module)
+				.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
+				.map(className -> {
+					try {
+						return module.getModuleClassLoader().loadClass(className);
+					} catch (ClassNotFoundException e) {
+						throw new RuntimeException(e);
+					}
+				})
+				.filter(c -> {
+					for(Class<?> type : types.value()) {
+						if(type.isAnnotation()) {
+							return c.isAnnotationPresent((Class<? extends Annotation>)type);
+						} else {
+							return type.isAssignableFrom(c);
+						}
+					}
+					return true;
+				})
+				.collect(Collectors.toSet());
+			
+			if(!result.isEmpty()) {
+				return result;
+			} else {
+				return null;
+			}
+		}
+		return null;
+	}
 }
