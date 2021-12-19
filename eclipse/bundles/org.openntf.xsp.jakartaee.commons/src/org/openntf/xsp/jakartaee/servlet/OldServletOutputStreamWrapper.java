@@ -25,7 +25,6 @@ class OldServletOutputStreamWrapper extends ServletOutputStream {
 	
 	public OldServletOutputStreamWrapper(javax.servlet.ServletOutputStream delegate) {
 		this.delegate = delegate;
-		System.out.println("set up an output stream");
 	}
 	
 	@Override
