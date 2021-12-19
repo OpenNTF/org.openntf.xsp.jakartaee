@@ -296,6 +296,32 @@
 								<artifact><id>jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0</id><source>true</source></artifact>
 								<artifact><id>org.glassfish.web:jakarta.servlet.jsp:3.0.0</id><source>true</source></artifact>
 								<artifact><id>org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0</id><source>true</source></artifact>
+								
+								<!--
+									JSF
+								-->
+								<artifact>
+									<id>org.glassfish:jakarta.faces:3.0.2</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.glassfish.jakarta.faces</Bundle-SymbolicName>
+										<Bundle-Version>3.0.2.${osgi.qualifier}</Bundle-Version>
+										<Import-Package>
+											!com.sun.*,
+											jakarta.websocket;resolution:=optional,
+											jakarta.websocket.server;resolution:=optional,
+											jakarta.persistence;resolution:=optional,
+											jakarta.xml.ws;resolution:=optional,
+											jakarta.ejb;resolution:=optional,
+											*
+										</Import-Package>
+										<Export-Package>
+											com.sun.*;x-friends:="org.openntf.xsp.jsf";version="3.0.2",
+											*;version="3.0.0"
+										</Export-Package>
+									</instructions>
+								</artifact>
 							</artifacts>
 						</configuration>
 					</execution>
