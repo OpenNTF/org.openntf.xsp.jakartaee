@@ -94,7 +94,11 @@ public class JspServletFactory implements IServletFactory {
 					try {
 
 						Map<String, String> params = new HashMap<>();
-						params.put("classpath", buildBundleClassPath()); //$NON-NLS-1$
+						String classpath = buildBundleClassPath()
+							.stream()
+							.map(File::toString)
+							.collect(Collectors.joining(PATH_SEP));
+						params.put("classpath", classpath); //$NON-NLS-1$
 						params.put("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
 						
 						// Jasper expects a URLClassLoader
@@ -113,18 +117,15 @@ public class JspServletFactory implements IServletFactory {
 		return servlet;
 	}
 
-	private String buildBundleClassPath() throws BundleException, IOException {
-		Bundle bundle = FrameworkUtil.getBundle(getClass());
+	public static List<File> buildBundleClassPath() throws BundleException, IOException {
+		Bundle bundle = FrameworkUtil.getBundle(JspServletFactory.class);
 		List<File> classpath = new ArrayList<>();
 		toClasspathEntry(bundle, classpath);
 		
-		return classpath
-			.stream()
-			.map(File::toString)
-			.collect(Collectors.joining(PATH_SEP));
+		return classpath;
 	}
 	
-	private void toClasspathEntry(Bundle bundle, List<File> classpath) throws BundleException, IOException {
+	private static void toClasspathEntry(Bundle bundle, List<File> classpath) throws BundleException, IOException {
 		// These entries MUST be filesystem paths
 		classpath.add(FileLocator.getBundleFile(bundle));
 		

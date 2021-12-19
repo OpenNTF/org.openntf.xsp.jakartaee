@@ -15,23 +15,33 @@
  */
 package org.openntf.xsp.jsp.nsf;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.jasper.servlet.JspServlet;
+import org.apache.jasper.xmlparser.ParserUtils;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
+import org.openntf.xsp.cdi.context.AbstractProxyingContext;
+import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jsp.EarlyInitFactory;
+import org.openntf.xsp.jsp.el.NSFELResolver;
+import org.osgi.framework.BundleException;
+
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.apache.jasper.servlet.JspServlet;
-import org.openntf.xsp.cdi.context.AbstractProxyingContext;
-import org.openntf.xsp.cdi.util.ContainerUtil;
-import org.openntf.xsp.jsp.el.NSFELResolver;
-
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 /**
  * 
@@ -58,8 +68,9 @@ public class NSFJspServlet extends JspServlet {
 				ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
 				AbstractProxyingContext.setThreadContextRequest(req);
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
-				Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], current));
+				Thread.currentThread().setContextClassLoader(buildJspClassLoader(current));
 				try {
+					ParserUtils.setDtdResourcePrefix(EarlyInitFactory.getServletDtdPath().toUri().toString());
 					super.service(req, resp);
 				} finally {
 					Thread.currentThread().setContextClassLoader(current);
@@ -87,4 +98,28 @@ public class NSFJspServlet extends JspServlet {
 		}
 	}
 
+	private ClassLoader buildJspClassLoader(ClassLoader delegate) throws BundleException, IOException {
+		// TODO support extension points?
+		
+		List<File> classpath = new ArrayList<>();
+		// Add the JSTL fragment explicitly
+		// Jasper reads it as a jar: URL to get the TLD files, but then loads resources via its ClassLoader
+//		classpath.add(FileLocator.getBundleFile(Platform.getBundle("org.glassfish.web.jakarta.servlet.jsp.jstl"))); //$NON-NLS-1$
+//		classpath.addAll(JspServletFactory.buildBundleClassPath());
+		
+		URL[] path = classpath
+			.stream()
+			.map(File::toURI)
+			// Signal to TldScanner that this is a JAR URL
+			.map(uri -> "jar:" + uri + "!/") //$NON-NLS-1$ //$NON-NLS-2$
+			.map(t -> {
+				try {
+					return new URL(t);
+				} catch (MalformedURLException e) {
+					throw new UncheckedIOException(e);
+				}
+			})
+			.toArray(URL[]::new);
+		return new URLClassLoader(path, delegate);
+	}
 }
