@@ -3,11 +3,6 @@ package org.openntf.xsp.mvc.bean;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.eclipse.krazo.KrazoConfig;
-import org.eclipse.krazo.MvcContextImpl;
-import org.eclipse.krazo.binding.BeanValidationProducer;
-import org.eclipse.krazo.binding.BindingResultManager;
-import org.eclipse.krazo.binding.ConstraintViolationTranslator;
 import org.eclipse.krazo.cdi.KrazoCdiExtension;
 import org.eclipse.krazo.jaxrs.PostMatchingRequestFilter;
 import org.eclipse.krazo.jaxrs.PreMatchingRequestFilter;
