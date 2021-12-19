@@ -25,12 +25,12 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import org.apache.jasper.Constants;
 import org.apache.jasper.servlet.JspServlet;
 import org.apache.jasper.xmlparser.ParserUtils;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jsp.EarlyInitFactory;
@@ -39,6 +39,7 @@ import org.osgi.framework.BundleException;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -64,7 +65,10 @@ public class NSFJspServlet extends JspServlet {
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 				
-				req.getServletContext().setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$
+				ServletContext context = req.getServletContext();
+				context.setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$
+				context.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, buildJstlDtdMap());
+				
 				ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
 				AbstractProxyingContext.setThreadContextRequest(req);
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
@@ -74,7 +78,8 @@ public class NSFJspServlet extends JspServlet {
 					super.service(req, resp);
 				} finally {
 					Thread.currentThread().setContextClassLoader(current);
-					req.getServletContext().setAttribute("org.glassfish.jsp.beanManagerELResolver", null); //$NON-NLS-1$
+					context.setAttribute("org.glassfish.jsp.beanManagerELResolver", null); //$NON-NLS-1$
+					context.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, null);
 					ContainerUtil.setThreadContextDatabasePath(null);
 					AbstractProxyingContext.setThreadContextRequest(null);
 				}
@@ -121,5 +126,22 @@ public class NSFJspServlet extends JspServlet {
 			})
 			.toArray(URL[]::new);
 		return new URLClassLoader(path, delegate);
+	}
+	
+	// Must be a HashMap, as TldScanner casts it as such
+	// It's a map of URI to [JAR file path, resource name]
+	// See also TagLibraryInfoImpl
+	private HashMap<String, String[]> buildJstlDtdMap() throws IOException {
+		String jstl = EarlyInitFactory.getDeployedJstlBundle().toUri().toString();
+		
+		HashMap<String, String[]> result = new HashMap<>();
+		
+		result.put("http://java.sun.com/jsp/jstl/functions", new String[] { jstl, "META-INF/fn.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("http://java.sun.com/jsp/jstl/core", new String[] { jstl, "META-INF/c.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("http://java.sun.com/jsp/jstl/fmt", new String[] { jstl, "META-INF/fmt.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("http://java.sun.com/jsp/jstl/sql", new String[] { jstl, "META-INF/sql.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("http://java.sun.com/jsp/jstl/xml", new String[] { jstl, "META-INF/x.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		return result;
 	}
 }

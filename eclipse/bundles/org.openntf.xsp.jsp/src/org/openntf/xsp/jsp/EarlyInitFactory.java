@@ -28,12 +28,10 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.jasper.runtime.JspFactoryImpl;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
-
-import com.ibm.commons.util.StringUtil;
 
 //import org.openntf.xsp.jsp.webapp.JspExtensionFactory;
 
@@ -46,7 +44,6 @@ import com.ibm.domino.xsp.module.nsf.NSFService;
 //import com.ibm.wsspi.webcontainer.logging.LoggerFactory;
 
 import jakarta.servlet.Servlet;
-import jakarta.servlet.jsp.JspFactory;
 
 /**
  * This {@link IServiceFactory} doesn't provide any HTTP services, but is used to
@@ -102,6 +99,7 @@ public class EarlyInitFactory implements IServiceFactory {
 	private void deployServletDtds() throws URISyntaxException, IOException {
 		Path destDir = getServletDtdPath();
 		Files.createDirectories(destDir);
+		
 		Bundle servlet = FrameworkUtil.getBundle(Servlet.class);
 		Enumeration<String> resources = servlet.getEntryPaths("/jakarta/servlet/resources/"); //$NON-NLS-1$
 		for(String res : Collections.list(resources)) {
@@ -117,6 +115,20 @@ public class EarlyInitFactory implements IServiceFactory {
 				}
 			}
 		}
+	}
+	
+	public static Path getDeployedJstlBundle() throws IOException {
+		Path destDir = getServletDtdPath();
+		Files.createDirectories(destDir);
+		
+		Bundle jstl = Platform.getBundle("org.glassfish.web.jakarta.servlet.jsp.jstl"); //$NON-NLS-1$
+		Path jstlDest = destDir.resolve(jstl.getSymbolicName() + "_" + jstl.getVersion() + ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
+		if(!Files.exists(jstlDest)) {
+			Path jstlSource = FileLocator.getBundleFile(jstl).toPath();
+			Files.copy(jstlSource, jstlDest);
+		}
+		
+		return jstlDest;
 	}
 	
 	public static Path getServletDtdPath() {
