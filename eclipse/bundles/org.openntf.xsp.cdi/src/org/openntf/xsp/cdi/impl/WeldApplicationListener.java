@@ -33,16 +33,10 @@ import com.ibm.xsp.application.events.ApplicationListener2;
  * @since 1.0.0
  */
 public class WeldApplicationListener implements ApplicationListener2 {
-	// *******************************************************************************
-	// * ApplicationListener2 methods
-	// *******************************************************************************
-
+	
 	@Override
 	public void applicationCreated(ApplicationEx application) {
-		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
-			// Ensure that the container exists
-			ContainerUtil.getContainer(application);
-		}
+		// NOP
 	}
 
 	@Override
