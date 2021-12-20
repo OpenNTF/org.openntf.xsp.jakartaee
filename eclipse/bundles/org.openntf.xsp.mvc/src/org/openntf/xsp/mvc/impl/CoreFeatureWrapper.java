@@ -1,6 +1,10 @@
 package org.openntf.xsp.mvc.impl;
 
 import org.eclipse.krazo.bootstrap.CoreFeature;
+import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.mvc.MvcLibrary;
+
+import com.ibm.xsp.application.ApplicationEx;
 
 import jakarta.ws.rs.ConstrainedTo;
 import jakarta.ws.rs.RuntimeType;
@@ -13,9 +17,13 @@ public class CoreFeatureWrapper extends CoreFeature {
 
 	@Override
 	public boolean configure(FeatureContext context) {
-		// TODO Limit to only when the NSF opts in
-		
-		return super.configure(context);
+		ApplicationEx app = ApplicationEx.getInstance();
+		if(app != null) {
+			if(LibraryUtil.usesLibrary(MvcLibrary.LIBRARY_ID, app)) {
+				return super.configure(context);
+			}
+		}
+		return false;
 	}
 
 }
