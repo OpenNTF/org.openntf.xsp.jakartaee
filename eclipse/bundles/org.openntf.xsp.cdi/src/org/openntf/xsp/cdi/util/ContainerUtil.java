@@ -24,8 +24,10 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.Platform;
@@ -86,6 +88,12 @@ public enum ContainerUtil {
 	 * @since 1.2.0
 	 */
 	public static final String PROP_CDIBUNDLEBASE = CDILibrary.LIBRARY_ID + ".cdibundlebase"; //$NON-NLS-1$
+	
+	/**
+	 * Keeps track of the Application IDs associated with a DB replica ID, to allow for invalidating
+	 * CDI containers when the app expires after being spawned by JAX-RS.
+	 */
+	private static final Map<String, String> REPLICAID_APPID_CACHE = new HashMap<>();
 
 	/**
 	 * Gets or created a {@link WeldContainer} instance for the provided Application.
@@ -113,8 +121,18 @@ public enum ContainerUtil {
 			}
 			
 			WeldContainer instance = WeldContainer.instance(id);
-			if(instance == null) {
-				
+			
+			// Check the app ID to see if we have to invalidate it
+			String existingMapping = REPLICAID_APPID_CACHE.get(id);
+			if(existingMapping != null && !existingMapping.equals(application.getApplicationId())) {
+				if(instance != null && instance.isRunning()) {
+					// Then it's outdated - invalidate
+					instance.shutdown();
+				}
+			}
+			REPLICAID_APPID_CACHE.put(id, application.getApplicationId());
+			
+			if(instance == null || !instance.isRunning()) {
 				Weld weld = constructWeld(id)
 					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
 
@@ -165,7 +183,7 @@ public enum ContainerUtil {
 		String id = bundle.getSymbolicName();
 
 		WeldContainer instance = WeldContainer.instance(id);
-		if(instance == null) {
+		if(instance == null || !instance.isRunning()) {
 			try {
 				// Register a new one
 				Weld weld = constructWeld(id)
@@ -211,7 +229,7 @@ public enum ContainerUtil {
 			
 			String id = database.getReplicaID();
 			WeldContainer instance = WeldContainer.instance(id);
-			if(instance == null) {
+			if(instance == null || !instance.isRunning()) {
 				Weld weld = constructWeld(id)
 					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
 				String baseBundleId = getApplicationCDIBundleBase(database);
