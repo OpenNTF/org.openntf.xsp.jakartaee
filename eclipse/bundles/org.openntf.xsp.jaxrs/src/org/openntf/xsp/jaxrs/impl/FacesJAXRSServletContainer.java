@@ -150,7 +150,6 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	
 	private FacesContext initContext(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Create a temporary FacesContext and make it available
-		// TODO consider if it would be better to unwrap these instead of double-wrapping
 		javax.servlet.ServletContext context = ServletUtil.newToOld(getServletConfig().getServletContext());
 		javax.servlet.http.HttpServletRequest req = ServletUtil.newToOld(request);
 		javax.servlet.http.HttpServletResponse resp = ServletUtil.newToOld(response);
