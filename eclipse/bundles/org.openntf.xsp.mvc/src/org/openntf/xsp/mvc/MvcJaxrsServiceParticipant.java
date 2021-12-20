@@ -40,63 +40,15 @@ public class MvcJaxrsServiceParticipant implements ServiceParticipant {
 		ApplicationEx app = ApplicationEx.getInstance();
 		if(app != null) {
 			if(LibraryUtil.usesLibrary(MvcLibrary.LIBRARY_ID, app)) {
+				
+				// Stash the response for downstream use
 				CURRENT_REQUEST.set(request);
 				CURRENT_RESPONSE.set(response);
 				
+				// Set a ClassLoader so that Krazo's ServiceLoader use can find these services
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				CLASSLOADERS.set(current);
-				
-				// Provide a custom ClassLoader that knows about Krazo, since the current NSF
-				//   one doesn't (oddly)
-				Bundle krazo = FrameworkUtil.getBundle(DefaultConfigProvider.class);
-				Thread.currentThread().setContextClassLoader(new ClassLoader(current) {
-					@Override
-					protected Class<?> findClass(String name) throws ClassNotFoundException {
-						try {
-							return krazo.loadClass(name);
-						} catch(ClassNotFoundException e) {
-							// Fall through
-						}
-						return super.findClass(name);
-					}
-					
-					@Override
-					public URL getResource(String name) {
-						URL res = krazo.getResource(name);
-						if(res != null) {
-							return res;
-						}
-						return super.getResource(name);
-					}
-					
-					@Override
-					public InputStream getResourceAsStream(String name) {
-						URL res = krazo.getResource(name);
-						if(res != null) {
-							try {
-								return res.openStream();
-							} catch (IOException e) {
-								throw new UncheckedIOException(e);
-							}
-						}
-						return super.getResourceAsStream(name);
-					}
-					
-					@Override
-					public Enumeration<URL> getResources(String name) throws IOException {
-						List<URL> result = new ArrayList<>();
-						
-						Enumeration<URL> kres = krazo.getResources(name);
-						if(kres != null) {
-							result.addAll(Collections.list(kres));
-						}
-						Enumeration<URL> parent = super.getResources(name);
-						if(parent != null) {
-							result.addAll(Collections.list(parent));
-						}
-						return Collections.enumeration(result);
-					}
-				});
+				Thread.currentThread().setContextClassLoader(new KrazoClassLoader(current));
 			}
 		}
 	}
@@ -114,4 +66,66 @@ public class MvcJaxrsServiceParticipant implements ServiceParticipant {
 		}
 	}
 
+	// *******************************************************************************
+	// * Internal implementation utilities
+	// *******************************************************************************
+	
+	private static class KrazoClassLoader extends ClassLoader {
+		private static final Bundle krazo;
+		
+		static {
+			krazo = FrameworkUtil.getBundle(DefaultConfigProvider.class);
+		}
+		
+		public KrazoClassLoader(ClassLoader delegate) {
+			super(delegate);
+		}
+		
+		@Override
+		protected Class<?> findClass(String name) throws ClassNotFoundException {
+			try {
+				return krazo.loadClass(name);
+			} catch(ClassNotFoundException e) {
+				// Fall through
+			}
+			return super.findClass(name);
+		}
+		
+		@Override
+		public URL getResource(String name) {
+			URL res = krazo.getResource(name);
+			if(res != null) {
+				return res;
+			}
+			return super.getResource(name);
+		}
+		
+		@Override
+		public InputStream getResourceAsStream(String name) {
+			URL res = krazo.getResource(name);
+			if(res != null) {
+				try {
+					return res.openStream();
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
+			}
+			return super.getResourceAsStream(name);
+		}
+		
+		@Override
+		public Enumeration<URL> getResources(String name) throws IOException {
+			List<URL> result = new ArrayList<>();
+			
+			Enumeration<URL> kres = krazo.getResources(name);
+			if(kres != null) {
+				result.addAll(Collections.list(kres));
+			}
+			Enumeration<URL> parent = super.getResources(name);
+			if(parent != null) {
+				result.addAll(Collections.list(parent));
+			}
+			return Collections.enumeration(result);
+		}
+	}
 }
