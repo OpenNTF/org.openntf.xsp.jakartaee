@@ -36,6 +36,6 @@
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="jakarta.servlet.ServletContainerInitializer" class="org.eclipse.krazo.servlet.KrazoContainerInitializer" />
+		<service type="jakarta.servlet.ServletContainerInitializer" class="org.openntf.xsp.mvc.impl.MvcContainerInitializer" />
 	</extension>
 </plugin>
