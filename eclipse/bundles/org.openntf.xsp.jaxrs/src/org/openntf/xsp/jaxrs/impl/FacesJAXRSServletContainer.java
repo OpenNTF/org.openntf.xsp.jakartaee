@@ -17,6 +17,9 @@ package org.openntf.xsp.jaxrs.impl;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +42,7 @@ import com.ibm.commons.util.NotImplementedException;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
+import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.context.FacesContextEx;
 import com.ibm.xsp.controller.FacesController;
@@ -95,10 +99,7 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setAttribute(CDIConstants.CDI_JAXRS_REQUEST, "true"); //$NON-NLS-1$
 		
-		NotesContext nc = NotesContext.getCurrentUnchecked();
-    	String javaClassValue = "plugin.Activator"; //$NON-NLS-1$
-		String str = "WEB-INF/classes/" + javaClassValue.replace('.', '/') + ".class"; //$NON-NLS-1$ //$NON-NLS-2$
-		nc.setSignerSessionRights(str);
+		initializeSessionAsSigner();
 		FacesContext fc=null;
 		try {
 			fc = initContext(request, response);
@@ -159,6 +160,38 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	private void releaseContext(FacesContext context) throws ServletException, IOException {
 		context.release();
     }
+	
+	private void initializeSessionAsSigner() {
+		NotesContext nc = NotesContext.getCurrentUnchecked();
+    	String javaClassValue = "plugin.Activator"; //$NON-NLS-1$
+		String str = "WEB-INF/classes/" + javaClassValue.replace('.', '/') + ".class"; //$NON-NLS-1$ //$NON-NLS-2$
+		
+		// This originally worked as below, but is now done reflectively to avoid trouble seen on 12.0.1
+		//nc.setSignerSessionRights(str);
+		
+
+		RuntimeFileSystem.NSFFile res = (RuntimeFileSystem.NSFFile)nc.getModule().getRuntimeFileSystem().getResource(str);
+		String signer = res.getUpdatedBy();
+		
+		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+			try {
+				Field checkedSignersField = NotesContext.class.getDeclaredField("checkedSigners"); //$NON-NLS-1$
+				checkedSignersField.setAccessible(true);
+				@SuppressWarnings("unchecked")
+				Set<String> checkedSigners = (Set<String>)checkedSignersField.get(nc);
+				checkedSigners.clear();
+				checkedSigners.add(signer);
+				
+				Field topLevelSignerField = NotesContext.class.getDeclaredField("toplevelXPageSigner"); //$NON-NLS-1$
+				topLevelSignerField.setAccessible(true);
+				topLevelSignerField.set(nc, signer);
+				
+				return null;
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+	}
 	
 	private static Lifecycle dummyLifeCycle = new Lifecycle() {
 		@Override
