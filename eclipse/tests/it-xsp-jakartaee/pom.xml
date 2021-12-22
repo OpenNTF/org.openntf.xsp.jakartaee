@@ -1,0 +1,187 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.openntf.xsp</groupId>
+		<artifactId>xsp-jakartaee</artifactId>
+		<version>2.1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>it-xsp-jakartaee</artifactId>
+	<packaging>bundle</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaee-example</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>org.openntf.xsp.jakartaee.updatesite</artifactId>
+			<version>${project.version}</version>
+			<type>zip</type>
+		</dependency>
+		
+        <!-- For tests -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+	            <version>5.6.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
+            <version>3.3.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-extension-providers</artifactId>
+            <version>3.3.6</version>
+            <scope>test</scope>
+        </dependency>
+		
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>3.141.59</version>
+            <scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-remote-driver</artifactId>
+			<version>3.141.59</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<version>1.15.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>1.15.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>selenium</artifactId>
+			<version>1.15.3</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.ibm.sbt</groupId>
+			<artifactId>com.ibm.commons</artifactId>
+			<version>9.0.0</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Use this to generate a MANIFEST.MF to account for maven-jar-plugin's settings -->
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>5.1.3</version>
+				<extensions>true</extensions>
+			</plugin>
+
+			<!-- Copy Docker support resources into scratch space -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<?m2e ignore?>
+						<id>prepare-docker-scratch</id>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<phase>process-test-resources</phase>
+						<configuration>
+							<outputDirectory>${project.build.directory}/dockerscratch</outputDirectory>
+							<resources>
+								<!-- Dockerfile to build -->
+								<resource>
+									<directory>${project.basedir}/src/test/docker</directory>
+									<includes>
+										<include>*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<?m2e ignore?>
+						<id>build-data-zip</id>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<phase>process-test-resources</phase>
+						<configuration>
+							<outputDirectory>${project.build.directory}/dockerscratch</outputDirectory>
+							<descriptors>
+								<descriptor>src/test/assembly/data.xml</descriptor>
+							</descriptors>
+							<finalName>data</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Build a Docker image to be used by Testcontainers -->
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>1.4.13</version>
+				<executions>
+					<execution>
+						<?m2e ignore?>
+						<id>build-docker-image</id>
+						<goals>
+							<goal>build</goal>
+						</goals>
+						<phase>process-test-resources</phase>
+						<configuration>
+							<repository>xsp-jakartaee-test</repository>
+							<tag>1.0</tag>
+							<dockerfile>${project.build.directory}/dockerscratch/testcontainer.dockerfile</dockerfile>
+							<contextDirectory>${project.build.directory}/dockerscratch</contextDirectory>
+							<!-- Don't attempt to pull Domino images -->
+							<pullNewerImage>false</pullNewerImage>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M5</version>
+				<configuration>
+					<environmentVariables>
+                		<!--
+                			Disable Testcontainers's Ryuk container manager, as it fails on our Jenkins server.
+                			This is possibly due to our use of user namespaces, so this warrants further investigation
+                			as new versions come out.
+                		-->
+                		<TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
+					</environmentVariables>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
