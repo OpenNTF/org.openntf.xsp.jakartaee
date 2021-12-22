@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:this.dataContexts>
+		<xp:dataContext var="functionClass" value="${javascript:new el.FunctionClass()}"/>
+	</xp:this.dataContexts>
+	
+	
+	<dl>
+		<dt>#{functionClass.foo}</dt>
+		<dd><xp:text value="#{functionClass.foo}"/></dd>
+		
+		<dt>#{functionClass.doFoo('I am from XPages')}</dt>
+		<dd><xp:text value="#{ex:functionClass.doFoo('I am from XPages')}"/></dd>
+		
+		<dt>#{sessionAsSigner}</dt>
+		<dd><xp:text value="#{managedBeanGuy}"/></dd>
+	</dl>
+</xp:view>

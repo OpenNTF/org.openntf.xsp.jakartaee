@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<outline name="WebOutline" publicaccess="false" xmlns="http://www.lotus.com/dxl">
+  <outlineentry label="Expression Language" type="none"/>
+  <outlineentry label="EL Examples" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/el.xsp"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="CDI" type="none"/>
+  <outlineentry label="XPage Bean Resolver" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/beans.xsp"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="JSON" type="none"/>
+  <outlineentry label="XPage JSON" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/json.xsp"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="JAX-RS" type="none"/>
+  <outlineentry label="JAX-RS + CDI" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/xsp/.jaxrs/sample"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="JSON" type="none"/>
+  <outlineentry label="JAX-RS + JSON-P" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/xsp/.jaxrs/jsonExample/jsonp"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="JAX-RS + JSON-B" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/xsp/.jaxrs/jsonExample"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="JAX-RS + JSON-B + CDI" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/xsp/.jaxrs/jsonExample/jsonb"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="JAX-B" type="none"/>
+  <outlineentry label="XPages +  JAX-B + CDI" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/jaxb.xsp"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="JAX-RS + JAX-B + CDI" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/xsp/.jaxrs/sample/xml"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="Bean Validation" type="none"/>
+  <outlineentry label="Validation - Valid" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/xsp/.jaxrs/validation/valid"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="Validation - Invalid" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/xsp/.jaxrs/validation/invalid"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="JAX-RS + Validation - Valid" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/xsp/.jaxrs/validation/requestValidation?requiredField=hello"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="JAX-RS + Validation - Invalid" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/xsp/.jaxrs/validation/requestValidation"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="JSP" type="none"/>
+  <outlineentry label="JSP + JSTL" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/hello.jsp"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+  <outlineentry label="MVC" type="none"/>
+  <outlineentry label="MVC + JSP" level="1" type="urllink">
+    <urllink>
+      <code event="value">
+        <formula>"/" + @WebDbName + "/xsp/.jaxrs/mvc"</formula>
+      </code>
+    </urllink>
+  </outlineentry>
+</outline>

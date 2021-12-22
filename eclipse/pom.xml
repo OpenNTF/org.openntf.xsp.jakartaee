@@ -111,6 +111,14 @@
 			<url>${project.baseUri}../../../osgi-deps/target/repository</url>
 		</repository>
 	</repositories>
+	
+    <pluginRepositories>
+		<pluginRepository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+		</pluginRepository>
+    </pluginRepositories>
 
 	<build>
 		<plugins>
@@ -240,6 +248,12 @@
 					</environments>
 					<resolver>p2</resolver>
 				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.openntf.maven</groupId>
+				<artifactId>nsfodp-maven-plugin</artifactId>
+				<extensions>true</extensions>
 			</plugin>
 
 			<plugin>
@@ -371,6 +385,12 @@
 					<artifactId>tycho-p2-repository-plugin</artifactId>
 					<version>${tycho-version}</version>
 				</plugin>
+			
+				<plugin>
+					<groupId>org.openntf.maven</groupId>
+					<artifactId>nsfodp-maven-plugin</artifactId>
+					<version>3.7.0-SNAPSHOT</version>
+				</plugin>
 				
 				
 				<plugin>
@@ -439,6 +459,13 @@
     
     
 	<profiles>
+		<profile>
+			<id>odpcompiler</id>
+			
+			<modules>
+				<module>nsfs/nsf-jakartaee-example</module>
+			</modules>
+		</profile>
 		
 		<!--
 			This profile adds code signing for the final jars 

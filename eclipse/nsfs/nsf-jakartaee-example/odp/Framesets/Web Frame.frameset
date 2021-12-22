@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<frameset bordercolor="none" columns="20% 80%" name="Web Frame"
+  publicaccess="false" spacing="0px" xmlns="http://www.lotus.com/dxl">
+  <frame name="Nav" targetframe="Page">
+    <namedelementlink name="WebNav" type="page"/>
+  </frame>
+  <frame name="Page"/>
+</frameset>
