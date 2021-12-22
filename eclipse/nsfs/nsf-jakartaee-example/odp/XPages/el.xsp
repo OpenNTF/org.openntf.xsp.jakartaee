@@ -12,7 +12,7 @@
 		<dt>#{functionClass.doFoo('I am from XPages')}</dt>
 		<dd><xp:text value="#{ex:functionClass.doFoo('I am from XPages')}"/></dd>
 		
-		<dt>#{sessionAsSigner}</dt>
+		<dt>#{managedBeanGuy}</dt>
 		<dd><xp:text value="#{managedBeanGuy}"/></dd>
 	</dl>
 </xp:view>
