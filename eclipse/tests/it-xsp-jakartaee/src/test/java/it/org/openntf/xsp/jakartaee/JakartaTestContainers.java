@@ -18,50 +18,56 @@ public enum JakartaTestContainers {
 	public final Network network = Network.builder()
 		.driver("bridge") //$NON-NLS-1$
 		.build();
-	public final GenericContainer<?> domino;
-	public final BrowserWebDriverContainer<?> firefox;
+	public GenericContainer<?> domino;
+	public BrowserWebDriverContainer<?> firefox;
 	
 	@SuppressWarnings("resource")
 	private JakartaTestContainers() {
-		domino = new GenericContainer<>(DockerImageName.parse("xsp-jakartaee-test:1.0")) //$NON-NLS-1$
-			.withExposedPorts(80)
-			.withNetwork(network)
-			.withNetworkAliases(CONTAINER_NETWORK_NAME)
-			.withStartupTimeout(Duration.ofMinutes(4))
-			.withLogConsumer(frame -> {
-				switch(frame.getType()) {
-				case STDERR:
-					try {
-						System.err.write(frame.getBytes());
-					} catch (IOException e) {
-						e.printStackTrace();
+		try {
+			domino = new GenericContainer<>(DockerImageName.parse("xsp-jakartaee-test:1.0")) //$NON-NLS-1$
+				.withExposedPorts(80)
+				.withNetwork(network)
+				.withNetworkAliases(CONTAINER_NETWORK_NAME)
+				.withStartupTimeout(Duration.ofMinutes(4))
+				.withLogConsumer(frame -> {
+					switch(frame.getType()) {
+					case STDERR:
+						try {
+							System.err.write(frame.getBytes());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						break;
+					case STDOUT:
+						try {
+							System.out.write(frame.getBytes());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						break;
+					default:
+					case END:
+						break;
 					}
-					break;
-				case STDOUT:
-					try {
-						System.out.write(frame.getBytes());
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					break;
-				default:
-				case END:
-					break;
+				})
+				.waitingFor(Wait.forHttp("/names.nsf")); //$NON-NLS-1$
+			
+			firefox = new BrowserWebDriverContainer<>()
+					.withCapabilities(new FirefoxOptions())
+					.withNetwork(network);
+			
+			domino.start();
+			firefox.start();
+		} finally {
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				if(domino != null) {
+					domino.close();
 				}
-			})
-			.waitingFor(Wait.forHttp("/")); //$NON-NLS-1$
-		
-		firefox = new BrowserWebDriverContainer<>()
-				.withCapabilities(new FirefoxOptions())
-				.withNetwork(network);
-		
-		domino.start();
-		firefox.start();
-		
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			domino.close();
-			firefox.close();
-			network.close();
-		}));
+				if(firefox != null) {
+					firefox.close();
+				}
+				network.close();
+			}));
+		}
 	}
 }

@@ -57,6 +57,26 @@
 	"autoConfigPreferences": {
 		"startServerAfterConfiguration": true
 	},
+  
+    "IDVault": {
+      "name": "O=OpenNTFTest",
+      "description": "Domino Lab Vault",
+      "IDFile": "vault.id",
+      "IDPassword": "ThisIsATestPassword",
+      "path": "IBM_ID_VAULT/endeavour_vault.nsf",
+      "passwordReset": {
+        "helpText": "See Roy or Moss for a password reset. Good luck!"
+      },
+  
+      "securitySettingsPolicy": {
+        "name": "Endeavour Vault Security Settings Policy",
+        "description": "Endeavour Vault Security Settings"
+      },
+  
+      "masterPolicy": {
+        "description": "Endeavour Vault Master Policy Description"
+      }
+    },
 	"appConfiguration": {
 		"databases": [
 			{
@@ -78,7 +98,7 @@
 							"UnrestrictedList": "LocalDomainAdmins",
 							"OnBehalfOfLst": "LocalDomainAdmins",
 							"RestrictedList": "LocalDomainAdmins",
-							"OnBehalfOfInvokerLst": "LocalDomainAdmins",
+							"OnBehalfOfInvokerLst": ["LocalDomainAdmins", "LocalDomainServers"],
 							"HTTP_EnableSessionAuth": "1",
 							"HTTP_TCPNP": "1",
 							"HTTP_AllowAnonymous": "1",

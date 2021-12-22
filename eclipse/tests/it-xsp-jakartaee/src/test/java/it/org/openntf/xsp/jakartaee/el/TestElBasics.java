@@ -19,10 +19,9 @@ public class TestElBasics extends AbstractWebClientTest {
 	 */
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
-	@Disabled
+	@Disabled("Disabled until XPage signing is sorted out")
 	public void testBasicFunctionClass(WebDriver driver) {
 		driver.get(getRootUrl(driver) + "/el.xsp");
-		
 		
 		WebElement dd = driver.findElement(By.xpath("//dt[text()=\"#{functionClass.foo}\"]/following-sibling::dd[1]"));
 		assertEquals("I am returned from getFoo()", dd.getText());

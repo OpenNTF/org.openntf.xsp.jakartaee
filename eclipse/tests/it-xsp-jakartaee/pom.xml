@@ -82,6 +82,12 @@
 			<version>9.0.0</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.ibm.sbt</groupId>
+			<artifactId>com.ibm.commons.xml</artifactId>
+			<version>9.0.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
