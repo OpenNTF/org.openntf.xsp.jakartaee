@@ -25,6 +25,10 @@ AAAAUEECICABAAD/////+A4DgA==
   <item name="$FlagsNoRefresh">
     <text/>
   </item>
+  <item name="$TITLE">
+    <text>XPages JEE Example
+</text>
+  </item>
   <item name="$Daos">
     <text>1</text>
   </item>
@@ -33,9 +37,5 @@ AAAAUEECICABAAD/////+A4DgA==
   </item>
   <item name="$Flags">
     <text>J7SqN</text>
-  </item>
-  <item name="$TITLE">
-    <text>XPages JEE Example
-</text>
   </item>
 </note>

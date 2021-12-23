@@ -11,6 +11,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+
 import bean.ApplicationGuy;
 
 @Path("/jsonExample")
@@ -21,7 +23,9 @@ public class JsonExample {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@Operation(description="Example showing a basic Map being returned")
 	public Map<String, Object> get() {
+		
 		return Collections.singletonMap("foo", "bar");
 	}
 	
