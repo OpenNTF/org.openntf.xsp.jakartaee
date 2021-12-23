@@ -26,6 +26,8 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta Annotations API, available from https://github.com/eclipse-ee4j/common-annotations-api and licensed under the EPL 2.0
 - The Jakarta Server Pages API, available from https://github.com/eclipse-ee4j/jsp-api and licensed under the EPL 2.0
 - The Jakarta Standard Tag Library API, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/api and licensed under the EPL 2.0
+- The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
+- The MicroProfile Config API, available from https://github.com/eclipse/microprofile-config and licensed under the EPL 2.0
 - Weld, available from http://weld.cdi-spec.org/ and licensed under Apache 2.0
 - GlassFish EL, available from https://github.com/eclipse-ee4j/el-ri/tree/master/impl and licensed under the EPL 2.0
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
@@ -38,3 +40,9 @@ The binary distribution contains the following 3rd party code:
 - Reactive Streams, available from https://github.com/reactive-streams/reactive-streams-jvm and licensed under MIT No Attribution
 - GlassFish/Jasper JSP, available from https://mvnrepository.com/artifact/org.glassfish.web/jakarta.servlet.jsp/3.0.0 and licensed under the EPL 2.0
 - The GlassFish JSTL implementation, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/impl and licensed under the EPL 2.0
+- The SmallRye OpenAPI implementation, available from https://github.com/smallrye/smallrye-open-api and licensed under Apache 2.0
+- Jackson Core, available from https://github.com/FasterXML/jackson-core and licensed under Apache 2.0
+- Jackson data-binding, available from https://github.com/FasterXML/jackson-databind and licensed under Apache 2.0
+- Jackson annotations, available from https://github.com/FasterXML/jackson-annotations and licensed under Apache 2.0
+- Jackson YAML data format, available from https://github.com/FasterXML/jackson-dataformat-yaml and licensed under Apache 2.0
+- SnakeYAML, available from https://bitbucket.org/snakeyaml/snakeyaml/src and licensed under Apache 2.0
