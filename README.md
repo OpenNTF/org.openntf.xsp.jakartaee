@@ -163,7 +163,7 @@ Using [MicroProfile OpenAPI](https://github.com/eclipse/microprofile-open-api), 
 
 Moreover, resources can be [annotated with the MicroProfile OpenAPI annotations](https://openliberty.io/guides/microprofile-openapi.html). For example:
 
-```
+```java
 @GET
 @Operation(
 	summary = "Example service",
