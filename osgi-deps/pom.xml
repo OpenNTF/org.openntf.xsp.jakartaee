@@ -230,7 +230,6 @@
 									MicroProfile OpenAPI
 								-->
 								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:3.0</id><source>true</source></artifact>
-								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.1</id><source>true</source></artifact>
 								<artifact>
 									<id>io.smallrye:smallrye-open-api-core:2.1.16</id>
 									<source>true</source>
@@ -350,6 +349,23 @@
 										<Bundle-Version>2.0.1.${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.org.eclipse.krazo.core</Fragment-Host>
 									</instructions>
+								</artifact>
+								
+								<!--
+									MicroProfile Config
+								-->
+								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.1</id><source>true</source></artifact>
+								<artifact>
+									<id>io.smallrye.config:smallrye-config-common:3.0.0-RC1</id>
+									<source>true</source>
+								</artifact>
+								<artifact>
+									<id>io.smallrye.config:smallrye-config-core:3.0.0-RC1</id>
+									<source>true</source>
+								</artifact>
+								<artifact>
+									<id>io.smallrye.config:smallrye-config-validator:3.0.0-RC1</id>
+									<source>true</source>
 								</artifact>
 							</artifacts>
 						</configuration>

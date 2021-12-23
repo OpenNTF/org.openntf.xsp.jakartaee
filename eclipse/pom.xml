@@ -79,6 +79,10 @@
 		<!-- MVC -->
  		<module>bundles/org.openntf.xsp.mvc</module>
  		<module>features/org.openntf.xsp.mvc.feature</module>
+	
+		<!-- MicroProfile Config -->
+		<module>bundles/org.openntf.xsp.microprofile.config</module>
+		<module>features/org.openntf.xsp.microprofile.config.feature</module>
 		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>

@@ -7,6 +7,6 @@
 		<version>2.1.0-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
-	<artifactId>org.openntf.xsp.microprofile.openapi</artifactId>
+	<artifactId>org.openntf.xsp.microprofile.config</artifactId>
 	<packaging>eclipse-plugin</packaging>
 </project>
