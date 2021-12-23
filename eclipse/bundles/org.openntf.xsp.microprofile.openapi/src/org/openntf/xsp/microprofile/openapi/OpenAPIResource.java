@@ -9,6 +9,7 @@ import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
 import org.eclipse.microprofile.openapi.models.servers.Server;
 import org.jboss.jandex.Index;
+import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jaxrs.JAXRSServletFactory;
 import org.openntf.xsp.microprofile.openapi.config.NOPConfig;
 
@@ -54,7 +55,8 @@ public class OpenAPIResource {
 		
 		Config mpConfig = new NOPConfig();
 		OpenApiConfig config = OpenApiConfigImpl.fromConfig(mpConfig);
-		OpenAPI openapi = OpenApiProcessor.bootstrap(config, index, OpenApiProcessor.class.getClassLoader());
+		ClassLoader cl = new DelegatingClassLoader(OpenApiProcessor.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
+		OpenAPI openapi = OpenApiProcessor.bootstrap(config, index, cl);
 		
 		NotesContext notesContext = NotesContext.getCurrent();
 		Database database = notesContext.getCurrentDatabase();
