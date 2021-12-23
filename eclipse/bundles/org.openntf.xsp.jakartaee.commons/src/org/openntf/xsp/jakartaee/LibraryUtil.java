@@ -20,12 +20,15 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.ibm.commons.extension.ExtensionManager;
@@ -172,5 +175,38 @@ public enum LibraryUtil {
 			throw new IllegalStateException(MessageFormat.format("Unable to find implementation for required service {0}", extensionClass.getName()));
 		}
 		return extensions.get(0);
+	}
+	
+	/**
+	 * Executes the provided {@link Callable} inside an {@link AccessController} block
+	 * and with the provided {@link ClassLoader} as the thread-context loader.
+	 * 
+	 * @param <T> the type of object returned by {@code c}
+	 * @param cl the {@link ClassLoader} to use as the thread-context loader
+	 * @param c the {@link Callable} to execute
+	 * @return the value returned by {@code c}
+	 * @since 2.1.0
+	 */
+	public static <T> T withClassLoader(ClassLoader cl, Callable<T> c) {
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<T>)() -> {
+				ClassLoader current = Thread.currentThread().getContextClassLoader();
+				Thread.currentThread().setContextClassLoader(cl);
+				try {
+					return c.call();
+				} finally {
+					Thread.currentThread().setContextClassLoader(current);
+				}
+			});
+		} catch (PrivilegedActionException e) {
+			Throwable t = e.getCause();
+			if(t == null) {
+				throw new RuntimeException(e);
+			} else if(t instanceof RuntimeException) {
+				throw (RuntimeException)t;
+			} else {
+				throw new RuntimeException(t);
+			}
+		}
 	}
 }

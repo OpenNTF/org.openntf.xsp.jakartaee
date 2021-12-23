@@ -39,27 +39,38 @@ import com.ibm.designer.runtime.domino.adapter.ServletMatch;
  * @since 1.0.0
  */
 public class JAXRSServletFactory implements IServletFactory {
+	public static final String SERVLET_PATH = "/xsp/.jaxrs/"; //$NON-NLS-1$
+	
+	/**
+	 * Determines the effective base servlet path for the provided module.
+	 * 
+	 * @param module the {@link ComponentModule} housing the servlet.
+	 * @return the base servlet path for JAX-RS, e.g. {@code "/xsp/.jaxrs/"}
+	 */
+	public static String getServletPath(ComponentModule module) {
+		return SERVLET_PATH;
+	}
 
 	private ComponentModule module;
-	public static final String SERVLET_PATH = "/xsp/.jaxrs/"; //$NON-NLS-1$
 	private Servlet servlet;
 	private long lastUpdate;
-
-	@Override
-	public ServletMatch getServletMatch(String contextPath, String path) throws ServletException {
-		if (path.startsWith(SERVLET_PATH)) { // $NON-NLS-1$
-			int len = SERVLET_PATH.length(); // $NON-NLS-1$
-			String servletPath = path.substring(0, len);
-			String pathInfo = path.substring(len);
-			return new ServletMatch(getExecutorServlet(), servletPath, pathInfo);
-		}
-		return null;
-	}
 
 	@Override
 	public void init(ComponentModule module) {
 		this.module = module;
 		this.lastUpdate = module.getLastRefresh();
+	}
+
+	@Override
+	public ServletMatch getServletMatch(String contextPath, String path) throws ServletException {
+		String baseServletPath = getServletPath(module);
+		if (path.startsWith(baseServletPath)) {
+			int len = baseServletPath.length();
+			String servletPath = path.substring(0, len);
+			String pathInfo = path.substring(len);
+			return new ServletMatch(getExecutorServlet(), servletPath, pathInfo);
+		}
+		return null;
 	}
 
 	public synchronized Servlet getExecutorServlet() throws ServletException {
@@ -68,7 +79,7 @@ public class JAXRSServletFactory implements IServletFactory {
 			params.put("jakarta.ws.rs.Application", NSFJAXRSApplication.class.getName()); //$NON-NLS-1$
 			// TODO move this to the fragment somehow
 			params.put("resteasy.injector.factory", "org.openntf.xsp.jaxrs.weld.NSFCdiInjectorFactory"); //$NON-NLS-1$ //$NON-NLS-2$
-			params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, SERVLET_PATH);
+			params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, getServletPath(module));
 			
 			servlet = module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new FacesJAXRSServletContainer(module)), "XSP JAX-RS Servlet", params); //$NON-NLS-1$
 			lastUpdate = this.module.getLastRefresh();

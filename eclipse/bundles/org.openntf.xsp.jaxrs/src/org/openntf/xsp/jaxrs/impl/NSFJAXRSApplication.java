@@ -27,6 +27,7 @@ import jakarta.ws.rs.ext.Providers;
 
 import org.openntf.xsp.jakartaee.LibraryUtil;
 import org.openntf.xsp.jakartaee.ModuleUtil;
+import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
@@ -61,6 +62,9 @@ public class NSFJAXRSApplication extends Application {
 		NSFComponentModule module = NotesContext.getCurrent().getModule();
 		Set<Class<?>> result = new HashSet<>();
 		result.addAll(super.getClasses());
+		
+		List<JAXRSClassContributor> contributors = LibraryUtil.findExtensions(JAXRSClassContributor.class);
+		contributors.forEach(contrib -> result.addAll(contrib.getClasses()));
 		
 		ModuleUtil.getClassNames(module)
 			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
