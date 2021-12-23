@@ -16,6 +16,10 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
     - Activation 2.1
 - Server Pages 3.0
 
+It also provides some support libraries from [MicroProfile](https://microprofile.io/):
+
+- OpenAPI 3.0
+
 ## CDI 3.0
 
 The [Jakarta Contexts and Dependency Injection 3.0](https://jakarta.ee/specifications/cdi/3.0/) specification provides for managed beans and dependency injection. To use this feature, add the "org.openntf.xsp.cdi" library to your XPages app.
@@ -152,6 +156,23 @@ public class Sample {
 ```
 
 As intimated there, it has access to the CDI environment if enabled, though it doesn't yet have proper lifecycle support for `ConversationScoped` beans.
+
+#### OpenAPI
+
+Using [MicroProfile OpenAPI](https://github.com/eclipse/microprofile-open-api), these REST services are also made available via `/xsp/.jaxrs/openapi` within the NSF. This resource includes information about each available REST endpoint in the NSF and will produce YAML by default and JSON upon request via an `Accept` header.
+
+Moreover, resources can be [annotated with the MicroProfile OpenAPI annotations](https://openliberty.io/guides/microprofile-openapi.html). For example:
+
+```
+@GET
+@Operation(
+	summary = "Example service",
+	description = "Returns an object that says 'hello' to you"
+)
+public Response hello() {
+	// ...
+}
+```
 
 ## Bean Validation 3.0
 
