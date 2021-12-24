@@ -8,7 +8,9 @@ Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.openntf.xsp.jaxrs
 Require-Bundle: org.eclipse.microprofile.openapi;bundle-version="3.0.0";visibility:=reexport,
- org.eclipse.microprofile.config;bundle-version="3.0.1",
  org.openntf.io.smallrye.open-api-core;bundle-version="2.1.16",
  org.openntf.xsp.jsonapi;bundle-version="2.1.0",
  org.jboss.jandex;bundle-version="2.4.1"
+Import-Package: org.eclipse.microprofile.config;version="2.0.0",
+ org.eclipse.microprofile.config.inject;version="1.1.0",
+ org.eclipse.microprofile.config.spi;version="2.0.0"
