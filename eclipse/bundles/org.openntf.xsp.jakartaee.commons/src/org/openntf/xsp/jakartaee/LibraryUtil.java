@@ -60,6 +60,9 @@ public enum LibraryUtil {
 	 * @return whether the library is loaded by the application
 	 */
 	public static boolean usesLibrary(String libraryId, ApplicationEx app) {
+		if(app == null) {
+			return false;
+		}
 		String prop = app.getProperty("xsp.library.depends", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return Arrays.asList(prop.split(",")).contains(libraryId); //$NON-NLS-1$
 	}
@@ -75,6 +78,9 @@ public enum LibraryUtil {
 	 * @since 1.2.0
 	 */
 	public static boolean usesLibrary(String libraryId, ComponentModule module) throws IOException {
+		if(module == null) {
+			return false;
+		}
 		Properties props = new Properties();
 		try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
 			props.load(is);
@@ -95,6 +101,9 @@ public enum LibraryUtil {
 	 * @since 1.2.0
 	 */
 	public static boolean usesLibrary(String libraryId, NotesDatabase database) throws NotesAPIException, IOException {
+		if(database == null) {
+			return false;
+		}
 		Properties props = getXspProperties(database);
 		String prop = props.getProperty("xsp.library.depends", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return Arrays.asList(prop.split(",")).contains(libraryId); //$NON-NLS-1$
