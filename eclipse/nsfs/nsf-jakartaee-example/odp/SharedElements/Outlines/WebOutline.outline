@@ -28,7 +28,7 @@
   <outlineentry label="JAX-RS + CDI" level="1" type="urllink">
     <urllink>
       <code event="value">
-        <formula>"/" + @WebDbName + "/xsp/.jaxrs/sample"</formula>
+        <formula>"/" + @WebDbName + "/xsp/app/sample"</formula>
       </code>
     </urllink>
   </outlineentry>
@@ -36,21 +36,21 @@
   <outlineentry label="JAX-RS + JSON-P" level="1" type="urllink">
     <urllink>
       <code event="value">
-        <formula>"/" + @WebDbName + "/xsp/.jaxrs/jsonExample/jsonp"</formula>
+        <formula>"/" + @WebDbName + "/xsp/app/jsonExample/jsonp"</formula>
       </code>
     </urllink>
   </outlineentry>
   <outlineentry label="JAX-RS + JSON-B" level="1" type="urllink">
     <urllink>
       <code event="value">
-        <formula>"/" + @WebDbName + "/xsp/.jaxrs/jsonExample"</formula>
+        <formula>"/" + @WebDbName + "/xsp/app/jsonExample"</formula>
       </code>
     </urllink>
   </outlineentry>
   <outlineentry label="JAX-RS + JSON-B + CDI" level="1" type="urllink">
     <urllink>
       <code event="value">
-        <formula>"/" + @WebDbName + "/xsp/.jaxrs/jsonExample/jsonb"</formula>
+        <formula>"/" + @WebDbName + "/xsp/app/jsonExample/jsonb"</formula>
       </code>
     </urllink>
   </outlineentry>
@@ -65,7 +65,7 @@
   <outlineentry label="JAX-RS + JAX-B + CDI" level="1" type="urllink">
     <urllink>
       <code event="value">
-        <formula>"/" + @WebDbName + "/xsp/.jaxrs/sample/xml"</formula>
+        <formula>"/" + @WebDbName + "/xsp/app/sample/xml"</formula>
       </code>
     </urllink>
   </outlineentry>
@@ -73,28 +73,28 @@
   <outlineentry label="Validation - Valid" level="1" type="urllink">
     <urllink>
       <code event="value">
-        <formula>"/" + @WebDbName + "/xsp/.jaxrs/validation/valid"</formula>
+        <formula>"/" + @WebDbName + "/xsp/app/validation/invalid"</formula>
       </code>
     </urllink>
   </outlineentry>
   <outlineentry label="Validation - Invalid" level="1" type="urllink">
     <urllink>
       <code event="value">
-        <formula>"/" + @WebDbName + "/xsp/.jaxrs/validation/invalid"</formula>
+        <formula>"/" + @WebDbName + "/xsp/app/validation/invalid"</formula>
       </code>
     </urllink>
   </outlineentry>
   <outlineentry label="JAX-RS + Validation - Valid" level="1" type="urllink">
     <urllink>
       <code event="value">
-        <formula>"/" + @WebDbName + "/xsp/.jaxrs/validation/requestValidation?requiredField=hello"</formula>
+        <formula>"/" + @WebDbName + "/xsp/app/validation/requestValidation?requiredField=hello"</formula>
       </code>
     </urllink>
   </outlineentry>
   <outlineentry label="JAX-RS + Validation - Invalid" level="1" type="urllink">
     <urllink>
       <code event="value">
-        <formula>"/" + @WebDbName + "/xsp/.jaxrs/validation/requestValidation"</formula>
+        <formula>"/" + @WebDbName + "/xsp/app/validation/requestValidation"</formula>
       </code>
     </urllink>
   </outlineentry>
@@ -110,7 +110,7 @@
   <outlineentry label="MVC + JSP" level="1" type="urllink">
     <urllink>
       <code event="value">
-        <formula>"/" + @WebDbName + "/xsp/.jaxrs/mvc"</formula>
+        <formula>"/" + @WebDbName + "/xsp/app/mvc"</formula>
       </code>
     </urllink>
   </outlineentry>

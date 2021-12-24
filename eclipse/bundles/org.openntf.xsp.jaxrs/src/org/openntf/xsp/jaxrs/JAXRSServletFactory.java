@@ -15,8 +15,12 @@
  */
 package org.openntf.xsp.jaxrs;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -26,6 +30,8 @@ import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jaxrs.impl.FacesJAXRSServletContainer;
 import org.openntf.xsp.jaxrs.impl.NSFJAXRSApplication;
 
+import com.ibm.commons.util.PathUtil;
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
@@ -39,7 +45,11 @@ import com.ibm.designer.runtime.domino.adapter.ServletMatch;
  * @since 1.0.0
  */
 public class JAXRSServletFactory implements IServletFactory {
-	public static final String SERVLET_PATH = "/xsp/.jaxrs/"; //$NON-NLS-1$
+	public static final String SERVLET_PATH_DEFAULT = "app"; //$NON-NLS-1$
+	public static final String PROP_SERVLET_PATH = "org.openntf.xsp.jaxrs.path"; //$NON-NLS-1$
+	
+	private static final String ATTR_PATH = JAXRSServletFactory.class.getName()+"_path"; //$NON-NLS-1$
+	private static final String ATTR_REFRESH = JAXRSServletFactory.class.getName()+"_refresh"; //$NON-NLS-1$
 	
 	/**
 	 * Determines the effective base servlet path for the provided module.
@@ -48,7 +58,35 @@ public class JAXRSServletFactory implements IServletFactory {
 	 * @return the base servlet path for JAX-RS, e.g. {@code "/xsp/.jaxrs/"}
 	 */
 	public static String getServletPath(ComponentModule module) {
-		return SERVLET_PATH;
+		Map<String, Object> attrs = module.getAttributes();
+
+		// Module attributes aren't reset on app refresh, so check here
+		Object refresh = attrs.get(ATTR_REFRESH);
+		if(refresh == null || (Long)refresh < module.getLastRefresh()) {
+			attrs.remove(ATTR_PATH);
+		}
+		attrs.put(ATTR_REFRESH, module.getLastRefresh());
+		
+		String path = (String)attrs.computeIfAbsent(JAXRSServletFactory.class.getName()+"_path", key -> { //$NON-NLS-1$
+			Properties props = new Properties();
+			try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
+				if(is != null) {
+					props.load(is);
+				} 
+			} catch(IOException e) {
+				throw new UncheckedIOException(e);
+			}
+			
+			return props.getProperty(PROP_SERVLET_PATH);
+		});
+		if(StringUtil.isEmpty(path)) {
+			path = SERVLET_PATH_DEFAULT;
+		}
+		path = PathUtil.concat("/xsp", path, '/'); //$NON-NLS-1$
+		if(!path.endsWith("/")) { //$NON-NLS-1$
+			path += "/"; //$NON-NLS-1$
+		}
+		return path;
 	}
 
 	private ComponentModule module;
