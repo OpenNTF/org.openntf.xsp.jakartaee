@@ -15,12 +15,7 @@
  */
 package servlet;
 
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-
 import jakarta.enterprise.context.Dependent;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.inject.literal.NamedLiteral;
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.mvc.Controller;

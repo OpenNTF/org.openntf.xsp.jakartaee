@@ -15,6 +15,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Mail 2.1
     - Activation 2.1
 - Server Pages 3.0
+- MVC 2.0
 
 It also provides some support libraries from [MicroProfile](https://microprofile.io/):
 
@@ -282,6 +283,43 @@ When this library is enabled, .jsp files in the "Files" or "WebContent" parts of
 ```
 
 As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and will allow the use of CDI beans.
+
+## MVC
+
+The [Jakarta MVC](https://jakarta.ee/specifications/mvc/2.0/) specification allows for action-based MVC using JAX-RS as the controller layer and (by default) JSP as the view layer. With this, you can annotate a JAX-RS resource or method with `@Controller`, perform setup actions, and then return the name of a page to render. For example:
+
+```java
+package servlet;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import lotus.domino.NotesException;
+
+@Path("mvc")
+@Controller
+@RequestScoped
+public class MvcExample {
+	
+	@Inject
+	Models models;
+	
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	public String get(@QueryParam("foo") String foo) throws NotesException {
+		models.put("incomingFoo", foo);
+		return "mvc.jsp";
+	}
+}
+```
+
+This will load the JSP file stored as `WebContent/WEB-INF/views/mvc.jsp` in the NSF and evaluate it with the values from "models" and CDI beans available for use.
 
 ## Requirements
 

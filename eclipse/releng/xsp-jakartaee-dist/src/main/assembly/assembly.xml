@@ -30,10 +30,10 @@
 		<fileSet>
 			<directory>${project.basedir}/../../..</directory>
 			<includes>
-				<include>LICENSE</include>
-				<include>NOTICE</include>
-				<include>NOTICE-Weld</include>
 				<include>README.md</include>
+				<include>LICENSE</include>
+				<include>NOTICE.md</include>
+				<include>legal/**</include>
 			</includes>
 			<outputDirectory>.</outputDirectory>
 		</fileSet>
