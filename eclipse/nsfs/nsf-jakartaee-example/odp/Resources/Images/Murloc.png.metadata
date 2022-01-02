@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$TITLE">
+    <text>Murloc.png</text>
+  </item>
+  <item name="$Flags">
+    <text>34CiQ</text>
+  </item>
+  <item name="$FlagsExt">
+    <text>D</text>
+  </item>
+  <item name="$ImagesWide" sign="true">
+    <number>1</number>
+  </item>
+  <item name="$ImagesHigh" sign="true">
+    <number>1</number>
+  </item>
+  <item name="$ImagesColorize" sign="true">
+    <number>0</number>
+  </item>
+  <item name="$MimeType" sign="true">
+    <text>image/png</text>
+  </item>
+  <item name="$FileModDT" sign="true">
+    <datetime>20130116T105000,00-05</datetime>
+  </item>
+  <item name="$ImageNames" sign="true">
+    <text>Murloc.png</text>
+  </item>
+</note>

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,16 +33,10 @@ import com.ibm.xsp.application.events.ApplicationListener2;
  * @since 1.0.0
  */
 public class WeldApplicationListener implements ApplicationListener2 {
-	// *******************************************************************************
-	// * ApplicationListener2 methods
-	// *******************************************************************************
-
+	
 	@Override
 	public void applicationCreated(ApplicationEx application) {
-		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
-			// Ensure that the container exists
-			ContainerUtil.getContainer(application);
-		}
+		// NOP
 	}
 
 	@Override

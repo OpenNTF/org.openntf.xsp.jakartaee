@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2021 Jesse Gallagher
+    Copyright © 2018-2022 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -35,11 +35,12 @@
 	<feature id="org.openntf.xsp.jsonapi.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<!--
 	<feature id="org.openntf.xsp.jsp.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	-->
+	<feature id="org.openntf.xsp.mvc.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
    
 	<category-def name="XPages Jakarta EE" label="XPages Jakarta EE"/>
 </site>

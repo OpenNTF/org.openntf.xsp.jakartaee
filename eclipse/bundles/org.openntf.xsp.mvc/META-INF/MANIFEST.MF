@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Runtime MVC Support
+Bundle-SymbolicName: org.openntf.xsp.mvc;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.mvc
+Bundle-Version: 2.1.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.ibm.xsp.application,
+ com.ibm.xsp.library,
+ org.eclipse.core.runtime,
+ org.osgi.framework
+Require-Bundle: jakarta.servlet-api;bundle-version="5.0.0";visibility:=reexport,
+ jakarta.ws.rs-api;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.xsp.jaxrs;bundle-version="2.0.0",
+ org.openntf.xsp.cdi.api;visibility:=reexport,
+ org.jboss.weld.api;bundle-version="4.0.0",
+ org.jboss.weld.spi;bundle-version="4.0.0",
+ org.jboss.weld.core-impl;bundle-version="4.0.0",
+ org.openntf.xsp.cdi;bundle-version="2.1.0",
+ jakarta.mvc-api;bundle-version="2.0.0";visibility:=reexport,
+ org.openntf.org.eclipse.krazo.core;bundle-version="2.0.1";visibility:=reexport
+

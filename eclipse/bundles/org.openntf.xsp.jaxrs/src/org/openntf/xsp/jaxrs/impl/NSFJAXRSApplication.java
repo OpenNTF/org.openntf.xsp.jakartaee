@@ -15,14 +15,19 @@
  */
 package org.openntf.xsp.jaxrs.impl;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.Feature;
+import jakarta.ws.rs.ext.Providers;
 
+import org.openntf.xsp.jakartaee.LibraryUtil;
 import org.openntf.xsp.jakartaee.ModuleUtil;
+import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
@@ -39,14 +44,35 @@ public class NSFJAXRSApplication extends Application {
 	}
 	
 	@Override
+	public Set<Object> getSingletons() {
+		Set<Object> result = new HashSet<>();
+		result.addAll(super.getSingletons());
+		
+		List<Providers> providers = LibraryUtil.findExtensions(Providers.class);
+		result.addAll(providers);
+		
+		List<Feature> features = LibraryUtil.findExtensions(Feature.class);
+		result.addAll(features);
+		
+		return result;
+	}
+	
+	@Override
 	public Set<Class<?>> getClasses() {
 		NSFComponentModule module = NotesContext.getCurrent().getModule();
-		return ModuleUtil.getClassNames(module)
+		Set<Class<?>> result = new HashSet<>();
+		result.addAll(super.getClasses());
+		
+		List<JAXRSClassContributor> contributors = LibraryUtil.findExtensions(JAXRSClassContributor.class);
+		contributors.forEach(contrib -> result.addAll(contrib.getClasses()));
+		
+		ModuleUtil.getClassNames(module)
 			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
 			.distinct()
 			.map(className -> loadClass(module, className))
 			.filter(this::isJAXRSClass)
-			.collect(Collectors.toSet());
+			.forEach(result::add);
+		return result;
 	}
 	
 	private boolean isJAXRSClass(Class<?> clazz) {

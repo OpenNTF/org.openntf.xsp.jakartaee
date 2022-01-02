@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,10 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.Platform;
@@ -86,6 +88,12 @@ public enum ContainerUtil {
 	 * @since 1.2.0
 	 */
 	public static final String PROP_CDIBUNDLEBASE = CDILibrary.LIBRARY_ID + ".cdibundlebase"; //$NON-NLS-1$
+	
+	/**
+	 * Keeps track of the Application IDs associated with a DB replica ID, to allow for invalidating
+	 * CDI containers when the app expires after being spawned by JAX-RS.
+	 */
+	private static final Map<String, String> REPLICAID_APPID_CACHE = new HashMap<>();
 
 	/**
 	 * Gets or created a {@link WeldContainer} instance for the provided Application.
@@ -113,19 +121,29 @@ public enum ContainerUtil {
 			}
 			
 			WeldContainer instance = WeldContainer.instance(id);
-			if(instance == null) {
+			
+			// Check the app ID to see if we have to invalidate it
+			String existingMapping = REPLICAID_APPID_CACHE.get(id);
+			if(existingMapping != null && !existingMapping.equals(application.getApplicationId())) {
+				if(instance != null && instance.isRunning()) {
+					// Then it's outdated - invalidate
+					instance.shutdown();
+				}
+			}
+			REPLICAID_APPID_CACHE.put(id, application.getApplicationId());
+			
+			if(instance == null || !instance.isRunning()) {
 				Weld weld = constructWeld(id)
-					.addServices(new NSFProxyServices())
 					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
 
 				String baseBundleId = getApplicationCDIBundleBase(application);
 				if(StringUtil.isNotEmpty(baseBundleId)) {
 					Bundle bundle = Platform.getBundle(baseBundleId);
 					if(bundle != null) {
-						weld = weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
+						weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
 					}
 				} else {
-					weld = weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
+					weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
 				}
 				
 				for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
@@ -143,8 +161,7 @@ public enum ContainerUtil {
 					}
 				}
 				
-				Weld fweld = weld;
-				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> fweld.initialize());
+				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> weld.initialize());
 			}
 			return instance;
 		} else {
@@ -166,7 +183,7 @@ public enum ContainerUtil {
 		String id = bundle.getSymbolicName();
 
 		WeldContainer instance = WeldContainer.instance(id);
-		if(instance == null) {
+		if(instance == null || !instance.isRunning()) {
 			try {
 				// Register a new one
 				Weld weld = constructWeld(id)
@@ -212,8 +229,9 @@ public enum ContainerUtil {
 			
 			String id = database.getReplicaID();
 			WeldContainer instance = WeldContainer.instance(id);
-			if(instance == null) {
-				Weld weld = constructWeld(id);
+			if(instance == null || !instance.isRunning()) {
+				Weld weld = constructWeld(id)
+					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
 				String baseBundleId = getApplicationCDIBundleBase(database);
 				Bundle bundle = null;
 				if(StringUtil.isNotEmpty(baseBundleId)) {
@@ -355,6 +373,7 @@ public enum ContainerUtil {
 	private static Weld constructWeld(String id) {
 		return new Weld()
 			.containerId(id)
+			.addServices(new NSFProxyServices())
 			.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, false)
 			// Disable concurrent deployment to avoid Notes thread init trouble
 			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)

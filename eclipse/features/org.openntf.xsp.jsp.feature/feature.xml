@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2021 Jesse Gallagher
+    Copyright © 2018-2022 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@
 -->
 <feature
       id="org.openntf.xsp.jsp.feature"
-      label="XPages Runtime JSP Support Feature"
-      version="2.0.0.qualifier">
+      label="XPages JSP 3.0 Support Feature"
+      version="2.1.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018-2020 Jesse Gallagher
+      Copyright 2018-2021 Jesse Gallagher
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
@@ -237,7 +237,34 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-	<plugin id="org.openntf.xsp.jsp" version="0.0.0"/>
-	<plugin id="jstl" version="0.0.0"/>
+   <plugin
+         id="org.openntf.xsp.jsp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="jakarta.servlet.jsp-api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="jakarta.servlet.jsp.jstl-api"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.glassfish.web.jakarta.servlet.jsp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.glassfish.web.jakarta.servlet.jsp.jstl"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>

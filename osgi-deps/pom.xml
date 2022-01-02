@@ -17,7 +17,9 @@
 	<repositories>
 		<repository>
 			<id>eclipse-platform</id>
-			<url>https://download.eclipse.org/releases/neon/201612211000</url>
+			<!--<url>https://download.eclipse.org/releases/neon/201612211000</url>-->
+			<!-- Using a mirror while download.eclipse.org is down -->
+			<url>https://mirror.umd.edu/eclipse/releases/oxygen/201706281000/</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>
@@ -56,12 +58,14 @@
 						<configuration>
 							<p2>
 								<!-- Testing Runtime -->
-								<artifact><id>org.eclipse.equinox.launcher:1.3.201.v20161025-1711</id><source>true</source></artifact>
 								<artifact><id>org.junit:4.12.0.v201504281640</id><source>true</source></artifact>
 								<artifact><id>org.slf4j.api:1.7.2.v20121108-1250</id><source>true</source></artifact>
 								<artifact><id>org.hamcrest.core:1.3.0.v201303031735</id><source>true</source></artifact>
 							</p2>
 							<artifacts>
+								<!-- Testing Runtime -->
+								<artifact><id>org.eclipse.platform:org.eclipse.equinox.launcher:1.4.0</id><source>true</source></artifact>
+							
 								<!--
 									General Platform
 								-->
@@ -223,6 +227,31 @@
 								</artifact>
 								
 								<!--
+									MicroProfile OpenAPI
+								-->
+								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:3.0</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.1</id><source>true</source></artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-open-api-core:2.1.16</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-core</Bundle-SymbolicName>
+										<Bundle-Version>2.1.16_${osgi.qualifier}</Bundle-Version>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-open-api-jaxrs:2.1.16</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-jaxrs</Bundle-SymbolicName>
+										<Bundle-Version>2.1.16_${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.io.smallrye.open-api-core</Fragment-Host>
+									</instructions>
+								</artifact>
+								
+								<!--
 									EL
 								-->
 								<artifact><id>jakarta.el:jakarta.el-api:4.0.0</id><source>true</source></artifact>
@@ -293,6 +322,35 @@
 								-->
 								<artifact><id>jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.0.0</id><source>true</source></artifact>
 								<artifact><id>jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.web:jakarta.servlet.jsp:3.0.0</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0</id><source>true</source></artifact>
+								
+								<!-- MVC -->
+								<artifact><id>jakarta.mvc:jakarta.mvc-api:2.0.0</id><source>true</source></artifact>
+								<artifact>
+									<id>org.eclipse.krazo:krazo-core:2.0.1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.krazo.core</Bundle-SymbolicName>
+										<Bundle-Version>2.0.1.${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle>
+											org.jboss.weld.api,
+											org.jboss.weld.spi,
+											org.jboss.weld.core-impl
+										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.krazo:krazo-resteasy:2.0.1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.krazo.resteasy</Bundle-SymbolicName>
+										<Bundle-Version>2.0.1.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.org.eclipse.krazo.core</Fragment-Host>
+									</instructions>
+								</artifact>
 							</artifacts>
 						</configuration>
 					</execution>

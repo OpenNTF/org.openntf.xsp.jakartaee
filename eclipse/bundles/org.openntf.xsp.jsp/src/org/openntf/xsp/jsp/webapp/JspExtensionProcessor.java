@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.equinox.jsp.jasper.JspServlet;
+import org.apache.jasper.servlet.JspServlet;
 import org.osgi.framework.Bundle;
 
 import com.ibm.ws.jsp.Constants;
@@ -44,7 +44,7 @@ import com.ibm.wsspi.webcontainer.servlet.IServletContext;
  * delegates web app JSP requests to the Equinox bundle JSP compiler.
  * 
  * @author Jesse Gallagher
- * @since 1.2.0
+ * @since 2.1.0
  */
 public class JspExtensionProcessor extends WebExtensionProcessor {
 	public class JspWebAppServletConfig implements ServletConfig {
@@ -73,7 +73,7 @@ public class JspExtensionProcessor extends WebExtensionProcessor {
 	
 	private final IServletContext webApp;
 	private final Bundle bundle;
-	private final JspServlet delegate;
+	//private final JspServlet delegate;
 	
 	public JspExtensionProcessor(IServletContext webApp) {
 		super(webApp);
@@ -90,12 +90,12 @@ public class JspExtensionProcessor extends WebExtensionProcessor {
 			}
 		});
 		// TODO look into reading contentLocation from plugin.xml
-		this.delegate = new JspServlet(bundle, "WebContent", null); //$NON-NLS-1$
-		try {
-			this.delegate.init(new JspWebAppServletConfig());
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
+//		this.delegate = new JspServlet(bundle, "WebContent", null); //$NON-NLS-1$
+//		try {
+//			this.delegate.init(new JspWebAppServletConfig());
+//		} catch (Throwable e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class JspExtensionProcessor extends WebExtensionProcessor {
 		
 		
 		try {
-			this.delegate.service(request, response);
+//			this.delegate.service(request, response);
 		} catch(Throwable t) {
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, MessageFormat.format("Exception processing {0}", req.getServletPath()));
 			t.printStackTrace();

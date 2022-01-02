@@ -4,16 +4,22 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 
 - Expression Language 4.0
 - Contexts and Dependency Injection 3.0
-  - Annotations 2.0
-  - Interceptors 2.0
-  - Dependency Injection 2.0
+    - Annotations 2.0
+    - Interceptors 2.0
+    - Dependency Injection 2.0
 - RESTful Web Services (JAX-RS) 3.0
 - Bean Validation 3.0
 - JSON Processing 2.0
 - JSON Binding 2.0
 - XML Binding 3.0
 - Mail 2.1
-  - Activation 2.1
+    - Activation 2.1
+- Server Pages 3.0
+- MVC 2.0
+
+It also provides some support libraries from [MicroProfile](https://microprofile.io/):
+
+- OpenAPI 3.0
 
 ## CDI 3.0
 
@@ -119,7 +125,7 @@ In standard XPages, this will result in an empty output. With the EL 4 resolver,
 
 The [RESTful Web Services](https://jakarta.ee/specifications/restful-ws/3.0/) specification is the standard way to provide web services in Java EE applications. A version of it has been included for a long time in Domino by way of the Extension Library. However, this version is also out of date, with Apache Wink implementing JAX-RS 1.1.1.
 
-This library is based on [the work of Martin Pradny](https://www.pradny.com/2017/11/using-jax-rs-inside-nsf.html) and provides JAX-RS 3.0 support by way of [RESTEasy 6.0](https://resteasy.github.io) for classes inside the NSF. When a class is or has a method annotated with `@Path`, it is included as a service beneath `/xsp/.jaxrs` inside the NSF. For example:
+This library is based on [the work of Martin Pradny](https://www.pradny.com/2017/11/using-jax-rs-inside-nsf.html) and provides JAX-RS 3.0 support by way of [RESTEasy 6.0](https://resteasy.github.io) for classes inside the NSF. When a class is or has a method annotated with `@Path`, it is included as a service beneath `/xsp/app` inside the NSF. For example:
 
 ```java
 package servlet;
@@ -151,6 +157,25 @@ public class Sample {
 ```
 
 As intimated there, it has access to the CDI environment if enabled, though it doesn't yet have proper lifecycle support for `ConversationScoped` beans.
+
+The path within the NSF can be modified by setting the `org.openntf.xsp.jaxrs.path` property in the NSF's "xsp.properties" file. The value there will be appended to `/xsp`. For example, setting it to `foo` will make the above example available at `/some.nsf/xsp/foo/sample`.
+
+#### OpenAPI
+
+Using [MicroProfile OpenAPI](https://github.com/eclipse/microprofile-open-api), these REST services are also made available via `/xsp/app/openapi` within the NSF. This resource includes information about each available REST endpoint in the NSF and will produce YAML by default and JSON upon request via an `Accept` header.
+
+Moreover, resources can be [annotated with the MicroProfile OpenAPI annotations](https://openliberty.io/guides/microprofile-openapi.html). For example:
+
+```java
+@GET
+@Operation(
+	summary = "Example service",
+	description = "Returns an object that says 'hello' to you"
+)
+public Response hello() {
+	// ...
+}
+```
 
 ## Bean Validation 3.0
 
@@ -231,6 +256,70 @@ public class JsonTest {
 }
 
 ```
+
+## JSP and JSTL
+
+The [Jakarta Server Pages](https://jakarta.ee/specifications/pages/3.0/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/2.0/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
+
+When this library is enabled, .jsp files in the "Files" or "WebContent" parts of the NSF will be interpreted as live pages. For example:
+
+```jsp
+<%@page contentType="text/html" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>JSP Inside An NSF</title>
+	</head>
+	<body>
+		<p>My CDI Bean is: ${applicationGuy}</p>
+		<p>My requestScope is: ${requestScope}</p>
+		<p>JSTL XML-escaped content is: ${fn:escapeXml('<hello>')}</p>
+		
+		<t:example value="Value sent into the tag"/>
+	</body>
+</html>
+```
+
+As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and will allow the use of CDI beans.
+
+## MVC
+
+The [Jakarta MVC](https://jakarta.ee/specifications/mvc/2.0/) specification allows for action-based MVC using JAX-RS as the controller layer and (by default) JSP as the view layer. With this, you can annotate a JAX-RS resource or method with `@Controller`, perform setup actions, and then return the name of a page to render. For example:
+
+```java
+package servlet;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import lotus.domino.NotesException;
+
+@Path("mvc")
+@Controller
+@RequestScoped
+public class MvcExample {
+	
+	@Inject
+	Models models;
+	
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	public String get(@QueryParam("foo") String foo) throws NotesException {
+		models.put("incomingFoo", foo);
+		return "mvc.jsp";
+	}
+}
+```
+
+This will load the JSP file stored as `WebContent/WEB-INF/views/mvc.jsp` in the NSF and evaluate it with the values from "models" and CDI beans available for use.
 
 ## Requirements
 

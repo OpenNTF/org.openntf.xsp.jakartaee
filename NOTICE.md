@@ -1,6 +1,6 @@
 XPages Jakarta EE Support
 
-Portions (c) Copyright 2018-2021 Jesse Gallagher
+Portions (c) Copyright 2018-2022 Jesse Gallagher
 
 This product includes software contributed to
 OpenNTF Alliance (http://www.OpenNTF.org/)
@@ -24,6 +24,11 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta XML Binding API, available from https://github.com/eclipse-ee4j/jaxb-api and licensed under the EPL 2.0
 - The Jakarta Activation API, available from https://github.com/eclipse-ee4j/jaf and licensed under the EPL 2.0
 - The Jakarta Annotations API, available from https://github.com/eclipse-ee4j/common-annotations-api and licensed under the EPL 2.0
+- The Jakarta Server Pages API, available from https://github.com/eclipse-ee4j/jsp-api and licensed under the EPL 2.0
+- The Jakarta Standard Tag Library API, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/api and licensed under the EPL 2.0
+- The Jakarta MVC API, available from https://github.com/eclipse-ee4j/mvc-api and licensed under the EPL 2.0
+- The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
+- The MicroProfile Config API, available from https://github.com/eclipse/microprofile-config and licensed under the EPL 2.0
 - Weld, available from http://weld.cdi-spec.org/ and licensed under Apache 2.0
 - GlassFish EL, available from https://github.com/eclipse-ee4j/el-ri/tree/master/impl and licensed under the EPL 2.0
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
@@ -34,3 +39,13 @@ The binary distribution contains the following 3rd party code:
 - The Eclipse Implementation of JAXB, available from https://github.com/eclipse-ee4j/jaxb-ri and licensed under the EPL 2.0
 - The Eclipse Angus Activation implementation, available from https://github.com/eclipse-ee4j/angus-activation and licensed under the EPL 2.0
 - Reactive Streams, available from https://github.com/reactive-streams/reactive-streams-jvm and licensed under MIT No Attribution
+- GlassFish/Jasper JSP, available from https://mvnrepository.com/artifact/org.glassfish.web/jakarta.servlet.jsp/3.0.0 and licensed under the EPL 2.0
+- The GlassFish JSTL implementation, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/impl and licensed under the EPL 2.0
+- Eclipse Krazo, available from https://github.com/eclipse-ee4j/krazo and licensed under the EPL 2.0
+- The SmallRye OpenAPI implementation, available from https://github.com/smallrye/smallrye-open-api and licensed under Apache 2.0
+- Jackson Core, available from https://github.com/FasterXML/jackson-core and licensed under Apache 2.0
+- Jackson data-binding, available from https://github.com/FasterXML/jackson-databind and licensed under Apache 2.0
+- Jackson annotations, available from https://github.com/FasterXML/jackson-annotations and licensed under Apache 2.0
+- Jackson YAML data format, available from https://github.com/FasterXML/jackson-dataformat-yaml and licensed under Apache 2.0
+- SnakeYAML, available from https://bitbucket.org/snakeyaml/snakeyaml/src and licensed under Apache 2.0
+- JBoss Logging, available from https://github.com/jboss-logging/jboss-logging and licensed under Apache 2.0

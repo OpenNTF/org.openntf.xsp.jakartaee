@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<h1>Bean Test</h1>
+	
+	<xp:div id="refresher">
+		<fieldset>
+			<legend>Application Scope</legend>
+			
+			<dl>
+				<dt>Application Guy</dt>
+				<dd><xp:text value="#{ex:applicationGuy.message}"/></dd>
+				
+				<dt>With Argument</dt>
+				<dd><xp:text value="#{ex:applicationGuy.getMessageWithArg('hey')}"/></dd>
+			</dl>
+		</fieldset>
+		
+		<fieldset>
+			<legend>Session Scope</legend>
+			
+			<dl>
+				<dt>Session Guy</dt>
+				<dd><xp:text value="#{sessionGuy.message}"/></dd>
+			</dl>
+		</fieldset>
+		
+		<fieldset>
+			<legend>View Scope</legend>
+			
+			<dl>
+				<dt>View Guy</dt>
+				<dd><xp:text value="#{ex:viewGuy.message}"/></dd>
+			</dl>
+		</fieldset>
+		
+		<fieldset>
+			<legend>Request Scope</legend>
+			
+			<dl>
+				<dt>Request Guy</dt>
+				<dd><xp:text value="#{ex:requestGuy.message}"/></dd>
+				
+				<dt>IBM EL resolver</dt>
+				<dd><xp:text value="#{xspel:requestGuy.message}"/></dd>
+			</dl>
+		</fieldset>
+		
+		<fieldset>
+			<legend>Misc.</legend>
+			
+			<dl>
+				<dt>IBM EL resolver nonref</dt>
+				<dd><xp:text value="#{xspel:foo.bar}"/></dd>
+				
+				<dt>XSP URL</dt>
+				<dd><xp:text value="#{context.url}"/></dd>
+				
+				<dt>Request URL</dt>
+				<dd><xp:text value="#{facesContext.externalContext.request.requestURL}"/></dd>
+				
+				<dt>Query:</dt>
+				<dd><xp:text value="#{javascript: facesContext.externalContext.request.queryString}"/></dd>
+		
+				<dt>#{sessionAsSigner}</dt>
+				<dd><xp:text value="#{sessionAsSigner}"/></dd>
+			</dl>
+		</fieldset>
+	</xp:div>
+	
+	<p>
+		<xp:button id="refresh" value="Partial Refresh">
+			<xp:eventHandler event="onclick" submit="true" refreshMode="partial" refreshId="refresher"/>
+		</xp:button>
+		<xp:button id="button1" value="Partial Refresh (Immediate)">
+			<xp:eventHandler event="onclick" submit="true" refreshMode="partial" refreshId="refresher" immediate="true"/>
+		</xp:button>
+		<xp:button id="button2" value="Full Refresh">
+			<xp:eventHandler event="onclick" submit="true" refreshMode="complete"/>
+		</xp:button>
+	</p>
+	
+</xp:view>
