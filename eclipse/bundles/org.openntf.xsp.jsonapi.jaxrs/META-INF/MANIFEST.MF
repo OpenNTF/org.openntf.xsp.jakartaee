@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages JAX-RS JSON-P and JSON-B Providers
 Bundle-SymbolicName: org.openntf.xsp.jsonapi.jaxrs
 Automatic-Module-Name: org.openntf.xsp.jsonapi.jaxrs
-Bundle-Version: 2.1.0.qualifier
+Bundle-Version: 2.2.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.openntf.xsp.jaxrs

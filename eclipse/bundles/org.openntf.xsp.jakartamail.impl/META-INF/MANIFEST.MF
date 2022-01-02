@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta Mail Implementation
 Bundle-SymbolicName: org.openntf.xsp.jakartamail.impl
 Automatic-Module-Name: org.openntf.xsp.jakartamail.impl
-Bundle-Version: 2.1.0.qualifier
+Bundle-Version: 2.2.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.openntf.xsp.jakartamail.api;bundle-version="2.0.0"
