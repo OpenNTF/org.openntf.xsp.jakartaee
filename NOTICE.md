@@ -48,3 +48,4 @@ The binary distribution contains the following 3rd party code:
 - Jackson annotations, available from https://github.com/FasterXML/jackson-annotations and licensed under Apache 2.0
 - Jackson YAML data format, available from https://github.com/FasterXML/jackson-dataformat-yaml and licensed under Apache 2.0
 - SnakeYAML, available from https://bitbucket.org/snakeyaml/snakeyaml/src and licensed under Apache 2.0
+- JBoss Logging, available from https://github.com/jboss-logging/jboss-logging and licensed under Apache 2.0
