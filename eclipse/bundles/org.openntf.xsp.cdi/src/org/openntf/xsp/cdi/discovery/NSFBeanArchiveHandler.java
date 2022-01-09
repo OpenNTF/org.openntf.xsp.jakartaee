@@ -64,12 +64,6 @@ public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 					ModuleUtil.getClassNames(module)
 						.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
 						.forEach(builder::addClass);
-					// TODO look through embedded JARs with beans.xml
-					
-					
-					// Manually look for class names in plug-in dependencies, since the normal code
-					//  path only looks in the system class path and I haven't figured out the right
-					//  way to override that yet
 					
 					return builder;
 				}
