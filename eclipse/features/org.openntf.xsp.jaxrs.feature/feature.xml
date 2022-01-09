@@ -262,4 +262,7 @@
 	<plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="0.0.0" />
 	<plugin id="org.yaml.snakeyaml" version="0.0.0" />
 	<plugin id="org.jboss.jandex" version="0.0.0" />
+	
+	<plugin id="org.eclipse.microprofile.metrics" version="0.0.0"/>
+	<plugin id="io.smallrye.metrics" version="0.0.0"/>
 </feature>

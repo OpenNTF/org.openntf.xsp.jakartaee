@@ -53,12 +53,13 @@
 		<module>bundles/org.openntf.xsp.el</module>
 		<module>features/org.openntf.xsp.el.feature</module>
 		
-		<!-- JAX-RS 3.0 and MicroProfile OpenAPI -->
+		<!-- JAX-RS 3.0, MicroProfile OpenAPI, and MicroProfile Metrics -->
 		<module>bundles/org.openntf.xsp.jaxrs</module>
 		<module>bundles/org.openntf.xsp.jaxrs.cdi</module>
 		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
 		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
 		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
+		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
 		<module>features/org.openntf.xsp.jaxrs.feature</module>
 		
 		<!-- Bean Validation 3.0 -->
