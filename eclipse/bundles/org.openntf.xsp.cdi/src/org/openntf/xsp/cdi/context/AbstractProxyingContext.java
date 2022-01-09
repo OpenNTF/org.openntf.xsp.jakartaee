@@ -31,7 +31,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
-import com.ibm.domino.xsp.adapter.osgi.NotesContext;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 /**
  * 
@@ -47,7 +47,7 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 	static {
 		notesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
 			try {
-				Field field = NotesContext.class.getDeclaredField("request"); //$NON-NLS-1$
+				Field field = NotesContext.class.getDeclaredField("httpRequest"); //$NON-NLS-1$
 				field.setAccessible(true);
 				return field;
 			} catch (NoSuchFieldException | SecurityException e) {
