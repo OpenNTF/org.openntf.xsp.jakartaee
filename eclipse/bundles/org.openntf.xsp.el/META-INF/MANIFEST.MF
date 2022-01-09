@@ -16,5 +16,5 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
  com.ibm.jscript,
  com.ibm.xsp.extsn;bundle-version="9.0.1"
 Import-Package: lotus.domino
-Export-Package: org.openntf.xsp.el,
- org.openntf.xsp.el.ext
+Export-Package: org.openntf.xsp.el;version="2.2.0",
+ org.openntf.xsp.el.ext;version="2.2.0"

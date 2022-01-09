@@ -32,9 +32,9 @@ Bundle-ClassPath: .
 Import-Package: jakarta.servlet;version="5.0.0",
  jakarta.servlet.http;version="5.0.0",
  lotus.domino
-Export-Package: org.openntf.xsp.cdi,
- org.openntf.xsp.cdi.bean,
- org.openntf.xsp.cdi.context,
- org.openntf.xsp.cdi.discovery,
- org.openntf.xsp.cdi.impl,
- org.openntf.xsp.cdi.util
+Export-Package: org.openntf.xsp.cdi;version="2.2.0",
+ org.openntf.xsp.cdi.bean;version="2.2.0",
+ org.openntf.xsp.cdi.context;version="2.2.0",
+ org.openntf.xsp.cdi.discovery;version="2.2.0",
+ org.openntf.xsp.cdi.impl;version="2.2.0",
+ org.openntf.xsp.cdi.util;version="2.2.0"
