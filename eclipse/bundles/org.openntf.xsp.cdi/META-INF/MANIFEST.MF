@@ -6,15 +6,7 @@ Automatic-Module-Name: org.openntf.xsp.cdi
 Bundle-Version: 2.2.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.eclipse.osgi,
- org.eclipse.core.runtime,
- com.ibm.commons;bundle-version="9.0.1",
- com.ibm.commons.xml;bundle-version="9.0.1",
- com.ibm.domino.napi;bundle-version="9.0.1",
- com.ibm.xsp.core;bundle-version="9.0.1",
- com.ibm.xsp.domino;bundle-version="9.0.1",
- com.ibm.domino.xsp.adapter;bundle-version="9.0.1",
- com.ibm.designer.runtime,
+Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  jakarta.inject.jakarta.inject-api;bundle-version="2.0.0";visibility:=reexport,
  org.openntf.xsp.cdi.api;visibility:=reexport,
  jakarta.annotation-api;bundle-version="2.0.0";visibility:=reexport,
@@ -24,14 +16,25 @@ Require-Bundle: org.eclipse.osgi,
  org.jboss.weld.environment.weld-environment-common;bundle-version="4.0.2",
  org.jboss.weld.se.weld-se-core;bundle-version="4.0.2",
  org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0";visibility:=reexport,
- jakarta.interceptor-api;bundle-version="2.0.0";visibility:=reexport,
- com.ibm.domino.osgi.core,
- com.ibm.xsp.extsn,
- com.ibm.xsp.designer
+ jakarta.interceptor-api;bundle-version="2.0.0";visibility:=reexport
 Bundle-ClassPath: .
-Import-Package: jakarta.servlet;version="5.0.0",
+Import-Package: com.ibm.commons.util,
+ com.ibm.designer.domino.napi,
+ com.ibm.designer.runtime.domino.adapter,
+ com.ibm.domino.osgi.core.context,
+ com.ibm.domino.xsp.module.nsf,
+ com.ibm.xsp.application,
+ com.ibm.xsp.application.events,
+ com.ibm.xsp.library,
+ jakarta.servlet;version="5.0.0",
  jakarta.servlet.http;version="5.0.0",
- lotus.domino
+ javax.servlet;version="2.5.0",
+ javax.servlet.http;version="2.5.0",
+ lotus.domino,
+ org.eclipse.core.runtime;version="3.5.0",
+ org.eclipse.osgi.util;version="1.1.0",
+ org.osgi.framework;version="1.8.0",
+ org.osgi.framework.wiring;version="1.2.0"
 Export-Package: org.openntf.xsp.cdi;version="2.2.0",
  org.openntf.xsp.cdi.bean;version="2.2.0",
  org.openntf.xsp.cdi.context;version="2.2.0",
