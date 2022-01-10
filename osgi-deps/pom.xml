@@ -34,6 +34,7 @@
 	<properties>
 		<weld-version>4.0.2.Final</weld-version>
 		<resteasy-version>6.0.0.Beta1</resteasy-version>
+		<resteasy-mp-version>2.0.0.Beta1</resteasy-mp-version>
 		<hibernate-version>7.0.1.Final</hibernate-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -141,9 +142,20 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.core</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Require-Bundle>
 											jakarta.ws.rs-api;visibility:=reexport
 										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-core-spi:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.core-spi</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.org.jboss.resteasy.core</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -255,6 +267,25 @@
 								-->
 								<artifact><id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0</id><source>true</source></artifact>
 								<artifact><id>io.smallrye:smallrye-metrics:4.0.0-RC1</id><source>true</source></artifact>
+								
+								<!--
+									MicroProfile REST Client
+								-->
+								<artifact><id>org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0</id><source>true</source></artifact>
+								<artifact>
+									<id>org.jboss.resteasy.microprofile:microprofile-rest-client-base:${resteasy-mp-version}</id>
+									<source>true</source>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy.microprofile:microprofile-rest-client:${resteasy-mp-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.microprofile.rest-client</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-mp-version}_${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.jboss.resteasy.microprofile.rest-client-base</Fragment-Host>
+									</instructions>
+								</artifact>
 								
 								<!--
 									EL

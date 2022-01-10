@@ -17,8 +17,8 @@
 
 -->
 <feature
-      id="org.openntf.xsp.jaxrs.feature"
-      label="XPages JAX-RS 3.0 Support Feature"
+      id="org.openntf.xsp.microprofile.rest.client.feature"
+      label="XPages MicroProfile REST Client 3.0 Support Feature"
       version="2.2.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -235,37 +235,19 @@
 
    <requires>
       <import feature="org.openntf.xsp.jakartaee.feature"/>
+      <import feature="org.openntf.xsp.jaxrs.feature"/>
+      <import feature="org.openntf.xsp.cdi.feature"/>
    </requires>
 
-	<plugin id="org.openntf.xsp.jaxrs" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.jaxrs.cdi" version="0.0.0" fragment="true"/>
-	<plugin id="org.openntf.xsp.jaxrs.factory" version="0.0.0" fragment="true"/>
-	<plugin id="org.openntf.xsp.jaxrs.providers" version="0.0.0" fragment="true"/>
-	<plugin id="org.openntf.xsp.microprofile.openapi" version="0.0.0" fragment="true"/>
-	<plugin id="org.openntf.xsp.microprofile.metrics" version="0.0.0"/>
+   <plugin id="org.openntf.xsp.microprofile.rest.client" version="0.0.0"/>
+	
+   <plugin id="org.eclipse.microprofile.rest.client" version="0.0.0"/>
+   <plugin id="org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0"/>
+   <plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client" version="0.0.0" fragment="true"/>
+   <plugin id="org.apache.commons.commons-codec" version="0.0.0"/>
+   <plugin id="org.apache.commons.io" version="0.0.0"/>
+   <plugin id="org.apache.commons.logging" version="0.0.0"/>
+   <plugin id="org.apache.httpcomponents.httpclient" version="0.0.0"/>
+   <plugin id="org.apache.httpcomponents.httpcore" version="0.0.0"/>
 
-	<plugin id="jakarta.ws.rs-api" version="0.0.0"/>
-	<plugin id="org.openntf.org.jboss.resteasy.core" version="0.0.0"/>
-	<plugin id="org.openntf.org.jboss.resteasy.core-spi" version="0.0.0" fragment="true"/>
-	<plugin id="org.openntf.org.jboss.resteasy.cdi" version="0.0.0"/>
-	<plugin id="org.openntf.org.jboss.resteasy.multipart-provider" version="0.0.0"/>
-	<plugin id="org.openntf.org.jboss.resteasy.jaxb-provider" version="0.0.0"/>
-	<plugin id="org.openntf.org.jboss.resteasy.validator-provider" version="0.0.0"/>
-	<plugin id="org.reactivestreams.reactive-streams" version="0.0.0"/>
-	<plugin id="org.jboss.resteasy.client-api" version="0.0.0"/>
-	<plugin id="org.jboss.resteasy.client" version="0.0.0"/>
-	
-	<plugin id="org.eclipse.microprofile.openapi" version="0.0.0"/>
-	<plugin id="org.eclipse.microprofile.config" version="0.0.0"/>
-	<plugin id="org.openntf.io.smallrye.open-api-core" version="0.0.0"/>
-	<plugin id="org.openntf.io.smallrye.open-api-jaxrs" version="0.0.0" fragment="true"/>
-	<plugin id="com.fasterxml.jackson.core.jackson-core" version="0.0.0"/>
-	<plugin id="com.fasterxml.jackson.core.jackson-databind" version="0.0.0"/>
-	<plugin id="com.fasterxml.jackson.core.jackson-annotations" version="0.0.0"/>
-	<plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="0.0.0" />
-	<plugin id="org.yaml.snakeyaml" version="0.0.0" />
-	<plugin id="org.jboss.jandex" version="0.0.0" />
-	
-	<plugin id="org.eclipse.microprofile.metrics" version="0.0.0"/>
-	<plugin id="io.smallrye.metrics" version="0.0.0"/>
 </feature>
