@@ -20,6 +20,9 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 It also provides some support libraries from [MicroProfile](https://microprofile.io/):
 
 - OpenAPI 3.0
+- Rest Client 3.0
+- Config 3.0
+- Metrics 4.0
 
 ## CDI 3.0
 
@@ -177,6 +180,20 @@ public Response hello() {
 }
 ```
 
+#### Metrics
+
+Using [MicroProfile Metrics](https://github.com/eclipse/microprofile-metrics), it is possible to track invocations and timing from REST services. For example:
+
+```java
+@GET
+@Timed
+public Response hello() {
+	/* Perform the work */
+}
+```
+
+When such a service is executed, its performance is logged and becomes available via `/xsp/app/metrics` within the NSF.
+
 ## Bean Validation 3.0
 
 The [Bean Validation](https://jakarta.ee/specifications/bean-validation/3.0/) spec provides a standard mechanism for performing validation of arbitrary objects via annotations. XPages doesn't provide any type of bean validation mechanism - the closest things it provides are UI component validators, but those don't connect to the back-end objects at all.
@@ -320,6 +337,70 @@ public class MvcExample {
 ```
 
 This will load the JSP file stored as `WebContent/WEB-INF/views/mvc.jsp` in the NSF and evaluate it with the values from "models" and CDI beans available for use.
+
+## MicroProfile Config
+
+The [MicroProfile Config](https://github.com/eclipse/microprofile-config) API allows injection of configuration parameters from externalized sources, separating configuration from code. These parameters can then be injected using CDI. For example:
+
+```java
+@ApplicationScoped
+public class ConfigExample {
+	@Inject
+	@ConfigProperty(name="java.version")
+	private String javaVersion;
+	
+	@Inject
+	@ConfigProperty(name="xsp.library.depends")
+	private String xspDepends;
+	
+	/* use the above */
+}
+```
+
+Four providers are currently configured:
+
+- A system-properties source, such as "java.version"
+- A source from `META-INF/microprofile-config.properties` within the NSF
+- A source from `xsp.properties` in the NSF, such as "xsp.library.depends" or custom values
+- A source from Domino environment variables, such as "Directory"
+
+## MicroProfile Rest Client
+
+The [MicroProfile Rest Client](https://github.com/eclipse/microprofile-rest-client) API allows for creation of type-safe clients for remote REST services using Jakarta REST annotations. For example:
+
+```java
+@ApplicationEScoped
+public class RestClientExample {
+	public static class JsonExampleObject {
+		private String foo;
+		
+		public String getFoo() {
+			return foo;
+		}
+		public void setFoo(String foo) {
+			this.foo = foo;
+		}
+	}
+	
+	public interface JsonExampleService {
+		@GET
+		@Produces(MediaType.APPLICATION_JSON)
+		JsonExampleObject get();
+	}
+	
+	public Object get() {
+		URI serviceUri = URI.create("some remote service");
+		JsonExampleService service = RestClientBuilder.newBuilder()
+			.baseUri(serviceUri)
+			.build(JsonExampleService.class);
+		JsonExampleObject responseObj = service.get();
+		Map<String, Object> result = new LinkedHashMap<>();
+		result.put("called", serviceUri);
+		result.put("response", responseObj);
+		return result;
+	}
+}
+```
 
 ## Requirements
 

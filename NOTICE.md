@@ -30,7 +30,7 @@ The binary distribution contains the following 3rd party code:
 - The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
 - The MicroProfile Config API, available from https://github.com/eclipse/microprofile-config and licensed under the EPL 2.0
 - The MicroProfile Metrics API, available from https://github.com/eclipse/microprofile-metrics and licensed under the EPL 2.0
-- The MicroProfile REST Client API, available from https://github.com/eclipse/microprofile-rest-client and licensed under the EPL 2.0
+- The MicroProfile Rest Client API, available from https://github.com/eclipse/microprofile-rest-client and licensed under the EPL 2.0
 - Weld, available from http://weld.cdi-spec.org/ and licensed under Apache 2.0
 - GlassFish EL, available from https://github.com/eclipse-ee4j/el-ri/tree/master/impl and licensed under the EPL 2.0
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
