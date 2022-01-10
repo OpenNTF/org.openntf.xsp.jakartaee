@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile Config Support
 Bundle-SymbolicName: org.openntf.xsp.microprofile.config;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.config
-Bundle-Version: 2.1.0.qualifier
+Bundle-Version: 2.2.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.microprofile.config;bundle-version="3.0.0";visibility:=reexport,
@@ -12,6 +12,7 @@ Require-Bundle: org.eclipse.microprofile.config;bundle-version="3.0.0";visibilit
  io.smallrye.config.smallrye-config-core;bundle-version="3.0.0",
  io.smallrye.config.smallrye-config-validator;bundle-version="3.0.0"
 Import-Package: com.ibm.designer.runtime.domino.adapter,
+ com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.application,
  com.ibm.xsp.library,
  jakarta.enterprise.inject.spi;version="3.0.0",
@@ -23,3 +24,4 @@ Import-Package: com.ibm.designer.runtime.domino.adapter,
  org.openntf.xsp.jakartaee;version="2.2.0",
  org.openntf.xsp.jaxrs;version="2.2.0",
  org.osgi.framework;version="1.8.0"
+Export-Package: org.openntf.xsp.microprofile.config;version="2.2.0"
