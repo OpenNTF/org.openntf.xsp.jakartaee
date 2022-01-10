@@ -6,8 +6,6 @@ import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 
-import io.smallrye.config.DotEnvConfigSourceProvider;
-import io.smallrye.config.SmallRyeConfig;
 import io.smallrye.config.SmallRyeConfigBuilder;
 import io.smallrye.config.SmallRyeConfigProviderResolver;
 import io.smallrye.config.SysPropConfigSource;
