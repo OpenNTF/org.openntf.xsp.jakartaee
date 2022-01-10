@@ -6,7 +6,8 @@ Automatic-Module-Name: org.openntf.xsp.microprofile.rest.client
 Bundle-Version: 2.2.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.ibm.xsp.library,
+Import-Package: com.ibm.xsp.application,
+ com.ibm.xsp.library,
  jakarta.enterprise.inject.spi;version="3.0.0",
  org.jboss.resteasy.microprofile.client,
  org.jboss.resteasy.microprofile.client.header,

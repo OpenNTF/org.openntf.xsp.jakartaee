@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.microprofile.rest.client;
+package org.openntf.xsp.microprofile.fault.tolerance;
 
 import java.util.Collection;
 import java.util.Collections;
 
-import org.jboss.resteasy.microprofile.client.RestClientExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 
+import io.smallrye.faulttolerance.FaultToleranceExtension;
 import jakarta.enterprise.inject.spi.Extension;
 
-/**
- * @author Jesse Gallagher
- * @since 2.2.0
- */
-public class RestClientCDIContributor implements WeldBeanClassContributor {
+public class FaultToleranceCDIContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
@@ -40,8 +36,8 @@ public class RestClientCDIContributor implements WeldBeanClassContributor {
 	@Override
 	public Collection<Extension> getExtensions() {
 		ApplicationEx app = ApplicationEx.getInstance();
-		if(app != null && LibraryUtil.usesLibrary(RestClientLibrary.LIBRARY_ID, app)) {
-			return Collections.singleton(new RestClientExtension());
+		if(app != null && LibraryUtil.usesLibrary(FaultToleranceLibrary.LIBRARY_ID, app)) {
+			return Collections.singleton(new FaultToleranceExtension());
 		} else {
 			return Collections.emptyList();
 		}

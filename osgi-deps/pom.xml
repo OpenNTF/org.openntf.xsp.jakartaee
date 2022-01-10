@@ -266,7 +266,16 @@
 									MicroProfile Metrics
 								-->
 								<artifact><id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0</id><source>true</source></artifact>
-								<artifact><id>io.smallrye:smallrye-metrics:4.0.0-RC1</id><source>true</source></artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-metrics:4.0.0-RC1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.metrics</Bundle-SymbolicName>
+										<Bundle-Version>4.0.0_${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
 								
 								<!--
 									MicroProfile REST Client
@@ -393,18 +402,41 @@
 									MicroProfile Config
 								-->
 								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-common:3.0.0-RC1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-core:3.0.0-RC1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-validator:3.0.0-RC1</id><source>true</source></artifact>
+								
+								<!--
+									MicroProfile Fault Tolerance
+								-->
 								<artifact>
-									<id>io.smallrye.config:smallrye-config-common:3.0.0-RC1</id>
+									<id>org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0</id>
 									<source>true</source>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.fault.tolerance</Bundle-SymbolicName>
+										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
+										<!-- Fix odd version ranges from upstream -->
+										<Import-Package>
+											jakarta.enterprise.util,
+											*
+										</Import-Package>
+									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye.config:smallrye-config-core:3.0.0-RC1</id>
+									<id>io.smallrye:smallrye-fault-tolerance:6.0.0-RC1</id>
 									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.fault-tolerance</Bundle-SymbolicName>
+										<Bundle-Version>6.0.0.${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>
+											org.jboss.weld.*
+										</DynamicImport-Package>
+									</instructions>
 								</artifact>
-								<artifact>
-									<id>io.smallrye.config:smallrye-config-validator:3.0.0-RC1</id>
-									<source>true</source>
-								</artifact>
+								
 							</artifacts>
 						</configuration>
 					</execution>

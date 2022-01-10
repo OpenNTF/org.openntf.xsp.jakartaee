@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.microprofile.rest.client;
+package org.openntf.xsp.microprofile.fault.tolerance;
 
 import org.osgi.framework.FrameworkUtil;
 
 import com.ibm.xsp.library.AbstractXspLibrary;
 
-/**
- * @since 2.2.0
- */
-public class RestClientLibrary extends AbstractXspLibrary {
-	public static final String LIBRARY_ID = RestClientLibrary.class.getPackage().getName();
+public class FaultToleranceLibrary extends AbstractXspLibrary {
+	public static final String LIBRARY_ID = FaultToleranceLibrary.class.getPackage().getName();
 
 	@Override
 	public String getLibraryId() {
