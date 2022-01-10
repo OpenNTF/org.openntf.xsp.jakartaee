@@ -1,6 +1,5 @@
 package org.openntf.xsp.jsonapi.jaxrs.exceptions;
 
-import java.io.PrintWriter;
 import java.util.Collections;
 
 import jakarta.annotation.Priority;
