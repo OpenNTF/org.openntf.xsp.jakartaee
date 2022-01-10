@@ -23,6 +23,7 @@ It also provides some support libraries from [MicroProfile](https://microprofile
 - Rest Client 3.0
 - Config 3.0
 - Metrics 4.0
+- Fault Tolerance 4.0
 
 ## CDI 3.0
 
@@ -412,6 +413,37 @@ public class RestClientExample {
 		result.put("called", serviceUri);
 		result.put("response", responseObj);
 		return result;
+	}
+}
+```
+
+## MicroProfile Fault Tolerance
+
+The [MicroProfile Fault Tolerance](https://github.com/eclipse/microprofile-fault-tolerance) API allows CDI beans to be decorated with rules for handling exceptions, timeouts, and concurrency restrictions. For example:
+
+```java
+@ApplicationScoped
+public class FaultToleranceBean {
+	@Retry(maxRetries = 2)
+	@Fallback(fallbackMethod = "getFailingFallback")
+	public String getFailing() {
+		throw new RuntimeException("this is expected to fail");
+	}
+	
+	@SuppressWarnings("unused")
+	private String getFailingFallback() {
+		return "I am the fallback response.";
+	}
+	
+	@Timeout(value=5, unit=ChronoUnit.MILLIS)
+	public String getTimeout() throws InterruptedException {
+		TimeUnit.MILLISECONDS.sleep(10);
+		return "I should have stopped.";
+	}
+	
+	@CircuitBreaker(delay=60000, requestVolumeThreshold=2)
+	public String getCircuitBreaker() {
+		throw new RuntimeException("I am a circuit-breaking failure - I should stop after two attempts");
 	}
 }
 ```
