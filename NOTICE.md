@@ -29,6 +29,7 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta MVC API, available from https://github.com/eclipse-ee4j/mvc-api and licensed under the EPL 2.0
 - The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
 - The MicroProfile Config API, available from https://github.com/eclipse/microprofile-config and licensed under the EPL 2.0
+- The MicroProfile Metrics API, available from https://github.com/eclipse/microprofile-metrics and licensed under the EPL 2.0
 - Weld, available from http://weld.cdi-spec.org/ and licensed under Apache 2.0
 - GlassFish EL, available from https://github.com/eclipse-ee4j/el-ri/tree/master/impl and licensed under the EPL 2.0
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
@@ -43,9 +44,12 @@ The binary distribution contains the following 3rd party code:
 - The GlassFish JSTL implementation, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/impl and licensed under the EPL 2.0
 - Eclipse Krazo, available from https://github.com/eclipse-ee4j/krazo and licensed under the EPL 2.0
 - The SmallRye OpenAPI implementation, available from https://github.com/smallrye/smallrye-open-api and licensed under Apache 2.0
+- The SmallRye Metrics implementation, available from https://github.com/smallrye/smallrye-metrics and licensed under Apache 2.0
+- The SmallRye Config implementation, available from https://github.com/smallrye/smallrye-config and licensed under Apache 2.0
 - Jackson Core, available from https://github.com/FasterXML/jackson-core and licensed under Apache 2.0
 - Jackson data-binding, available from https://github.com/FasterXML/jackson-databind and licensed under Apache 2.0
 - Jackson annotations, available from https://github.com/FasterXML/jackson-annotations and licensed under Apache 2.0
 - Jackson YAML data format, available from https://github.com/FasterXML/jackson-dataformat-yaml and licensed under Apache 2.0
 - SnakeYAML, available from https://bitbucket.org/snakeyaml/snakeyaml/src and licensed under Apache 2.0
 - JBoss Logging, available from https://github.com/jboss-logging/jboss-logging and licensed under Apache 2.0
+- Javassist, available from https://www.javassist.org/ and licensed under MPL 1.1, LGPL 2.1, and Apache 2.0, used here as Apache 2.0
