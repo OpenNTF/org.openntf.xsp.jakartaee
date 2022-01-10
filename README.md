@@ -163,6 +163,20 @@ As intimated there, it has access to the CDI environment if enabled, though it d
 
 The path within the NSF can be modified by setting the `org.openntf.xsp.jaxrs.path` property in the NSF's "xsp.properties" file. The value there will be appended to `/xsp`. For example, setting it to `foo` will make the above example available at `/some.nsf/xsp/foo/sample`.
 
+#### Security
+
+REST resources can be individually secured with the `@RolesAllowed` annotation. Values in this annotation are matched against the user's effective names list: their username, various permutations, their groups, and their DB-specific roles. For example:
+
+```java
+@GET
+@RolesAllowed({ "*/O=SomeOrg", "LocalDomainAdmins", "[Admin]" })
+public Object get() {
+	// ...
+}
+```
+
+Additionally, the special pseudo-name "login" can be used to require that the user be logged in at all, but not restrict to specific users beyond that.
+
 #### OpenAPI
 
 Using [MicroProfile OpenAPI](https://github.com/eclipse/microprofile-open-api), these REST services are also made available via `/xsp/app/openapi` within the NSF. This resource includes information about each available REST endpoint in the NSF and will produce YAML by default and JSON upon request via an `Accept` header.
