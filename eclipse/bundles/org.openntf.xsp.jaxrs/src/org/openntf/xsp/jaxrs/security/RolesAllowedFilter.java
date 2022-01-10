@@ -27,8 +27,6 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.ResponseBuilder;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 
@@ -48,8 +46,7 @@ public class RolesAllowedFilter implements ContainerRequestFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		if(!isAllowed(requestContext)) {
-			ResponseBuilder response = Response.status(Response.Status.UNAUTHORIZED);
-			requestContext.abortWith(response.build());
+			throw new NotAuthorizedSignal();
 		}
 	}
 	

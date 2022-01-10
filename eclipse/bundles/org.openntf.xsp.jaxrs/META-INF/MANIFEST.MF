@@ -35,5 +35,6 @@ Import-Package: com.ibm.commons.util,
  lotus.domino,
  org.jboss.resteasy.spi,
  org.osgi.framework;version="1.8.0"
-Export-Package: org.openntf.xsp.jaxrs;version="2.2.0"
+Export-Package: org.openntf.xsp.jaxrs;version="2.2.0",
+ org.openntf.xsp.jaxrs.security;version="2.2.0"
 Eclipse-ExtensibleAPI: true

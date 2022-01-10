@@ -1,24 +1,31 @@
 package org.openntf.xsp.jsonapi.jaxrs.exceptions;
 
+import java.security.Principal;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.openntf.xsp.jaxrs.security.NotAuthorizedSignal;
+
 import jakarta.annotation.Priority;
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.json.stream.JsonGeneratorFactory;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import lotus.domino.NotesException;
 
@@ -28,12 +35,21 @@ import lotus.domino.NotesException;
  */
 @Priority(Priorities.USER+1)
 public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
+	
+	@Context
+	UriInfo uriInfo;
+	
+	@Context
+	HttpServletRequest req;
 
 	@Override
 	public Response toResponse(final Throwable t) {
 		// Depending on the container, this may be called for exceptions better handled by more-specialized classes
 		if(t instanceof NotFoundException) {
 			return NotFoundMapper.INSTANCE.toResponse((NotFoundException)t);
+		}
+		if(t instanceof NotAuthorizedSignal) {
+			return createNotAuthorizedResponse();
 		}
 
 		if (t instanceof WebApplicationException) {
@@ -46,6 +62,28 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 		} else {
 			return createResponseFromException(t, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	private Response createNotAuthorizedResponse() {
+		return Response.status(Response.Status.UNAUTHORIZED)
+			.type(MediaType.APPLICATION_JSON_TYPE)
+			.entity((StreamingOutput)out -> {
+				JsonGeneratorFactory jsonFac = Json.createGeneratorFactory(Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
+				try(JsonGenerator json = jsonFac.createGenerator(out)) {
+					json.writeStartObject();
+					
+					Principal p = req.getUserPrincipal();
+					String msg = MessageFormat.format(
+						"User \"{0}\" is not authorized to access resource \"{1}\"",
+						p == null ? "Anonymous" : p.getName(),
+						uriInfo.getPath()
+					);
+					json.write("message", msg); //$NON-NLS-1$
+					
+					json.writeEnd();
+				}
+			})
+			.build();
 	}
 
 	private Response createResponseFromException(final Throwable throwable, final int status) {
