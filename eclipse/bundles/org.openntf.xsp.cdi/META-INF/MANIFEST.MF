@@ -44,5 +44,3 @@ Export-Package: org.openntf.xsp.cdi;version="2.2.0",
  org.openntf.xsp.cdi.discovery;version="2.2.0",
  org.openntf.xsp.cdi.impl;version="2.2.0",
  org.openntf.xsp.cdi.util;version="2.2.0"
-Bundle-Activator: org.openntf.xsp.cdi.CDIActivator
-Bundle-ActivationPolicy: lazy

@@ -1,4 +1,4 @@
-package org.openntf.xsp.cdi.impl;
+package org.openntf.xsp.jakartaee.weaving;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -15,6 +15,16 @@ import javassist.CtMethod;
 import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 
+/**
+ * This {@link WeavingHook} implementation listens for attempts to load 
+ * {@code com.ibm.xsp.util.ClassLoaderUtil} and, when found, replaces the
+ * {@code checkProhibitedClassNames} method with a no-op version, in order to
+ * allow loading of otherwise-prohibited packages (like Eclipse MicroProfile)
+ * from within an NSF.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.2.0
+ */
 public class UtilWeavingHook implements WeavingHook {
 
 	@Override
