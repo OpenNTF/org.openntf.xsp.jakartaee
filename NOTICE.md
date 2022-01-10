@@ -30,6 +30,7 @@ The binary distribution contains the following 3rd party code:
 - The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
 - The MicroProfile Config API, available from https://github.com/eclipse/microprofile-config and licensed under the EPL 2.0
 - The MicroProfile Metrics API, available from https://github.com/eclipse/microprofile-metrics and licensed under the EPL 2.0
+- The MicroProfile REST Client API, available from https://github.com/eclipse/microprofile-rest-client and licensed under the EPL 2.0
 - Weld, available from http://weld.cdi-spec.org/ and licensed under Apache 2.0
 - GlassFish EL, available from https://github.com/eclipse-ee4j/el-ri/tree/master/impl and licensed under the EPL 2.0
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
@@ -53,3 +54,7 @@ The binary distribution contains the following 3rd party code:
 - SnakeYAML, available from https://bitbucket.org/snakeyaml/snakeyaml/src and licensed under Apache 2.0
 - JBoss Logging, available from https://github.com/jboss-logging/jboss-logging and licensed under Apache 2.0
 - Javassist, available from https://www.javassist.org/ and licensed under MPL 1.1, LGPL 2.1, and Apache 2.0, used here as Apache 2.0
+- Apache Commons Codec, available from https://commons.apache.org/proper/commons-codec/ and licensed under Apache 2.0
+- Apache Commons IO, available from https://commons.apache.org/io and licensed under Apache 2.0
+- Apache Commons Logging, available from https://commons.apache.org/proper/commons-logging/ and licensed under Apache 2.0
+- Apache HttpComponents Client and HttpComponents Core, available from https://hc.apache.org/ and licensed under Apache 2.0
