@@ -27,4 +27,9 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jaxrs.JAXRSServletFactory" />
 	</extension>
+	
+	<!-- Standard extension to provide security information -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.jaxrs.security.SecurityContributor" />
+	</extension>
 </plugin>
