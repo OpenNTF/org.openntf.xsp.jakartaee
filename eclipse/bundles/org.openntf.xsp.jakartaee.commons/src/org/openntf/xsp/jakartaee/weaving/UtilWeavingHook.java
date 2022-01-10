@@ -43,7 +43,9 @@ public class UtilWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("checkProhibitedClassNames"); //$NON-NLS-1$
 				m.setBody("{ return false; }"); //$NON-NLS-1$
 				c.setBytes(cc.toBytecode());
-			} catch(NotFoundException | CannotCompileException | IOException e) {
+			} catch(NotFoundException e) {
+				// Then the method has been removed - that's fine
+			} catch(CannotCompileException | IOException e) {
 				new RuntimeException("Encountered exception when weaving ClassLoaderUtil replacement", e).printStackTrace();
 			}
 		}
