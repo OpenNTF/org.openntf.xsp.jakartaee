@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
 import org.eclipse.microprofile.openapi.models.servers.Server;
 import org.jboss.jandex.Index;
@@ -62,6 +63,7 @@ public class OpenAPIResource {
 	HttpServletRequest req;
 	
 	@GET
+	@Operation(hidden=true)
 	public Response get(@Context HttpHeaders headers) throws IOException, NotesException {
 		Set<Class<?>> classes = new HashSet<>();
 		classes.addAll(application.getClasses());

@@ -27,11 +27,14 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+
 @Path("health")
 public class HealthResource {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@Operation(hidden=true)
 	public Response getAll() {
 		return emit(SmallRyeHealthReporter::getHealth);
 	}
@@ -39,6 +42,7 @@ public class HealthResource {
 	@Path("ready")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@Operation(hidden=true)
 	public Response getReadiness() {
 		return emit(SmallRyeHealthReporter::getReadiness);
 	}
@@ -46,6 +50,7 @@ public class HealthResource {
 	@Path("live")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@Operation(hidden=true)
 	public Response getLiveness() {
 		return emit(SmallRyeHealthReporter::getLiveness);
 	}
@@ -53,6 +58,7 @@ public class HealthResource {
 	@Path("started")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@Operation(hidden=true)
 	public Response getStarted() {
 		return emit(SmallRyeHealthReporter::getStartup);
 	}
