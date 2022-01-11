@@ -33,7 +33,7 @@ public class MvcExample {
 	@Produces(MediaType.TEXT_HTML)
 	public String get(@QueryParam("foo") String foo) throws NotesException {
 		models.put("incomingFoo", foo);
-		models.put("contextFromController", "s: " + session.isRestricted() + "; db: " + database);
+		models.put("contextFromController", "s: " + session + "; db: " + database);
 		return "mvc.jsp";
 	}
 }
