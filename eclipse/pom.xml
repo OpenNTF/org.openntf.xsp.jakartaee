@@ -92,6 +92,10 @@
 		<!-- MicroProfile Fault Tolerance -->
 		<module>bundles/org.openntf.xsp.microprofile.fault.tolerance</module>
 		<module>features/org.openntf.xsp.microprofile.fault.tolerance.feature</module>
+	
+		<!-- MicroProfile Health -->
+		<module>bundles/org.openntf.xsp.microprofile.health</module>
+		<module>features/org.openntf.xsp.microprofile.health.feature</module>
 		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
