@@ -27,7 +27,6 @@ import org.eclipse.microprofile.openapi.models.servers.Server;
 import org.jboss.jandex.Index;
 import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jaxrs.JAXRSServletFactory;
-import org.openntf.xsp.microprofile.openapi.config.NOPConfig;
 
 import com.ibm.commons.util.PathUtil;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
@@ -38,6 +37,7 @@ import io.smallrye.openapi.api.models.servers.ServerImpl;
 import io.smallrye.openapi.runtime.OpenApiProcessor;
 import io.smallrye.openapi.runtime.io.Format;
 import io.smallrye.openapi.runtime.io.OpenApiSerializer;
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -70,7 +70,7 @@ public class OpenAPIResource {
 		classes.add(application.getClass());
 		Index index = Index.of(classes);
 		
-		Config mpConfig = new NOPConfig();
+		Config mpConfig = CDI.current().select(Config.class).get();
 		OpenApiConfig config = OpenApiConfigImpl.fromConfig(mpConfig);
 		ClassLoader cl = new DelegatingClassLoader(OpenApiProcessor.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
 		OpenAPI openapi = OpenApiProcessor.bootstrap(config, index, cl);
