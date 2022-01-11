@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
   <item name="$HTMLCode" sign="true">
     <rawitemdata type="1">
-X/8QAAIADwAHAAAAAAAAAA==
++f8gAAAAAAAPAAQANgEAAAAAAAAAAAAAAAAAAAAAAADc/0gB+f82ASBOAAAAAAAAAAB3aW5kb3cu
+YWRkRXZlbnRMaXN0ZW5lcigibG9hZCIsIGZ1bmN0aW9uKGUpIHsNCWRvY3VtZW50LnF1ZXJ5U2Vs
+ZWN0b3JBbGwoInRhYmxlLmRvbWluby1vdXRsaW5lIGEiKS5mb3JFYWNoKGZ1bmN0aW9uKGEpIHsN
+CQlpZihhLmhyZWYuaW5kZXhPZigiV2ViTmF2IikgPT0gLTEpIHsNCQkJYS5hZGRFdmVudExpc3Rl
+bmVyKCJjbGljayIsIGZ1bmN0aW9uKGUpIHsNCQkJCXBhcmVudC5BZGRyZXNzLmxvY2F0aW9uID0g
+ImRhdGE6dGV4dC9wbGFpbiwiICsgZW5jb2RlVVJJQ29tcG9uZW50KGUudGFyZ2V0LmhyZWYpDQkJ
+CX0pOwkNCQl9DQl9KTsNfSkAX/8QAAIADwAHAAAAAAAAAA==
 </rawitemdata>
   </item>
   <item name="$TITLE">
     <text>WebNav</text>
-  </item>
-  <item name="$Comment" sign="true">
-    <text/>
   </item>
   <item name="$Info" sign="true">
     <rawitemdata type="1">
