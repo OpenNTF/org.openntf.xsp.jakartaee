@@ -103,7 +103,11 @@ public class MvcJaxrsServiceParticipant implements ServiceParticipant {
 			} catch(ClassNotFoundException e) {
 				// Fall through
 			}
-			return super.findClass(name);
+			try {
+				return super.findClass(name);
+			} catch(ClassNotFoundException e) {
+				throw new ClassNotFoundException("Unable to locate class " + name, e);
+			}
 		}
 		
 		@Override

@@ -19,14 +19,14 @@
 <feature
       id="org.openntf.xsp.jaxrs.feature"
       label="XPages JAX-RS 3.0 Support Feature"
-      version="2.1.0.qualifier">
+      version="2.2.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018-2021 Jesse Gallagher
+      Copyright 2018-2022 Jesse Gallagher
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
@@ -218,7 +218,7 @@
       same &quot;printed page&quot; as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2018-2021 Jesse Gallagher
+   Copyright 2018-2022 Jesse Gallagher
 
    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -242,15 +242,18 @@
 	<plugin id="org.openntf.xsp.jaxrs.factory" version="0.0.0" fragment="true"/>
 	<plugin id="org.openntf.xsp.jaxrs.providers" version="0.0.0" fragment="true"/>
 	<plugin id="org.openntf.xsp.microprofile.openapi" version="0.0.0" fragment="true"/>
+	<plugin id="org.openntf.xsp.microprofile.metrics" version="0.0.0"/>
 
 	<plugin id="jakarta.ws.rs-api" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.resteasy.core" version="0.0.0"/>
-	<plugin id="org.jboss.resteasy.core-spi" version="0.0.0"/>
+	<plugin id="org.openntf.org.jboss.resteasy.core-spi" version="0.0.0" fragment="true"/>
 	<plugin id="org.openntf.org.jboss.resteasy.cdi" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.resteasy.multipart-provider" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.resteasy.jaxb-provider" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.resteasy.validator-provider" version="0.0.0"/>
 	<plugin id="org.reactivestreams.reactive-streams" version="0.0.0"/>
+	<plugin id="org.jboss.resteasy.client-api" version="0.0.0"/>
+	<plugin id="org.jboss.resteasy.client" version="0.0.0"/>
 	
 	<plugin id="org.eclipse.microprofile.openapi" version="0.0.0"/>
 	<plugin id="org.eclipse.microprofile.config" version="0.0.0"/>
@@ -262,4 +265,7 @@
 	<plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="0.0.0" />
 	<plugin id="org.yaml.snakeyaml" version="0.0.0" />
 	<plugin id="org.jboss.jandex" version="0.0.0" />
+	
+	<plugin id="org.eclipse.microprofile.metrics" version="0.0.0"/>
+	<plugin id="org.openntf.io.smallrye.metrics" version="0.0.0"/>
 </feature>

@@ -17,9 +17,14 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Server Pages 3.0
 - MVC 2.0
 
-It also provides some support libraries from [MicroProfile](https://microprofile.io/):
+It also provides components from [MicroProfile](https://microprofile.io/):
 
 - OpenAPI 3.0
+- Rest Client 3.0
+- Config 3.0
+- Metrics 4.0
+- Fault Tolerance 4.0
+- Health 4.0
 
 ## CDI 3.0
 
@@ -160,9 +165,23 @@ As intimated there, it has access to the CDI environment if enabled, though it d
 
 The path within the NSF can be modified by setting the `org.openntf.xsp.jaxrs.path` property in the NSF's "xsp.properties" file. The value there will be appended to `/xsp`. For example, setting it to `foo` will make the above example available at `/some.nsf/xsp/foo/sample`.
 
+#### Security
+
+REST resources can be individually secured with the `@RolesAllowed` annotation. Values in this annotation are matched against the user's effective names list: their username, various permutations, their groups, and their DB-specific roles. For example:
+
+```java
+@GET
+@RolesAllowed({ "*/O=SomeOrg", "LocalDomainAdmins", "[Admin]" })
+public Object get() {
+	// ...
+}
+```
+
+Additionally, the special pseudo-name "login" can be used to require that the user be logged in at all, but not restrict to specific users beyond that.
+
 #### OpenAPI
 
-Using [MicroProfile OpenAPI](https://github.com/eclipse/microprofile-open-api), these REST services are also made available via `/xsp/app/openapi` within the NSF. This resource includes information about each available REST endpoint in the NSF and will produce YAML by default and JSON upon request via an `Accept` header.
+Using [MicroProfile OpenAPI](https://github.com/eclipse/microprofile-open-api), these REST services are also made available via `/xsp/app/openapi` within the NSF. This resource includes information about each available REST endpoint in the NSF and will produce YAML by default and JSON upon request via an `Accept` header. Additionally, `/xsp/app/openapi.yaml` and `/xsp/app/openapi.json` are available to produce YAML and JSON explicitly without consulting the `Accept` header.
 
 Moreover, resources can be [annotated with the MicroProfile OpenAPI annotations](https://openliberty.io/guides/microprofile-openapi.html). For example:
 
@@ -176,6 +195,20 @@ public Response hello() {
 	// ...
 }
 ```
+
+#### Metrics
+
+Using [MicroProfile Metrics](https://github.com/eclipse/microprofile-metrics), it is possible to track invocations and timing from REST services. For example:
+
+```java
+@GET
+@Timed
+public Response hello() {
+	/* Perform the work */
+}
+```
+
+When such a service is executed, its performance is logged and becomes available via `/xsp/app/metrics` within the NSF.
 
 ## Bean Validation 3.0
 
@@ -320,6 +353,171 @@ public class MvcExample {
 ```
 
 This will load the JSP file stored as `WebContent/WEB-INF/views/mvc.jsp` in the NSF and evaluate it with the values from "models" and CDI beans available for use.
+
+## MicroProfile Config
+
+The [MicroProfile Config](https://github.com/eclipse/microprofile-config) API allows injection of configuration parameters from externalized sources, separating configuration from code. These parameters can then be injected using CDI. For example:
+
+```java
+@ApplicationScoped
+public class ConfigExample {
+	@Inject
+	@ConfigProperty(name="java.version")
+	private String javaVersion;
+	
+	@Inject
+	@ConfigProperty(name="xsp.library.depends")
+	private String xspDepends;
+	
+	/* use the above */
+}
+```
+
+Four providers are currently configured:
+
+- A system-properties source, such as "java.version"
+- A source from `META-INF/microprofile-config.properties` within the NSF
+- A source from `xsp.properties` in the NSF, such as "xsp.library.depends" or custom values
+- A source from Domino environment variables, such as "Directory"
+
+## MicroProfile Rest Client
+
+The [MicroProfile Rest Client](https://github.com/eclipse/microprofile-rest-client) API allows for creation of type-safe clients for remote REST services using Jakarta REST annotations. For example:
+
+```java
+@ApplicationEScoped
+public class RestClientExample {
+	public static class JsonExampleObject {
+		private String foo;
+		
+		public String getFoo() {
+			return foo;
+		}
+		public void setFoo(String foo) {
+			this.foo = foo;
+		}
+	}
+	
+	public interface JsonExampleService {
+		@GET
+		@Produces(MediaType.APPLICATION_JSON)
+		JsonExampleObject get();
+	}
+	
+	public Object get() {
+		URI serviceUri = URI.create("some remote service");
+		JsonExampleService service = RestClientBuilder.newBuilder()
+			.baseUri(serviceUri)
+			.build(JsonExampleService.class);
+		JsonExampleObject responseObj = service.get();
+		Map<String, Object> result = new LinkedHashMap<>();
+		result.put("called", serviceUri);
+		result.put("response", responseObj);
+		return result;
+	}
+}
+```
+
+## MicroProfile Fault Tolerance
+
+The [MicroProfile Fault Tolerance](https://github.com/eclipse/microprofile-fault-tolerance) API allows CDI beans to be decorated with rules for handling exceptions, timeouts, and concurrency restrictions. For example:
+
+```java
+@ApplicationScoped
+public class FaultToleranceBean {
+	@Retry(maxRetries = 2)
+	@Fallback(fallbackMethod = "getFailingFallback")
+	public String getFailing() {
+		throw new RuntimeException("this is expected to fail");
+	}
+	
+	@SuppressWarnings("unused")
+	private String getFailingFallback() {
+		return "I am the fallback response.";
+	}
+	
+	@Timeout(value=5, unit=ChronoUnit.MILLIS)
+	public String getTimeout() throws InterruptedException {
+		TimeUnit.MILLISECONDS.sleep(10);
+		return "I should have stopped.";
+	}
+	
+	@CircuitBreaker(delay=60000, requestVolumeThreshold=2)
+	public String getCircuitBreaker() {
+		throw new RuntimeException("I am a circuit-breaking failure - I should stop after two attempts");
+	}
+}
+```
+
+## MicroProfile Health
+
+The [MicroProfile Health](https://github.com/eclipse/microprofile-health) API allows you to create CDI beans that provide health checks and statistics for your application, queryable at standard endpoints. For example:
+
+```java
+package health;
+
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
+import org.eclipse.microprofile.health.Liveness;
+
+import com.ibm.domino.xsp.module.nsf.NotesContext;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import lotus.domino.Database;
+import lotus.domino.NoteCollection;
+import lotus.domino.NotesException;
+
+@ApplicationScoped
+@Liveness
+public class PassingHealthCheck implements HealthCheck {
+	@Override
+	public HealthCheckResponse call() {
+		HealthCheckResponseBuilder response = HealthCheckResponse.named("I am the liveliness check");
+		try {
+			Database database = NotesContext.getCurrent().getCurrentDatabase();
+			NoteCollection notes = database.createNoteCollection(true);
+			notes.buildCollection();
+			return response
+				.status(true)
+				.withData("noteCount", notes.getCount())
+				.build();
+		} catch(NotesException e) {
+			return response
+				.status(false)
+				.withData("exception", e.text)
+				.build();
+		}
+	}
+}
+```
+
+In addition to `@Liveness`, Health also allows checks to be categorized as `@Readiness` and `@Startup`.
+
+The results of these checks will be available at `/xsp/app/health` (aggregating all types), `/xsp/app/health/ready`, `/xsp/app/health/live`, and `/xsp/app/health/started`. These endpoints will emit JSON describing the applicable health checks and an overall "UP" or "DOWN" status. For example:
+
+```json
+{
+    "status": "DOWN",
+    "checks": [
+        {
+            "name": "I am the liveliness check",
+            "status": "UP",
+            "data": {
+                "noteCount": 63
+            }
+        },
+        {
+            "name": "I am a failing readiness check",
+            "status": "DOWN"
+        },
+        {
+            "name": "started up fine",
+            "status": "UP"
+        }
+    ]
+}
+```
 
 ## Requirements
 

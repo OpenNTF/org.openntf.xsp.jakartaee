@@ -1,8 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<frameset bordercolor="none" columns="20% 80%" name="Web Frame"
-  publicaccess="false" spacing="0px" xmlns="http://www.lotus.com/dxl">
-  <frame name="Nav" targetframe="Page">
-    <namedelementlink name="WebNav" type="page"/>
-  </frame>
-  <frame name="Page"/>
-</frameset>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$TITLE" sign="true">
+    <text>Web Frame</text>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$FrameSet" sign="true">
+    <rawitemdata type="1">
+7/8YAAIABQAAAAAAAAAAAAAAAAAAAAAA8P8+AAAAAAABAAAAAAAHAAcAAAAAAAUAAAAAAAUAAAAA
+AAEAAgAAAAAABQAAAAAAAAADAAEAAgAUAAIAUADx/zsAAAAAAABAAQADAAEAAQAAAAAAAwAAAAQA
+AQAAAAAAAABOYXZQYWdlAQD///+sAQAACgEAAAAArD/2/ygAAAAAAAMABwAGAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAV2ViTmF28P8+AAAAAAABAAAAAAAHAAcAAAAAAAUAAAAAAAUAAAAAAAIAAQAAAAAA
+BQAAAAAAAAADAAMAAwBhAAMAAQDx/zsAAAAAAABAAQADAAEAAQAAAAAABwAAAAAAAQAAAAAAAABB
+ZGRyZXNzAQD///+sAQAACgEAAAAArD/x/zgAAAAAAABAAQADAAEAAQAAAAAABAAAAAAAAQAAAAAA
+AABQYWdlAQD///+sAQAACgEAAAAArA==
+</rawitemdata>
+  </item>
+  <item name="$Flags">
+    <text>#34CQ</text>
+  </item>
+</note>

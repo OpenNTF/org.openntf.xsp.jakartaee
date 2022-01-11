@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Martin Pradny and Jesse Gallagher
+ * Copyright © 2018-2022 Martin Pradny and Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.openntf.xsp.jaxrs.impl;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -64,7 +65,10 @@ public class NSFJAXRSApplication extends Application {
 		result.addAll(super.getClasses());
 		
 		List<JAXRSClassContributor> contributors = LibraryUtil.findExtensions(JAXRSClassContributor.class);
-		contributors.forEach(contrib -> result.addAll(contrib.getClasses()));
+		contributors.stream()
+			.map(JAXRSClassContributor::getClasses)
+			.filter(Objects::nonNull)
+			.forEach(result::addAll);
 		
 		ModuleUtil.getClassNames(module)
 			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
@@ -76,11 +80,11 @@ public class NSFJAXRSApplication extends Application {
 	}
 	
 	private boolean isJAXRSClass(Class<?> clazz) {
-		if(clazz.getAnnotation(Path.class) != null) {
+		if(clazz.isAnnotationPresent(Path.class)) {
 			return true;
 		}
 		
-		if(Stream.of(clazz.getMethods()).anyMatch(m -> m.getAnnotation(Path.class) != null)) {
+		if(Stream.of(clazz.getMethods()).anyMatch(m -> m.isAnnotationPresent(Path.class))) {
 			return true;
 		}
 		

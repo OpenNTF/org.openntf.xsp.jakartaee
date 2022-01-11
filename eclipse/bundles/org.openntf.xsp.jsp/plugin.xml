@@ -32,4 +32,22 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jsp.nsf.JspServletFactory" />
 	</extension>
+	
+	<!-- Hint to Designer that .jsp and .tag files can be treated as HTML -->
+	<extension point="org.eclipse.core.contenttype.contentTypes">
+		<content-type
+			file-extensions="jsp,jspx"
+			priority="low"
+			name="Jakarta Server Pages file"
+			id="org.openntf.xsp.jsp.page"
+			base-type="org.eclipse.wst.html.core.htmlsource">
+		</content-type>
+		<content-type
+			file-extensions="tag"
+			priority="low"
+			name="Jakarta Server Pages custom tag"
+			id="org.openntf.xsp.jsp.tag"
+			base-type="org.openntf.xsp.jsp.page">
+		</content-type>
+	</extension>
 </plugin>

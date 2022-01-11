@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf.xsp</groupId>
 	<artifactId>xsp-jakartaee</artifactId>
-	<version>2.1.0</version>
+	<version>2.2.0</version>
 	<packaging>pom</packaging>
 
 	<name>XPages Jakarta EE Support</name>
@@ -53,12 +53,13 @@
 		<module>bundles/org.openntf.xsp.el</module>
 		<module>features/org.openntf.xsp.el.feature</module>
 		
-		<!-- JAX-RS 3.0 and MicroProfile OpenAPI -->
+		<!-- JAX-RS 3.0, MicroProfile OpenAPI, and MicroProfile Metrics -->
 		<module>bundles/org.openntf.xsp.jaxrs</module>
 		<module>bundles/org.openntf.xsp.jaxrs.cdi</module>
 		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
 		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
 		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
+		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
 		<module>features/org.openntf.xsp.jaxrs.feature</module>
 		
 		<!-- Bean Validation 3.0 -->
@@ -79,6 +80,22 @@
 		<!-- MVC -->
  		<module>bundles/org.openntf.xsp.mvc</module>
  		<module>features/org.openntf.xsp.mvc.feature</module>
+	
+		<!-- MicroProfile Config -->
+		<module>bundles/org.openntf.xsp.microprofile.config</module>
+		<module>features/org.openntf.xsp.microprofile.config.feature</module>
+	
+		<!-- MicroProfile REST Client -->
+		<module>bundles/org.openntf.xsp.microprofile.rest.client</module>
+		<module>features/org.openntf.xsp.microprofile.rest.client.feature</module>
+	
+		<!-- MicroProfile Fault Tolerance -->
+		<module>bundles/org.openntf.xsp.microprofile.fault.tolerance</module>
+		<module>features/org.openntf.xsp.microprofile.fault.tolerance.feature</module>
+	
+		<!-- MicroProfile Health -->
+		<module>bundles/org.openntf.xsp.microprofile.health</module>
+		<module>features/org.openntf.xsp.microprofile.health.feature</module>
 		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
@@ -290,6 +307,8 @@
 						<exclude>**/gfprobe-provider.xml</exclude>
 						<exclude>**/LICENSE.txt</exclude>
 						<exclude>**/beans_*.xsd</exclude>
+						<exclude>**/database.properties</exclude>
+						<exclude>**/xspdesign.properties</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
@@ -404,7 +423,7 @@
 				<plugin>
 					<groupId>org.openntf.maven</groupId>
 					<artifactId>nsfodp-maven-plugin</artifactId>
-					<version>3.7.0-SNAPSHOT</version>
+					<version>3.7.1</version>
 				</plugin>
 				
 				

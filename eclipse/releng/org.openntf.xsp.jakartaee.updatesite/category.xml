@@ -41,6 +41,18 @@
 	<feature id="org.openntf.xsp.mvc.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
+	<feature id="org.openntf.xsp.microprofile.config.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
+	<feature id="org.openntf.xsp.microprofile.rest.client.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
+	<feature id="org.openntf.xsp.microprofile.fault.tolerance.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
+	<feature id="org.openntf.xsp.microprofile.health.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
    
 	<category-def name="XPages Jakarta EE" label="XPages Jakarta EE"/>
 </site>

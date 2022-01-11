@@ -34,6 +34,7 @@
 	<properties>
 		<weld-version>4.0.2.Final</weld-version>
 		<resteasy-version>6.0.0.Beta1</resteasy-version>
+		<resteasy-mp-version>2.0.0.Beta1</resteasy-mp-version>
 		<hibernate-version>7.0.1.Final</hibernate-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -141,9 +142,20 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.core</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Require-Bundle>
 											jakarta.ws.rs-api;visibility:=reexport
 										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-core-spi:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.core-spi</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.org.jboss.resteasy.core</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -230,7 +242,6 @@
 									MicroProfile OpenAPI
 								-->
 								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:3.0</id><source>true</source></artifact>
-								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.1</id><source>true</source></artifact>
 								<artifact>
 									<id>io.smallrye:smallrye-open-api-core:2.1.16</id>
 									<source>true</source>
@@ -248,6 +259,40 @@
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-jaxrs</Bundle-SymbolicName>
 										<Bundle-Version>2.1.16_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.io.smallrye.open-api-core</Fragment-Host>
+									</instructions>
+								</artifact>
+								
+								<!--
+									MicroProfile Metrics
+								-->
+								<artifact><id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0</id><source>true</source></artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-metrics:4.0.0-RC1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.metrics</Bundle-SymbolicName>
+										<Bundle-Version>4.0.0_${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								
+								<!--
+									MicroProfile REST Client
+								-->
+								<artifact><id>org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0</id><source>true</source></artifact>
+								<artifact>
+									<id>org.jboss.resteasy.microprofile:microprofile-rest-client-base:${resteasy-mp-version}</id>
+									<source>true</source>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy.microprofile:microprofile-rest-client:${resteasy-mp-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.microprofile.rest-client</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-mp-version}_${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.jboss.resteasy.microprofile.rest-client-base</Fragment-Host>
 									</instructions>
 								</artifact>
 								
@@ -272,6 +317,7 @@
 								<artifact><id>org.jboss.weld:weld-api:4.0.SP1</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-spi:4.0.SP1</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.probe:weld-probe-core:${weld-version}</id><source>true</source></artifact>
+								<artifact><id>org.javassist:javassist:3.28.0-GA</id><source>true</source></artifact>
 								
 								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to jvm/lib/ext on Domino -->
 								<artifact>
@@ -351,6 +397,63 @@
 										<Fragment-Host>org.openntf.org.eclipse.krazo.core</Fragment-Host>
 									</instructions>
 								</artifact>
+								
+								<!--
+									MicroProfile Config
+								-->
+								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-common:3.0.0-RC1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-core:3.0.0-RC1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-validator:3.0.0-RC1</id><source>true</source></artifact>
+								
+								<!--
+									MicroProfile Fault Tolerance
+								-->
+								<artifact>
+									<id>org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0</id>
+									<source>true</source>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.fault.tolerance</Bundle-SymbolicName>
+										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
+										<!-- Fix odd version ranges from upstream -->
+										<Import-Package>
+											jakarta.enterprise.util,
+											*
+										</Import-Package>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-fault-tolerance:6.0.0-RC1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.fault-tolerance</Bundle-SymbolicName>
+										<Bundle-Version>6.0.0.${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>
+											org.jboss.weld.*
+										</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								
+								<!--
+									MicroProfile Health
+								-->
+								<artifact><id>org.eclipse.microprofile.health:microprofile-health-api:4.0</id><source>true</source></artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-health:4.0.0-RC1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.health</Bundle-SymbolicName>
+										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>
+											org.jboss.weld.*
+										</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								
 							</artifacts>
 						</configuration>
 					</execution>
