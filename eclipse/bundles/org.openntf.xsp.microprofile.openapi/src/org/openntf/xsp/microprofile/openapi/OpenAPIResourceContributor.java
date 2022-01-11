@@ -15,8 +15,8 @@
  */
 package org.openntf.xsp.microprofile.openapi;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 
@@ -24,7 +24,11 @@ public class OpenAPIResourceContributor implements JAXRSClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {
-		return Collections.singleton(OpenAPIResource.class);
+		return Arrays.asList(
+			OpenAPIResource.class,
+			OpenAPIJSONResource.class,
+			OpenAPIYAMLResource.class
+		);
 	}
 
 }

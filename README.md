@@ -181,7 +181,7 @@ Additionally, the special pseudo-name "login" can be used to require that the us
 
 #### OpenAPI
 
-Using [MicroProfile OpenAPI](https://github.com/eclipse/microprofile-open-api), these REST services are also made available via `/xsp/app/openapi` within the NSF. This resource includes information about each available REST endpoint in the NSF and will produce YAML by default and JSON upon request via an `Accept` header.
+Using [MicroProfile OpenAPI](https://github.com/eclipse/microprofile-open-api), these REST services are also made available via `/xsp/app/openapi` within the NSF. This resource includes information about each available REST endpoint in the NSF and will produce YAML by default and JSON upon request via an `Accept` header. Additionally, `/xsp/app/openapi.yaml` and `/xsp/app/openapi.json` are available to produce YAML and JSON explicitly without consulting the `Accept` header.
 
 Moreover, resources can be [annotated with the MicroProfile OpenAPI annotations](https://openliberty.io/guides/microprofile-openapi.html). For example:
 
