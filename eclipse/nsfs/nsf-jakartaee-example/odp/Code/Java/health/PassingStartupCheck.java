@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package servlet;
+package health;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeBodyPart;
-import jakarta.mail.internet.MimeMultipart;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Startup;
 
-@Path("/mail")
-public class MailExample {
-	@GET
-	public Object getMultipart() throws MessagingException {
-		MimeMultipart result = new MimeMultipart();
-		MimeBodyPart part = new MimeBodyPart();
-		part.setContent("i am content", "text/plain");
-		result.addBodyPart(part);
-		result.setPreamble("I am preamble");
-		return result;
+import jakarta.enterprise.context.ApplicationScoped;
+
+@ApplicationScoped
+@Startup
+public class PassingStartupCheck implements HealthCheck {
+
+	@Override
+	public HealthCheckResponse call() {
+		return HealthCheckResponse.up("started up fine");
 	}
+
 }

@@ -13,35 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package servlet;
+package jaxrs;
 
-import jakarta.inject.Inject;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
-import bean.ApplicationGuy;
-
-@Path("/sample")
-public class Sample {
-	@Inject
-	private ApplicationGuy applicationGuy;
-
+@Path("adminrole")
+public class AdminRoleExample {
 	@GET
-	public Response hello() {
-		try {
-			return Response.ok().type(MediaType.TEXT_PLAIN).entity(applicationGuy.getMessage()).build();
-		} catch (Throwable t) {
-			return Response.serverError().build();
-		}
-	}
-	
-	@GET
-	@Path("/xml")
-	@Produces(MediaType.APPLICATION_XML)
-	public Object xml() {
-		return applicationGuy;
+	@Produces(MediaType.TEXT_PLAIN)
+	@RolesAllowed("[Admin]")
+	public String get() {
+		return "I think you're an admin!";
 	}
 }

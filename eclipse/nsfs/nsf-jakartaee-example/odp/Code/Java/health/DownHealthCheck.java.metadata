@@ -4,9 +4,9 @@
     <text>34567Cg~[</text>
   </item>
   <item name="$TITLE">
-    <text>servlet/ValidationResource.java</text>
+    <text>health/DownHealthCheck.java</text>
   </item>
   <item name="$FileNames" sign="true">
-    <text>servlet/ValidationResource.java</text>
+    <text>health/DownHealthCheck.java</text>
   </item>
 </note>

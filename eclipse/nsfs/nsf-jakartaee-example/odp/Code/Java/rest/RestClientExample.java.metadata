@@ -4,9 +4,9 @@
     <text>34567Cg~[</text>
   </item>
   <item name="$TITLE">
-    <text>servlet/Sample.java</text>
+    <text>rest/RestClientExample.java</text>
   </item>
   <item name="$FileNames" sign="true">
-    <text>servlet/Sample.java</text>
+    <text>rest/RestClientExample.java</text>
   </item>
 </note>
