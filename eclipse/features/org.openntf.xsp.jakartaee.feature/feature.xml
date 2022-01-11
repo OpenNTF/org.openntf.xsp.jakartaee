@@ -258,5 +258,6 @@
 	<plugin id="org.openntf.jboss-classfilewriter" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.logging.jboss-logging" version="0.0.0"/>
 	<plugin id="org.openntf.org.glassfish.hk2.osgi-resource-locator" version="0.0.0"/>
+	<plugin id="javassist" version="0.0.0"/>
 
 </feature>

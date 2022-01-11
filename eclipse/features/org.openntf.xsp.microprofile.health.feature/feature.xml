@@ -17,8 +17,8 @@
 
 -->
 <feature
-      id="org.openntf.xsp.cdi.feature"
-      label="XPages CDI 3.0 Support Feature"
+      id="org.openntf.xsp.microprofile.health.feature"
+      label="XPages MicroProfile Health 4.0 Support Feature"
       version="2.2.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -235,17 +235,20 @@
 
    <requires>
       <import feature="org.openntf.xsp.jakartaee.feature"/>
+      <import feature="org.openntf.xsp.jaxrs.feature"/>
+      <import feature="org.openntf.xsp.cdi.feature"/>
    </requires>
 
-	<plugin id="org.openntf.xsp.cdi" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.cdi.api" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.cdi.provider" version="0.0.0"/>
-    
-	<plugin id="org.jboss.weld.api" version="0.0.0"/>
-	<plugin id="org.jboss.weld.spi" version="0.0.0"/>
-	<plugin id="org.jboss.weld.core-impl" version="0.0.0"/>
-	<plugin id="org.jboss.weld.environment.weld-environment-common" version="0.0.0"/>
-	<plugin id="org.jboss.weld.se.weld-se-core" version="0.0.0"/>
-	<plugin id="org.jboss.weld.probe.weld-probe-core" version="0.0.0"/>
+   <plugin id="org.openntf.xsp.microprofile.health" version="0.0.0"/>
 	
+   <plugin id="org.eclipse.microprofile.health" version="0.0.0"/>
+   <plugin id="org.openntf.io.smallrye.health" version="0.0.0"/>
+   <plugin id="io.smallrye.health-api" version="0.0.0"/>
+   <plugin id="io.smallrye.reactive.mutiny" version="0.0.0"/>
+   <plugin id="io.smallrye.common.smallrye-common-annotation" version="0.0.0"/>
+   <plugin id="io.smallrye.common.smallrye-common-classloader" version="0.0.0"/>
+   <plugin id="io.smallrye.common.smallrye-common-constraint" version="0.0.0"/>
+   <plugin id="io.smallrye.common.smallrye-common-expression" version="0.0.0"/>
+   <plugin id="io.smallrye.common.smallrye-common-function" version="0.0.0"/>
+
 </feature>
