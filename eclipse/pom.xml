@@ -307,6 +307,7 @@
 						<exclude>**/gfprobe-provider.xml</exclude>
 						<exclude>**/LICENSE.txt</exclude>
 						<exclude>**/beans_*.xsd</exclude>
+						<exclude>**/database.properties</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
