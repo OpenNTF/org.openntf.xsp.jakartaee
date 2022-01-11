@@ -17,9 +17,15 @@ package health;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Liveness;
 
+import com.ibm.domino.xsp.module.nsf.NotesContext;
+
 import jakarta.enterprise.context.ApplicationScoped;
+import lotus.domino.Database;
+import lotus.domino.NoteCollection;
+import lotus.domino.NotesException;
 
 @ApplicationScoped
 @Liveness
@@ -27,7 +33,21 @@ public class PassingHealthCheck implements HealthCheck {
 
 	@Override
 	public HealthCheckResponse call() {
-		return HealthCheckResponse.named("I am a passing liveliness check").status(true).build();
+		HealthCheckResponseBuilder response = HealthCheckResponse.named("I am the liveliness check");
+		try {
+			Database database = NotesContext.getCurrent().getCurrentDatabase();
+			NoteCollection notes = database.createNoteCollection(true);
+			notes.buildCollection();
+			return response
+				.status(true)
+				.withData("noteCount", notes.getCount())
+				.build();
+		} catch(NotesException e) {
+			return response
+				.status(false)
+				.withData("exception", e.text)
+				.build();
+		}
 	}
 
 }

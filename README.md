@@ -17,13 +17,14 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Server Pages 3.0
 - MVC 2.0
 
-It also provides some support libraries from [MicroProfile](https://microprofile.io/):
+It also provides components from [MicroProfile](https://microprofile.io/):
 
 - OpenAPI 3.0
 - Rest Client 3.0
 - Config 3.0
 - Metrics 4.0
 - Fault Tolerance 4.0
+- Health 4.0
 
 ## CDI 3.0
 
@@ -445,6 +446,76 @@ public class FaultToleranceBean {
 	public String getCircuitBreaker() {
 		throw new RuntimeException("I am a circuit-breaking failure - I should stop after two attempts");
 	}
+}
+```
+
+## MicroProfile Health
+
+The [MicroProfile Health](https://github.com/eclipse/microprofile-health) API allows you to create CDI beans that provide health checks and statistics for your application, queryable at standard endpoints. For example:
+
+```java
+package health;
+
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
+import org.eclipse.microprofile.health.Liveness;
+
+import com.ibm.domino.xsp.module.nsf.NotesContext;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import lotus.domino.Database;
+import lotus.domino.NoteCollection;
+import lotus.domino.NotesException;
+
+@ApplicationScoped
+@Liveness
+public class PassingHealthCheck implements HealthCheck {
+	@Override
+	public HealthCheckResponse call() {
+		HealthCheckResponseBuilder response = HealthCheckResponse.named("I am the liveliness check");
+		try {
+			Database database = NotesContext.getCurrent().getCurrentDatabase();
+			NoteCollection notes = database.createNoteCollection(true);
+			notes.buildCollection();
+			return response
+				.status(true)
+				.withData("noteCount", notes.getCount())
+				.build();
+		} catch(NotesException e) {
+			return response
+				.status(false)
+				.withData("exception", e.text)
+				.build();
+		}
+	}
+}
+```
+
+In addition to `@Liveness`, Health also allows checks to be categorized as `@Readiness` and `@Startup`.
+
+The results of these checks will be available at `/xsp/app/health` (aggregating all types), `/xsp/app/health/ready`, `/xsp/app/health/live`, and `/xsp/app/health/started`. These endpoints will emit JSON describing the applicable health checks and an overall "UP" or "DOWN" status. For example:
+
+```json
+{
+    "status": "DOWN",
+    "checks": [
+        {
+            "name": "I am the liveliness check",
+            "status": "UP",
+            "data": {
+                "noteCount": 63
+            }
+        },
+        {
+            "name": "I am a failing readiness check",
+            "status": "DOWN"
+        },
+        {
+            "name": "started up fine",
+            "status": "UP"
+        }
+    ]
 }
 ```
 
