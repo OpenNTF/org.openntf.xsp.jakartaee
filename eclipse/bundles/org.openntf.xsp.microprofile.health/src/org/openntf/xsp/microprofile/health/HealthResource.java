@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.microprofile.health;
 
+import java.util.function.Function;
+
 import io.smallrye.health.SmallRyeHealth;
 import io.smallrye.health.SmallRyeHealthReporter;
 import jakarta.enterprise.inject.spi.CDI;
@@ -22,6 +24,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
 @Path("health")
@@ -29,36 +32,37 @@ public class HealthResource {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object getAll() {
-		SmallRyeHealthReporter reporter = CDI.current().select(SmallRyeHealthReporter.class).get();
-		SmallRyeHealth health = reporter.getHealth();
-		return (StreamingOutput)(os) -> reporter.reportHealth(os, health);
+	public Response getAll() {
+		return emit(SmallRyeHealthReporter::getHealth);
 	}
 	
 	@Path("ready")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object getReadiness() {
-		SmallRyeHealthReporter reporter = CDI.current().select(SmallRyeHealthReporter.class).get();
-		SmallRyeHealth health = reporter.getReadiness();
-		return (StreamingOutput)(os) -> reporter.reportHealth(os, health);
+	public Response getReadiness() {
+		return emit(SmallRyeHealthReporter::getReadiness);
 	}
 
 	@Path("live")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object getLiveness() {
-		SmallRyeHealthReporter reporter = CDI.current().select(SmallRyeHealthReporter.class).get();
-		SmallRyeHealth health = reporter.getLiveness();
-		return (StreamingOutput)(os) -> reporter.reportHealth(os, health);
+	public Response getLiveness() {
+		return emit(SmallRyeHealthReporter::getLiveness);
 	}
 	
 	@Path("started")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object getStarted() {
+	public Response getStarted() {
+		return emit(SmallRyeHealthReporter::getStartup);
+	}
+	
+	private Response emit(Function<SmallRyeHealthReporter, SmallRyeHealth> c) {
 		SmallRyeHealthReporter reporter = CDI.current().select(SmallRyeHealthReporter.class).get();
-		SmallRyeHealth health = reporter.getStartup();
-		return (StreamingOutput)(os) -> reporter.reportHealth(os, health);
+		SmallRyeHealth health = c.apply(reporter);
+		return Response.status(health.isDown() ? Response.Status.SERVICE_UNAVAILABLE : Response.Status.OK)
+			.type(MediaType.APPLICATION_JSON_TYPE)
+			.entity((StreamingOutput)(os) -> reporter.reportHealth(os, health))
+			.build();
 	}
 }
