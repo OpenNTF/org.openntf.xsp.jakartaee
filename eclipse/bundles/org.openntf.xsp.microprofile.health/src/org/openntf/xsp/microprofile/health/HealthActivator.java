@@ -29,6 +29,7 @@ public class HealthActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
+		// Set the provider instance manually since we're in Domino OSGi
 		HealthCheckResponse.setResponseProvider(new ResponseProvider());
 	}
 
