@@ -247,6 +247,5 @@
 	<plugin id="org.jboss.weld.environment.weld-environment-common" version="0.0.0"/>
 	<plugin id="org.jboss.weld.se.weld-se-core" version="0.0.0"/>
 	<plugin id="org.jboss.weld.probe.weld-probe-core" version="0.0.0"/>
-	<plugin id="javassist" version="0.0.0"/>
 	
 </feature>
