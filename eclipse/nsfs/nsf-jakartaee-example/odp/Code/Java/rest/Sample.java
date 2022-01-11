@@ -22,7 +22,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.eclipse.microprofile.metrics.annotation.Timed;
+import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
 
 import bean.ApplicationGuy;
 
@@ -32,7 +32,7 @@ public class Sample {
 	private ApplicationGuy applicationGuy;
 
 	@GET
-	@Timed
+	@SimplyTimed
 	public Response hello() {
 		try {
 			return Response.ok().type(MediaType.TEXT_PLAIN).entity(applicationGuy.getMessage()).build();
