@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -85,28 +83,6 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 		} else {
 			return createResponseFromException(t, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
-	}
-	
-	private Response createNotAuthorizedResponse() {
-		return Response.status(Response.Status.UNAUTHORIZED)
-			.type(MediaType.APPLICATION_JSON_TYPE)
-			.entity((StreamingOutput)out -> {
-				JsonGeneratorFactory jsonFac = Json.createGeneratorFactory(Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
-				try(JsonGenerator json = jsonFac.createGenerator(out)) {
-					json.writeStartObject();
-					
-					Principal p = req.getUserPrincipal();
-					String msg = MessageFormat.format(
-						"User \"{0}\" is not authorized to access resource \"{1}\"",
-						p == null ? "Anonymous" : p.getName(),
-						uriInfo.getPath()
-					);
-					json.write("message", msg); //$NON-NLS-1$
-					
-					json.writeEnd();
-				}
-			})
-			.build();
 	}
 
 	private Response createResponseFromException(final Throwable throwable, final int status) {
