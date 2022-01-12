@@ -8,6 +8,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.nosql.mapping.Sorts;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -64,8 +65,12 @@ public class NoSQLExample {
 	@GET
 	@Produces(MediaType.TEXT_HTML)
 	@Controller
-	public String list() {
-		models.put("persons", personRepository.findAll().collect(Collectors.toList()));
+	public String list(@QueryParam("sortCol") String sortCol) {
+		if(sortCol == null || sortCol.isEmpty()) {
+			models.put("persons", personRepository.findAll().collect(Collectors.toList()));
+		} else {
+			models.put("persons", personRepository.findAll(Sorts.sorts().asc(sortCol)).collect(Collectors.toList()));
+		}
 		return "person-list.jsp";
 	}
 	

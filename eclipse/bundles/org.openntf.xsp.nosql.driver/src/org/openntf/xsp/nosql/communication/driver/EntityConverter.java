@@ -4,6 +4,7 @@ package org.openntf.xsp.nosql.communication.driver;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.StreamSupport.stream;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,13 +15,21 @@ import java.util.Vector;
 import java.util.stream.Stream;
 
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
+import jakarta.json.JsonObject;
 import jakarta.json.JsonObjectBuilder;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonValue;
 import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentEntity;
+import lotus.domino.Database;
 import lotus.domino.DocumentCollection;
 import lotus.domino.Item;
 import lotus.domino.NotesException;
+import lotus.domino.View;
+import lotus.domino.ViewEntry;
+import lotus.domino.ViewNavigator;
 
 public class EntityConverter {
 	/**
@@ -35,6 +44,54 @@ public class EntityConverter {
 	public static final String NAME_FIELD = "Form"; //$NON-NLS-1$
 
 	private EntityConverter() {
+	}
+	
+	static Stream<DocumentEntity> convert(Database database, String qrpJson) throws NotesException {
+		JsonObject json;
+		try(
+			StringReader r = new StringReader(qrpJson);
+			JsonReader reader = Json.createReader(r)
+		) {
+			json = reader.readObject();
+		}
+		JsonArray results = json.getJsonArray("StreamResults"); //$NON-NLS-1$
+		return results.stream()
+			.map(JsonValue::asJsonObject)
+			.map(entry -> entry.getString("@nid")) //$NON-NLS-1$
+			.map(noteId -> {
+				try {
+					lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
+					List<Document> documents = toDocuments(doc);
+					String name = doc.getItemValueString(NAME_FIELD);
+					return DocumentEntity.of(name, documents);
+				} catch(NotesException e) {
+					throw new RuntimeException("Exception processing note " + noteId, e);
+				}
+			});
+	}
+	
+	static Stream<DocumentEntity> convert(View docs) throws NotesException {
+		// TODO stream this better
+		// TODO create a lazy-loading list?
+		List<DocumentEntity> result = new ArrayList<>();
+		ViewNavigator nav = docs.createViewNav();
+		try {
+			ViewEntry entry = nav.getFirst();
+			while(entry != null) {
+				
+				lotus.domino.Document doc = entry.getDocument();
+				List<Document> documents = toDocuments(doc);
+				String name = doc.getItemValueString(NAME_FIELD);
+				result.add(DocumentEntity.of(name, documents));
+				
+				ViewEntry tempEntry = entry;
+				entry = nav.getNext(entry);
+				tempEntry.recycle();
+			}
+		} finally {
+			nav.recycle();
+		}
+		return result.stream();
 	}
 
 	static Stream<DocumentEntity> convert(DocumentCollection docs) throws NotesException {

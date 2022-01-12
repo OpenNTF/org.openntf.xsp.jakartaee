@@ -1,6 +1,6 @@
 <%--
 
-    Copyright © 2018-2022 Jesse Gallagher
+    Copyright Â© 2018-2022 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -27,8 +27,18 @@
 		<table>
 			<thead>
 				<tr>
-					<th>Last Name</th>
-					<th>First Name</th>
+					<c:if test="${param.sortCol == 'lastName'}">
+						<th>Last Name &#x25b2;</th>
+					</c:if>
+					<c:if test="${param.sortCol != 'lastName'}">
+						<th><a href="list?sortCol=lastName">Last Name</a></th>
+					</c:if>
+					<c:if test="${param.sortCol == 'firstName'}">
+						<th>First Name &#x25b2;</th>
+					</c:if>
+					<c:if test="${param.sortCol != 'firstName'}">
+						<th><a href="list?sortCol=firstName">First Name</a></th>
+					</c:if>
 					<th></th>
 				</tr>
 			</thead>

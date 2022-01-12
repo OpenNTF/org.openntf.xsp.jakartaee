@@ -12,14 +12,18 @@ import java.util.stream.StreamSupport;
 import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.QueryConverter.QueryConverterResult;
 
+import jakarta.nosql.Sort;
+import jakarta.nosql.SortType;
 import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
+import lotus.domino.Base;
 import lotus.domino.Database;
 import lotus.domino.DocumentCollection;
 import lotus.domino.DominoQuery;
 import lotus.domino.NotesException;
+import lotus.domino.QueryResultsProcessor;
 
 public class DefaultDominoDocumentCollectionManager implements DominoDocumentCollectionManager {
 
@@ -131,17 +135,46 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	public Stream<DocumentEntity> select(DocumentQuery query) {
 		try {
 			QueryConverterResult queryResult = QueryConverter.select(query);
-			Database database = supplier.get();
-			DominoQuery dominoQuery = database.createDominoQuery();
-			DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());			
-			// TODO investigate limiting, skipping, and sorting with QRP
 			
-			Stream<DocumentEntity> result = EntityConverter.convert(docs);
-			if(queryResult.getSkip() > 0) {
-				result = result.skip(queryResult.getSkip());
+			long skip = queryResult.getSkip();
+			long limit = queryResult.getLimit();
+			List<Sort> sorts = query.getSorts();
+			Stream<DocumentEntity> result;
+			
+			Database database = supplier.get();
+			DominoQuery dominoQuery = database.createDominoQuery();		
+			try {
+				if(sorts != null && !sorts.isEmpty()) {
+					QueryResultsProcessor qrp = database.createQueryResultsProcessor();
+					qrp.addDominoQuery(dominoQuery, queryResult.getStatement().toString(), null);
+					for(Sort sort : sorts) {
+						int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
+						qrp.addColumn(sort.getName(), null, null, dir, false, false);
+					}
+					
+					if(skip == 0 && limit > 0 && limit <= Integer.MAX_VALUE) {
+						qrp.setMaxEntries((int)limit);
+					}
+					
+					String json = qrp.executeToJSON();
+					result = EntityConverter.convert(database, json);
+				} else {
+					DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
+					try {
+						result = EntityConverter.convert(docs);
+					} finally {
+						recycle(docs);
+					}
+				}
+			} finally {
+				recycle(dominoQuery);
 			}
-			if(queryResult.getLimit() > 0) {
-				result = result.limit(queryResult.getLimit());
+			
+			if(skip > 0) {
+				result = result.skip(skip);
+			}
+			if(limit > 0) {
+				result = result.limit(limit);
 			}
 			
 			return result;
@@ -169,4 +202,15 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	
 	}
 
+	private static void recycle(Object... objects) {
+		for(Object obj : objects) {
+			if(obj instanceof Base) {
+				try {
+					((Base)obj).recycle();
+				} catch (NotesException e) {
+					// Ignore
+				}
+			}
+		}
+	}
 }
