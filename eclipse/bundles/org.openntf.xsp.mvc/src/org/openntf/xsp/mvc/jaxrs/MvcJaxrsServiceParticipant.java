@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.mvc;
+package org.openntf.xsp.mvc.jaxrs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +27,7 @@ import java.util.List;
 import org.eclipse.krazo.bootstrap.DefaultConfigProvider;
 import org.openntf.xsp.jakartaee.LibraryUtil;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
+import org.openntf.xsp.mvc.MvcLibrary;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 

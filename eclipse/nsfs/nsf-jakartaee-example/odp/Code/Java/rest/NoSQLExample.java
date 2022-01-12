@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
@@ -79,6 +80,7 @@ public class NoSQLExample {
 	@Path("{id}")
 	@DELETE
 	@Controller
+	@RolesAllowed("login")
 	public String delete(@PathParam("id") String id) {
 		personRepository.deleteById(id);
 		return "redirect:nosql/list";

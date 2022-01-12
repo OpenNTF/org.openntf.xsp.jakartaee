@@ -56,23 +56,23 @@ import lotus.domino.NotesException;
  * @author Jesse Gallagher
  * @since 2.2.0
  */
-@Priority(Priorities.USER+1)
+@Priority(Priorities.USER+2)
 public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 	
 	@Context
-	UriInfo uriInfo;
+	protected UriInfo uriInfo;
 	
 	@Context
-	HttpServletRequest req;
+	protected HttpServletRequest req;
 	
 	@Context
-	ResourceInfo resourceInfo;
+	protected ResourceInfo resourceInfo;
 	
 	@Context
-	HttpHeaders headers;
+	protected HttpHeaders headers;
 	
 	@Context
-	Request request;
+	protected Request request;
 
 	@Override
 	public Response toResponse(final Throwable t) {
@@ -92,10 +92,20 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 			return createResponseFromException(t, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
-
-	private Response createResponseFromException(final Throwable throwable, final int status) {
+	
+	protected MediaType getMediaType() {
 		Produces produces = resourceInfo.getResourceMethod().getAnnotation(Produces.class);
-		if(produces != null && Arrays.stream(produces.value()).anyMatch(MediaType.TEXT_HTML::equals)) {
+		if(produces != null) {
+			// Assume the first is "true"
+			return MediaType.valueOf(produces.value()[0]);
+		} else {
+			return MediaType.APPLICATION_JSON_TYPE;
+		}
+	}
+
+	protected Response createResponseFromException(final Throwable throwable, final int status) {
+		MediaType type = getMediaType();
+		if(MediaType.TEXT_HTML_TYPE.isCompatible(type)) {
 			// Handle as HTML
 			return Response.status(status)
 				.type(MediaType.TEXT_HTML_TYPE)
@@ -109,7 +119,6 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 				.build();
 		} else {
 			// Handle as JSON
-			
 			return Response.status(status)
 				.type(MediaType.APPLICATION_JSON_TYPE)
 				.entity((StreamingOutput)out -> {
