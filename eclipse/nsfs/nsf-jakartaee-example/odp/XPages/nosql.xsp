@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:dataTable value="#{PersonRepository.all}" var="person">
+		<xp:column>
+			<xp:this.facets>
+				<xp:text xp:key="header" value="Last Name" />
+			</xp:this.facets>
+			<xp:text value="#{person.lastName}" />
+		</xp:column>
+		<xp:column>
+			<xp:this.facets>
+				<xp:text xp:key="header" value="First Name" />
+			</xp:this.facets>
+			<xp:text value="#{person.firstName}"/>
+		</xp:column>
+	</xp:dataTable>
+</xp:view>
