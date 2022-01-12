@@ -97,7 +97,6 @@ public class NSFJAXRSApplication extends Application {
 			throw new UncheckedIOException(e);
 		}
 		xspProperties.forEach((key, value) -> result.put(key.toString(), value));
-		System.out.println("added props " + result);
 		return result;
 	}
 	
