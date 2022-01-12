@@ -1,5 +1,6 @@
 package org.openntf.xsp.nosql.communication.driver;
 
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -75,14 +76,31 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 	@Override
 	public DocumentEntity update(DocumentEntity entity) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			Database database = supplier.get();
+			
+			Document id = entity.find(EntityConverter.ID_FIELD)
+				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", EntityConverter.ID_FIELD)));
+			
+			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
+			
+			EntityConverter.convert(entity, target);
+			target.save();
+			return entity;
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public Iterable<DocumentEntity> update(Iterable<DocumentEntity> entities) {
-		// TODO Auto-generated method stub
-		return null;
+		if(entities == null) {
+			return Collections.emptySet();
+		} else {
+			return StreamSupport.stream(entities.spliterator(), false)
+				.map(this::update)
+				.collect(Collectors.toList());
+		}
 	}
 
 	@Override

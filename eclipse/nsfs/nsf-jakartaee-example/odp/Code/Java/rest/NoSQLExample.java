@@ -12,6 +12,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -90,5 +91,25 @@ public class NoSQLExample {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public String deletePost(@PathParam("id") String id) {
 		return delete(id);
+	}
+	
+	@Path("{id}/update")
+	@PATCH
+	@Controller
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public String update(@PathParam("id") String id, @FormParam("firstName") String firstName, @FormParam("lastName") String lastName) {
+		Person person = personRepository.findById(id).get();
+		person.setFirstName(firstName);
+		person.setLastName(lastName);
+		personRepository.save(person);
+		return "redirect:nosql/list";
+	}
+	
+	@Path("{id}/update")
+	@POST
+	@Controller
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public String updatePost(@PathParam("id") String id, @FormParam("firstName") String firstName, @FormParam("lastName") String lastName) {
+		return update(id, firstName, lastName);
 	}
 }

@@ -23,12 +23,15 @@
 		<title>Person</title>
 	</head>
 	<body>
-		<dl>
-			<dt>First Name</dt>
-			<dd>${fn:escapeXml(person.firstName)}</dd>
-			
-			<dt>Last Name</dt>
-			<dd>${fn:escapeXml(person.lastName)}</dd>
-		</dl>
+		<form method="POST" enctype="application/x-www-form-urlencoded" action="${person.unid}/update">
+			<dl>
+				<dt>First Name</dt>
+				<dd><input type="text" required name="firstName" value="${person.firstName}" /></dd>
+				
+				<dt>Last Name</dt>
+				<dd><input type="text" required name="lastName" value="${person.lastName}" /></dd>
+			</dl>
+			<input type="submit" value="Save" />
+		</form>
 	</body>
 </html>
