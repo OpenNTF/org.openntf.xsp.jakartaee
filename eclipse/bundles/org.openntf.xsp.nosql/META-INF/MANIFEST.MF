@@ -11,13 +11,16 @@ Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  org.openntf.jakarta.nosql.communication.document;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.jakarta.nosql.communication.query;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.jakarta.nosql.mapping.core;bundle-version="1.0.0";visibility:=reexport,
- org.openntf.jakarta.nosql.mapping.document;bundle-version="1.0.0";visibility:=reexport
+ org.openntf.jakarta.nosql.mapping.document;bundle-version="1.0.0";visibility:=reexport,
+ org.openntf.xsp.nosql.driver;bundle-version="2.3.0";visibility:=reexport
 Import-Package: com.ibm.xsp.application,
  com.ibm.xsp.library,
+ jakarta.annotation;version="2.0.0",
  jakarta.enterprise.context;version="3.0.0",
  jakarta.enterprise.inject;version="3.0.0",
  jakarta.enterprise.inject.spi;version="3.0.0",
  jakarta.inject;version="2.0.0",
+ lotus.domino,
  org.eclipse.core.runtime;version="3.5.0",
  org.eclipse.jnosql.mapping,
  org.eclipse.jnosql.mapping.document,
@@ -28,3 +31,5 @@ Import-Package: com.ibm.xsp.application,
  org.osgi.framework;version="1.8.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.nosql.NoSQLActivator
+Export-Package: org.openntf.xsp.nosql;version="2.2.0",
+ org.openntf.xsp.nosql.bean;version="2.2.0"

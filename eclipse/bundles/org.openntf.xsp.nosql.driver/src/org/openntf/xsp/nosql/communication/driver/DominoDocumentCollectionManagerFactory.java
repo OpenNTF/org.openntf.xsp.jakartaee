@@ -6,7 +6,7 @@ public class DominoDocumentCollectionManagerFactory implements DocumentCollectio
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DefaultDominoDocumentCollectionManager get(String database) {
+	public DefaultDominoDocumentCollectionManager get(String type) {
 		return new DefaultDominoDocumentCollectionManager();
 	}
 

@@ -6,6 +6,7 @@ import static java.util.stream.StreamSupport.stream;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -17,6 +18,7 @@ import jakarta.json.JsonObjectBuilder;
 import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentEntity;
 import lotus.domino.Database;
+import lotus.domino.Item;
 import lotus.domino.NotesException;
 
 public class EntityConverter {
@@ -54,13 +56,27 @@ public class EntityConverter {
 		});
 	}
 
+	@SuppressWarnings("unchecked")
 	public static List<Document> toDocuments(lotus.domino.Document doc) throws NotesException {
 		List<Document> result = new ArrayList<>();
 		result.add(Document.of(ID_FIELD, doc.getUniversalID()));
-//		Object json = doc.getJson();
-//		fac.removeProperty(json, NAME_FIELD);
-//		result.addAll(toDocuments(JsonUtil.toJsonObject(json, fac)));
-		// TODO iterate over items
+		Map<String, Object> docMap = new LinkedHashMap<>();
+		for(Item item : (List<Item>)doc.getItems()) {
+			String itemName = item.getName();
+			if(NAME_FIELD.equalsIgnoreCase(itemName)) {
+				continue;
+			}
+			List<?> val = item.getValues();
+			if(val.isEmpty()) {
+				docMap.put(item.getName(), null);
+			} else if(val.size() == 1) {
+				docMap.put(item.getName(), val.get(0));
+			} else {
+				docMap.put(item.getName(), val);
+			}
+		}
+		
+		docMap.forEach((key, value) -> result.add(Document.of(key, value)));
 
 		result.add(Document.of("_cdate", doc.getCreated().toJavaDate().getTime())); //$NON-NLS-1$
 		result.add(Document.of("_mdate", doc.getCreated().toJavaDate().getTime())); //$NON-NLS-1$
@@ -185,13 +201,7 @@ public class EntityConverter {
 				array = array.add(subJson);
 				count++;
 			} else {
-				if(value instanceof Number) {
-					array = array.add(((Number)value).doubleValue());
-				} else if(value == null) {
-					array = array.addNull();
-				} else {
-					array = array.add(value.toString());
-				}
+				array = add(array, value);
 				count++;
 			}
 		}
@@ -213,13 +223,23 @@ public class EntityConverter {
 				.allMatch(Document.class::isInstance);
 	}
 	
-	private static JsonObjectBuilder add(JsonObjectBuilder jsonObject, String key, Object value) {
+	public static JsonObjectBuilder add(JsonObjectBuilder jsonObject, String key, Object value) {
 		if(value instanceof Number) {
 			return jsonObject.add(key, ((Number)value).doubleValue());
 		} else if(value == null) {
 			return jsonObject.addNull(key);
 		} else {
 			return jsonObject.add(key, value.toString());
+		}
+	}
+	
+	public static JsonArrayBuilder add(JsonArrayBuilder array, Object value) {
+		if(value instanceof Number) {
+			return array.add(((Number)value).doubleValue());
+		} else if(value == null) {
+			return array.addNull();
+		} else {
+			return array.add(value.toString());
 		}
 	}
 }

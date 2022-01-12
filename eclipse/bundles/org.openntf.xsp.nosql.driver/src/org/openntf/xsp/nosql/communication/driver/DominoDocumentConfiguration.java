@@ -4,7 +4,6 @@ import jakarta.nosql.Settings;
 import jakarta.nosql.document.DocumentConfiguration;
 
 public class DominoDocumentConfiguration implements DocumentConfiguration {
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public DominoDocumentCollectionManagerFactory get() {

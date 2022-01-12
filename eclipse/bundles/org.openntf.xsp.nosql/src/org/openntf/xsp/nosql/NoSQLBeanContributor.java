@@ -15,10 +15,11 @@
  */
 package org.openntf.xsp.nosql;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collectors;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.Platform;
@@ -29,6 +30,7 @@ import org.eclipse.jnosql.mapping.reflection.ClassMappingExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.nosql.bean.ContextDocumentCollectionManagerProducer;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
@@ -47,7 +49,8 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 		ApplicationEx app = ApplicationEx.getInstance();
 		if(app != null && LibraryUtil.usesLibrary(NoSQLLibrary.LIBRARY_ID, app)) {
 			// These classes are housed in fragments, so access those in a roundabout way
-			return Stream.of(DatabaseQualifier.class, DefaultDocumentQueryPaginationProvider.class)
+			List<Class<?>> result = new ArrayList<>();
+			Stream.of(DatabaseQualifier.class, DefaultDocumentQueryPaginationProvider.class)
 				.map(FrameworkUtil::getBundle)
 				.map(Platform::getFragments)
 				.flatMap(Arrays::stream)
@@ -65,7 +68,11 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 						throw new RuntimeException(e);
 					}
 				})
-				.collect(Collectors.toList());
+				.forEach(result::add);
+			
+			result.add(ContextDocumentCollectionManagerProducer.class);
+			
+			return result;
 		} else {
 			return Collections.emptySet();
 		}

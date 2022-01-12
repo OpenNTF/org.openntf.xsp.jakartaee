@@ -18,8 +18,10 @@ import static java.util.stream.Collectors.toList;
  */
 class ValueUtil {
 
-    private static final ValueWriter VALUE_WRITER = ValueWriterDecorator.getInstance();
-    private static final Function CONVERT = o -> {
+    @SuppressWarnings("rawtypes")
+	private static final ValueWriter VALUE_WRITER = ValueWriterDecorator.getInstance();
+    @SuppressWarnings("rawtypes")
+	private static final Function CONVERT = o -> {
         if (o instanceof Value) {
             return convert(Value.class.cast(o));
         }
@@ -61,12 +63,14 @@ class ValueUtil {
         return Collections.singletonList(getObject(val));
     }
 
-    private static List<Object> getObjects(Object val) {
+    @SuppressWarnings("unchecked")
+	private static List<Object> getObjects(Object val) {
         return (List<Object>) StreamSupport.stream(Iterable.class.cast(val).spliterator(), false)
                 .map(CONVERT).collect(toList());
     }
 
-    private static Object getObject(Object val) {
+    @SuppressWarnings("unchecked")
+	private static Object getObject(Object val) {
         if (VALUE_WRITER.test(val.getClass())) {
             return VALUE_WRITER.write(val);
         }

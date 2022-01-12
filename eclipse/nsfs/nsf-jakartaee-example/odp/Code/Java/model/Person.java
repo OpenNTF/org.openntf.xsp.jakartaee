@@ -9,10 +9,10 @@ public class Person {
 	@Id
 	private String unid;
 	
-	@Column
+	@Column("FirstName")
 	private String firstName;
 	
-	@Column
+	@Column("LastName")
 	private String lastName;
 
 	public String getUnid() {
