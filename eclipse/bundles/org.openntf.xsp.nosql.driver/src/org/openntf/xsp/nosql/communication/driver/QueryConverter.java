@@ -17,8 +17,7 @@ import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentQuery;
 
 /**
- * Assistant class to convert queries from Diana internal structures to Darwino
- * cursors.
+ * Assistant class to convert queries from Diana internal structures to DQL queries
  * 
  * @author Jesse Gallagher
  * @since 2.3.0
