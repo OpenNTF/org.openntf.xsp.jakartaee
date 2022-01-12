@@ -1,11 +1,16 @@
 package org.openntf.xsp.nosql.communication.driver;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.QueryConverter.QueryConverterResult;
 
+import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
@@ -24,26 +29,47 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	
 	@Override
 	public DocumentEntity insert(DocumentEntity entity) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			Database database = supplier.get();
+			lotus.domino.Document target = database.createDocument();
+			
+			Optional<Document> maybeId = entity.find(EntityConverter.ID_FIELD);
+			if(maybeId.isPresent()) {
+				target.setUniversalID(maybeId.get().get().toString());
+			} else {
+				// Write the generated UNID into the entity
+				entity.add(Document.of(EntityConverter.ID_FIELD, target.getUniversalID()));
+			}
+			
+			EntityConverter.convert(entity, target);
+			target.save();
+			return entity;
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public DocumentEntity insert(DocumentEntity entity, Duration ttl) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO consider supporting ttl
+		return insert(entity);
 	}
 
 	@Override
 	public Iterable<DocumentEntity> insert(Iterable<DocumentEntity> entities) {
-		// TODO Auto-generated method stub
-		return null;
+		if(entities == null) {
+			return Collections.emptySet();
+		} else {
+			return StreamSupport.stream(entities.spliterator(), false)
+				.map(this::insert)
+				.collect(Collectors.toList());
+		}
 	}
 
 	@Override
 	public Iterable<DocumentEntity> insert(Iterable<DocumentEntity> entities, Duration ttl) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO consider supporting ttl
+		return insert(entities);
 	}
 
 	@Override

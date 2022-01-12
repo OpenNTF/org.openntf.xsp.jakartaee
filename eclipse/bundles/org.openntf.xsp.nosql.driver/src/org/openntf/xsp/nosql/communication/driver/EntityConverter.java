@@ -5,9 +5,12 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.StreamSupport.stream;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.stream.Stream;
 
 import jakarta.json.Json;
@@ -129,10 +132,10 @@ public class EntityConverter {
 	 * <code>false</code> as the second parameter.</p>
 	 * 
 	 * @param entity the entity instance to convert
-	 * @return the converted JSON object
+	 * @param target the target Domino Document to store in
 	 */
-	public static Object convert(DocumentEntity entity) throws NotesException {
-		return convert(entity, false);
+	public static void convert(DocumentEntity entity, lotus.domino.Document target) throws NotesException {
+		convert(entity, false, target);
 	}
 	
 	/**
@@ -141,22 +144,45 @@ public class EntityConverter {
 	 * 
 	 * @param entity the entity instance to convert
 	 * @param retainId whether or not to remove the {@link #ID_FIELD} field during conversion
-	 * @return the converted JSON object
+	 * @param target the target Domino Document to store in
 	 */
-	public static Object convert(DocumentEntity entity, boolean retainId) throws NotesException {
+	public static void convert(DocumentEntity entity, boolean retainId, lotus.domino.Document target) throws NotesException {
 		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
 
-		JsonObjectBuilder jsonObject = Json.createObjectBuilder();
 		for(Document doc : entity.getDocuments()) {
-			if(!"$FILE".equalsIgnoreCase(doc.getName())) { //$NON-NLS-1$
-				jsonObject = toJsonObject(doc, jsonObject);
+			if(!"$FILE".equalsIgnoreCase(doc.getName()) && !ID_FIELD.equalsIgnoreCase(doc.getName())) { //$NON-NLS-1$
+				Object value = doc.get();
+				if(value == null) {
+					target.removeItem(doc.getName());
+				} else {
+					target.replaceItemValue(doc.getName(), toDominoFriendly(target, value)).recycle();
+				}
 			}
 		}
-		jsonObject = jsonObject.add(NAME_FIELD, entity.getName());
-		if(!retainId) {
-			jsonObject = jsonObject.remove(ID_FIELD);
+		
+		target.replaceItemValue(NAME_FIELD, entity.getName());
+	}
+	
+	private static Object toDominoFriendly(lotus.domino.Document context, Object value) throws NotesException {
+		if(value instanceof Iterable) {
+			Vector<Object> result = new Vector<Object>();
+			for(Object val : (Iterable<?>)value) {
+				result.add(toDominoFriendly(context, val));
+			}
+			return result;
+		} else if(value instanceof Date) {
+			return context.getParentDatabase().getParent().createDateTime((Date)value);
+		} else if(value instanceof Calendar) {
+			return context.getParentDatabase().getParent().createDateTime((Calendar)value);
+		} else if(value instanceof Number) {
+			return ((Number)value).doubleValue();
+		} else if(value instanceof Boolean) {
+			// TODO figure out if this can be customized, perhaps from the Settings element
+			return (Boolean)value ? "Y": "N"; //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			// TODO support other types above
+			return value.toString();
 		}
-		return jsonObject;
 	}
 
 	private static JsonObjectBuilder toJsonObject(Document d, JsonObjectBuilder json) {
