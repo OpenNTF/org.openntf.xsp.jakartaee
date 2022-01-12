@@ -17,11 +17,20 @@ package rest;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
 @Path("exceptionExample")
 public class ExceptionExample {
 	@GET
 	public Object get() {
 		throw new RuntimeException("this is an example exception", new RuntimeException("this is a cause"));
+	}
+	
+	@Path("html")
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	public Object getHtml() {
+		throw new RuntimeException("this is expected to be rendered as HTML", new RuntimeException("this is a cause"));
 	}
 }

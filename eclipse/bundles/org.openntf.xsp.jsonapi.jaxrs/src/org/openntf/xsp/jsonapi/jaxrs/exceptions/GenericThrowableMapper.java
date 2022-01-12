@@ -15,6 +15,10 @@
  */
 package org.openntf.xsp.jsonapi.jaxrs.exceptions;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -23,7 +27,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import javax.servlet.ServletException;
+
 import org.openntf.xsp.jaxrs.security.NotAuthorizedSignal;
+
+import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
 import jakarta.annotation.Priority;
 import jakarta.json.Json;
@@ -35,7 +43,9 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -56,6 +66,9 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 	
 	@Context
 	HttpServletRequest req;
+	
+	@Context
+	ResourceInfo resourceInfo;
 
 	@Override
 	public Response toResponse(final Throwable t) {
@@ -102,57 +115,74 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 	}
 
 	private Response createResponseFromException(final Throwable throwable, final int status) {
-		return Response.status(status)
-			.type(MediaType.APPLICATION_JSON_TYPE)
-			.entity((StreamingOutput)out -> {
-				Objects.requireNonNull(out);
-				String message = ""; //$NON-NLS-1$
-				Throwable t = throwable;
-				while ((message == null || message.length() == 0) && t != null) {
-					if (t instanceof NotesException) {
-						message = ((NotesException) t).text;
-					} else if (t instanceof ConstraintViolationException) {
-						message = t.getMessage();
-
-						if (message == null || message.isEmpty()) {
-							List<String> cvMsgList = new ArrayList<>();
-							for (@SuppressWarnings("rawtypes")
-							ConstraintViolation cv : ((ConstraintViolationException) t).getConstraintViolations()) {
-								String cvMsg = cv.getPropertyPath() + ": " + cv.getMessage(); //$NON-NLS-1$
-								cvMsgList.add(cvMsg);
-							}
-							message = String.join(",", cvMsgList); //$NON-NLS-1$
-						}
-					} else {
-						message = t.getMessage();
+		Produces produces = resourceInfo.getResourceMethod().getAnnotation(Produces.class);
+		if(produces != null && Arrays.stream(produces.value()).anyMatch(MediaType.TEXT_HTML::equals)) {
+			// Handle as HTML
+			return Response.status(status)
+				.type(MediaType.TEXT_HTML_TYPE)
+				.entity((StreamingOutput)out -> {
+					try(PrintWriter w = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
+						XSPErrorPage.handleException(w, throwable, req.getRequestURL().toString(), false);
+					} catch (ServletException e) {
+						throw new IOException(e);
 					}
+				})
+				.build();
+		} else {
+			// Handle as JSON
+			
+			return Response.status(status)
+				.type(MediaType.APPLICATION_JSON_TYPE)
+				.entity((StreamingOutput)out -> {
+					Objects.requireNonNull(out);
+					String message = ""; //$NON-NLS-1$
+					Throwable t = throwable;
+					while ((message == null || message.length() == 0) && t != null) {
+						if (t instanceof NotesException) {
+							message = ((NotesException) t).text;
+						} else if (t instanceof ConstraintViolationException) {
+							message = t.getMessage();
 
-					t = t.getCause();
-				}
-				
-				JsonGeneratorFactory jsonFac = Json.createGeneratorFactory(Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
-				try(JsonGenerator json = jsonFac.createGenerator(out)) {
-					json.writeStartObject();
+							if (message == null || message.isEmpty()) {
+								List<String> cvMsgList = new ArrayList<>();
+								for (@SuppressWarnings("rawtypes")
+								ConstraintViolation cv : ((ConstraintViolationException) t).getConstraintViolations()) {
+									String cvMsg = cv.getPropertyPath() + ": " + cv.getMessage(); //$NON-NLS-1$
+									cvMsgList.add(cvMsg);
+								}
+								message = String.join(",", cvMsgList); //$NON-NLS-1$
+							}
+						} else {
+							message = t.getMessage();
+						}
+
+						t = t.getCause();
+					}
 					
-					json.write("message", throwable.getClass().getName() + ": " + message); //$NON-NLS-1$ //$NON-NLS-2$
-					
-					json.writeKey("stackTrace"); //$NON-NLS-1$
-					json.writeStartArray();
-					for (Throwable cause = throwable; cause != null; cause = cause.getCause()) {
+					JsonGeneratorFactory jsonFac = Json.createGeneratorFactory(Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
+					try(JsonGenerator json = jsonFac.createGenerator(out)) {
+						json.writeStartObject();
+						
+						json.write("message", throwable.getClass().getName() + ": " + message); //$NON-NLS-1$ //$NON-NLS-2$
+						
+						json.writeKey("stackTrace"); //$NON-NLS-1$
 						json.writeStartArray();
-						json.write(cause.getClass().getName() + ": " + cause.getLocalizedMessage()); //$NON-NLS-1$
-						Arrays.stream(cause.getStackTrace())
-							.map(String::valueOf)
-							.map(line -> "  at " + line) //$NON-NLS-1$
-							.forEach(json::write);
+						for (Throwable cause = throwable; cause != null; cause = cause.getCause()) {
+							json.writeStartArray();
+							json.write(cause.getClass().getName() + ": " + cause.getLocalizedMessage()); //$NON-NLS-1$
+							Arrays.stream(cause.getStackTrace())
+								.map(String::valueOf)
+								.map(line -> "  at " + line) //$NON-NLS-1$
+								.forEach(json::write);
+							json.writeEnd();
+						}
+						json.writeEnd();
+						
 						json.writeEnd();
 					}
-					json.writeEnd();
-					
-					json.writeEnd();
-				}
-			})
-			.build();
+				})
+				.build();
+		}
 	}
 
 }
