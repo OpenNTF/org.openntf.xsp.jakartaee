@@ -43,7 +43,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 import jakarta.ws.rs.core.UriInfo;
@@ -65,12 +67,18 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 	
 	@Context
 	ResourceInfo resourceInfo;
+	
+	@Context
+	HttpHeaders headers;
+	
+	@Context
+	Request request;
 
 	@Override
 	public Response toResponse(final Throwable t) {
 		// Depending on the container, this may be called for exceptions better handled by more-specialized classes
 		if(t instanceof NotFoundException) {
-			return NotFoundMapper.INSTANCE.toResponse((NotFoundException)t);
+			return NotFoundMapper.INSTANCE.toResponse((NotFoundException)t, request, uriInfo);
 		}
 
 		if (t instanceof WebApplicationException) {
