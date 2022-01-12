@@ -8,8 +8,6 @@ import java.util.Set;
 
 import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
 
-import jakarta.json.Json;
-import jakarta.json.JsonObjectBuilder;
 import jakarta.nosql.Condition;
 import jakarta.nosql.SortType;
 import jakarta.nosql.TypeReference;
@@ -35,7 +33,6 @@ final class QueryConverter {
 	}
 
 	static QueryConverterResult select(DocumentQuery query) {
-		JsonObjectBuilder params = Json.createObjectBuilder();
 		String[] documents = query.getDocuments().toArray(new String[0]);
 		if (documents.length == 0) {
 			documents = ALL_SELECT;
@@ -48,38 +45,37 @@ final class QueryConverter {
 		String[] sorts = query.getSorts().stream().map(s -> s.getName() + (s.getType() == SortType.DESC ? " d" : "")).toArray(String[]::new); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (query.getCondition().isPresent()) {
-			statement = getCondition(query.getCondition().get(), params);
+			statement = getCondition(query.getCondition().get());
 			// Add in the form property if needed
 			statement = applyCollectionName(statement, query.getDocumentCollection());
 		} else {
 			statement = applyCollectionName(null, query.getDocumentCollection());
 		}
-		return new QueryConverterResult(documents, params, statement, skip, limit);
+		return new QueryConverterResult(documents, statement, skip, limit);
 	}
 
-	static QueryConverterResult delete(DocumentDeleteQuery query, String database, String store) {
-		// TODO
+	static QueryConverterResult delete(DocumentDeleteQuery query) {
 		throw new RuntimeException("not implemented");
 	}
 
-	private static DQLTerm getCondition(DocumentCondition condition, JsonObjectBuilder params) {
+	public static DQLTerm getCondition(DocumentCondition condition) {
 		Document document = condition.getDocument();
 
 		if (!NOT_APPENDABLE.contains(condition.getCondition())) {
-			params = EntityConverter.add(params, document.getName(), document.get());
+			// TODO determine if this is relevant
+//			params = EntityConverter.add(params, document.getName(), document.get());
 		}
 
 		// Convert special names
 		String name = document.getName();
 		if (String.valueOf(name).equals(EntityConverter.ID_FIELD)) {
-			name = "@DocumentUniqueID";
+			name = "@DocumentUniqueID"; //$NON-NLS-1$
 		}
 
 		Object placeholder = document.get();
 		if(placeholder != null && placeholder.getClass().isEnum()) {
 			placeholder = placeholder.toString();
 		}
-		JsonObjectBuilder p = params;
 		switch (condition.getCondition()) {
 			case EQUALS:
 				if(placeholder instanceof Number) {
@@ -128,19 +124,19 @@ final class QueryConverter {
 				List<DocumentCondition> conditions = document.get(new TypeReference<List<DocumentCondition>>() {});
 				return DQL.and(conditions
 					.stream()
-					.map(c -> getCondition(c, p))
+					.map(c -> getCondition(c))
 					.toArray(DQLTerm[]::new));
 			}
 			case OR: {
 				List<DocumentCondition> conditions = document.get(new TypeReference<List<DocumentCondition>>() {});
 				return DQL.or(conditions
 					.stream()
-					.map(c -> getCondition(c, p))
+					.map(c -> getCondition(c))
 					.toArray(DQLTerm[]::new));
 			}
 			case NOT:
 				DocumentCondition dc = document.get(DocumentCondition.class);
-				return DQL.not(getCondition(dc, p));
+				return DQL.not(getCondition(dc));
 			default:
 				throw new IllegalStateException("This condition is not supported in Darwino: " + condition.getCondition()); //$NON-NLS-1$
 		}
@@ -148,15 +144,13 @@ final class QueryConverter {
 
 	static class QueryConverterResult {
 
-		private final Object params;
 		private final String[] unids;
 		private final DQLTerm dql;
 		private final int skip;
 		private final int limit;
 
-		QueryConverterResult(String[] unids, Object params, DQLTerm dql, int skip, int limit) {
+		QueryConverterResult(String[] unids, DQLTerm dql, int skip, int limit) {
 			this.unids = unids;
-			this.params = params;
 			this.dql = dql;
 			this.skip = skip;
 			this.limit = limit;
@@ -164,10 +158,6 @@ final class QueryConverter {
 		
 		public String[] getUnids() {
 			return unids;
-		}
-
-		Object getParams() {
-			return params;
 		}
 
 		DQLTerm getStatement() {

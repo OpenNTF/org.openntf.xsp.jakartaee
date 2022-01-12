@@ -2,6 +2,7 @@ package org.openntf.xsp.nosql.communication.driver;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -86,14 +87,32 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 	@Override
 	public void delete(DocumentDeleteQuery query) {
-		// TODO Auto-generated method stub
-
+		try {
+			Database database = supplier.get();
+			List<String> unids = query.getDocuments();
+			if(unids != null && !unids.isEmpty()) {
+				for(String unid : unids) {
+					if(unid != null && !unid.isEmpty()) {
+						lotus.domino.Document doc = database.getDocumentByUNID(unid);
+						doc.remove(true);
+					}
+				}
+			} else if(query.getCondition().isPresent()) {
+				// Then do it via DQL
+				DQLTerm dql = QueryConverter.getCondition(query.getCondition().get());
+				DominoQuery dominoQuery = database.createDominoQuery();
+				DocumentCollection docs = dominoQuery.execute(dql.toString());
+				docs.removeAll(true);
+			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public Stream<DocumentEntity> select(DocumentQuery query) {
-		QueryConverterResult queryResult = QueryConverter.select(query);
 		try {
+			QueryConverterResult queryResult = QueryConverter.select(query);
 			Database database = supplier.get();
 			DominoQuery dominoQuery = database.createDominoQuery();
 			// TODO limit, skip, and sort efficiently

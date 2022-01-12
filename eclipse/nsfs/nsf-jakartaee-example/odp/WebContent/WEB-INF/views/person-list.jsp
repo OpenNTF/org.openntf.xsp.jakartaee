@@ -16,23 +16,40 @@
 
 --%>
 <%@page contentType="text/html" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Create New Person</title>
+		<title>Person List</title>
 	</head>
 	<body>
-		<form method="POST" enctype="application/x-www-form-urlencoded" action="create">
-			<dl>
-				<dt>First Name</dt>
-				<dd><input type="text" required name="firstName" /></dd>
+		<table>
+			<thead>
+				<tr>
+					<th>Last Name</th>
+					<th>First Name</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach items="${persons}" var="person">
+					<tr>
+						<td><a href="${person.unid}">${fn:escapeXml(person.lastName)}</a></td>
+						<td>${fn:escapeXml(person.firstName)}</td>
+						<td>
+							<form method="POST" action="${person.unid}/delete">
+								<input type="submit" value="Delete"/>
+							</form>
+						</td>
+					</tr>
+					
+				</c:forEach>
+			</tbody>
+		</table>
 				
-				<dt>Last Name</dt>
-				<dd><input type="text" required name="lastName" /></dd>
-			</dl>
-			<input type="submit" value="Create Person" />
-		</form>
+		<hr />
+		
+		<a href="create">Create New</a>
 	</body>
 </html>
