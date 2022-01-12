@@ -36,6 +36,9 @@
 		<resteasy-version>6.0.0.Beta1</resteasy-version>
 		<resteasy-mp-version>2.0.0.Beta1</resteasy-mp-version>
 		<hibernate-version>7.0.1.Final</hibernate-version>
+		<!-- jakarta.* snapshot builds are opn OpenNTF's server -->
+		<nosql-version>1.0.0-SNAPSHOT</nosql-version>
+		<nosql-version-osgi>1.0.0</nosql-version-osgi>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
@@ -397,6 +400,117 @@
 										<Fragment-Host>org.openntf.org.eclipse.krazo.core</Fragment-Host>
 									</instructions>
 								</artifact>
+								
+								<!--
+									NoSQL
+								-->
+								<!--
+									These all use ServiceLoader to provide implementations, so bind children
+									to parents and also make the parents extensible for PDE needs.
+								-->
+								<artifact>
+									<id>jakarta.nosql.communication:communication-core:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.core</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>jakarta.nosql.communication:communication-query:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.query</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>jakarta.nosql.communication:communication-document:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.document</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>jakarta.nosql.mapping:mapping-core:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.core</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>jakarta.nosql.mapping:mapping-document:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.document</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.communication:communication-core:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.core</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.jakarta.nosql.communication.core</Fragment-Host>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.communication:communication-query:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.query</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.jakarta.nosql.communication.query</Fragment-Host>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.communication:communication-document:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.document</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.jakarta.nosql.communication.document</Fragment-Host>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.mapping:mapping-core:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.mapping.core</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.jakarta.nosql.mapping.core</Fragment-Host>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.mapping:mapping-document:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.mapping.document</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.jakarta.nosql.mapping.document</Fragment-Host>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								
 								
 								<!--
 									MicroProfile Config

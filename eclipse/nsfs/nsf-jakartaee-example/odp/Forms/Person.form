@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$HTMLCode" sign="true">
+    <rawitemdata type="1">
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata>
+  </item>
+  <item name="$TITLE">
+    <text>Person</text>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$Info" sign="true">
+    <rawitemdata type="1">
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata>
+  </item>
+  <item name="$Flags">
+    <text/>
+  </item>
+  <item name="FirstName" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="LastName" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="$Fields">
+    <textlist>
+      <text>LastName</text>
+      <text>FirstName</text>
+    </textlist>
+  </item>
+  <item name="$Body" sign="true">
+    <rawitemdata type="1">
+gQKC/1oAAQAAAAAAAAAAAKAFAACgBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAABAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAEAhf8IAAEAAAqBAoMEAQCF/xQA
+AQAACkZpcnN0IE5hbWU6IN0GAACK//7/UAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAHgAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAiv8uAIoAAAUAMAIA
+AAAAAAACAQAACgAAAAAAAAAACQAAAAAARmlyc3ROYW1lAGIOAQCEAAAAAAAAAAAA3gYAAIr/hf8I
+AAEAAAqBAoMEAQCF/xMAAQAACkxhc3QgTmFtZTogAN0GAACK//7/UAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAHgAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAiv8sAIoAAAUAMAIAAAAAAAACAQAACgAAAAAAAAAACAAAAAAATGFzdE5hbWViDgEAhAAAAAAA
+AAAAAN4GAACK/4X/CAABAAAK
+</rawitemdata>
+  </item>
+</note>
