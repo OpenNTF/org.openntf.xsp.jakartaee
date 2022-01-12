@@ -46,9 +46,9 @@ final class QueryConverter {
 		if (query.getCondition().isPresent()) {
 			statement = getCondition(query.getCondition().get());
 			// Add in the form property if needed
-			statement = applyCollectionName(statement, query.getDocumentCollection());
+			statement = applyFormName(statement, query.getDocumentCollection());
 		} else {
-			statement = applyCollectionName(null, query.getDocumentCollection());
+			statement = applyFormName(null, query.getDocumentCollection());
 		}
 		return new QueryConverterResult(documents, statement, skip, limit);
 	}
@@ -173,14 +173,14 @@ final class QueryConverter {
 	}
 
 	
-	private static DQLTerm applyCollectionName(DQLTerm condition, String collection) {
-		if(collection == null || collection.isEmpty()) {
+	private static DQLTerm applyFormName(DQLTerm condition, String formName) {
+		if(formName == null || formName.isEmpty()) {
 			return condition;
 		} else {
 			if(condition == null) {
-				return DQL.item(EntityConverter.NAME_FIELD).isEqualTo(collection);
+				return DQL.item(EntityConverter.NAME_FIELD).isEqualTo(formName);
 			} else {
-				return DQL.and(condition, DQL.item(EntityConverter.NAME_FIELD).isEqualTo(collection));
+				return DQL.and(condition, DQL.item(EntityConverter.NAME_FIELD).isEqualTo(formName));
 			}
 		}
 	}
