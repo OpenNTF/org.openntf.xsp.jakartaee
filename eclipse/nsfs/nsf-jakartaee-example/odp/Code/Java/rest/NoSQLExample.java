@@ -1,6 +1,8 @@
 package rest;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
@@ -15,11 +17,14 @@ import model.PersonRepository;
 @Path("nosql")
 public class NoSQLExample {
 	@Inject
-	PersonRepository persons;
+	PersonRepository personRepository;
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Person> get(@QueryParam("lastName") String lastName) {
-		return persons.findByLastName(lastName).collect(Collectors.toList());
+	public Object get(@QueryParam("lastName") String lastName) {
+		Map<String, Object> result = new LinkedHashMap<>();
+		result.put("byQueryLastName", personRepository.findByLastName(lastName).collect(Collectors.toList()));
+		result.put("totalCount", personRepository.count());
+		return result;
 	}
 }

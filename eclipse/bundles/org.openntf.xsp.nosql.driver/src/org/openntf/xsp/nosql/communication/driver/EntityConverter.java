@@ -22,15 +22,14 @@ import lotus.domino.NotesException;
 public class EntityConverter {
 	/**
 	 * The field used to store the UNID of the document during JSON
-	 * serialization, currently "_id"
+	 * serialization, currently {@value #ID_FIELD}
 	 */
 	public static final String ID_FIELD = "_id"; //$NON-NLS-1$
 	/**
 	 * The expected field containing the collection name of the document in
-	 * Domino, currently "form"
+	 * Domino, currently {@value #NAME_FIELD}
 	 */
-	// TODO consider making this the store ID
-	public static final String NAME_FIELD = "form"; //$NON-NLS-1$
+	public static final String NAME_FIELD = "Form"; //$NON-NLS-1$
 
 	private EntityConverter() {
 	}

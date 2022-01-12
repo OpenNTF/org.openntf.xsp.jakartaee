@@ -3,6 +3,7 @@ package org.openntf.xsp.nosql.communication.driver;
 import java.time.Duration;
 import java.util.stream.Stream;
 
+import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.QueryConverter.QueryConverterResult;
 
 import jakarta.nosql.document.DocumentDeleteQuery;
@@ -86,8 +87,16 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 	@Override
 	public long count(String documentCollection) {
-		// TODO count by form
-		return 0;
+		try {
+			Database database = supplier.get();
+			DominoQuery dominoQuery = database.createDominoQuery();
+			DQLTerm dql = DQL.item(EntityConverter.NAME_FIELD).isEqualTo(documentCollection);
+			DocumentCollection result = dominoQuery.execute(dql.toString());
+			return result.getCount();
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+		
 	}
 
 	@Override
