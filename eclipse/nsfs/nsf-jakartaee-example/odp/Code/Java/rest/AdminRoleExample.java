@@ -29,4 +29,12 @@ public class AdminRoleExample {
 	public String get() {
 		return "I think you're an admin!";
 	}
+	
+	@Path("invaliduser")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@RolesAllowed("dfsesdf fd fsdf sdf sdfsddfsdfsdfsdfsd ds d sdf")
+	public String getFakeUser() {
+		return "It's unlikely, but I suppose possible, that you're allowed to see this.";
+	}
 }
