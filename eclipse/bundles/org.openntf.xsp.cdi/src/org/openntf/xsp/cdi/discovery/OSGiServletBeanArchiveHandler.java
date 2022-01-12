@@ -109,7 +109,7 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 		bundleNames.add(symbolicName);
 		
 		// Only look when there's a beans.xml, to be less costly
-		DiscoveryUtil.findExportedClasses(bundle).forEach(builder::addClass);
+		DiscoveryUtil.findExportedClassNames(bundle, false).forEach(builder::addClass);
 		
 		String requireBundle = bundle.getHeaders().get("Require-Bundle"); //$NON-NLS-1$
 		if(StringUtil.isNotEmpty(requireBundle)) {

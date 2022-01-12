@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Jakarta NoSQL Driver
+Bundle-SymbolicName: org.openntf.xsp.nosql.driver;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.nosql.driver
+Bundle-Version: 2.3.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: jakarta.enterprise.inject;version="3.0.0",
+ jakarta.enterprise.inject.spi;version="3.0.0",
+ jakarta.inject;version="2.0.0",
+ jakarta.json;version="2.0.0",
+ jakarta.nosql,
+ jakarta.nosql.document,
+ lotus.domino,
+ org.eclipse.jnosql.communication.writer
+Export-Package: org.openntf.xsp.nosql.communication.driver;version="2.3.0"

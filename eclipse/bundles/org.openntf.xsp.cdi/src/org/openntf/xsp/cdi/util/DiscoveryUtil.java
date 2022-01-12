@@ -38,17 +38,18 @@ public enum DiscoveryUtil {
 	;
 	
 	/**
-	 * Searches through the provided bundle to find all exported classes.
+	 * Searches through the provided bundle to find all exported class names.
 	 * 
 	 * <p>This restricts querying to bundles with a beans.xml file and to classes within
 	 * the bundle's {@code Export-Package} listing.</p>
 	 * 
 	 * @param bundle a {@link Bundle} instance to query
+	 * @param force include classes even when there's no beans.xml
 	 * @return a {@link Stream} of discovered exported classes
 	 * @throws BundleException if there is a problem parsing the bundle manifest
 	 */
-	public static Stream<String> findExportedClasses(Bundle bundle) throws BundleException {
-		if(bundle.getResource("/META-INF/beans.xml") != null || bundle.getResource("/WEB-INF/beans.xml") != null) { //$NON-NLS-1$ //$NON-NLS-2$
+	public static Stream<String> findExportedClassNames(Bundle bundle, boolean force) throws BundleException {
+		if(force || bundle.getResource("/META-INF/beans.xml") != null || bundle.getResource("/WEB-INF/beans.xml") != null) { //$NON-NLS-1$ //$NON-NLS-2$
 			String exportPackages = bundle.getHeaders().get("Export-Package"); //$NON-NLS-1$
 			if(StringUtil.isNotEmpty(exportPackages)) {
 				// Restrict to exported packages for sanity's sake
@@ -76,6 +77,34 @@ public enum DiscoveryUtil {
 		
 		return Stream.empty();
 	}
+	
+	/**
+	 * Searches through the provided bundle to find all exported classes, loading them
+	 * from the bundle.
+	 * 
+	 * <p>This restricts querying to bundles with a beans.xml file and to classes within
+	 * the bundle's {@code Export-Package} listing.</p>
+	 * 
+	 * @param bundle a {@link Bundle} instance to query
+	 * @param force include classes even when there's no beans.xml
+	 * @return a {@link Stream} of discovered exported classes
+	 * @throws BundleException if there is a problem parsing the bundle manifest
+	 * @since 2.3.0
+	 */
+	public static Stream<Class<?>> findExportedClasses(Bundle bundle, boolean force) throws BundleException {
+		return findExportedClassNames(bundle, force)
+			.map(className -> {
+				try {
+					return bundle.loadClass(className);
+				} catch (ClassNotFoundException e) {
+					throw new RuntimeException(e);
+				}
+			});
+	}
+	
+	// *******************************************************************************
+	// * Internal utility methods
+	// *******************************************************************************
 	
 	private static String toClassName(String resourceName) {
 		if(StringUtil.isEmpty(resourceName)) {

@@ -12,6 +12,8 @@ The project contains the following third-party code:
 - pristo_rest by Martin Pradny, available from https://bitbucket.org/pradnik/pristo_rest/src/master/to.pris.rest.xsp/src/to/pris/rest/ and used with permission
 - The Jakarta Mail API, available from https://github.com/eclipse-ee4j/mail and licensed under the Eclipse Public License 2.0. See "LICENSE-mail.md" and "LICENSE-mail.md" in the "legal" directory
 - Portions of Eclipse Angus, available from https://github.com/eclipse-ee4j/angus-mail and licensed under the Eclipse Public License 2.0. See "LICENSE-angus.md" and "LICENSE-angus.md" in the "legal" directory
+- Portions of Domino JNA, available from https://github.com/klehmann/domino-jna and licensed under Apache 2.0
+- Code derived from the Darwino JNoSQL driver, available from https://github.com/darwino/diana-driver and licensed under Apache 2.0
 
 The binary distribution contains the following 3rd party code:
 
@@ -27,6 +29,7 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta Server Pages API, available from https://github.com/eclipse-ee4j/jsp-api and licensed under the EPL 2.0
 - The Jakarta Standard Tag Library API, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/api and licensed under the EPL 2.0
 - The Jakarta MVC API, available from https://github.com/eclipse-ee4j/mvc-api and licensed under the EPL 2.0
+- The Jakarta NoSQL API, available from https://github.com/eclipse-ee4j/nosql and licensed under the EPL 2.0
 - The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
 - The MicroProfile Config API, available from https://github.com/eclipse/microprofile-config and licensed under the EPL 2.0
 - The MicroProfile Metrics API, available from https://github.com/eclipse/microprofile-metrics and licensed under the EPL 2.0
@@ -46,6 +49,7 @@ The binary distribution contains the following 3rd party code:
 - GlassFish/Jasper JSP, available from https://mvnrepository.com/artifact/org.glassfish.web/jakarta.servlet.jsp/3.0.0 and licensed under the EPL 2.0
 - The GlassFish JSTL implementation, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/impl and licensed under the EPL 2.0
 - Eclipse Krazo, available from https://github.com/eclipse-ee4j/krazo and licensed under the EPL 2.0
+- Eclipse JNoSQL, available from https://github.com/eclipse/jnosql and licensed under the EPL 1.0
 - The SmallRye OpenAPI implementation, available from https://github.com/smallrye/smallrye-open-api and licensed under Apache 2.0
 - The SmallRye Metrics implementation, available from https://github.com/smallrye/smallrye-metrics and licensed under Apache 2.0
 - The SmallRye Config implementation, available from https://github.com/smallrye/smallrye-config and licensed under Apache 2.0
@@ -65,3 +69,4 @@ The binary distribution contains the following 3rd party code:
 - SmallRye Reactive Converters, available from https://github.com/smallrye/smallrye-reactive-converters and licensed under Apache 2.0
 - SmallRye Mutiny, available from https://github.com/smallrye/smallrye-mutiny and licensed under Apache 2.0
 - SmallRye Common utilities, available from https://github.com/smallrye/smallrye-common and licensed under Apache 2.0
+- ANTLR v4 Runtime, available from https://github.com/antlr/antlr4 and licensed under the BSD 3-clause license
