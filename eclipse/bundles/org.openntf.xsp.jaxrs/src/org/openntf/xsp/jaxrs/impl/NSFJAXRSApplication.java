@@ -15,9 +15,15 @@
  */
 package org.openntf.xsp.jaxrs.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -76,6 +82,22 @@ public class NSFJAXRSApplication extends Application {
 			.map(className -> loadClass(module, className))
 			.filter(this::isJAXRSClass)
 			.forEach(result::add);
+		return result;
+	}
+	
+	@Override
+	public Map<String, Object> getProperties() {
+		Map<String, Object> result = new LinkedHashMap<>();
+		// Read in xsp.properties
+		NSFComponentModule module = NotesContext.getCurrent().getModule();
+		Properties xspProperties = new Properties();
+		try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
+			xspProperties.load(is);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		xspProperties.forEach((key, value) -> result.put(key.toString(), value));
+		System.out.println("added props " + result);
 		return result;
 	}
 	
