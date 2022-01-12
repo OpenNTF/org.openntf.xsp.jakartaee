@@ -133,8 +133,9 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			QueryConverterResult queryResult = QueryConverter.select(query);
 			Database database = supplier.get();
 			DominoQuery dominoQuery = database.createDominoQuery();
-			// TODO limit, skip, and sort efficiently
-			DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
+			DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());			
+			// TODO investigate limiting, skipping, and sorting with QRP
+			
 			Stream<DocumentEntity> result = EntityConverter.convert(docs);
 			if(queryResult.getSkip() > 0) {
 				result = result.skip(queryResult.getSkip());
@@ -142,6 +143,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			if(queryResult.getLimit() > 0) {
 				result = result.limit(queryResult.getLimit());
 			}
+			
 			return result;
 		} catch(NotesException e) {
 			throw new RuntimeException(e);

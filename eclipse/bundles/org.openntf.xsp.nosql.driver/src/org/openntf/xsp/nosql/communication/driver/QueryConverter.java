@@ -9,11 +9,9 @@ import java.util.Set;
 import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
 
 import jakarta.nosql.Condition;
-import jakarta.nosql.SortType;
 import jakarta.nosql.TypeReference;
 import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentCondition;
-import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentQuery;
 
 /**
@@ -38,10 +36,8 @@ final class QueryConverter {
 		}
 
 		DQLTerm statement;
-		int skip = (int)query.getSkip();
-		int limit = (int)query.getLimit();
-
-		String[] sorts = query.getSorts().stream().map(s -> s.getName() + (s.getType() == SortType.DESC ? " d" : "")).toArray(String[]::new); //$NON-NLS-1$ //$NON-NLS-2$
+		long skip = query.getSkip();
+		long limit = query.getLimit();
 
 		if (query.getCondition().isPresent()) {
 			statement = getCondition(query.getCondition().get());
@@ -51,10 +47,6 @@ final class QueryConverter {
 			statement = applyFormName(null, query.getDocumentCollection());
 		}
 		return new QueryConverterResult(documents, statement, skip, limit);
-	}
-
-	static QueryConverterResult delete(DocumentDeleteQuery query) {
-		throw new RuntimeException("not implemented");
 	}
 
 	public static DQLTerm getCondition(DocumentCondition condition) {
@@ -145,10 +137,10 @@ final class QueryConverter {
 
 		private final String[] unids;
 		private final DQLTerm dql;
-		private final int skip;
-		private final int limit;
+		private final long skip;
+		private final long limit;
 
-		QueryConverterResult(String[] unids, DQLTerm dql, int skip, int limit) {
+		QueryConverterResult(String[] unids, DQLTerm dql, long skip, long limit) {
 			this.unids = unids;
 			this.dql = dql;
 			this.skip = skip;
@@ -163,11 +155,11 @@ final class QueryConverter {
 			return dql;
 		}
 		
-		public int getSkip() {
+		public long getSkip() {
 			return skip;
 		}
 		
-		public int getLimit() {
+		public long getLimit() {
 			return limit;
 		}
 	}
