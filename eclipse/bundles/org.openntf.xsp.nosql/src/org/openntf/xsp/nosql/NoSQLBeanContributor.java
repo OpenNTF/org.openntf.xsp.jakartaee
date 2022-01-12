@@ -30,6 +30,7 @@ import org.eclipse.jnosql.mapping.reflection.ClassMappingExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.nosql.bean.ContextDatabaseSupplier;
 import org.openntf.xsp.nosql.bean.ContextDocumentCollectionManagerProducer;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
@@ -71,6 +72,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 				.forEach(result::add);
 			
 			result.add(ContextDocumentCollectionManagerProducer.class);
+			result.add(ContextDatabaseSupplier.class);
 			
 			return result;
 		} else {

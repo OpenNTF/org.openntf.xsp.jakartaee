@@ -5,11 +5,9 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.StreamSupport.stream;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import jakarta.json.Json;
@@ -17,7 +15,7 @@ import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentEntity;
-import lotus.domino.Database;
+import lotus.domino.DocumentCollection;
 import lotus.domino.Item;
 import lotus.domino.NotesException;
 
@@ -37,23 +35,21 @@ public class EntityConverter {
 	private EntityConverter() {
 	}
 
-	static Stream<DocumentEntity> convert(Collection<String> keys, Database database) {
-		// TODO create a lazy-loading list
-		return keys.stream().map(t -> {
-			try {
-				return database.getDocumentByUNID(t);
-			} catch (NotesException e) {
-				throw new RuntimeException(e);
-			}
-		}).filter(Objects::nonNull).map(doc -> {
-			try {
-				List<Document> documents = toDocuments(doc);
-				String name = doc.getItemValueString(NAME_FIELD);
-				return DocumentEntity.of(name, documents);
-			} catch (NotesException e) {
-				throw new RuntimeException(e);
-			}
-		});
+	static Stream<DocumentEntity> convert(DocumentCollection docs) throws NotesException {
+		// TODO stream this better
+		// TODO create a lazy-loading list?
+		List<DocumentEntity> result = new ArrayList<>();
+		lotus.domino.Document doc = docs.getFirstDocument();
+		while(doc != null) {
+			List<Document> documents = toDocuments(doc);
+			String name = doc.getItemValueString(NAME_FIELD);
+			result.add(DocumentEntity.of(name, documents));
+			
+			lotus.domino.Document tempDoc = doc;
+			doc = docs.getNextDocument();
+			tempDoc.recycle();
+		}
+		return result.stream();
 	}
 
 	@SuppressWarnings("unchecked")
