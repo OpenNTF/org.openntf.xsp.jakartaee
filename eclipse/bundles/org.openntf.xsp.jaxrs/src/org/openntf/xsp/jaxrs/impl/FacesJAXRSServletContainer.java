@@ -43,6 +43,7 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem;
+import com.ibm.xsp.acl.NoAccessSignal;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.context.FacesContextEx;
 import com.ibm.xsp.controller.FacesController;
@@ -129,6 +130,8 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 		    		participant.doAfterService(request, response);
 		    	}
 	    	}
+		} catch(NoAccessSignal t) {
+			throw t;
 		} catch(Throwable t) {
 			t.printStackTrace();
 			response.sendError(500, "Application failed!"); //$NON-NLS-1$

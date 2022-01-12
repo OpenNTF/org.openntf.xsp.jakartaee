@@ -16,6 +16,7 @@ Require-Bundle: jakarta.annotation-api;bundle-version="2.0.0";visibility:=reexpo
 Import-Package: com.ibm.commons.util,
  com.ibm.designer.runtime.domino.adapter,
  com.ibm.domino.xsp.module.nsf,
+ com.ibm.xsp.acl,
  com.ibm.xsp.application,
  com.ibm.xsp.context,
  com.ibm.xsp.controller,

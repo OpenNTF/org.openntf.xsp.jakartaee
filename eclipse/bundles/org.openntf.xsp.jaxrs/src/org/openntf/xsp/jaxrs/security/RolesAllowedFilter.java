@@ -18,6 +18,8 @@ package org.openntf.xsp.jaxrs.security;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
+import com.ibm.xsp.acl.NoAccessSignal;
+
 import jakarta.annotation.Priority;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
@@ -46,7 +48,7 @@ public class RolesAllowedFilter implements ContainerRequestFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		if(!isAllowed(requestContext)) {
-			throw new NotAuthorizedSignal();
+			throw new NoAccessSignal();
 		}
 	}
 	
