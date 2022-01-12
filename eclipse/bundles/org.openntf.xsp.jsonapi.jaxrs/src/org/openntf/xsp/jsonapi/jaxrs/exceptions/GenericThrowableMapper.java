@@ -29,8 +29,6 @@ import java.util.Objects;
 
 import javax.servlet.ServletException;
 
-import org.openntf.xsp.jaxrs.security.NotAuthorizedSignal;
-
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
 import jakarta.annotation.Priority;
@@ -75,9 +73,6 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 		// Depending on the container, this may be called for exceptions better handled by more-specialized classes
 		if(t instanceof NotFoundException) {
 			return NotFoundMapper.INSTANCE.toResponse((NotFoundException)t);
-		}
-		if(t instanceof NotAuthorizedSignal) {
-			return createNotAuthorizedResponse();
 		}
 
 		if (t instanceof WebApplicationException) {
