@@ -168,7 +168,8 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				Session sessionAsSigner = sessionSupplier.get();
 				Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
 
-				String viewName = getClass().getName() + "-" + (String.valueOf(sorts) + skip + limit).hashCode(); //$NON-NLS-1$
+				String userName = database.getParent().getEffectiveUserName();
+				String viewName = getClass().getName() + "-" + (String.valueOf(sorts) + skip + limit + userName).hashCode(); //$NON-NLS-1$
 				View view = databaseAsSigner.getView(viewName);
 				try {
 					if(view != null) {
@@ -191,7 +192,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					if(view != null) {
 						result = EntityConverter.convert(database, view);
 					} else {
-						DominoQuery dominoQuery = databaseAsSigner.createDominoQuery();		
+						DominoQuery dominoQuery = database.createDominoQuery();		
 						QueryResultsProcessor qrp = databaseAsSigner.createQueryResultsProcessor();
 						try {
 							qrp.addDominoQuery(dominoQuery, queryResult.getStatement().toString(), null);
