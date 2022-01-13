@@ -314,6 +314,7 @@
 						<exclude>**/beans_*.xsd</exclude>
 						<exclude>**/database.properties</exclude>
 						<exclude>**/xspdesign.properties</exclude>
+						<exclude>**/DQL.java</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
