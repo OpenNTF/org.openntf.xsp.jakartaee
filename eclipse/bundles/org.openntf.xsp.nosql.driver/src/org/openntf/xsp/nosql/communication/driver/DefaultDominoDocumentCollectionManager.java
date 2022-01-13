@@ -23,9 +23,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
 import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.QueryConverter.QueryConverterResult;
+
+import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesSession;
 
 import jakarta.nosql.Sort;
 import jakarta.nosql.SortType;
@@ -35,17 +37,22 @@ import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
 import lotus.domino.Base;
 import lotus.domino.Database;
+import lotus.domino.DateTime;
 import lotus.domino.DocumentCollection;
 import lotus.domino.DominoQuery;
 import lotus.domino.NotesException;
 import lotus.domino.QueryResultsProcessor;
+import lotus.domino.Session;
+import lotus.domino.View;
 
 public class DefaultDominoDocumentCollectionManager implements DominoDocumentCollectionManager {
 
 	private final DatabaseSupplier supplier;
+	private final SessionSupplier sessionSupplier;
 	
-	public DefaultDominoDocumentCollectionManager(DatabaseSupplier supplier) {
+	public DefaultDominoDocumentCollectionManager(DatabaseSupplier supplier, SessionSupplier sessionSupplier) {
 		this.supplier = supplier;
+		this.sessionSupplier = sessionSupplier;
 	}
 	
 	@Override
@@ -156,33 +163,70 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			List<Sort> sorts = query.getSorts();
 			Stream<DocumentEntity> result;
 			
-			Database database = supplier.get();
-			DominoQuery dominoQuery = database.createDominoQuery();		
-			try {
-				if(sorts != null && !sorts.isEmpty()) {
-					QueryResultsProcessor qrp = database.createQueryResultsProcessor();
-					qrp.addDominoQuery(dominoQuery, queryResult.getStatement().toString(), null);
-					for(Sort sort : sorts) {
-						int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
-						qrp.addColumn(sort.getName(), null, null, dir, false, false);
+			if(sorts != null && !sorts.isEmpty()) {
+				Database database = supplier.get();
+				Session sessionAsSigner = sessionSupplier.get();
+				Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
+
+				String viewName = getClass().getName() + "-" + (String.valueOf(sorts) + skip + limit).hashCode(); //$NON-NLS-1$
+				View view = databaseAsSigner.getView(viewName);
+				try {
+					if(view != null) {
+						// Check to see if we need to "expire" it based on the data mod time of the DB
+						DateTime created = view.getCreated();
+						try {
+							long dataMod = NotesSession.getLastDataModificationDateByName(database.getServer(), database.getFilePath());
+							if(dataMod > (created.toJavaDate().getTime() / 1000)) {
+								view.remove();
+								view.recycle();
+								view = null;
+							}
+						} catch (NotesAPIException e) {
+							throw new RuntimeException(e);
+						} finally {
+							recycle(created);
+						}
 					}
-					
-					if(skip == 0 && limit > 0 && limit <= Integer.MAX_VALUE) {
-						qrp.setMaxEntries((int)limit);
+	
+					if(view != null) {
+						result = EntityConverter.convert(database, view);
+					} else {
+						DominoQuery dominoQuery = databaseAsSigner.createDominoQuery();		
+						QueryResultsProcessor qrp = databaseAsSigner.createQueryResultsProcessor();
+						try {
+							qrp.addDominoQuery(dominoQuery, queryResult.getStatement().toString(), null);
+							for(Sort sort : sorts) {
+								int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
+								qrp.addColumn(sort.getName(), null, null, dir, false, false);
+							}
+							
+							if(skip == 0 && limit > 0 && limit <= Integer.MAX_VALUE) {
+								qrp.setMaxEntries((int)limit);
+							}
+							
+							view = qrp.executeToView(viewName, 24);
+							try {
+								result = EntityConverter.convert(database, view);
+							} finally {
+								recycle(view);
+							}
+						} finally {
+							recycle(qrp, dominoQuery, databaseAsSigner);
+						}
 					}
-					
-					String json = qrp.executeToJSON();
-					result = EntityConverter.convert(database, json);
-				} else {
-					DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
-					try {
-						result = EntityConverter.convert(docs);
-					} finally {
-						recycle(docs);
-					}
+				} finally {
+					recycle(view);
 				}
-			} finally {
-				recycle(dominoQuery);
+				
+			} else {
+				Database database = supplier.get();
+				DominoQuery dominoQuery = database.createDominoQuery();		
+				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
+				try {
+					result = EntityConverter.convert(docs);
+				} finally {
+					recycle(docs, dominoQuery);
+				}
 			}
 			
 			if(skip > 0) {

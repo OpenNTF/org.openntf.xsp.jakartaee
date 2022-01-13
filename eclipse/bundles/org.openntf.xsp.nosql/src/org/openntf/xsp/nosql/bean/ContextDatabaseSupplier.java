@@ -16,18 +16,24 @@
 package org.openntf.xsp.nosql.bean;
 
 import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
+import org.openntf.xsp.nosql.communication.driver.SessionSupplier;
 
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import lotus.domino.Database;
+import jakarta.enterprise.inject.Produces;
 
 @ApplicationScoped
-public class ContextDatabaseSupplier implements DatabaseSupplier {
+public class ContextDatabaseSupplier {
 
-	@Override
-	public Database get() {
-		return NotesContext.getCurrent().getCurrentDatabase();
+	@Produces
+	public DatabaseSupplier getDatabaseSupplier() {
+		return () -> NotesContext.getCurrent().getCurrentDatabase();
+	}
+	
+	@Produces
+	public SessionSupplier getSessionAsSignerSupplier() {
+		return () -> NotesContext.getCurrent().getSessionAsSigner();
 	}
 
 }

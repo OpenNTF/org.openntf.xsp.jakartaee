@@ -28,6 +28,7 @@ Import-Package: com.ibm.commons.extension,
  jakarta.servlet.http;version="5.0.0",
  jakarta.xml.bind;version="3.0.0",
  javassist;version="3.0.0",
+ lotus.domino,
  org.osgi.framework;version="1.8.0",
  org.osgi.framework.hooks.weaving;version="1.1.0"
 Bundle-ActivationPolicy: lazy

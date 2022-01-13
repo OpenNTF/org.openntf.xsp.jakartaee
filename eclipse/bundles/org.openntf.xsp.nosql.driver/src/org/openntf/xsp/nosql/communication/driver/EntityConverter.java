@@ -75,17 +75,24 @@ public class EntityConverter {
 			.map(entry -> entry.getString("@nid")) //$NON-NLS-1$
 			.map(noteId -> {
 				try {
-					lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
+					return database.getDocumentByID(noteId.substring(2));
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
+				}
+			})
+			.filter(EntityConverter::isValid)
+			.map(doc -> {
+				try {
 					List<Document> documents = toDocuments(doc);
 					String name = doc.getItemValueString(NAME_FIELD);
 					return DocumentEntity.of(name, documents);
 				} catch(NotesException e) {
-					throw new RuntimeException("Exception processing note " + noteId, e);
+					throw new RuntimeException("Exception processing note " + doc, e);
 				}
 			});
 	}
 	
-	static Stream<DocumentEntity> convert(View docs) throws NotesException {
+	static Stream<DocumentEntity> convert(Database database, View docs) throws NotesException {
 		// TODO stream this better
 		// TODO create a lazy-loading list?
 		List<DocumentEntity> result = new ArrayList<>();
@@ -93,11 +100,15 @@ public class EntityConverter {
 		try {
 			ViewEntry entry = nav.getFirst();
 			while(entry != null) {
-				
-				lotus.domino.Document doc = entry.getDocument();
-				List<Document> documents = toDocuments(doc);
-				String name = doc.getItemValueString(NAME_FIELD);
-				result.add(DocumentEntity.of(name, documents));
+				List<?> columnValues = entry.getColumnValues();
+				// The last column is the note ID in format "NT00000000"
+				String noteId = (String)columnValues.get(columnValues.size()-1);
+				lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
+				if(isValid(doc)) {
+					List<Document> documents = toDocuments(doc);
+					String name = doc.getItemValueString(NAME_FIELD);
+					result.add(DocumentEntity.of(name, documents));
+				}
 				
 				ViewEntry tempEntry = entry;
 				entry = nav.getNext(entry);
@@ -115,9 +126,11 @@ public class EntityConverter {
 		List<DocumentEntity> result = new ArrayList<>();
 		lotus.domino.Document doc = docs.getFirstDocument();
 		while(doc != null) {
-			List<Document> documents = toDocuments(doc);
-			String name = doc.getItemValueString(NAME_FIELD);
-			result.add(DocumentEntity.of(name, documents));
+			if(isValid(doc)) {
+				List<Document> documents = toDocuments(doc);
+				String name = doc.getItemValueString(NAME_FIELD);
+				result.add(DocumentEntity.of(name, documents));
+			}
 			
 			lotus.domino.Document tempDoc = doc;
 			doc = docs.getNextDocument();
@@ -333,6 +346,14 @@ public class EntityConverter {
 			return array.addNull();
 		} else {
 			return array.add(value.toString());
+		}
+	}
+	
+	private static boolean isValid(lotus.domino.Document doc) {
+		try {
+			return doc != null && doc.isValid() && !doc.isDeleted() && doc.getCreated() != null;
+		} catch (NotesException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

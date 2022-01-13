@@ -20,12 +20,16 @@ import jakarta.nosql.Settings;
 import jakarta.nosql.document.DocumentConfiguration;
 
 public class DominoDocumentConfiguration implements DocumentConfiguration {
+	public static final String SETTING_SESSION_SUPPLIER = "sessionSupplier"; //$NON-NLS-1$
 	public static final String SETTING_SUPPLIER = "databaseSupplier"; //$NON-NLS-1$
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public DominoDocumentCollectionManagerFactory get() {
-		return new DominoDocumentCollectionManagerFactory(CDI.current().select(DatabaseSupplier.class).get());
+		return new DominoDocumentCollectionManagerFactory(
+			CDI.current().select(DatabaseSupplier.class).get(),
+			CDI.current().select(SessionSupplier.class).get()
+		);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -34,7 +38,10 @@ public class DominoDocumentConfiguration implements DocumentConfiguration {
 		DatabaseSupplier supplier = settings.get(SETTING_SUPPLIER)
 			.map(DatabaseSupplier.class::cast)
 			.orElseGet(() -> CDI.current().select(DatabaseSupplier.class).get());
-		return new DominoDocumentCollectionManagerFactory(supplier);
+		SessionSupplier sessionSupplier = settings.get(SETTING_SESSION_SUPPLIER)
+			.map(SessionSupplier.class::cast)
+			.orElseGet(() -> CDI.current().select(SessionSupplier.class).get());
+		return new DominoDocumentCollectionManagerFactory(supplier, sessionSupplier);
 	}
 
 }

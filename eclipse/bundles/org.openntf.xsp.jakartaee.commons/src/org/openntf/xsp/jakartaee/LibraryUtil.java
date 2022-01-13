@@ -31,6 +31,11 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lotus.domino.Database;
+import lotus.domino.Document;
+import lotus.domino.NotesException;
+import lotus.domino.Session;
+
 import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
@@ -216,6 +221,28 @@ public enum LibraryUtil {
 			} else {
 				throw new RuntimeException(t);
 			}
+		}
+	}
+	
+	/**
+	 * Retrieves the names list, including roles, for the effective user of the database.
+	 * 
+	 * @param database the database context to query
+	 * @return a {@link List} of names and permutations
+	 * @throws NotesException if there is a problem reading the names list
+	 * @since 2.3.0
+	 */
+	public static List<String> getUserNamesList(Database database) throws NotesException {
+		// TODO see if this can be done more simply in the NAPI
+		Session session = database.getParent();
+		Document doc = database.createDocument();
+		try {
+			// session.getUserNameList returns the name of the server
+			@SuppressWarnings("unchecked")
+			List<String> names = session.evaluate(" @UserNamesList ", doc); //$NON-NLS-1$
+			return names;
+		} finally {
+			doc.recycle();
 		}
 	}
 }

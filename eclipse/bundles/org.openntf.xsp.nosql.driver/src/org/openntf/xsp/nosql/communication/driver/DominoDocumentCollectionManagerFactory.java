@@ -18,16 +18,18 @@ package org.openntf.xsp.nosql.communication.driver;
 import jakarta.nosql.document.DocumentCollectionManagerFactory;
 
 public class DominoDocumentCollectionManagerFactory implements DocumentCollectionManagerFactory {
-	private final DatabaseSupplier supplier;
+	private final DatabaseSupplier databaseSupplier;
+	private final SessionSupplier sessionSupplier;
 	
-	public DominoDocumentCollectionManagerFactory(DatabaseSupplier supplier) {
-		this.supplier = supplier;
+	public DominoDocumentCollectionManagerFactory(DatabaseSupplier databaseSupplier, SessionSupplier sessionSupplier) {
+		this.databaseSupplier = databaseSupplier;
+		this.sessionSupplier = sessionSupplier;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public DefaultDominoDocumentCollectionManager get(String type) {
-		return new DefaultDominoDocumentCollectionManager(supplier);
+		return new DefaultDominoDocumentCollectionManager(databaseSupplier, sessionSupplier);
 	}
 
 	@Override
