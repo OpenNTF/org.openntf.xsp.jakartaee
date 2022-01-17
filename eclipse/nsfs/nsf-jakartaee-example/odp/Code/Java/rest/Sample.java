@@ -22,6 +22,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
 
 import bean.ApplicationGuy;
@@ -51,5 +54,12 @@ public class Sample {
 	@Produces(MediaType.APPLICATION_XML)
 	public Object xml() {
 		return applicationGuy;
+	}
+	
+	@GET
+	@Path("inputstream")
+	@Produces(MediaType.TEXT_PLAIN)
+	public InputStream getInputStream() {
+		return new ByteArrayInputStream("hello there from an input stream".getBytes());
 	}
 }
