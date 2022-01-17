@@ -48,7 +48,9 @@ public class RolesAllowedFilter implements ContainerRequestFilter {
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
 		if(!isAllowed(requestContext)) {
-			throw new NoAccessSignal();
+			NoAccessSignal signal = new NoAccessSignal();
+			signal.setStackTrace(new StackTraceElement[0]);
+			throw signal;
 		}
 	}
 	
