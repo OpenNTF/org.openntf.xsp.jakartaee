@@ -18,8 +18,8 @@
 -->
 <?eclipse version="3.4"?>
 <fragment>
-	<!-- JSON-emitting exception mapper -->
+	<!-- Mapper class for delegation use -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.jsonapi.jaxrs.exceptions.ExceptionMapperContributor" />
+		<service type="org.openntf.xsp.jaxrs.ext.JsonExceptionMapper" class="org.openntf.xsp.jsonapi.jaxrs.exceptions.JsonApiExceptionMapper" />
 	</extension>
 </fragment>

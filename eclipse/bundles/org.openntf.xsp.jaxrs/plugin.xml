@@ -32,4 +32,9 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.jaxrs.security.SecurityContributor" />
 	</extension>
+	
+	<!-- JSON-emitting exception mapper -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.jaxrs.exceptions.ExceptionMapperContributor" />
+	</extension>
 </plugin>

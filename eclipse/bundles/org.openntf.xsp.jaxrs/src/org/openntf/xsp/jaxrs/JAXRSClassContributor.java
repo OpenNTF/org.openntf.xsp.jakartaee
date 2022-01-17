@@ -16,6 +16,7 @@
 package org.openntf.xsp.jaxrs;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import jakarta.ws.rs.core.Application;
 
@@ -28,4 +29,11 @@ import jakarta.ws.rs.core.Application;
  */
 public interface JAXRSClassContributor {
 	Collection<Class<?>> getClasses();
+	
+	/**
+	 * @since 2.3.0
+	 */
+	default Collection<Object> getSingletons() {
+		return Collections.emptySet();
+	}
 }

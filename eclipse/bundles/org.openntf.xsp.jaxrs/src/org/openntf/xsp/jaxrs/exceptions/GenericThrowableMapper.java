@@ -1,38 +1,22 @@
-/**
- * Copyright © 2018-2022 Jesse Gallagher
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package org.openntf.xsp.jsonapi.jaxrs.exceptions;
+package org.openntf.xsp.jaxrs.exceptions;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import javax.servlet.ServletException;
 
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jaxrs.ext.JsonExceptionMapper;
+
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
 import jakarta.annotation.Priority;
-import jakarta.json.Json;
-import jakarta.json.stream.JsonGenerator;
-import jakarta.json.stream.JsonGeneratorFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
@@ -43,7 +27,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
@@ -54,25 +37,22 @@ import lotus.domino.NotesException;
 
 /**
  * @author Jesse Gallagher
- * @since 2.2.0
+ * @since 2.3.0
  */
 @Priority(Priorities.USER+2)
 public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
+
+	@Context
+	private UriInfo uriInfo;
 	
 	@Context
-	protected UriInfo uriInfo;
+	private HttpServletRequest req;
 	
 	@Context
-	protected HttpServletRequest req;
+	private ResourceInfo resourceInfo;
 	
 	@Context
-	protected ResourceInfo resourceInfo;
-	
-	@Context
-	protected HttpHeaders headers;
-	
-	@Context
-	protected Request request;
+	private Request request;
 
 	@Override
 	public Response toResponse(final Throwable t) {
@@ -86,14 +66,14 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 			if (e.getResponse() != null) {
 				return e.getResponse();
 			} else {
-				return createResponseFromException(t, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return createResponseFromException(t, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resourceInfo, req);
 			}
 		} else {
-			return createResponseFromException(t, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			return createResponseFromException(t, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resourceInfo, req);
 		}
 	}
 	
-	protected MediaType getMediaType() {
+	protected MediaType getMediaType(ResourceInfo resourceInfo) {
 		Produces produces = resourceInfo.getResourceMethod().getAnnotation(Produces.class);
 		if(produces != null) {
 			// Assume the first is "true"
@@ -103,8 +83,8 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 		}
 	}
 
-	protected Response createResponseFromException(final Throwable throwable, final int status) {
-		MediaType type = getMediaType();
+	protected Response createResponseFromException(final Throwable throwable, final int status, ResourceInfo resourceInfo, HttpServletRequest req) {
+		MediaType type = getMediaType(resourceInfo);
 		if(MediaType.TEXT_HTML_TYPE.isCompatible(type)) {
 			// Handle as HTML
 			return Response.status(status)
@@ -147,27 +127,8 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 						t = t.getCause();
 					}
 					
-					JsonGeneratorFactory jsonFac = Json.createGeneratorFactory(Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
-					try(JsonGenerator json = jsonFac.createGenerator(out)) {
-						json.writeStartObject();
-						
-						json.write("message", throwable.getClass().getName() + ": " + message); //$NON-NLS-1$ //$NON-NLS-2$
-						
-						json.writeKey("stackTrace"); //$NON-NLS-1$
-						json.writeStartArray();
-						for (Throwable cause = throwable; cause != null; cause = cause.getCause()) {
-							json.writeStartArray();
-							json.write(cause.getClass().getName() + ": " + cause.getLocalizedMessage()); //$NON-NLS-1$
-							Arrays.stream(cause.getStackTrace())
-								.map(String::valueOf)
-								.map(line -> "  at " + line) //$NON-NLS-1$
-								.forEach(json::write);
-							json.writeEnd();
-						}
-						json.writeEnd();
-						
-						json.writeEnd();
-					}
+					JsonExceptionMapper mapper = LibraryUtil.findRequiredExtension(JsonExceptionMapper.class);
+					mapper.writeJsonException(out, throwable, message);
 				})
 				.build();
 		}

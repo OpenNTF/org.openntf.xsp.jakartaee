@@ -21,6 +21,7 @@ import jakarta.inject.Named;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
@@ -50,5 +51,17 @@ public class MvcExample {
 		models.put("incomingFoo", foo);
 		models.put("contextFromController", "s: " + session + "; db: " + database);
 		return "mvc.jsp";
+	}
+	
+	@Path("exception")
+	@Produces(MediaType.TEXT_HTML)
+	public String getException() {
+		throw new RuntimeException("I am an exception from an MVC resource");
+	}
+	
+	@Path("notFound")
+	@Produces(MediaType.TEXT_HTML)
+	public String getNotFound() {
+		throw new NotFoundException("I am a programmatic not-found exception from MVC");
 	}
 }

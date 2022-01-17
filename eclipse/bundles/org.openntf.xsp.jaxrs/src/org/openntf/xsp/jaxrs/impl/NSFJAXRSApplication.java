@@ -61,6 +61,12 @@ public class NSFJAXRSApplication extends Application {
 		List<Feature> features = LibraryUtil.findExtensions(Feature.class);
 		result.addAll(features);
 		
+		List<JAXRSClassContributor> contributors = LibraryUtil.findExtensions(JAXRSClassContributor.class);
+		contributors.stream()
+			.map(JAXRSClassContributor::getSingletons)
+			.filter(Objects::nonNull)
+			.forEach(result::addAll);
+		
 		return result;
 	}
 	
