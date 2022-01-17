@@ -44,13 +44,6 @@ import jakarta.ws.rs.core.UriInfo;
 
 @Priority(Priorities.USER+1)
 public class MvcGenericThrowableMapper extends GenericThrowableMapper {
-	public final static class Literal extends AnnotationLiteral<JaxRsContext> implements JaxRsContext {
-
-        public static final Literal INSTANCE = new Literal();
-
-        private static final long serialVersionUID = 1L;
-
-    }
 	
 	@Context
 	Request request;

@@ -5,18 +5,19 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import javax.servlet.ServletException;
 
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.openntf.xsp.jakartaee.LibraryUtil;
-import org.openntf.xsp.jaxrs.ext.JsonExceptionMapper;
-
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
 import jakarta.annotation.Priority;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
+import jakarta.json.stream.JsonGeneratorFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
@@ -127,8 +128,27 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 						t = t.getCause();
 					}
 					
-					JsonExceptionMapper mapper = LibraryUtil.findRequiredExtension(JsonExceptionMapper.class);
-					mapper.writeJsonException(out, throwable, message);
+					JsonGeneratorFactory jsonFac = Json.createGeneratorFactory(Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
+					try(JsonGenerator json = jsonFac.createGenerator(out)) {
+						json.writeStartObject();
+						
+						json.write("message", throwable.getClass().getName() + ": " + message); //$NON-NLS-1$ //$NON-NLS-2$
+						
+						json.writeKey("stackTrace"); //$NON-NLS-1$
+						json.writeStartArray();
+						for (Throwable cause = throwable; cause != null; cause = cause.getCause()) {
+							json.writeStartArray();
+							json.write(cause.getClass().getName() + ": " + cause.getLocalizedMessage()); //$NON-NLS-1$
+							Arrays.stream(cause.getStackTrace())
+								.map(String::valueOf)
+								.map(line -> "  at " + line) //$NON-NLS-1$
+								.forEach(json::write);
+							json.writeEnd();
+						}
+						json.writeEnd();
+						
+						json.writeEnd();
+					}
 				})
 				.build();
 		}

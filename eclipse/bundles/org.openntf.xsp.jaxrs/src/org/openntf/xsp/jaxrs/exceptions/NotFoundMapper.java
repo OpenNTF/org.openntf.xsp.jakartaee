@@ -18,14 +18,15 @@ package org.openntf.xsp.jaxrs.exceptions;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
-
-import org.openntf.xsp.jakartaee.LibraryUtil;
-import org.openntf.xsp.jaxrs.ext.JsonExceptionMapper;
 
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
 import jakarta.annotation.Priority;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
+import jakarta.json.stream.JsonGeneratorFactory;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.core.Context;
@@ -78,8 +79,14 @@ public class NotFoundMapper implements ExceptionMapper<NotFoundException> {
 			return Response.status(Status.NOT_FOUND)
 				.type(MediaType.APPLICATION_JSON_TYPE)
 				.entity((StreamingOutput)out -> {
-					JsonExceptionMapper mapper = LibraryUtil.findRequiredExtension(JsonExceptionMapper.class);
-					mapper.writeNotFoundException(out, exception);
+					JsonGeneratorFactory jsonFac = Json.createGeneratorFactory(Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
+					try(JsonGenerator json = jsonFac.createGenerator(out)) {
+						json.writeStartObject();
+						json.write("success", false); //$NON-NLS-1$
+						json.write("status", Status.NOT_FOUND.getStatusCode()); //$NON-NLS-1$
+						json.write("errorMessage", exception.toString()); //$NON-NLS-1$
+						json.writeEnd();
+					}
 				})
 				.build();
 		}
