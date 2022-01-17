@@ -18,6 +18,8 @@ package org.openntf.xsp.jaxrs.impl;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.List;
@@ -40,6 +42,9 @@ import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem;
 import com.ibm.xsp.acl.NoAccessSignal;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.context.FacesContextEx;
+import com.ibm.xsp.controller.FacesController;
+import com.ibm.xsp.webapp.DesignerFacesServlet;
+import com.ibm.xsp.webapp.FacesServlet;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContainerInitializer;
@@ -59,10 +64,27 @@ import jakarta.servlet.http.HttpServletResponse;
 public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	private static final long serialVersionUID = 1L;
 	
+	private static Method getFacesContextMethod;
+	private static Method getContextFacesControllerMethod;
+	static {
+		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+			try {
+				getFacesContextMethod = FacesServlet.class.getDeclaredMethod("getFacesContext", javax.servlet.ServletRequest.class, javax.servlet.ServletResponse.class); //$NON-NLS-1$
+				getFacesContextMethod.setAccessible(true);
+				getContextFacesControllerMethod = DesignerFacesServlet.class.getDeclaredMethod("getContextFacesController"); //$NON-NLS-1$
+				getContextFacesControllerMethod.setAccessible(true);
+				
+				return null;
+			} catch (NoSuchMethodException | SecurityException e) {
+				throw new RuntimeException(e);
+			}
+		});
+	}
+	
 	private ServletConfig config;
 	private boolean initialized = false;
 	private final ComponentModule module;
-	private PeerFacesServlet facesServlet;
+	private DesignerFacesServlet facesServlet;
 
 	public FacesJAXRSServletContainer(ComponentModule module) {
 		this.module = module;
@@ -81,6 +103,14 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 			}
 			initializer.onStartup(classes, config.getServletContext());
 		}
+		
+		try {
+			this.facesServlet = (DesignerFacesServlet)module.getServlet("/foo.xsp").getServlet(); //$NON-NLS-1$
+			// This should be functionally a NOP when already initialized
+			this.facesServlet.init(ServletUtil.newToOld(config));
+		} catch (javax.servlet.ServletException e) {
+			throw new ServletException(e);
+		}
 	}
 	
 	@Override
@@ -94,17 +124,10 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 				super.init();
 				super.init(config);
 				
-				this.facesServlet = new PeerFacesServlet();
-				try {
-					this.facesServlet.init(ServletUtil.newToOld(config));
-				} catch (javax.servlet.ServletException e) {
-					throw new ServletException(e);
-				}
-				
 				initialized = true;
 			}
 			
-			facesContext = facesServlet.getFacesContext(ServletUtil.newToOld(request), ServletUtil.newToOld(response));
+			facesContext = getFacesContext(request, response);
 	    	FacesContextEx exc = (FacesContextEx)facesContext;
 	    	ApplicationEx application = exc.getApplicationEx();
 	    	
@@ -124,13 +147,11 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 		} catch(NoAccessSignal t) {
 			throw t;
 		} catch(Throwable t) {
-			t.printStackTrace();
 			response.sendError(500, "Application failed!"); //$NON-NLS-1$
 		} finally {
 			if (facesContext != null) {
 				releaseContext(facesContext);
 			}
-			
 		}
 	}
 	
@@ -142,16 +163,28 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	@Override
 	public void destroy() {
 		super.destroy();
-		this.facesServlet.destroy();
 	}
 	
 	// *******************************************************************************
 	// * Internal implementation methods
 	// *******************************************************************************
 	
+	private FacesContext getFacesContext(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			return (FacesContext)getFacesContextMethod.invoke(facesServlet, ServletUtil.newToOld(request), ServletUtil.newToOld(response));
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	private void releaseContext(FacesContext context) throws ServletException, IOException {
 		context.responseComplete();
-		this.facesServlet.getContextFacesController().release(context);
+		try {
+			FacesController controller = (FacesController)getContextFacesControllerMethod.invoke(facesServlet);
+			controller.release(context);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
     }
 	
 	private void initializeSessionAsSigner() {
