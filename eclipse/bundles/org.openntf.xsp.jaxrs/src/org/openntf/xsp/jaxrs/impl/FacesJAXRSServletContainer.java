@@ -121,7 +121,6 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 		FacesContext facesContext = null;
 		try {
 			if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
-				super.init();
 				super.init(config);
 				
 				initialized = true;
