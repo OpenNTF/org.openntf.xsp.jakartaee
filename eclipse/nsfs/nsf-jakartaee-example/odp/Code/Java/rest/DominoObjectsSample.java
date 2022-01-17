@@ -2,7 +2,6 @@ package rest;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -45,7 +44,7 @@ public class DominoObjectsSample {
 		if(obj == null) {
 			return "null";
 		} else {
-			return obj.getClass().getName() + "@" + obj.hashCode();
+			return obj.getClass().getName() + "@" + Integer.toHexString(obj.hashCode());
 		}
 	}
 }
