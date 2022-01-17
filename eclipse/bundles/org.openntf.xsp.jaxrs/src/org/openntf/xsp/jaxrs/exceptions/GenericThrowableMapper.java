@@ -3,6 +3,7 @@ package org.openntf.xsp.jaxrs.exceptions;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import jakarta.annotation.Priority;
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.json.stream.JsonGeneratorFactory;
+import jakarta.mvc.Controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
@@ -75,10 +77,22 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 	}
 	
 	protected MediaType getMediaType(ResourceInfo resourceInfo) {
-		Produces produces = resourceInfo.getResourceMethod().getAnnotation(Produces.class);
+		if(resourceInfo == null) {
+			return MediaType.APPLICATION_JSON_TYPE;
+		}
+		
+		Method method = resourceInfo.getResourceMethod();
+		if(method == null) {
+			// Shows up currently with MVC, which breaks resolution
+			return MediaType.APPLICATION_JSON_TYPE;
+		}
+		Produces produces = method.getAnnotation(Produces.class);
 		if(produces != null) {
 			// Assume the first is "true"
 			return MediaType.valueOf(produces.value()[0]);
+		} else if(isMvcRequest(resourceInfo)) {
+			// An MVC request without a type should be assumed to be HTML
+			return MediaType.TEXT_HTML_TYPE;
 		} else {
 			return MediaType.APPLICATION_JSON_TYPE;
 		}
@@ -152,6 +166,19 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 				})
 				.build();
 		}
+	}
+	
+	private boolean isMvcRequest(ResourceInfo resourceInfo) {
+		if(resourceInfo == null) {
+			return false;
+		}
+		if(resourceInfo.getResourceClass() != null && resourceInfo.getResourceClass().isAnnotationPresent(Controller.class)) {
+			return true;
+		}
+		if(resourceInfo.getResourceMethod() != null && resourceInfo.getResourceMethod().isAnnotationPresent(Controller.class)) {
+			return true;
+		}
+		return false;
 	}
 
 }
