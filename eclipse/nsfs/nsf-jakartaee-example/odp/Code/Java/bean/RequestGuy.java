@@ -33,7 +33,7 @@ public class RequestGuy {
 	}
 	
 	@PostConstruct
-	public void postConstruct() { System.out.println("Created!"); }
+	public void postConstruct() { System.out.println("Created requestGuy!"); }
 	@PreDestroy
-	public void preDestroy() { System.out.println("Destroying!");  }
+	public void preDestroy() { System.out.println("Destroying requestGuy!");  }
 }

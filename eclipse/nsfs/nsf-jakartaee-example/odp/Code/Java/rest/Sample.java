@@ -25,17 +25,22 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
 
 import bean.ApplicationGuy;
+import bean.RequestGuy;
 
 @Path("/sample")
 public class Sample {
 	@Inject
 	private ApplicationGuy applicationGuy;
+	
+	@Inject
+	private RequestGuy requestGuy;
 
 	@GET
 	@SimplyTimed
 	public Response hello() {
 		try {
-			return Response.ok().type(MediaType.TEXT_PLAIN).entity(applicationGuy.getMessage()).build();
+			String message = applicationGuy.getMessage() + "\n" + requestGuy.getMessage();;
+			return Response.ok().type(MediaType.TEXT_PLAIN).entity(message).build();
 		} catch (Throwable t) {
 			return Response.serverError().build();
 		}

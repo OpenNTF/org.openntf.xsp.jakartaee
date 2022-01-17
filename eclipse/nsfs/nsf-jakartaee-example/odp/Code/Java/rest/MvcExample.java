@@ -15,7 +15,6 @@
  */
 package rest;
 
-import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.mvc.Controller;
@@ -32,7 +31,6 @@ import lotus.domino.Session;
 
 @Path("mvc")
 @Controller
-@Dependent
 public class MvcExample {
 	
 	@Inject
@@ -49,7 +47,7 @@ public class MvcExample {
 	@Produces(MediaType.TEXT_HTML)
 	public String get(@QueryParam("foo") String foo) throws NotesException {
 		models.put("incomingFoo", foo);
-		models.put("contextFromController", "s: " + session + "; db: " + database);
+		models.put("contextFromController", "s: " + session + " (hash code " + session.hashCode() + "); db: " + database);
 		return "mvc.jsp";
 	}
 	
