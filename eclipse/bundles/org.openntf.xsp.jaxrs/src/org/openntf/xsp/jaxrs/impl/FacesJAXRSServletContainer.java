@@ -24,12 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.faces.FacesException;
-import javax.faces.FactoryFinder;
 import javax.faces.context.FacesContext;
-import javax.faces.context.FacesContextFactory;
-import javax.faces.event.PhaseListener;
-import javax.faces.lifecycle.Lifecycle;
 
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.openntf.xsp.cdi.ext.CDIConstants;
@@ -38,7 +33,6 @@ import org.openntf.xsp.jakartaee.ModuleUtil;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 
-import com.ibm.commons.util.NotImplementedException;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
@@ -46,8 +40,6 @@ import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem;
 import com.ibm.xsp.acl.NoAccessSignal;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.context.FacesContextEx;
-import com.ibm.xsp.controller.FacesController;
-import com.ibm.xsp.controller.FacesControllerFactoryImpl;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContainerInitializer;
@@ -68,9 +60,9 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	private static final long serialVersionUID = 1L;
 	
 	private ServletConfig config;
-	private FacesContextFactory contextFactory;
 	private boolean initialized = false;
 	private final ComponentModule module;
+	private PeerFacesServlet facesServlet;
 
 	public FacesJAXRSServletContainer(ComponentModule module) {
 		this.module = module;
@@ -79,7 +71,6 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		this.config = config;
-		contextFactory = (FacesContextFactory) FactoryFinder.getFactory(FactoryFinder.FACES_CONTEXT_FACTORY);
 		
 		// Look for registered ServletContainerInitializers and emulate the behavior
 		List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class);
@@ -92,36 +83,36 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 		}
 	}
 	
-	private javax.servlet.ServletContext getOldServletContext() {
-		return ServletUtil.newToOld(getServletContext());
-	}
-	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setAttribute(CDIConstants.CDI_JAXRS_REQUEST, "true"); //$NON-NLS-1$
 		
 		initializeSessionAsSigner();
-		FacesContext fc=null;
+		FacesContext facesContext = null;
 		try {
-			fc = initContext(request, response);
-	    	FacesContextEx exc = (FacesContextEx)fc;
+			if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
+				super.init();
+				super.init(config);
+				
+				this.facesServlet = new PeerFacesServlet();
+				try {
+					this.facesServlet.init(ServletUtil.newToOld(config));
+				} catch (javax.servlet.ServletException e) {
+					throw new ServletException(e);
+				}
+				
+				initialized = true;
+			}
+			
+			facesContext = facesServlet.getFacesContext(ServletUtil.newToOld(request), ServletUtil.newToOld(response));
+	    	FacesContextEx exc = (FacesContextEx)facesContext;
 	    	ApplicationEx application = exc.getApplicationEx();
-	    	if (application.getController() == null) {
-	    		FacesController controller = new FacesControllerFactoryImpl().createFacesController(getOldServletContext());
-	    		controller.init(null);
-	    	}
 	    	
 	    	@SuppressWarnings("unchecked")
 			List<ServiceParticipant> participants = (List<ServiceParticipant>)application.findServices(ServiceParticipant.EXTENSION_POINT);
 	    	for(ServiceParticipant participant : participants) {
 	    		participant.doBeforeService(request, response);
 	    	}
-			if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
-				super.init();
-				super.init(config);
-				
-				initialized = true;
-			}
 	    	
 	    	try {
 	    		super.service(request, response);
@@ -136,8 +127,8 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 			t.printStackTrace();
 			response.sendError(500, "Application failed!"); //$NON-NLS-1$
 		} finally {
-			if (fc != null) {
-				releaseContext(fc);
+			if (facesContext != null) {
+				releaseContext(facesContext);
 			}
 			
 		}
@@ -148,20 +139,19 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
     	return config;
     }
 	
+	@Override
+	public void destroy() {
+		super.destroy();
+		this.facesServlet.destroy();
+	}
+	
 	// *******************************************************************************
 	// * Internal implementation methods
 	// *******************************************************************************
 	
-	private FacesContext initContext(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Create a temporary FacesContext and make it available
-		javax.servlet.ServletContext context = ServletUtil.newToOld(getServletConfig().getServletContext());
-		javax.servlet.http.HttpServletRequest req = ServletUtil.newToOld(request);
-		javax.servlet.http.HttpServletResponse resp = ServletUtil.newToOld(response);
-        return contextFactory.getFacesContext(context, req, resp, dummyLifeCycle);
-    }
-	
 	private void releaseContext(FacesContext context) throws ServletException, IOException {
-		context.release();
+		context.responseComplete();
+		this.facesServlet.getContextFacesController().release(context);
     }
 	
 	private void initializeSessionAsSigner() {
@@ -195,33 +185,6 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 			}
 		});
 	}
-	
-	private static Lifecycle dummyLifeCycle = new Lifecycle() {
-		@Override
-		public void render(FacesContext context) throws FacesException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void removePhaseListener(PhaseListener listener) {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public PhaseListener[] getPhaseListeners() {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void execute(FacesContext context) throws FacesException {
-			throw new NotImplementedException();
-		}
-
-		@Override
-		public void addPhaseListener(PhaseListener listener) {
-			throw new NotImplementedException();
-		}
-	};
 
 	private Set<Class<?>> buildMatchingClasses(HandlesTypes types) {
 		if(module instanceof NSFComponentModule) {
