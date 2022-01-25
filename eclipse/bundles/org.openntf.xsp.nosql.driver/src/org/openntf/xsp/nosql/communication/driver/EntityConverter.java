@@ -31,9 +31,7 @@ import java.util.stream.Stream;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
-import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
-import jakarta.json.JsonObjectBuilder;
 import jakarta.json.JsonReader;
 import jakarta.json.JsonValue;
 import jakarta.nosql.document.Document;
@@ -267,85 +265,6 @@ public class EntityConverter {
 		} else {
 			// TODO support other types above
 			return value.toString();
-		}
-	}
-
-	private static JsonObjectBuilder toJsonObject(Document d, JsonObjectBuilder json) {
-		// Swap out sensitive names
-		Object value = ValueUtil.convert(d.getValue());
-		JsonObjectBuilder jsonObject = json;
-
-		if (value instanceof Document) {
-			jsonObject = convertDocument(jsonObject, d, value);
-		} else if (value instanceof Iterable) {
-			jsonObject = convertIterable(jsonObject, d, value);
-		} else {
-			jsonObject = add(jsonObject, d.getName(), value);
-		}
-		return jsonObject;
-    }
-
-	private static JsonObjectBuilder convertDocument(JsonObjectBuilder jsonObject, Document d, Object value) {
-		Document document = (Document) value;
-		jsonObject = jsonObject.add(d.getName(), add(Json.createObjectBuilder(), document.getName(), document.get()));
-		return jsonObject;
-	}
-
-	private static JsonObjectBuilder convertIterable(JsonObjectBuilder jsonObject, Document document, Object value) {
-		JsonObjectBuilder map = Json.createObjectBuilder();
-		JsonArrayBuilder array = Json.createArrayBuilder();
-		int count = 0;
-		for(Object element : (Iterable<?>)value) {
-			if (element instanceof Document) {
-				Document subDocument = (Document) element;
-				map = add(map, subDocument.getName(), subDocument.get());
-			} else if (isSubDocument(element)) {
-				JsonObjectBuilder subJson = Json.createObjectBuilder();
-				for(Object e : (Iterable<?>)element) {
-					subJson = getSubDocument((Document)e, subJson);
-				}
-				array = array.add(subJson);
-				count++;
-			} else {
-				array = add(array, value);
-				count++;
-			}
-		}
-		if(count == 0) {
-			jsonObject = jsonObject.add(document.getName(), map);
-		} else {
-			jsonObject = jsonObject.add(document.getName(), array);
-		}
-		return jsonObject;
-	}
-	
-	private static JsonObjectBuilder getSubDocument(Document d, JsonObjectBuilder subJson) {
-		return toJsonObject(d, subJson);
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static boolean isSubDocument(Object value) {
-		return value instanceof Iterable && stream(((Iterable) value).spliterator(), false)
-				.allMatch(Document.class::isInstance);
-	}
-	
-	public static JsonObjectBuilder add(JsonObjectBuilder jsonObject, String key, Object value) {
-		if(value instanceof Number) {
-			return jsonObject.add(key, ((Number)value).doubleValue());
-		} else if(value == null) {
-			return jsonObject.addNull(key);
-		} else {
-			return jsonObject.add(key, value.toString());
-		}
-	}
-	
-	public static JsonArrayBuilder add(JsonArrayBuilder array, Object value) {
-		if(value instanceof Number) {
-			return array.add(((Number)value).doubleValue());
-		} else if(value == null) {
-			return array.addNull();
-		} else {
-			return array.add(value.toString());
 		}
 	}
 	
