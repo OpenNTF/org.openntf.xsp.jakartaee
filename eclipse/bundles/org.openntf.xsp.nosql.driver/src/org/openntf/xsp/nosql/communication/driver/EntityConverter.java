@@ -44,7 +44,8 @@ import lotus.domino.View;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
 
-public class EntityConverter {
+public enum EntityConverter {
+	;
 	/**
 	 * The field used to store the UNID of the document during JSON
 	 * serialization, currently {@value #ID_FIELD}
@@ -55,9 +56,6 @@ public class EntityConverter {
 	 * Domino, currently {@value #NAME_FIELD}
 	 */
 	public static final String NAME_FIELD = "Form"; //$NON-NLS-1$
-
-	private EntityConverter() {
-	}
 	
 	static Stream<DocumentEntity> convert(Database database, String qrpJson) throws NotesException {
 		JsonObject json;

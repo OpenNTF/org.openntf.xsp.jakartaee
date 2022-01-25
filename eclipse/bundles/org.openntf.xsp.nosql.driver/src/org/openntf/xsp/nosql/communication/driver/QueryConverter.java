@@ -35,14 +35,12 @@ import jakarta.nosql.document.DocumentQuery;
  * @author Jesse Gallagher
  * @since 2.3.0
  */
-final class QueryConverter {
+public enum QueryConverter {
+	;
 
 	private static final Set<Condition> NOT_APPENDABLE = EnumSet.of(IN, Condition.AND, Condition.OR);
 
 	private static final String[] ALL_SELECT = { "*" }; //$NON-NLS-1$
-
-	private QueryConverter() {
-	}
 
 	static QueryConverterResult select(DocumentQuery query) {
 		String[] documents = query.getDocuments().toArray(new String[0]);
