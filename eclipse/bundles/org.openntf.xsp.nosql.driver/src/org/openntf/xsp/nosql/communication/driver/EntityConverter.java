@@ -17,7 +17,6 @@ package org.openntf.xsp.nosql.communication.driver;
 
 
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.StreamSupport.stream;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -174,35 +173,6 @@ public enum EntityConverter {
 //		));
 		
 		return result;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<Document> toDocuments(Map<String, Object> map) {
-		List<Document> documents = new ArrayList<>();
-		for (String key : map.keySet()) {
-			if(key == null || key.isEmpty()) {
-				continue;
-			}
-			
-			Object value = map.get(key);
-			if (value instanceof Map) {
-				documents.add(Document.of(key, toDocuments((Map) value)));
-			} else if (isADocumentIterable(value)) {
-				List<List<Document>> subDocuments = new ArrayList<>();
-				stream(((Iterable) value).spliterator(), false)
-					.map(m -> toDocuments((Map) m))
-					.forEach(e -> subDocuments.add((List<Document>)e));
-				documents.add(Document.of(key, subDocuments));
-			} else if(value != null) {
-				documents.add(Document.of(key, value));
-			}
-		}
-		return documents;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static boolean isADocumentIterable(Object value) {
-		return value instanceof Iterable && stream(((Iterable) value).spliterator(), false).allMatch(Map.class::isInstance);
 	}
 
 	/**
