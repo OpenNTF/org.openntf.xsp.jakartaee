@@ -32,10 +32,7 @@ public class MvcBeanClassContributor implements WeldBeanClassContributor {
 	public Collection<Class<?>> getBeanClasses() {
 		return Arrays.asList(
 			DominoHttpContextBean.class,
-			DelegatingExceptionViewEngine.class,
-			
-			PreMatchingRequestFilter.class,
-			PostMatchingRequestFilter.class
+			DelegatingExceptionViewEngine.class
 		);
 	}
 
@@ -43,5 +40,4 @@ public class MvcBeanClassContributor implements WeldBeanClassContributor {
 	public Collection<Extension> getExtensions() {
 		return Arrays.asList(new KrazoCdiExtension());
 	}
-
 }
