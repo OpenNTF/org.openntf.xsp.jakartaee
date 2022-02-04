@@ -19,8 +19,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.krazo.cdi.KrazoCdiExtension;
-import org.eclipse.krazo.jaxrs.PostMatchingRequestFilter;
-import org.eclipse.krazo.jaxrs.PreMatchingRequestFilter;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.mvc.impl.DelegatingExceptionViewEngine;
 
