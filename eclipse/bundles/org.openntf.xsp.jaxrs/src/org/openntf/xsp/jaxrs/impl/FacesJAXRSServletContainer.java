@@ -116,6 +116,7 @@ public class FacesJAXRSServletContainer extends HttpServletDispatcher {
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setAttribute(CDIConstants.CDI_JAXRS_REQUEST, "true"); //$NON-NLS-1$
+		response.setBufferSize(0);
 		
 		initializeSessionAsSigner();
 		FacesContext facesContext = null;
