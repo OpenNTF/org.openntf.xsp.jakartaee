@@ -30,6 +30,15 @@
 				
 				<dt>Last Name</dt>
 				<dd><input type="text" required name="lastName" value="${person.lastName}" /></dd>
+				
+				<dt>Birthday</dt>
+				<dd><input type="date" required name="birthday" value="${person.lastName}" /></dd>
+				
+				<dt>Favorite Time</dt>
+				<dd><input type="time" required name="favoriteTime" value="${person.favoriteTime}" /></dd>
+				
+				<dt>Added</dt>
+				<dd><input type="datetime-local" required name="added" value="${personadded}" /></dd>
 			</dl>
 			<input type="submit" value="Save" />
 		</form>

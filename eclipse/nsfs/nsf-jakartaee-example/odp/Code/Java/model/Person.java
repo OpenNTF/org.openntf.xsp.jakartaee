@@ -15,6 +15,10 @@
  */
 package model;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Instant;
+
 import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Id;
@@ -29,6 +33,15 @@ public class Person {
 	
 	@Column("LastName")
 	private String lastName;
+	
+	@Column("Birthday")
+	private LocalDate birthday;
+	
+	@Column("FavoriteTime")
+	private LocalTime favoriteTime;
+	
+	@Column("Added")
+	private Instant added;
 
 	public String getUnid() {
 		return unid;
@@ -52,5 +65,26 @@ public class Person {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+	
+	public LocalDate getBirthday() {
+		return birthday;
+	}
+	
+	public void setBirthday(LocalDate birthday) {
+		this.birthday = birthday;
+	}
+	
+	public LocalTime getFavoriteTime() {
+		return favoriteTime;
+	}
+	public void setFavoriteTime(LocalTime favoriteTime) {
+		this.favoriteTime = favoriteTime;
+	}
+	public Instant getAdded() {
+		return added;
+	}
+	public void setAdded(Instant added) {
+		this.added = added;
 	}
 }

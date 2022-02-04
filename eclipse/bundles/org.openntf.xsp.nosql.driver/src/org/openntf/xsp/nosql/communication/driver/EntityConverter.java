@@ -19,14 +19,27 @@ package org.openntf.xsp.nosql.communication.driver;
 import static java.util.Objects.requireNonNull;
 
 import java.io.StringReader;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -36,6 +49,8 @@ import jakarta.json.JsonValue;
 import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentEntity;
 import lotus.domino.Database;
+import lotus.domino.DateRange;
+import lotus.domino.DateTime;
 import lotus.domino.DocumentCollection;
 import lotus.domino.Item;
 import lotus.domino.NotesException;
@@ -43,6 +58,12 @@ import lotus.domino.View;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
 
+/**
+ * Utility methods for converting between Domino and NoSQL entities.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.3.0
+ */
 public enum EntityConverter {
 	;
 	/**
@@ -148,16 +169,16 @@ public enum EntityConverter {
 			if(val == null || val.isEmpty()) {
 				// Skip
 			} else if(val.size() == 1) {
-				docMap.put(item.getName(), val.get(0));
+				docMap.put(item.getName(), toJavaFriendly(doc, val.get(0)));
 			} else {
-				docMap.put(item.getName(), val);
+				docMap.put(item.getName(), toJavaFriendly(doc, val));
 			}
 		}
 		
 		docMap.forEach((key, value) -> result.add(Document.of(key, value)));
 
-		result.add(Document.of("_cdate", doc.getCreated().toJavaDate().getTime())); //$NON-NLS-1$
-		result.add(Document.of("_mdate", doc.getCreated().toJavaDate().getTime())); //$NON-NLS-1$
+		result.add(Document.of("_cdate", doc.getCreated().toJavaDate().toInstant())); //$NON-NLS-1$
+		result.add(Document.of("_mdate", doc.getCreated().toJavaDate().toInstant())); //$NON-NLS-1$
 		
 		// TODO attachments support
 //		result.add(Document.of(ATTACHMENT_FIELD,
@@ -230,6 +251,21 @@ public enum EntityConverter {
 		} else if(value instanceof Boolean) {
 			// TODO figure out if this can be customized, perhaps from the Settings element
 			return (Boolean)value ? "Y": "N"; //$NON-NLS-1$ //$NON-NLS-2$
+		} else if(value instanceof LocalDate) {
+			// TODO fix these Temporals when the API improves
+			Instant inst = ZonedDateTime.of((LocalDate)value, LocalTime.of(12, 0), ZoneId.systemDefault()).toInstant();
+			DateTime dt = context.getParentDatabase().getParent().createDateTime(Date.from(inst));
+			dt.setAnyTime();
+			return dt;
+		} else if(value instanceof LocalTime) {
+			Instant inst = ZonedDateTime.of(LocalDate.now(), (LocalTime)value, ZoneId.systemDefault()).toInstant();
+			DateTime dt = context.getParentDatabase().getParent().createDateTime(Date.from(inst));
+			dt.setAnyDate();
+			return dt;
+		} else if(value instanceof TemporalAccessor) {
+			Instant inst = Instant.from((TemporalAccessor)value);
+			DateTime dt = context.getParentDatabase().getParent().createDateTime(Date.from(inst));
+			return dt;
 		} else {
 			// TODO support other types above
 			return value.toString();
@@ -243,4 +279,66 @@ public enum EntityConverter {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	private static final String ITEM_TEMPTIME = "$$TempTime"; //$NON-NLS-1$
+	@SuppressWarnings("nls")
+	private static final String FORMULA_TOISODATE = "m := @Month($$TempTime);\n"
+		+ "d := @Day($$TempTime);\n"
+		+ "@Text(@Year($$TempTime)) + \"-\" + @If(m < 10; \"0\"; \"\") + @Text(m) + \"-\" + @If(d < 10; \"0\"; \"\") + @Text(d)";
+	@SuppressWarnings("nls")
+	private static final String FORMULA_TOISOTIME = "h := @Hour($$TempTime);\n"
+		+ "m := @Minute($$TempTime);\n"
+		+ "s := @Second($$TempTime);\n"
+		+ "@If(h < 10; \"0\"; \"\") + @Text(h) + \":\" + @If(m < 10; \"0\"; \"\") + @Text(m) + \":\" + @If(s < 10; \"0\"; \"\") + @Text(s)";
+	
+	/**
+	 * Converts the provided value read from Domino to a stock JDK type, if necessary.
+	 * 
+	 * @param value the value to convert
+	 * @return a stock-JDK object representing the value
+	 */
+	private static Object toJavaFriendly(lotus.domino.Document context, Object value) {
+		if(value instanceof Iterable) {
+			return StreamSupport.stream(((Iterable<?>)value).spliterator(), false)
+				.map(val -> toJavaFriendly(context, val))
+				.collect(Collectors.toList());
+		} else if(value instanceof DateTime) {
+			// TODO improve with a better API
+			try {
+				DateTime dt = (DateTime)value;
+				String datePart = dt.getDateOnly();
+				String timePart = dt.getTimeOnly();
+				if(datePart == null || datePart.isEmpty()) {
+					context.replaceItemValue(ITEM_TEMPTIME, dt);
+					String iso = (String)dt.getParent().evaluate(FORMULA_TOISOTIME, context).get(0);
+					Instant inst = dt.toJavaDate().toInstant();
+					int nano = inst.getNano();
+					iso += "." + nano; //$NON-NLS-1$
+					return LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(iso));
+				} else if(timePart == null || timePart.isEmpty()) {
+					context.replaceItemValue(ITEM_TEMPTIME, dt);
+					String iso = (String)dt.getParent().evaluate(FORMULA_TOISODATE, context).get(0);
+					return LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(iso));
+				} else {
+					return dt.toJavaDate().toInstant();
+				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		} else if(value instanceof DateRange) {
+			try {
+				DateRange dr = (DateRange)value;
+				Temporal start = (Temporal)toDominoFriendly(context, dr.getStartDateTime());
+				Temporal end = (Temporal)toDominoFriendly(context, dr.getEndDateTime());
+				return Arrays.asList(start, end);
+			} catch (NotesException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			// String, Double
+			return value;
+		}
+	}
+	
+	
 }

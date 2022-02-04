@@ -19,12 +19,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.ibm.commons.util.StringUtil;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.nosql.mapping.Sorts;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
@@ -68,10 +76,35 @@ public class NoSQLExample {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Controller
-	public String createPerson(@FormParam("firstName") @NotEmpty String firstName, @FormParam("lastName") @NotEmpty String lastName) {
+	public String createPerson(
+			@FormParam("firstName") String firstName,
+			@FormParam("lastName") String lastName,
+			@FormParam("birthday") String birthday,
+			@FormParam("favoriteTime") String favoriteTime,
+			@FormParam("added") String added
+	) {
 		Person person = new Person();
 		person.setFirstName(firstName);
 		person.setLastName(lastName);
+		if(StringUtil.isNotEmpty(birthday)) {
+			LocalDate bd = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(birthday));
+			person.setBirthday(bd);
+		} else {
+			person.setBirthday(null);
+		}
+		if(StringUtil.isNotEmpty(favoriteTime)) {
+			LocalTime bd = LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(favoriteTime));
+			person.setFavoriteTime(bd);
+		} else {
+			person.setFavoriteTime(null);
+		}
+		if(StringUtil.isNotEmpty(added)) {
+			LocalDateTime dt = LocalDateTime.from(DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(added));
+			Instant bd = dt.toInstant(ZoneOffset.UTC);
+			person.setAdded(bd);
+		} else {
+			person.setAdded(null);
+		}
 		personRepository.save(person);
 		return "redirect:nosql/list";
 	}
@@ -119,10 +152,36 @@ public class NoSQLExample {
 	@PATCH
 	@Controller
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public String update(@PathParam("id") String id, @FormParam("firstName") String firstName, @FormParam("lastName") String lastName) {
+	public String update(
+			@PathParam("id") String id,
+			@FormParam("firstName") String firstName,
+			@FormParam("lastName") String lastName,
+			@FormParam("birthday") String birthday,
+			@FormParam("favoriteTime") String favoriteTime,
+			@FormParam("added") String added
+	) {
 		Person person = personRepository.findById(id).get();
 		person.setFirstName(firstName);
 		person.setLastName(lastName);
+		if(StringUtil.isNotEmpty(birthday)) {
+			LocalDate bd = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(birthday));
+			person.setBirthday(bd);
+		} else {
+			person.setBirthday(null);
+		}
+		if(StringUtil.isNotEmpty(favoriteTime)) {
+			LocalTime bd = LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(favoriteTime));
+			person.setFavoriteTime(bd);
+		} else {
+			person.setFavoriteTime(null);
+		}
+		if(StringUtil.isNotEmpty(added)) {
+			LocalDateTime dt = LocalDateTime.from(DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(added));
+			Instant bd = dt.toInstant(ZoneOffset.UTC);
+			person.setAdded(bd);
+		} else {
+			person.setAdded(null);
+		}
 		personRepository.save(person);
 		return "redirect:nosql/list";
 	}
@@ -131,7 +190,14 @@ public class NoSQLExample {
 	@POST
 	@Controller
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public String updatePost(@PathParam("id") String id, @FormParam("firstName") String firstName, @FormParam("lastName") String lastName) {
-		return update(id, firstName, lastName);
+	public String updatePost(
+			@PathParam("id") String id,
+			@FormParam("firstName") String firstName,
+			@FormParam("lastName") String lastName,
+			@FormParam("birthday") String birthday,
+			@FormParam("favoriteTime") String favoriteTime,
+			@FormParam("added") String added
+	) {
+		return update(id, firstName, lastName, birthday, favoriteTime, added);
 	}
 }

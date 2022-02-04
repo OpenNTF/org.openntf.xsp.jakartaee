@@ -39,6 +39,9 @@
 					<c:if test="${param.sortCol != 'firstName'}">
 						<th><a href="list?sortCol=firstName">First Name</a></th>
 					</c:if>
+					<th>Birthday</th>
+					<th>Favorite Time</th>
+					<th>Added</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -47,6 +50,9 @@
 					<tr>
 						<td><a href="${person.unid}">${fn:escapeXml(person.lastName)}</a></td>
 						<td>${fn:escapeXml(person.firstName)}</td>
+						<td>${fn:escapeXml(person.birthday)}</td>
+						<td>${fn:escapeXml(person.favoriteTime)}</td>
+						<td>${fn:escapeXml(person.added)}</td>
 						<td>
 							<form method="POST" action="${person.unid}/delete">
 								<input type="submit" value="Delete"/>
