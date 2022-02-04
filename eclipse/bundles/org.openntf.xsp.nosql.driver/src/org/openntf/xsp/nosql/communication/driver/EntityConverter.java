@@ -145,8 +145,8 @@ public enum EntityConverter {
 				continue;
 			}
 			List<?> val = item.getValues();
-			if(val.isEmpty()) {
-				docMap.put(item.getName(), null);
+			if(val == null || val.isEmpty()) {
+				// Skip
 			} else if(val.size() == 1) {
 				docMap.put(item.getName(), val.get(0));
 			} else {
