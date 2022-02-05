@@ -161,7 +161,12 @@ public enum ContainerUtil {
 					}
 				}
 				
+				try {
 				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> weld.initialize());
+				} catch(Throwable t) {
+					t.printStackTrace();
+					throw t;
+				}
 			}
 			return instance;
 		} else {
