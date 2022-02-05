@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.jakartaee;
 
-import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.Set;
 
@@ -89,7 +89,7 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 					}
 				}
 			}
-		} catch (IOException e) {
+		} catch (UncheckedIOException e) {
 			throw new ServletException(e);
 		}
 		return null;

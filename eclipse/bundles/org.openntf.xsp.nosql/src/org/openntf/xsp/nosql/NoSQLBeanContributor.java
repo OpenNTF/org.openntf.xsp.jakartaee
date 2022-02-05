@@ -35,8 +35,6 @@ import org.openntf.xsp.nosql.bean.ContextDocumentCollectionManagerProducer;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
-import com.ibm.xsp.application.ApplicationEx;
-
 import jakarta.enterprise.inject.spi.Extension;
 
 /**
@@ -47,8 +45,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		ApplicationEx app = ApplicationEx.getInstance();
-		if(app != null && LibraryUtil.usesLibrary(NoSQLLibrary.LIBRARY_ID, app)) {
+		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
 			// These classes are housed in fragments, so access those in a roundabout way
 			List<Class<?>> result = new ArrayList<>();
 			Stream.of(DatabaseQualifier.class, DefaultDocumentQueryPaginationProvider.class)
@@ -82,8 +79,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		ApplicationEx app = ApplicationEx.getInstance();
-		if(app != null && LibraryUtil.usesLibrary(NoSQLLibrary.LIBRARY_ID, app)) {
+		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
 			return Arrays.asList(
 				new ClassMappingExtension(),
 				new DocumentExtension()

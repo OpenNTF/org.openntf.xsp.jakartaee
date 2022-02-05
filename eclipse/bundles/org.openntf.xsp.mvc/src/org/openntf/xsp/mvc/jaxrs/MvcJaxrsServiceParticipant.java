@@ -31,8 +31,6 @@ import org.openntf.xsp.mvc.MvcLibrary;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-import com.ibm.xsp.application.ApplicationEx;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,32 +51,26 @@ public class MvcJaxrsServiceParticipant implements ServiceParticipant {
 	@Override
 	public void doBeforeService(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		ApplicationEx app = ApplicationEx.getInstance();
-		if(app != null) {
-			if(LibraryUtil.usesLibrary(MvcLibrary.LIBRARY_ID, app)) {
-				
-				// Stash the response for downstream use
-				CURRENT_REQUEST.set(request);
-				CURRENT_RESPONSE.set(response);
-				
-				// Set a ClassLoader so that Krazo's ServiceLoader use can find these services
-				ClassLoader current = Thread.currentThread().getContextClassLoader();
-				CLASSLOADERS.set(current);
-				Thread.currentThread().setContextClassLoader(new KrazoClassLoader(current));
-			}
+		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+			
+			// Stash the response for downstream use
+			CURRENT_REQUEST.set(request);
+			CURRENT_RESPONSE.set(response);
+			
+			// Set a ClassLoader so that Krazo's ServiceLoader use can find these services
+			ClassLoader current = Thread.currentThread().getContextClassLoader();
+			CLASSLOADERS.set(current);
+			Thread.currentThread().setContextClassLoader(new KrazoClassLoader(current));
 		}
 	}
 
 	@Override
 	public void doAfterService(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		ApplicationEx app = ApplicationEx.getInstance();
-		if(app != null) {
-			if(LibraryUtil.usesLibrary(MvcLibrary.LIBRARY_ID, app)) {
-				CURRENT_REQUEST.set(null);
-				CURRENT_RESPONSE.set(null);
-				Thread.currentThread().setContextClassLoader(CLASSLOADERS.get());
-			}
+		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+			CURRENT_REQUEST.set(null);
+			CURRENT_RESPONSE.set(null);
+			Thread.currentThread().setContextClassLoader(CLASSLOADERS.get());
 		}
 	}
 

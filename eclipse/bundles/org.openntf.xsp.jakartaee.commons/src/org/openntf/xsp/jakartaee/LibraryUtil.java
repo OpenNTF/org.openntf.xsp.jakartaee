@@ -42,6 +42,7 @@ import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
 /**
@@ -55,6 +56,65 @@ public enum LibraryUtil {
 	
 	private static final Map<String, Long> NSF_MOD = new HashMap<>();
 	private static final Map<String, Properties> NSF_PROPS = new ConcurrentHashMap<>();
+	
+	/**
+	 * Attempts to determine whether the given XPages Library is active for the
+	 * current application.
+	 * 
+	 * @param libraryId the library ID to check
+	 * @return {@code true} if the library is active; {@code false} if it is
+	 *         not or if the context application cannot be identified
+	 * @since 2.3.0
+	 */
+	public static boolean isLibraryActive(String libraryId) {
+		ApplicationEx app = ApplicationEx.getInstance();
+		if(app != null) {
+			return usesLibrary(libraryId, app);
+		}
+		NotesContext ctx = NotesContext.getCurrentUnchecked();
+		if(ctx != null) {
+			ComponentModule module = ctx.getModule();
+			if(module != null) {
+				return usesLibrary(libraryId, module);
+			}
+		}
+		// TODO handle Equinox Servlet contexts
+		return false;
+	}
+	
+	/**
+	 * Attempts to retrieve the given property from the current application.
+	 * 
+	 * @param prop the property to load
+	 * @param defaultValue a default value to return if the property is
+	 *                     not available
+	 * @return the property value if the property is set; {@code defaultValue}
+	 *         if it is not or if the context application cannot be identified
+	 * @since 2.3.0
+	 */
+	public static String getApplicationProperty(String prop, String defaultValue) {
+		ApplicationEx app = ApplicationEx.getInstance();
+		if(app != null) {
+			return app.getApplicationProperty(prop, defaultValue);
+		}
+		NotesContext ctx = NotesContext.getCurrentUnchecked();
+		if(ctx != null) {
+			ComponentModule module = ctx.getModule();
+			if(module != null) {
+				return getXspProperties(module).getProperty(prop, defaultValue);
+			}
+			
+			try {
+				NotesDatabase database = ctx.getNotesDatabase();
+				if(database != null) {
+					return getXspProperties(database).getProperty(prop, defaultValue);
+				}
+			} catch(NotesAPIException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return defaultValue;
+	}
 	
 	/**
 	 * Determines whether the provided {@link ApplicationEx} uses the provided library
@@ -79,17 +139,14 @@ public enum LibraryUtil {
 	 * @param libraryId the library ID to look for
 	 * @param module the component module to check
 	 * @return whether the library is loaded by the application
-	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 * @throws UncheckedIOException if there is a problem reading the xsp.properties file in the module
 	 * @since 1.2.0
 	 */
-	public static boolean usesLibrary(String libraryId, ComponentModule module) throws IOException {
+	public static boolean usesLibrary(String libraryId, ComponentModule module) {
 		if(module == null) {
 			return false;
 		}
-		Properties props = new Properties();
-		try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
-			props.load(is);
-		}
+		Properties props = getXspProperties(module);
 		String prop = props.getProperty("xsp.library.depends", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return Arrays.asList(prop.split(",")).contains(libraryId); //$NON-NLS-1$
 	}
@@ -101,11 +158,11 @@ public enum LibraryUtil {
 	 * @param libraryId the library ID to look for
 	 * @param module the database to check
 	 * @return whether the library is loaded by the application
-	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 * @throws UncheckedIOException if there is a problem reading the xsp.properties file in the module
 	 * @throws NotesAPIException if there is a problem reading the xsp.properties file in the module
 	 * @since 1.2.0
 	 */
-	public static boolean usesLibrary(String libraryId, NotesDatabase database) throws NotesAPIException, IOException {
+	public static boolean usesLibrary(String libraryId, NotesDatabase database) throws NotesAPIException {
 		if(database == null) {
 			return false;
 		}
@@ -119,11 +176,11 @@ public enum LibraryUtil {
 	 * 
 	 * @param database the database to read
 	 * @return a {@link Properties} file with the database's XSP properties loaded, if available
-	 * @throws IOException if there is a problem reading the xsp.properties file in the module
-	 * @throws NotesAPIException if there is a problem reading the xsp.properties file in the module
+	 * @throws UncheckedIOException if there is a problem reading the xsp.properties file in the module
+	 * @throws RuntimeException if there is a problem reading the xsp.properties file in the module
 	 * @since 1.2.0
 	 */
-	public static Properties getXspProperties(NotesDatabase database) throws NotesAPIException, IOException {
+	public static Properties getXspProperties(NotesDatabase database) throws NotesAPIException {
 		String dbReplicaId = database.getReplicaID();
 		
 		return NSF_PROPS.compute(dbReplicaId, (replicaId, existing) -> {
@@ -155,6 +212,23 @@ public enum LibraryUtil {
 				throw new RuntimeException(e);
 			}
 		});
+	}
+	
+	/**
+	 * Loads the xsp.properties file content for the provided module.
+	 * 
+	 * @param module the {@link ComponentModule} instance to open
+	 * @return the loaded XSP properties
+	 * @since 2.3.0
+	 */
+	public static Properties getXspProperties(ComponentModule module) {
+		Properties props = new Properties();
+		try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
+			props.load(is);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		return props;
 	}
 	
 	/**

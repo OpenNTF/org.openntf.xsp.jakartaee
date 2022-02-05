@@ -61,9 +61,6 @@ public class WeldApplicationListener implements ApplicationListener2 {
 
 	@Override
 	public void applicationRefreshed(ApplicationEx application) {
-		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
-			applicationDestroyed(application);
-			applicationCreated(application);
-		}
+		// NOP
 	}
 }

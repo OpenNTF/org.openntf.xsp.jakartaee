@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.cdi.discovery;
 
-import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import jakarta.annotation.Priority;
 
@@ -67,7 +67,7 @@ public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 					
 					return builder;
 				}
-			} catch (IOException | NotesAPIException e) {
+			} catch (UncheckedIOException | NotesAPIException e) {
 				e.printStackTrace();
 			}
 		}
