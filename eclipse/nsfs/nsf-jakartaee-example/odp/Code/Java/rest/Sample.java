@@ -15,20 +15,23 @@
  */
 package rest;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
 
 import bean.ApplicationGuy;
 import bean.RequestGuy;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 
 @Path("/sample")
 public class Sample {
@@ -61,5 +64,21 @@ public class Sample {
 	@Produces(MediaType.TEXT_PLAIN)
 	public InputStream getInputStream() {
 		return new ByteArrayInputStream("hello there from an input stream".getBytes());
+	}
+	
+	@GET
+	@Path("streamed")
+	@Produces(MediaType.TEXT_PLAIN)
+	public StreamingOutput getStreamed() {
+		return out -> {
+			for(int i = 0; i < 5; i++) {
+				out.write(("hello " + i + "\n").getBytes());
+				try {
+					TimeUnit.SECONDS.sleep(1);
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		};
 	}
 }

@@ -19,6 +19,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.Path;
@@ -51,15 +52,33 @@ public class MvcExample {
 		return "mvc.jsp";
 	}
 	
+	@GET
+	@Path("fooRequired")
+	@Produces(MediaType.TEXT_HTML)
+	public String getRequired(@QueryParam("foo") @NotEmpty String foo) throws NotesException {
+		models.put("incomingFoo", foo);
+		models.put("contextFromController", "s: " + session + " (hash code " + session.hashCode() + "); db: " + database);
+		return "mvc.jsp";
+	}
+
+	@GET
 	@Path("exception")
 	@Produces(MediaType.TEXT_HTML)
 	public String getException() {
 		throw new RuntimeException("I am an exception from an MVC resource");
 	}
-	
+
+	@GET
 	@Path("notFound")
 	@Produces(MediaType.TEXT_HTML)
 	public String getNotFound() {
 		throw new NotFoundException("I am a programmatic not-found exception from MVC");
+	}
+	
+	@GET
+	@Path("xpage")
+	@Produces(MediaType.TEXT_HTML)
+	public String getXPage() {
+		return "el.xsp";
 	}
 }
