@@ -1,6 +1,7 @@
 package org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -16,6 +17,7 @@ import javax.faces.context.FacesContext;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem;
@@ -102,7 +104,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 		FacesContext facesContext = null;
 		try {
 			if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
-				super.init(config);
+				doInit(config);
 				
 				initialized = true;
 			}
@@ -115,7 +117,15 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 		} catch(NoAccessSignal t) {
 			throw t;
 		} catch(Throwable t) {
-			response.sendError(500, "Application failed!"); //$NON-NLS-1$
+			try(PrintWriter w = response.getWriter()) {
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				XSPErrorPage.handleException(w, t, request.getRequestURL().toString(), false);
+			} catch (javax.servlet.ServletException e) {
+				throw new IOException(e);
+			} catch(IllegalStateException e) {
+				// Happens when the writer or output has already been opened
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			}
 		} finally {
 			if (facesContext != null) {
 				releaseContext(facesContext);
@@ -127,6 +137,19 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
     public ServletConfig getServletConfig() {
     	return config;
     }
+	
+	/**
+	 * This method is called during the first request into the Servlet, to allow subclasses to
+	 * perform delegate initialization or other tasks.
+	 * 
+	 * <p>This delayed initialization allows delegate init to run at a point when the
+	 * {@code NotesContext} is set up, which is not the case when calling
+	 * {@link #init(ServletConfig}}.</p>
+	 * 
+	 * @param config the active {@link ServletConfig}
+	 * @throws ServletException if initialization encounters a problem
+	 */
+	protected abstract void doInit(ServletConfig config) throws ServletException;
 	
 	protected abstract void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application) throws ServletException, IOException;
 

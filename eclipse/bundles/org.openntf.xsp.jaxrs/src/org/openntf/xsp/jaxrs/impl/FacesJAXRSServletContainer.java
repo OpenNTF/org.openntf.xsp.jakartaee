@@ -50,21 +50,14 @@ public class FacesJAXRSServletContainer extends AbstractXspLifecycleServlet {
 	}
 	
 	@Override
-	public void init() throws ServletException {
-		super.init();
-		delegate.init();
-	}
-	
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		delegate.init(config);
-	}
-	
-	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setAttribute(CDIConstants.CDI_JAXRS_REQUEST, "true"); //$NON-NLS-1$
 		super.service(request, response);
+	}
+	
+	@Override
+	protected void doInit(ServletConfig config) throws ServletException {
+		delegate.init(config);
 	}
 	
 	@Override
