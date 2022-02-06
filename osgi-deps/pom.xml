@@ -77,6 +77,17 @@
 								<artifact><id>jakarta.inject:jakarta.inject-api:2.0.1</id><source>true</source></artifact>
 								<artfiact><id>jakarta.servlet:jakarta.servlet-api:5.0.0</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.0</id><source>true</source></artfiact>
+								<artifact>
+									<id>jakarta.websocket:jakarta.websocket-api:2.0.0</id>
+									<source>true</source>
+									<!-- Repackage to avoid the OSGi version containing "SNAPSHOT" -->
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.websocket-api</Bundle-SymbolicName>
+										<Bundle-Version>2.0.0.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="2.0.0"</Export-Package>
+									</instructions>
+								</artifact>
 								
 								
 								<!-- Repackage to avoid trouble with a build finding a newer, beta-only version -->

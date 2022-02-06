@@ -18,6 +18,7 @@ package org.openntf.xsp.jsf.nsf;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -25,20 +26,38 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.FrameworkUtil;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 
 import jakarta.faces.FactoryFinder;
 import jakarta.faces.webapp.FacesServlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
+import jakarta.servlet.annotation.HandlesTypes;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,37 +65,65 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * 
  * @author Jesse Gallagher
- * @since 2.1.0
+ * @since 2.3.0
  */
 public class NSFJsfServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	@SuppressWarnings("unused")
 	private final ComponentModule module;
 	private FacesServlet delegate;
+	private boolean initialized;
+	
+	private ServletContextListener configureListener;
+	private ServletRequestListener configureRequestListener;
+	
+	private final Map<String, Object> jsfStashedAttributes = new ConcurrentHashMap<>();
 	
 	public NSFJsfServlet(ComponentModule module) {
 		super();
 		this.module = module;
 	}
 	
-	@Override
-	public void init(ServletConfig config) throws ServletException {
+	public void doInit(HttpServletRequest req, ServletConfig config) throws ServletException {
 		ClassLoader current = Thread.currentThread().getContextClassLoader();
 		try {
 			// Set the extension provider
 			System.setProperty("com.sun.faces.InjectionProvider", "com.sun.faces.vendor.WebContainerInjectionProvider");
 			
 			Thread.currentThread().setContextClassLoader(buildJsfClassLoader(current));
-			this.delegate = new FacesServlet();
-			delegate.init(config);
 			
 			// Do this reflectively due to lack of bundle export
-//			@SuppressWarnings("unchecked")
-//			Class<? extends ServletContainerInitializer> c = (Class<? extends ServletContainerInitializer>) Class.forName("com.sun.faces.config.FacesInitializer");
-//			ServletContainerInitializer initializer = c.newInstance();
-//			initializer.onStartup(null, config.getServletContext());
-		} catch (BundleException | IOException e) {
+			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
+			{
+				@SuppressWarnings("unchecked")
+				Class<? extends ServletContainerInitializer> c = (Class<? extends ServletContainerInitializer>) b.loadClass("com.sun.faces.config.FacesInitializer"); //$NON-NLS-1$
+				ServletContainerInitializer initializer = c.newInstance();
+				// TODO figure out why this throws a reflection checking whether @HandlesTypes is set
+	//			Set<Class<?>> classes = null;
+	//			if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
+	//				classes = buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class));
+	//			}
+				initializer.onStartup(null, getServletContext());
+			}
+			
+			{
+				@SuppressWarnings("unchecked")
+				Class<? extends ServletContextListener> c = (Class<? extends ServletContextListener>)b.loadClass("com.sun.faces.config.ConfigureListener"); //$NON-NLS-1$
+				this.configureListener = c.newInstance();
+				
+				// Re-wrap the ServletContext to provide the context path
+				javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
+				ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
+				this.configureListener.contextInitialized(new ServletContextEvent(ctx));
+				this.configureRequestListener = (ServletRequestListener)configureListener;
+				
+				// TODO register as context attribute listener and session attribute listener
+				// TODO register as request attribute listener
+			}
+
+			this.delegate = new FacesServlet();
+			delegate.init(config);
+		} catch (BundleException | IOException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			throw new ServletException(e);
 		} finally {
 			Thread.currentThread().setContextClassLoader(current);
@@ -84,16 +131,34 @@ public class NSFJsfServlet extends HttpServlet {
 	}
 
 	@Override
-	public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	// TODO see if synchronization can be handled better
+	public synchronized void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		ServletContext ctx = req.getServletContext();
+		
+		// Stash all com.sun.faces attributes from XPages
+		Map<String, Object> incomingStashed = stashFacesAttributes(ctx);
+		
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
+				if(!initialized) {
+					this.doInit(req, getServletConfig());
+					initialized = true;
+				}
+				
 				ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
 				AbstractProxyingContext.setThreadContextRequest(req);
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(buildJsfClassLoader(current));
 				try {
+					FactoryFinder.getFactory(FactoryFinder.RENDER_KIT_FACTORY);
+					if(this.configureRequestListener != null) {
+						this.configureRequestListener.requestInitialized(new ServletRequestEvent(getServletContext(), req));
+					}
 					delegate.service(req, resp);
 				} finally {
+					if(this.configureRequestListener != null) {
+						this.configureRequestListener.requestDestroyed(new ServletRequestEvent(getServletContext(), req));
+					}
 					Thread.currentThread().setContextClassLoader(current);
 					ContainerUtil.setThreadContextDatabasePath(null);
 					AbstractProxyingContext.setThreadContextRequest(null);
@@ -115,15 +180,57 @@ public class NSFJsfServlet extends HttpServlet {
 		} finally {
 			// Looks like Jasper doesn't flush this on its own
 			resp.getWriter().flush();
+			
+			// Restore XPages-land com.sun.faces attributes
+			restoreFacesAttributes(ctx, incomingStashed);
 		}
+	}
+	
+	@Override
+	public void destroy() {
+		
+		if(configureListener != null) {
+			configureListener.contextDestroyed(new ServletContextEvent(getServletContext()));
+		}
+		
+		super.destroy();
+	}
+	
+	// *******************************************************************************
+	// * Internal utility methods
+	// *******************************************************************************
+	
+	private Map<String, Object> stashFacesAttributes(ServletContext ctx) {
+		Map<String, Object> incomingStashed = new HashMap<>();
+		Collections.list(ctx.getAttributeNames())
+			.stream()
+			.filter(Objects::nonNull)
+			.filter(attr -> attr.startsWith("com.sun.faces.")) //$NON-NLS-1$
+			.forEach(attr -> {
+				incomingStashed.put(attr, ctx.getAttribute(attr));
+				ctx.removeAttribute(attr);
+			});
+		// Restore any JSF attributes stashed from last time
+		jsfStashedAttributes.forEach(ctx::setAttribute);
+		
+		return incomingStashed;
+	}
+	
+	private void restoreFacesAttributes(ServletContext ctx, Map<String, Object> incomingStashed) {
+		// Stash all com.sun.faces attributes set by JSF
+		Collections.list(ctx.getAttributeNames())
+			.stream()
+			.filter(Objects::nonNull)
+			.filter(attr -> attr.startsWith("com.sun.faces.")) //$NON-NLS-1$
+			.forEach(attr -> {
+				jsfStashedAttributes.put(attr, ctx.getAttribute(attr));
+				ctx.removeAttribute(attr);
+			});
+		// Restore any XPages attributes stashed from last time
+		incomingStashed.forEach(ctx::setAttribute);
 	}
 
 	private ClassLoader buildJsfClassLoader(ClassLoader delegate) throws BundleException, IOException {
-		// TODO support extension points?
-		// TODO see if we can make this just delegate to bundles and not use the filesystem.
-		//   The filesystem bits come from JSP/Jasper, and it's untested whether JSF has the same
-		//   requirements.
-		
 		return new ClassLoader(delegate) {
 			@Override
 			public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -133,40 +240,40 @@ public class NSFJsfServlet extends HttpServlet {
 				return super.loadClass(name);
 			}
 		};
-		
-//		List<File> classpath = new ArrayList<>();
-//		classpath.addAll(JsfServletFactory.buildBundleClassPath());
-//		
-//		@SuppressWarnings("deprecation")
-//		URL[] path = classpath
-//			.stream()
-//			.map(t -> {
-//				try {
-//					return t.toURL();
-//				} catch (MalformedURLException e) {
-//					throw new UncheckedIOException(e);
-//				}
-//			})
-//			.toArray(URL[]::new);
-//		
-//		// ClassLoaders look to their delegate first (which will find XPages), so wrap this in a custom subclass
-//		return new URLClassLoader(path, delegate) {
-//			@Override
-//			protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-//				if(name != null && name.startsWith("com.sun.faces")) { //$NON-NLS-1$
-//					try {
-//						Class<?> c = findClass(name);
-//						if(resolve) {
-//							resolveClass(c);
-//						}
-//						return c;
-//					} catch(ClassNotFoundException e) {
-//						// Fall through
-//					}
-//				}
-//				return super.loadClass(name, resolve);
-//			}
-//		};
-		
+	}
+	
+	private Set<Class<?>> buildMatchingClasses(HandlesTypes types) {
+		if(module instanceof NSFComponentModule) {
+			// TODO consider whether we can handle other ComponentModules, were someone to make one
+			
+			@SuppressWarnings("unchecked")
+			Set<Class<?>> result = ModuleUtil.getClassNames((NSFComponentModule)module)
+				.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
+				.map(className -> {
+					try {
+						return module.getModuleClassLoader().loadClass(className);
+					} catch (ClassNotFoundException e) {
+						throw new RuntimeException(e);
+					}
+				})
+				.filter(c -> {
+					for(Class<?> type : types.value()) {
+						if(type.isAnnotation()) {
+							return c.isAnnotationPresent((Class<? extends Annotation>)type);
+						} else {
+							return type.isAssignableFrom(c);
+						}
+					}
+					return true;
+				})
+				.collect(Collectors.toSet());
+			
+			if(!result.isEmpty()) {
+				return result;
+			} else {
+				return null;
+			}
+		}
+		return null;
 	}
 }

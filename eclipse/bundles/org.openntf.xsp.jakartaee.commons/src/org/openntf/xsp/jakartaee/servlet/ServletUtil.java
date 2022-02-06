@@ -180,6 +180,29 @@ public enum ServletUtil {
 			return new OldServletContextWrapper(contextPath, context);
 		}
 	}
+	/**
+	 * Wraps the provided {@link javax.servlet.ServletContext} implementation in a
+	 * {@link jakarta.servlet.ServletContext} wrapper.
+	 * 
+	 * <p>This method allows specification of the effective Servlet version, overriding the default
+	 * 2.5.</p>
+	 * 
+	 * @param contextPath the context path of the servet, or {@code null} if unavailable
+	 * @param context the {@link javax.servlet.ServletContext} to wrap
+	 * @param majorVersion the effective major version to set
+	 * @param minorVersion the effective minor version to set
+	 * @return a {@link jakarta.servlet.ServletContext} wrapper
+	 * @since 2.3.0
+	 */
+	public static jakarta.servlet.ServletContext oldToNew(String contextPath, javax.servlet.ServletContext context, int majorVersion, int minorVersion) {
+		if(context == null) {
+			return null;
+		} else if(context instanceof NewServletContextWrapper) {
+			return ((NewServletContextWrapper)context).delegate;
+		} else {
+			return new OldServletContextWrapper(contextPath, context, majorVersion, minorVersion);
+		}
+	}
 	
 	public static javax.servlet.ServletInputStream newToOld(jakarta.servlet.ServletInputStream is) {
 		if(is == null) {

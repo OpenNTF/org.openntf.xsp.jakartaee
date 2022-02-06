@@ -55,15 +55,7 @@ import com.ibm.xsp.extlib.util.ExtLibUtil;
 public class JspServletFactory extends MappingBasedServletFactory {
 	private static final String PATH_SEP = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("path.separator")); //$NON-NLS-1$
 
-	private ComponentModule module;
-
 	public JspServletFactory() {
-	}
-
-	@Override
-	public void init(ComponentModule module) {
-		super.init(module);
-		this.module = module;
 	}
 	
 	@Override
@@ -82,7 +74,7 @@ public class JspServletFactory extends MappingBasedServletFactory {
 	}
 	
 	@Override
-	public Servlet createExecutorServlet() throws ServletException {
+	public Servlet createExecutorServlet(ComponentModule module) throws ServletException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
 				Map<String, String> params = new HashMap<>();

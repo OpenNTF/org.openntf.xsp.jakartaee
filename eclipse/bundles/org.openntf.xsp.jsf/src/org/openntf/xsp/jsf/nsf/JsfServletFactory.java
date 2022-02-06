@@ -22,13 +22,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -36,7 +38,7 @@ import javax.servlet.ServletException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jsf.JsfLibrary;
 import org.osgi.framework.Bundle;
@@ -45,80 +47,68 @@ import org.osgi.framework.FrameworkUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.designer.runtime.domino.adapter.IServletFactory;
-import com.ibm.designer.runtime.domino.adapter.ServletMatch;
+
+import jakarta.faces.webapp.FacesServlet;
 
 /**
  * 
  * @author Jesse Gallagher
- * @since 2.1.0
+ * @since 2.3.0
  */
-public class JsfServletFactory implements IServletFactory {
-	private static final String PATH_SEP = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("path.separator")); //$NON-NLS-1$
-
-	private ComponentModule module;
-	private Servlet servlet;
-	private long lastUpdate;
-
+public class JsfServletFactory extends MappingBasedServletFactory {
 	public JsfServletFactory() {
 	}
-
+	
 	@Override
-	public void init(ComponentModule module) {
-		this.module = module;
-		this.lastUpdate = module.getLastRefresh();
-	}
-
-	@Override
-	public ServletMatch getServletMatch(String contextPath, String path) throws ServletException {
-		try {
-			if(LibraryUtil.usesLibrary(JsfLibrary.LIBRARY_ID, module)) {
-				int jspIndex = StringUtil.toString(path).indexOf(".xhtml"); //$NON-NLS-1$
-				if (jspIndex > -1) {
-					String servletPath = path.substring(0, jspIndex+4);
-					String pathInfo = path.substring(jspIndex+4);
-					return new ServletMatch(getExecutorServlet(), servletPath, pathInfo);
-				}
-			}
-		} catch (IOException e) {
-			throw new ServletException(e);
-		}
-		return null;
+	public String getLibraryId() {
+		return JsfLibrary.LIBRARY_ID;
 	}
 	
-	public synchronized Servlet getExecutorServlet() throws ServletException {
-		if (servlet == null || lastUpdate < this.module.getLastRefresh()) {
-			try {
-				this.servlet = AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
-					ClassLoader current = Thread.currentThread().getContextClassLoader();
-					try {
+	@Override
+	public Set<String> getExtensions() {
+		return new HashSet<>(Arrays.asList(".xhtml", ".jsf")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 
-						
-						Map<String, String> params = new HashMap<>();
-						
-						@SuppressWarnings("deprecation")
-						URL[] urls = buildBundleClassPath().stream()
-							.map(t -> {
-								try {
-									return t.toURL();
-								} catch (MalformedURLException e) {
-									throw new UncheckedIOException(e);
-								}
-							})
-							.toArray(URL[]::new);
-						Thread.currentThread().setContextClassLoader(new URLClassLoader(urls, current));
-						
-						return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFJsfServlet(module)), "XSP JSP Servlet", params); //$NON-NLS-1$
-					} finally {
-						Thread.currentThread().setContextClassLoader(current);
-					}
-				});
-			} catch (PrivilegedActionException e) {
-				throw new ServletException(e.getCause());
+	@Override
+	public String getServletClassName() {
+		return FacesServlet.class.getName();
+	}
+	
+	@Override
+	public Servlet createExecutorServlet(ComponentModule module) throws ServletException {
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
+				ClassLoader current = Thread.currentThread().getContextClassLoader();
+				try {
+					Map<String, String> params = new HashMap<>();
+					
+					@SuppressWarnings("deprecation")
+					URL[] urls = buildBundleClassPath().stream()
+						.map(t -> {
+							try {
+								return t.toURL();
+							} catch (MalformedURLException e) {
+								throw new UncheckedIOException(e);
+							}
+						})
+						.toArray(URL[]::new);
+					Thread.currentThread().setContextClassLoader(new URLClassLoader(urls, current));
+					
+					return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFJsfServlet(module)), "XSP JSF Servlet", params); //$NON-NLS-1$
+				} finally {
+					Thread.currentThread().setContextClassLoader(current);
+				}
+			});
+		} catch (PrivilegedActionException e) {
+			Throwable cause = e.getCause();
+			if(cause instanceof ServletException) {
+				throw (ServletException)cause;
+			} else if(cause != null) {
+				throw new ServletException(cause);
+			} else {
+				throw new ServletException(e);
 			}
-			lastUpdate = this.module.getLastRefresh();
 		}
-		return servlet;
 	}
 
 	public static List<File> buildBundleClassPath() throws BundleException, IOException {

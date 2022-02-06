@@ -30,7 +30,7 @@ import com.ibm.domino.xsp.module.nsf.NSFService;
  * enable hooks very early in the HTTP init process.
  * 
  * @author Jesse Gallagher
- * @since 2.1.0
+ * @since 2.3.0
  */
 public class JsfEarlyInitFactory implements IServiceFactory {
 	public static boolean debug = true;
@@ -53,5 +53,6 @@ public class JsfEarlyInitFactory implements IServiceFactory {
 	private void initNsf() {
 		// Register ".xhtml" with the NSF service, which will then pass along to JsfServletFactory
 		NSFService.addHandledExtensions(".xhtml"); //$NON-NLS-1$
+		NSFService.addHandledExtensions(".jsf"); //$NON-NLS-1$
 	}
 }

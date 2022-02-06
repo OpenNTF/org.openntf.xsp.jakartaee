@@ -63,10 +63,19 @@ class OldServletContextWrapper implements ServletContext {
 	private static final String UNAVAILABLE_MESSAGE = "Unable to call method on Servlet 2.5 delegate"; //$NON-NLS-1$
 	final javax.servlet.ServletContext delegate;
 	private final String contextPath;
+	private int majorVersion = 2;
+	private int minorVersion = 5;
 	
 	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate) {
 		this.delegate = delegate;
 		this.contextPath = contextPath;
+	}
+
+	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate, int majorVersion, int minorVersion) {
+		this.delegate = delegate;
+		this.contextPath = contextPath;
+		this.majorVersion = majorVersion;
+		this.minorVersion = minorVersion;
 	}
 
 	@Override
@@ -225,7 +234,7 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public int getMajorVersion() {
-		return 2;
+		return this.majorVersion;
 	}
 
 	@Override
@@ -235,7 +244,7 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public int getMinorVersion() {
-		return 5;
+		return this.minorVersion;
 	}
 
 	@Override
