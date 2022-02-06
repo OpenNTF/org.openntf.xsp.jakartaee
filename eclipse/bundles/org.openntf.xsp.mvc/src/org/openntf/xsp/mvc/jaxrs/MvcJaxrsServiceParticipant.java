@@ -25,7 +25,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.eclipse.krazo.bootstrap.DefaultConfigProvider;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 import org.openntf.xsp.mvc.MvcLibrary;
 import org.osgi.framework.Bundle;

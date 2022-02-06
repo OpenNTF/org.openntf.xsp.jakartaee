@@ -18,7 +18,7 @@ package org.openntf.xsp.jaxrs.security;
 import java.security.Principal;
 import java.util.Collection;
 
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 

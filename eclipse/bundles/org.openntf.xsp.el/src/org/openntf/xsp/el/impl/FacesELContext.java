@@ -26,7 +26,7 @@ import jakarta.el.ExpressionFactory;
 import jakarta.el.StandardELContext;
 
 import org.openntf.xsp.el.ext.ELResolverProvider;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 /**
  * A subclass of {@link StandardELContext} that adds a resolver for an

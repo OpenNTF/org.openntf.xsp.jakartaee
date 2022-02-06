@@ -20,7 +20,7 @@ import java.util.Collections;
 
 import org.openntf.xsp.beanvalidation.ValidationLibrary;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.enterprise.inject.spi.Extension;
 

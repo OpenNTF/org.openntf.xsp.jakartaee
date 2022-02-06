@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.microprofile.config.spi.ConfigSource;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 /**
  * {@link ConfigSource} implementation that reads properties from

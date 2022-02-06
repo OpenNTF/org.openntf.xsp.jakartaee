@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee;
+package org.openntf.xsp.jakartaee.util;
 
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 

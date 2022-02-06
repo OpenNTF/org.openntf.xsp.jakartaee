@@ -16,7 +16,7 @@
 package org.openntf.xsp.mvc.impl;
 
 import org.eclipse.krazo.bootstrap.CoreFeature;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.mvc.MvcLibrary;
 
 import jakarta.ws.rs.ConstrainedTo;

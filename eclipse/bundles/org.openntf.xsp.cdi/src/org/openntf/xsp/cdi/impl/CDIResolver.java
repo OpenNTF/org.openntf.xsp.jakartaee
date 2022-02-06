@@ -27,7 +27,7 @@ import javax.faces.el.VariableResolver;
 
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 

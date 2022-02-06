@@ -32,8 +32,8 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Feature;
 import jakarta.ws.rs.ext.Providers;
 
-import org.openntf.xsp.jakartaee.LibraryUtil;
-import org.openntf.xsp.jakartaee.ModuleUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;

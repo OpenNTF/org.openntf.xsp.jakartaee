@@ -18,7 +18,7 @@ package org.openntf.xsp.microprofile.health;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 
 public class HealthResourceContributor implements JAXRSClassContributor {

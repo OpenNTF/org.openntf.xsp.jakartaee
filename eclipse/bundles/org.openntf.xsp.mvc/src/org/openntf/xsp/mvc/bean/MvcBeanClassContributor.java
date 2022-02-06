@@ -20,7 +20,7 @@ import java.util.Collection;
 
 import org.eclipse.krazo.cdi.KrazoCdiExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.mvc.MvcLibrary;
 import org.openntf.xsp.mvc.impl.DelegatingExceptionViewEngine;
 

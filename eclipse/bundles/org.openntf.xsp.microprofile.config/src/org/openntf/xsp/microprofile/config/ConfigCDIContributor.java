@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import io.smallrye.config.inject.ConfigExtension;
 import jakarta.enterprise.inject.spi.Extension;

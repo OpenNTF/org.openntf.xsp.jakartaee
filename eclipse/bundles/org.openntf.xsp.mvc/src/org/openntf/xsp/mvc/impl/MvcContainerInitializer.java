@@ -18,7 +18,7 @@ package org.openntf.xsp.mvc.impl;
 import java.util.Set;
 
 import org.eclipse.krazo.servlet.KrazoContainerInitializer;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.mvc.MvcLibrary;
 
 import jakarta.servlet.ServletContext;
