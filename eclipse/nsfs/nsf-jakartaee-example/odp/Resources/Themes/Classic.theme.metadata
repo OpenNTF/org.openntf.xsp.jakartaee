@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$TITLE">
+    <text>Classic.theme</text>
+  </item>
+  <item name="$Flags">
+    <text>34567Cg~`</text>
+  </item>
+  <item name="$FileNames" sign="true">
+    <text>Classic.theme</text>
+  </item>
+  <item name="$CSSFiles">
+    <textlist>
+      <text>classic.css</text>
+    </textlist>
+  </item>
+</note>

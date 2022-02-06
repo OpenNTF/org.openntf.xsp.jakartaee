@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,10 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.Platform;
@@ -41,7 +43,7 @@ import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.context.CDIScopesExtension;
 import org.openntf.xsp.cdi.discovery.OSGiServletBeanArchiveHandler;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.wiring.BundleWiring;
@@ -86,7 +88,13 @@ public enum ContainerUtil {
 	 * @since 1.2.0
 	 */
 	public static final String PROP_CDIBUNDLEBASE = CDILibrary.LIBRARY_ID + ".cdibundlebase"; //$NON-NLS-1$
-
+	
+	/**
+	 * Keeps track of the Application IDs associated with a DB replica ID, to allow for invalidating
+	 * CDI containers when the app expires after being spawned by JAX-RS.
+	 */
+	private static final Map<String, String> REPLICAID_APPID_CACHE = new HashMap<>();
+	
 	/**
 	 * Gets or created a {@link WeldContainer} instance for the provided Application.
 	 * 
@@ -113,8 +121,18 @@ public enum ContainerUtil {
 			}
 			
 			WeldContainer instance = WeldContainer.instance(id);
-			if(instance == null) {
-				
+			
+			// Check the app ID to see if we have to invalidate it
+			String existingMapping = REPLICAID_APPID_CACHE.get(id);
+			if(existingMapping != null && !existingMapping.equals(application.getApplicationId())) {
+				if(instance != null && instance.isRunning()) {
+					// Then it's outdated - invalidate
+					instance.shutdown();
+				}
+			}
+			REPLICAID_APPID_CACHE.put(id, application.getApplicationId());
+			
+			if(instance == null || !instance.isRunning()) {
 				Weld weld = constructWeld(id)
 					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
 
@@ -143,7 +161,12 @@ public enum ContainerUtil {
 					}
 				}
 				
-				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> weld.initialize());
+				try {
+					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> weld.initialize());
+				} catch(Throwable t) {
+					t.printStackTrace();
+					throw t;
+				}
 			}
 			return instance;
 		} else {
@@ -165,7 +188,7 @@ public enum ContainerUtil {
 		String id = bundle.getSymbolicName();
 
 		WeldContainer instance = WeldContainer.instance(id);
-		if(instance == null) {
+		if(instance == null || !instance.isRunning()) {
 			try {
 				// Register a new one
 				Weld weld = constructWeld(id)
@@ -197,9 +220,9 @@ public enum ContainerUtil {
 	 * @param database the database to open
 	 * @return an existing or new {@link WeldContainer}, or {@code null} if the application does not use CDI
 	 * @throws NotesAPIException if there is a problem reading the database
-	 * @throws IOException if there is a problem parsing the database configuration
+	 * @throws UncheckedIOException if there is a problem parsing the database configuration
 	 */
-	public static CDI<Object> getContainer(NotesDatabase database) throws NotesAPIException, IOException {
+	public static CDI<Object> getContainer(NotesDatabase database) throws NotesAPIException {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, database)) {
 			String bundleId = getApplicationCDIBundle(database);
 			if(StringUtil.isNotEmpty(bundleId)) {
@@ -211,7 +234,7 @@ public enum ContainerUtil {
 			
 			String id = database.getReplicaID();
 			WeldContainer instance = WeldContainer.instance(id);
-			if(instance == null) {
+			if(instance == null || !instance.isRunning()) {
 				Weld weld = constructWeld(id)
 					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
 				String baseBundleId = getApplicationCDIBundleBase(database);
@@ -279,10 +302,10 @@ public enum ContainerUtil {
 	 * @return the name of the bundle to bind the container to, or <code>null</code>
 	 *   if not specified
 	 * @since 1.2.0
-	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 * @throws UncheckedIOException if there is a problem reading the xsp.properties file in the module
 	 * @throws NotesAPIException if there is a problem reading the xsp.properties file in the module
 	 */
-	public static String getApplicationCDIBundle(NotesDatabase database) throws NotesAPIException, IOException {
+	public static String getApplicationCDIBundle(NotesDatabase database) throws NotesAPIException {
 		Properties props = LibraryUtil.getXspProperties(database);
 		return props.getProperty(PROP_CDIBUNDLE, null);
 	}
@@ -293,16 +316,34 @@ public enum ContainerUtil {
 	 * @param database the application to check
 	 * @return the name of the bundle to use as the baseline, or {@code null} if not specified
 	 * @since 2.0.0
-	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 * @throws UncheckedIOException if there is a problem reading the xsp.properties file in the module
 	 * @throws NotesAPIException if there is a problem reading the xsp.properties file in the module
 	 */
-	public static String getApplicationCDIBundleBase(NotesDatabase database) throws NotesAPIException, IOException {
+	public static String getApplicationCDIBundleBase(NotesDatabase database) throws NotesAPIException {
 		Properties props = LibraryUtil.getXspProperties(database);
 		return props.getProperty(PROP_CDIBUNDLEBASE, null);
 	}
 
 	public static BeanManagerImpl getBeanManager(ApplicationEx application) {
 		CDI<Object> container = getContainer(application);
+		if(container == null) {
+			return null;
+		}
+		return getBeanManager(container);
+	}
+	
+	/**
+	 * Retrieves the active {@link BeanManagerImpl} instance for the provided {@link NotesDatabase}.
+	 * 
+	 * @param database the database to retrieve the bean manager for
+	 * @return the database's {@link BeanManagerImpl} instance, or {@code null} if CDI is not enabled
+	 *         for the database
+	 * @throws NotesAPIException if there is a Notes API problem accessing the database
+	 * @throws UncheckedIOException if there is a stream problem reading the database config
+	 * @since 2.3.0
+	 */
+	public static BeanManagerImpl getBeanManager(NotesDatabase database) throws NotesAPIException {
+		CDI<Object> container = getContainer(database);
 		if(container == null) {
 			return null;
 		}

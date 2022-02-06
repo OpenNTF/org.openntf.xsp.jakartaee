@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import jakarta.enterprise.inject.spi.CDI;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.application.ApplicationEx;
@@ -33,16 +33,10 @@ import com.ibm.xsp.application.events.ApplicationListener2;
  * @since 1.0.0
  */
 public class WeldApplicationListener implements ApplicationListener2 {
-	// *******************************************************************************
-	// * ApplicationListener2 methods
-	// *******************************************************************************
-
+	
 	@Override
 	public void applicationCreated(ApplicationEx application) {
-		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
-			// Ensure that the container exists
-			ContainerUtil.getContainer(application);
-		}
+		// NOP
 	}
 
 	@Override
@@ -67,9 +61,6 @@ public class WeldApplicationListener implements ApplicationListener2 {
 
 	@Override
 	public void applicationRefreshed(ApplicationEx application) {
-		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
-			applicationDestroyed(application);
-			applicationCreated(application);
-		}
+		// NOP
 	}
 }

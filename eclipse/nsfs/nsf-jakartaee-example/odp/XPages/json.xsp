@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:this.dataContexts>
+		<xp:dataContext var="jsonGuy" value="${javascript: new test.JsonGuy()}"/>
+	</xp:this.dataContexts>
+	
+	<p><xp:text value="#{jsonGuy.json}"/></p>
+	<p><xp:text value="#{jsonGuy.object}"/></p>
+</xp:view>

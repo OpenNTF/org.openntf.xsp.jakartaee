@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ class OldServletOutputStreamWrapper extends ServletOutputStream {
 	
 	public OldServletOutputStreamWrapper(javax.servlet.ServletOutputStream delegate) {
 		this.delegate = delegate;
-		System.out.println("set up an output stream");
 	}
 	
 	@Override

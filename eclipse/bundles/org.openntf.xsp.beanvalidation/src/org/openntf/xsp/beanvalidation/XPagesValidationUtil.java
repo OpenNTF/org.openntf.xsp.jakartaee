@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.MessageInterpolator;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
@@ -36,18 +37,31 @@ public enum XPagesValidationUtil {
 	;
 	
 	/**
-	 * Constructs a new {@link Validator} instance that uses the locate settings from
+	 * Constructs a new {@link ValidatorFactory} instance that uses the locale
+	 * settings from the current XPages environment.
+	 * 
+	 * @return a new {@link ValidatorFactory} instance for XPages use
+	 * @since 2.3.0
+	 */
+	public static ValidatorFactory constructXPagesValidatorFactory() {
+		return AccessController.doPrivileged((PrivilegedAction<ValidatorFactory>)() ->
+			Validation.byDefaultProvider()
+				.providerResolver(() -> Arrays.asList(new HibernateValidator()))
+				.configure()
+				.messageInterpolator(new XSPLocaleResourceBundleMessageInterpolator())
+				.buildValidatorFactory()
+		);
+	}
+	
+	/**
+	 * Constructs a new {@link Validator} instance that uses the locale settings from
 	 * the current XPages environment.
 	 * 
 	 * @return a new {@link Validator} instance for XPages use
 	 */
 	public static Validator constructXPagesValidator() {
 		return AccessController.doPrivileged((PrivilegedAction<Validator>)() ->
-			Validation.byDefaultProvider()
-				.providerResolver(() -> Arrays.asList(new HibernateValidator()))
-				.configure()
-				.messageInterpolator(new XSPLocaleResourceBundleMessageInterpolator())
-				.buildValidatorFactory().getValidator()
+			constructXPagesValidatorFactory().getValidator()
 		);
 	}
 	

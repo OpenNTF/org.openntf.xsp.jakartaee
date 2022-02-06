@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
-import com.ibm.domino.xsp.adapter.osgi.NotesContext;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 /**
  * 
@@ -47,7 +47,7 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 	static {
 		notesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
 			try {
-				Field field = NotesContext.class.getDeclaredField("request"); //$NON-NLS-1$
+				Field field = NotesContext.class.getDeclaredField("httpRequest"); //$NON-NLS-1$
 				field.setAccessible(true);
 				return field;
 			} catch (NoSuchFieldException | SecurityException e) {
@@ -107,7 +107,9 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 		// Check the active session
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		if(facesContext != null) {
-			return (HttpServletRequest)facesContext.getExternalContext().getRequest();
+			javax.servlet.ServletContext context = (javax.servlet.ServletContext)facesContext.getExternalContext().getContext();
+			javax.servlet.http.HttpServletRequest request = (javax.servlet.http.HttpServletRequest)facesContext.getExternalContext().getRequest();
+			return ServletUtil.oldToNew(context, request);
 		}
 		
 		// If we're not in a Faces context, check the OSGi servlet context

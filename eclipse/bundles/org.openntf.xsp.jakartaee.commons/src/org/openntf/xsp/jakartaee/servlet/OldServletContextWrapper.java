@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,32 @@
  */
 package org.openntf.xsp.jakartaee.servlet;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
+
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.IServletFactory;
+import com.ibm.designer.runtime.domino.adapter.ServletMatch;
+import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterRegistration;
@@ -35,6 +50,8 @@ import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.SessionTrackingMode;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
@@ -45,9 +62,11 @@ import jakarta.servlet.descriptor.TaglibDescriptor;
 class OldServletContextWrapper implements ServletContext {
 	private static final String UNAVAILABLE_MESSAGE = "Unable to call method on Servlet 2.5 delegate"; //$NON-NLS-1$
 	final javax.servlet.ServletContext delegate;
+	private final String contextPath;
 	
-	public OldServletContextWrapper(javax.servlet.ServletContext delegate) {
+	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate) {
 		this.delegate = delegate;
+		this.contextPath = contextPath;
 	}
 
 	@Override
@@ -137,12 +156,12 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public ServletContext getContext(String arg0) {
-		return ServletUtil.oldToNew(delegate.getContext(arg0));
+		return ServletUtil.oldToNew(contextPath, delegate.getContext(arg0));
 	}
 
 	@Override
 	public String getContextPath() {
-		return delegate.getContextPath();
+		return Objects.requireNonNull(contextPath, "Context path requested but not initialized");
 	}
 
 	@Override
@@ -220,8 +239,36 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public RequestDispatcher getNamedDispatcher(String arg0) {
-		return ServletUtil.oldToNew(delegate.getNamedDispatcher(arg0));
+	public RequestDispatcher getNamedDispatcher(String name) {
+		// Unsupported on Domino, so try to replicate the behavior from the ComponentModule
+		// TODO consider implementing. This would require the RequestDispatcher to create
+		//   the Servlet anew for each request, parsing out the context and path
+//		MappingBasedServletFactory factory = getServletFactories()
+//			.stream()
+//			.filter(MappingBasedServletFactory.class::isInstance)
+//			.filter(fac -> fac.getClass().getName().equals(name))
+//			.map(MappingBasedServletFactory.class::cast)
+//			.filter(Objects::nonNull)
+//			.findFirst()
+//			.orElse(null);
+//		if(factory != null) {
+//			// TODO figure out if this behavior should change
+//			return new RequestDispatcher() {
+//				
+//				@Override
+//				public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+//					Servlet servlet = ServletUtil.oldToNew(match.getServlet());
+//					servlet.service(request, response);
+//				}
+//				
+//				@Override
+//				public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+//					Servlet servlet = ServletUtil.oldToNew(match.getServlet());
+//					servlet.service(request, response);
+//				}
+//			};
+//		}
+		return null;
 	}
 
 	@Override
@@ -236,13 +283,43 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public RequestDispatcher getRequestDispatcher(String arg0) {
-		return ServletUtil.oldToNew(delegate.getRequestDispatcher(arg0));
+	public RequestDispatcher getRequestDispatcher(String path) {
+		// Unsupported on Domino, so try to replicate the behavior from the ComponentModule
+		ServletMatch match = getServletFactories()
+			.stream()
+			.map(f -> {
+				try {
+					return f.getServletMatch(getContextPath(), path);
+				} catch (javax.servlet.ServletException e) {
+					throw new RuntimeException(e);
+				}
+			})
+			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
+		if(match != null) {
+			// TODO figure out if this behavior should change
+			return new RequestDispatcher() {
+				
+				@Override
+				public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+					Servlet servlet = ServletUtil.oldToNew(match.getServlet());
+					servlet.service(request, response);
+				}
+				
+				@Override
+				public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+					Servlet servlet = ServletUtil.oldToNew(match.getServlet());
+					servlet.service(request, response);
+				}
+			};
+		}
+		return null;
 	}
 
 	@Override
-	public URL getResource(String arg0) throws MalformedURLException {
-		return delegate.getResource(arg0);
+	public URL getResource(String path) throws MalformedURLException {
+		return delegate.getResource(path);
 	}
 
 	@Override
@@ -294,8 +371,68 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public Map<String, ? extends ServletRegistration> getServletRegistrations() {
-		// Soft unavailable
-		return Collections.emptyMap();
+		// Not supported on Domino, so build a map based on IServletFactory instances
+		return getServletFactories()
+			.stream()
+			.filter(MappingBasedServletFactory.class::isInstance)
+			.map(MappingBasedServletFactory.class::cast)
+			.collect(Collectors.toMap(
+				fac -> fac.getClass().getName(),
+				fac -> new ServletRegistration() {
+
+					@Override
+					public String getClassName() {
+						return fac.getServletClassName();
+					}
+
+					@Override
+					public String getInitParameter(String param) {
+						return null;
+					}
+
+					@Override
+					public Map<String, String> getInitParameters() {
+						return Collections.emptyMap();
+					}
+
+					@Override
+					public String getName() {
+						return fac.getClass().getName();
+					}
+
+					@Override
+					public boolean setInitParameter(String param, String value) {
+						// NOP
+						return false;
+					}
+
+					@Override
+					public Set<String> setInitParameters(Map<String, String> params) {
+						// NOP
+						return Collections.emptySet();
+					}
+
+					@Override
+					public Set<String> addMapping(String... urlPatterns) {
+						// NOP
+						return fac.getExtensions();
+					}
+
+					@Override
+					public Collection<String> getMappings() {
+						return fac.getExtensions()
+							.stream()
+							.map(ext -> "*" + ext) //$NON-NLS-1$
+							.collect(Collectors.toSet());
+					}
+
+					@Override
+					public String getRunAsRole() {
+						return null;
+					}
+					
+				}
+			));
 	}
 
 	@Override
@@ -380,8 +517,27 @@ class OldServletContextWrapper implements ServletContext {
 	public void setSessionTrackingModes(Set<SessionTrackingMode> arg0) {
 		// Soft unavailable
 	}
+	
+	// *******************************************************************************
+	// * Internal utility methods
+	// *******************************************************************************
 
 	private RuntimeException unavailable() {
 		return new UnsupportedOperationException(UNAVAILABLE_MESSAGE);
+	}
+	
+	private List<IServletFactory> getServletFactories() {
+		try {
+			return AccessController.doPrivileged((PrivilegedExceptionAction<List<IServletFactory>>)() -> {
+				NotesContext context = NotesContext.getCurrentUnchecked();
+				NSFComponentModule module = context.getModule();
+				Field servletFactoriesField = ComponentModule.class.getDeclaredField("servletFactories"); //$NON-NLS-1$
+				servletFactoriesField.setAccessible(true);
+				List<IServletFactory> factories = (List<IServletFactory>) servletFactoriesField.get(module);
+				return factories;
+			});
+		} catch (PrivilegedActionException e) {
+			throw new RuntimeException(e.getCause());
+		} 
 	}
 }

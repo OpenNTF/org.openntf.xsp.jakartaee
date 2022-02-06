@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$TITLE" sign="true">
+    <text>Web Frame</text>
+  </item>
+  <item name="$WindowTitle" sign="true">
+    <formula>@DbTitle</formula>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$FrameSet" sign="true">
+    <rawitemdata type="1">
+7/8YAAIABQAAAAAAAAAAAAAAAAAAAAAA8P8+AAAAAAABAAAAAAAHAAcAAAAAAAUAAAAAAAUAAAAA
+AAEAAgAAAAAABQAAAAAAAAADAAEAAgAUAAIAUADx/zsAAAAAAABAAQADAAEAAQAAAAAAAwAAAAQA
+AQAAAAAAAABOYXZQYWdlAQD///+WAQAACgEAAAAAlj/2/ygAAAAAAAMABwAGAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAV2ViTmF28P8+AAAAAAABAAAAAAAHAAcAAAAAAAUAAAAAAAUAAAAAAAIAAQAAAAAA
+BQAAAAAAAAADAAQAAwBgAAMAAQDx/zsAAAAAAABAAQADAAEAAQAAAAAABwAAAAAAAQAAAAAAAABB
+ZGRyZXNzAQD///+WAQAACgEAAAAAlj/x/zgAAAAAAABAAQADAAEAAQAAAAAABAAAAAAAAQAAAAAA
+AABQYWdlAQD///+WAQAACgEAAAAAlg==
+</rawitemdata>
+  </item>
+  <item name="$Flags">
+    <text>#34CQ</text>
+  </item>
+</note>

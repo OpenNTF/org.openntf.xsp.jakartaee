@@ -2,27 +2,45 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XPages JAX-RS Support
 Bundle-SymbolicName: org.openntf.xsp.jaxrs;singleton:=true
-Automatic-Module-Name: org.openntf.xsp.el3
-Bundle-Version: 2.1.0.qualifier
+Automatic-Module-Name: org.openntf.xsp.jaxrs
+Bundle-Version: 2.3.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.12.0",
- com.ibm.xsp.core;bundle-version="9.0.1",
- org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0";visibility:=reexport,
- com.ibm.xsp.domino;bundle-version="9.0.1",
- com.ibm.commons,
- com.ibm.jscript,
- com.ibm.xsp.extsn;bundle-version="9.0.1",
- com.ibm.domino.xsp.adapter;bundle-version="9.0.1",
- jakarta.annotation-api;bundle-version="2.0.0";visibility:=reexport,
+Require-Bundle: jakarta.annotation-api;bundle-version="2.0.0";visibility:=reexport,
  jakarta.ws.rs-api;bundle-version="3.0.0";visibility:=reexport,
- org.openntf.org.jboss.resteasy.core;bundle-version="6.0.0",
- jakarta.xml.bind-api;bundle-version="3.0.0";visibility:=reexport
-Import-Package: jakarta.activation;version="2.0.0",
+ jakarta.xml.bind-api;bundle-version="3.0.0";visibility:=reexport,
+ org.eclipse.microprofile.openapi;bundle-version="3.0.0";resolution:=optional;visibility:=reexport,
+ org.eclipse.microprofile.metrics;bundle-version="4.0.0";visibility:=reexport,
+ com.ibm.xsp.designer;bundle-version="9.0.0",
+ org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0";visibility:=reexport,
+ org.openntf.org.jboss.resteasy.core;bundle-version="6.0.0"
+Import-Package: com.ibm.commons.util,
+ com.ibm.designer.runtime.domino.adapter,
+ com.ibm.designer.runtime.domino.adapter.util,
+ com.ibm.domino.xsp.module.nsf,
+ com.ibm.xsp.acl,
+ com.ibm.xsp.context,
+ com.ibm.xsp.extlib.util,
+ com.ibm.xsp.library,
+ jakarta.activation;version="2.0.0",
+ jakarta.json;version="2.0.1",
+ jakarta.json.stream;version="2.0.1",
+ jakarta.mvc;version="2.0.0",
  jakarta.servlet;version="5.0.0",
  jakarta.servlet.annotation;version="5.0.0",
  jakarta.servlet.descriptor;version="5.0.0",
  jakarta.servlet.http;version="5.0.0",
+ jakarta.validation;version="3.0.0",
+ javax.faces,
+ javax.faces.context,
+ javax.faces.event,
+ javax.faces.lifecycle,
+ javax.servlet;version="2.5.0",
+ javax.servlet.http;version="2.5.0",
  lotus.domino,
- org.jboss.resteasy.spi
-Export-Package: org.openntf.xsp.jaxrs
+ org.jboss.resteasy.spi,
+ org.osgi.framework;version="1.8.0"
+Export-Package: org.openntf.xsp.jaxrs;version="2.3.0",
+ org.openntf.xsp.jaxrs.exceptions;version="2.3.0",
+ org.openntf.xsp.jaxrs.security;version="2.3.0"
+Eclipse-ExtensibleAPI: true
