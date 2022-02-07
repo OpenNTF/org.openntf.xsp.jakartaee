@@ -39,6 +39,7 @@
 			file-extensions="jsp,jspx"
 			priority="low"
 			name="Jakarta Server Pages file"
+			default-charset="UTF-8"
 			id="org.openntf.xsp.jsp.page"
 			base-type="org.eclipse.wst.html.core.htmlsource">
 		</content-type>
@@ -46,6 +47,7 @@
 			file-extensions="tag"
 			priority="low"
 			name="Jakarta Server Pages custom tag"
+			default-charset="UTF-8"
 			id="org.openntf.xsp.jsp.tag"
 			base-type="org.openntf.xsp.jsp.page">
 		</content-type>
