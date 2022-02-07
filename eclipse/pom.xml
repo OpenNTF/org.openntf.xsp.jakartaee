@@ -217,8 +217,6 @@
 						<plugin id="org.openntf.xsp.jaxrs.providers"/>
 						<plugin id="jakarta.servlet.jsp-api"/>
 						<plugin id="org.eclipse.jdt.core"/>
-						<!-- TODO figure out why this complains -->
-						<plugin id="org.openntf.xsp.jsp"/>
 					</excludes>
 				</configuration>
 			</plugin>
