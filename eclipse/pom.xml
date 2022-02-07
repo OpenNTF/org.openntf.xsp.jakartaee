@@ -212,7 +212,6 @@
 				<configuration>
 					<includeBinaryFeature>false</includeBinaryFeature>
 					<excludes>
-						<plugin id="org.openntf.xsp.el.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.providers"/>
 						<plugin id="jakarta.servlet.jsp-api"/>
