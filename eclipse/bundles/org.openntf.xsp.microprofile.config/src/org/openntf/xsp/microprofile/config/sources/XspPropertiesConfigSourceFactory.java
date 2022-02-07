@@ -35,7 +35,7 @@ public class XspPropertiesConfigSourceFactory implements ConfigSourceFactory {
 
 	@Override
 	public Iterable<ConfigSource> getConfigSources(ConfigSourceContext context) {
-		return Collections.singleton(new XspPropertiesConfigSource(ApplicationEx.getInstance()));
+		return Collections.singleton(new XspPropertiesConfigSource());
 	}
 
 }

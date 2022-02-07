@@ -20,9 +20,7 @@ import java.util.Collections;
 
 import org.jboss.resteasy.microprofile.client.RestClientExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
-import org.openntf.xsp.jakartaee.LibraryUtil;
-
-import com.ibm.xsp.application.ApplicationEx;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.enterprise.inject.spi.Extension;
 
@@ -39,8 +37,7 @@ public class RestClientCDIContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		ApplicationEx app = ApplicationEx.getInstance();
-		if(app != null && LibraryUtil.usesLibrary(RestClientLibrary.LIBRARY_ID, app)) {
+		if(LibraryUtil.isLibraryActive(RestClientLibrary.LIBRARY_ID)) {
 			return Collections.singleton(new RestClientExtension());
 		} else {
 			return Collections.emptyList();

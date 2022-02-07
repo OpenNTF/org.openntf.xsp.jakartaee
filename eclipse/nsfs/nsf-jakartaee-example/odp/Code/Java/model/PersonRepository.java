@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jaxrs;
+package model;
 
-import jakarta.annotation.security.RolesAllowed;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
+import java.util.stream.Stream;
 
-@Path("adminrole")
-public class AdminRoleExample {
-	@GET
-	@Produces(MediaType.TEXT_PLAIN)
-	@RolesAllowed("[Admin]")
-	public String get() {
-		return "I think you're an admin!";
-	}
+import jakarta.nosql.mapping.Repository;
+import jakarta.nosql.mapping.Sorts;
+
+public interface PersonRepository extends Repository<Person, String> {
+	Stream<Person> findAll();
+	Stream<Person> findAll(Sorts sorts);
+	Stream<Person> findByLastName(String lastName);
 }

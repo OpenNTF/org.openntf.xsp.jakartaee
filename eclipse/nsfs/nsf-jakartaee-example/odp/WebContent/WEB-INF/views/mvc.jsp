@@ -27,6 +27,7 @@
 		<h1>I'm the MVC Guy!</h1>
 		<p>From the URL, I got: ${incomingFoo}</p>
 		<p>Application guy is ${applicationGuy.message}</p>
+		<p>Request guy is ${requestGuy.message}</p>
 		<p>DB is ${database}</p>
 		<p>Session is ${session}</p>
 		<p>Context from controller is ${contextFromController}</p>

@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.mvc.bean;
 
-import org.openntf.xsp.mvc.MvcJaxrsServiceParticipant;
+import org.openntf.xsp.mvc.jaxrs.MvcJaxrsServiceParticipant;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;

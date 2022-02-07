@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.cdi.discovery;
 
-import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,7 +95,7 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 				
 				return builder;
 			}
-		} catch (NotesAPIException | IOException | BundleException e) {
+		} catch (NotesAPIException | UncheckedIOException | BundleException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -109,7 +109,7 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 		bundleNames.add(symbolicName);
 		
 		// Only look when there's a beans.xml, to be less costly
-		DiscoveryUtil.findExportedClasses(bundle).forEach(builder::addClass);
+		DiscoveryUtil.findExportedClassNames(bundle, false).forEach(builder::addClass);
 		
 		String requireBundle = bundle.getHeaders().get("Require-Bundle"); //$NON-NLS-1$
 		if(StringUtil.isNotEmpty(requireBundle)) {

@@ -19,8 +19,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.microprofile.config.spi.ConfigSource;
-
-import com.ibm.xsp.application.ApplicationEx;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 /**
  * {@link ConfigSource} implementation that reads properties from
@@ -30,10 +29,7 @@ import com.ibm.xsp.application.ApplicationEx;
  * @since 2.2.0
  */
 public class XspPropertiesConfigSource implements ConfigSource {
-	private final ApplicationEx application;
-	
-	public XspPropertiesConfigSource(ApplicationEx application) {
-		this.application = application;
+	public XspPropertiesConfigSource() {
 	}
 	
 	@Override
@@ -48,7 +44,7 @@ public class XspPropertiesConfigSource implements ConfigSource {
 
 	@Override
 	public String getValue(String propertyName) {
-		return application.getProperty(propertyName, null);
+		return LibraryUtil.getApplicationProperty(propertyName, null);
 	}
 
 }

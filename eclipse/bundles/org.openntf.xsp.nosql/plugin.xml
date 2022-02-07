@@ -17,9 +17,11 @@
 
 -->
 <?eclipse version="3.4"?>
-<fragment>
-	<!-- JSON-emitting exception mapper -->
+<plugin>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.jsonapi.jaxrs.exceptions.ExceptionMapperContributor" />
+		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.nosql.NoSQLLibrary" />
 	</extension>
-</fragment>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.nosql.NoSQLBeanContributor" />
+	</extension>
+</plugin>

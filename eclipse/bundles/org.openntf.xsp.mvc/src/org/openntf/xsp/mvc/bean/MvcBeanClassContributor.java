@@ -19,9 +19,10 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.krazo.cdi.KrazoCdiExtension;
-import org.eclipse.krazo.jaxrs.PostMatchingRequestFilter;
-import org.eclipse.krazo.jaxrs.PreMatchingRequestFilter;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.mvc.MvcLibrary;
+import org.openntf.xsp.mvc.impl.DelegatingExceptionViewEngine;
 
 import jakarta.enterprise.inject.spi.Extension;
 
@@ -29,17 +30,22 @@ public class MvcBeanClassContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		return Arrays.asList(
-			DominoHttpContextBean.class,
-			
-			PreMatchingRequestFilter.class,
-			PostMatchingRequestFilter.class
-		);
+		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+			return Arrays.asList(
+				DominoHttpContextBean.class,
+				DelegatingExceptionViewEngine.class
+			);
+		} else {
+			return null;
+		}
 	}
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		return Arrays.asList(new KrazoCdiExtension());
+		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+			return Arrays.asList(new KrazoCdiExtension());
+		} else {
+			return null;
+		}
 	}
-
 }

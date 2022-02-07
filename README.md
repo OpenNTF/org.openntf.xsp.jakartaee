@@ -16,6 +16,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
     - Activation 2.1
 - Server Pages 3.0
 - MVC 2.0
+- NoSQL 1.0 (snapshot)
 
 It also provides components from [MicroProfile](https://microprofile.io/):
 
@@ -353,6 +354,75 @@ public class MvcExample {
 ```
 
 This will load the JSP file stored as `WebContent/WEB-INF/views/mvc.jsp` in the NSF and evaluate it with the values from "models" and CDI beans available for use.
+
+## NoSQL
+
+The [Jakarta NoSQL](https://github.com/eclipse-ee4j/nosql) API provides for semi-database-neutral object mapping for NoSQL databases in a manner similar to JPA for relational databases. Entities are defined with annotations again similar to JPA:
+
+```java
+package model;
+
+import jakarta.nosql.mapping.Column;
+import jakarta.nosql.mapping.Entity;
+import jakarta.nosql.mapping.Id;
+
+@Entity
+public class Person {
+	@Id
+	private String unid;
+	
+	@Column("FirstName")
+	private String firstName;
+	
+	@Column("LastName")
+	private String lastName;
+
+	public String getUnid() { return unid; }
+	public void setUnid(String unid) { this.unid = unid; }
+
+	public String getFirstName() { return firstName; }
+	public void setFirstName(String firstName) { this.firstName = firstName;	}
+
+	public String getLastName() { return lastName; }
+	public void setLastName(String lastName) { this.lastName = lastName; }
+}
+```
+
+This API builds on CDI to dynamically generate repositories based on method names and parameters. In basic cases, this can be done with no annotations or custom code at all:
+
+```java
+package model;
+
+import java.util.stream.Stream;
+
+import jakarta.nosql.mapping.Repository;
+
+public interface PersonRepository extends Repository<Person, String> {
+	Stream<Person> findAll();
+	Stream<Person> findByLastName(String lastName);
+}
+```
+
+These repositories can then be used via CDI injection, such as in a REST endpoint:
+
+```java
+// snip
+
+@Path("nosql")
+public class NoSQLExample {
+	@Inject
+	PersonRepository personRepository;
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Object get(@QueryParam("lastName") String lastName) {
+		Map<String, Object> result = new LinkedHashMap<>();
+		result.put("byQueryLastName", personRepository.findByLastName(lastName).collect(Collectors.toList()));
+		result.put("totalCount", personRepository.count());
+		return result;
+	}
+}
+```
 
 ## MicroProfile Config
 

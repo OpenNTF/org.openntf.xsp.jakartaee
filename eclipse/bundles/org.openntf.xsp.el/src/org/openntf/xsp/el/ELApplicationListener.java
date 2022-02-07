@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.el;
 
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.events.ApplicationListener2;

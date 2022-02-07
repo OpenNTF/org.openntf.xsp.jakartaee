@@ -28,7 +28,10 @@
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.ServiceParticipant" class="org.openntf.xsp.mvc.MvcJaxrsServiceParticipant" />
+		<service type="org.openntf.xsp.jaxrs.ServiceParticipant" class="org.openntf.xsp.mvc.jaxrs.MvcJaxrsServiceParticipant" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.mvc.jaxrs.MvcJaxrsClassContributor" />
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">

@@ -17,8 +17,6 @@ package org.openntf.xsp.jsp.nsf;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
@@ -87,24 +85,15 @@ public class JspServletFactory extends MappingBasedServletFactory {
 	public Servlet createExecutorServlet() throws ServletException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
-				ClassLoader current = Thread.currentThread().getContextClassLoader();
-				try {
-
-					Map<String, String> params = new HashMap<>();
-					String classpath = buildBundleClassPath()
-						.stream()
-						.map(File::toString)
-						.collect(Collectors.joining(PATH_SEP));
-					params.put("classpath", classpath); //$NON-NLS-1$
-					params.put("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
-					
-					// Jasper expects a URLClassLoader
-					Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], current));
-					
-					return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFJspServlet(module)), "XSP JSP Servlet", params); //$NON-NLS-1$
-				} finally {
-					Thread.currentThread().setContextClassLoader(current);
-				}
+				Map<String, String> params = new HashMap<>();
+				String classpath = buildBundleClassPath()
+					.stream()
+					.map(File::toString)
+					.collect(Collectors.joining(PATH_SEP));
+				params.put("classpath", classpath); //$NON-NLS-1$
+				params.put("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
+				
+				return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFJspServlet(module)), "XSP JSP Servlet", params); //$NON-NLS-1$
 			});
 		} catch (PrivilegedActionException e) {
 			throw new ServletException(e.getCause());

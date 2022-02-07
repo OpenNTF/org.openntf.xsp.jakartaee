@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jsonapi.jaxrs.exceptions;
+package org.openntf.xsp.beanvalidation.cdi;
 
-import java.util.Arrays;
-import java.util.Collection;
+import org.openntf.xsp.beanvalidation.XPagesValidationUtil;
 
-import org.openntf.xsp.jaxrs.JAXRSClassContributor;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.validation.ValidatorFactory;
 
 /**
+ * Provides an XPages-compatible {@link ValidatorFactory} instance for use in CDI.
+ * 
  * @author Jesse Gallagher
- * @since 2.2.0
+ * @since 2.3.0
  */
-public class ExceptionMapperContributor implements JAXRSClassContributor {
-
-	@Override
-	public Collection<Class<?>> getClasses() {
-		return Arrays.asList(
-			GenericThrowableMapper.class,
-			NotFoundMapper.class
-		);
+@ApplicationScoped
+public class ValidatorBean {
+	@Produces
+	public ValidatorFactory produceFactory() {
+		return XPagesValidationUtil.constructXPagesValidatorFactory();
 	}
-
 }

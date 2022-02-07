@@ -22,4 +22,8 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.beanvalidation.ValidationLibrary" />
 	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.beanvalidation.cdi.ValidatorBeanContributor" />
+	</extension>
 </plugin>

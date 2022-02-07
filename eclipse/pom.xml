@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf.xsp</groupId>
 	<artifactId>xsp-jakartaee</artifactId>
-	<version>2.2.0</version>
+	<version>2.3.0</version>
 	<packaging>pom</packaging>
 
 	<name>XPages Jakarta EE Support</name>
@@ -81,6 +81,11 @@
  		<module>bundles/org.openntf.xsp.mvc</module>
  		<module>features/org.openntf.xsp.mvc.feature</module>
 	
+		<!-- NoSQL -->
+		<module>bundles/org.openntf.xsp.nosql.driver</module>
+		<module>bundles/org.openntf.xsp.nosql</module>
+		<module>features/org.openntf.xsp.nosql.feature</module>
+	
 		<!-- MicroProfile Config -->
 		<module>bundles/org.openntf.xsp.microprofile.config</module>
 		<module>features/org.openntf.xsp.microprofile.config.feature</module>
@@ -140,9 +145,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.glassfish.corba</groupId>
-			<artifactId>glassfish-corba-omgapi</artifactId>
-			<version>4.2.4</version>
+			<groupId>org.openntf.domino</groupId>
+			<artifactId>org.openntf.domino.java.api.corba.patch</artifactId>
+			<version>1.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
@@ -245,7 +250,7 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
-								<id>org.glassfish.corba.glassfish-corba-omgapi</id>
+								<id>org.openntf.domino.java.api.corba.patch</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
 						</extraRequirements>
@@ -309,6 +314,7 @@
 						<exclude>**/beans_*.xsd</exclude>
 						<exclude>**/database.properties</exclude>
 						<exclude>**/xspdesign.properties</exclude>
+						<exclude>**/DQL.java</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
@@ -323,6 +329,7 @@
 				<version>3.0.0-M1</version>
 				<executions>
 					<execution>
+						<?m2e ignore?>
 						<id>enforce-maven-and-java</id>
 						<goals>
 							<goal>enforce</goal>
@@ -461,31 +468,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>3.0.2</version>
-				</plugin>
-				
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-enforcer-plugin</artifactId>
-										<versionRange>[1.0,)</versionRange>
-										<goals>
-											<goal>enforce</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>

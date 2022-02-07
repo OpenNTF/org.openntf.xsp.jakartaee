@@ -24,7 +24,7 @@ import jakarta.enterprise.inject.spi.CDIProvider;
 import org.eclipse.core.runtime.Platform;
 import org.openntf.xsp.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.cdi.ext.CDIContainerUtility;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 
 import com.ibm.commons.util.StringUtil;

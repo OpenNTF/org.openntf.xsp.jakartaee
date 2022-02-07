@@ -20,7 +20,7 @@ import jakarta.enterprise.inject.spi.CDI;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.application.ApplicationEx;
@@ -61,9 +61,6 @@ public class WeldApplicationListener implements ApplicationListener2 {
 
 	@Override
 	public void applicationRefreshed(ApplicationEx application) {
-		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
-			applicationDestroyed(application);
-			applicationCreated(application);
-		}
+		// NOP
 	}
 }

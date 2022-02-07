@@ -19,7 +19,7 @@ import org.eclipse.microprofile.rest.client.spi.RestClientBuilderResolver;
 import org.jboss.resteasy.microprofile.client.BuilderResolver;
 import org.jboss.resteasy.microprofile.client.RestClientProxy;
 import org.jboss.resteasy.microprofile.client.header.ClientHeaderProviders;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 

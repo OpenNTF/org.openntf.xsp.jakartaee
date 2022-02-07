@@ -13,16 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jaxrs.security;
+package org.openntf.xsp.jaxrs.exceptions;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 
 /**
- * This exception is used to signal to providers that the user is not
- * allowed to access the provided resource.
- * 
  * @author Jesse Gallagher
  * @since 2.2.0
  */
-public class NotAuthorizedSignal extends RuntimeException {
-	private static final long serialVersionUID = 1L;
+public class ExceptionMapperContributor implements JAXRSClassContributor {
+
+	@Override
+	public Collection<Class<?>> getClasses() {
+		return Arrays.asList(
+			GenericThrowableMapper.class,
+			NotFoundMapper.class
+		);
+	}
 
 }

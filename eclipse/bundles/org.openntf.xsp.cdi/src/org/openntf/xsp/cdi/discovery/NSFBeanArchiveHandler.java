@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.cdi.discovery;
 
-import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import jakarta.annotation.Priority;
 
@@ -24,8 +24,8 @@ import org.jboss.weld.environment.deployment.discovery.BeanArchiveBuilder;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
-import org.openntf.xsp.jakartaee.LibraryUtil;
-import org.openntf.xsp.jakartaee.ModuleUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -67,7 +67,7 @@ public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 					
 					return builder;
 				}
-			} catch (IOException | NotesAPIException e) {
+			} catch (UncheckedIOException | NotesAPIException e) {
 				e.printStackTrace();
 			}
 		}

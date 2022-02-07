@@ -24,7 +24,7 @@
 		<title>JSP Inside An NSF</title>
 	</head>
 	<body>
-		<p>My CDI Bean is: ${applicationGuy}</p>
+		<p>My CDI Bean is: ${requestGuy.message}</p>
 		<p>My requestScope is: ${requestScope}</p>
 		<p>JSTL XML-escaped content is: ${fn:escapeXml('<hello>')}</p>
 		
