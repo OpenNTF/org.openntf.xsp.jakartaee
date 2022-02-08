@@ -146,27 +146,24 @@ public enum ContainerUtil {
 					weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
 				}
 				
-				for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
-					weld.addExtension(extension);
-				}
-				
-				for(WeldBeanClassContributor service : (List<WeldBeanClassContributor>)application.findServices(WeldBeanClassContributor.EXTENSION_POINT)) {
-					Collection<Class<?>> beanClasses = service.getBeanClasses();
-					if(beanClasses != null) {
-						weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
+					for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
+						weld.addExtension(extension);
 					}
-					Collection<Extension> extensions = service.getExtensions();
-					if(extensions != null) {
-						weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+					
+					for(WeldBeanClassContributor service : (List<WeldBeanClassContributor>)application.findServices(WeldBeanClassContributor.EXTENSION_POINT)) {
+						Collection<Class<?>> beanClasses = service.getBeanClasses();
+						if(beanClasses != null) {
+							weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+						}
+						Collection<Extension> extensions = service.getExtensions();
+						if(extensions != null) {
+							weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+						}
 					}
-				}
-				
-				try {
-					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> weld.initialize());
-				} catch(Throwable t) {
-					t.printStackTrace();
-					throw t;
-				}
+					
+					return weld.initialize();
+				});
 			}
 			return instance;
 		} else {

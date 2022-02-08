@@ -592,8 +592,17 @@ The results of these checks will be available at `/xsp/app/health` (aggregating 
 ## Requirements
 
 - Domino FP10+
+	- NoSQL requires Domino 12.0.1+
 - Designer FP10+ (for compiling the NSF)
 - Some of the APIs require setting the project Java compiler level to 1.8
+
+NoSQL and the MicroProfile Rest Client require loosening Domino's java.policy settings to include:
+
+```
+grant {
+	permission java.security.AllPermission;
+};
+```
 
 ## Building
 
