@@ -23,8 +23,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
@@ -33,6 +35,8 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletRequestAttributeEvent;
+import jakarta.servlet.ServletRequestAttributeListener;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,6 +53,10 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	public OldHttpServletRequestWrapper(javax.servlet.ServletContext context, javax.servlet.http.HttpServletRequest delegate) {
 		this.context = context;
 		this.delegate = delegate;
+	}
+	
+	void addListener(ServletRequestAttributeListener listener) {
+		this.getAttrListeners().add(listener);
 	}
 
 	@Override
@@ -214,13 +222,27 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public void removeAttribute(String arg0) {
-		delegate.removeAttribute(arg0);
+	public void removeAttribute(String name) {
+		Object val = delegate.getAttribute(name);
+		delegate.removeAttribute(name);
+		this.getAttrListeners().forEach(listener ->
+			listener.attributeRemoved(new ServletRequestAttributeEvent(getServletContext(), this, name, val))
+		);
 	}
 
 	@Override
-	public void setAttribute(String arg0, Object arg1) {
-		delegate.setAttribute(arg0, arg1);
+	public void setAttribute(String name, Object value) {
+		boolean exists = Collections.list(this.getAttributeNames()).contains(name);
+		Object oldVal = delegate.getAttribute(name);
+		delegate.setAttribute(name, value);
+		if(exists) {
+			this.getAttrListeners().forEach(listener ->
+				listener.attributeReplaced(new ServletRequestAttributeEvent(getServletContext(), this, name, oldVal))
+			);
+		}
+		this.getAttrListeners().forEach(listener ->
+			listener.attributeAdded(new ServletRequestAttributeEvent(getServletContext(), this, name, value))
+		);
 	}
 
 	@Override
@@ -408,5 +430,20 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	@Override
 	public <T extends HttpUpgradeHandler> T upgrade(Class<T> arg0) throws IOException, ServletException {
 		throw new ServletException("Upgrade unsupported");
+	}
+	
+	// *******************************************************************************
+	// * Internal utility methods
+	// *******************************************************************************
+	
+	private final String ATTR_LISTENERS = OldHttpServletRequestWrapper.class.getName() + "_attrListeners"; //$NON-NLS-1$
+	
+	private Set<ServletRequestAttributeListener> getAttrListeners() {
+		Set<ServletRequestAttributeListener> result = (Set<ServletRequestAttributeListener>)delegate.getAttribute(ATTR_LISTENERS);
+		if(result == null) {
+			result = new HashSet<>();
+			delegate.setAttribute(ATTR_LISTENERS, result);
+		}
+		return result;
 	}
 }

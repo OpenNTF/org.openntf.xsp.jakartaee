@@ -15,6 +15,10 @@
  */
 package org.openntf.xsp.jakartaee.servlet;
 
+import jakarta.servlet.ServletContextAttributeListener;
+import jakarta.servlet.ServletRequestAttributeListener;
+import jakarta.servlet.http.HttpSessionAttributeListener;
+
 /**
  * This utility class contains methods for converting between old
  * and new Servlet API classes.
@@ -259,4 +263,28 @@ public enum ServletUtil {
 		}
 	}
 	
+	// *******************************************************************************
+	// * Shim methods for working with listeners
+	// *******************************************************************************
+	
+	public static void addListener(jakarta.servlet.ServletRequest req, ServletRequestAttributeListener listener) {
+		if(!(req instanceof OldHttpServletRequestWrapper)) {
+			throw new IllegalArgumentException("req is not an instance of " + OldHttpServletRequestWrapper.class.getName());
+		}
+		((OldHttpServletRequestWrapper)req).addListener(listener);
+	}
+	
+	public static void addListener(jakarta.servlet.http.HttpSession session, HttpSessionAttributeListener listener) {
+		if(!(session instanceof OldHttpSessionWrapper)) {
+			throw new IllegalArgumentException("session is not an instance of " + OldHttpSessionWrapper.class.getName());
+		}
+		((OldHttpSessionWrapper)session).addListener(listener);
+	}
+
+	public static void addListener(jakarta.servlet.ServletContext context, ServletContextAttributeListener listener) {
+		if(!(context instanceof OldServletContextWrapper)) {
+			throw new IllegalArgumentException("context is not an instance of " + OldServletContextWrapper.class.getName());
+		}
+		((OldServletContextWrapper)context).addListener(listener);
+	}
 }
