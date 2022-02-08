@@ -102,11 +102,15 @@ public enum DiscoveryUtil {
 			});
 	}
 	
-	// *******************************************************************************
-	// * Internal utility methods
-	// *******************************************************************************
-	
-	private static String toClassName(String resourceName) {
+	/**
+	 * Converts an in-bundle resource name to a class name.
+	 * 
+	 * @param resourceName the resource name to convert, e.g. "foo/bar.class"
+	 * @return the Java class name, or {@code null} if the entry is not
+	 *         a class file
+	 * @since 2.4.0
+	 */
+	public static String toClassName(String resourceName) {
 		if(StringUtil.isEmpty(resourceName)) {
 			return null;
 		} else if(resourceName.startsWith("target/classes")) { //$NON-NLS-1$

@@ -237,16 +237,8 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-   <plugin
-         id="org.openntf.xsp.jsf"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin id="org.openntf.xsp.jsf" version="0.0.0"/>
 
-   <plugin
-         id="org.openntf.org.glassfish.jakarta.faces"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin id="org.openntf.org.glassfish.jakarta.faces" version="0.0.0"/>
 
 </feature>

@@ -242,22 +242,25 @@ public enum ContainerUtil {
 						weld = weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
 					}
 				}
-				
-				for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
-					Collection<Class<?>> beanClasses = service.getBeanClasses();
-					if(beanClasses != null) {
-						weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
-					}
-					Collection<Extension> extensions = service.getExtensions();
-					if(extensions != null) {
-						weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
-					}
-				}
-				
+
+				Weld fweld = weld;
 				OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
 				OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
 				try {
-					instance = weld.initialize();
+					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
+						for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
+							Collection<Class<?>> beanClasses = service.getBeanClasses();
+							if(beanClasses != null) {
+								fweld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+							}
+							Collection<Extension> extensions = service.getExtensions();
+							if(extensions != null) {
+								fweld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+							}
+						}
+						
+						return fweld.initialize();
+					});
 				} finally {
 					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
 					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);

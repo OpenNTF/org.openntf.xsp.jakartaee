@@ -17,8 +17,7 @@ package org.openntf.xsp.jakartaee.servlet;
 
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
@@ -142,16 +141,8 @@ class OldHttpSessionWrapper implements HttpSession {
 	// * Internal utility methods
 	// *******************************************************************************
 	
-	private final String ATTR_LISTENERS = OldHttpSessionWrapper.class.getName() + "_attrListeners"; //$NON-NLS-1$
-	
-	private Set<HttpSessionAttributeListener> getAttrListeners() {
-		@SuppressWarnings("unchecked")
-		Set<HttpSessionAttributeListener> result = (Set<HttpSessionAttributeListener>)delegate.getAttribute(ATTR_LISTENERS);
-		if(result == null) {
-			result = new HashSet<>();
-			delegate.setAttribute(ATTR_LISTENERS, result);
-		}
-		return result;
+	private List<HttpSessionAttributeListener> getAttrListeners() {
+		return ServletUtil.getListeners(getServletContext(), HttpSessionAttributeListener.class);
 	}
 
 }

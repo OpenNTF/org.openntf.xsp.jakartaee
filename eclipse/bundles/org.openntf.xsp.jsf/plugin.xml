@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2021 Jesse Gallagher
+    Copyright © 2018-2022 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,13 +23,17 @@
 		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.jsf.JsfLibrary" />
 	</extension>
 	
-	<!-- Faux HTTP Service provider to add hooks for JSP handling to the environment -->
+	<!-- Faux HTTP Service provider to add hooks for JSF handling to the environment -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jsf.JsfEarlyInitFactory"/>
 	</extension>
 	
-	<!-- Handle in-NSF JSP files -->
+	<!-- Handle in-NSF JSF files -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jsf.nsf.JsfServletFactory" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.jsf.cdi.JsfCdiBeanContributor" />
 	</extension>
 </plugin>

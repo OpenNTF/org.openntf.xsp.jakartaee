@@ -15,6 +15,9 @@
  */
 package org.openntf.xsp.jakartaee.servlet;
 
+import java.util.EventListener;
+import java.util.List;
+
 import jakarta.servlet.ServletContextAttributeListener;
 import jakarta.servlet.ServletRequestAttributeListener;
 import jakarta.servlet.http.HttpSessionAttributeListener;
@@ -286,5 +289,13 @@ public enum ServletUtil {
 			throw new IllegalArgumentException("context is not an instance of " + OldServletContextWrapper.class.getName());
 		}
 		((OldServletContextWrapper)context).addListener(listener);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T extends EventListener> List<T> getListeners(jakarta.servlet.ServletContext context, Class<T> listenerClass) {
+		if(!(context instanceof OldServletContextWrapper)) {
+			throw new IllegalArgumentException("context is not an instance of " + OldServletContextWrapper.class.getName());
+		}
+		return (List<T>)((OldServletContextWrapper)context).getListeners(listenerClass);
 	}
 }

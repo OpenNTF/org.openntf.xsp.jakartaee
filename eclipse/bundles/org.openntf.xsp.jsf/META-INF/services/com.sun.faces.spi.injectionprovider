@@ -1,1 +1,1 @@
-com.sun.faces.vendor.WebContainerInjectionProvider
+org.openntf.xsp.jsf.nsf.NSFInjectionProvider:com.sun.faces.vendor.WebContainerInjectionProvider

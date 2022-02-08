@@ -23,10 +23,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
@@ -436,14 +435,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	// * Internal utility methods
 	// *******************************************************************************
 	
-	private final String ATTR_LISTENERS = OldHttpServletRequestWrapper.class.getName() + "_attrListeners"; //$NON-NLS-1$
-	
-	private Set<ServletRequestAttributeListener> getAttrListeners() {
-		Set<ServletRequestAttributeListener> result = (Set<ServletRequestAttributeListener>)delegate.getAttribute(ATTR_LISTENERS);
-		if(result == null) {
-			result = new HashSet<>();
-			delegate.setAttribute(ATTR_LISTENERS, result);
-		}
-		return result;
+	private List<ServletRequestAttributeListener> getAttrListeners() {
+		return ServletUtil.getListeners(getServletContext(), ServletRequestAttributeListener.class);
 	}
 }

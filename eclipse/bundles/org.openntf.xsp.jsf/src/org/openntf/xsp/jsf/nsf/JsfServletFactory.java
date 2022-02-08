@@ -81,6 +81,7 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				try {
 					Map<String, String> params = new HashMap<>();
+					params.put("com.sun.faces.injectionProvider", "com.sun.faces.vendor.WebContainerInjectionProvider"); //$NON-NLS-1$ //$NON-NLS-2$
 					
 					@SuppressWarnings("deprecation")
 					URL[] urls = buildBundleClassPath().stream()

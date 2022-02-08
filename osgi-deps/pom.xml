@@ -406,6 +406,7 @@
 											*
 										</Import-Package>
 										<Export-Package>
+											com.sun.faces.spi;version="3.0.2",
 											com.sun.*;x-friends:="org.openntf.xsp.jsf";version="3.0.2",
 											*;version="3.0.0"
 										</Export-Package>

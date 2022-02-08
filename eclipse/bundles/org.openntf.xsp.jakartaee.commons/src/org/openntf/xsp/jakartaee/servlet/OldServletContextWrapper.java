@@ -23,17 +23,18 @@ import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.EventListener;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 
@@ -81,8 +82,14 @@ class OldServletContextWrapper implements ServletContext {
 		this.minorVersion = minorVersion;
 	}
 	
-	void addListener(ServletContextAttributeListener listener) {
-		this.getAttrListeners().add(listener);
+	<T extends EventListener> List<T> getListeners(Class<?> listenerClass) {
+		List<T> result = new ArrayList<>();
+		for(Object listener : getOtherListeners()) {
+			if(listenerClass.isInstance(listener)) {
+				result.add((T)listener);
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -111,13 +118,18 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public <T extends EventListener> void addListener(T arg0) {
-		throw unavailable();
+	public <T extends EventListener> void addListener(T listener) {
+		getOtherListeners().add(listener);
 	}
 
 	@Override
-	public void addListener(Class<? extends EventListener> arg0) {
-		throw unavailable();
+	public void addListener(Class<? extends EventListener> c) {
+		try {
+			// TODO bind this with CDI
+			getOtherListeners().add(c.newInstance());
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -571,12 +583,19 @@ class OldServletContextWrapper implements ServletContext {
 		} 
 	}
 	
-	private final String ATTR_LISTENERS = OldServletContextWrapper.class.getName() + "_attrListeners"; //$NON-NLS-1$
+	private final String ATTR_LISTENERS = OldServletContextWrapper.class.getName() + "_listeners"; //$NON-NLS-1$
 	
-	private Set<ServletContextAttributeListener> getAttrListeners() {
-		Set<ServletContextAttributeListener> result = (Set<ServletContextAttributeListener>)delegate.getAttribute(ATTR_LISTENERS);
+	private Stream<ServletContextAttributeListener> getAttrListeners() {
+		return getOtherListeners()
+			.stream()
+			.filter(ServletContextAttributeListener.class::isInstance)
+			.map(ServletContextAttributeListener.class::cast);
+	}
+	
+	private List<EventListener> getOtherListeners() {
+		List<EventListener> result = (List<EventListener>)delegate.getAttribute(ATTR_LISTENERS);
 		if(result == null) {
-			result = new HashSet<>();
+			result = new ArrayList<>();
 			delegate.setAttribute(ATTR_LISTENERS, result);
 		}
 		return result;
