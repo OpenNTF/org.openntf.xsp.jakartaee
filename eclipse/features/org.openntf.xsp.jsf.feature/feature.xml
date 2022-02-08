@@ -18,7 +18,7 @@
 -->
 <feature
       id="org.openntf.xsp.jsf.feature"
-      label="XPages Runtime JSF Support Feature"
+      label="XPages JSF 3.0 Support Feature"
       version="2.4.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
