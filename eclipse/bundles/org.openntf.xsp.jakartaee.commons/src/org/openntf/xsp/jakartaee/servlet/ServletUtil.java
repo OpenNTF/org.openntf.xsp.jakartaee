@@ -24,8 +24,6 @@ package org.openntf.xsp.jakartaee.servlet;
  */
 public enum ServletUtil {
 	;
-	// TODO check for null
-	// TODO check for unwrap
 	
 	public static javax.servlet.Servlet newToOld(jakarta.servlet.Servlet servlet) {
 		if(servlet == null) {
