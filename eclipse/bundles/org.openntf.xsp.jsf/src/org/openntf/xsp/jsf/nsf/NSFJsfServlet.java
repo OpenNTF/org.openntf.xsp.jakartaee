@@ -20,7 +20,6 @@ import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.HashMap;
@@ -105,7 +104,7 @@ public class NSFJsfServlet extends HttpServlet {
 			// Set the project stage via system property, as it doesn't show up in init parameters
 			Properties props = LibraryUtil.getXspProperties(module);
 			String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
-			AccessController.doPrivileged((PrivilegedAction<String>)() -> System.setProperty("faces.PROJECT_STAGE", projectStage)); //$NON-NLS-1$
+			context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
 			
 			// Do this reflectively due to lack of bundle export
 			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
@@ -131,7 +130,6 @@ public class NSFJsfServlet extends HttpServlet {
 
 			this.delegate = new FacesServlet();
 			delegate.init(config);
-			AccessController.doPrivileged((PrivilegedAction<String>)() -> System.setProperty("faces.PROJECT_STAGE", "")); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (NotesAPIException e) {
 			throw new ServletException(e);
 		}
