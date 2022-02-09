@@ -249,6 +249,9 @@
 	<plugin id="jakarta.json.bind-api" version="0.0.0"/>
 	<plugin id="org.openntf.jakarta.websocket-api" version="0.0.0"/>
 	<plugin id="org.glassfish.jakarta.json" version="0.0.0"/>
+	<plugin id="jakarta.persistence-api" version="0.0.0"/>
+	<plugin id="jakarta.ejb-api" version="0.0.0"/>
+	<plugin id="jakarta.transaction-api" version="0.0.0"/>
 	
 	<!-- Mail -->
 	<plugin id="org.openntf.xsp.jakartamail.api" version="0.0.0"/>

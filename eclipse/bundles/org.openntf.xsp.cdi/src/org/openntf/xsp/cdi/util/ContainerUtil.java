@@ -36,6 +36,9 @@ import org.jboss.weld.config.ConfigurationKey;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.manager.BeanManagerImpl;
+import org.jboss.weld.module.ExpressionLanguageSupport;
+import org.jboss.weld.module.web.el.WeldELResolver;
+import org.jboss.weld.module.web.el.WeldExpressionFactory;
 import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoader;
 import org.jboss.weld.util.ForwardingBeanManager;
@@ -55,6 +58,8 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
+import jakarta.el.ELResolver;
+import jakarta.el.ExpressionFactory;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.Extension;
@@ -401,7 +406,23 @@ public enum ContainerUtil {
 			// Disable concurrent deployment to avoid Notes thread init trouble
 			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
 			.property(ConfigurationKey.EXECUTOR_THREAD_POOL_TYPE.get(), "SINGLE_THREAD") //$NON-NLS-1$
-			.addExtension(new CDIScopesExtension());
+			.addExtension(new CDIScopesExtension())
+			.addServices(new ExpressionLanguageSupport() {
+				@Override
+				public ExpressionFactory wrapExpressionFactory(ExpressionFactory expressionFactory) {
+					return new WeldExpressionFactory(expressionFactory);
+				}
+
+				@Override
+				public ELResolver createElResolver(BeanManagerImpl manager) {
+					return new WeldELResolver(manager);
+				}
+
+				@Override
+				public void cleanup() {
+					
+				}
+			});
 	}
 	
 	private static class ModuleContextResourceLoader extends ClassLoaderResourceLoader {

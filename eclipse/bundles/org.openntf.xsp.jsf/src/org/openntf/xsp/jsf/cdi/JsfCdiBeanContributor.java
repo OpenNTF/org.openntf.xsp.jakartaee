@@ -2,51 +2,36 @@ package org.openntf.xsp.jsf.cdi;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jsf.JsfLibrary;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
 import jakarta.enterprise.inject.spi.Extension;
-import jakarta.faces.context.FacesContext;
 
 public class JsfCdiBeanContributor implements WeldBeanClassContributor {
-	private static final String[] EXTENSIONS = {
-		"com.sun.faces.application.view.ViewScopeExtension", //$NON-NLS-1$
-		"com.sun.faces.flow.FlowCDIExtension", //$NON-NLS-1$
-		"com.sun.faces.flow.FlowDiscoveryCDIExtension", //$NON-NLS-1$
-		"com.sun.faces.cdi.CdiExtension" //$NON-NLS-1$
-	};
-
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Extension> getExtensions() {
 		if(LibraryUtil.isLibraryActive(JsfLibrary.LIBRARY_ID)) {
-			Bundle b = FrameworkUtil.getBundle(FacesContext.class);
-			return Arrays.stream(EXTENSIONS)
-				.map(t -> {
-					try {
-						return (Class<Extension>)b.loadClass(t);
-					} catch (ClassNotFoundException e) {
-						throw new RuntimeException(e);
-					}
-				})
-				.map(t -> {
-					try {
-						return t.newInstance();
-					} catch (InstantiationException | IllegalAccessException e) {
-						throw new RuntimeException(e);
-					}
-				})
-				.collect(Collectors.toList());
+			return Arrays.asList(
+				new org.apache.myfaces.cdi.FacesScopeExtension(),
+				new org.apache.myfaces.cdi.FacesArtifactProducerExtension(),
+				new org.apache.myfaces.cdi.FacesApplicationArtifactHolderExtension(),
+				new org.apache.myfaces.cdi.config.FacesConfigExtension(),
+				new org.apache.myfaces.cdi.managedproperty.ManagedPropertyExtension(),
+				new org.apache.myfaces.cdi.model.FacesDataModelExtension(),
+				new org.apache.myfaces.cdi.view.ViewScopeExtension(),
+				new org.apache.myfaces.cdi.view.ViewTransientScopeExtension(),
+				new org.apache.myfaces.config.annotation.CdiAnnotationProviderExtension(),
+				new org.apache.myfaces.push.cdi.PushContextCDIExtension(),
+				new org.apache.myfaces.flow.cdi.FlowScopeExtension(),
+				new org.apache.myfaces.cdi.clientwindow.ClientWindowScopeExtension()
+			);
 		} else {
 			return null;
 		}

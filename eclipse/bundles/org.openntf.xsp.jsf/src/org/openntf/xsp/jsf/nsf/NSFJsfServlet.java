@@ -22,7 +22,6 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,9 +30,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.myfaces.webapp.MyFacesContainerInitializer;
+import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
+import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
@@ -46,6 +48,8 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.webapp.FacesServlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContainerInitializer;
@@ -72,6 +76,7 @@ public class NSFJsfServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private static final String PROP_SESSIONINIT = NSFJsfServlet.class.getName() + "_sessionInit"; //$NON-NLS-1$
+	private static final String PROP_CLASSLOADER = NSFJsfServlet.class.getName() + "_classLoader"; //$NON-NLS-1$
 	
 	private final ComponentModule module;
 	private FacesServlet delegate;
@@ -85,17 +90,14 @@ public class NSFJsfServlet extends HttpServlet {
 	}
 	
 	public void doInit(HttpServletRequest req, ServletConfig config) throws ServletException {
-		ClassLoader current = Thread.currentThread().getContextClassLoader();
 		try {
-			ContainerUtil.getContainer(NotesContext.getCurrent().getNotesDatabase());
-			Thread.currentThread().setContextClassLoader(buildJsfClassLoader(current));
+			CDI<Object> cdi = ContainerUtil.getContainer(NotesContext.getCurrent().getNotesDatabase());
+			getServletContext().setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi));
 			
 			// Do this reflectively due to lack of bundle export
 			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
 			{
-				@SuppressWarnings("unchecked")
-				Class<? extends ServletContainerInitializer> c = (Class<? extends ServletContainerInitializer>) b.loadClass("com.sun.faces.config.FacesInitializer"); //$NON-NLS-1$
-				ServletContainerInitializer initializer = c.newInstance();
+				ServletContainerInitializer initializer = new MyFacesContainerInitializer();
 				Set<Class<?>> classes = null;
 				HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
 				if(types != null) {
@@ -108,12 +110,7 @@ public class NSFJsfServlet extends HttpServlet {
 				// Re-wrap the ServletContext to provide the context path
 				javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
 				ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
-				
-				// Add the ConfigureListener
-				// TODO remove when moving to > 3.0.2, as this will be set in the initializer
-				@SuppressWarnings("unchecked")
-				Class<? extends EventListener> c = (Class<? extends EventListener>)b.loadClass("com.sun.faces.config.ConfigureListener"); //$NON-NLS-1$
-				ctx.addListener(c);
+				ctx.addListener(StartupServletContextListener.class);
 				
 				ServletUtil.getListeners(ctx, ServletContextListener.class)
 					.forEach(l -> l.contextInitialized(new ServletContextEvent(ctx)));
@@ -121,10 +118,8 @@ public class NSFJsfServlet extends HttpServlet {
 
 			this.delegate = new FacesServlet();
 			delegate.init(config);
-		} catch (BundleException | IOException | InstantiationException | IllegalAccessException | ClassNotFoundException | NotesAPIException e) {
+		} catch (NotesAPIException e) {
 			throw new ServletException(e);
-		} finally {
-			Thread.currentThread().setContextClassLoader(current);
 		}
 	}
 
@@ -138,16 +133,16 @@ public class NSFJsfServlet extends HttpServlet {
 		
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
-				if(!initialized) {
-					this.doInit(req, getServletConfig());
-					initialized = true;
-				}
-				
-				ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
-				AbstractProxyingContext.setThreadContextRequest(req);
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
-				Thread.currentThread().setContextClassLoader(buildJsfClassLoader(current));
+				Thread.currentThread().setContextClassLoader(buildJsfClassLoader(ctx, current));
 				try {
+					if(!initialized) {
+						this.doInit(req, getServletConfig());
+						initialized = true;
+					}
+					
+					ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
+					AbstractProxyingContext.setThreadContextRequest(req);
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
 						.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), req)));
 
@@ -185,7 +180,7 @@ public class NSFJsfServlet extends HttpServlet {
 			t.printStackTrace();
 			throw t;
 		} finally {
-			// Looks like Jasper doesn't flush this on its own
+			// In case it's not flushed on its own
 			resp.getWriter().flush();
 			
 			// Restore XPages-land com.sun.faces attributes
@@ -236,16 +231,22 @@ public class NSFJsfServlet extends HttpServlet {
 		incomingStashed.forEach(ctx::setAttribute);
 	}
 
-	private ClassLoader buildJsfClassLoader(ClassLoader delegate) throws BundleException, IOException {
-		return new ClassLoader(delegate) {
-			@Override
-			public Class<?> loadClass(String name) throws ClassNotFoundException {
-				if(name != null && name.startsWith("com.sun.faces")) { //$NON-NLS-1$
-					return NSFJsfServlet.class.getClassLoader().loadClass(name);
+	private synchronized ClassLoader buildJsfClassLoader(ServletContext context, ClassLoader delegate) throws BundleException, IOException {
+		if(context.getAttribute(PROP_CLASSLOADER) == null) {
+			ClassLoader apiCl = FacesContext.class.getClassLoader();
+			ClassLoader implCl = MyFacesContainerInitializer.class.getClassLoader();
+			ClassLoader cl = new DelegatingClassLoader(apiCl, implCl, delegate) {
+				@Override
+				public Class<?> loadClass(String name) throws ClassNotFoundException {
+					if(name != null && name.startsWith("com.sun.faces.")) { //$NON-NLS-1$
+						throw new ClassNotFoundException();
+					}
+					return super.loadClass(name);
 				}
-				return super.loadClass(name);
-			}
-		};
+			};
+			context.setAttribute(PROP_CLASSLOADER, cl);
+		}
+		return (ClassLoader)context.getAttribute(PROP_CLASSLOADER);
 	}
 
 	@SuppressWarnings("unchecked")

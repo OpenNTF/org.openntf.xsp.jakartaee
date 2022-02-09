@@ -91,8 +91,8 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 				for(String ext : getExtensions()) {
 					int extIndex = StringUtil.toString(path).indexOf(ext);
 					if (extIndex > -1) {
-						String servletPath = path.substring(0, extIndex+4);
-						String pathInfo = path.substring(extIndex+4);
+						String servletPath = path.substring(0, extIndex+ext.length());
+						String pathInfo = path.substring(extIndex+ext.length());
 						return new ServletMatch(getExecutorServlet(), servletPath, pathInfo);
 					}
 				}
