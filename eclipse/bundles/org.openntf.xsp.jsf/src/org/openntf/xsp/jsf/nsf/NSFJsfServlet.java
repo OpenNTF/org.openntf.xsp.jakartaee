@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 package org.openntf.xsp.jsf.nsf;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.security.AccessController;
-import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,6 +45,7 @@ import org.osgi.framework.FrameworkUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
@@ -92,7 +93,8 @@ public class NSFJsfServlet extends HttpServlet {
 	public void doInit(HttpServletRequest req, ServletConfig config) throws ServletException {
 		try {
 			CDI<Object> cdi = ContainerUtil.getContainer(NotesContext.getCurrent().getNotesDatabase());
-			getServletContext().setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi));
+			ServletContext context = config.getServletContext();
+			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
 			
 			// Do this reflectively due to lack of bundle export
 			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
@@ -167,18 +169,16 @@ public class NSFJsfServlet extends HttpServlet {
 				}
 				return null;
 			});
-		} catch(PrivilegedActionException e) {
-			Throwable cause = e.getCause();
-			if(cause instanceof ServletException) {
-				throw (ServletException)cause;
-			} else if(cause instanceof IOException) {
-				throw (IOException)cause;
-			} else {
-				throw new ServletException(e);
-			}
 		} catch(Throwable t) {
-			t.printStackTrace();
-			throw t;
+			try(PrintWriter w = resp.getWriter()) {
+				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				XSPErrorPage.handleException(w, t, req.getRequestURL().toString(), false);
+			} catch (javax.servlet.ServletException e) {
+				throw new IOException(e);
+			} catch(IllegalStateException e) {
+				// Happens when the writer or output has already been opened
+				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			}
 		} finally {
 			// In case it's not flushed on its own
 			resp.getWriter().flush();
@@ -206,7 +206,7 @@ public class NSFJsfServlet extends HttpServlet {
 		Collections.list(ctx.getAttributeNames())
 			.stream()
 			.filter(Objects::nonNull)
-			.filter(attr -> attr.startsWith("com.sun.faces.")) //$NON-NLS-1$
+			.filter(attr -> attr.startsWith("com.sun.faces.") || attr.startsWith("javax.faces.")) //$NON-NLS-1$ //$NON-NLS-2$
 			.forEach(attr -> {
 				incomingStashed.put(attr, ctx.getAttribute(attr));
 				ctx.removeAttribute(attr);
