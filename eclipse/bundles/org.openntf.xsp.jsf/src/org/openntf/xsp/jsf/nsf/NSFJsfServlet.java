@@ -99,6 +99,8 @@ public class NSFJsfServlet extends HttpServlet {
 			CDI<Object> cdi = ContainerUtil.getContainer(NotesContext.getCurrent().getNotesDatabase());
 			ServletContext context = config.getServletContext();
 			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+			// TODO investigate why partial state saving doesn't work with a basic form
+			context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 			
 			// Set the project stage via system property, as it doesn't show up in init parameters
 			Properties props = LibraryUtil.getXspProperties(module);

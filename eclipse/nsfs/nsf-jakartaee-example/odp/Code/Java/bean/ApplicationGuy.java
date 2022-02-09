@@ -32,6 +32,16 @@ public class ApplicationGuy {
 	@XmlElement(name="postConstructSet")
 	private String postConstructSet;
 	
+	private String beanProperty;
+	
+	public String getBeanProperty() {
+		return beanProperty;
+	}
+	
+	public void setBeanProperty(String beanProperty) {
+		this.beanProperty = beanProperty;
+	}
+	
 	@JsonbProperty(value="jsonMessage")
 	public String getMessage() {
 		return "I'm application guy at " + time;

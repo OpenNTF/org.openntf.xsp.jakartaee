@@ -37,6 +37,24 @@
     		
     		<dt>Project Stage</dt>
     		<dd><h:outputText value="#{facesContext.application.projectStage}"/></dd>
+    		
+    		<dt>facesContext.externalContext.context</dt>
+    		<dd><h:outputText value="#{facesContext.externalContext.context}"/></dd>
+    		
+    		<dt>transient?</dt>
+    		<dd><h:outputText value="#{facesContext.viewRoot.transient}"/></dd>
     	</dl>
+    	
+    	<fieldset>
+    		<legend>Example Form</legend>
+    		<h:form>
+    			<h:inputText id="appGuyProperty" value="#{applicationGuy.beanProperty}"/>
+    			<h:commandButton value="Refresh">
+    				<f:ajax execute="appGuyProperty" render="formOutput"/>
+    			</h:commandButton>
+    			
+    			<p><h:outputText id="formOutput" value="#{applicationGuy.beanProperty}"/></p>
+    		</h:form>
+    	</fieldset>
     </h:body>
 </html>
