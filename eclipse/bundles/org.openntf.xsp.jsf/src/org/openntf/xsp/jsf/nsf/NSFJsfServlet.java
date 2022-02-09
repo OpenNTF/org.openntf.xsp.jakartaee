@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,6 +39,7 @@ import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -50,6 +53,7 @@ import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.inject.spi.CDI;
+import jakarta.faces.application.ProjectStage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.webapp.FacesServlet;
 import jakarta.servlet.ServletConfig;
@@ -96,6 +100,11 @@ public class NSFJsfServlet extends HttpServlet {
 			ServletContext context = config.getServletContext();
 			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
 			
+			// Set the project stage via system property, as it doesn't show up in init parameters
+			Properties props = LibraryUtil.getXspProperties(module);
+			String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
+			AccessController.doPrivileged((PrivilegedAction<String>)() -> System.setProperty("faces.PROJECT_STAGE", projectStage)); //$NON-NLS-1$
+			
 			// Do this reflectively due to lack of bundle export
 			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
 			{
@@ -120,6 +129,7 @@ public class NSFJsfServlet extends HttpServlet {
 
 			this.delegate = new FacesServlet();
 			delegate.init(config);
+			AccessController.doPrivileged((PrivilegedAction<String>)() -> System.setProperty("faces.PROJECT_STAGE", "")); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (NotesAPIException e) {
 			throw new ServletException(e);
 		}
@@ -157,8 +167,7 @@ public class NSFJsfServlet extends HttpServlet {
 						session.setAttribute(PROP_SESSIONINIT, "1"); //$NON-NLS-1$
 						// TODO add a hook for session expiration?
 					}
-					
-					
+
 					delegate.service(req, resp);
 				} finally {
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
