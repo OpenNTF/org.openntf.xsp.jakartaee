@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2021 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jsp.nsf;
+package org.openntf.xsp.jsf.nsf;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -28,7 +31,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -38,62 +40,79 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-import org.openntf.xsp.jsp.JspLibrary;
+import org.openntf.xsp.jsf.JsfLibrary;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.xsp.extlib.util.ExtLibUtil;
+
+import jakarta.faces.webapp.FacesServlet;
 
 /**
  * 
  * @author Jesse Gallagher
- * @since 2.1.0
+ * @since 2.3.0
  */
-public class JspServletFactory extends MappingBasedServletFactory {
-	private static final String PATH_SEP = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("path.separator")); //$NON-NLS-1$
-
-	public JspServletFactory() {
-	}
-	
-	@Override
-	public Set<String> getExtensions() {
-		return new HashSet<>(Arrays.asList(".jsp", ".jspx")); //$NON-NLS-1$ //$NON-NLS-2$
+public class JsfServletFactory extends MappingBasedServletFactory {
+	public JsfServletFactory() {
 	}
 	
 	@Override
 	public String getLibraryId() {
-		return JspLibrary.LIBRARY_ID;
+		return JsfLibrary.LIBRARY_ID;
 	}
 	
 	@Override
+	public Set<String> getExtensions() {
+		return new HashSet<>(Arrays.asList(".xhtml", ".jsf")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	@Override
 	public String getServletClassName() {
-		return NSFJspServlet.class.getName();
+		return FacesServlet.class.getName();
 	}
 	
 	@Override
 	public Servlet createExecutorServlet(ComponentModule module) throws ServletException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
-				Map<String, String> params = new HashMap<>();
-				String classpath = buildBundleClassPath()
-					.stream()
-					.map(File::toString)
-					.collect(Collectors.joining(PATH_SEP));
-				params.put("classpath", classpath); //$NON-NLS-1$
-				params.put("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
-				
-				return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFJspServlet(module)), "XSP JSP Servlet", params); //$NON-NLS-1$
+				ClassLoader current = Thread.currentThread().getContextClassLoader();
+				try {
+					Map<String, String> params = new HashMap<>();
+					
+					@SuppressWarnings("deprecation")
+					URL[] urls = buildBundleClassPath().stream()
+						.map(t -> {
+							try {
+								return t.toURL();
+							} catch (MalformedURLException e) {
+								throw new UncheckedIOException(e);
+							}
+						})
+						.toArray(URL[]::new);
+					Thread.currentThread().setContextClassLoader(new URLClassLoader(urls, current));
+					
+					return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFJsfServlet(module)), "XSP JSF Servlet", params); //$NON-NLS-1$
+				} finally {
+					Thread.currentThread().setContextClassLoader(current);
+				}
 			});
 		} catch (PrivilegedActionException e) {
-			throw new ServletException(e.getCause());
+			Throwable cause = e.getCause();
+			if(cause instanceof ServletException) {
+				throw (ServletException)cause;
+			} else if(cause != null) {
+				throw new ServletException(cause);
+			} else {
+				throw new ServletException(e);
+			}
 		}
 	}
 
 	public static List<File> buildBundleClassPath() throws BundleException, IOException {
-		Bundle bundle = FrameworkUtil.getBundle(JspServletFactory.class);
+		Bundle bundle = FrameworkUtil.getBundle(JsfServletFactory.class);
 		List<File> classpath = new ArrayList<>();
 		toClasspathEntry(bundle, classpath);
 		

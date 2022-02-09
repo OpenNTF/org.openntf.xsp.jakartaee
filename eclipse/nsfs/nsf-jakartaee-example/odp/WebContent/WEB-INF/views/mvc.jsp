@@ -29,7 +29,7 @@
 		<p>Application guy is ${applicationGuy.message}</p>
 		<p>Request guy is ${requestGuy.message}</p>
 		<p>DB is ${database}</p>
-		<p>Session is ${session}</p>
+		<p>Session is ${dominoSession}</p>
 		<p>Context from controller is ${contextFromController}</p>
 		
 		<t:example value="Value sent into the tag"/>

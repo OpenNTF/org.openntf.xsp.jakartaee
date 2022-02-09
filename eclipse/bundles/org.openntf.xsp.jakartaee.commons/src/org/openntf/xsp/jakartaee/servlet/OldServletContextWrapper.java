@@ -23,6 +23,7 @@ import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 
@@ -48,6 +50,8 @@ import jakarta.servlet.FilterRegistration.Dynamic;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextAttributeEvent;
+import jakarta.servlet.ServletContextAttributeListener;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
 import jakarta.servlet.ServletRequest;
@@ -63,10 +67,29 @@ class OldServletContextWrapper implements ServletContext {
 	private static final String UNAVAILABLE_MESSAGE = "Unable to call method on Servlet 2.5 delegate"; //$NON-NLS-1$
 	final javax.servlet.ServletContext delegate;
 	private final String contextPath;
+	private int majorVersion = 2;
+	private int minorVersion = 5;
 	
 	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate) {
 		this.delegate = delegate;
 		this.contextPath = contextPath;
+	}
+
+	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate, int majorVersion, int minorVersion) {
+		this.delegate = delegate;
+		this.contextPath = contextPath;
+		this.majorVersion = majorVersion;
+		this.minorVersion = minorVersion;
+	}
+	
+	<T extends EventListener> List<T> getListeners(Class<?> listenerClass) {
+		List<T> result = new ArrayList<>();
+		for(Object listener : getOtherListeners()) {
+			if(listenerClass.isInstance(listener)) {
+				result.add((T)listener);
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -95,13 +118,18 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public <T extends EventListener> void addListener(T arg0) {
-		throw unavailable();
+	public <T extends EventListener> void addListener(T listener) {
+		getOtherListeners().add(listener);
 	}
 
 	@Override
-	public void addListener(Class<? extends EventListener> arg0) {
-		throw unavailable();
+	public void addListener(Class<? extends EventListener> c) {
+		try {
+			// TODO bind this with CDI
+			getOtherListeners().add(c.newInstance());
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -225,7 +253,7 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public int getMajorVersion() {
-		return 2;
+		return this.majorVersion;
 	}
 
 	@Override
@@ -235,7 +263,7 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public int getMinorVersion() {
-		return 5;
+		return this.minorVersion;
 	}
 
 	@Override
@@ -483,13 +511,27 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public void removeAttribute(String arg0) {
-		delegate.removeAttribute(arg0);
+	public void removeAttribute(String name) {
+		Object val = delegate.getAttribute(name);
+		delegate.removeAttribute(name);
+		this.getAttrListeners().forEach(listener ->
+			listener.attributeRemoved(new ServletContextAttributeEvent(this, name, val))
+		);
 	}
 
 	@Override
-	public void setAttribute(String arg0, Object arg1) {
-		delegate.setAttribute(arg0, arg1);
+	public void setAttribute(String name, Object value) {
+		boolean exists = Collections.list(this.getAttributeNames()).contains(name);
+		Object oldVal = delegate.getAttribute(name);
+		delegate.setAttribute(name, value);
+		if(exists) {
+			this.getAttrListeners().forEach(listener ->
+				listener.attributeReplaced(new ServletContextAttributeEvent(this, name, oldVal))
+			);
+		}
+		this.getAttrListeners().forEach(listener ->
+			listener.attributeAdded(new ServletContextAttributeEvent( this, name, value))
+		);
 	}
 
 	@Override
@@ -539,5 +581,23 @@ class OldServletContextWrapper implements ServletContext {
 		} catch (PrivilegedActionException e) {
 			throw new RuntimeException(e.getCause());
 		} 
+	}
+	
+	private final String ATTR_LISTENERS = OldServletContextWrapper.class.getName() + "_listeners"; //$NON-NLS-1$
+	
+	private Stream<ServletContextAttributeListener> getAttrListeners() {
+		return getOtherListeners()
+			.stream()
+			.filter(ServletContextAttributeListener.class::isInstance)
+			.map(ServletContextAttributeListener.class::cast);
+	}
+	
+	private List<EventListener> getOtherListeners() {
+		List<EventListener> result = (List<EventListener>)delegate.getAttribute(ATTR_LISTENERS);
+		if(result == null) {
+			result = new ArrayList<>();
+			delegate.setAttribute(ATTR_LISTENERS, result);
+		}
+		return result;
 	}
 }

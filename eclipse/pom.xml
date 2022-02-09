@@ -77,6 +77,10 @@
  		<module>bundles/org.openntf.xsp.jsp</module>
  		<module>features/org.openntf.xsp.jsp.feature</module>
 		
+		<!-- JSF -->
+ 		<module>bundles/org.openntf.xsp.jsf</module>
+ 		<module>features/org.openntf.xsp.jsf.feature</module>
+		 
 		<!-- MVC -->
  		<module>bundles/org.openntf.xsp.mvc</module>
  		<module>features/org.openntf.xsp.mvc.feature</module>

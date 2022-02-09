@@ -49,7 +49,7 @@ public class DominoFacesImplicitObjectProvider {
 
 	@Produces
 	@Dependent
-	@Named("session")
+	@Named("dominoSession")
 	public Session produceSession() {
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {

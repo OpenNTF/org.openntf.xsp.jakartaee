@@ -15,10 +15,14 @@
  */
 package org.openntf.xsp.jakartaee.servlet;
 
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionAttributeListener;
+import jakarta.servlet.http.HttpSessionBindingEvent;
 import jakarta.servlet.http.HttpSessionContext;
 
 @SuppressWarnings("deprecation")
@@ -27,6 +31,10 @@ class OldHttpSessionWrapper implements HttpSession {
 	
 	public OldHttpSessionWrapper(javax.servlet.http.HttpSession delegate) {
 		this.delegate = delegate;
+	}
+	
+	void addListener(HttpSessionAttributeListener listener) {
+		this.getAttrListeners().add(listener);
 	}
 	
 	@Override
@@ -87,7 +95,17 @@ class OldHttpSessionWrapper implements HttpSession {
 
 	@Override
 	public void setAttribute(String name, Object value) {
+		boolean exists = Collections.list(this.getAttributeNames()).contains(name);
+		Object oldVal = delegate.getAttribute(name);
 		delegate.setAttribute(name, value);
+		if(exists) {
+			this.getAttrListeners().forEach(listener ->
+				listener.attributeReplaced(new HttpSessionBindingEvent(this, name, oldVal))
+			);
+		}
+		this.getAttrListeners().forEach(listener ->
+			listener.attributeAdded(new HttpSessionBindingEvent( this, name, value))
+		);
 	}
 
 	@Override
@@ -97,7 +115,11 @@ class OldHttpSessionWrapper implements HttpSession {
 
 	@Override
 	public void removeAttribute(String name) {
+		Object val = delegate.getAttribute(name);
 		delegate.removeAttribute(name);
+		this.getAttrListeners().forEach(listener ->
+			listener.attributeRemoved(new HttpSessionBindingEvent(this, name, val))
+		);
 	}
 
 	@Override
@@ -113,6 +135,14 @@ class OldHttpSessionWrapper implements HttpSession {
 	@Override
 	public boolean isNew() {
 		return delegate.isNew();
+	}
+	
+	// *******************************************************************************
+	// * Internal utility methods
+	// *******************************************************************************
+	
+	private List<HttpSessionAttributeListener> getAttrListeners() {
+		return ServletUtil.getListeners(getServletContext(), HttpSessionAttributeListener.class);
 	}
 
 }

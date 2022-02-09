@@ -17,8 +17,8 @@
 
 -->
 <feature
-      id="org.openntf.xsp.cdi.feature"
-      label="XPages CDI 3.0 Support Feature"
+      id="org.openntf.xsp.jsf.feature"
+      label="XPages JSF 3.0 Support Feature"
       version="2.4.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -237,16 +237,9 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-	<plugin id="org.openntf.xsp.cdi" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.cdi.api" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.cdi.provider" version="0.0.0"/>
-    
-	<plugin id="org.jboss.weld.api" version="0.0.0"/>
-	<plugin id="org.jboss.weld.spi" version="0.0.0"/>
-	<plugin id="org.jboss.weld.core-impl" version="0.0.0"/>
-	<plugin id="org.jboss.weld.environment.weld-environment-common" version="0.0.0"/>
-	<plugin id="org.jboss.weld.se.weld-se-core" version="0.0.0"/>
-	<plugin id="org.jboss.weld.probe.weld-probe-core" version="0.0.0"/>
-	<plugin id="org.jboss.weld.module.weld-web" version="0.0.0"/>
-	
+   <plugin id="org.openntf.xsp.jsf" version="0.0.0"/>
+
+   <plugin id="org.openntf.org.apache.myfaces.core.api" version="0.0.0"/>
+   <plugin id="org.openntf.org.apache.myfaces.core.impl" version="0.0.0"/>
+
 </feature>
