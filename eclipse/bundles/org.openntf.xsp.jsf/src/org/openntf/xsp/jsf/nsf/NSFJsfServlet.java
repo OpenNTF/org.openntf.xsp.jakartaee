@@ -190,7 +190,19 @@ public class NSFJsfServlet extends HttpServlet {
 			}
 		} finally {
 			// In case it's not flushed on its own
-			resp.getWriter().flush();
+			// NB: resp.flushBuffer() is insufficient here
+			try {
+				resp.getWriter().flush();
+			} catch(IllegalStateException e) {
+				// Written using the stream instead
+				try {
+					resp.getOutputStream().flush();
+				} catch(IllegalStateException e2) {
+					// Well, fine.
+				}
+			} catch(IOException e) {
+				// No need to propagate this
+			}
 			
 			// Restore XPages-land com.sun.faces attributes
 			restoreFacesAttributes(ctx, incomingStashed);
