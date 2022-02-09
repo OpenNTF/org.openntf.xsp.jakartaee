@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -225,8 +226,12 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public String getInitParameter(String arg0) {
-		return delegate.getInitParameter(arg0);
+	public String getInitParameter(String name) {
+		Map<String, String> params = getExtraInitParameters();
+		if(params.containsKey(name)) {
+			return params.get(name);
+		}
+		return delegate.getInitParameter(name);
 	}
 
 	@Override
@@ -535,9 +540,12 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public boolean setInitParameter(String arg0, String arg1) {
-		// Soft unavailable
-		return false;
+	public boolean setInitParameter(String name, String value) {
+		if(Collections.list(getInitParameterNames()).contains(name)) {
+			return false;
+		}
+		getExtraInitParameters().put(name, value);
+		return true;
 	}
 
 	@Override
@@ -583,7 +591,8 @@ class OldServletContextWrapper implements ServletContext {
 		} 
 	}
 	
-	private final String ATTR_LISTENERS = OldServletContextWrapper.class.getName() + "_listeners"; //$NON-NLS-1$
+	private static final String ATTR_LISTENERS = OldServletContextWrapper.class.getName() + "_listeners"; //$NON-NLS-1$
+	private static final String ATTR_INITPARAMS = OldServletContextWrapper.class.getName() + "_initParams"; //$NON-NLS-1$
 	
 	private Stream<ServletContextAttributeListener> getAttrListeners() {
 		return getOtherListeners()
@@ -597,6 +606,15 @@ class OldServletContextWrapper implements ServletContext {
 		if(result == null) {
 			result = new ArrayList<>();
 			delegate.setAttribute(ATTR_LISTENERS, result);
+		}
+		return result;
+	}
+	
+	private Map<String, String> getExtraInitParameters() {
+		Map<String, String> result = (Map<String, String>)delegate.getAttribute(ATTR_INITPARAMS);
+		if(result == null) {
+			result = new HashMap<>();
+			delegate.setAttribute(ATTR_INITPARAMS, result);
 		}
 		return result;
 	}
