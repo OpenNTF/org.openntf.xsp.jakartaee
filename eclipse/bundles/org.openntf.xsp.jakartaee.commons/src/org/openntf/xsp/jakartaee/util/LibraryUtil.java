@@ -24,12 +24,17 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
@@ -56,6 +61,13 @@ public enum LibraryUtil {
 	
 	private static final Map<String, Long> NSF_MOD = new HashMap<>();
 	private static final Map<String, Properties> NSF_PROPS = new ConcurrentHashMap<>();
+	
+	/**
+	 * Store bundles by symbolic name to speed up lookups, since we don't realistically have to worry
+	 * about dynamically loaded/unloaded bundles
+	 * @since 2.4.0
+	 */
+	private static final Map<String, Bundle> BUNDLE_CACHE = Collections.synchronizedMap(new HashMap<>());
 	
 	/**
 	 * Attempts to determine whether the given XPages Library is active for the
@@ -318,5 +330,20 @@ public enum LibraryUtil {
 		} finally {
 			doc.recycle();
 		}
+	}
+	
+	/**
+	 * Retrieves the OSGi bundle for the provided symbolic name.
+	 * 
+	 * <p>Unlike {@link Platform#getBundle(String)}, this method maintains an internal cache to
+	 * speed up subsequent lookups.</p>
+	 * 
+	 * @param symbolicName the symbolic name of the bundle to look up
+	 * @return an {@link Optional} describing the {@link Bundle} matching the name, or
+	 *         an empty one if no such bundle is installed
+	 * @since 2.4.0
+	 */
+	public static Optional<Bundle> getBundle(String symbolicName) {
+		return Optional.ofNullable(BUNDLE_CACHE.computeIfAbsent(symbolicName, Platform::getBundle));
 	}
 }

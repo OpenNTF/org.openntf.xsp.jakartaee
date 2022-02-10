@@ -20,14 +20,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
 import org.jboss.weld.bootstrap.spi.BeansXml;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveBuilder;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
@@ -58,11 +59,11 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 				if(database != null) {
 					String bundleName = ContainerUtil.getApplicationCDIBundle(database);
 					if(StringUtil.isNotEmpty(bundleName)) {
-						bundle = Platform.getBundle(bundleName);
+						bundle = LibraryUtil.getBundle(bundleName).orElse(null);
 					} else {
 						bundleName = ContainerUtil.getApplicationCDIBundleBase(database);
 						if(StringUtil.isNotEmpty(bundleName)) {
-							bundle = Platform.getBundle(bundleName);
+							bundle = LibraryUtil.getBundle(bundleName).orElse(null);
 						}
 					}
 				}
@@ -117,9 +118,9 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 			for(ManifestElement el : elements) {
 				String bundleName = el.getValue();
 				if(StringUtil.isNotEmpty(bundleName)) {
-					Bundle dependency = Platform.getBundle(bundleName);
-					if(dependency != null) {
-						addClasses(dependency, builder, bundleNames, classNames);
+					Optional<Bundle> dependency = LibraryUtil.getBundle(bundleName);
+					if(dependency.isPresent()) {
+						addClasses(dependency.get(), builder, bundleNames, classNames);
 					}
 				}
 			}

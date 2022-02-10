@@ -30,16 +30,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jsf.JsfLibrary;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -129,9 +130,9 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 			for(ManifestElement element : elements) {
 				String visibility = element.getDirective("visibility"); //$NON-NLS-1$
 				if("reexport".equals(visibility)) { //$NON-NLS-1$
-					Bundle dep = Platform.getBundle(element.getValue());
-					if(dep != null) {
-						toClasspathEntry(dep, classpath);
+					Optional<Bundle> dep = LibraryUtil.getBundle(element.getValue());
+					if(dep.isPresent()) {
+						toClasspathEntry(dep.get(), classpath);
 					}
 				}
 			}

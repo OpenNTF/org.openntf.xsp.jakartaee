@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.Platform;
@@ -111,9 +112,9 @@ public enum ContainerUtil {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			String bundleId = getApplicationCDIBundle(application);
 			if(StringUtil.isNotEmpty(bundleId)) {
-				Bundle bundle = Platform.getBundle(bundleId);
-				if(bundle != null) {
-					return getContainer(bundle);
+				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+				if(bundle.isPresent()) {
+					return getContainer(bundle.get());
 				}
 			}
 			
@@ -143,9 +144,9 @@ public enum ContainerUtil {
 
 				String baseBundleId = getApplicationCDIBundleBase(application);
 				if(StringUtil.isNotEmpty(baseBundleId)) {
-					Bundle bundle = Platform.getBundle(baseBundleId);
-					if(bundle != null) {
-						weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
+					Optional<Bundle> bundle = LibraryUtil.getBundle(baseBundleId);
+					if(bundle.isPresent()) {
+						weld.setResourceLoader(new BundleDependencyResourceLoader(bundle.get()));
 					}
 				} else {
 					weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
@@ -228,9 +229,9 @@ public enum ContainerUtil {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, database)) {
 			String bundleId = getApplicationCDIBundle(database);
 			if(StringUtil.isNotEmpty(bundleId)) {
-				Bundle bundle = Platform.getBundle(bundleId);
-				if(bundle != null) {
-					return getContainer(bundle);
+				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+				if(bundle.isPresent()) {
+					return getContainer(bundle.get());
 				}
 			}
 			
@@ -242,8 +243,9 @@ public enum ContainerUtil {
 				String baseBundleId = getApplicationCDIBundleBase(database);
 				Bundle bundle = null;
 				if(StringUtil.isNotEmpty(baseBundleId)) {
-					bundle = Platform.getBundle(baseBundleId);
-					if(bundle != null) {
+					Optional<Bundle> optBundle = LibraryUtil.getBundle(baseBundleId);
+					if(optBundle.isPresent()) {
+						bundle = optBundle.get();
 						weld = weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
 					}
 				}
@@ -514,9 +516,9 @@ public enum ContainerUtil {
 					for(ManifestElement el : elements) {
 						String bundleName = el.getValue();
 						if(StringUtil.isNotEmpty(bundleName)) {
-							Bundle dependency = Platform.getBundle(bundleName);
-							if(dependency != null) {
-								addBundleResources(name, dependency, result, bundleNames);
+							Optional<Bundle> dependency = LibraryUtil.getBundle(bundleName);
+							if(dependency.isPresent()) {
+								addBundleResources(name, dependency.get(), result, bundleNames);
 							}
 						}
 					}
