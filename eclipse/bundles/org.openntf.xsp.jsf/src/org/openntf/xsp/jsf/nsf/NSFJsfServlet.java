@@ -22,14 +22,10 @@ import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.myfaces.webapp.MyFacesContainerInitializer;
 import org.apache.myfaces.webapp.StartupServletContextListener;
@@ -86,8 +82,6 @@ public class NSFJsfServlet extends HttpServlet {
 	private FacesServlet delegate;
 	private boolean initialized;
 	
-	private final Map<String, Object> jsfStashedAttributes = new ConcurrentHashMap<>();
-	
 	public NSFJsfServlet(ComponentModule module) {
 		super();
 		this.module = module;
@@ -139,10 +133,6 @@ public class NSFJsfServlet extends HttpServlet {
 	// TODO see if synchronization can be handled better
 	public synchronized void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		ServletContext ctx = req.getServletContext();
-		
-		// Stash all com.sun.faces attributes from XPages
-		// TODO determine whether this is needed with MyFaces instead of Mojarra
-		Map<String, Object> incomingStashed = stashFacesAttributes(ctx);
 		
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
@@ -204,9 +194,6 @@ public class NSFJsfServlet extends HttpServlet {
 			} catch(IOException e) {
 				// No need to propagate this
 			}
-			
-			// Restore XPages-land com.sun.faces attributes
-			restoreFacesAttributes(ctx, incomingStashed);
 		}
 	}
 	
@@ -222,36 +209,6 @@ public class NSFJsfServlet extends HttpServlet {
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
-	
-	private Map<String, Object> stashFacesAttributes(ServletContext ctx) {
-		Map<String, Object> incomingStashed = new HashMap<>();
-		Collections.list(ctx.getAttributeNames())
-			.stream()
-			.filter(Objects::nonNull)
-			.filter(attr -> attr.startsWith("com.sun.faces.") || attr.startsWith("javax.faces.")) //$NON-NLS-1$ //$NON-NLS-2$
-			.forEach(attr -> {
-				incomingStashed.put(attr, ctx.getAttribute(attr));
-				ctx.removeAttribute(attr);
-			});
-		// Restore any JSF attributes stashed from last time
-		jsfStashedAttributes.forEach(ctx::setAttribute);
-		
-		return incomingStashed;
-	}
-	
-	private void restoreFacesAttributes(ServletContext ctx, Map<String, Object> incomingStashed) {
-		// Stash all com.sun.faces attributes set by JSF
-		Collections.list(ctx.getAttributeNames())
-			.stream()
-			.filter(Objects::nonNull)
-			.filter(attr -> attr.startsWith("com.sun.faces.")) //$NON-NLS-1$
-			.forEach(attr -> {
-				jsfStashedAttributes.put(attr, ctx.getAttribute(attr));
-				ctx.removeAttribute(attr);
-			});
-		// Restore any XPages attributes stashed from last time
-		incomingStashed.forEach(ctx::setAttribute);
-	}
 
 	private synchronized ClassLoader buildJsfClassLoader(ServletContext context, ClassLoader delegate) throws BundleException, IOException {
 		if(context.getAttribute(PROP_CLASSLOADER) == null) {
