@@ -74,7 +74,7 @@ import jakarta.servlet.http.HttpSessionListener;
 /**
  * 
  * @author Jesse Gallagher
- * @since 2.3.0
+ * @since 2.4.0
  */
 public class NSFJsfServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;

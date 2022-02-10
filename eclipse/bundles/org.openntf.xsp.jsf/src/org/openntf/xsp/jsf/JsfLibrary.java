@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import com.ibm.xsp.library.AbstractXspLibrary;
 
 /**
  * {@link com.ibm.xsp.library.XspLibrary XspLibrary} that denotes that an NSF should
- * opt in to JSP processing of file resources.
+ * opt in to JSF processing of file resources.
  * 
  * @author Jesse Gallagher
- * @since 1.2.0
+ * @since 2.4.0
  */
 public class JsfLibrary extends AbstractXspLibrary {
 

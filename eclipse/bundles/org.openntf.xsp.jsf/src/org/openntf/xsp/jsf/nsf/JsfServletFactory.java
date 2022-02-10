@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ import jakarta.faces.webapp.FacesServlet;
 /**
  * 
  * @author Jesse Gallagher
- * @since 2.3.0
+ * @since 2.4.0
  */
 public class JsfServletFactory extends MappingBasedServletFactory {
 	public JsfServletFactory() {

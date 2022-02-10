@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,10 @@
  */
 package org.openntf.xsp.jsf;
 
-//import org.openntf.xsp.jsp.webapp.JspExtensionFactory;
-
 import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.domino.xsp.module.nsf.NSFService;
-//import com.ibm.ws.webcontainer.WebContainer;
-//import com.ibm.wsspi.webcontainer.logging.LoggerFactory;
 
 
 /**
@@ -30,7 +26,7 @@ import com.ibm.domino.xsp.module.nsf.NSFService;
  * enable hooks very early in the HTTP init process.
  * 
  * @author Jesse Gallagher
- * @since 2.3.0
+ * @since 2.4.0
  */
 public class JsfEarlyInitFactory implements IServiceFactory {
 	public static boolean debug = true;
