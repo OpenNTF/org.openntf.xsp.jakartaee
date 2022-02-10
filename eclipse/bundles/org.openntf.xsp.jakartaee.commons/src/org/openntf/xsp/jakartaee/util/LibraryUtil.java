@@ -64,10 +64,15 @@ public enum LibraryUtil {
 	
 	/**
 	 * Store bundles by symbolic name to speed up lookups, since we don't realistically have to worry
-	 * about dynamically loaded/unloaded bundles
+	 * about dynamically loaded/unloaded bundles.
 	 * @since 2.4.0
 	 */
 	private static final Map<String, Bundle> BUNDLE_CACHE = Collections.synchronizedMap(new HashMap<>());
+	/**
+	 * Store looked up extensions by class for the lifetime of the JVM.
+	 * @since 2.4.0
+	 */
+	private static final Map<Class<?>, List<?>> EXTENSION_CACHE = Collections.synchronizedMap(new HashMap<>());
 	
 	/**
 	 * Attempts to determine whether the given XPages Library is active for the
@@ -252,9 +257,12 @@ public enum LibraryUtil {
 	 * @param extensionClass the class object representing the extension point
 	 * @return a {@link List} of service objects for the class
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> List<T> findExtensions(Class<T> extensionClass) {
-		return AccessController.doPrivileged((PrivilegedAction<List<T>>)() ->
-			ExtensionManager.findServices(null, extensionClass.getClassLoader(), extensionClass.getName(), extensionClass)
+		return (List<T>)EXTENSION_CACHE.computeIfAbsent(extensionClass, extClass ->
+			AccessController.doPrivileged((PrivilegedAction<List<T>>)() ->
+				ExtensionManager.findServices(null, extensionClass.getClassLoader(), extensionClass.getName(), extensionClass)
+			)
 		);
 	}
 	
