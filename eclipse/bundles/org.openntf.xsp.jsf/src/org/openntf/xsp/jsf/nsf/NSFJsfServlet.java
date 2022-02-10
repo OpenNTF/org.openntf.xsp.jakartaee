@@ -141,6 +141,7 @@ public class NSFJsfServlet extends HttpServlet {
 		ServletContext ctx = req.getServletContext();
 		
 		// Stash all com.sun.faces attributes from XPages
+		// TODO determine whether this is needed with MyFaces instead of Mojarra
 		Map<String, Object> incomingStashed = stashFacesAttributes(ctx);
 		
 		try {
