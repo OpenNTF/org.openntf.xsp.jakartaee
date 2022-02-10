@@ -15,6 +15,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Mail 2.1
     - Activation 2.1
 - Server Pages 3.0
+- Server Faces 4.0 (snapshot)
 - MVC 2.0
 - NoSQL 1.0 (snapshot)
 
@@ -293,7 +294,7 @@ public class JsonTest {
 
 ## JSP and JSTL
 
-The [Jakarta Server Pages](https://jakarta.ee/specifications/pages/3.0/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/2.0/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
+[Jakarta Server Pages](https://jakarta.ee/specifications/pages/3.0/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/2.0/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
 
 When this library is enabled, .jsp files in the "Files" or "WebContent" parts of the NSF will be interpreted as live pages. For example:
 
@@ -317,6 +318,49 @@ When this library is enabled, .jsp files in the "Files" or "WebContent" parts of
 ```
 
 As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and will allow the use of CDI beans.
+
+## Server Faces 4.0
+
+[Jakarta Server Faces](https://jakarta.ee/specifications/faces/4.0/) is the in-development next form of JSF, the spec XPages forked off from. Version 4.0 of the spec, used here, is in the final stages of development and focuses on removing legacy features and better integrating with other components (such as CDI).
+
+JSF is implemented here by way of [Apache MyFaces](https://myfaces.apache.org/#/core40).
+
+A Faces page, like an XPage, is an XML document that is parsed and converted into components for rendering. For example:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html">
+	
+    <h:head>
+        <title>JSF 4.0 Hello World</title>
+    </h:head>
+    <h:body>
+	    	<h2>JSF 4.0 Hello World Example - hello.xhtml</h2>
+	    	
+	    	<dl>
+	    		<dt>facesContext</dt>
+	    		<dd><h:outputText value="#{facesContext}"/></dd>
+	    		
+	    		<dt>requestGuy.message</dt>
+	    		<dd><h:outputText value="#{requestGuy.message}"/></dd>
+	    		
+	    		<dt>Project Stage</dt>
+	    		<dd><h:outputText value="#{facesContext.application.projectStage}"/></dd>
+	    	</dl>
+    </h:body>
+</f:view>
+```
+
+The "Project Stage" value can be set in the Xsp Properties file to one of the values from `jakarta.faces.application.ProjectStage`. For example:
+
+```
+jakarta.faces.PROJECT_STAGE=Development
+```
+
+This is useful to alter internal behaviors and optimizations. For example, setting Development there will cause the runtime to less-heavily cache page definitions.
 
 ## MVC
 

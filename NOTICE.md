@@ -28,6 +28,8 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta Annotations API, available from https://github.com/eclipse-ee4j/common-annotations-api and licensed under the EPL 2.0
 - The Jakarta Server Pages API, available from https://github.com/eclipse-ee4j/jsp-api and licensed under the EPL 2.0
 - The Jakarta Standard Tag Library API, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/api and licensed under the EPL 2.0
+- The Jakarta Server Faces API, MyFaces variant, available from https://myfaces.apache.org/ and licensed under Apache 2.0
+	- See legal/NOTICE-myfaces.txt for downstream third-party components, which are licensed under Apache 2.0 and the Dojo modified BSD license
 - The Jakarta MVC API, available from https://github.com/eclipse-ee4j/mvc-api and licensed under the EPL 2.0
 - The Jakarta NoSQL API, available from https://github.com/eclipse-ee4j/nosql and licensed under the EPL 2.0
 - The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
@@ -48,6 +50,8 @@ The binary distribution contains the following 3rd party code:
 - Reactive Streams, available from https://github.com/reactive-streams/reactive-streams-jvm and licensed under MIT No Attribution
 - GlassFish/Jasper JSP, available from https://mvnrepository.com/artifact/org.glassfish.web/jakarta.servlet.jsp/3.0.0 and licensed under the EPL 2.0
 - The GlassFish JSTL implementation, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/impl and licensed under the EPL 2.0
+- Apache MyFaces 4.0, available from https://myfaces.apache.org/ and licensed under Apache 2.0
+	- See legal/NOTICE-myfaces.txt for downstream third-party components, which are licensed under Apache 2.0 and the CDDL
 - Eclipse Krazo, available from https://github.com/eclipse-ee4j/krazo and licensed under the EPL 2.0
 - Eclipse JNoSQL, available from https://github.com/eclipse/jnosql and licensed under the EPL 1.0
 - The SmallRye OpenAPI implementation, available from https://github.com/smallrye/smallrye-open-api and licensed under Apache 2.0
