@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jakartaee.servlet;
 
+import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
 
@@ -271,6 +272,9 @@ public enum ServletUtil {
 	// *******************************************************************************
 	
 	public static void addListener(jakarta.servlet.ServletRequest req, ServletRequestAttributeListener listener) {
+		if(req == null) {
+			return;
+		}
 		if(!(req instanceof OldHttpServletRequestWrapper)) {
 			throw new IllegalArgumentException("req is not an instance of " + OldHttpServletRequestWrapper.class.getName());
 		}
@@ -278,6 +282,9 @@ public enum ServletUtil {
 	}
 	
 	public static void addListener(jakarta.servlet.http.HttpSession session, HttpSessionAttributeListener listener) {
+		if(session == null) {
+			return;
+		}
 		if(!(session instanceof OldHttpSessionWrapper)) {
 			throw new IllegalArgumentException("session is not an instance of " + OldHttpSessionWrapper.class.getName());
 		}
@@ -285,6 +292,9 @@ public enum ServletUtil {
 	}
 
 	public static void addListener(jakarta.servlet.ServletContext context, ServletContextAttributeListener listener) {
+		if(context == null) {
+			return;
+		}
 		if(!(context instanceof OldServletContextWrapper)) {
 			throw new IllegalArgumentException("context is not an instance of " + OldServletContextWrapper.class.getName());
 		}
@@ -293,6 +303,9 @@ public enum ServletUtil {
 	
 	@SuppressWarnings("unchecked")
 	public static <T extends EventListener> List<T> getListeners(jakarta.servlet.ServletContext context, Class<T> listenerClass) {
+		if(context == null) {
+			return Collections.emptyList();
+		}
 		if(!(context instanceof OldServletContextWrapper)) {
 			throw new IllegalArgumentException("context is not an instance of " + OldServletContextWrapper.class.getName());
 		}
