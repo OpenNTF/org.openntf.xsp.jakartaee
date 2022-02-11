@@ -100,7 +100,6 @@ public class NSFJsfServlet extends HttpServlet {
 			String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
 			context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
 			
-			// Do this reflectively due to lack of bundle export
 			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
 			{
 				ServletContainerInitializer initializer = new MyFacesContainerInitializer();
