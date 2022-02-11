@@ -95,7 +95,6 @@ public class NSFJsfServlet extends HttpServlet {
 			// TODO investigate why partial state saving doesn't work with a basic form
 			context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 			
-			// Set the project stage via system property, as it doesn't show up in init parameters
 			Properties props = LibraryUtil.getXspProperties(module);
 			String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
 			context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
