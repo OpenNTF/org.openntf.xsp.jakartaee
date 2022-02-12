@@ -254,7 +254,7 @@ public class NSFJsfServlet extends HttpServlet {
 				.forEach(result::add);
 		}
 		
-		// Find in the JSF bundle as well - this works
+		// Find in the JSF bundle as well
 		String baseUrl = bundle.getEntry("/").toString(); //$NON-NLS-1$
 		List<URL> entries = Collections.list(bundle.findEntries("/", "*.class", true)); //$NON-NLS-1$ //$NON-NLS-2$
 		entries.stream()
