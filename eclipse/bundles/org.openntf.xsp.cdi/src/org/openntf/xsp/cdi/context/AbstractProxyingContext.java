@@ -56,8 +56,15 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 			}
 		});
 		osgiNotesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
+			Class<?> osgiContextClass = null;
 			try {
-				Field field = com.ibm.domino.xsp.adapter.osgi.NotesContext.class.getDeclaredField("request"); //$NON-NLS-1$
+				osgiContextClass = Class.forName("com.ibm.domino.xsp.adapter.osgi.NotesContext"); //$NON-NLS-1$
+			} catch (ClassNotFoundException e1) {
+				// In Notes or other non-full environment
+				return null;
+			}
+			try {
+				Field field = osgiContextClass.getDeclaredField("request"); //$NON-NLS-1$
 				field.setAccessible(true);
 				return field;
 			} catch (NoSuchFieldException | SecurityException e) {
@@ -131,11 +138,13 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 			}
 		}
 		
-		com.ibm.domino.xsp.adapter.osgi.NotesContext osgiContext = com.ibm.domino.xsp.adapter.osgi.NotesContext.getCurrentUnchecked();
-		if(osgiContext != null) {
-			HttpServletRequest request = getHttpServletRequest(osgiContext);
-			if(request != null) {
-				return request;
+		if(osgiNotesContextRequestField != null) {
+			com.ibm.domino.xsp.adapter.osgi.NotesContext osgiContext = com.ibm.domino.xsp.adapter.osgi.NotesContext.getCurrentUnchecked();
+			if(osgiContext != null) {
+				HttpServletRequest request = getHttpServletRequest(osgiContext);
+				if(request != null) {
+					return request;
+				}
 			}
 		}
 		
