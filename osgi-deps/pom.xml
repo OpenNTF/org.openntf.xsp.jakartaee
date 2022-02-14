@@ -534,6 +534,15 @@
 									</instructions>
 								</artifact>
 								<artifact>
+									<id>org.eclipse.jnosql.communication:communication-driver-commons:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.driver.commons</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+									</instructions>
+								</artifact>
+								<artifact>
 									<id>org.eclipse.jnosql.mapping:mapping-core:${nosql-version}</id>
 									<source>true</source>
 									<override>true</override>

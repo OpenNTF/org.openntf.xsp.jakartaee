@@ -16,6 +16,8 @@ Import-Package: com.ibm.commons.util,
  jakarta.nosql,
  jakarta.nosql.document,
  lotus.domino,
+ org.eclipse.jnosql.communication.driver.attachment,
  org.eclipse.jnosql.communication.writer,
  org.openntf.xsp.jakartaee;version="2.3.0"
 Export-Package: org.openntf.xsp.nosql.communication.driver;version="2.4.0"
+Require-Bundle: org.openntf.org.eclipse.jnosql.communication.driver.commons;bundle-version="1.0.0";visibility:=reexport

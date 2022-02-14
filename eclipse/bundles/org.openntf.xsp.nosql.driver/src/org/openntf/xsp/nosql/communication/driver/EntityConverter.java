@@ -74,8 +74,13 @@ public enum EntityConverter {
 	 * Domino, currently {@value #NAME_FIELD}
 	 */
 	public static final String NAME_FIELD = "Form"; //$NON-NLS-1$
+	/**
+	 * The field used to store attachments on the document during JSON
+	 * serialization, currently {@value #ATTACHMENT_FIELD}
+	 */
+	public static final String ATTACHMENT_FIELD = "_attachments"; //$NON-NLS-1$
 	
-	static Stream<DocumentEntity> convert(Database database, String qrpJson) throws NotesException {
+	static Stream<DocumentEntity> convert(Database database, String qrpJson, DatabaseSupplier databaseSupplier) throws NotesException {
 		JsonObject json;
 		try(
 			StringReader r = new StringReader(qrpJson);
@@ -97,7 +102,7 @@ public enum EntityConverter {
 			.filter(EntityConverter::isValid)
 			.map(doc -> {
 				try {
-					List<Document> documents = toDocuments(doc);
+					List<Document> documents = toDocuments(doc, databaseSupplier);
 					String name = doc.getItemValueString(NAME_FIELD);
 					return DocumentEntity.of(name, documents);
 				} catch(NotesException e) {
@@ -106,7 +111,7 @@ public enum EntityConverter {
 			});
 	}
 	
-	static Stream<DocumentEntity> convert(Database database, View docs) throws NotesException {
+	static Stream<DocumentEntity> convert(Database database, View docs, DatabaseSupplier databaseSupplier) throws NotesException {
 		// TODO stream this better
 		// TODO create a lazy-loading list?
 		List<DocumentEntity> result = new ArrayList<>();
@@ -119,7 +124,7 @@ public enum EntityConverter {
 				String noteId = (String)columnValues.get(columnValues.size()-1);
 				lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
 				if(isValid(doc)) {
-					List<Document> documents = toDocuments(doc);
+					List<Document> documents = toDocuments(doc, databaseSupplier);
 					String name = doc.getItemValueString(NAME_FIELD);
 					result.add(DocumentEntity.of(name, documents));
 				}
@@ -134,14 +139,14 @@ public enum EntityConverter {
 		return result.stream();
 	}
 
-	static Stream<DocumentEntity> convert(DocumentCollection docs) throws NotesException {
+	static Stream<DocumentEntity> convert(DocumentCollection docs, DatabaseSupplier databaseSupplier) throws NotesException {
 		// TODO stream this better
 		// TODO create a lazy-loading list?
 		List<DocumentEntity> result = new ArrayList<>();
 		lotus.domino.Document doc = docs.getFirstDocument();
 		while(doc != null) {
 			if(isValid(doc)) {
-				List<Document> documents = toDocuments(doc);
+				List<Document> documents = toDocuments(doc, databaseSupplier);
 				String name = doc.getItemValueString(NAME_FIELD);
 				result.add(DocumentEntity.of(name, documents));
 			}
@@ -154,7 +159,7 @@ public enum EntityConverter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Document> toDocuments(lotus.domino.Document doc) throws NotesException {
+	public static List<Document> toDocuments(lotus.domino.Document doc, DatabaseSupplier databaseSupplier) throws NotesException {
 		List<Document> result = new ArrayList<>();
 		result.add(Document.of(ID_FIELD, doc.getUniversalID()));
 		Map<String, Object> docMap = new LinkedHashMap<>();
@@ -178,12 +183,14 @@ public enum EntityConverter {
 		result.add(Document.of("_cdate", doc.getCreated().toJavaDate().toInstant())); //$NON-NLS-1$
 		result.add(Document.of("_mdate", doc.getCreated().toJavaDate().toInstant())); //$NON-NLS-1$
 		
-		// TODO attachments support
+		// TODO implement attachments - likely with a new API
+//		List<String> names = doc.getParentDatabase().getParent().evaluate(" @AttachmentNames ", doc); //$NON-NLS-1$
 //		result.add(Document.of(ATTACHMENT_FIELD,
-//			Stream.of(doc.getAttachments())
+//			names.stream()
 //				.map(t -> {
 //					try {
-//						return new DominoDocumentAttachment(t);
+//						EmbeddedObject obj = doc.getAttachment(t);
+//						return new DominoDocumentAttachment(databaseSupplier, doc.getUniversalID(), obj);
 //					} catch (NotesException e) {
 //						throw new RuntimeException(e);
 //					}

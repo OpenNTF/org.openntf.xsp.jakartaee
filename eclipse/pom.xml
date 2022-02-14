@@ -220,6 +220,8 @@
 						<plugin id="org.openntf.xsp.jaxrs.providers"/>
 						<plugin id="jakarta.servlet.jsp-api"/>
 						<plugin id="org.eclipse.jdt.core"/>
+						<!-- TODO investigate why this doesn't have a source bundle -->
+						<plugin id="org.openntf.org.eclipse.jnosql.communication.driver.commons"/>
 					</excludes>
 				</configuration>
 			</plugin>

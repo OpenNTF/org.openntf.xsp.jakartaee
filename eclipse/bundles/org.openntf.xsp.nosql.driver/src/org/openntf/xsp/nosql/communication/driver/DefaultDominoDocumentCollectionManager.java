@@ -190,7 +190,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					}
 	
 					if(view != null) {
-						result = EntityConverter.convert(database, view);
+						result = EntityConverter.convert(database, view, supplier);
 					} else {
 						DominoQuery dominoQuery = database.createDominoQuery();		
 						QueryResultsProcessor qrp = databaseAsSigner.createQueryResultsProcessor();
@@ -207,7 +207,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 							
 							view = qrp.executeToView(viewName, 24);
 							try {
-								result = EntityConverter.convert(database, view);
+								result = EntityConverter.convert(database, view, supplier);
 							} finally {
 								recycle(view);
 							}
@@ -224,7 +224,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				DominoQuery dominoQuery = database.createDominoQuery();		
 				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
 				try {
-					result = EntityConverter.convert(docs);
+					result = EntityConverter.convert(docs, supplier);
 				} finally {
 					recycle(docs, dominoQuery);
 				}

@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.nosql.communication.driver;
 
+import java.io.Serializable;
 import java.util.function.Supplier;
 
 import lotus.domino.Database;
@@ -24,6 +25,6 @@ import lotus.domino.Database;
  * @since 2.3.0
  */
 @FunctionalInterface
-public interface DatabaseSupplier extends Supplier<Database> {
+public interface DatabaseSupplier extends Supplier<Database>, Serializable {
 
 }
