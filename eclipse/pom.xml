@@ -483,6 +483,13 @@
 				<module>nsfs/nsf-jakartaee-example</module>
 			</modules>
 		</profile>
+		<profile>
+			<id>run-it</id>
+			
+			<modules>
+				<module>tests/it-xsp-jakartaee</module>
+			</modules>
+		</profile>
 		
 		<!--
 			This profile adds code signing for the final jars 
