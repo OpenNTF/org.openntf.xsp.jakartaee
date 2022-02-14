@@ -25,7 +25,7 @@ public class TestJaxRs extends AbstractWebClientTest {
 	@Test
 	public void testSample() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/xsp/.jaxrs/sample");
+		WebTarget target = client.target(getRootUrl(null) + "/xsp/app/sample");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -39,7 +39,7 @@ public class TestJaxRs extends AbstractWebClientTest {
 	@Test
 	public void testSampleXml() throws XMLException {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/xsp/.jaxrs/sample/xml");
+		WebTarget target = client.target(getRootUrl(null) + "/xsp/app/sample/xml");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);

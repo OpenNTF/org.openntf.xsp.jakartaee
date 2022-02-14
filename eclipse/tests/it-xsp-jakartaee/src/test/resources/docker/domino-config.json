@@ -45,7 +45,8 @@
 			"NSF_BUFFER_POOL_SIZE_MB": "256",
 			"FT_FLY_INDEX_OFF": "1",
 			"UPDATE_FULLTEXT_THREAD": "1",
-			"FTG_USE_SYS_MEMORY": "1"
+			"FTG_USE_SYS_MEMORY": "1",
+			"ServerTasks": "Update,AdminP,HTTP,AMgr,Update"
 		},
 		"security": {
 			"ACL": {
@@ -182,11 +183,39 @@
 					}
 				]
 			},
+			
+			{
+				"action": "create",
+				"filePath": "postinstall.nsf",
+				"title": "Post Install Agent",
+				"templatePath": "/local/notesdatatemp/postinstall.ntf",
+				"signUsingAdminp": true,
+				"ACL": {
+					"ACLEntries": [
+						{
+							"name": "-Default-",
+							"level": "manager",
+							"canDeleteDocuments": true
+						}
+					]
+				},
+				"agents": [
+					{
+						"name": "run",
+						"action": "sign"
+					},
+					{
+						"name": "run",
+						"action": "enable"
+					}
+				]
+			},
+    
 			{
 				"action": "create",
 				"filePath": "dev/jakartaee.nsf",
-				"title": "Jakarta EE Example",
-				"templatePath": "jakartaee.ntf",
+				"title": "Jakarta EE",
+				"templatePath": "/local/notesdatatemp/jakartaee.ntf",
 				"signUsingAdminp": true
 			}
 		]

@@ -2,7 +2,6 @@ package it.org.openntf.xsp.jakartaee.el;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
@@ -19,7 +18,6 @@ public class TestElBasics extends AbstractWebClientTest {
 	 */
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
-	@Disabled("Disabled until XPage signing is sorted out")
 	public void testBasicFunctionClass(WebDriver driver) {
 		driver.get(getRootUrl(driver) + "/el.xsp");
 		

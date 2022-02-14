@@ -1,14 +1,15 @@
 package it.org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
-import java.time.Duration;
+import java.nio.file.Files;
+import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testcontainers.containers.BrowserWebDriverContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.DockerImageName;
+
+import it.org.openntf.xsp.jakartaee.docker.DominoContainer;
 
 public enum JakartaTestContainers {
 	instance;
@@ -24,11 +25,9 @@ public enum JakartaTestContainers {
 	@SuppressWarnings("resource")
 	private JakartaTestContainers() {
 		try {
-			domino = new GenericContainer<>(DockerImageName.parse("xsp-jakartaee-test:1.0")) //$NON-NLS-1$
-				.withExposedPorts(80)
+			domino = new DominoContainer()
 				.withNetwork(network)
 				.withNetworkAliases(CONTAINER_NETWORK_NAME)
-				.withStartupTimeout(Duration.ofMinutes(4))
 				.withLogConsumer(frame -> {
 					switch(frame.getType()) {
 					case STDERR:
@@ -49,24 +48,39 @@ public enum JakartaTestContainers {
 					case END:
 						break;
 					}
-				})
-				.waitingFor(Wait.forHttp("/names.nsf")); //$NON-NLS-1$
+				});
 			
 			firefox = new BrowserWebDriverContainer<>()
 					.withCapabilities(new FirefoxOptions())
 					.withNetwork(network);
 			
 			domino.start();
+			// The above waits for "Adding sign bit" from AdminP, but we have no
+			//   solid indication when it's done. For now, wait a couple seconds
+			try {
+				TimeUnit.SECONDS.sleep(5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
 			firefox.start();
 		} finally {
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				if(domino != null) {
-					domino.close();
+//					domino.close();
 				}
 				if(firefox != null) {
 					firefox.close();
 				}
 				network.close();
+				
+				DominoContainer.tempFiles.forEach(t -> {
+					try {
+						Files.deleteIfExists(t);
+					} catch (IOException e) {
+						// Ignore
+					}
+				});
 			}));
 		}
 	}

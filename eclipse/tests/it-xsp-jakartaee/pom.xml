@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.openntf.xsp</groupId>
 		<artifactId>xsp-jakartaee</artifactId>
-		<version>2.1.0-SNAPSHOT</version>
+		<version>2.4.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>it-xsp-jakartaee</artifactId>
 	<packaging>bundle</packaging>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-	            <version>5.6.2</version>
+	        <version>5.6.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -88,6 +88,12 @@
 			<version>9.0.0</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.36</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -100,76 +106,25 @@
 				<extensions>true</extensions>
 			</plugin>
 
-			<!-- Copy Docker support resources into scratch space -->
+
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>4.9.10</version>
+				
+				<configuration>
+					<dotGitDirectory>${project.basedir}/../../../.git</dotGitDirectory>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.basedir}/src/test/resources/scm.properties</generateGitPropertiesFilename>
+					<dateFormat>yyyy-MM-dd'T'HH:mm:ssXXX</dateFormat>
+				</configuration>
 				<executions>
 					<execution>
-						<?m2e ignore?>
-						<id>prepare-docker-scratch</id>
+						<id>generate-properties</id>
 						<goals>
-							<goal>copy-resources</goal>
+							<goal>revision</goal>
 						</goals>
-						<phase>process-test-resources</phase>
-						<configuration>
-							<outputDirectory>${project.build.directory}/dockerscratch</outputDirectory>
-							<resources>
-								<!-- Dockerfile to build -->
-								<resource>
-									<directory>${project.basedir}/src/test/docker</directory>
-									<includes>
-										<include>*</include>
-									</includes>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<?m2e ignore?>
-						<id>build-data-zip</id>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<phase>process-test-resources</phase>
-						<configuration>
-							<outputDirectory>${project.build.directory}/dockerscratch</outputDirectory>
-							<descriptors>
-								<descriptor>src/test/assembly/data.xml</descriptor>
-							</descriptors>
-							<finalName>data</finalName>
-							<appendAssemblyId>false</appendAssemblyId>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- Build a Docker image to be used by Testcontainers -->
-			<plugin>
-				<groupId>com.spotify</groupId>
-				<artifactId>dockerfile-maven-plugin</artifactId>
-				<version>1.4.13</version>
-				<executions>
-					<execution>
-						<?m2e ignore?>
-						<id>build-docker-image</id>
-						<goals>
-							<goal>build</goal>
-						</goals>
-						<phase>process-test-resources</phase>
-						<configuration>
-							<repository>xsp-jakartaee-test</repository>
-							<tag>1.0</tag>
-							<dockerfile>${project.build.directory}/dockerscratch/testcontainer.dockerfile</dockerfile>
-							<contextDirectory>${project.build.directory}/dockerscratch</contextDirectory>
-							<!-- Don't attempt to pull Domino images -->
-							<pullNewerImage>false</pullNewerImage>
-						</configuration>
+						<phase>generate-resources</phase>
 					</execution>
 				</executions>
 			</plugin>
