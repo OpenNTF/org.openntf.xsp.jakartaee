@@ -1,6 +1,7 @@
 package it.org.openntf.xsp.jakartaee.jaxrs;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -61,5 +62,25 @@ public class TestRestExceptions extends AbstractWebClientTest {
 		
 		WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
 		assertEquals("this is expected to be rendered as HTML", span.getText());
+	}
+	
+	/**
+	 * Tests that a fake endpoint ends up with a 404 and standard error page
+	 */
+	@ParameterizedTest
+	@ArgumentsSource(BrowserArgumentsProvider.class)
+	public void testNotFound(WebDriver driver) {
+		{
+			driver.get(getRestUrl(driver) + "/fakeendpoint");
+			
+			WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
+			assertTrue(span.getText().startsWith("RESTEASY003210: Could not find resource for full path"));
+		}
+		{
+			Client client = getAnonymousClient();
+			WebTarget target = client.target(getRestUrl(null) + "/fakeendpoint");
+			Response response = target.request().get();
+			assertEquals(404, response.getStatus());
+		}
 	}
 }
