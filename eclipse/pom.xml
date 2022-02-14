@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf.xsp</groupId>
 	<artifactId>xsp-jakartaee</artifactId>
-	<version>2.1.0-SNAPSHOT</version>
+	<version>2.4.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>XPages Jakarta EE Support</name>
@@ -53,11 +53,13 @@
 		<module>bundles/org.openntf.xsp.el</module>
 		<module>features/org.openntf.xsp.el.feature</module>
 		
-		<!-- JAX-RS 3.0 -->
+		<!-- JAX-RS 3.0, MicroProfile OpenAPI, and MicroProfile Metrics -->
 		<module>bundles/org.openntf.xsp.jaxrs</module>
 		<module>bundles/org.openntf.xsp.jaxrs.cdi</module>
 		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
 		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
+		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
+		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
 		<module>features/org.openntf.xsp.jaxrs.feature</module>
 		
 		<!-- Bean Validation 3.0 -->
@@ -75,9 +77,34 @@
  		<module>bundles/org.openntf.xsp.jsp</module>
  		<module>features/org.openntf.xsp.jsp.feature</module>
 		
+		<!-- JSF -->
+ 		<module>bundles/org.openntf.xsp.jsf</module>
+ 		<module>features/org.openntf.xsp.jsf.feature</module>
+		 
 		<!-- MVC -->
  		<module>bundles/org.openntf.xsp.mvc</module>
  		<module>features/org.openntf.xsp.mvc.feature</module>
+	
+		<!-- NoSQL -->
+		<module>bundles/org.openntf.xsp.nosql.driver</module>
+		<module>bundles/org.openntf.xsp.nosql</module>
+		<module>features/org.openntf.xsp.nosql.feature</module>
+	
+		<!-- MicroProfile Config -->
+		<module>bundles/org.openntf.xsp.microprofile.config</module>
+		<module>features/org.openntf.xsp.microprofile.config.feature</module>
+	
+		<!-- MicroProfile REST Client -->
+		<module>bundles/org.openntf.xsp.microprofile.rest.client</module>
+		<module>features/org.openntf.xsp.microprofile.rest.client.feature</module>
+	
+		<!-- MicroProfile Fault Tolerance -->
+		<module>bundles/org.openntf.xsp.microprofile.fault.tolerance</module>
+		<module>features/org.openntf.xsp.microprofile.fault.tolerance.feature</module>
+	
+		<!-- MicroProfile Health -->
+		<module>bundles/org.openntf.xsp.microprofile.health</module>
+		<module>features/org.openntf.xsp.microprofile.health.feature</module>
 		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
@@ -119,6 +146,15 @@
 			<url>https://artifactory.openntf.org/openntf</url>
 		</pluginRepository>
     </pluginRepositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.openntf.domino</groupId>
+			<artifactId>org.openntf.domino.java.api.corba.patch</artifactId>
+			<version>1.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
@@ -180,13 +216,10 @@
 				<configuration>
 					<includeBinaryFeature>false</includeBinaryFeature>
 					<excludes>
-						<plugin id="org.openntf.xsp.el.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.factory"/>
 						<plugin id="org.openntf.xsp.jaxrs.providers"/>
 						<plugin id="jakarta.servlet.jsp-api"/>
 						<plugin id="org.eclipse.jdt.core"/>
-						<!-- TODO figure out why this complains -->
-						<plugin id="org.openntf.xsp.jsp"/>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -215,6 +248,11 @@
 								<type>eclipse-plugin</type>
 								<id>com.ibm.notes.java.api.win32.linux</id>
 								<versionRange>9.0.1</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.openntf.domino.java.api.corba.patch</id>
+								<versionRange>0.0.0</versionRange>
 							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
@@ -275,10 +313,13 @@
 						<exclude>**/gfprobe-provider.xml</exclude>
 						<exclude>**/LICENSE.txt</exclude>
 						<exclude>**/beans_*.xsd</exclude>
+						<exclude>**/database.properties</exclude>
+						<exclude>**/xspdesign.properties</exclude>
+						<exclude>**/DQL.java</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
-						<copyrightYear>2021</copyrightYear>
+						<copyrightYear>2022</copyrightYear>
 					</properties>
 				</configuration>
 			</plugin>
@@ -289,6 +330,7 @@
 				<version>3.0.0-M1</version>
 				<executions>
 					<execution>
+						<?m2e ignore?>
 						<id>enforce-maven-and-java</id>
 						<goals>
 							<goal>enforce</goal>
@@ -389,7 +431,7 @@
 				<plugin>
 					<groupId>org.openntf.maven</groupId>
 					<artifactId>nsfodp-maven-plugin</artifactId>
-					<version>3.7.0-SNAPSHOT</version>
+					<version>3.7.1</version>
 				</plugin>
 				
 				
@@ -427,31 +469,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>3.0.2</version>
-				</plugin>
-				
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-enforcer-plugin</artifactId>
-										<versionRange>[1.0,)</versionRange>
-										<goals>
-											<goal>enforce</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>

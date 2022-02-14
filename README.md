@@ -15,6 +15,18 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Mail 2.1
     - Activation 2.1
 - Server Pages 3.0
+- Server Faces 4.0 (snapshot)
+- MVC 2.0
+- NoSQL 1.0 (snapshot)
+
+It also provides components from [MicroProfile](https://microprofile.io/):
+
+- OpenAPI 3.0
+- Rest Client 3.0
+- Config 3.0
+- Metrics 4.0
+- Fault Tolerance 4.0
+- Health 4.0
 
 ## CDI 3.0
 
@@ -120,7 +132,7 @@ In standard XPages, this will result in an empty output. With the EL 4 resolver,
 
 The [RESTful Web Services](https://jakarta.ee/specifications/restful-ws/3.0/) specification is the standard way to provide web services in Java EE applications. A version of it has been included for a long time in Domino by way of the Extension Library. However, this version is also out of date, with Apache Wink implementing JAX-RS 1.1.1.
 
-This library is based on [the work of Martin Pradny](https://www.pradny.com/2017/11/using-jax-rs-inside-nsf.html) and provides JAX-RS 3.0 support by way of [RESTEasy 6.0](https://resteasy.github.io) for classes inside the NSF. When a class is or has a method annotated with `@Path`, it is included as a service beneath `/xsp/.jaxrs` inside the NSF. For example:
+This library is based on [the work of Martin Pradny](https://www.pradny.com/2017/11/using-jax-rs-inside-nsf.html) and provides JAX-RS 3.0 support by way of [RESTEasy 6.0](https://resteasy.github.io) for classes inside the NSF. When a class is or has a method annotated with `@Path`, it is included as a service beneath `/xsp/app` inside the NSF. For example:
 
 ```java
 package servlet;
@@ -152,6 +164,53 @@ public class Sample {
 ```
 
 As intimated there, it has access to the CDI environment if enabled, though it doesn't yet have proper lifecycle support for `ConversationScoped` beans.
+
+The path within the NSF can be modified by setting the `org.openntf.xsp.jaxrs.path` property in the NSF's "xsp.properties" file. The value there will be appended to `/xsp`. For example, setting it to `foo` will make the above example available at `/some.nsf/xsp/foo/sample`.
+
+#### Security
+
+REST resources can be individually secured with the `@RolesAllowed` annotation. Values in this annotation are matched against the user's effective names list: their username, various permutations, their groups, and their DB-specific roles. For example:
+
+```java
+@GET
+@RolesAllowed({ "*/O=SomeOrg", "LocalDomainAdmins", "[Admin]" })
+public Object get() {
+	// ...
+}
+```
+
+Additionally, the special pseudo-name "login" can be used to require that the user be logged in at all, but not restrict to specific users beyond that.
+
+#### OpenAPI
+
+Using [MicroProfile OpenAPI](https://github.com/eclipse/microprofile-open-api), these REST services are also made available via `/xsp/app/openapi` within the NSF. This resource includes information about each available REST endpoint in the NSF and will produce YAML by default and JSON upon request via an `Accept` header. Additionally, `/xsp/app/openapi.yaml` and `/xsp/app/openapi.json` are available to produce YAML and JSON explicitly without consulting the `Accept` header.
+
+Moreover, resources can be [annotated with the MicroProfile OpenAPI annotations](https://openliberty.io/guides/microprofile-openapi.html). For example:
+
+```java
+@GET
+@Operation(
+	summary = "Example service",
+	description = "Returns an object that says 'hello' to you"
+)
+public Response hello() {
+	// ...
+}
+```
+
+#### Metrics
+
+Using [MicroProfile Metrics](https://github.com/eclipse/microprofile-metrics), it is possible to track invocations and timing from REST services. For example:
+
+```java
+@GET
+@Timed
+public Response hello() {
+	/* Perform the work */
+}
+```
+
+When such a service is executed, its performance is logged and becomes available via `/xsp/app/metrics` within the NSF.
 
 ## Bean Validation 3.0
 
@@ -235,7 +294,7 @@ public class JsonTest {
 
 ## JSP and JSTL
 
-The [Jakarta Server Pages](https://jakarta.ee/specifications/pages/3.0/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/2.0/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
+[Jakarta Server Pages](https://jakarta.ee/specifications/pages/3.0/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/2.0/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
 
 When this library is enabled, .jsp files in the "Files" or "WebContent" parts of the NSF will be interpreted as live pages. For example:
 
@@ -260,11 +319,334 @@ When this library is enabled, .jsp files in the "Files" or "WebContent" parts of
 
 As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and will allow the use of CDI beans.
 
+## Server Faces 4.0
+
+[Jakarta Server Faces](https://jakarta.ee/specifications/faces/4.0/) is the in-development next form of JSF, the spec XPages forked off from. Version 4.0 of the spec, used here, is in the final stages of development and focuses on removing legacy features and better integrating with other components (such as CDI).
+
+JSF is implemented here by way of [Apache MyFaces](https://myfaces.apache.org/#/core40).
+
+A Faces page, like an XPage, is an XML document that is parsed and converted into components for rendering. For example:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html">
+	
+    <h:head>
+        <title>JSF 4.0 Hello World</title>
+    </h:head>
+    <h:body>
+	    	<h2>JSF 4.0 Hello World Example - hello.xhtml</h2>
+	    	
+	    	<dl>
+	    		<dt>facesContext</dt>
+	    		<dd><h:outputText value="#{facesContext}"/></dd>
+	    		
+	    		<dt>requestGuy.message</dt>
+	    		<dd><h:outputText value="#{requestGuy.message}"/></dd>
+	    		
+	    		<dt>Project Stage</dt>
+	    		<dd><h:outputText value="#{facesContext.application.projectStage}"/></dd>
+	    	</dl>
+    </h:body>
+</f:view>
+```
+
+The "Project Stage" value can be set in the Xsp Properties file to one of the values from `jakarta.faces.application.ProjectStage`. For example:
+
+```
+jakarta.faces.PROJECT_STAGE=Development
+```
+
+This is useful to alter internal behaviors and optimizations. For example, setting Development there will cause the runtime to less-heavily cache page definitions.
+
+## MVC
+
+The [Jakarta MVC](https://jakarta.ee/specifications/mvc/2.0/) specification allows for action-based MVC using JAX-RS as the controller layer and (by default) JSP as the view layer. With this, you can annotate a JAX-RS resource or method with `@Controller`, perform setup actions, and then return the name of a page to render. For example:
+
+```java
+package servlet;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.mvc.Controller;
+import jakarta.mvc.Models;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import lotus.domino.NotesException;
+
+@Path("mvc")
+@Controller
+@RequestScoped
+public class MvcExample {
+	
+	@Inject
+	Models models;
+	
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	public String get(@QueryParam("foo") String foo) throws NotesException {
+		models.put("incomingFoo", foo);
+		return "mvc.jsp";
+	}
+}
+```
+
+This will load the JSP file stored as `WebContent/WEB-INF/views/mvc.jsp` in the NSF and evaluate it with the values from "models" and CDI beans available for use.
+
+## NoSQL
+
+The [Jakarta NoSQL](https://github.com/eclipse-ee4j/nosql) API provides for semi-database-neutral object mapping for NoSQL databases in a manner similar to JPA for relational databases. Entities are defined with annotations again similar to JPA:
+
+```java
+package model;
+
+import jakarta.nosql.mapping.Column;
+import jakarta.nosql.mapping.Entity;
+import jakarta.nosql.mapping.Id;
+
+@Entity
+public class Person {
+	@Id
+	private String unid;
+	
+	@Column("FirstName")
+	private String firstName;
+	
+	@Column("LastName")
+	private String lastName;
+
+	public String getUnid() { return unid; }
+	public void setUnid(String unid) { this.unid = unid; }
+
+	public String getFirstName() { return firstName; }
+	public void setFirstName(String firstName) { this.firstName = firstName;	}
+
+	public String getLastName() { return lastName; }
+	public void setLastName(String lastName) { this.lastName = lastName; }
+}
+```
+
+This API builds on CDI to dynamically generate repositories based on method names and parameters. In basic cases, this can be done with no annotations or custom code at all:
+
+```java
+package model;
+
+import java.util.stream.Stream;
+
+import jakarta.nosql.mapping.Repository;
+
+public interface PersonRepository extends Repository<Person, String> {
+	Stream<Person> findAll();
+	Stream<Person> findByLastName(String lastName);
+}
+```
+
+These repositories can then be used via CDI injection, such as in a REST endpoint:
+
+```java
+// snip
+
+@Path("nosql")
+public class NoSQLExample {
+	@Inject
+	PersonRepository personRepository;
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Object get(@QueryParam("lastName") String lastName) {
+		Map<String, Object> result = new LinkedHashMap<>();
+		result.put("byQueryLastName", personRepository.findByLastName(lastName).collect(Collectors.toList()));
+		result.put("totalCount", personRepository.count());
+		return result;
+	}
+}
+```
+
+## MicroProfile Config
+
+The [MicroProfile Config](https://github.com/eclipse/microprofile-config) API allows injection of configuration parameters from externalized sources, separating configuration from code. These parameters can then be injected using CDI. For example:
+
+```java
+@ApplicationScoped
+public class ConfigExample {
+	@Inject
+	@ConfigProperty(name="java.version")
+	private String javaVersion;
+	
+	@Inject
+	@ConfigProperty(name="xsp.library.depends")
+	private String xspDepends;
+	
+	/* use the above */
+}
+```
+
+Four providers are currently configured:
+
+- A system-properties source, such as "java.version"
+- A source from `META-INF/microprofile-config.properties` within the NSF
+- A source from `xsp.properties` in the NSF, such as "xsp.library.depends" or custom values
+- A source from Domino environment variables, such as "Directory"
+
+## MicroProfile Rest Client
+
+The [MicroProfile Rest Client](https://github.com/eclipse/microprofile-rest-client) API allows for creation of type-safe clients for remote REST services using Jakarta REST annotations. For example:
+
+```java
+@ApplicationEScoped
+public class RestClientExample {
+	public static class JsonExampleObject {
+		private String foo;
+		
+		public String getFoo() {
+			return foo;
+		}
+		public void setFoo(String foo) {
+			this.foo = foo;
+		}
+	}
+	
+	public interface JsonExampleService {
+		@GET
+		@Produces(MediaType.APPLICATION_JSON)
+		JsonExampleObject get();
+	}
+	
+	public Object get() {
+		URI serviceUri = URI.create("some remote service");
+		JsonExampleService service = RestClientBuilder.newBuilder()
+			.baseUri(serviceUri)
+			.build(JsonExampleService.class);
+		JsonExampleObject responseObj = service.get();
+		Map<String, Object> result = new LinkedHashMap<>();
+		result.put("called", serviceUri);
+		result.put("response", responseObj);
+		return result;
+	}
+}
+```
+
+## MicroProfile Fault Tolerance
+
+The [MicroProfile Fault Tolerance](https://github.com/eclipse/microprofile-fault-tolerance) API allows CDI beans to be decorated with rules for handling exceptions, timeouts, and concurrency restrictions. For example:
+
+```java
+@ApplicationScoped
+public class FaultToleranceBean {
+	@Retry(maxRetries = 2)
+	@Fallback(fallbackMethod = "getFailingFallback")
+	public String getFailing() {
+		throw new RuntimeException("this is expected to fail");
+	}
+	
+	@SuppressWarnings("unused")
+	private String getFailingFallback() {
+		return "I am the fallback response.";
+	}
+	
+	@Timeout(value=5, unit=ChronoUnit.MILLIS)
+	public String getTimeout() throws InterruptedException {
+		TimeUnit.MILLISECONDS.sleep(10);
+		return "I should have stopped.";
+	}
+	
+	@CircuitBreaker(delay=60000, requestVolumeThreshold=2)
+	public String getCircuitBreaker() {
+		throw new RuntimeException("I am a circuit-breaking failure - I should stop after two attempts");
+	}
+}
+```
+
+## MicroProfile Health
+
+The [MicroProfile Health](https://github.com/eclipse/microprofile-health) API allows you to create CDI beans that provide health checks and statistics for your application, queryable at standard endpoints. For example:
+
+```java
+package health;
+
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
+import org.eclipse.microprofile.health.Liveness;
+
+import com.ibm.domino.xsp.module.nsf.NotesContext;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import lotus.domino.Database;
+import lotus.domino.NoteCollection;
+import lotus.domino.NotesException;
+
+@ApplicationScoped
+@Liveness
+public class PassingHealthCheck implements HealthCheck {
+	@Override
+	public HealthCheckResponse call() {
+		HealthCheckResponseBuilder response = HealthCheckResponse.named("I am the liveliness check");
+		try {
+			Database database = NotesContext.getCurrent().getCurrentDatabase();
+			NoteCollection notes = database.createNoteCollection(true);
+			notes.buildCollection();
+			return response
+				.status(true)
+				.withData("noteCount", notes.getCount())
+				.build();
+		} catch(NotesException e) {
+			return response
+				.status(false)
+				.withData("exception", e.text)
+				.build();
+		}
+	}
+}
+```
+
+In addition to `@Liveness`, Health also allows checks to be categorized as `@Readiness` and `@Startup`.
+
+The results of these checks will be available at `/xsp/app/health` (aggregating all types), `/xsp/app/health/ready`, `/xsp/app/health/live`, and `/xsp/app/health/started`. These endpoints will emit JSON describing the applicable health checks and an overall "UP" or "DOWN" status. For example:
+
+```json
+{
+    "status": "DOWN",
+    "checks": [
+        {
+            "name": "I am the liveliness check",
+            "status": "UP",
+            "data": {
+                "noteCount": 63
+            }
+        },
+        {
+            "name": "I am a failing readiness check",
+            "status": "DOWN"
+        },
+        {
+            "name": "started up fine",
+            "status": "UP"
+        }
+    ]
+}
+```
+
 ## Requirements
 
 - Domino FP10+
+	- NoSQL requires Domino 12.0.1+
 - Designer FP10+ (for compiling the NSF)
 - Some of the APIs require setting the project Java compiler level to 1.8
+
+NoSQL and the MicroProfile Rest Client require loosening Domino's java.policy settings to include:
+
+```
+grant {
+	permission java.security.AllPermission;
+};
+```
 
 ## Building
 

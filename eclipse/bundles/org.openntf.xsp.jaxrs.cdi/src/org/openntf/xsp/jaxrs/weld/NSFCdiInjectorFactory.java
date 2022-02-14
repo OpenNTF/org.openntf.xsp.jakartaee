@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package org.openntf.xsp.jaxrs.weld;
 import org.jboss.resteasy.cdi.CdiInjectorFactory;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 
+import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesDatabase;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
 import jakarta.enterprise.inject.spi.BeanManager;
@@ -27,9 +30,20 @@ public class NSFCdiInjectorFactory extends CdiInjectorFactory {
 	@SuppressWarnings("nls")
 	protected BeanManager lookupBeanManager() {
 		ApplicationEx application = ApplicationEx.getInstance();
-		if(application == null) {
-			throw new IllegalStateException("Unable to locate ApplicationEx!");
+		if(application != null) {
+			return ContainerUtil.getBeanManager(application);
 		}
-		return ContainerUtil.getBeanManager(application);
+		NotesContext ctx = NotesContext.getCurrentUnchecked();
+		if(ctx != null) {
+			try {
+			NotesDatabase database = ctx.getNotesDatabase();
+				if(database != null) {
+					return ContainerUtil.getBeanManager(database);
+				}
+			} catch(NotesAPIException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		throw new IllegalStateException("Unable to locate active application!");
 	}
 }

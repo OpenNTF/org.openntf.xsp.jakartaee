@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import jakarta.el.ExpressionFactory;
 import jakarta.el.StandardELContext;
 
 import org.openntf.xsp.el.ext.ELResolverProvider;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 /**
  * A subclass of {@link StandardELContext} that adds a resolver for an

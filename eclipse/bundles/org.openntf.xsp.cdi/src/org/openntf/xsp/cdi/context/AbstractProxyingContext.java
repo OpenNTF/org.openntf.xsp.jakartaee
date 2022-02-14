@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
-import com.ibm.domino.xsp.adapter.osgi.NotesContext;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 /**
  * 
@@ -44,10 +44,27 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 	private static final ThreadLocal<HttpServletRequest> THREAD_REQUESTS = new ThreadLocal<>();
 	
 	private static final Field notesContextRequestField;
+	private static final Field osgiNotesContextRequestField;
 	static {
 		notesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
 			try {
-				Field field = NotesContext.class.getDeclaredField("request"); //$NON-NLS-1$
+				Field field = NotesContext.class.getDeclaredField("httpRequest"); //$NON-NLS-1$
+				field.setAccessible(true);
+				return field;
+			} catch (NoSuchFieldException | SecurityException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		osgiNotesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
+			Class<?> osgiContextClass = null;
+			try {
+				osgiContextClass = Class.forName("com.ibm.domino.xsp.adapter.osgi.NotesContext"); //$NON-NLS-1$
+			} catch (ClassNotFoundException e1) {
+				// In Notes or other non-full environment
+				return null;
+			}
+			try {
+				Field field = osgiContextClass.getDeclaredField("request"); //$NON-NLS-1$
 				field.setAccessible(true);
 				return field;
 			} catch (NoSuchFieldException | SecurityException e) {
@@ -121,6 +138,16 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 			}
 		}
 		
+		if(osgiNotesContextRequestField != null) {
+			com.ibm.domino.xsp.adapter.osgi.NotesContext osgiContext = com.ibm.domino.xsp.adapter.osgi.NotesContext.getCurrentUnchecked();
+			if(osgiContext != null) {
+				HttpServletRequest request = getHttpServletRequest(osgiContext);
+				if(request != null) {
+					return request;
+				}
+			}
+		}
+		
 		throw new IllegalStateException("Unable to locate HttpServletRequest");
 	}
 	
@@ -128,6 +155,17 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 		return AccessController.doPrivileged((PrivilegedAction<HttpServletRequest>)() -> {
 			try {
 				javax.servlet.http.HttpServletRequest oldReq = (javax.servlet.http.HttpServletRequest)notesContextRequestField.get(context);
+				return ServletUtil.oldToNew(null, oldReq);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		});
+	}
+	
+	protected HttpServletRequest getHttpServletRequest(com.ibm.domino.xsp.adapter.osgi.NotesContext context) {
+		return AccessController.doPrivileged((PrivilegedAction<HttpServletRequest>)() -> {
+			try {
+				javax.servlet.http.HttpServletRequest oldReq = (javax.servlet.http.HttpServletRequest)osgiNotesContextRequestField.get(context);
 				return ServletUtil.oldToNew(null, oldReq);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new RuntimeException(e);

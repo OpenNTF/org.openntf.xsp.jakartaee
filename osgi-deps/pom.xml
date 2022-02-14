@@ -22,6 +22,11 @@
 			<url>https://mirror.umd.edu/eclipse/releases/oxygen/201706281000/</url>
 			<layout>p2</layout>
 		</repository>
+		<!-- Used for MyFaces 4.0.0-SNAPSHOT -->
+		<repository>
+			<id>apache-snapshots</id>
+			<url>https://repository.apache.org/snapshots</url>
+		</repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -33,8 +38,12 @@
 	
 	<properties>
 		<weld-version>4.0.2.Final</weld-version>
-		<resteasy-version>6.0.0.Beta1</resteasy-version>
-		<hibernate-version>7.0.1.Final</hibernate-version>
+		<resteasy-version>6.0.0.Final</resteasy-version>
+		<resteasy-mp-version>2.0.0.Beta1</resteasy-mp-version>
+		<hibernate-version>7.0.2.Final</hibernate-version>
+		<!-- jakarta.* snapshot builds are opn OpenNTF's server -->
+		<nosql-version>1.0.0-SNAPSHOT</nosql-version>
+		<nosql-version-osgi>1.0.0</nosql-version-osgi>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
@@ -70,9 +79,22 @@
 									General Platform
 								-->
 								<artifact><id>jakarta.annotation:jakarta.annotation-api:2.0.0</id><source>true</source></artifact>
-								<artifact><id>jakarta.inject:jakarta.inject-api:2.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.inject:jakarta.inject-api:2.0.1</id><source>true</source></artifact>
 								<artfiact><id>jakarta.servlet:jakarta.servlet-api:5.0.0</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.0</id><source>true</source></artfiact>
+								<artfiact><id>jakarta.persistence:jakarta.persistence-api:3.0.0</id><source>true</source></artfiact>
+								<artfiact><id>jakarta.transaction:jakarta.transaction-api:2.0.0</id><source>true</source></artfiact>
+								<artifact>
+									<id>jakarta.websocket:jakarta.websocket-api:2.0.0</id>
+									<source>true</source>
+									<!-- Repackage to avoid the OSGi version containing "SNAPSHOT" -->
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.websocket-api</Bundle-SymbolicName>
+										<Bundle-Version>2.0.0.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="2.0.0"</Export-Package>
+									</instructions>
+								</artifact>
 								
 								
 								<!-- Repackage to avoid trouble with a build finding a newer, beta-only version -->
@@ -90,7 +112,7 @@
 								<!--
 									JAX-B 
 								-->
-								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:3.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:3.0.1</id><source>true</source></artifact>
 								<artifact>
 									<id>com.sun.xml.bind:jaxb-core:3.0.2</id>
 									<source>true</source>
@@ -120,12 +142,12 @@
 								<artifact><id>jakarta.json.bind:jakarta.json.bind-api:2.0.0</id><source>true</source></artifact>
 								<!-- Oddly, the Yasson binaries don't end up in the repo if I don't override the bundle here -->
 								<artifact>
-									<id>org.eclipse:yasson:2.0.2</id>
+									<id>org.eclipse:yasson:2.0.4</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.yasson</Bundle-SymbolicName>
-										<Bundle-Version>2.0.2.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>2.0.4.${osgi.qualifier}</Bundle-Version>
 									</instructions>
 								</artifact>
 								
@@ -133,7 +155,7 @@
 									JAX-RS 
 								-->
 								<artifact><id>jakarta.ws.rs:jakarta.ws.rs-api:3.0.0</id><source>true</source></artifact>
-								<artifact><id>jakarta.interceptor:jakarta.interceptor-api:2.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.interceptor:jakarta.interceptor-api:2.0.1</id><source>true</source></artifact>
 								<artifact>
 									<id>org.jboss.resteasy:resteasy-core:${resteasy-version}</id>
 									<source>true</source>
@@ -141,9 +163,20 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.core</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Require-Bundle>
 											jakarta.ws.rs-api;visibility:=reexport
 										</Require-Bundle>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy:resteasy-core-spi:${resteasy-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.core-spi</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.org.jboss.resteasy.core</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -227,14 +260,73 @@
 								</artifact>
 								
 								<!--
+									MicroProfile OpenAPI
+								-->
+								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:3.0</id><source>true</source></artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-open-api-core:2.1.17</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-core</Bundle-SymbolicName>
+										<Bundle-Version>2.1.16_${osgi.qualifier}</Bundle-Version>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-open-api-jaxrs:2.1.17</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-jaxrs</Bundle-SymbolicName>
+										<Bundle-Version>2.1.16_${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.io.smallrye.open-api-core</Fragment-Host>
+									</instructions>
+								</artifact>
+								
+								<!--
+									MicroProfile Metrics
+								-->
+								<artifact><id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0</id><source>true</source></artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-metrics:4.0.0-RC1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.metrics</Bundle-SymbolicName>
+										<Bundle-Version>4.0.0_${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								
+								<!--
+									MicroProfile REST Client
+								-->
+								<artifact><id>org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0</id><source>true</source></artifact>
+								<artifact>
+									<id>org.jboss.resteasy.microprofile:microprofile-rest-client-base:${resteasy-mp-version}</id>
+									<source>true</source>
+								</artifact>
+								<artifact>
+									<id>org.jboss.resteasy.microprofile:microprofile-rest-client:${resteasy-mp-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.microprofile.rest-client</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-mp-version}_${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.jboss.resteasy.microprofile.rest-client-base</Fragment-Host>
+									</instructions>
+								</artifact>
+								
+								<!--
 									EL
 								-->
 								<artifact><id>jakarta.el:jakarta.el-api:4.0.0</id><source>true</source></artifact>
-								<artifact><id>org.glassfish:jakarta.el:4.0.1</id><source>true</source></artifact>
+								<artifact><id>org.glassfish:jakarta.el:4.0.2</id><source>true</source></artifact>
 								
 								<!--
 									Bean Validation
 								-->
+								<!-- NB: 3.0.1 and above require Java > 8 -->
 								<artifact><id>jakarta.validation:jakarta.validation-api:3.0.0</id><source>true</source></artifact>
 								<artifact><id>org.hibernate.validator:hibernate-validator:${hibernate-version}</id><source>true</source></artifact>
 
@@ -244,19 +336,21 @@
 								<artifact><id>org.jboss.weld.se:weld-se-core:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.environment:weld-environment-common:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-core-impl:${weld-version}</id><source>true</source></artifact>
+								<artifact><id>org.jboss.weld.module:weld-web:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-api:4.0.SP1</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-spi:4.0.SP1</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.probe:weld-probe-core:${weld-version}</id><source>true</source></artifact>
+								<artifact><id>org.javassist:javassist:3.28.0-GA</id><source>true</source></artifact>
 								
 								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to jvm/lib/ext on Domino -->
 								<artifact>
-									<id>org.jboss.logging:jboss-logging:3.4.2.Final</id>
+									<id>org.jboss.logging:jboss-logging:3.4.3.Final</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.logging.jboss-logging</Bundle-SymbolicName>
-										<Bundle-Version>3.4.2.Final_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>org.jboss.logging;version="3.2.1.Final"</Export-Package>
+										<Bundle-Version>3.4.3.Final_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>org.jboss.logging;version="3.4.3.Final"</Export-Package>
 										<Import-Package>
 											org.apache.log4j;resolution:=optional,
 											org.apache.logging.log4j;version="[2.0,3)";resolution:=optional,
@@ -300,6 +394,31 @@
 								<artifact><id>org.glassfish.web:jakarta.servlet.jsp:3.0.0</id><source>true</source></artifact>
 								<artifact><id>org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0</id><source>true</source></artifact>
 								
+								<!--
+									JSF
+								-->
+								<artifact>
+									<id>org.apache.myfaces.core:myfaces-api:4.0.0-SNAPSHOT</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.apache.myfaces.core.api</Bundle-SymbolicName>
+										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
+										<Require-Bundle/>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.apache.myfaces.core:myfaces-impl:4.0.0-SNAPSHOT</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.apache.myfaces.core.impl</Bundle-SymbolicName>
+										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								
 								<!-- MVC -->
 								<artifact><id>jakarta.mvc:jakarta.mvc-api:2.0.0</id><source>true</source></artifact>
 								<artifact>
@@ -326,6 +445,174 @@
 										<Fragment-Host>org.openntf.org.eclipse.krazo.core</Fragment-Host>
 									</instructions>
 								</artifact>
+								
+								<!--
+									NoSQL
+								-->
+								<!--
+									These all use ServiceLoader to provide implementations, so bind children
+									to parents and also make the parents extensible for PDE needs.
+								-->
+								<artifact>
+									<id>jakarta.nosql.communication:communication-core:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.core</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>jakarta.nosql.communication:communication-query:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.query</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>jakarta.nosql.communication:communication-document:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.document</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>jakarta.nosql.mapping:mapping-core:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.core</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>jakarta.nosql.mapping:mapping-document:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.document</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.communication:communication-core:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.core</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.jakarta.nosql.communication.core</Fragment-Host>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.communication:communication-query:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.query</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.jakarta.nosql.communication.query</Fragment-Host>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.communication:communication-document:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.document</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.jakarta.nosql.communication.document</Fragment-Host>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.mapping:mapping-core:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.mapping.core</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.jakarta.nosql.mapping.core</Fragment-Host>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.mapping:mapping-document:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.mapping.document</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Fragment-Host>org.openntf.jakarta.nosql.mapping.document</Fragment-Host>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								
+								
+								<!--
+									MicroProfile Config
+								-->
+								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-common:3.0.0-RC1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-core:3.0.0-RC1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-validator:3.0.0-RC1</id><source>true</source></artifact>
+								
+								<!--
+									MicroProfile Fault Tolerance
+								-->
+								<artifact>
+									<id>org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0</id>
+									<source>true</source>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.fault.tolerance</Bundle-SymbolicName>
+										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
+										<!-- Fix odd version ranges from upstream -->
+										<Import-Package>
+											jakarta.enterprise.util,
+											*
+										</Import-Package>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-fault-tolerance:6.0.0-RC1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.fault-tolerance</Bundle-SymbolicName>
+										<Bundle-Version>6.0.0.${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>
+											org.jboss.weld.*
+										</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								
+								<!--
+									MicroProfile Health
+								-->
+								<artifact><id>org.eclipse.microprofile.health:microprofile-health-api:4.0</id><source>true</source></artifact>
+								<artifact>
+									<id>io.smallrye:smallrye-health:4.0.0-RC1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.smallrye.health</Bundle-SymbolicName>
+										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>
+											org.jboss.weld.*
+										</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								
 							</artifacts>
 						</configuration>
 					</execution>

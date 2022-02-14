@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.Platform;
@@ -36,6 +37,9 @@ import org.jboss.weld.config.ConfigurationKey;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.manager.BeanManagerImpl;
+import org.jboss.weld.module.ExpressionLanguageSupport;
+import org.jboss.weld.module.web.el.WeldELResolver;
+import org.jboss.weld.module.web.el.WeldExpressionFactory;
 import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoader;
 import org.jboss.weld.util.ForwardingBeanManager;
@@ -43,7 +47,7 @@ import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.context.CDIScopesExtension;
 import org.openntf.xsp.cdi.discovery.OSGiServletBeanArchiveHandler;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.wiring.BundleWiring;
@@ -55,6 +59,8 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
+import jakarta.el.ELResolver;
+import jakarta.el.ExpressionFactory;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.Extension;
@@ -94,7 +100,7 @@ public enum ContainerUtil {
 	 * CDI containers when the app expires after being spawned by JAX-RS.
 	 */
 	private static final Map<String, String> REPLICAID_APPID_CACHE = new HashMap<>();
-
+	
 	/**
 	 * Gets or created a {@link WeldContainer} instance for the provided Application.
 	 * 
@@ -106,9 +112,9 @@ public enum ContainerUtil {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			String bundleId = getApplicationCDIBundle(application);
 			if(StringUtil.isNotEmpty(bundleId)) {
-				Bundle bundle = Platform.getBundle(bundleId);
-				if(bundle != null) {
-					return getContainer(bundle);
+				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+				if(bundle.isPresent()) {
+					return getContainer(bundle.get());
 				}
 			}
 			
@@ -138,30 +144,32 @@ public enum ContainerUtil {
 
 				String baseBundleId = getApplicationCDIBundleBase(application);
 				if(StringUtil.isNotEmpty(baseBundleId)) {
-					Bundle bundle = Platform.getBundle(baseBundleId);
-					if(bundle != null) {
-						weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
+					Optional<Bundle> bundle = LibraryUtil.getBundle(baseBundleId);
+					if(bundle.isPresent()) {
+						weld.setResourceLoader(new BundleDependencyResourceLoader(bundle.get()));
 					}
 				} else {
 					weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
 				}
 				
-				for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
-					weld.addExtension(extension);
-				}
-				
-				for(WeldBeanClassContributor service : (List<WeldBeanClassContributor>)application.findServices(WeldBeanClassContributor.EXTENSION_POINT)) {
-					Collection<Class<?>> beanClasses = service.getBeanClasses();
-					if(beanClasses != null) {
-						weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
+					for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
+						weld.addExtension(extension);
 					}
-					Collection<Extension> extensions = service.getExtensions();
-					if(extensions != null) {
-						weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+					
+					for(WeldBeanClassContributor service : (List<WeldBeanClassContributor>)application.findServices(WeldBeanClassContributor.EXTENSION_POINT)) {
+						Collection<Class<?>> beanClasses = service.getBeanClasses();
+						if(beanClasses != null) {
+							weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+						}
+						Collection<Extension> extensions = service.getExtensions();
+						if(extensions != null) {
+							weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+						}
 					}
-				}
-				
-				instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> weld.initialize());
+					
+					return weld.initialize();
+				});
 			}
 			return instance;
 		} else {
@@ -215,15 +223,15 @@ public enum ContainerUtil {
 	 * @param database the database to open
 	 * @return an existing or new {@link WeldContainer}, or {@code null} if the application does not use CDI
 	 * @throws NotesAPIException if there is a problem reading the database
-	 * @throws IOException if there is a problem parsing the database configuration
+	 * @throws UncheckedIOException if there is a problem parsing the database configuration
 	 */
-	public static CDI<Object> getContainer(NotesDatabase database) throws NotesAPIException, IOException {
+	public static CDI<Object> getContainer(NotesDatabase database) throws NotesAPIException {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, database)) {
 			String bundleId = getApplicationCDIBundle(database);
 			if(StringUtil.isNotEmpty(bundleId)) {
-				Bundle bundle = Platform.getBundle(bundleId);
-				if(bundle != null) {
-					return getContainer(bundle);
+				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+				if(bundle.isPresent()) {
+					return getContainer(bundle.get());
 				}
 			}
 			
@@ -235,27 +243,31 @@ public enum ContainerUtil {
 				String baseBundleId = getApplicationCDIBundleBase(database);
 				Bundle bundle = null;
 				if(StringUtil.isNotEmpty(baseBundleId)) {
-					bundle = Platform.getBundle(baseBundleId);
-					if(bundle != null) {
+					Optional<Bundle> optBundle = LibraryUtil.getBundle(baseBundleId);
+					if(optBundle.isPresent()) {
+						bundle = optBundle.get();
 						weld = weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
 					}
 				}
-				
-				for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
-					Collection<Class<?>> beanClasses = service.getBeanClasses();
-					if(beanClasses != null) {
-						weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
-					}
-					Collection<Extension> extensions = service.getExtensions();
-					if(extensions != null) {
-						weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
-					}
-				}
-				
+
+				Weld fweld = weld;
 				OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
 				OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
 				try {
-					instance = weld.initialize();
+					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
+						for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
+							Collection<Class<?>> beanClasses = service.getBeanClasses();
+							if(beanClasses != null) {
+								fweld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+							}
+							Collection<Extension> extensions = service.getExtensions();
+							if(extensions != null) {
+								fweld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+							}
+						}
+						
+						return fweld.initialize();
+					});
 				} finally {
 					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
 					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
@@ -297,10 +309,10 @@ public enum ContainerUtil {
 	 * @return the name of the bundle to bind the container to, or <code>null</code>
 	 *   if not specified
 	 * @since 1.2.0
-	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 * @throws UncheckedIOException if there is a problem reading the xsp.properties file in the module
 	 * @throws NotesAPIException if there is a problem reading the xsp.properties file in the module
 	 */
-	public static String getApplicationCDIBundle(NotesDatabase database) throws NotesAPIException, IOException {
+	public static String getApplicationCDIBundle(NotesDatabase database) throws NotesAPIException {
 		Properties props = LibraryUtil.getXspProperties(database);
 		return props.getProperty(PROP_CDIBUNDLE, null);
 	}
@@ -311,16 +323,34 @@ public enum ContainerUtil {
 	 * @param database the application to check
 	 * @return the name of the bundle to use as the baseline, or {@code null} if not specified
 	 * @since 2.0.0
-	 * @throws IOException if there is a problem reading the xsp.properties file in the module
+	 * @throws UncheckedIOException if there is a problem reading the xsp.properties file in the module
 	 * @throws NotesAPIException if there is a problem reading the xsp.properties file in the module
 	 */
-	public static String getApplicationCDIBundleBase(NotesDatabase database) throws NotesAPIException, IOException {
+	public static String getApplicationCDIBundleBase(NotesDatabase database) throws NotesAPIException {
 		Properties props = LibraryUtil.getXspProperties(database);
 		return props.getProperty(PROP_CDIBUNDLEBASE, null);
 	}
 
 	public static BeanManagerImpl getBeanManager(ApplicationEx application) {
 		CDI<Object> container = getContainer(application);
+		if(container == null) {
+			return null;
+		}
+		return getBeanManager(container);
+	}
+	
+	/**
+	 * Retrieves the active {@link BeanManagerImpl} instance for the provided {@link NotesDatabase}.
+	 * 
+	 * @param database the database to retrieve the bean manager for
+	 * @return the database's {@link BeanManagerImpl} instance, or {@code null} if CDI is not enabled
+	 *         for the database
+	 * @throws NotesAPIException if there is a Notes API problem accessing the database
+	 * @throws UncheckedIOException if there is a stream problem reading the database config
+	 * @since 2.3.0
+	 */
+	public static BeanManagerImpl getBeanManager(NotesDatabase database) throws NotesAPIException {
+		CDI<Object> container = getContainer(database);
 		if(container == null) {
 			return null;
 		}
@@ -378,7 +408,23 @@ public enum ContainerUtil {
 			// Disable concurrent deployment to avoid Notes thread init trouble
 			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
 			.property(ConfigurationKey.EXECUTOR_THREAD_POOL_TYPE.get(), "SINGLE_THREAD") //$NON-NLS-1$
-			.addExtension(new CDIScopesExtension());
+			.addExtension(new CDIScopesExtension())
+			.addServices(new ExpressionLanguageSupport() {
+				@Override
+				public ExpressionFactory wrapExpressionFactory(ExpressionFactory expressionFactory) {
+					return new WeldExpressionFactory(expressionFactory);
+				}
+
+				@Override
+				public ELResolver createElResolver(BeanManagerImpl manager) {
+					return new WeldELResolver(manager);
+				}
+
+				@Override
+				public void cleanup() {
+					
+				}
+			});
 	}
 	
 	private static class ModuleContextResourceLoader extends ClassLoaderResourceLoader {
@@ -470,9 +516,9 @@ public enum ContainerUtil {
 					for(ManifestElement el : elements) {
 						String bundleName = el.getValue();
 						if(StringUtil.isNotEmpty(bundleName)) {
-							Bundle dependency = Platform.getBundle(bundleName);
-							if(dependency != null) {
-								addBundleResources(name, dependency, result, bundleNames);
+							Optional<Bundle> dependency = LibraryUtil.getBundle(bundleName);
+							if(dependency.isPresent()) {
+								addBundleResources(name, dependency.get(), result, bundleNames);
 							}
 						}
 					}

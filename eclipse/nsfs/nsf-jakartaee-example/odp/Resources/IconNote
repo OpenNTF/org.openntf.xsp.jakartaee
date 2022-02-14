@@ -16,14 +16,14 @@ EREdd3fRERER8AAAAAAA////Ed3dEf///wAAAAAAAAAAAPERER8AAAAAAAAAAAAAAAAP///wAAAA
 AAAAUEECICABAAD/////+A4DgA==
 </rawitemdata>
   </item>
-  <item name="$DefaultWebFrameset">
-    <text>Web Frame</text>
-  </item>
   <item name="$LaunchXPageRunOnServer">
     <text>0</text>
   </item>
-  <item name="$FlagsNoRefresh">
-    <text/>
+  <item name="$AllowPost8HTML">
+    <text>1</text>
+  </item>
+  <item name="$DBTheme">
+    <text>Classic.theme</text>
   </item>
   <item name="$Daos">
     <text>1</text>
@@ -31,11 +31,16 @@ AAAAUEECICABAAD/////+A4DgA==
   <item name="$LargeSummary">
     <text>0</text>
   </item>
-  <item name="$Flags">
-    <text>J7SqN</text>
+  <item name="$DefaultWebFrameset">
+    <text>Web Frame</text>
   </item>
   <item name="$TITLE">
-    <text>XPages JEE Example
-</text>
+    <text>XPages JEE Example</text>
+  </item>
+  <item name="$Flags">
+    <text>J7qNS</text>
+  </item>
+  <item name="$FlagsNoRefresh">
+    <text>rv</text>
   </item>
 </note>

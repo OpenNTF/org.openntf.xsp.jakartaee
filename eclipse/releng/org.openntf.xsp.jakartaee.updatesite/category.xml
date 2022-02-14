@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2021 Jesse Gallagher
+    Copyright © 2018-2022 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -38,7 +38,25 @@
 	<feature id="org.openntf.xsp.jsp.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
+	<feature id="org.openntf.xsp.jsf.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
 	<feature id="org.openntf.xsp.mvc.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
+	<feature id="org.openntf.xsp.nosql.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
+	<feature id="org.openntf.xsp.microprofile.config.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
+	<feature id="org.openntf.xsp.microprofile.rest.client.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
+	<feature id="org.openntf.xsp.microprofile.fault.tolerance.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
+	<feature id="org.openntf.xsp.microprofile.health.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
    

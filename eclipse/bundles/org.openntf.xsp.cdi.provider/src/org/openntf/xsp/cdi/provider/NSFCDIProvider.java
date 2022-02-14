@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@ package org.openntf.xsp.cdi.provider;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.CDIProvider;
 
-import org.eclipse.core.runtime.Platform;
 import org.openntf.xsp.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.cdi.ext.CDIContainerUtility;
-import org.openntf.xsp.jakartaee.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 
 import com.ibm.commons.util.StringUtil;
@@ -122,9 +122,9 @@ public class NSFCDIProvider implements CDIProvider {
 				
 				String bundleId = locator.getBundleId();
 				if(StringUtil.isNotEmpty(bundleId)) {
-					Bundle bundle = Platform.getBundle(bundleId);
-					if(bundle != null) {
-						return (CDI<Object>)util.getContainer(bundle);
+					Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+					if(bundle.isPresent()) {
+						return (CDI<Object>)util.getContainer(bundle.get());
 					}
 				}
 			}

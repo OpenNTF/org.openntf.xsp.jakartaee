@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,15 @@ import java.util.List;
 import org.apache.jasper.Constants;
 import org.apache.jasper.servlet.JspServlet;
 import org.apache.jasper.xmlparser.ParserUtils;
-import org.openntf.xsp.cdi.context.AbstractProxyingContext;
-import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 import org.openntf.xsp.jsp.EarlyInitFactory;
 import org.openntf.xsp.jsp.el.NSFELResolver;
 import org.osgi.framework.BundleException;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.xsp.application.ApplicationEx;
 
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,39 +50,46 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author Jesse Gallagher
  * @since 2.1.0
  */
-public class NSFJspServlet extends JspServlet {
+public class NSFJspServlet extends AbstractXspLifecycleServlet {
 	private static final long serialVersionUID = 1L;
 	
-	@SuppressWarnings("unused")
-	private final ComponentModule module;
+	private final JspServlet delegate;
 	
 	public NSFJspServlet(ComponentModule module) {
-		super();
-		this.module = module;
+		super(module);
+		this.delegate = new JspServlet();
 	}
-
+	
 	@Override
-	public void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doInit(ServletConfig config) throws ServletException {
+		ClassLoader current = Thread.currentThread().getContextClassLoader();
+		try {
+			Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], current));
+			delegate.init(config);
+		} finally {
+			Thread.currentThread().setContextClassLoader(current);
+		}
+	}
+	
+	@Override
+	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application)
+			throws ServletException, IOException {
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 				
-				ServletContext context = req.getServletContext();
+				ServletContext context = request.getServletContext();
 				context.setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$
 				context.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, buildJstlDtdMap());
 				
-				ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
-				AbstractProxyingContext.setThreadContextRequest(req);
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(buildJspClassLoader(current));
 				try {
 					ParserUtils.setDtdResourcePrefix(EarlyInitFactory.getServletDtdPath().toUri().toString());
-					super.service(req, resp);
+					delegate.service(request, response);
 				} finally {
 					Thread.currentThread().setContextClassLoader(current);
 					context.setAttribute("org.glassfish.jsp.beanManagerELResolver", null); //$NON-NLS-1$
 					context.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, null);
-					ContainerUtil.setThreadContextDatabasePath(null);
-					AbstractProxyingContext.setThreadContextRequest(null);
 				}
 				return null;
 			});
@@ -99,9 +107,15 @@ public class NSFJspServlet extends JspServlet {
 			throw t;
 		} finally {
 			// Looks like Jasper doesn't flush this on its own
-			resp.getWriter().flush();
-			resp.flushBuffer();
+			response.getWriter().flush();
+			response.flushBuffer();
 		}
+	}
+	
+	@Override
+	public void destroy() {
+		super.destroy();
+		delegate.destroy();
 	}
 
 	private ClassLoader buildJspClassLoader(ClassLoader delegate) throws BundleException, IOException {

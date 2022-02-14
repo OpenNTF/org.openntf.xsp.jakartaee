@@ -1,18 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:f="http://java.sun.com/jsf/core"      
-      xmlns:h="http://java.sun.com/jsf/html">
+<!--
+
+    Copyright © 2018-2022 Jesse Gallagher
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE html>
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html">
 	
     <h:head>
-        <title>JSF 3.0 Hello World</title>
+        <title>JSF 4.0 Hello World</title>
     </h:head>
     <h:body>
-    	<h2>JSF 3.0 Hello World Example - hello.xhtml</h2>
-    	<h:form>
-    	   <h:inputText value="#{helloBean.name}"></h:inputText>
-    	   <h:commandButton value="Welcome Me" action="welcome"></h:commandButton>
-    	</h:form>
+    	<h2>JSF 4.0 Hello World Example - hello.xhtml</h2>
+    	
+    	<dl>
+    		<dt>facesContext</dt>
+    		<dd><h:outputText value="#{facesContext}"/></dd>
+    		
+    		<dt>requestGuy.message</dt>
+    		<dd><h:outputText value="#{requestGuy.message}"/></dd>
+    		
+    		<dt>Project Stage</dt>
+    		<dd><h:outputText value="#{facesContext.application.projectStage}"/></dd>
+    		
+    		<dt>facesContext.externalContext.context</dt>
+    		<dd><h:outputText value="#{facesContext.externalContext.context}"/></dd>
+    		
+    		<dt>transient?</dt>
+    		<dd><h:outputText value="#{facesContext.viewRoot.transient}"/></dd>
+    	</dl>
+    	
+    	<fieldset>
+    		<legend>Example Form</legend>
+    		<h:form>
+    			<h:inputText id="appGuyProperty" value="#{applicationGuy.beanProperty}"/>
+    			<h:commandButton value="Refresh">
+    				<f:ajax execute="appGuyProperty" render="formOutput"/>
+    			</h:commandButton>
+    			
+    			<p><h:outputText id="formOutput" value="#{applicationGuy.beanProperty}"/></p>
+    		</h:form>
+    	</fieldset>
     </h:body>
-</html>
+</f:view>

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages CDI API and NSF Provider
 Bundle-SymbolicName: org.openntf.xsp.cdi.api;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.cdi.api
-Bundle-Version: 2.1.0.qualifier
+Bundle-Version: 2.4.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: jakarta.decorator;version="3.0.0",

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.openntf.xsp.jaxrs.weld;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.ServletException;
@@ -29,17 +30,24 @@ import org.jboss.weld.context.bound.BoundRequestContext;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 
 public class WeldServiceParticipant implements ServiceParticipant {
+	public static final String KEY_STORAGE = WeldServiceParticipant.class.getName() + "_storage"; //$NON-NLS-1$
 
 	@Override
 	public void doBeforeService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
-		context.associate(new HashMap<>());
+		Map<String, Object> cdiScope = new HashMap<>();
+		request.setAttribute(KEY_STORAGE, cdiScope);
+		context.associate(cdiScope);
 		context.activate();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void doAfterService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get().deactivate();
+		BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
+		context.invalidate();
+		context.deactivate();
+		context.dissociate((Map<String, Object>)request.getAttribute(KEY_STORAGE));
 	}
 
 }

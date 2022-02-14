@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@ package org.openntf.xsp.jsp.nsf;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
@@ -29,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,10 +35,10 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jsp.JspLibrary;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -57,15 +56,7 @@ import com.ibm.xsp.extlib.util.ExtLibUtil;
 public class JspServletFactory extends MappingBasedServletFactory {
 	private static final String PATH_SEP = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("path.separator")); //$NON-NLS-1$
 
-	private ComponentModule module;
-
 	public JspServletFactory() {
-	}
-
-	@Override
-	public void init(ComponentModule module) {
-		super.init(module);
-		this.module = module;
 	}
 	
 	@Override
@@ -84,27 +75,18 @@ public class JspServletFactory extends MappingBasedServletFactory {
 	}
 	
 	@Override
-	public Servlet createExecutorServlet() throws ServletException {
+	public Servlet createExecutorServlet(ComponentModule module) throws ServletException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
-				ClassLoader current = Thread.currentThread().getContextClassLoader();
-				try {
-
-					Map<String, String> params = new HashMap<>();
-					String classpath = buildBundleClassPath()
-						.stream()
-						.map(File::toString)
-						.collect(Collectors.joining(PATH_SEP));
-					params.put("classpath", classpath); //$NON-NLS-1$
-					params.put("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
-					
-					// Jasper expects a URLClassLoader
-					Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], current));
-					
-					return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFJspServlet(module)), "XSP JSP Servlet", params); //$NON-NLS-1$
-				} finally {
-					Thread.currentThread().setContextClassLoader(current);
-				}
+				Map<String, String> params = new HashMap<>();
+				String classpath = buildBundleClassPath()
+					.stream()
+					.map(File::toString)
+					.collect(Collectors.joining(PATH_SEP));
+				params.put("classpath", classpath); //$NON-NLS-1$
+				params.put("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
+				
+				return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFJspServlet(module)), "XSP JSP Servlet", params); //$NON-NLS-1$
 			});
 		} catch (PrivilegedActionException e) {
 			throw new ServletException(e.getCause());
@@ -129,9 +111,9 @@ public class JspServletFactory extends MappingBasedServletFactory {
 			for(ManifestElement element : elements) {
 				String visibility = element.getDirective("visibility"); //$NON-NLS-1$
 				if("reexport".equals(visibility)) { //$NON-NLS-1$
-					Bundle dep = Platform.getBundle(element.getValue());
-					if(dep != null) {
-						toClasspathEntry(dep, classpath);
+					Optional<Bundle> dep = LibraryUtil.getBundle(element.getValue());
+					if(dep.isPresent()) {
+						toClasspathEntry(dep.get(), classpath);
 					}
 				}
 			}

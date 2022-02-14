@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2021 Jesse Gallagher
+ * Copyright © 2018-2022 Jesse Gallagher
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.cdi.discovery;
 
-import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import jakarta.annotation.Priority;
 
@@ -24,8 +24,8 @@ import org.jboss.weld.environment.deployment.discovery.BeanArchiveBuilder;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
-import org.openntf.xsp.jakartaee.LibraryUtil;
-import org.openntf.xsp.jakartaee.ModuleUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -64,16 +64,10 @@ public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 					ModuleUtil.getClassNames(module)
 						.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
 						.forEach(builder::addClass);
-					// TODO look through embedded JARs with beans.xml
-					
-					
-					// Manually look for class names in plug-in dependencies, since the normal code
-					//  path only looks in the system class path and I haven't figured out the right
-					//  way to override that yet
 					
 					return builder;
 				}
-			} catch (IOException | NotesAPIException e) {
+			} catch (UncheckedIOException | NotesAPIException e) {
 				e.printStackTrace();
 			}
 		}
