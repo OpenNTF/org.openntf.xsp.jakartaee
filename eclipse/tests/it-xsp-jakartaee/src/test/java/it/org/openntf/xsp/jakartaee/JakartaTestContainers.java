@@ -67,7 +67,7 @@ public enum JakartaTestContainers {
 		} finally {
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				if(domino != null) {
-//					domino.close();
+					domino.close();
 				}
 				if(firefox != null) {
 					firefox.close();
