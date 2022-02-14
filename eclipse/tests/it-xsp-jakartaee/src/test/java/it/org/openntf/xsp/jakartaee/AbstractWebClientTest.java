@@ -16,6 +16,9 @@ public abstract class AbstractWebClientTest {
 	public Client getAnonymousClient() {
 		return ClientBuilder.newBuilder().build();
 	}
+	public Client getAdminClient() {
+		return ClientBuilder.newBuilder().register(AdminUserAuthenticator.class).build();
+	}
 	
 	public String getAppContextPath() {
 		return "/dev/jakartaee.nsf";
@@ -34,5 +37,10 @@ public abstract class AbstractWebClientTest {
 		
 		String context = getAppContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
+	}
+	
+	public String getRestUrl(WebDriver driver) {
+		String root = getRootUrl(driver);
+		return PathUtil.concat(root, "xsp/app", '/');
 	}
 }

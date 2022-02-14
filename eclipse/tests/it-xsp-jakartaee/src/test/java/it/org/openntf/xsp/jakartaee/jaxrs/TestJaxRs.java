@@ -20,12 +20,12 @@ import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 @SuppressWarnings("nls")
 public class TestJaxRs extends AbstractWebClientTest {
 	/**
-	 * Tests servlet.Sample, which uses JAX-RS and CDI.
+	 * Tests test.AdminRoleExample, which uses requires admin login
 	 */
 	@Test
 	public void testSample() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/xsp/app/sample");
+		WebTarget target = client.target(getRestUrl(null) + "/sample");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -34,12 +34,12 @@ public class TestJaxRs extends AbstractWebClientTest {
 	}
 	
 	/**
-	 * Tests servlet.Sample#xml, which uses JAX-RS, CDI, and JAX-B.
+	 * Tests test.Sample#xml, which uses JAX-RS, CDI, and JAX-B.
 	 */
 	@Test
 	public void testSampleXml() throws XMLException {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/xsp/app/sample/xml");
+		WebTarget target = client.target(getRestUrl(null) + "/sample/xml");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
