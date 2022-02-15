@@ -48,6 +48,20 @@ public abstract class AbstractWebClientTest {
 		return PathUtil.concat(root, "xsp/app", '/');
 	}
 
+	public String getServletRestUrl(WebDriver driver) {
+		String host;
+		int port;
+		if(driver instanceof RemoteWebDriver) {
+			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
+			port = 80;
+		} else {
+			host = JakartaTestContainers.instance.domino.getHost();
+			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+		}
+		
+		String context = "/exampleservlet";
+		return PathUtil.concat("http://" + host + ":" + port, context, '/');
+	}
 	
 	public String getBudleNsfRootUrl(WebDriver driver) {
 		String host;

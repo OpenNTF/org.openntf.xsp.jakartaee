@@ -106,6 +106,10 @@
 		<module>bundles/org.openntf.xsp.microprofile.health</module>
 		<module>features/org.openntf.xsp.microprofile.health.feature</module>
 		
+		<!-- Integration test support -->
+		<module>tests/org.openntf.xsp.test.beanbundle</module>
+		<module>tests/org.openntf.xsp.test.postinstall</module>
+		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
 		<module>releng/org.openntf.xsp.jakartaee.source.updatesite</module>
@@ -488,8 +492,6 @@
 			<id>run-it</id>
 			
 			<modules>
-				<module>tests/org.openntf.xsp.test.beanbundle</module>
-				<module>tests/org.openntf.xsp.test.postinstall</module>
 				<module>tests/it-xsp-jakartaee</module>
 			</modules>
 		</profile>
