@@ -487,6 +487,7 @@
 			<id>run-it</id>
 			
 			<modules>
+				<module>tests/org.openntf.xsp.test.postinstall</module>
 				<module>tests/it-xsp-jakartaee</module>
 			</modules>
 		</profile>

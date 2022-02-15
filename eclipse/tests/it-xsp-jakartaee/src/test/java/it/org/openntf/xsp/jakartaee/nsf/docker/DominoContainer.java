@@ -36,7 +36,6 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 			withFileFromClasspath("Dockerfile", "/docker/Dockerfile"); //$NON-NLS-1$ //$NON-NLS-2$
 			withFileFromClasspath("domino-config.json", "/docker/domino-config.json"); //$NON-NLS-1$ //$NON-NLS-2$
 			withFileFromClasspath("java.policy", "/docker/java.policy"); //$NON-NLS-1$ //$NON-NLS-2$
-			withFileFromClasspath("notesdata/postinstall.ntf", "/docker/postinstall.ntf"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			// Find the current build version
 			Properties props = new Properties();
@@ -55,6 +54,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 
 			// Build a data.zip with the expected update site and NTF
 			Path updateSite = findLocalMavenArtifact("org.openntf.xsp", "org.openntf.xsp.jakartaee.updatesite", version, "zip"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Path postinstall = findLocalMavenArtifact("org.openntf.xsp", "org.openntf.xsp.test.postinstall", version, "jar"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			
 			try {
 				Path dataZip = Files.createTempFile(getClass().getName(), ".zip"); //$NON-NLS-1$
@@ -63,6 +63,8 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 					OutputStream os = Files.newOutputStream(dataZip, StandardOpenOption.TRUNCATE_EXISTING);
 					ZipOutputStream zos = new ZipOutputStream(os, StandardCharsets.UTF_8)
 				) {
+					
+					// Copy in the project update site
 					try(
 						InputStream is = Files.newInputStream(updateSite);
 						ZipInputStream zis = new ZipInputStream(is, StandardCharsets.UTF_8)
@@ -74,6 +76,12 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 							zos.closeEntry();
 						}
 					}
+					
+					// Copy in the post-install bundle
+					ZipEntry entry = new ZipEntry("domino/workspace/applications/eclipse/plugins/org.openntf.xsp.test.postinstall.jar"); //$NON-NLS-1$
+					zos.putNextEntry(entry);
+					Files.copy(postinstall, zos);
+					zos.closeEntry();
 				}
 				
 				withFileFromPath("data.zip", dataZip); //$NON-NLS-1$

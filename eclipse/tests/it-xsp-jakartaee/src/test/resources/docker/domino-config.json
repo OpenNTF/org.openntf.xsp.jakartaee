@@ -183,33 +183,6 @@
 					}
 				]
 			},
-			
-			{
-				"action": "create",
-				"filePath": "postinstall.nsf",
-				"title": "Post Install Agent",
-				"templatePath": "/local/notesdatatemp/postinstall.ntf",
-				"signUsingAdminp": true,
-				"ACL": {
-					"ACLEntries": [
-						{
-							"name": "-Default-",
-							"level": "manager",
-							"canDeleteDocuments": true
-						}
-					]
-				},
-				"agents": [
-					{
-						"name": "run",
-						"action": "sign"
-					},
-					{
-						"name": "run",
-						"action": "enable"
-					}
-				]
-			},
     
 			{
 				"action": "create",
