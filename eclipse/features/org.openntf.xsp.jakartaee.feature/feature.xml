@@ -252,6 +252,7 @@
 	<plugin id="jakarta.persistence-api" version="0.0.0"/>
 	<plugin id="jakarta.ejb-api" version="0.0.0"/>
 	<plugin id="jakarta.transaction-api" version="0.0.0"/>
+	<plugin id="jakarta.ws.rs-api" version="0.0.0"/>
 	
 	<!-- Mail -->
 	<plugin id="org.openntf.xsp.jakartamail.api" version="0.0.0"/>

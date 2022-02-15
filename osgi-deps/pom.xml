@@ -95,7 +95,7 @@
 										<Export-Package>*;version="2.0.0"</Export-Package>
 									</instructions>
 								</artifact>
-								
+								<artfiact><id>jakarta.xml.ws:jakarta.xml.ws-api:3.0.1</id><source>true</source></artfiact>
 								
 								<!-- Repackage to avoid trouble with a build finding a newer, beta-only version -->
 								<artifact>
