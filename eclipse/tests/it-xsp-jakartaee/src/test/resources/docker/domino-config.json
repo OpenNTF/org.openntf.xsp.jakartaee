@@ -190,6 +190,14 @@
 				"title": "Jakarta EE",
 				"templatePath": "/local/notesdatatemp/jakartaee.ntf",
 				"signUsingAdminp": true
+			},
+    
+			{
+				"action": "create",
+				"filePath": "dev/jeebundle.nsf",
+				"title": "Jakarta EE Bundle",
+				"templatePath": "/local/notesdatatemp/jeebundle.ntf",
+				"signUsingAdminp": true
 			}
 		]
 	}

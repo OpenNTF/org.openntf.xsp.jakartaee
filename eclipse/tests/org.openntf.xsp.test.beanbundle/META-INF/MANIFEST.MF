@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Example Bean Bundle for Test Suite
+Bundle-SymbolicName: org.openntf.xsp.test.beanbundle;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.test.beanbundle
+Bundle-Version: 2.4.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: jakarta.enterprise.context;version="3.0.0",
+ jakarta.inject;version="2.0.0",
+ jakarta.persistence;version="3.0.0",
+ jakarta.xml.ws
+DynamicImport-Package: *
+Export-Package: org.openntf.xsp.test.beanbundle

@@ -28,6 +28,11 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;
 
 public class DominoContainer extends GenericContainer<DominoContainer> {
+	private static final String[] BUNDLE_DEPS = {
+		"org.openntf.xsp.test.postinstall", //$NON-NLS-1$
+		"org.openntf.xsp.test.beanbundle" //$NON-NLS-1$
+	};
+	
 	public static final Set<Path> tempFiles = new HashSet<>();
 	
 	public static class DominoImage extends ImageFromDockerfile {
@@ -49,12 +54,13 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				throw new RuntimeException("Unable to determine artifact version from scm.properties");
 			}
 			
-			Path ntf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			withFileFromPath("notesdata/jakartaee.ntf", ntf); //$NON-NLS-1$
+			Path exampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			withFileFromPath("notesdata/jakartaee.ntf", exampleNtf); //$NON-NLS-1$
+			Path bundleExampleNtf  = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-bundle-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			withFileFromPath("notesdata/jeebundle.ntf", bundleExampleNtf); //$NON-NLS-1$
 
 			// Build a data.zip with the expected update site and NTF
 			Path updateSite = findLocalMavenArtifact("org.openntf.xsp", "org.openntf.xsp.jakartaee.updatesite", version, "zip"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			Path postinstall = findLocalMavenArtifact("org.openntf.xsp", "org.openntf.xsp.test.postinstall", version, "jar"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			
 			try {
 				Path dataZip = Files.createTempFile(getClass().getName(), ".zip"); //$NON-NLS-1$
@@ -77,11 +83,15 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 						}
 					}
 					
-					// Copy in the post-install bundle
-					ZipEntry entry = new ZipEntry("domino/workspace/applications/eclipse/plugins/org.openntf.xsp.test.postinstall.jar"); //$NON-NLS-1$
-					zos.putNextEntry(entry);
-					Files.copy(postinstall, zos);
-					zos.closeEntry();
+					// Copy in the test-support bundles
+					for(String bundleName : BUNDLE_DEPS) {
+						Path postinstall = findLocalMavenArtifact("org.openntf.xsp", bundleName, version, "jar"); //$NON-NLS-1$ //$NON-NLS-2$
+						
+						ZipEntry entry = new ZipEntry("domino/workspace/applications/eclipse/plugins/" + bundleName + ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
+						zos.putNextEntry(entry);
+						Files.copy(postinstall, zos);
+						zos.closeEntry();
+					}
 				}
 				
 				withFileFromPath("data.zip", dataZip); //$NON-NLS-1$

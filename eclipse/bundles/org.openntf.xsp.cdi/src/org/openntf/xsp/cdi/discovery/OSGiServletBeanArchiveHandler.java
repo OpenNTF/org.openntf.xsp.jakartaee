@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.cdi.discovery;
 
-import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +32,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.domino.osgi.core.context.ContextInfo;
 
@@ -96,7 +94,7 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 				
 				return builder;
 			}
-		} catch (NotesAPIException | UncheckedIOException | BundleException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;

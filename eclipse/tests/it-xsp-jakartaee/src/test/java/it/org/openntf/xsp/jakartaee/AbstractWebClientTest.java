@@ -20,8 +20,12 @@ public abstract class AbstractWebClientTest {
 		return ClientBuilder.newBuilder().register(AdminUserAuthenticator.class).build();
 	}
 	
-	public String getAppContextPath() {
+	public String getExampleContextPath() {
 		return "/dev/jakartaee.nsf";
+	}
+	
+	public String getBundleExampleContextPath() {
+		return "/dev/jeebundle.nsf";
 	}
 	
 	public String getRootUrl(WebDriver driver) {
@@ -35,12 +39,28 @@ public abstract class AbstractWebClientTest {
 			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
 		}
 		
-		String context = getAppContextPath();
+		String context = getExampleContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
 	public String getRestUrl(WebDriver driver) {
 		String root = getRootUrl(driver);
 		return PathUtil.concat(root, "xsp/app", '/');
+	}
+
+	
+	public String getBudleNsfRootUrl(WebDriver driver) {
+		String host;
+		int port;
+		if(driver instanceof RemoteWebDriver) {
+			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
+			port = 80;
+		} else {
+			host = JakartaTestContainers.instance.domino.getHost();
+			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+		}
+		
+		String context = getBundleExampleContextPath();
+		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 }

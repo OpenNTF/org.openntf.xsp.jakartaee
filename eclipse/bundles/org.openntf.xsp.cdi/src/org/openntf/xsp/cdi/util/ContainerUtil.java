@@ -28,8 +28,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
@@ -197,6 +199,12 @@ public enum ContainerUtil {
 				Weld weld = constructWeld(id)
 					.setResourceLoader(new BundleDependencyResourceLoader(bundle));
 				
+				try {
+					addBundleBeans(bundle, weld);
+				} catch (BundleException e) {
+					e.printStackTrace();
+				}
+				
 				OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
 				OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
 				try {
@@ -216,6 +224,36 @@ public enum ContainerUtil {
 			}
 		}
 		return instance;
+	}
+	
+	private static void addBundleBeans(Bundle bundle, Weld weld) throws BundleException {
+		Set<String> classNames = new HashSet<>();
+		// Add classes from the bundle here
+		DiscoveryUtil.findExportedClassNames(bundle, false)
+			.peek(classNames::add)
+			.map(t -> {
+				try {
+					return bundle.loadClass(t);
+				} catch (ClassNotFoundException e) {
+					return null;
+				}
+			})
+			.filter(Objects::nonNull)
+			.forEach(weld::addBeanClass);
+		
+		String requireBundle = bundle.getHeaders().get("Require-Bundle"); //$NON-NLS-1$
+		if(StringUtil.isNotEmpty(requireBundle)) {
+			ManifestElement[] elements = ManifestElement.parseHeader("Require-Bundle", requireBundle); //$NON-NLS-1$
+			for(ManifestElement el : elements) {
+				String bundleName = el.getValue();
+				if(StringUtil.isNotEmpty(bundleName)) {
+					Optional<Bundle> dependency = LibraryUtil.getBundle(bundleName);
+					if(dependency.isPresent()) {
+						addBundleBeans(bundle, weld);
+					}
+				}
+			}
+		}
 	}
 	
 	/**

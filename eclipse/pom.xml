@@ -481,12 +481,14 @@
 			
 			<modules>
 				<module>nsfs/nsf-jakartaee-example</module>
+				<module>nsfs/nsf-jakartaee-bundle-example</module>
 			</modules>
 		</profile>
 		<profile>
 			<id>run-it</id>
 			
 			<modules>
+				<module>tests/org.openntf.xsp.test.beanbundle</module>
 				<module>tests/org.openntf.xsp.test.postinstall</module>
 				<module>tests/it-xsp-jakartaee</module>
 			</modules>
