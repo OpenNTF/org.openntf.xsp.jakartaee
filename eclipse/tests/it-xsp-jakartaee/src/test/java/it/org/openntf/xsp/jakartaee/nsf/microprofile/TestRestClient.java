@@ -9,6 +9,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.ibm.commons.util.io.json.JsonException;
@@ -21,7 +22,7 @@ import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 public class TestRestClient extends AbstractWebClientTest {
 	@SuppressWarnings("unchecked")
 	@Test
-//	@Disabled("Disabled pending figuring out local URLs")
+	@Disabled("Disabled pending figuring out local URLs in a container")
 	public void testRestClient() throws JsonException {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/restClient");
