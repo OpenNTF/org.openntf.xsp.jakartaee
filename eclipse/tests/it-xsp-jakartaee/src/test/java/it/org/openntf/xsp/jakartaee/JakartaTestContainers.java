@@ -9,7 +9,7 @@ import org.testcontainers.containers.BrowserWebDriverContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 
-import it.org.openntf.xsp.jakartaee.docker.DominoContainer;
+import it.org.openntf.xsp.jakartaee.nsf.docker.DominoContainer;
 
 public enum JakartaTestContainers {
 	instance;
