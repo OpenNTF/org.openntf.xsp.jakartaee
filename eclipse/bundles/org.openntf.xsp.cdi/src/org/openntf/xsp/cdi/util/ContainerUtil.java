@@ -249,7 +249,7 @@ public enum ContainerUtil {
 				if(StringUtil.isNotEmpty(bundleName)) {
 					Optional<Bundle> dependency = LibraryUtil.getBundle(bundleName);
 					if(dependency.isPresent()) {
-						addBundleBeans(bundle, weld);
+						addBundleBeans(dependency.get(), weld);
 					}
 				}
 			}
