@@ -34,7 +34,7 @@ import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
-import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.testcontainers.utility.DockerImageName;
 
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
@@ -47,15 +47,13 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	
 	public static final Set<Path> tempFiles = new HashSet<>();
 	
-	public static class DominoImage extends ImageFromDockerfile {
-		public DominoImage() {
-			super("xsp-jakaetaee-testcontainer:1.0.0", false); //$NON-NLS-1$
-			withFileFromClasspath("Dockerfile", "/docker/Dockerfile"); //$NON-NLS-1$ //$NON-NLS-2$
-		}		
-	}
-
 	public DominoContainer() {
-		super(new DominoImage());
+		super(DockerImageName.parse("hclcom/domino:latest")); //$NON-NLS-1$
+		
+		addEnv("LANG", "en_US.UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
+		addEnv("SetupAutoConfigure", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+		addEnv("SetupAutoConfigureParams", "/local/runner/domino-config.json"); //$NON-NLS-1$ //$NON-NLS-2$
+		addEnv("DOMINO_DOCKER_STDOUT", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		withImagePullPolicy(imageName -> false);
 		withExposedPorts(80);
