@@ -324,8 +324,8 @@
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.client</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
-											org.openntf.org.apache.httpcomponents.httpcore;bundle-version="4.0.0",
-											org.openntf.org.apache.httpcomponents.httpclient;bundle-version="4.0.0"
+											org.apache.httpcomponents.httpcore;bundle-version="4.0.0",
+											org.apache.httpcomponents.httpclient;bundle-version="4.0.0"
 										</Require-Bundle>
 										<Import-Package>
 											!org.apache.http.*,
@@ -338,7 +338,7 @@
 									<source>true</source>
 									<override>true</override>
 									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.apache.httpcomponents.httpcore</Bundle-SymbolicName>
+										<Bundle-SymbolicName>org.apache.httpcomponents.httpcore</Bundle-SymbolicName>
 										<Bundle-Version>4.4.13_${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="4.4.13"</Export-Package>
 									</instructions>
@@ -348,7 +348,7 @@
 									<source>true</source>
 									<override>true</override>
 									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.apache.httpcomponents.httpclient</Bundle-SymbolicName>
+										<Bundle-SymbolicName>org.apache.httpcomponents.httpclient</Bundle-SymbolicName>
 										<Bundle-Version>4.5.13_${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="4.5.13"</Export-Package>
 									</instructions>

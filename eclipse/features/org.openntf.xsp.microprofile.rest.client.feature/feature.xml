@@ -247,7 +247,7 @@
    <plugin id="org.apache.commons.commons-codec" version="0.0.0"/>
    <plugin id="org.apache.commons.io" version="0.0.0"/>
    <plugin id="org.apache.commons.logging" version="0.0.0"/>
-   <plugin id="org.openntf.org.apache.httpcomponents.httpclient" version="0.0.0"/>
-   <plugin id="org.openntf.org.apache.httpcomponents.httpcore" version="0.0.0"/>
+   <plugin id="org.apache.httpcomponents.httpclient" version="0.0.0"/>
+   <plugin id="org.apache.httpcomponents.httpcore" version="0.0.0"/>
 
 </feature>
