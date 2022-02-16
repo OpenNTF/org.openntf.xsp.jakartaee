@@ -14,17 +14,11 @@
 # limitations under the License.
 #
 
-
-COPY --chown=notes java.policy /home/notes/.java.policy
-COPY --chown=notes domino-config.json /tmp/
-COPY --chown=notes data.zip /tmp/
-COPY --chown=notes notesdata/* /local/notesdatatemp/
 FROM --platform=linux/amd64 hclcom/domino:latest
 
 ENV LANG "en_US.UTF-8"
-ENV CustomNotesdataZip "/tmp/data.zip"
 ENV SetupAutoConfigure "1"
-ENV SetupAutoConfigureParams "/tmp/domino-config.json"
+ENV SetupAutoConfigureParams "/local/runner/domino-config.json"
 ENV DOMINO_DOCKER_STDOUT "yes"
 
 EXPOSE 80

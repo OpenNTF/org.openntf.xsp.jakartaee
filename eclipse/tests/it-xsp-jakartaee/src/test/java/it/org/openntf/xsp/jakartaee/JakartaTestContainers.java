@@ -16,8 +16,11 @@
 package it.org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testcontainers.containers.BrowserWebDriverContainer;
@@ -90,13 +93,27 @@ public enum JakartaTestContainers {
 				network.close();
 				
 				DominoContainer.tempFiles.forEach(t -> {
-					try {
-						Files.deleteIfExists(t);
-					} catch (IOException e) {
-						// Ignore
-					}
+					deltree(t);
 				});
 			}));
+		}
+	}
+	
+	private static void deltree(Path path) {
+		if(Files.isDirectory(path)) {
+			try(Stream<Path> walk = Files.list(path)) {
+				walk.forEach(p -> {
+					deltree(p);
+				});
+			} catch(IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		}
+		try {
+			Files.deleteIfExists(path);
+		} catch(IOException e) {
+			// This is likely a Windows file-locking thing
+			e.printStackTrace();
 		}
 	}
 }
