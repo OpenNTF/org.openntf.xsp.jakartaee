@@ -199,8 +199,10 @@ public enum ContainerUtil {
 				Weld weld = constructWeld(id)
 					.setResourceLoader(new BundleDependencyResourceLoader(bundle));
 				
+				Set<String> bundleNames = new HashSet<>();
+				Set<String> classNames = new HashSet<>();
 				try {
-					addBundleBeans(bundle, weld);
+					addBundleBeans(bundle, weld, bundleNames, classNames);
 				} catch (BundleException e) {
 					e.printStackTrace();
 				}
@@ -226,11 +228,17 @@ public enum ContainerUtil {
 		return instance;
 	}
 	
-	private static void addBundleBeans(Bundle bundle, Weld weld) throws BundleException {
-		Set<String> classNames = new HashSet<>();
+	private static void addBundleBeans(Bundle bundle, Weld weld, Set<String> bundleNames, Set<String> classNames) throws BundleException {
+		String symbolicName = bundle.getSymbolicName();
+		if(bundleNames.contains(symbolicName)) {
+			return;
+		}
+		bundleNames.add(symbolicName);
 		// Add classes from the bundle here
 		DiscoveryUtil.findExportedClassNames(bundle, false)
+			.filter(t -> !classNames.contains(t))
 			.peek(classNames::add)
+			.distinct()
 			.map(t -> {
 				try {
 					return bundle.loadClass(t);
@@ -249,7 +257,7 @@ public enum ContainerUtil {
 				if(StringUtil.isNotEmpty(bundleName)) {
 					Optional<Bundle> dependency = LibraryUtil.getBundle(bundleName);
 					if(dependency.isPresent()) {
-						addBundleBeans(dependency.get(), weld);
+						addBundleBeans(dependency.get(), weld, bundleNames, classNames);
 					}
 				}
 			}
