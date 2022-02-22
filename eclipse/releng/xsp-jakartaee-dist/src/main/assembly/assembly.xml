@@ -37,6 +37,15 @@
 			</includes>
 			<outputDirectory>.</outputDirectory>
 		</fileSet>
+		
+		<!-- Bring in the example NSF -->
+		<fileSet>
+			<directory>${project.basedir}/../../nsfs/nsf-jakartaee-example/odp</directory>
+			<includes>
+				<include>**/*</include>
+			</includes>
+			<outputDirectory>ExampleDatabase</outputDirectory>
+		</fileSet>
 	</fileSets>
 	
 	<moduleSets>
