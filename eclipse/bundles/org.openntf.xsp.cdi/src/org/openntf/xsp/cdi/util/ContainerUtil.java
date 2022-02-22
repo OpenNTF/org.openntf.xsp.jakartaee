@@ -466,6 +466,10 @@ public enum ContainerUtil {
 		return threadContextDatabasePath.get();
 	}
 	
+	// *******************************************************************************
+	// * Internal utilities
+	// *******************************************************************************
+	
 	private static <T> T withLock(String lockId, Supplier<T> supplier) {
 		synchronized(CONTAINER_INIT_LOCKS.computeIfAbsent(lockId, key -> new Object())) {
 			try {
@@ -475,10 +479,6 @@ public enum ContainerUtil {
 			}
 		}
 	}
-	
-	// *******************************************************************************
-	// * Internal utilities
-	// *******************************************************************************
 	
 	private static Weld constructWeld(String id) {
 		return new Weld()
