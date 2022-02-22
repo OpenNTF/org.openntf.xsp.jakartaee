@@ -16,6 +16,7 @@
 package org.openntf.xsp.cdi.context;
 
 import java.lang.annotation.Annotation;
+import java.util.Optional;
 
 import jakarta.enterprise.context.RequestScoped;
 
@@ -37,14 +38,14 @@ public class RequestScopeContext extends AbstractProxyingContext {
 	
 	@Override
 	public BasicScopeContextHolder getHolder() {
-		HttpServletRequest req = getHttpServletRequest();
-		if(req != null) {
+		Optional<HttpServletRequest> req = getHttpServletRequest();
+		if(req.isPresent()) {
 			String key = generateKey();
 			
-			BasicScopeContextHolder holder = (BasicScopeContextHolder)req.getAttribute(key);
+			BasicScopeContextHolder holder = (BasicScopeContextHolder)req.get().getAttribute(key);
 			if(holder == null) {
 				holder = new BasicScopeContextHolder();
-				req.setAttribute(key, holder);
+				req.get().setAttribute(key, holder);
 			}
 			return holder;
 		} else {
@@ -55,6 +56,9 @@ public class RequestScopeContext extends AbstractProxyingContext {
 	
 	@Override
 	public boolean isActive() {
-		return !"true".equals(getHttpServletRequest().getAttribute(CDIConstants.CDI_JAXRS_REQUEST)); //$NON-NLS-1$
+		Object jaxrsFlag = getHttpServletRequest()
+			.map(req -> req.getAttribute(CDIConstants.CDI_JAXRS_REQUEST))
+			.orElse(null);
+		return !"true".equals(jaxrsFlag); //$NON-NLS-1$
 	}
 }
