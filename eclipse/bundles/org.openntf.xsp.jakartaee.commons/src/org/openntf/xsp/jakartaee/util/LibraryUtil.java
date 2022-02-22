@@ -193,12 +193,16 @@ public enum LibraryUtil {
 	 * 
 	 * @param database the database to read
 	 * @return a {@link Properties} file with the database's XSP properties loaded, if available
-	 * @throws UncheckedIOException if there is a problem reading the xsp.properties file in the module
 	 * @throws RuntimeException if there is a problem reading the xsp.properties file in the module
 	 * @since 1.2.0
 	 */
-	public static Properties getXspProperties(NotesDatabase database) throws NotesAPIException {
-		String dbReplicaId = database.getReplicaID();
+	public static Properties getXspProperties(NotesDatabase database) {
+		String dbReplicaId;
+		try {
+			dbReplicaId = database.getReplicaID();
+		} catch (NotesAPIException e) {
+			throw new RuntimeException(e);
+		}
 		
 		return NSF_PROPS.compute(dbReplicaId, (replicaId, existing) -> {
 			try {
