@@ -24,4 +24,8 @@ public class BundleBean {
 	public String getHello() {
 		return "Hello from bundleBean";
 	}
+	
+	public int getIdentity() {
+		return System.identityHashCode(this);
+	}
 }

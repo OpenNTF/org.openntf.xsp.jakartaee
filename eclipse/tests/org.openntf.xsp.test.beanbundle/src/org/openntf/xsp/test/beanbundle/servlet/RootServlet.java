@@ -16,6 +16,7 @@
 package org.openntf.xsp.test.beanbundle.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -28,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+
+import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
 public class RootServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -80,8 +83,16 @@ public class RootServlet extends HttpServlet {
 			});
 
 			delegate.service(newReq, ServletUtil.oldToNew(response));
-		} catch(Exception e) {
-			throw new ServletException(e);
+		} catch(Throwable t) {
+			try(PrintWriter w = response.getWriter()) {
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				XSPErrorPage.handleException(w, t, request.getRequestURL().toString(), false);
+			} catch (javax.servlet.ServletException e) {
+				throw new IOException(e);
+			} catch(IllegalStateException e) {
+				// Happens when the writer or output has already been opened
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			}
 		} finally {
 			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
 				Thread.currentThread().setContextClassLoader(cl);

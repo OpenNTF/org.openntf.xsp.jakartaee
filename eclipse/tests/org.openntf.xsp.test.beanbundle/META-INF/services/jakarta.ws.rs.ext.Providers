@@ -30,3 +30,9 @@ org.jboss.resteasy.plugins.providers.jaxb.XmlJAXBContextFinder
 org.jboss.resteasy.plugins.validation.ValidatorContextResolver
 org.jboss.resteasy.plugins.validation.ValidatorContextResolverCDI
 org.jboss.resteasy.api.validation.ResteasyViolationExceptionMapper
+org.openntf.xsp.test.beanbundle.servlet.json.JsonBindingProvider
+org.jboss.resteasy.plugins.providers.jsonp.JsonArrayProvider
+org.jboss.resteasy.plugins.providers.jsonp.JsonStructureProvider
+org.jboss.resteasy.plugins.providers.jsonp.JsonObjectProvider
+org.jboss.resteasy.plugins.providers.jsonp.JsonValueProvider
+org.jboss.resteasy.plugins.providers.jsonp.JsonpPatchMethodFilter

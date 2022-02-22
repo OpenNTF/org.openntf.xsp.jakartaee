@@ -486,6 +486,7 @@
 			<modules>
 				<module>nsfs/nsf-jakartaee-example</module>
 				<module>nsfs/nsf-jakartaee-bundle-example</module>
+				<module>nsfs/nsf-jakartaee-bundlebase-example</module>
 			</modules>
 		</profile>
 		<profile>

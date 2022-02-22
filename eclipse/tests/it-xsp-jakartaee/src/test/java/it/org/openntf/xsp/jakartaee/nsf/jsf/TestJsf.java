@@ -55,9 +55,6 @@ public class TestJsf extends AbstractWebClientTest {
 		{
 			
 			WebElement form = driver.findElement(By.xpath("//form[1]"));
-
-			WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Request Method\"]/following-sibling::dd[1]"));
-			assertEquals("POST", dd.getText());
 			
 			WebElement span = form.findElement(By.xpath("p/span[1]"));
 			assertEquals(expected, span.getText());

@@ -37,7 +37,8 @@ import lotus.domino.Session;
 public class PostInstallFactory implements IServiceFactory {
 	public static final String[] NSFS = {
 		"dev/jakartaee.nsf",
-		"dev/jeebundle.nsf"
+		"dev/jeebundle.nsf",
+		"dev/jeebasebundle.nsf"
 	};
 
 	@Override

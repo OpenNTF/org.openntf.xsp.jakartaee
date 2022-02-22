@@ -36,4 +36,16 @@ public class TestServletRest extends AbstractWebClientTest {
 		
 		assertEquals("I am root resource.", output); //$NON-NLS-1$
 	}
+
+	@Test
+	public void testNsfPathSample() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getBudleNsfRootUrl(null) + "/exampleservlet"); //$NON-NLS-1$
+		System.out.println("testing " + target.getUri());
+		Response response = target.request().get();
+		
+		String output = response.readEntity(String.class);
+		
+		assertEquals("I am root resource.", output); //$NON-NLS-1$
+	}
 }

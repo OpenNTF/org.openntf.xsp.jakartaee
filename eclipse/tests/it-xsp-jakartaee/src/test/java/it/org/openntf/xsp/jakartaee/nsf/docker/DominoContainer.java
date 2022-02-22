@@ -140,6 +140,11 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				Files.copy(bundleExampleNtf, bundleExampleNtfDest);
 			}
 			{
+				Path baseBundleExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-bundlebase-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Path baseBundleExampleNtfDest = runner.resolve("jeebasebundle.ntf"); //$NON-NLS-1$
+				Files.copy(baseBundleExampleNtf, baseBundleExampleNtfDest);
+			}
+			{
 				Path configJson = runner.resolve("domino-config.json"); //$NON-NLS-1$
 				try(InputStream is = getClass().getResourceAsStream("/docker/domino-config.json")) { //$NON-NLS-1$
 					Files.copy(is, configJson);
