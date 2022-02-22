@@ -53,14 +53,14 @@ public class TestRestDomino extends AbstractWebClientTest {
 		assertTrue(database.contains("XPagesDatabase"));
 		
 		String dominoSession = (String)jsonObject.get("dominoSession");
-		assertNotNull(dominoSession);
+		assertNotNull(dominoSession, () -> json);
 		assertTrue(dominoSession.startsWith("lotus.domino.local.Session"));
 
-		String sessionAsSigner = (String)jsonObject.get("sessionAsSigner");
+		String sessionAsSigner = (String)jsonObject.get("dominoSessionAsSigner");
 		assertNotNull(sessionAsSigner);
 		assertTrue(sessionAsSigner.startsWith("lotus.domino.local.Session"));
 
-		String sessionAsSignerWithFullAccess = (String)jsonObject.get("sessionAsSignerWithFullAccess");
+		String sessionAsSignerWithFullAccess = (String)jsonObject.get("dominoSessionAsSignerWithFullAccess");
 		assertNotNull(sessionAsSignerWithFullAccess);
 		assertTrue(sessionAsSignerWithFullAccess.startsWith("lotus.domino.local.Session"));
 	}

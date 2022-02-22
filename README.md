@@ -81,6 +81,22 @@ public class RequestGuy extends AbstractBean {
 }
 ```
 
+The contextual Domino objects - the `Database` and `Session`s - are available to use with `@Inject`. In the case of `Database`, this can be used without any modifiers. In the case of the `Session`s, they are available with `@Named` qualifiers:
+
+```java
+	@Inject
+	@Named("dominoClient")
+	Session session;
+	
+	@Inject
+	@Named("dominoClientAsSigner")
+	Session sessionAsSigner;
+	
+	@Inject
+	@Named("dominoClientAsSignerWithFullAccess")
+	Session sessionAsSignerWithFullAccess;
+```
+
 ### Conversation Scope
 
 This implementation maps CDI `@ConversationScoped` beans to the XPages view scope. This isn't necessarily a [direct analogue](https://stackoverflow.com/questions/7788430/how-does-jsf-2-conversationscope-work), but it's close enough.

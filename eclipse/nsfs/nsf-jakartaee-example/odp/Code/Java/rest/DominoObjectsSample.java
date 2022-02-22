@@ -37,11 +37,11 @@ public class DominoObjectsSample {
 	Session session;
 	
 	@Inject
-	@Named("sessionAsSigner")
+	@Named("dominoSessionAsSigner")
 	Session sessionAsSigner;
 	
 	@Inject
-	@Named("sessionAsSignerWithFullAccess")
+	@Named("dominoSessionAsSignerWithFullAccess")
 	Session sessionAsSignerWithFullAccess;
 	
 	@GET
@@ -50,8 +50,8 @@ public class DominoObjectsSample {
 		Map<String, Object> result = new HashMap<>();
 		result.put("database", toString(database));
 		result.put("dominoSession", toString(session));
-		result.put("sessionAsSigner", toString(sessionAsSigner));
-		result.put("sessionAsSignerWithFullAccess", toString(sessionAsSignerWithFullAccess));
+		result.put("dominoSessionAsSigner", toString(sessionAsSigner));
+		result.put("dominoSessionAsSignerWithFullAccess", toString(sessionAsSignerWithFullAccess));
 		return result;
 	}
 	
