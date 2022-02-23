@@ -27,6 +27,11 @@
 			<id>apache-snapshots</id>
 			<url>https://repository.apache.org/snapshots</url>
 		</repository>
+		<repository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+		</repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>

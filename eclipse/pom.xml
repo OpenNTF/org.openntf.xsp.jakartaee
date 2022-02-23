@@ -141,6 +141,11 @@
 			<layout>p2</layout>
 			<url>${project.baseUri}../../../osgi-deps/target/repository</url>
 		</repository>
+		<repository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+		</repository>
 	</repositories>
 	
     <pluginRepositories>
