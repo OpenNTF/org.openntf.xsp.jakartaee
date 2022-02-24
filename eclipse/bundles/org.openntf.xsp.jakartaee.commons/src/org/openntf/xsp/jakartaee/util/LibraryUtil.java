@@ -18,6 +18,8 @@ package org.openntf.xsp.jakartaee.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
@@ -357,5 +359,23 @@ public enum LibraryUtil {
 	 */
 	public static Optional<Bundle> getBundle(String symbolicName) {
 		return Optional.ofNullable(BUNDLE_CACHE.computeIfAbsent(symbolicName, Platform::getBundle));
+	}
+	
+	/**
+	 * Returns an appropriate temp directory for the system. On Windows, this is
+	 * equivalent to <code>System.getProperty("java.io.tmpdir")</code>. On
+	 * Linux, however, since this seems to return the data directory in some
+	 * cases, it uses <code>/tmp</code>.
+	 *
+	 * @return an appropriate temp directory for the system
+	 * @since 2.4.0
+	 */
+	public static Path getTempDirectory() {
+		String osName = System.getProperty("os.name"); //$NON-NLS-1$
+		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
+			return Paths.get("/tmp"); //$NON-NLS-1$
+		} else {
+			return Paths.get(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+		}
 	}
 }

@@ -17,6 +17,8 @@ package org.openntf.xsp.jsp.nsf;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
@@ -85,6 +87,16 @@ public class JspServletFactory extends MappingBasedServletFactory {
 					.collect(Collectors.joining(PATH_SEP));
 				params.put("classpath", classpath); //$NON-NLS-1$
 				params.put("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
+
+				Path tempDir = LibraryUtil.getTempDirectory();
+				tempDir = tempDir.resolve(getClass().getName());
+				String moduleName = module.getModuleName();
+				if(StringUtil.isEmpty(moduleName)) {
+					moduleName = Integer.toString(System.identityHashCode(module));
+				}
+				tempDir = tempDir.resolve(moduleName);
+				Files.createDirectories(tempDir);
+				params.put("scratchdir", tempDir.toString()); //$NON-NLS-1$
 				
 				return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFJspServlet(module)), "XSP JSP Servlet", params); //$NON-NLS-1$
 			});

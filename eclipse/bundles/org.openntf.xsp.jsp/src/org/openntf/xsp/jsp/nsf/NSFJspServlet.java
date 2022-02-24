@@ -88,8 +88,8 @@ public class NSFJspServlet extends AbstractXspLifecycleServlet {
 					delegate.service(request, response);
 				} finally {
 					Thread.currentThread().setContextClassLoader(current);
-					context.setAttribute("org.glassfish.jsp.beanManagerELResolver", null); //$NON-NLS-1$
-					context.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, null);
+					context.removeAttribute("org.glassfish.jsp.beanManagerELResolver"); //$NON-NLS-1$
+					context.removeAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP);
 				}
 				return null;
 			});
