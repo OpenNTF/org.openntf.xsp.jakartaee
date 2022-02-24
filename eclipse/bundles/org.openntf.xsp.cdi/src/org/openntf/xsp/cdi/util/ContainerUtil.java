@@ -28,7 +28,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
@@ -36,6 +40,9 @@ import org.jboss.weld.config.ConfigurationKey;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.manager.BeanManagerImpl;
+import org.jboss.weld.module.ExpressionLanguageSupport;
+import org.jboss.weld.module.web.el.WeldELResolver;
+import org.jboss.weld.module.web.el.WeldExpressionFactory;
 import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoader;
 import org.jboss.weld.util.ForwardingBeanManager;
@@ -55,6 +62,8 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
+import jakarta.el.ELResolver;
+import jakarta.el.ExpressionFactory;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.Extension;
@@ -96,19 +105,27 @@ public enum ContainerUtil {
 	private static final Map<String, String> REPLICAID_APPID_CACHE = new HashMap<>();
 	
 	/**
+	 * Keeps locks for initializing containers by ID, to reduce problems from multiple calls to
+	 * `getContainer` for the same location from stepping on each other.
+	 */
+	// Note: the use of a Map here still leaves small windows for multiple threads to enter
+	//   the same init, and thus it would be preferable to find a better solution
+	private static final Map<String, Object> CONTAINER_INIT_LOCKS = Collections.synchronizedMap(new HashMap<>());
+	
+	/**
 	 * Gets or created a {@link WeldContainer} instance for the provided Application.
 	 * 
 	 * @param application the active {@link ApplicationEx}
 	 * @return an existing or new {@link WeldContainer}
 	 */
 	@SuppressWarnings("unchecked")
-	public static synchronized CDI<Object> getContainer(ApplicationEx application) {
+	public static CDI<Object> getContainer(ApplicationEx application) {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
 			String bundleId = getApplicationCDIBundle(application);
 			if(StringUtil.isNotEmpty(bundleId)) {
-				Bundle bundle = Platform.getBundle(bundleId);
-				if(bundle != null) {
-					return getContainer(bundle);
+				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+				if(bundle.isPresent()) {
+					return getContainer(bundle.get());
 				}
 			}
 			
@@ -120,55 +137,54 @@ public enum ContainerUtil {
 				throw new RuntimeException(e);
 			}
 			
-			WeldContainer instance = WeldContainer.instance(id);
-			
-			// Check the app ID to see if we have to invalidate it
-			String existingMapping = REPLICAID_APPID_CACHE.get(id);
-			if(existingMapping != null && !existingMapping.equals(application.getApplicationId())) {
-				if(instance != null && instance.isRunning()) {
-					// Then it's outdated - invalidate
-					instance.shutdown();
-				}
-			}
-			REPLICAID_APPID_CACHE.put(id, application.getApplicationId());
-			
-			if(instance == null || !instance.isRunning()) {
-				Weld weld = constructWeld(id)
-					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
-
-				String baseBundleId = getApplicationCDIBundleBase(application);
-				if(StringUtil.isNotEmpty(baseBundleId)) {
-					Bundle bundle = Platform.getBundle(baseBundleId);
-					if(bundle != null) {
-						weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
-					}
-				} else {
-					weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
-				}
+			return withLock(id, () -> {
+				WeldContainer instance = WeldContainer.instance(id);
 				
-				for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
-					weld.addExtension(extension);
-				}
-				
-				for(WeldBeanClassContributor service : (List<WeldBeanClassContributor>)application.findServices(WeldBeanClassContributor.EXTENSION_POINT)) {
-					Collection<Class<?>> beanClasses = service.getBeanClasses();
-					if(beanClasses != null) {
-						weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
-					}
-					Collection<Extension> extensions = service.getExtensions();
-					if(extensions != null) {
-						weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+				// Check the app ID to see if we have to invalidate it
+				String existingMapping = REPLICAID_APPID_CACHE.get(id);
+				if(existingMapping != null && !existingMapping.equals(application.getApplicationId())) {
+					if(instance != null && instance.isRunning()) {
+						// Then it's outdated - invalidate
+						instance.shutdown();
 					}
 				}
+				REPLICAID_APPID_CACHE.put(id, application.getApplicationId());
 				
-				try {
-					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> weld.initialize());
-				} catch(Throwable t) {
-					t.printStackTrace();
-					throw t;
+				if(instance == null || !instance.isRunning()) {
+					Weld weld = constructWeld(id)
+						.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
+	
+					String baseBundleId = getApplicationCDIBundleBase(application);
+					if(StringUtil.isNotEmpty(baseBundleId)) {
+						Optional<Bundle> bundle = LibraryUtil.getBundle(baseBundleId);
+						if(bundle.isPresent()) {
+							weld.setResourceLoader(new BundleDependencyResourceLoader(bundle.get()));
+						}
+					} else {
+						weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
+					}
+					
+					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
+						for(Extension extension : (List<Extension>)application.findServices(Extension.class.getName())) {
+							weld.addExtension(extension);
+						}
+						
+						for(WeldBeanClassContributor service : (List<WeldBeanClassContributor>)application.findServices(WeldBeanClassContributor.EXTENSION_POINT)) {
+							Collection<Class<?>> beanClasses = service.getBeanClasses();
+							if(beanClasses != null) {
+								weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+							}
+							Collection<Extension> extensions = service.getExtensions();
+							if(extensions != null) {
+								weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+							}
+						}
+						
+						return weld.initialize();
+					});
 				}
-			}
-			return instance;
+				return instance;
+			});
 		} else {
 			return null;
 		}
@@ -184,35 +200,81 @@ public enum ContainerUtil {
 	 * @since 1.1.0
 	 */
 	@SuppressWarnings("nls")
-	public static synchronized CDI<Object> getContainer(Bundle bundle) {
+	public static CDI<Object> getContainer(Bundle bundle) {
 		String id = bundle.getSymbolicName();
 
-		WeldContainer instance = WeldContainer.instance(id);
-		if(instance == null || !instance.isRunning()) {
-			try {
-				// Register a new one
-				Weld weld = constructWeld(id)
-					.setResourceLoader(new BundleDependencyResourceLoader(bundle));
-				
-				OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
-				OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
+		return withLock(id, () -> {
+			WeldContainer instance = WeldContainer.instance(id);
+			if(instance == null || !instance.isRunning()) {
 				try {
-					instance = weld.initialize();
-				} finally {
-					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
-					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
+					// Register a new one
+					Weld weld = constructWeld(id)
+						.setResourceLoader(new BundleDependencyResourceLoader(bundle));
+					
+					Set<String> bundleNames = new HashSet<>();
+					Set<String> classNames = new HashSet<>();
+					try {
+						addBundleBeans(bundle, weld, bundleNames, classNames);
+					} catch (BundleException e) {
+						e.printStackTrace();
+					}
+					
+					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
+					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
+					try {
+						instance = weld.initialize();
+					} finally {
+						OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
+						OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
+					}
+				} catch(IllegalStateException e) {
+					System.err.println(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
+					if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
+						String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path")); //$NON-NLS-1$
+						System.err.println(MessageFormat.format("Current class path: {0}", classpath));
+					}
+					e.printStackTrace();
+					return null;
 				}
-			} catch(IllegalStateException e) {
-				System.err.println(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
-				if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
-					String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path")); //$NON-NLS-1$
-					System.err.println(MessageFormat.format("Current class path: {0}", classpath));
+			}
+			return instance;
+		});
+	}
+	
+	private static void addBundleBeans(Bundle bundle, Weld weld, Set<String> bundleNames, Set<String> classNames) throws BundleException {
+		String symbolicName = bundle.getSymbolicName();
+		if(bundleNames.contains(symbolicName)) {
+			return;
+		}
+		bundleNames.add(symbolicName);
+		// Add classes from the bundle here
+		DiscoveryUtil.findExportedClassNames(bundle, false)
+			.filter(t -> !classNames.contains(t))
+			.peek(classNames::add)
+			.distinct()
+			.map(t -> {
+				try {
+					return bundle.loadClass(t);
+				} catch (ClassNotFoundException e) {
+					return null;
 				}
-				e.printStackTrace();
-				return null;
+			})
+			.filter(Objects::nonNull)
+			.forEach(weld::addBeanClass);
+		
+		String requireBundle = bundle.getHeaders().get("Require-Bundle"); //$NON-NLS-1$
+		if(StringUtil.isNotEmpty(requireBundle)) {
+			ManifestElement[] elements = ManifestElement.parseHeader("Require-Bundle", requireBundle); //$NON-NLS-1$
+			for(ManifestElement el : elements) {
+				String bundleName = el.getValue();
+				if(StringUtil.isNotEmpty(bundleName)) {
+					Optional<Bundle> dependency = LibraryUtil.getBundle(bundleName);
+					if(dependency.isPresent()) {
+						addBundleBeans(dependency.get(), weld, bundleNames, classNames);
+					}
+				}
 			}
 		}
-		return instance;
 	}
 	
 	/**
@@ -226,47 +288,62 @@ public enum ContainerUtil {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, database)) {
 			String bundleId = getApplicationCDIBundle(database);
 			if(StringUtil.isNotEmpty(bundleId)) {
-				Bundle bundle = Platform.getBundle(bundleId);
-				if(bundle != null) {
-					return getContainer(bundle);
+				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+				if(bundle.isPresent()) {
+					return getContainer(bundle.get());
 				}
 			}
 			
 			String id = database.getReplicaID();
-			WeldContainer instance = WeldContainer.instance(id);
-			if(instance == null || !instance.isRunning()) {
-				Weld weld = constructWeld(id)
-					.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
-				String baseBundleId = getApplicationCDIBundleBase(database);
-				Bundle bundle = null;
-				if(StringUtil.isNotEmpty(baseBundleId)) {
-					bundle = Platform.getBundle(baseBundleId);
-					if(bundle != null) {
-						weld = weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
+
+			return withLock(id, () -> {
+				WeldContainer instance = WeldContainer.instance(id);
+				if(instance == null || !instance.isRunning()) {
+					Weld weld = constructWeld(id)
+						.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
+					String baseBundleId = getApplicationCDIBundleBase(database);
+					Bundle bundle = null;
+					if(StringUtil.isNotEmpty(baseBundleId)) {
+						Optional<Bundle> optBundle = LibraryUtil.getBundle(baseBundleId);
+						if(optBundle.isPresent()) {
+							bundle = optBundle.get();
+							weld = weld.setResourceLoader(new BundleDependencyResourceLoader(bundle));
+							
+							Set<String> bundleNames = new HashSet<>();
+							Set<String> classNames = new HashSet<>();
+							try {
+								addBundleBeans(bundle, weld, bundleNames, classNames);
+							} catch (BundleException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+	
+					Weld fweld = weld;
+					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
+					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
+					try {
+						instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
+							for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
+								Collection<Class<?>> beanClasses = service.getBeanClasses();
+								if(beanClasses != null) {
+									fweld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+								}
+								Collection<Extension> extensions = service.getExtensions();
+								if(extensions != null) {
+									fweld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+								}
+							}
+							
+							return fweld.initialize();
+						});
+					} finally {
+						OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
+						OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
 					}
 				}
-				
-				for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
-					Collection<Class<?>> beanClasses = service.getBeanClasses();
-					if(beanClasses != null) {
-						weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
-					}
-					Collection<Extension> extensions = service.getExtensions();
-					if(extensions != null) {
-						weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
-					}
-				}
-				
-				OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
-				OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
-				try {
-					instance = weld.initialize();
-				} finally {
-					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
-					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
-				}
-			}
-			return instance;
+				return instance;
+			});
 		} else {
 			return null;
 		}
@@ -319,7 +396,7 @@ public enum ContainerUtil {
 	 * @throws UncheckedIOException if there is a problem reading the xsp.properties file in the module
 	 * @throws NotesAPIException if there is a problem reading the xsp.properties file in the module
 	 */
-	public static String getApplicationCDIBundleBase(NotesDatabase database) throws NotesAPIException {
+	public static String getApplicationCDIBundleBase(NotesDatabase database) {
 		Properties props = LibraryUtil.getXspProperties(database);
 		return props.getProperty(PROP_CDIBUNDLEBASE, null);
 	}
@@ -393,6 +470,16 @@ public enum ContainerUtil {
 	// * Internal utilities
 	// *******************************************************************************
 	
+	private static <T> T withLock(String lockId, Supplier<T> supplier) {
+		synchronized(CONTAINER_INIT_LOCKS.computeIfAbsent(lockId, key -> new Object())) {
+			try {
+				return supplier.get();
+			} finally {
+				CONTAINER_INIT_LOCKS.remove(lockId);
+			}
+		}
+	}
+	
 	private static Weld constructWeld(String id) {
 		return new Weld()
 			.containerId(id)
@@ -401,7 +488,23 @@ public enum ContainerUtil {
 			// Disable concurrent deployment to avoid Notes thread init trouble
 			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
 			.property(ConfigurationKey.EXECUTOR_THREAD_POOL_TYPE.get(), "SINGLE_THREAD") //$NON-NLS-1$
-			.addExtension(new CDIScopesExtension());
+			.addExtension(new CDIScopesExtension())
+			.addServices(new ExpressionLanguageSupport() {
+				@Override
+				public ExpressionFactory wrapExpressionFactory(ExpressionFactory expressionFactory) {
+					return new WeldExpressionFactory(expressionFactory);
+				}
+
+				@Override
+				public ELResolver createElResolver(BeanManagerImpl manager) {
+					return new WeldELResolver(manager);
+				}
+
+				@Override
+				public void cleanup() {
+					
+				}
+			});
 	}
 	
 	private static class ModuleContextResourceLoader extends ClassLoaderResourceLoader {
@@ -493,9 +596,9 @@ public enum ContainerUtil {
 					for(ManifestElement el : elements) {
 						String bundleName = el.getValue();
 						if(StringUtil.isNotEmpty(bundleName)) {
-							Bundle dependency = Platform.getBundle(bundleName);
-							if(dependency != null) {
-								addBundleResources(name, dependency, result, bundleNames);
+							Optional<Bundle> dependency = LibraryUtil.getBundle(bundleName);
+							if(dependency.isPresent()) {
+								addBundleResources(name, dependency.get(), result, bundleNames);
 							}
 						}
 					}

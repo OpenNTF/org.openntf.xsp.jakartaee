@@ -18,18 +18,25 @@ package org.openntf.xsp.jakartaee.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
@@ -56,6 +63,18 @@ public enum LibraryUtil {
 	
 	private static final Map<String, Long> NSF_MOD = new HashMap<>();
 	private static final Map<String, Properties> NSF_PROPS = new ConcurrentHashMap<>();
+	
+	/**
+	 * Store bundles by symbolic name to speed up lookups, since we don't realistically have to worry
+	 * about dynamically loaded/unloaded bundles.
+	 * @since 2.4.0
+	 */
+	private static final Map<String, Bundle> BUNDLE_CACHE = Collections.synchronizedMap(new HashMap<>());
+	/**
+	 * Store looked up extensions by class for the lifetime of the JVM.
+	 * @since 2.4.0
+	 */
+	private static final Map<Class<?>, List<?>> EXTENSION_CACHE = Collections.synchronizedMap(new HashMap<>());
 	
 	/**
 	 * Attempts to determine whether the given XPages Library is active for the
@@ -176,12 +195,16 @@ public enum LibraryUtil {
 	 * 
 	 * @param database the database to read
 	 * @return a {@link Properties} file with the database's XSP properties loaded, if available
-	 * @throws UncheckedIOException if there is a problem reading the xsp.properties file in the module
 	 * @throws RuntimeException if there is a problem reading the xsp.properties file in the module
 	 * @since 1.2.0
 	 */
-	public static Properties getXspProperties(NotesDatabase database) throws NotesAPIException {
-		String dbReplicaId = database.getReplicaID();
+	public static Properties getXspProperties(NotesDatabase database) {
+		String dbReplicaId;
+		try {
+			dbReplicaId = database.getReplicaID();
+		} catch (NotesAPIException e) {
+			throw new RuntimeException(e);
+		}
 		
 		return NSF_PROPS.compute(dbReplicaId, (replicaId, existing) -> {
 			try {
@@ -240,9 +263,12 @@ public enum LibraryUtil {
 	 * @param extensionClass the class object representing the extension point
 	 * @return a {@link List} of service objects for the class
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> List<T> findExtensions(Class<T> extensionClass) {
-		return AccessController.doPrivileged((PrivilegedAction<List<T>>)() ->
-			ExtensionManager.findServices(null, extensionClass.getClassLoader(), extensionClass.getName(), extensionClass)
+		return (List<T>)EXTENSION_CACHE.computeIfAbsent(extensionClass, extClass ->
+			AccessController.doPrivileged((PrivilegedAction<List<T>>)() ->
+				ExtensionManager.findServices(null, extensionClass.getClassLoader(), extensionClass.getName(), extensionClass)
+			)
 		);
 	}
 	
@@ -317,6 +343,39 @@ public enum LibraryUtil {
 			return names;
 		} finally {
 			doc.recycle();
+		}
+	}
+	
+	/**
+	 * Retrieves the OSGi bundle for the provided symbolic name.
+	 * 
+	 * <p>Unlike {@link Platform#getBundle(String)}, this method maintains an internal cache to
+	 * speed up subsequent lookups.</p>
+	 * 
+	 * @param symbolicName the symbolic name of the bundle to look up
+	 * @return an {@link Optional} describing the {@link Bundle} matching the name, or
+	 *         an empty one if no such bundle is installed
+	 * @since 2.4.0
+	 */
+	public static Optional<Bundle> getBundle(String symbolicName) {
+		return Optional.ofNullable(BUNDLE_CACHE.computeIfAbsent(symbolicName, Platform::getBundle));
+	}
+	
+	/**
+	 * Returns an appropriate temp directory for the system. On Windows, this is
+	 * equivalent to <code>System.getProperty("java.io.tmpdir")</code>. On
+	 * Linux, however, since this seems to return the data directory in some
+	 * cases, it uses <code>/tmp</code>.
+	 *
+	 * @return an appropriate temp directory for the system
+	 * @since 2.4.0
+	 */
+	public static Path getTempDirectory() {
+		String osName = System.getProperty("os.name"); //$NON-NLS-1$
+		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
+			return Paths.get("/tmp"); //$NON-NLS-1$
+		} else {
+			return Paths.get(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
 		}
 	}
 }

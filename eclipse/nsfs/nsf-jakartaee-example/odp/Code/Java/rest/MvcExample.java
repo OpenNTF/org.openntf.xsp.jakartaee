@@ -38,7 +38,7 @@ public class MvcExample {
 	Models models;
 	
 	@Inject
-	@Named("sessionAsSigner")
+	@Named("dominoSessionAsSigner")
 	Session session;
 	
 	@Inject

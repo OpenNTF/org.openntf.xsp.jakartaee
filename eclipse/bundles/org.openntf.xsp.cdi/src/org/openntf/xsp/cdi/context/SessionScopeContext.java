@@ -16,6 +16,7 @@
 package org.openntf.xsp.cdi.context;
 
 import java.lang.annotation.Annotation;
+import java.util.Optional;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,9 +36,9 @@ public class SessionScopeContext extends AbstractProxyingContext {
 	
 	@Override
 	protected synchronized BasicScopeContextHolder getHolder() {
-		HttpServletRequest req = getHttpServletRequest();
-		if(req != null) {
-			HttpSession session = req.getSession(true);
+		Optional<HttpServletRequest> req = getHttpServletRequest();
+		if(req.isPresent()) {
+			HttpSession session = req.get().getSession(true);
 			String key = generateKey();
 			
 			BasicScopeContextHolder holder = (BasicScopeContextHolder)session.getAttribute(key);

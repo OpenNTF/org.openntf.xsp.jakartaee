@@ -15,10 +15,6 @@
  */
 package org.openntf.xsp.cdi.discovery;
 
-import java.io.UncheckedIOException;
-
-import jakarta.annotation.Priority;
-
 import org.jboss.weld.bootstrap.spi.BeansXml;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveBuilder;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
@@ -28,9 +24,10 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
+
+import jakarta.annotation.Priority;
 
 @Priority(Integer.MAX_VALUE)
 public class NSFBeanArchiveHandler implements BeanArchiveHandler {
@@ -67,7 +64,7 @@ public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 					
 					return builder;
 				}
-			} catch (UncheckedIOException | NotesAPIException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}

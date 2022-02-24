@@ -16,20 +16,44 @@
     limitations under the License.
 
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:f="http://java.sun.com/jsf/core"      
-      xmlns:h="http://java.sun.com/jsf/html">
+<!DOCTYPE html>
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html">
 	
     <h:head>
-        <title>JSF 3.0 Hello World</title>
+        <title>JSF 4.0 Hello World</title>
     </h:head>
     <h:body>
-    	<h2>JSF 3.0 Hello World Example - hello.xhtml</h2>
-    	<h:form>
-    	   <h:inputText value="#{helloBean.name}"></h:inputText>
-    	   <h:commandButton value="Welcome Me" action="welcome"></h:commandButton>
-    	</h:form>
+    	<h2>JSF 4.0 Hello World Example - hello.xhtml</h2>
+    	
+    	<dl>
+    		<dt>facesContext</dt>
+    		<dd><h:outputText value="#{facesContext}"/></dd>
+    		
+    		<dt>requestGuy.message</dt>
+    		<dd><h:outputText value="#{requestGuy.message}"/></dd>
+    		
+    		<dt>Project Stage</dt>
+    		<dd><h:outputText value="#{facesContext.application.projectStage}"/></dd>
+    		
+    		<dt>facesContext.externalContext.context</dt>
+    		<dd><h:outputText value="#{facesContext.externalContext.context}"/></dd>
+    		
+    		<dt>Request Method</dt>
+    		<dd><h:outputText value="#{facesContext.externalContext.request.method}"/></dd>
+    	</dl>
+    	
+    	<fieldset>
+    		<legend>Example Form</legend>
+    		<h:form>
+    			<h:inputText id="appGuyProperty" value="#{applicationGuy.beanProperty}"/>
+    			<h:commandButton value="Refresh">
+    				<f:ajax execute="appGuyProperty" render="formOutput"/>
+    			</h:commandButton>
+    			
+    			<p><h:outputText id="formOutput" value="#{applicationGuy.beanProperty}"/></p>
+    		</h:form>
+    	</fieldset>
     </h:body>
-</html>
+</f:view>

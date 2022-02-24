@@ -17,11 +17,11 @@ package org.openntf.xsp.cdi.provider;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.CDIProvider;
 
-import org.eclipse.core.runtime.Platform;
 import org.openntf.xsp.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.cdi.ext.CDIContainerUtility;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -122,9 +122,9 @@ public class NSFCDIProvider implements CDIProvider {
 				
 				String bundleId = locator.getBundleId();
 				if(StringUtil.isNotEmpty(bundleId)) {
-					Bundle bundle = Platform.getBundle(bundleId);
-					if(bundle != null) {
-						return (CDI<Object>)util.getContainer(bundle);
+					Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+					if(bundle.isPresent()) {
+						return (CDI<Object>)util.getContainer(bundle.get());
 					}
 				}
 			}

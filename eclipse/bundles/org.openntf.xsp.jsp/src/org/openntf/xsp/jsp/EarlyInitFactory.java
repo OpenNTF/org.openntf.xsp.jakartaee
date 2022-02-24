@@ -23,13 +23,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
@@ -94,6 +94,12 @@ public class EarlyInitFactory implements IServiceFactory {
 	private void initNsf() {
 		// Register ".jsp" with the NSF service, which will then pass along to JspServletFactory
 		NSFService.addHandledExtensions(".jsp"); //$NON-NLS-1$
+		
+		// This property is used by Jasper to see if it should use AccessController blocks
+		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+			System.setProperty("package.definition", "org.apache.jsp"); //$NON-NLS-1$ //$NON-NLS-2$
+			return null;
+		});
 	}
 	
 	private void deployServletDtds() throws URISyntaxException, IOException {
@@ -121,7 +127,7 @@ public class EarlyInitFactory implements IServiceFactory {
 		Path destDir = getServletDtdPath();
 		Files.createDirectories(destDir);
 		
-		Bundle jstl = Platform.getBundle("org.glassfish.web.jakarta.servlet.jsp.jstl"); //$NON-NLS-1$
+		Bundle jstl = LibraryUtil.getBundle("org.glassfish.web.jakarta.servlet.jsp.jstl").get(); //$NON-NLS-1$
 		Path jstlDest = destDir.resolve(jstl.getSymbolicName() + "_" + jstl.getVersion() + ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
 		if(!Files.exists(jstlDest)) {
 			Path jstlSource = FileLocator.getBundleFile(jstl).toPath();

@@ -49,7 +49,7 @@ public class DominoFacesImplicitObjectProvider {
 
 	@Produces
 	@Dependent
-	@Named("session")
+	@Named("dominoSession")
 	public Session produceSession() {
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
@@ -61,7 +61,7 @@ public class DominoFacesImplicitObjectProvider {
 
 	@Produces
 	@Dependent
-	@Named("sessionAsSigner")
+	@Named("dominoSessionAsSigner")
 	public Session produceSessionAsSigner() {
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
@@ -73,7 +73,7 @@ public class DominoFacesImplicitObjectProvider {
 
 	@Produces
 	@Dependent
-	@Named("sessionAsSignerWithFullAccess")
+	@Named("dominoSessionAsSignerWithFullAccess")
 	public Session produceSessionAsSignerWithFullAccess() {
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {

@@ -23,16 +23,19 @@ import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 
@@ -48,6 +51,8 @@ import jakarta.servlet.FilterRegistration.Dynamic;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextAttributeEvent;
+import jakarta.servlet.ServletContextAttributeListener;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
 import jakarta.servlet.ServletRequest;
@@ -63,10 +68,29 @@ class OldServletContextWrapper implements ServletContext {
 	private static final String UNAVAILABLE_MESSAGE = "Unable to call method on Servlet 2.5 delegate"; //$NON-NLS-1$
 	final javax.servlet.ServletContext delegate;
 	private final String contextPath;
+	private int majorVersion = 2;
+	private int minorVersion = 5;
 	
 	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate) {
 		this.delegate = delegate;
 		this.contextPath = contextPath;
+	}
+
+	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate, int majorVersion, int minorVersion) {
+		this.delegate = delegate;
+		this.contextPath = contextPath;
+		this.majorVersion = majorVersion;
+		this.minorVersion = minorVersion;
+	}
+	
+	<T extends EventListener> List<T> getListeners(Class<?> listenerClass) {
+		List<T> result = new ArrayList<>();
+		for(Object listener : getOtherListeners()) {
+			if(listenerClass.isInstance(listener)) {
+				result.add((T)listener);
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -95,13 +119,18 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public <T extends EventListener> void addListener(T arg0) {
-		throw unavailable();
+	public <T extends EventListener> void addListener(T listener) {
+		getOtherListeners().add(listener);
 	}
 
 	@Override
-	public void addListener(Class<? extends EventListener> arg0) {
-		throw unavailable();
+	public void addListener(Class<? extends EventListener> c) {
+		try {
+			// TODO bind this with CDI
+			getOtherListeners().add(c.newInstance());
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
@@ -197,8 +226,12 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public String getInitParameter(String arg0) {
-		return delegate.getInitParameter(arg0);
+	public String getInitParameter(String name) {
+		Map<String, String> params = getExtraInitParameters();
+		if(params.containsKey(name)) {
+			return params.get(name);
+		}
+		return delegate.getInitParameter(name);
 	}
 
 	@Override
@@ -225,7 +258,7 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public int getMajorVersion() {
-		return 2;
+		return this.majorVersion;
 	}
 
 	@Override
@@ -235,7 +268,7 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public int getMinorVersion() {
-		return 5;
+		return this.minorVersion;
 	}
 
 	@Override
@@ -452,7 +485,9 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public SessionCookieConfig getSessionCookieConfig() {
-		throw unavailable();
+		// Soft unavailable
+		// TODO see if this can be gleaned from the server config
+		return null;
 	}
 
 	@Override
@@ -483,19 +518,36 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public void removeAttribute(String arg0) {
-		delegate.removeAttribute(arg0);
+	public void removeAttribute(String name) {
+		Object val = delegate.getAttribute(name);
+		delegate.removeAttribute(name);
+		this.getAttrListeners().forEach(listener ->
+			listener.attributeRemoved(new ServletContextAttributeEvent(this, name, val))
+		);
 	}
 
 	@Override
-	public void setAttribute(String arg0, Object arg1) {
-		delegate.setAttribute(arg0, arg1);
+	public void setAttribute(String name, Object value) {
+		boolean exists = Collections.list(this.getAttributeNames()).contains(name);
+		Object oldVal = delegate.getAttribute(name);
+		delegate.setAttribute(name, value);
+		if(exists) {
+			this.getAttrListeners().forEach(listener ->
+				listener.attributeReplaced(new ServletContextAttributeEvent(this, name, oldVal))
+			);
+		}
+		this.getAttrListeners().forEach(listener ->
+			listener.attributeAdded(new ServletContextAttributeEvent( this, name, value))
+		);
 	}
 
 	@Override
-	public boolean setInitParameter(String arg0, String arg1) {
-		// Soft unavailable
-		return false;
+	public boolean setInitParameter(String name, String value) {
+		if(Collections.list(getInitParameterNames()).contains(name)) {
+			return false;
+		}
+		getExtraInitParameters().put(name, value);
+		return true;
 	}
 
 	@Override
@@ -539,5 +591,33 @@ class OldServletContextWrapper implements ServletContext {
 		} catch (PrivilegedActionException e) {
 			throw new RuntimeException(e.getCause());
 		} 
+	}
+	
+	private static final String ATTR_LISTENERS = OldServletContextWrapper.class.getName() + "_listeners"; //$NON-NLS-1$
+	private static final String ATTR_INITPARAMS = OldServletContextWrapper.class.getName() + "_initParams"; //$NON-NLS-1$
+	
+	private Stream<ServletContextAttributeListener> getAttrListeners() {
+		return getOtherListeners()
+			.stream()
+			.filter(ServletContextAttributeListener.class::isInstance)
+			.map(ServletContextAttributeListener.class::cast);
+	}
+	
+	private List<EventListener> getOtherListeners() {
+		List<EventListener> result = (List<EventListener>)delegate.getAttribute(ATTR_LISTENERS);
+		if(result == null) {
+			result = new ArrayList<>();
+			delegate.setAttribute(ATTR_LISTENERS, result);
+		}
+		return result;
+	}
+	
+	private Map<String, String> getExtraInitParameters() {
+		Map<String, String> result = (Map<String, String>)delegate.getAttribute(ATTR_INITPARAMS);
+		if(result == null) {
+			result = new HashMap<>();
+			delegate.setAttribute(ATTR_INITPARAMS, result);
+		}
+		return result;
 	}
 }

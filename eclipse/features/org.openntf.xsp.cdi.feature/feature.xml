@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.cdi.feature"
       label="XPages CDI 3.0 Support Feature"
-      version="2.3.0.qualifier">
+      version="2.4.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -247,5 +247,6 @@
 	<plugin id="org.jboss.weld.environment.weld-environment-common" version="0.0.0"/>
 	<plugin id="org.jboss.weld.se.weld-se-core" version="0.0.0"/>
 	<plugin id="org.jboss.weld.probe.weld-probe-core" version="0.0.0"/>
+	<plugin id="org.jboss.weld.module.weld-web" version="0.0.0"/>
 	
 </feature>
