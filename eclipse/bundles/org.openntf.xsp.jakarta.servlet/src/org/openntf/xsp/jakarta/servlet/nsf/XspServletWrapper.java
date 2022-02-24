@@ -15,6 +15,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Wraps a provided {@link Servlet} implementation with behavior to participate
+ * in the XPages request lifecycle.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.5.0
+ */
 public class XspServletWrapper extends AbstractXspLifecycleServlet {
 	private static final long serialVersionUID = 1L;
 	

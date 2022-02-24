@@ -23,6 +23,12 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 
+/**
+ * Provides support for Servlet classes inside an NSF annotated with {@link WebServlet}.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.5.0
+ */
 public class ServletServletFactory implements IServletFactory {
 	private ComponentModule module;
 	private Map<WebServlet, Class<? extends Servlet>> servletClasses;
