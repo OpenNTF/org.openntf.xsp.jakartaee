@@ -92,6 +92,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
 		this.config = config;
 		
 		// Look for registered ServletContainerInitializers and emulate the behavior
@@ -103,14 +104,9 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 			}
 			initializer.onStartup(classes, config.getServletContext());
 		}
-		
-		try {
-			this.facesServlet = (DesignerFacesServlet)module.getServlet("/foo.xsp").getServlet(); //$NON-NLS-1$
-			// This should be functionally a NOP when already initialized
-			this.facesServlet.init(ServletUtil.newToOld(config));
-		} catch (javax.servlet.ServletException e) {
-			throw new ServletException(e);
-		}
+
+		// Kick off init early if needed
+		this.getFacesServlet(config);
 	}
 	
 	@Override
@@ -174,9 +170,22 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	// * Internal implementation methods
 	// *******************************************************************************
 	
+	private synchronized FacesServlet getFacesServlet(ServletConfig config) {
+		if(this.facesServlet == null) {
+			try {
+				this.facesServlet = (DesignerFacesServlet)module.getServlet("/foo.xsp").getServlet(); //$NON-NLS-1$
+				// This should be functionally a NOP when already initialized
+				this.facesServlet.init(ServletUtil.newToOld(config));
+			} catch (javax.servlet.ServletException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return this.facesServlet;
+	}
+	
 	private FacesContext getFacesContext(HttpServletRequest request, HttpServletResponse response) {
 		try {
-			return (FacesContext)getFacesContextMethod.invoke(facesServlet, ServletUtil.newToOld(request), ServletUtil.newToOld(response));
+			return (FacesContext)getFacesContextMethod.invoke(getFacesServlet(getServletConfig()), ServletUtil.newToOld(request), ServletUtil.newToOld(response));
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}

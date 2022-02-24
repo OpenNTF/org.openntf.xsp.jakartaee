@@ -44,6 +44,9 @@
 	<feature id="org.openntf.xsp.nosql.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
+	<feature id="org.openntf.xsp.jakarta.servlet.feature.source">
+		<category name="XPages Jakarta EE"/>
+	</feature>
 	<feature id="org.openntf.xsp.microprofile.config.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>

@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jakartaee.util;
 
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 
 import java.util.Map;
@@ -38,12 +39,39 @@ public enum ModuleUtil {
 	 */
 	public static final Pattern GENERATED_CLASSNAMES = Pattern.compile("^(xsp|plugin)\\..*$"); //$NON-NLS-1$
 	
-	public static Stream<String> getClassNames(NSFComponentModule module) {
-		return module.getRuntimeFileSystem().getAllResources().entrySet().stream()
-			.map(Map.Entry::getKey)
-			.filter(key -> key.startsWith(PREFIX_CLASSES) && key.endsWith(SUFFIX_CLASS))
-			.map(key -> key.substring(PREFIX_CLASSES.length(), key.length()-SUFFIX_CLASS.length()))
-			.map(key -> key.replace('/', '.'));
+	public static Stream<String> getClassNames(ComponentModule module) {
+		if(module instanceof NSFComponentModule) {
+			return ((NSFComponentModule)module).getRuntimeFileSystem().getAllResources().entrySet().stream()
+				.map(Map.Entry::getKey)
+				.filter(key -> key.startsWith(PREFIX_CLASSES) && key.endsWith(SUFFIX_CLASS))
+				.map(key -> key.substring(PREFIX_CLASSES.length(), key.length()-SUFFIX_CLASS.length()))
+				.map(key -> key.replace('/', '.'));
+		} else {
+			throw new UnsupportedOperationException("Unsupported module type: " + (module == null ? "null" : module.getClass().getName())); //$NON-NLS-2$
+		}
+	}
+	
+	/**
+	 * Retrieves a lazily-loaded stream of all classes stored in the provided module.
+	 * 
+	 * <p>This method skips known "generated" classes, such as the Java source generated
+	 * for XPages.</p>
+	 * 
+	 * @param module the module to load from
+	 * @return a {@link Stream} of {@link Class} objects
+	 * @since 2.5.0
+	 */
+	public static Stream<Class<?>> getClasses(ComponentModule module) {
+		ClassLoader cl = module.getModuleClassLoader();
+		return getClassNames(module)
+			.filter(className -> !GENERATED_CLASSNAMES.matcher(className).matches())
+			.map(name -> {
+				try {
+					return cl.loadClass(name);
+				} catch (ClassNotFoundException e) {
+					throw new RuntimeException("Encountered exception loading class " + name, e);
+				}
+			});
 	}
 
 }

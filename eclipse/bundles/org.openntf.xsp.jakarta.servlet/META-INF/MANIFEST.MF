@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Jakarta Servlet Support
+Bundle-SymbolicName: org.openntf.xsp.jakarta.servlet;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.jakarta.servlet
+Bundle-Version: 2.5.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.openntf.xsp.jakartaee.commons
+Import-Package: com.ibm.commons.util,
+ com.ibm.designer.runtime.domino.adapter,
+ com.ibm.xsp.application,
+ com.ibm.xsp.library,
+ jakarta.servlet;version="5.0.0",
+ jakarta.servlet.annotation;version="5.0.0",
+ jakarta.servlet.http;version="5.0.0",
+ javax.faces.context,
+ javax.servlet;version="2.5.0",
+ javax.servlet.http;version="2.5.0",
+ org.osgi.framework;version="1.8.0"

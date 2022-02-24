@@ -113,10 +113,10 @@ public enum ContainerUtil {
 	private static final Map<String, Object> CONTAINER_INIT_LOCKS = Collections.synchronizedMap(new HashMap<>());
 	
 	/**
-	 * Gets or created a {@link WeldContainer} instance for the provided Application.
+	 * Gets or creates a {@link WeldContainer} instance for the provided Application.
 	 * 
 	 * @param application the active {@link ApplicationEx}
-	 * @return an existing or new {@link WeldContainer}
+	 * @return an existing or new {@link CDI}
 	 */
 	@SuppressWarnings("unchecked")
 	public static CDI<Object> getContainer(ApplicationEx application) {
@@ -188,6 +188,43 @@ public enum ContainerUtil {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Gets a {@link WeldContainer} instance for the provided Application, but does not
+	 * create one if none has been initialized.
+	 * 
+	 * @param application the active {@link ApplicationEx}
+	 * @return an existing {@link CDI}, or {@code null} if none has been initialized
+	 * @since 2.5.0
+	 */
+	public static CDI<Object> getContainerUnchecked(ApplicationEx application) {
+		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
+			String bundleId = getApplicationCDIBundle(application);
+			if(StringUtil.isNotEmpty(bundleId)) {
+				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+				if(bundle.isPresent()) {
+					// For now, at least, it's fine to passively activate a Bundle container
+					return getContainer(bundle.get());
+				}
+				
+				// Look for the database so we can share the replica ID
+				String id;
+				try {
+					id = NotesContext.getCurrent().getNotesDatabase().getReplicaID();
+				} catch (NotesAPIException e) {
+					throw new RuntimeException(e);
+				}
+				
+				WeldContainer instance = WeldContainer.instance(id);
+				if(instance == null || !instance.isRunning()) {
+					return null;
+				} else {
+					return instance;
+				}
+			}
+		}
+		return null;
 	}
 	
 	/**

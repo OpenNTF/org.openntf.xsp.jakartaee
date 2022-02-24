@@ -48,7 +48,7 @@ public class WeldApplicationListener implements ApplicationListener2 {
 				return;
 			}
 			
-			CDI<Object> container = ContainerUtil.getContainer(application);
+			CDI<Object> container = ContainerUtil.getContainerUnchecked(application);
 			if(container instanceof WeldContainer) {
 				@SuppressWarnings("resource")
 				WeldContainer c = (WeldContainer)container;

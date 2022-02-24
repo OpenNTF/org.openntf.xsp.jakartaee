@@ -2,6 +2,7 @@
 
 This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](https://jakarta.ee/specifications/) included in the full Jakarta EE spec, this project currently provides:
 
+- Servlet 5.0 (Partial)
 - Expression Language 4.0
 - Contexts and Dependency Injection 3.0
     - Annotations 2.0
@@ -143,6 +144,40 @@ The EL 4 handler is currently stricter about null values than the default handle
 ```
 
 In standard XPages, this will result in an empty output. With the EL 4 resolver, however, this will cause an exception like `ELResolver cannot handle a null base Object with identifier 'beanThatDoesNotExist'`. I'm considering changing this behavior to match the XPages default, but there's also some value in the strictness, especially because the exception is helpful in referencing the object it's trying to resolve against, which could help track down subtle bugs.
+
+## Servlets
+
+This project adds support for specifying Servlets in an NSF using the `@WebServlet` annotation. For example:
+
+```java
+package servlet;
+
+import java.io.IOException;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet(urlPatterns = { "/someservlet", "/someservlet/*", "*.hello" })
+public class ExampleServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		resp.setContentType("text/plain");
+		resp.getWriter().println("Hello from ExampleServlet. context=" + req.getContextPath() + ", path=" + req.getServletPath() + ", pathInfo=" + req.getPathInfo());
+		resp.getWriter().flush();
+	}
+}
+```
+
+These Servlets will be available under `/xsp` in the NSF with matching patterns. For example, the above Servlet will match `/foo.nsf/xsp/someservlet`, `/foo.nsf/xsp/someservlet/bar`, and `/foo.nsf/xsp/testme.hello`.
+
+These Servlets participate in the XPages lifecycle and have programmatic access to CDI beans via `CDI.current()`.
+
+Note, however, that other Servlet artifacts such as `@WebFilter` and `@WebListener` are not yet supported.
 
 ## RESTful Web Services
 

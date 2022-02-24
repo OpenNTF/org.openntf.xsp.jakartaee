@@ -16,19 +16,24 @@
 package org.openntf.xsp.jakartaee.servlet;
 
 import java.io.IOException;
-
-import javax.servlet.ServletContext;
+import java.util.Enumeration;
 
 import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
 
 class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	Servlet delegate;
+	final HttpServlet delegate;
 	
 	public NewHttpServletWrapper(Servlet delegate) {
-		this.delegate = delegate;
+		if(!(delegate instanceof HttpServlet)) {
+			throw new IllegalArgumentException("Unsupported delegate: " + delegate);
+		}
+		this.delegate = (HttpServlet)delegate;
 	}
 
 	@Override
@@ -56,13 +61,55 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	}
 
 	@Override
+	public String getInitParameter(String name) {
+		return delegate.getInitParameter(name);
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Enumeration getInitParameterNames() {
+		return delegate.getInitParameterNames();
+	}
+
+	@Override
+	public javax.servlet.ServletContext getServletContext() {
+		return ServletUtil.newToOld(delegate.getServletContext());
+	}
+
+	@Override
+	public void log(String msg) {
+		delegate.log(msg);
+	}
+
+	@Override
+	public String getServletName() {
+		return delegate.getServletName();
+	}
+
+	@Override
+	public void init() throws javax.servlet.ServletException {
+		try {
+			delegate.init();
+		} catch (ServletException e) {
+			throw new javax.servlet.ServletException(e);
+		}
+	}
+
+	@Override
+	public void log(String message, Throwable t) {
+		delegate.log(message, t);
+	}
+
+	@Override
 	public void service(javax.servlet.ServletRequest arg0, javax.servlet.ServletResponse arg1) throws javax.servlet.ServletException, IOException {
 		javax.servlet.http.HttpServletRequest req = (javax.servlet.http.HttpServletRequest)arg0;
 		javax.servlet.http.HttpServletResponse resp = (javax.servlet.http.HttpServletResponse)arg1;
-		
-		ServletContext context = ServletUtil.newToOld(delegate.getServletConfig().getServletContext());
+
+		ServletConfig config = delegate.getServletConfig();
+		ServletContext context = config == null ? null : config.getServletContext();
+		javax.servlet.ServletContext oldContext = ServletUtil.newToOld(context);
 		try {
-			delegate.service(ServletUtil.oldToNew(context, req), ServletUtil.oldToNew(resp));
+			delegate.service(ServletUtil.oldToNew(oldContext, req), ServletUtil.oldToNew(resp));
 		} catch (ServletException e) {
 			throw new javax.servlet.ServletException(e);
 		}

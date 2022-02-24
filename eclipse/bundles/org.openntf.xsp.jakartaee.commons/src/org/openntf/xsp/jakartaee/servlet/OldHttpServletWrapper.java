@@ -16,8 +16,10 @@
 package org.openntf.xsp.jakartaee.servlet;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -28,10 +30,13 @@ import jakarta.servlet.http.HttpServletResponse;
 class OldHttpServletWrapper extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	final javax.servlet.Servlet delegate;
+	final javax.servlet.http.HttpServlet delegate;
 	
 	public OldHttpServletWrapper(javax.servlet.Servlet delegate) {
-		this.delegate = delegate;
+		if(!(delegate instanceof javax.servlet.http.HttpServlet)) {
+			throw new IllegalArgumentException("Unsupported delegate: " + delegate);
+		}
+		this.delegate = (javax.servlet.http.HttpServlet)delegate;
 	}
 
 	@Override
@@ -62,6 +67,45 @@ class OldHttpServletWrapper extends HttpServlet {
 	@Override
 	public String getServletInfo() {
 		return delegate.getServletInfo();
+	}
+
+	@Override
+	public String getInitParameter(String name) {
+		return delegate.getInitParameter(name);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Enumeration getInitParameterNames() {
+		return delegate.getInitParameterNames();
+	}
+
+	@Override
+	public ServletContext getServletContext() {
+		return ServletUtil.oldToNew(null, delegate.getServletContext());
+	}
+
+	@Override
+	public void log(String msg) {
+		delegate.log(msg);
+	}
+
+	@Override
+	public String getServletName() {
+		return delegate.getServletName();
+	}
+
+	@Override
+	public void init() throws ServletException {
+		try {
+			delegate.init();
+		} catch (javax.servlet.ServletException e) {
+			throw new ServletException(e);
+		}
+	}
+
+	@Override
+	public void log(String message, Throwable t) {
+		delegate.log(message, t);
 	}
 
 	@Override
