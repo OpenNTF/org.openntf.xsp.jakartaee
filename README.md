@@ -1,6 +1,6 @@
 # XPages Jakarta EE Support
 
-This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](https://jakarta.ee/specifications/) included in the full Jakarta EE 9 spec, this project currently provides:
+This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](https://jakarta.ee/specifications/) included in the full Jakarta EE spec, this project currently provides:
 
 - Expression Language 4.0
 - Contexts and Dependency Injection 3.0
