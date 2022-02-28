@@ -126,6 +126,7 @@
 										<Bundle-SymbolicName>org.openntf.com.sun.xml.bind.jaxb-core</Bundle-SymbolicName>
 										<Bundle-Version>3.0.2.${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>jakarta.xml.bind-api</Fragment-Host>
+										<Export-Package>*;version="3.0.2"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -136,6 +137,7 @@
 										<Bundle-SymbolicName>org.openntf.com.sun.xml.bind.jaxb-impl</Bundle-SymbolicName>
 										<Bundle-Version>3.0.2.${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>jakarta.xml.bind-api</Fragment-Host>
+										<Export-Package>*;version="3.0.2"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -153,6 +155,7 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.yasson</Bundle-SymbolicName>
 										<Bundle-Version>2.0.4.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="2.0.4"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -172,6 +175,7 @@
 										<Require-Bundle>
 											jakarta.ws.rs-api;visibility:=reexport
 										</Require-Bundle>
+										<Export-Package>*;version="${resteasy-version}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -182,6 +186,7 @@
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.core-spi</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.org.jboss.resteasy.core</Fragment-Host>
+										<Export-Package>*;version="${resteasy-version}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -197,6 +202,7 @@
 											org.jboss.weld.spi,
 											org.jboss.weld.core-impl
 										</Require-Bundle>
+										<Export-Package>*;version="${resteasy-version}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -209,6 +215,7 @@
 										<Require-Bundle>
 											org.openntf.org.jboss.resteasy.core
 										</Require-Bundle>
+										<Export-Package>*;version="${resteasy-version}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -221,6 +228,7 @@
 										<Require-Bundle>
 											org.openntf.org.jboss.resteasy.core
 										</Require-Bundle>
+										<Export-Package>*;version="${resteasy-version}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -233,6 +241,7 @@
 										<Require-Bundle>
 											org.openntf.org.jboss.resteasy.core
 										</Require-Bundle>
+										<Export-Package>*;version="${resteasy-version}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -248,6 +257,7 @@
 										<Require-Bundle>
 											org.openntf.org.jboss.resteasy.core
 										</Require-Bundle>
+										<Export-Package>*;version="${resteasy-version}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -261,6 +271,7 @@
 											org.openntf.org.jboss.resteasy.core,
 											org.hibernate.validator
 										</Require-Bundle>
+										<Export-Package>*;version="${resteasy-version}"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -274,7 +285,8 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-core</Bundle-SymbolicName>
-										<Bundle-Version>2.1.16_${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>2.1.17_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="2.1.17"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -283,8 +295,9 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-jaxrs</Bundle-SymbolicName>
-										<Bundle-Version>2.1.16_${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>2.1.17_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.io.smallrye.open-api-core</Fragment-Host>
+										<Export-Package>*;version="2.1.17"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -300,6 +313,7 @@
 										<Bundle-SymbolicName>org.openntf.io.smallrye.metrics</Bundle-SymbolicName>
 										<Bundle-Version>4.0.0_${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<Export-Package>*;version="4.0.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -319,6 +333,7 @@
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.microprofile.rest-client</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-mp-version}_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.jboss.resteasy.microprofile.rest-client-base</Fragment-Host>
+										<Export-Package>*;version="${resteasy-mp-version}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -336,6 +351,7 @@
 											!org.apache.http.*,
 											*
 										</Import-Package>
+										<Export-Package>*;version="${resteasy-version}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -418,6 +434,7 @@
 											*
 										</Import-Package>
 										<DynamicImport-Package>sun.misc</DynamicImport-Package>
+										<Export-Package>*;version="1.2.5"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -448,6 +465,7 @@
 										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle/>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<Export-Package>*;version="4.0.0"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -458,6 +476,7 @@
 										<Bundle-SymbolicName>org.openntf.org.apache.myfaces.core.impl</Bundle-SymbolicName>
 										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<Export-Package>*;version="4.0.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -475,6 +494,7 @@
 											org.jboss.weld.spi,
 											org.jboss.weld.core-impl
 										</Require-Bundle>
+										<Export-Package>*;version="2.0.1"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -485,6 +505,7 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.krazo.resteasy</Bundle-SymbolicName>
 										<Bundle-Version>2.0.1.${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.org.eclipse.krazo.core</Fragment-Host>
+										<Export-Package>*;version="2.0.1"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -503,6 +524,7 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -513,6 +535,7 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.query</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -523,6 +546,7 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -533,6 +557,7 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -543,6 +568,7 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -553,6 +579,7 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.jakarta.nosql.communication.core</Fragment-Host>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -563,6 +590,7 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.query</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.jakarta.nosql.communication.query</Fragment-Host>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -573,6 +601,7 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.jakarta.nosql.communication.document</Fragment-Host>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -584,6 +613,7 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.jakarta.nosql.mapping.core</Fragment-Host>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -595,6 +625,7 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.jakarta.nosql.mapping.document</Fragment-Host>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -623,6 +654,7 @@
 											jakarta.enterprise.util,
 											*
 										</Import-Package>
+										<Export-Package>*;version="4.0.0"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -635,6 +667,7 @@
 										<DynamicImport-Package>
 											org.jboss.weld.*
 										</DynamicImport-Package>
+										<Export-Package>*;version="6.0.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -652,6 +685,7 @@
 										<DynamicImport-Package>
 											org.jboss.weld.*
 										</DynamicImport-Package>
+										<Export-Package>*;version="4.0.0"</Export-Package>
 									</instructions>
 								</artifact>
 								

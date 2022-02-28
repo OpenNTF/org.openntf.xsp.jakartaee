@@ -11,9 +11,9 @@ Import-Package: com.ibm.commons.util,
  com.ibm.domino.osgi.core.context,
  com.ibm.xsp.application,
  org.eclipse.core.runtime,
- org.openntf.xsp.cdi.ext,
- org.openntf.xsp.jakartaee,
- org.openntf.xsp.jakartaee.util;version="2.3.0",
- org.osgi.framework
+ org.openntf.xsp.cdi.ext;version="2.5.0",
+ org.openntf.xsp.jakartaee;version="2.5.0",
+ org.openntf.xsp.jakartaee.util;version="2.5.0",
+ org.osgi.framework;version="1.8.0"
 Export-Package: org.openntf.xsp.cdi.provider;version="2.5.0"
-Require-Bundle: org.openntf.xsp.cdi.api;bundle-version="1.2.0"
+Require-Bundle: org.openntf.xsp.cdi.api;bundle-version="2.5.0"

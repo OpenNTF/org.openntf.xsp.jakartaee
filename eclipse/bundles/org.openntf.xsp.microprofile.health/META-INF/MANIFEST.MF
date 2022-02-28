@@ -10,7 +10,7 @@ Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  org.eclipse.microprofile.health;bundle-version="4.0.0";visibility:=reexport
 Import-Package: com.ibm.xsp.application,
  com.ibm.xsp.library,
- io.smallrye.health,
+ io.smallrye.health;version="4.0.0",
  io.smallrye.health.api,
  jakarta.enterprise.context;version="3.0.0",
  jakarta.enterprise.inject;version="3.0.0",
