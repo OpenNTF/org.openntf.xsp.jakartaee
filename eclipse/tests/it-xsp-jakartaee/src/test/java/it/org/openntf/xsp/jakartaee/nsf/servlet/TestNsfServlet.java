@@ -23,6 +23,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -56,5 +57,15 @@ public class TestNsfServlet extends AbstractWebClientTest {
 		
 		String body = response.readEntity(String.class);
 		assertTrue(body.startsWith(expected), () -> "Body should start with <" + expected + ">, got <" + body + ">");
+	}
+	
+	@Test
+	public void testExceptionServlet() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRootUrl(null) + "/xsp/exceptionservlet");
+		Response response = target.request().get();
+		
+		String body = response.readEntity(String.class);
+		assertTrue(body.contains("java.lang.RuntimeException: I am the expected exception"), () -> "Body should contain stack trace, got: " + body);
 	}
 }
