@@ -132,7 +132,7 @@ public class ServletServletFactory implements IServletFactory {
 		return this.servlets.computeIfAbsent(c, key -> {
 			try {
 				Servlet delegate;
-				if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID)) {
+				if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, this.module)) {
 					delegate = CDI.current().select(c).get();
 				} else {
 					delegate = c.newInstance();
