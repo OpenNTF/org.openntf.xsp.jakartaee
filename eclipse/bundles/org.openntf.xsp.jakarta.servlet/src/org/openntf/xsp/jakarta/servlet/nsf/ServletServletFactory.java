@@ -9,10 +9,12 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
 
+import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.jakarta.servlet.ServletLibrary;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -129,7 +131,12 @@ public class ServletServletFactory implements IServletFactory {
 		checkInvalidate();
 		return this.servlets.computeIfAbsent(c, key -> {
 			try {
-				Servlet delegate = c.newInstance();
+				Servlet delegate;
+				if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID)) {
+					delegate = CDI.current().select(c).get();
+				} else {
+					delegate = c.newInstance();
+				}
 				Servlet wrapper = new XspServletWrapper(module, delegate);
 				
 				Map<String, String> params = Arrays.stream(mapping.initParams())

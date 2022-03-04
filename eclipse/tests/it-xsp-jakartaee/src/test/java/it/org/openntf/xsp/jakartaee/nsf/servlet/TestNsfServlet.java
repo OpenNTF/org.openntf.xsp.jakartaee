@@ -15,7 +15,7 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.servlet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
 
@@ -47,11 +47,14 @@ public class TestNsfServlet extends AbstractWebClientTest {
 	
 	@ParameterizedTest
 	@ArgumentsSource(ServletPathsProvider.class)
-	public void testExampleServlet(String path, String expected) {
+	public void testExampleServlet(String path, String expectedPrefix) {
+		String expected = expectedPrefix + "ApplicationGuy: I'm application guy at ";
+		
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRootUrl(null) + path);
 		Response response = target.request().get();
 		
-		assertEquals(expected, response.readEntity(String.class));
+		String body = response.readEntity(String.class);
+		assertTrue(body.startsWith(expected), () -> "Body should start with <" + expected + ">, got <" + body + ">");
 	}
 }
