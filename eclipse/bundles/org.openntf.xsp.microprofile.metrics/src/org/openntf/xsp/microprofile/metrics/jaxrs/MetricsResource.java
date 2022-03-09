@@ -48,7 +48,7 @@ public class MetricsResource {
 		// TODO limit scopes
 		return Response.ok()
 			.type(exporter.getContentType())
-			.entity(exporter.exportAllScopes())
+			.entity(exporter.exportAllScopes().toString())
 			.build();
 	}
 	
