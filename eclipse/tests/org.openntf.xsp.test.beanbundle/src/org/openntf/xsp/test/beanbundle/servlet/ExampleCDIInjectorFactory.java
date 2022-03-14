@@ -35,10 +35,6 @@ public class ExampleCDIInjectorFactory extends CdiInjectorFactory {
 
 		@Override
 		public BeanManager delegate() {
-			if(!RootServlet.initialized) {
-				return null;
-			}
-			
 			// Check if we have a NotesDatabase available
 			try {
 				CDI<Object> container = null;
