@@ -259,6 +259,16 @@ public enum ContainerUtil {
 					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
 					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
 					try {
+						for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
+							Collection<Class<?>> beanClasses = service.getBeanClasses();
+							if(beanClasses != null) {
+								weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+							}
+							Collection<Extension> extensions = service.getExtensions();
+							if(extensions != null) {
+								weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+							}
+						}
 						instance = weld.initialize();
 					} finally {
 						OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
