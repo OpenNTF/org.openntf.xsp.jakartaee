@@ -41,7 +41,6 @@ public class TestServletRest extends AbstractWebClientTest {
 	public void testNsfPathSample() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getBundleNsfRootUrl(null) + "/exampleservlet"); //$NON-NLS-1$
-		System.out.println("testing " + target.getUri());
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
