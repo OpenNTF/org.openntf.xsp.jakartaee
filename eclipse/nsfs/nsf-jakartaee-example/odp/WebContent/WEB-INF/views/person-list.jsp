@@ -1,6 +1,6 @@
 <%--
 
-    Copyright © 2018-2022 Jesse Gallagher
+    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

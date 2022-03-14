@@ -1,6 +1,8 @@
 XPages Jakarta EE Support
 
 Portions (c) Copyright 2018-2022 Jesse Gallagher
+Portions (c) Copyright 2018 Martin Pradny
+Portions (c) Copyright 2022 Per Lausten
 
 This product includes software contributed to
 OpenNTF Alliance (http://www.OpenNTF.org/)

@@ -9,28 +9,4 @@
 	</parent>
 	<artifactId>org.openntf.xsp.jaxrs</artifactId>
 	<packaging>eclipse-plugin</packaging>
-	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>com.mycila</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-				<configuration>
-					<aggregate>true</aggregate>
-					<header>license.txt</header>
-					<excludes>
-						<exclude>**/pom.xml</exclude>
-			            <exclude>**/README</exclude>
-			            <exclude>src/test/resources/**</exclude>
-			            <exclude>src/main/resources/**</exclude>
-						<exclude>**/build.properties</exclude>
-					</excludes>
-					<properties>
-						<owner>Martin Pradny and Jesse Gallagher</owner>
-						<copyrightYear>2022</copyrightYear>
-					</properties>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>

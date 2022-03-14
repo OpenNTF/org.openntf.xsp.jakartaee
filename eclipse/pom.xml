@@ -331,7 +331,7 @@
 						<exclude>**/DQL.java</exclude>
 					</excludes>
 					<properties>
-						<owner>Jesse Gallagher</owner>
+						<owner>Contributors to the XPages Jakarta EE Support Project</owner>
 						<copyrightYear>2022</copyrightYear>
 					</properties>
 				</configuration>
