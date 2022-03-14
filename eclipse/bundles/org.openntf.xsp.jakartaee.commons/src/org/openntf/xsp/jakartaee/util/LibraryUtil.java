@@ -49,6 +49,7 @@ import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
@@ -97,7 +98,16 @@ public enum LibraryUtil {
 				return usesLibrary(libraryId, module);
 			}
 		}
-		// TODO handle Equinox Servlet contexts
+		try {
+			NotesDatabase database = ContextInfo.getServerDatabase();
+			if(database != null) {
+				return usesLibrary(libraryId, database);
+			}
+		} catch(NoClassDefFoundError e) {
+			// Ignore
+		} catch (NotesAPIException e) {
+			throw new RuntimeException(e);
+		}
 		return false;
 	}
 	
