@@ -40,14 +40,14 @@ public class TestBundleBeanResource extends AbstractWebClientTest {
 		int expectedIdentity = 0;
 		// First NSF - uses .cdibundle
 		{
-			Map<String, Object> obj = getBean(getBudleNsfRootUrl(null) + "/exampleservlet");
+			Map<String, Object> obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
 			assertEquals("Hello from bundleBean", obj.get("hello"));
 			expectedIdentity = ((Number)obj.get("identity")).intValue();
 			assertNotEquals(0, expectedIdentity);
 		}
 		// Call this again to ensure that it uses the same bean
 		{
-			Map<String, Object> obj = getBean(getBudleNsfRootUrl(null) + "/exampleservlet");
+			Map<String, Object> obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
 			assertEquals("Hello from bundleBean", obj.get("hello"));
 			int identity = ((Number)obj.get("identity")).intValue();
 			assertEquals(expectedIdentity, identity);

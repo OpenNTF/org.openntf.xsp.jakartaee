@@ -36,7 +36,6 @@ import com.ibm.domino.xsp.module.nsf.NotesContext;
 import io.smallrye.openapi.api.OpenApiConfig;
 import io.smallrye.openapi.api.OpenApiConfigImpl;
 import io.smallrye.openapi.api.models.servers.ServerImpl;
-import io.smallrye.openapi.api.models.info.InfoImpl;
 import io.smallrye.openapi.runtime.OpenApiProcessor;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,8 +43,8 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Configuration;
 import jakarta.ws.rs.core.Context;
 import lotus.domino.Database;
-import lotus.domino.Document;
 import lotus.domino.DateTime;
+import lotus.domino.Document;
 import lotus.domino.NoteCollection;
 import lotus.domino.NotesException;
 
@@ -74,30 +73,49 @@ public abstract class AbstractOpenAPIResource {
 		Config mpConfig = CDI.current().select(Config.class).get();
 		OpenApiConfig config = OpenApiConfigImpl.fromConfig(mpConfig);
 		ClassLoader cl = new DelegatingClassLoader(OpenApiProcessor.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
-		OpenAPI openapi = OpenApiProcessor.bootstrap(config, index, cl);
+		OpenAPI openapi;
+		synchronized(OpenApiProcessor.class) {
+			// OpenApiProcessor appears to be not thread-safe
+			openapi = OpenApiProcessor.bootstrap(config, index, cl);
+		}
 		
 		NotesContext notesContext = NotesContext.getCurrent();
 		Database database = notesContext.getCurrentDatabase();
 
-		Info info = new InfoImpl();
-		String templateBuild = getVersionNumber(database);
-		if(templateBuild != null && !templateBuild.isEmpty()) {
-			info.setVersion(templateBuild);
-		}			
-		info.setTitle(database.getTitle());
-		openapi.setInfo(info);
+		Info info = openapi.getInfo();
+		String existingTitle = config.getInfoTitle();
+		if(existingTitle == null || existingTitle.isEmpty()) {
+			info.setTitle(database.getTitle());
+		} else {
+			info.setTitle(existingTitle);
+		}
+		String existingVersion = config.getInfoVersion();
+		if(existingVersion == null || existingVersion.isEmpty()) {
+			String templateBuild = getVersionNumber(database);
+			if(templateBuild != null && !templateBuild.isEmpty()) {
+				info.setVersion(templateBuild);
+			} else {
+				info.setVersion(existingVersion);
+			}
+		} else {
+			info.setVersion(existingVersion);
+		}
 	
 		// Build a URI to the base of JAX-RS
-		Server server = new ServerImpl();
-		URI uri = URI.create(req.getRequestURL().toString());
-		String jaxrsRoot = JAXRSServletFactory.getServletPath(notesContext.getModule());
-		uri = uri.resolve(PathUtil.concat(req.getContextPath(), jaxrsRoot, '/'));
-		String uriString = uri.toString();
-		if(uriString.endsWith("/")) { //$NON-NLS-1$
-			uriString = uriString.substring(0, uriString.length()-1);
+		Set<String> servers = config.servers();
+		if(servers == null || servers.isEmpty()) {
+			Server server = new ServerImpl();
+			
+			URI uri = URI.create(req.getRequestURL().toString());
+			String jaxrsRoot = JAXRSServletFactory.getServletPath(notesContext.getModule());
+			uri = uri.resolve(PathUtil.concat(req.getContextPath(), jaxrsRoot, '/'));
+			String uriString = uri.toString();
+			if(uriString.endsWith("/")) { //$NON-NLS-1$
+				uriString = uriString.substring(0, uriString.length()-1);
+			}
+			server.setUrl(uriString);
+			openapi.addServer(server);
 		}
-		server.setUrl(uriString);
-		openapi.addServer(server);
 		
 		return openapi;
 	}
