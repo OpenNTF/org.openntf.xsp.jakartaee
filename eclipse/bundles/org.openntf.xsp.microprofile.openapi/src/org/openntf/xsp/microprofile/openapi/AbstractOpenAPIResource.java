@@ -17,11 +17,14 @@ package org.openntf.xsp.microprofile.openapi;
 
 import java.io.IOException;
 import java.net.URI;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
+import org.eclipse.microprofile.openapi.models.info.Info;
 import org.eclipse.microprofile.openapi.models.servers.Server;
 import org.jboss.jandex.Index;
 import org.openntf.xsp.jakartaee.DelegatingClassLoader;
@@ -33,6 +36,7 @@ import com.ibm.domino.xsp.module.nsf.NotesContext;
 import io.smallrye.openapi.api.OpenApiConfig;
 import io.smallrye.openapi.api.OpenApiConfigImpl;
 import io.smallrye.openapi.api.models.servers.ServerImpl;
+import io.smallrye.openapi.api.models.info.InfoImpl;
 import io.smallrye.openapi.runtime.OpenApiProcessor;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +44,9 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Configuration;
 import jakarta.ws.rs.core.Context;
 import lotus.domino.Database;
+import lotus.domino.Document;
+import lotus.domino.DateTime;
+import lotus.domino.NoteCollection;
 import lotus.domino.NotesException;
 
 /**
@@ -71,12 +78,15 @@ public abstract class AbstractOpenAPIResource {
 		
 		NotesContext notesContext = NotesContext.getCurrent();
 		Database database = notesContext.getCurrentDatabase();
-		// TODO look up version from $TemplateBuild
-		String title = openapi.getInfo().getTitle();
-		if(title == null || title.isEmpty()) {
-			openapi.getInfo().setTitle(database.getTitle());
-		}
-		
+
+		Info info = new InfoImpl();
+		String templateBuild = getVersionNumber(database);
+		if(templateBuild != null && !templateBuild.isEmpty()) {
+			info.setVersion(templateBuild);
+		}			
+		info.setTitle(database.getTitle());
+		openapi.setInfo(info);
+	
 		// Build a URI to the base of JAX-RS
 		Server server = new ServerImpl();
 		URI uri = URI.create(req.getRequestURL().toString());
@@ -91,4 +101,22 @@ public abstract class AbstractOpenAPIResource {
 		
 		return openapi;
 	}
+	
+	private static String getVersionNumber(Database database) throws NotesException {
+		NoteCollection noteCollection = database.createNoteCollection(true);
+		noteCollection.setSelectSharedFields(true);
+		noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\"");
+		noteCollection.buildCollection();
+		String noteID = noteCollection.getFirstNoteID();
+		Document designDoc = database.getDocumentByID(noteID);
+		
+		if (null != designDoc) {
+			String buildVersion = designDoc.getItemValueString("$TemplateBuild");			
+			Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate();
+			String buildDateFormatted = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT).format(buildDate);
+			return buildVersion + " (" + buildDateFormatted + ")";
+		}
+		
+		return "";
+	}	
 }
