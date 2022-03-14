@@ -17,6 +17,7 @@ package it.org.openntf.xsp.jakartaee.nsf.microprofile;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Map;
@@ -98,13 +99,17 @@ public class TestOpenAPI extends AbstractWebClientTest {
 		
 		// Check for the presence overridden versions
 		Map<String, Object> info = (Map<String, Object>)obj.get("info");
-		assertEquals("OpenAPI Overridden Title", info.get("title"));
-		assertEquals("3.1.1.override", info.get("version"));
-		Map<String, Object> license = (Map<String, Object>)info.get("license");
-		assertEquals("http://some.license/url", license.get("url"));
-		
-		List<Map<String, Object>> servers = (List<Map<String, Object>>)obj.get("servers");
-		Map<String, Object> server0 = servers.get(0);
-		assertEquals("http://override.server/path", server0.get("url"));
+		try {
+			assertEquals("OpenAPI Overridden Title", info.get("title"));
+			assertEquals("3.1.1.override", info.get("version"));
+			Map<String, Object> license = (Map<String, Object>)info.get("license");
+			assertEquals("http://some.license/url", license.get("url"));
+			
+			List<Map<String, Object>> servers = (List<Map<String, Object>>)obj.get("servers");
+			Map<String, Object> server0 = servers.get(0);
+			assertEquals("http://override.server/path", server0.get("url"));
+		} catch(NullPointerException e) {
+			fail("Encountered NPE with JSON " + json, e);
+		}
 	}
 }

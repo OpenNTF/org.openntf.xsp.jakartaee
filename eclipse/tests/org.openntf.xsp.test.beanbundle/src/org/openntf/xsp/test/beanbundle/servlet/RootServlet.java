@@ -34,6 +34,8 @@ import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
 public class RootServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	public static boolean initialized;
 
 	private final HttpServletDispatcher delegate = new HttpServletDispatcher();
 	private ServletContext context;
@@ -46,6 +48,8 @@ public class RootServlet extends HttpServlet {
 		} catch (jakarta.servlet.ServletException e) {
 			throw new ServletException(e);
 		}
+		
+		initialized = true;
 	}
 	
 	@Override
