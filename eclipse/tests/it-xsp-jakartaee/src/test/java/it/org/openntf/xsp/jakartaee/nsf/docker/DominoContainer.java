@@ -175,7 +175,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		return localFile;
 	}
 	
-	private static String getMavenVersion() {
+	public static String getMavenVersion() {
 		// Find the current build version
 		Properties props = new Properties();
 		try (InputStream is = DominoContainer.class.getResourceAsStream("/scm.properties")) { //$NON-NLS-1$
