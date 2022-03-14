@@ -17,12 +17,13 @@ package it.org.openntf.xsp.jakartaee.servlet.cdi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Map;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
@@ -67,7 +68,12 @@ public class TestBundleBeanResource extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
-		Map<String, Object> obj = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, output);
-		return obj;
+		try {
+			Map<String, Object> obj = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, output);
+			return obj;
+		} catch(Exception e) {
+			fail("Exception parsing JSON: " + output, e);
+			return null;
+		}
 	}
 }

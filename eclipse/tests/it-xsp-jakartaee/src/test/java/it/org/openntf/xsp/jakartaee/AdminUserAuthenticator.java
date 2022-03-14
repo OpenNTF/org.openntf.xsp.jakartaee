@@ -18,8 +18,8 @@ package it.org.openntf.xsp.jakartaee;
 import java.io.IOException;
 import java.util.Base64;
 
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
 
 public class AdminUserAuthenticator implements ClientRequestFilter {
 	public static final String USER = "Jakarta EE Test"; //$NON-NLS-1$
