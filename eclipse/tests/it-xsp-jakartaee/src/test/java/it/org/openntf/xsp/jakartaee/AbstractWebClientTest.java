@@ -82,7 +82,7 @@ public abstract class AbstractWebClientTest {
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
-	public String getBudleNsfRootUrl(WebDriver driver) {
+	public String getBundleNsfRootUrl(WebDriver driver) {
 		String host;
 		int port;
 		if(driver instanceof RemoteWebDriver) {
@@ -95,6 +95,11 @@ public abstract class AbstractWebClientTest {
 		
 		String context = getBundleExampleContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
+	}
+	
+	public String getBundleNsfRestUrl(WebDriver driver) {
+		String root = getBundleNsfRootUrl(driver);
+		return PathUtil.concat(root, "xsp/app", '/');
 	}
 	
 	public String getBaseBudleNsfRootUrl(WebDriver driver) {

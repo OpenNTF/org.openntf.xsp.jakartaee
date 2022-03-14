@@ -19,6 +19,7 @@
 				<artifactId>nsfodp-maven-plugin</artifactId>
 				<configuration>
 					<updateSite>${project.baseDir}/../../../releng/org.openntf.xsp.jakartaee.updatesite/target/repository</updateSite>
+					<templateName>XPages Jakarta EE Example</templateName>
 				</configuration>
 			</plugin>
 		</plugins>

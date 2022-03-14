@@ -17,11 +17,14 @@ package org.openntf.xsp.microprofile.openapi;
 
 import java.io.IOException;
 import java.net.URI;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
+import org.eclipse.microprofile.openapi.models.info.Info;
 import org.eclipse.microprofile.openapi.models.servers.Server;
 import org.jboss.jandex.Index;
 import org.openntf.xsp.jakartaee.DelegatingClassLoader;
@@ -40,6 +43,9 @@ import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Configuration;
 import jakarta.ws.rs.core.Context;
 import lotus.domino.Database;
+import lotus.domino.DateTime;
+import lotus.domino.Document;
+import lotus.domino.NoteCollection;
 import lotus.domino.NotesException;
 
 /**
@@ -67,28 +73,68 @@ public abstract class AbstractOpenAPIResource {
 		Config mpConfig = CDI.current().select(Config.class).get();
 		OpenApiConfig config = OpenApiConfigImpl.fromConfig(mpConfig);
 		ClassLoader cl = new DelegatingClassLoader(OpenApiProcessor.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
-		OpenAPI openapi = OpenApiProcessor.bootstrap(config, index, cl);
+		OpenAPI openapi;
+		synchronized(OpenApiProcessor.class) {
+			// OpenApiProcessor appears to be not thread-safe
+			openapi = OpenApiProcessor.bootstrap(config, index, cl);
+		}
 		
 		NotesContext notesContext = NotesContext.getCurrent();
 		Database database = notesContext.getCurrentDatabase();
-		// TODO look up version from $TemplateBuild
-		String title = openapi.getInfo().getTitle();
-		if(title == null || title.isEmpty()) {
-			openapi.getInfo().setTitle(database.getTitle());
+
+		Info info = openapi.getInfo();
+		String existingTitle = config.getInfoTitle();
+		if(existingTitle == null || existingTitle.isEmpty()) {
+			info.setTitle(database.getTitle());
+		} else {
+			info.setTitle(existingTitle);
 		}
-		
+		String existingVersion = config.getInfoVersion();
+		if(existingVersion == null || existingVersion.isEmpty()) {
+			String templateBuild = getVersionNumber(database);
+			if(templateBuild != null && !templateBuild.isEmpty()) {
+				info.setVersion(templateBuild);
+			} else {
+				info.setVersion(existingVersion);
+			}
+		} else {
+			info.setVersion(existingVersion);
+		}
+	
 		// Build a URI to the base of JAX-RS
-		Server server = new ServerImpl();
-		URI uri = URI.create(req.getRequestURL().toString());
-		String jaxrsRoot = JAXRSServletFactory.getServletPath(notesContext.getModule());
-		uri = uri.resolve(PathUtil.concat(req.getContextPath(), jaxrsRoot, '/'));
-		String uriString = uri.toString();
-		if(uriString.endsWith("/")) { //$NON-NLS-1$
-			uriString = uriString.substring(0, uriString.length()-1);
+		Set<String> servers = config.servers();
+		if(servers == null || servers.isEmpty()) {
+			Server server = new ServerImpl();
+			
+			URI uri = URI.create(req.getRequestURL().toString());
+			String jaxrsRoot = JAXRSServletFactory.getServletPath(notesContext.getModule());
+			uri = uri.resolve(PathUtil.concat(req.getContextPath(), jaxrsRoot, '/'));
+			String uriString = uri.toString();
+			if(uriString.endsWith("/")) { //$NON-NLS-1$
+				uriString = uriString.substring(0, uriString.length()-1);
+			}
+			server.setUrl(uriString);
+			openapi.addServer(server);
 		}
-		server.setUrl(uriString);
-		openapi.addServer(server);
 		
 		return openapi;
 	}
+	
+	private static String getVersionNumber(Database database) throws NotesException {
+		NoteCollection noteCollection = database.createNoteCollection(true);
+		noteCollection.setSelectSharedFields(true);
+		noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\"");
+		noteCollection.buildCollection();
+		String noteID = noteCollection.getFirstNoteID();
+		Document designDoc = database.getDocumentByID(noteID);
+		
+		if (null != designDoc) {
+			String buildVersion = designDoc.getItemValueString("$TemplateBuild");			
+			Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate();
+			String buildDateFormatted = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT).format(buildDate);
+			return buildVersion + " (" + buildDateFormatted + ")";
+		}
+		
+		return "";
+	}	
 }
