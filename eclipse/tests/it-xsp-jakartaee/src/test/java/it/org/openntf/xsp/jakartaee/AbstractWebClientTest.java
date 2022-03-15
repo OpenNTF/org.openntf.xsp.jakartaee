@@ -18,6 +18,8 @@ package it.org.openntf.xsp.jakartaee;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -27,12 +29,27 @@ import com.ibm.commons.util.PathUtil;
 @SuppressWarnings("nls")
 @Testcontainers
 public abstract class AbstractWebClientTest {
+	
+	private static Client anonymousClient;
+	private static Client adminClient;
+	
+	@BeforeAll
+	public static void buildClients() {
+		anonymousClient = ClientBuilder.newBuilder().build();
+		adminClient = ClientBuilder.newBuilder().register(AdminUserAuthenticator.class).build();
+	}
+	
+	@AfterAll
+	public static void tearDownClients() {
+		anonymousClient.close();
+		adminClient.close();
+	}
 
 	public Client getAnonymousClient() {
-		return ClientBuilder.newBuilder().build();
+		return anonymousClient;
 	}
 	public Client getAdminClient() {
-		return ClientBuilder.newBuilder().register(AdminUserAuthenticator.class).build();
+		return adminClient;
 	}
 	
 	public String getExampleContextPath() {
