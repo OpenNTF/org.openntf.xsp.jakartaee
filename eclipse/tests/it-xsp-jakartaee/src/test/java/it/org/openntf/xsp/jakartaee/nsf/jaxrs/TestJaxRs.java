@@ -27,9 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.ibm.commons.xml.DOMUtil;
-import com.ibm.commons.xml.XMLException;
-
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
 @SuppressWarnings("nls")
@@ -52,14 +49,13 @@ public class TestJaxRs extends AbstractWebClientTest {
 	 * Tests test.Sample#xml, which uses JAX-RS, CDI, and JAX-B.
 	 */
 	@Test
-	public void testSampleXml() throws XMLException {
+	public void testSampleXml() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/sample/xml");
 		Response response = target.request().get();
 		
-		String output = response.readEntity(String.class);
+		Document xmlDoc = response.readEntity(Document.class);
 		
-		Document xmlDoc = DOMUtil.createDocument(output);
 		Element applicationGuy = xmlDoc.getDocumentElement();
 		assertEquals("application-guy", applicationGuy.getTagName());
 		Element time = (Element) applicationGuy.getElementsByTagName("time").item(0);
