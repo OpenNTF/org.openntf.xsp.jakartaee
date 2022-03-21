@@ -43,7 +43,7 @@
 			"Server_MinPossibleTransTime": "1500",
 			"Server_MaxPossibleTransTime": "20000000",
 			"NSF_BUFFER_POOL_SIZE_MB": "256",
-			"FT_FLY_INDEX_OFF": "1",
+			"FT_FLY_INDEX_OFF": "0",
 			"UPDATE_FULLTEXT_THREAD": "1",
 			"FTG_USE_SYS_MEMORY": "1",
 			"ServerTasks": "Update,AdminP,AMgr,HTTP,Update"
@@ -111,6 +111,10 @@
 							"FltRcvryNot": "LocalDomainAdmins",
 							"ServerBuildNumber": "12.0.1",
 							"MajVer": 12,
+							"TRANSLOG_Status": "1",
+							"TRANSLOG_Path": "logdir",
+							"TRANSLOG_Style": "0",
+							"TRANSLOG_MaxSize": 512,
 							"SSLCipherList": [
 								"C030",
 								"9F",

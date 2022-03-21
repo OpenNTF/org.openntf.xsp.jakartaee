@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package model;
+package org.openntf.xsp.nosql.mapping.extension;
 
-import java.util.stream.Stream;
+import jakarta.nosql.mapping.document.DocumentTemplate;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+/**
+ * {@link DocumentTemplate} sub-interface to provide access to
+ * Domino-specific extensions.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.5.0
+ */
+public interface DominoTemplate extends DocumentTemplate {
 
-import jakarta.nosql.mapping.Sorts;
-
-public interface PersonRepository extends DominoRepository<Person, String> {
-	Stream<Person> findAll();
-	Stream<Person> findAll(Sorts sorts);
-	Stream<Person> findByLastName(String lastName);
 }

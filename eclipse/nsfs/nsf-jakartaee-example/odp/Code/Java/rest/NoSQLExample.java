@@ -46,11 +46,15 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import model.Person;
 import model.PersonRepository;
+import model.ServerRepository;
 
 @Path("nosql")
 public class NoSQLExample {
 	@Inject
 	PersonRepository personRepository;
+	
+	@Inject
+	ServerRepository serverRepository;
 
 	@Inject
 	Models models;
@@ -61,6 +65,16 @@ public class NoSQLExample {
 		Map<String, Object> result = new LinkedHashMap<>();
 		result.put("byQueryLastName", personRepository.findByLastName(lastName).collect(Collectors.toList()));
 		result.put("totalCount", personRepository.count());
+		return result;
+	}
+	
+	@Path("servers")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Object getServers() {
+		Map<String, Object> result = new LinkedHashMap<>();
+		result.put("all", serverRepository.findAll(Sorts.sorts().asc("serverName")).collect(Collectors.toList()));
+		result.put("totalCount", serverRepository.count());
 		return result;
 	}
 	

@@ -15,14 +15,31 @@
  */
 package model;
 
-import java.util.stream.Stream;
+import jakarta.nosql.mapping.Column;
+import jakarta.nosql.mapping.Entity;
+import jakarta.nosql.mapping.Id;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+@Entity
+public class Server {
+	@Id
+	private String unid;
+	
+	@Column("ServerName")
+	private String serverName;
 
-import jakarta.nosql.mapping.Sorts;
+	public String getUnid() {
+		return unid;
+	}
 
-public interface PersonRepository extends DominoRepository<Person, String> {
-	Stream<Person> findAll();
-	Stream<Person> findAll(Sorts sorts);
-	Stream<Person> findByLastName(String lastName);
+	public void setUnid(String unid) {
+		this.unid = unid;
+	}
+
+	public String getServerName() {
+		return serverName;
+	}
+
+	public void setServerName(String serverName) {
+		this.serverName = serverName;
+	}
 }

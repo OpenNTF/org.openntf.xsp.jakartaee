@@ -16,6 +16,7 @@
 package org.openntf.xsp.cdi.discovery;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import jakarta.enterprise.inject.spi.Extension;
 
@@ -25,4 +26,11 @@ public interface WeldBeanClassContributor {
 	Collection<Class<?>> getBeanClasses();
 	
 	Collection<Extension> getExtensions();
+	
+	/**
+	 * @since 2.5.0
+	 */
+	default Collection<Class<? extends Extension>> getExtensionClasses() {
+		return Collections.emptyList();
+	}
 }

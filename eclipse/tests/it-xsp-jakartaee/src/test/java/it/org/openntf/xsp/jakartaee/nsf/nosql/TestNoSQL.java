@@ -30,6 +30,7 @@ import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.ibm.commons.util.io.json.JsonException;
@@ -79,5 +80,26 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertEquals("CreatedUnitTest", entry.get("lastName")); //$NON-NLS-1$ //$NON-NLS-2$
 			assertFalse(((String)entry.get("unid")).isEmpty()); //$NON-NLS-1$
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	@Disabled("QRP#executeToView is currently broken on Linux (12.0.1IF2)")
+	public void testNoSqlNames() throws JsonException {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/nosql/servers"); //$NON-NLS-1$
+		
+		Response response = target.request().get();
+		
+		String json = response.readEntity(String.class);
+		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+		
+		List<Map<String, Object>> all = (List<Map<String, Object>>)jsonObject.get("all"); //$NON-NLS-1$
+		assertNotNull(all, () -> json);
+		assertFalse(all.isEmpty(), () -> json);
+		Map<String, Object> entry = all.get(0);
+		assertEquals("CN=JakartaEE/O=OpenNTFTest", entry.get("serverName"), () -> json); //$NON-NLS-1$ //$NON-NLS-2$
+		assertFalse(((String)entry.get("unid")).isEmpty(), () -> json); //$NON-NLS-1$
+		assertEquals(1d, ((Number)jsonObject.get("totalCount")).doubleValue(), () -> json); //$NON-NLS-1$
 	}
 }
