@@ -13,16 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package model;
+package org.openntf.xsp.nosql.mapping.extension;
 
-import java.util.stream.Stream;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-import jakarta.nosql.mapping.Sorts;
-
-public interface PersonRepository extends DominoRepository<Person, String> {
-	Stream<Person> findAll();
-	Stream<Person> findAll(Sorts sorts);
-	Stream<Person> findByLastName(String lastName);
+/**
+ * This annotation applies to Domino Repository interfaces to allow the
+ * specification of a provider ID.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.5.0
+ */
+@Documented
+@Retention(RUNTIME)
+@Target(TYPE)
+public @interface RepositoryProvider {
+	/**
+	 * @return the provider ID to map to
+	 */
+	String value();
 }

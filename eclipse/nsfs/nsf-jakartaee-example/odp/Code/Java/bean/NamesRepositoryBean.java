@@ -13,40 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.bean;
+package bean;
 
+import org.openntf.xsp.nosql.communication.driver.DefaultDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentConfiguration;
 
-import jakarta.annotation.PostConstruct;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
+
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
-import jakarta.nosql.document.DocumentCollectionManagerFactory;
-import jakarta.nosql.document.DocumentConfiguration;
 import jakarta.nosql.mapping.Database;
 import jakarta.nosql.mapping.DatabaseType;
+import lotus.domino.NotesException;
 
 @RequestScoped
-public class ContextDocumentCollectionManagerProducer {
-	private DocumentConfiguration configuration;
-	private DocumentCollectionManagerFactory managerFactory;
-
-	@PostConstruct
-	public void init() {
-		configuration = new DominoDocumentConfiguration();
-		managerFactory = configuration.get();
-	}
-	
+public class NamesRepositoryBean {
 	@Produces
-	@Database(value = DatabaseType.DOCUMENT, provider = "")
-	public DominoDocumentCollectionManager getManager() {
-		return managerFactory.get(null);
-	}
-	
-	@Produces
-	@Default
-	public DominoDocumentCollectionManager getManagerDefault() {
-		return managerFactory.get(null);
+	@Database(value = DatabaseType.DOCUMENT, provider = "names")
+	public DominoDocumentCollectionManager getNamesManager() {
+		return new DefaultDominoDocumentCollectionManager(
+			() -> {
+				try {
+					return NotesContext.getCurrent().getSessionAsSigner().getDatabase("", "names.nsf");
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
+				}
+			},
+			() -> NotesContext.getCurrent().getSessionAsSigner()
+		);
 	}
 }

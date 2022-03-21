@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package model;
+package org.openntf.xsp.nosql.mapping.extension;
 
-import java.util.stream.Stream;
+import jakarta.nosql.mapping.Repository;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+/**
+ * This sub-interface of {@link Repository} allows for the specification
+ * of Domino-specific behavior.
+ * 
+ * @author Jesse Gallagher
+ *
+ * @param <T> the model-object type
+ * @param <ID> the ID-field type, generally {@link String}
+ * @since 2.5.0
+ */
+public interface DominoRepository<T, ID> extends Repository<T, ID> {
 
-import jakarta.nosql.mapping.Sorts;
-
-public interface PersonRepository extends DominoRepository<Person, String> {
-	Stream<Person> findAll();
-	Stream<Person> findAll(Sorts sorts);
-	Stream<Person> findByLastName(String lastName);
 }

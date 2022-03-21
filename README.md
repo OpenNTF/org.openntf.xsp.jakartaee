@@ -519,6 +519,40 @@ public class NoSQLExample {
 }
 ```
 
+#### Document Sources
+
+By default, the driver assumes that documents are stored in the current database. This can be overridden by using the `org.openntf.xsp.nosql.mapping.extension.RepositoryProvider` annotation. For example:
+
+```java
+@RepositoryProvider("names")
+public interface PersonRepository extends Repository<Person, String> {
+	Stream<Person> findAll();
+	Stream<Person> findByLastName(String lastName);
+}
+```
+
+Then, create a CDI bean that can provide the desired database and a `sessionAsSigner` object (which is used for QueryResultsProcessor views), annotated with `jakarta.nosql.mapping.Database`. For example:
+
+```java
+@RequestScoped
+public class NamesRepositoryBean {
+	@Produces
+	@Database(value = DatabaseType.DOCUMENT, provider = "names")
+	public DominoDocumentCollectionManager getNamesManager() {
+		return new DefaultDominoDocumentCollectionManager(
+			() -> {
+				try {
+					return NotesContext.getCurrent().getSessionAsSigner().getDatabase("", "names.nsf");
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
+				}
+			},
+			() -> NotesContext.getCurrent().getSessionAsSigner()
+		);
+	}
+}
+```
+
 ## MicroProfile Config
 
 The [MicroProfile Config](https://github.com/eclipse/microprofile-config) API allows injection of configuration parameters from externalized sources, separating configuration from code. These parameters can then be injected using CDI. For example:

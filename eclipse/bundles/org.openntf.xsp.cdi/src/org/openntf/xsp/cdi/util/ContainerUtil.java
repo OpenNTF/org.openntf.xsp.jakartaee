@@ -178,6 +178,10 @@ public enum ContainerUtil {
 							if(extensions != null) {
 								weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
 							}
+							Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
+							if(extensionClasses != null) {
+								extensionClasses.forEach(weld::addExtensions);
+							}
 						}
 						
 						return weld.initialize();
@@ -236,7 +240,7 @@ public enum ContainerUtil {
 	 * @return the existing container or a newly-registered one if one did not exist
 	 * @since 1.1.0
 	 */
-	@SuppressWarnings("nls")
+	@SuppressWarnings({ "nls", "unchecked" })
 	public static CDI<Object> getContainer(Bundle bundle) {
 		String id = bundle.getSymbolicName();
 
@@ -267,6 +271,10 @@ public enum ContainerUtil {
 							Collection<Extension> extensions = service.getExtensions();
 							if(extensions != null) {
 								weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+							}
+							Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
+							if(extensionClasses != null) {
+								extensionClasses.forEach(weld::addExtensions);
 							}
 						}
 						instance = weld.initialize();
@@ -331,6 +339,7 @@ public enum ContainerUtil {
 	 * @throws NotesAPIException if there is a problem reading the database
 	 * @throws UncheckedIOException if there is a problem parsing the database configuration
 	 */
+	@SuppressWarnings("unchecked")
 	public static CDI<Object> getContainer(NotesDatabase database) throws NotesAPIException {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, database)) {
 			String bundleId = getApplicationCDIBundle(database);
@@ -379,6 +388,10 @@ public enum ContainerUtil {
 								Collection<Extension> extensions = service.getExtensions();
 								if(extensions != null) {
 									fweld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+								}
+								Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
+								if(extensionClasses != null) {
+									extensionClasses.forEach(fweld::addExtensions);
 								}
 							}
 							

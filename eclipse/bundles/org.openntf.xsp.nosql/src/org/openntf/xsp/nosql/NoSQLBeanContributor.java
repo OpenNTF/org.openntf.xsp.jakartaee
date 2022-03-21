@@ -32,6 +32,8 @@ import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.nosql.bean.ContextDatabaseSupplier;
 import org.openntf.xsp.nosql.bean.ContextDocumentCollectionManagerProducer;
+import org.openntf.xsp.nosql.mapping.extension.impl.DefaultDominoTemplateProducer;
+import org.openntf.xsp.nosql.mapping.extension.impl.DominoExtension;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
@@ -71,6 +73,8 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 			result.add(ContextDocumentCollectionManagerProducer.class);
 			result.add(ContextDatabaseSupplier.class);
 			
+			result.add(DefaultDominoTemplateProducer.class);
+			
 			return result;
 		} else {
 			return Collections.emptySet();
@@ -79,10 +83,17 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
+		return Collections.emptySet();
+	}
+	
+	@Override
+	public Collection<Class<? extends Extension>> getExtensionClasses() {
 		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
 			return Arrays.asList(
-				new ClassMappingExtension(),
-				new DocumentExtension()
+				ClassMappingExtension.class,
+				DocumentExtension.class,
+				
+				DominoExtension.class
 			);
 		} else {
 			return Collections.emptySet();
