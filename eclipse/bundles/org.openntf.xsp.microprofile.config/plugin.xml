@@ -30,4 +30,8 @@
 		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.microprofile.config.ConfigInitFactory"/>
 	</extension>
 	
+	<!-- CORS filter -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.microprofile.config.rest.CorsContributor" />
+	</extension>
 </plugin>
