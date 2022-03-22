@@ -86,15 +86,15 @@ The contextual Domino objects - the `Database` and `Session`s - are available to
 
 ```java
 	@Inject
-	@Named("dominoClient")
+	@Named("dominoSession")
 	Session session;
 	
 	@Inject
-	@Named("dominoClientAsSigner")
+	@Named("dominoSessionAsSigner")
 	Session sessionAsSigner;
 	
 	@Inject
-	@Named("dominoClientAsSignerWithFullAccess")
+	@Named("dominoSessionAsSignerWithFullAccess")
 	Session sessionAsSignerWithFullAccess;
 ```
 
