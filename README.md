@@ -263,6 +263,21 @@ public Response hello() {
 
 When such a service is executed, its performance is logged and becomes available via `/xsp/app/metrics` within the NSF.
 
+#### CORS
+
+CORS can be enabled and customized for REST services by enabling the MicroProfile Config feature (described below) and setting some or all of the following properties in the app's Xsp Properties:
+
+```
+rest.cors.enable=true                   # required for CORS
+rest.cors.allowCredentials=true         # defaults to true
+rest.cors.allowedMethods=GET,HEAD       # defaults to all
+rest.cors.allowedHeaders=Some-Header    # defaults to all
+rest.cors.exposedHeaders=Some-Header    # optional
+rest.cors.maxAge=600                    # optional
+# allowedOrigins is required, and can be "*"
+rest.cors.allowedOrigins=http://foo.com,http://bar.com
+```
+
 ## Bean Validation 3.0
 
 The [Bean Validation](https://jakarta.ee/specifications/bean-validation/3.0/) spec provides a standard mechanism for performing validation of arbitrary objects via annotations. XPages doesn't provide any type of bean validation mechanism - the closest things it provides are UI component validators, but those don't connect to the back-end objects at all.
