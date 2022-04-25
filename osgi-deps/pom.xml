@@ -83,12 +83,13 @@
 								<!--
 									General Platform
 								-->
-								<artifact><id>jakarta.annotation:jakarta.annotation-api:2.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.annotation:jakarta.annotation-api:2.1.0</id><source>true</source></artifact>
 								<artifact><id>jakarta.inject:jakarta.inject-api:2.0.1</id><source>true</source></artifact>
 								<artfiact><id>jakarta.servlet:jakarta.servlet-api:5.0.0</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.0</id><source>true</source></artfiact>
+								<!-- NB: Persistence 3.1.0 requires Java 11 -->
 								<artfiact><id>jakarta.persistence:jakarta.persistence-api:3.0.0</id><source>true</source></artfiact>
-								<artfiact><id>jakarta.transaction:jakarta.transaction-api:2.0.0</id><source>true</source></artfiact>
+								<artfiact><id>jakarta.transaction:jakarta.transaction-api:2.0.1</id><source>true</source></artfiact>
 								<artifact>
 									<id>jakarta.websocket:jakarta.websocket-api:2.0.0</id>
 									<source>true</source>
@@ -100,23 +101,25 @@
 										<Export-Package>*;version="2.0.0"</Export-Package>
 									</instructions>
 								</artifact>
+								<!-- NB: XML WS 4.0.0 requires Java 11 -->
 								<artfiact><id>jakarta.xml.ws:jakarta.xml.ws-api:3.0.1</id><source>true</source></artfiact>
 								
 								<!-- Repackage to avoid trouble with a build finding a newer, beta-only version -->
 								<artifact>
-									<id>org.glassfish.hk2:osgi-resource-locator:1.0.3</id>
+									<id>org.glassfish.hk2:osgi-resource-locator:2.4.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.glassfish.hk2.osgi-resource-locator</Bundle-SymbolicName>
-										<Bundle-Version>1.0.3.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="1.0.3"</Export-Package>
+										<Bundle-Version>2.4.0.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="2.4.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
 								<!--
 									JAX-B 
 								-->
+								<!-- NB: XML Binding 4.0.0 requires Java 11 -->
 								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:3.0.1</id><source>true</source></artifact>
 								<artifact>
 									<id>com.sun.xml.bind:jaxb-core:3.0.2</id>
@@ -144,6 +147,7 @@
 								<!--
 									JSON-P and JSON-B
 								-->
+								<!-- NB: the move to Eclipse Parsson as the JSON-P implementation is incomplete -->
 								<artifact><id>jakarta.json:jakarta.json-api:2.0.1</id><source>true</source></artifact>
 								<artifact><id>org.glassfish:jakarta.json:2.0.1</id><source>true</source></artifact>
 								<artifact><id>jakarta.json.bind:jakarta.json.bind-api:2.0.0</id><source>true</source></artifact>
