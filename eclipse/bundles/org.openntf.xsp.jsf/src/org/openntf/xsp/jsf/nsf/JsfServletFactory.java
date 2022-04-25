@@ -76,6 +76,12 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 	}
 	
 	@Override
+	protected boolean checkExists(String servletPath, String pathInfo) {
+		ComponentModule module = getModule();
+		return module.getResourceAsStream(servletPath) != null;
+	}
+	
+	@Override
 	public Servlet createExecutorServlet(ComponentModule module) throws ServletException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {

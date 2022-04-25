@@ -16,16 +16,23 @@
 package it.org.openntf.xsp.jakartaee.nsf.jsf;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import com.ibm.commons.util.StringUtil;
+
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestJsf extends AbstractWebClientTest {
@@ -59,5 +66,21 @@ public class TestJsf extends AbstractWebClientTest {
 			WebElement span = form.findElement(By.xpath("p/span[1]"));
 			assertEquals(expected, span.getText());
 		}
+	}
+	
+	/**
+	 * Tests to ensure that a JSF file that doesn't exist leads to a
+	 * non-empty 404 page.
+	 */
+	@Test
+	public void testNotFound() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRootUrl(null) + "/somefakepage.xhtml");
+		Response response = target.request().get();
+		
+		assertEquals(404, response.getStatus());
+		
+		String content = response.readEntity(String.class);
+		assertFalse(StringUtil.isEmpty(content));
 	}
 }
