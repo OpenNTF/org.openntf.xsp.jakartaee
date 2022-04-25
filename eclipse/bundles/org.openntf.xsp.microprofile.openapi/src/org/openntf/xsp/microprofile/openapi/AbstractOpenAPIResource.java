@@ -18,6 +18,7 @@ package org.openntf.xsp.microprofile.openapi;
 import java.io.IOException;
 import java.net.URI;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,6 +48,7 @@ import lotus.domino.DateTime;
 import lotus.domino.Document;
 import lotus.domino.NoteCollection;
 import lotus.domino.NotesException;
+import lotus.domino.Session;
 
 /**
  * @author Jesse Gallagher
@@ -81,17 +83,19 @@ public abstract class AbstractOpenAPIResource {
 		
 		NotesContext notesContext = NotesContext.getCurrent();
 		Database database = notesContext.getCurrentDatabase();
+		Session sessionAsSigner = notesContext.getSessionAsSigner();
+		Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
 
 		Info info = openapi.getInfo();
 		String existingTitle = config.getInfoTitle();
 		if(existingTitle == null || existingTitle.isEmpty()) {
-			info.setTitle(database.getTitle());
+			info.setTitle(databaseAsSigner.getTitle());
 		} else {
 			info.setTitle(existingTitle);
 		}
 		String existingVersion = config.getInfoVersion();
 		if(existingVersion == null || existingVersion.isEmpty()) {
-			String templateBuild = getVersionNumber(database);
+			String templateBuild = getVersionNumber(databaseAsSigner);
 			if(templateBuild != null && !templateBuild.isEmpty()) {
 				info.setVersion(templateBuild);
 			} else {
@@ -123,18 +127,18 @@ public abstract class AbstractOpenAPIResource {
 	private static String getVersionNumber(Database database) throws NotesException {
 		NoteCollection noteCollection = database.createNoteCollection(true);
 		noteCollection.setSelectSharedFields(true);
-		noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\"");
+		noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\""); //$NON-NLS-1$
 		noteCollection.buildCollection();
 		String noteID = noteCollection.getFirstNoteID();
 		Document designDoc = database.getDocumentByID(noteID);
 		
 		if (null != designDoc) {
-			String buildVersion = designDoc.getItemValueString("$TemplateBuild");			
-			Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate();
+			String buildVersion = designDoc.getItemValueString("$TemplateBuild"); //$NON-NLS-1$
+			Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate(); //$NON-NLS-1$
 			String buildDateFormatted = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT).format(buildDate);
-			return buildVersion + " (" + buildDateFormatted + ")";
+			return MessageFormat.format("{0} ({1})", buildVersion, buildDateFormatted); //$NON-NLS-1$
 		}
 		
-		return "";
+		return ""; //$NON-NLS-1$
 	}	
 }
