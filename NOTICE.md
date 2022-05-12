@@ -16,6 +16,7 @@ The project contains the following third-party code:
 - Portions of Eclipse Angus, available from https://github.com/eclipse-ee4j/angus-mail and licensed under the Eclipse Public License 2.0. See "LICENSE-angus.md" and "LICENSE-angus.md" in the "legal" directory
 - Portions of Domino JNA, available from https://github.com/klehmann/domino-jna and licensed under Apache 2.0
 - Code derived from the Darwino JNoSQL driver, available from https://github.com/darwino/diana-driver and licensed under Apache 2.0
+- Code derives from the XPages Extension Library, available from https://github.com/OpenNTF/XPagesExtensionLibrary, copyright 2011 IBM Corp., and licensed under Apache 2.0
 
 The binary distribution contains the following 3rd party code:
 

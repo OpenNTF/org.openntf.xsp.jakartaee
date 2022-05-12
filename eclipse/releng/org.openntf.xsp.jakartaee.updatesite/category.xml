@@ -62,6 +62,11 @@
 	<feature id="org.openntf.xsp.microprofile.health.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
+	
+	<feature id="org.openntf.xsp.jakartaee.designer.feature">
+		<category name="XPages Jakarta EE Designer Extensions"/>
+	</feature>
    
 	<category-def name="XPages Jakarta EE" label="XPages Jakarta EE"/>
+	<category-def name="XPages Jakarta EE Designer Extensions" label="XPages Jakarta EE Designer Extensions"/>
 </site>

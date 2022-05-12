@@ -114,6 +114,10 @@
 		<module>tests/org.openntf.xsp.test.beanbundle</module>
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		
+		<!-- Designer Extensions -->
+		<module>bundles/org.openntf.xsp.jakartaee.designer.props</module>
+		<module>features/org.openntf.xsp.jakartaee.designer.feature</module>
+		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
 		<module>releng/org.openntf.xsp.jakartaee.source.updatesite</module>
@@ -139,6 +143,11 @@
 			<id>notes</id>
 			<layout>p2</layout>
 			<url>${notes-platform}</url>
+		</repository>
+		<repository>
+			<id>designer</id>
+			<layout>p2</layout>
+			<url>${designer-platform}</url>
 		</repository>
 		<repository>
 			<id>osgi-deps</id>
@@ -272,29 +281,9 @@
 
 					<environments>
 						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
 							<os>win32</os>
 							<ws>win32</ws>
 							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86_64</arch>
 						</environment>
 					</environments>
 					<resolver>p2</resolver>
