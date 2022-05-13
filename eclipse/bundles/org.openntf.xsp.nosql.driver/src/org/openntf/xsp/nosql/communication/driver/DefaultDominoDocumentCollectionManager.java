@@ -26,6 +26,7 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -180,7 +181,8 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				Database qrpDatabase = getQrpDatabase(sessionAsSigner, database);
 
 				String userName = database.getParent().getEffectiveUserName();
-				String viewName = getClass().getName() + "-" + (String.valueOf(sorts) + skip + limit + userName).hashCode(); //$NON-NLS-1$
+				String dqlQuery = queryResult.getStatement().toString();
+				String viewName = getClass().getName() + "-" + Objects.hash(sorts, skip, limit, userName, dqlQuery); //$NON-NLS-1$
 				View view = qrpDatabase.getView(viewName);
 				try {
 					if(view != null) {
@@ -206,7 +208,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 						DominoQuery dominoQuery = database.createDominoQuery();		
 						QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
 						try {
-							qrp.addDominoQuery(dominoQuery, queryResult.getStatement().toString(), null);
+							qrp.addDominoQuery(dominoQuery, dqlQuery, null);
 							for(Sort sort : sorts) {
 								int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
 								qrp.addColumn(sort.getName(), null, null, dir, false, false);
