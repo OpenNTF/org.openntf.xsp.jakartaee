@@ -1,5 +1,6 @@
 package org.openntf.xsp.jakarta.bridge.jasapi.test;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import com.ibm.domino.bridge.http.jasapi.IJavaSapiEnvironment;
@@ -42,6 +43,17 @@ public class JakartaSapiService extends JavaSapiService {
 		System.out.println(">> rawRequest " + context);
 		
 		// Can add headers here
+		context.getRequest().setRequestHeader("Host", "foo-bar.galaxia");
+		if(context.getRequest().getRequestURI().contains("foobar")) {
+			context.getResponse().setStatus(299);
+			context.getResponse().setHeader("Content-Type", "text/foobar");
+			try {
+				context.getResponse().getOutputStream().print("hi.");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return HTEXTENSION_REQUEST_PROCESSED;
+		}
 		
 		return HTEXTENSION_EVENT_HANDLED;
 	}

@@ -5,6 +5,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,7 +37,9 @@ public class JasapiEarlyInitFactory implements IServiceFactory {
 					extensions.stream()
 						.map(fac -> fac.getServices(env))
 						.filter(Objects::nonNull)
-						.forEach(services::addAll);
+						.flatMap(Collection::stream)
+						.filter(Objects::nonNull)
+						.forEach(services::add);
 					servicesField.set(env, services.toArray(new JavaSapiService[services.size()]));
 				}
 				
