@@ -12,7 +12,8 @@ Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  org.openntf.jakarta.nosql.communication.query;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.jakarta.nosql.mapping.core;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.jakarta.nosql.mapping.document;bundle-version="1.0.0";visibility:=reexport,
- org.openntf.xsp.nosql.driver;bundle-version="2.3.0";visibility:=reexport
+ org.openntf.xsp.nosql.driver;bundle-version="2.3.0";visibility:=reexport,
+ org.openntf.org.glassfish.hk2.osgi-resource-locator;bundle-version="2.4.0";visibility:=reexport
 Import-Package: com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.application,
  com.ibm.xsp.library,
@@ -26,13 +27,12 @@ Import-Package: com.ibm.domino.xsp.module.nsf,
  org.eclipse.jnosql.mapping,
  org.eclipse.jnosql.mapping.document,
  org.eclipse.jnosql.mapping.document.spi,
+ org.eclipse.jnosql.mapping.reflection;version="1.0.0",
  org.openntf.xsp.cdi.discovery;version="2.2.0",
  org.openntf.xsp.cdi.util;version="2.2.0",
  org.openntf.xsp.jakartaee;version="2.2.0",
  org.openntf.xsp.jakartaee.util;version="2.3.0",
  org.osgi.framework;version="1.8.0"
-Bundle-ActivationPolicy: lazy
-Bundle-Activator: org.openntf.xsp.nosql.NoSQLActivator
 Export-Package: org.openntf.xsp.nosql;version="2.2.0",
  org.openntf.xsp.nosql.bean;version="2.2.0"
 DynamicImport-Package: org.jboss.weld.*
