@@ -112,8 +112,6 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.glassfish.hk2.osgi-resource-locator</Bundle-SymbolicName>
 										<Bundle-Version>2.4.0.${osgi.qualifier}</Bundle-Version>
-										<Bundle-Activator>org.glassfish.hk2.osgiresourcelocator.Activator</Bundle-Activator>
-										<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
 										<Export-Package>*;version="2.4.0"</Export-Package>
 									</instructions>
 								</artifact>
@@ -131,6 +129,7 @@
 										<Bundle-SymbolicName>org.openntf.com.sun.xml.bind.jaxb-core</Bundle-SymbolicName>
 										<Bundle-Version>3.0.2.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="3.0.2"</Export-Package>
+										<Fragment-Host>jakarta.xml.bind-api</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -141,6 +140,7 @@
 										<Bundle-SymbolicName>org.openntf.com.sun.xml.bind.jaxb-impl</Bundle-SymbolicName>
 										<Bundle-Version>3.0.2.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="3.0.2"</Export-Package>
+										<Fragment-Host>jakarta.xml.bind-api</Fragment-Host>
 									</instructions>
 								</artifact>
 								
@@ -530,7 +530,6 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Require-Bundle>org.openntf.org.glassfish.hk2.osgi-resource-locator</Require-Bundle>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -543,7 +542,6 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Require-Bundle>org.openntf.org.glassfish.hk2.osgi-resource-locator</Require-Bundle>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -556,7 +554,6 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Require-Bundle>org.openntf.org.glassfish.hk2.osgi-resource-locator</Require-Bundle>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -569,7 +566,6 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Require-Bundle>org.openntf.org.glassfish.hk2.osgi-resource-locator</Require-Bundle>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -582,7 +578,6 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Require-Bundle>org.openntf.org.glassfish.hk2.osgi-resource-locator</Require-Bundle>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -594,7 +589,7 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Require-Bundle>org.openntf.org.glassfish.hk2.osgi-resource-locator</Require-Bundle>
+										<Fragment-Host>org.openntf.jakarta.nosql.communication.core</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -605,7 +600,7 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.query</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Require-Bundle>org.openntf.org.glassfish.hk2.osgi-resource-locator</Require-Bundle>
+										<Fragment-Host>org.openntf.jakarta.nosql.communication.query</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -617,7 +612,7 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Require-Bundle>org.openntf.org.glassfish.hk2.osgi-resource-locator</Require-Bundle>
+										<Fragment-Host>org.openntf.jakarta.nosql.communication.document</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -630,7 +625,7 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Require-Bundle>org.openntf.org.glassfish.hk2.osgi-resource-locator</Require-Bundle>
+										<Fragment-Host>org.openntf.jakarta.nosql.mapping.core</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -643,7 +638,7 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Require-Bundle>org.openntf.org.glassfish.hk2.osgi-resource-locator</Require-Bundle>
+										<Fragment-Host>org.openntf.jakarta.nosql.mapping.document</Fragment-Host>
 									</instructions>
 								</artifact>
 								

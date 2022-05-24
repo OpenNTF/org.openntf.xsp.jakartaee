@@ -10,8 +10,7 @@ Require-Bundle: com.ibm.pvc.servlet;bundle-version="2.5.0",
  com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  com.ibm.xsp.designer;bundle-version="9.0.1",
  jakarta.activation-api;bundle-version="2.0.0";visibility:=reexport,
- org.openntf.xsp.jakartamail.api;bundle-version="2.5.0";visibility:=reexport,
- org.openntf.org.glassfish.hk2.osgi-resource-locator;bundle-version="2.4.0";visibility:=reexport
+ org.openntf.xsp.jakartamail.api;bundle-version="2.5.0";visibility:=reexport
 Bundle-ClassPath: .
 Export-Package: org.openntf.xsp.cdi.ext;version="2.5.0",
  org.openntf.xsp.jakartaee;version="2.5.0",
