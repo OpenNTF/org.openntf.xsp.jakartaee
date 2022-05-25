@@ -12,7 +12,6 @@ This product is licensed under the terms of the Apache 2.0 license.
 The project contains the following third-party code:
 
 - pristo_rest by Martin Pradny, available from https://bitbucket.org/pradnik/pristo_rest/src/master/to.pris.rest.xsp/src/to/pris/rest/ and used with permission
-- The Jakarta Mail API, available from https://github.com/eclipse-ee4j/mail and licensed under the Eclipse Public License 2.0. See "LICENSE-mail.md" and "LICENSE-mail.md" in the "legal" directory
 - Portions of Eclipse Angus, available from https://github.com/eclipse-ee4j/angus-mail and licensed under the Eclipse Public License 2.0. See "LICENSE-angus.md" and "LICENSE-angus.md" in the "legal" directory
 - Portions of Domino JNA, available from https://github.com/klehmann/domino-jna and licensed under Apache 2.0
 - Code derived from the Darwino JNoSQL driver, available from https://github.com/darwino/diana-driver and licensed under Apache 2.0
@@ -27,6 +26,7 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta RESTful Web Services API, available from https://github.com/eclipse-ee4j/jaxrs-api and licensed under the EPL 2.0
 - The Jakarta XML Binding API, available from https://github.com/eclipse-ee4j/jaxb-api and licensed under the EPL 2.0
 - The Jakarta Activation API, available from https://github.com/eclipse-ee4j/jaf and licensed under the EPL 2.0
+- The Jakarta Mail API, available from https://github.com/eclipse-ee4j/mail and licensed under the Eclipse Public License 2.0. See "LICENSE-mail.md" and "LICENSE-mail.md" in the "legal" directory
 - The Jakarta Annotations API, available from https://github.com/eclipse-ee4j/common-annotations-api and licensed under the EPL 2.0
 - The Jakarta Server Pages API, available from https://github.com/eclipse-ee4j/jsp-api and licensed under the EPL 2.0
 - The Jakarta Standard Tag Library API, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/api and licensed under the EPL 2.0
