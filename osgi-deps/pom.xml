@@ -395,6 +395,22 @@
 								<!--
 									CDI 
 								-->
+								<artifact>
+									<id>jakarta.enterprise:jakarta.enterprise.cdi-api:3.0.1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.jakarta.enterprise.cdi-api</Bundle-SymbolicName>
+										<Export-Package>*;version="3.0"</Export-Package>
+										<Import-Package>jakarta.ejb;version="4.0.0";resolution:=optional</Import-Package>
+										<Require-Bundle>
+											jakarta.inject.jakarta.inject-api;bundle-version="2.0.0",
+											jakarta.el-api;bundle-version="4.0.0",
+											jakarta.interceptor-api;bundle-version="2.0.0"
+										</Require-Bundle>
+										<DynamicImport-Package>*</DynamicImport-Package>
+									</instructions>
+								</artifact>
 								<artifact><id>org.jboss.weld.se:weld-se-core:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.environment:weld-environment-common:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-core-impl:${weld-version}</id><source>true</source></artifact>
