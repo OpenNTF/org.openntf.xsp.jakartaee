@@ -51,7 +51,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 				e.printStackTrace();
 			} catch(CannotCompileException | IOException e) {
 				e.printStackTrace();
-				new RuntimeException("Encountered exception when weaving ClassLoaderUtil replacement", e).printStackTrace();
+				new RuntimeException("Encountered exception when weaving jakarta.nosql.ServiceLoaderProvider replacement", e).printStackTrace();
 			} catch(Throwable t) {
 
 				t.printStackTrace();
