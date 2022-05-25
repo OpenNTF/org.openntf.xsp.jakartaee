@@ -490,7 +490,7 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.apache.myfaces.core.impl</Bundle-SymbolicName>
 										<Bundle-Version>3.0.1.${osgi.qualifier}</Bundle-Version>
-										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<DynamicImport-Package>org.jboss.weld.*,org.apache.commons.*</DynamicImport-Package>
 										<Export-Package>*;version="3.0.1"</Export-Package>
 									</instructions>
 								</artifact>
