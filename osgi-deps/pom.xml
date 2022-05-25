@@ -456,9 +456,19 @@
 								<!--
 									Mail
 								-->
-								<artifact><id>jakarta.mail:jakarta.mail-api:2.1.0</id><source>true</source></artifact>
 								<artifact><id>jakarta.activation:jakarta.activation-api:2.1.0-RC1</id><source>true</source></artifact>
 								<artifact><id>org.eclipse.angus:angus-activation:1.0.0</id><source>true</source></artifact>
+								<artifact>
+									<id>org.eclipse.angus:jakarta.mail:1.0.0</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.angus.jakarta.mail</Bundle-SymbolicName>
+										<Bundle-Version>1.0.0.${osgi.qualifier}</Bundle-Version>
+										<Import-Package>jakarta.*</Import-Package>
+										<Export-Package>jakarta.*;version="2.1.0"</Export-Package>
+									</instructions>
+								</artifact>
 								
 								<!--
 									JSP 
