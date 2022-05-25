@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,12 @@ import org.openntf.xsp.nosql.communication.driver.DominoDocumentConfiguration;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 import jakarta.nosql.document.DocumentCollectionManagerFactory;
 import jakarta.nosql.document.DocumentConfiguration;
+import jakarta.nosql.mapping.Database;
+import jakarta.nosql.mapping.DatabaseType;
 
 @RequestScoped
 public class ContextDocumentCollectionManagerProducer {
@@ -36,7 +39,14 @@ public class ContextDocumentCollectionManagerProducer {
 	}
 	
 	@Produces
+	@Database(value = DatabaseType.DOCUMENT, provider = "")
 	public DominoDocumentCollectionManager getManager() {
+		return managerFactory.get(null);
+	}
+	
+	@Produces
+	@Default
+	public DominoDocumentCollectionManager getManagerDefault() {
 		return managerFactory.get(null);
 	}
 }

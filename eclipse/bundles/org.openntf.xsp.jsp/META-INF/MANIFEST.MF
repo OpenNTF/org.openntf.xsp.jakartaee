@@ -3,18 +3,18 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Runtime JSP Support
 Bundle-SymbolicName: org.openntf.xsp.jsp;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jsp
-Bundle-Version: 2.4.0.qualifier
+Bundle-Version: 2.5.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: jakarta.servlet-api;bundle-version="5.0.0";visibility:=reexport,
- org.openntf.xsp.jakartaee.commons;bundle-version="1.2.0";visibility:=reexport,
+ org.openntf.xsp.jakartaee.commons;bundle-version="2.5.0";visibility:=reexport,
  jakarta.el-api;bundle-version="4.0.0";visibility:=reexport,
  org.glassfish.jakarta.el;bundle-version="4.0.1";visibility:=reexport,
  jakarta.servlet.jsp-api;bundle-version="3.0.0";visibility:=reexport,
  org.glassfish.web.jakarta.servlet.jsp;bundle-version="3.0.0";visibility:=reexport,
  jakarta.servlet.jsp.jstl-api;bundle-version="2.0.0";visibility:=reexport,
  org.glassfish.web.jakarta.servlet.jsp.jstl;bundle-version="2.0.0";visibility:=reexport,
- org.openntf.xsp.cdi;bundle-version="2.1.0",
+ org.openntf.xsp.cdi;bundle-version="2.5.0",
  com.ibm.xsp.designer
 Import-Package: com.ibm.commons.util,
  com.ibm.commons.util.io,

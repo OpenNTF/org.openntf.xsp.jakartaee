@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,12 @@ public class JspServletFactory extends MappingBasedServletFactory {
 	@Override
 	public String getServletClassName() {
 		return NSFJspServlet.class.getName();
+	}
+	
+	@Override
+	protected boolean checkExists(String servletPath, String pathInfo) {
+		ComponentModule module = getModule();
+		return module.getResourceAsStream(servletPath) != null;
 	}
 	
 	@Override

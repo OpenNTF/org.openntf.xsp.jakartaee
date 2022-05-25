@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,31 +34,32 @@ import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
 public class RootServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	private boolean initialized;
 
 	private final HttpServletDispatcher delegate = new HttpServletDispatcher();
 	private ServletContext context;
+	private ServletConfig config;
 	
 	@Override
 	public void init() throws ServletException {
 		super.init();
-		try {
-			delegate.init();
-		} catch (jakarta.servlet.ServletException e) {
-			throw new ServletException(e);
-		}
 	}
 	
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {
+		this.config = servletConfig;
 		this.context = servletConfig.getServletContext();
-		
+	}
+	
+	private void initDelegate() throws ServletException {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
 			Thread.currentThread().setContextClassLoader(RootServlet.class.getClassLoader());
 			return null;
 		});
 		try {
-			delegate.init(ServletUtil.oldToNew(servletConfig));
+			delegate.init(ServletUtil.oldToNew(this.config));
 		} catch (jakarta.servlet.ServletException e) {
 			throw new ServletException(e);
 		} finally {
@@ -67,6 +68,8 @@ public class RootServlet extends HttpServlet {
 				return null;
 			});
 		}
+		
+		this.initialized = true;
 	}
 	
 	@Override
@@ -76,6 +79,12 @@ public class RootServlet extends HttpServlet {
 
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		try {
+			// Delay initialization so that we have an NSF context for the CDI container
+			if(!initialized) {
+				initDelegate();
+			}
+			
+			
 			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
 				Thread.currentThread().setContextClassLoader(RootServlet.class.getClassLoader());
 

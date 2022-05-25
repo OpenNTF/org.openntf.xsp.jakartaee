@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,9 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 					if (extIndex > -1) {
 						String servletPath = path.substring(0, extIndex+ext.length());
 						String pathInfo = path.substring(extIndex+ext.length());
-						return new ServletMatch(getExecutorServlet(), servletPath, pathInfo);
+						if(checkExists(servletPath, pathInfo)) {
+							return new ServletMatch(getExecutorServlet(), servletPath, pathInfo);
+						}
 					}
 				}
 			}
@@ -101,6 +103,20 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 			throw new ServletException(e);
 		}
 		return null;
+	}
+	
+	/**
+	 * This method checks to ensure that a match potentially identified by
+	 * {@link #getServletMatch(String, String)} actually exists. The default behavior
+	 * is to immediately return {@code true}, but implementation classes can override
+	 * this when applicable.
+	 * 
+	 * @param servletPath the path to the servlet matched, e.g. {@code "/foo.bar"}
+	 * @param pathInfo any information following the matched path
+	 * @return {@code true} if the servlet exists; {@code false} otherwise
+	 */
+	protected boolean checkExists(String servletPath, String pathInfo) {
+		return true;
 	}
 	
 	public final Servlet getExecutorServlet() throws ServletException {

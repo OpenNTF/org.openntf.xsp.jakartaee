@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,13 @@ package it.org.openntf.xsp.jakartaee.servlet.cdi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Map;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
@@ -40,14 +41,14 @@ public class TestBundleBeanResource extends AbstractWebClientTest {
 		int expectedIdentity = 0;
 		// First NSF - uses .cdibundle
 		{
-			Map<String, Object> obj = getBean(getBudleNsfRootUrl(null) + "/exampleservlet");
+			Map<String, Object> obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
 			assertEquals("Hello from bundleBean", obj.get("hello"));
 			expectedIdentity = ((Number)obj.get("identity")).intValue();
 			assertNotEquals(0, expectedIdentity);
 		}
 		// Call this again to ensure that it uses the same bean
 		{
-			Map<String, Object> obj = getBean(getBudleNsfRootUrl(null) + "/exampleservlet");
+			Map<String, Object> obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
 			assertEquals("Hello from bundleBean", obj.get("hello"));
 			int identity = ((Number)obj.get("identity")).intValue();
 			assertEquals(expectedIdentity, identity);
@@ -67,7 +68,12 @@ public class TestBundleBeanResource extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
-		Map<String, Object> obj = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, output);
-		return obj;
+		try {
+			Map<String, Object> obj = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, output);
+			return obj;
+		} catch(Exception e) {
+			fail("Exception parsing JSON: " + output, e);
+			return null;
+		}
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.openntf.xsp.nosql.communication.driver;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.StringReader;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -39,11 +38,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import jakarta.json.Json;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonReader;
-import jakarta.json.JsonValue;
 import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentEntity;
 import lotus.domino.Database;
@@ -74,37 +68,6 @@ public enum EntityConverter {
 	 * Domino, currently {@value #NAME_FIELD}
 	 */
 	public static final String NAME_FIELD = "Form"; //$NON-NLS-1$
-	
-	static Stream<DocumentEntity> convert(Database database, String qrpJson) throws NotesException {
-		JsonObject json;
-		try(
-			StringReader r = new StringReader(qrpJson);
-			JsonReader reader = Json.createReader(r)
-		) {
-			json = reader.readObject();
-		}
-		JsonArray results = json.getJsonArray("StreamResults"); //$NON-NLS-1$
-		return results.stream()
-			.map(JsonValue::asJsonObject)
-			.map(entry -> entry.getString("@nid")) //$NON-NLS-1$
-			.map(noteId -> {
-				try {
-					return database.getDocumentByID(noteId.substring(2));
-				} catch (NotesException e) {
-					throw new RuntimeException(e);
-				}
-			})
-			.filter(EntityConverter::isValid)
-			.map(doc -> {
-				try {
-					List<Document> documents = toDocuments(doc);
-					String name = doc.getItemValueString(NAME_FIELD);
-					return DocumentEntity.of(name, documents);
-				} catch(NotesException e) {
-					throw new RuntimeException("Exception processing note " + doc, e);
-				}
-			});
-	}
 	
 	static Stream<DocumentEntity> convert(Database database, View docs) throws NotesException {
 		// TODO stream this better

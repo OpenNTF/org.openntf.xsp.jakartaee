@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,7 +175,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		return localFile;
 	}
 	
-	private static String getMavenVersion() {
+	public static String getMavenVersion() {
 		// Find the current build version
 		Properties props = new Properties();
 		try (InputStream is = DominoContainer.class.getResourceAsStream("/scm.properties")) { //$NON-NLS-1$

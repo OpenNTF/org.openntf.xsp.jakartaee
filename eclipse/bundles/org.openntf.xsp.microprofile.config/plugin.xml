@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2022 Jesse Gallagher
+    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -30,4 +30,8 @@
 		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.microprofile.config.ConfigInitFactory"/>
 	</extension>
 	
+	<!-- CORS filter -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.microprofile.config.rest.CorsContributor" />
+	</extension>
 </plugin>

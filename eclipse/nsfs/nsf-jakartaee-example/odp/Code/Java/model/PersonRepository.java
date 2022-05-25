@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@ package model;
 
 import java.util.stream.Stream;
 
-import jakarta.nosql.mapping.Repository;
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+
 import jakarta.nosql.mapping.Sorts;
 
-public interface PersonRepository extends Repository<Person, String> {
+public interface PersonRepository extends DominoRepository<Person, String> {
 	Stream<Person> findAll();
 	Stream<Person> findAll(Sorts sorts);
 	Stream<Person> findByLastName(String lastName);

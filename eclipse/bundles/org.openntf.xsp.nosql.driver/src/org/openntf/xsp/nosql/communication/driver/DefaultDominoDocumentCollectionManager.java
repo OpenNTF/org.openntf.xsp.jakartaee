@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,23 @@
  */
 package org.openntf.xsp.nosql.communication.driver;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
 import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.QueryConverter.QueryConverterResult;
 
@@ -35,9 +44,12 @@ import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
+import lotus.domino.ACL;
+import lotus.domino.ACLEntry;
 import lotus.domino.Base;
 import lotus.domino.Database;
 import lotus.domino.DateTime;
+import lotus.domino.DbDirectory;
 import lotus.domino.DocumentCollection;
 import lotus.domino.DominoQuery;
 import lotus.domino.NotesException;
@@ -166,11 +178,12 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			if(sorts != null && !sorts.isEmpty()) {
 				Database database = supplier.get();
 				Session sessionAsSigner = sessionSupplier.get();
-				Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
+				Database qrpDatabase = getQrpDatabase(sessionAsSigner, database);
 
 				String userName = database.getParent().getEffectiveUserName();
-				String viewName = getClass().getName() + "-" + (String.valueOf(sorts) + skip + limit + userName).hashCode(); //$NON-NLS-1$
-				View view = databaseAsSigner.getView(viewName);
+				String dqlQuery = queryResult.getStatement().toString();
+				String viewName = getClass().getName() + "-" + Objects.hash(sorts, skip, limit, userName, dqlQuery); //$NON-NLS-1$
+				View view = qrpDatabase.getView(viewName);
 				try {
 					if(view != null) {
 						// Check to see if we need to "expire" it based on the data mod time of the DB
@@ -193,9 +206,9 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 						result = EntityConverter.convert(database, view);
 					} else {
 						DominoQuery dominoQuery = database.createDominoQuery();		
-						QueryResultsProcessor qrp = databaseAsSigner.createQueryResultsProcessor();
+						QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
 						try {
-							qrp.addDominoQuery(dominoQuery, queryResult.getStatement().toString(), null);
+							qrp.addDominoQuery(dominoQuery, dqlQuery, null);
 							for(Sort sort : sorts) {
 								int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
 								qrp.addColumn(sort.getName(), null, null, dir, false, false);
@@ -212,7 +225,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 								recycle(view);
 							}
 						} finally {
-							recycle(qrp, dominoQuery, databaseAsSigner);
+							recycle(qrp, dominoQuery, qrpDatabase);
 						}
 					}
 				} finally {
@@ -260,6 +273,61 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	@Override
 	public void close() {
 	
+	}
+	
+	private Database getQrpDatabase(Session session, Database database) throws NotesException {
+		String server = database.getServer();
+		String filePath = database.getFilePath();
+
+		try {
+			String fileName = md5(server + filePath) + ".nsf"; //$NON-NLS-1$
+			
+			Path tempDir = getTempDirectory();
+			Path dest = tempDir.resolve(getClass().getPackage().getName());
+			Files.createDirectories(dest);
+			Path dbPath = dest.resolve(fileName);
+			
+			Database qrp = session.getDatabase("", dbPath.toString()); //$NON-NLS-1$
+			if(!qrp.isOpen()) {
+				qrp.recycle();
+				DbDirectory dbDir = session.getDbDirectory(null);
+				// TODO encrypt when the API allows
+				qrp = dbDir.createDatabase(dbPath.toString(), true);
+				
+				ACL acl = qrp.getACL();
+				ACLEntry entry = acl.createACLEntry(session.getEffectiveUserName(), ACL.LEVEL_MANAGER);
+				entry.setCanDeleteDocuments(true);
+				acl.save();
+			}
+			return qrp;
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		
+	}
+	
+	private Path getTempDirectory() {
+		String osName = System.getProperty("os.name"); //$NON-NLS-1$
+		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
+			return Paths.get("/tmp"); //$NON-NLS-1$
+		} else {
+			return Paths.get(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+		}
+	}
+	
+	private String md5(String value) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
+			md.update(String.valueOf(value).getBytes());
+			byte[] digest = md.digest();
+			StringBuilder sb = new StringBuilder(digest.length * 2);
+			for (byte b : digest) {
+				sb.append(String.format("%02x", b)); //$NON-NLS-1$
+			}
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	private static void recycle(Object... objects) {

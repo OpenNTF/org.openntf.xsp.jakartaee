@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf.xsp</groupId>
 	<artifactId>xsp-jakartaee</artifactId>
-	<version>2.4.0</version>
+	<version>2.5.0</version>
 	<packaging>pom</packaging>
 
 	<name>XPages Jakarta EE Support</name>
@@ -39,14 +39,12 @@
 		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
-		<!-- Mail and Activation -->
-		<module>bundles/org.openntf.xsp.jakartamail.api</module>
-		<module>bundles/org.openntf.xsp.jakartamail.impl</module>
+		<!-- Servlet -->
+		<module>bundles/org.openntf.xsp.jakarta.servlet</module>
+		<module>features/org.openntf.xsp.jakarta.servlet.feature</module>
 		
 		<!-- CDI 3.0 -->
-		<module>bundles/org.openntf.xsp.cdi.api</module>
 		<module>bundles/org.openntf.xsp.cdi</module>
-		<module>bundles/org.openntf.xsp.cdi.provider</module>
 		<module>features/org.openntf.xsp.cdi.feature</module>
 		
 		<!-- Expression Language 4.0 -->
@@ -327,7 +325,7 @@
 						<exclude>**/DQL.java</exclude>
 					</excludes>
 					<properties>
-						<owner>Jesse Gallagher</owner>
+						<owner>Contributors to the XPages Jakarta EE Support Project</owner>
 						<copyrightYear>2022</copyrightYear>
 					</properties>
 				</configuration>

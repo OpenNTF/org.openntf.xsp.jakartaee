@@ -6,8 +6,8 @@
 	<parent>
 		<groupId>org.openntf.xsp</groupId>
 		<artifactId>xsp-jakartaee</artifactId>
-		<version>2.4.0</version>
-        <relativePath>../..</relativePath>
+		<version>2.5.0</version>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>nsf-jakartaee-bundle-example</artifactId>
 	<packaging>domino-nsf</packaging>
@@ -19,6 +19,7 @@
 				<artifactId>nsfodp-maven-plugin</artifactId>
 				<configuration>
 					<updateSite>${project.baseDir}/../../../releng/org.openntf.xsp.jakartaee.updatesite/target/repository</updateSite>
+                    <templateName>XPages Jakarta EE Bundle Example</templateName>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,32 @@ package org.openntf.xsp.mvc.jaxrs;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.krazo.binding.convert.MvcConverterProvider;
 import org.eclipse.krazo.core.ViewResponseFilter;
 import org.eclipse.krazo.core.ViewableWriter;
 import org.eclipse.krazo.jaxrs.PostMatchingRequestFilter;
 import org.eclipse.krazo.jaxrs.PreMatchingRequestFilter;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jaxrs.JAXRSClassContributor;
+import org.openntf.xsp.mvc.MvcLibrary;
 
 public class MvcJaxrsClassContributor implements JAXRSClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {
-		return Arrays.asList(
-			PreMatchingRequestFilter.class,
-			PostMatchingRequestFilter.class,
-			ViewableWriter.class,
-			ViewResponseFilter.class,
-			MvcConverterProvider.class
-		);
+		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+			return Arrays.asList(
+				PreMatchingRequestFilter.class,
+				PostMatchingRequestFilter.class,
+				ViewableWriter.class,
+				ViewResponseFilter.class,
+				MvcConverterProvider.class
+			);
+		} else {
+			return Collections.emptyList();
+		}
 	}
 
 }

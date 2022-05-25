@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2022 Jesse Gallagher
+    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.cdi.feature"
       label="XPages CDI 3.0 Support Feature"
-      version="2.4.0.qualifier">
+      version="2.5.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -237,9 +237,8 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
+	<plugin id="org.openntf.jakarta.enterprise.cdi-api" version="0.0.0"/>
 	<plugin id="org.openntf.xsp.cdi" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.cdi.api" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.cdi.provider" version="0.0.0"/>
     
 	<plugin id="org.jboss.weld.api" version="0.0.0"/>
 	<plugin id="org.jboss.weld.spi" version="0.0.0"/>

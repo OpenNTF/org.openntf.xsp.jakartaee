@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.openntf.xsp.jakartaee;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openntf.xsp.jakartaee.weaving.MailWeavingHook;
 import org.openntf.xsp.jakartaee.weaving.UtilWeavingHook;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -30,6 +31,7 @@ public class JakartaActivator implements BundleActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		regs.add(context.registerService(WeavingHook.class.getName(), new UtilWeavingHook(), null));
+		regs.add(context.registerService(WeavingHook.class.getName(), new MailWeavingHook(), null));
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,31 @@
  */
 package org.openntf.xsp.nosql;
 
-import java.util.ServiceLoader;
-import java.util.stream.StreamSupport;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.openntf.xsp.nosql.weaving.NoSQLWeavingHook;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-
-import jakarta.nosql.ServiceLoaderProvider;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.hooks.weaving.WeavingHook;
 
 /**
  * @author Jesse Gallagher
  * @since 2.3.0
  */
 public class NoSQLActivator implements BundleActivator {
+	private final List<ServiceRegistration<?>> regs = new ArrayList<>();
 
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
-		try {
-			ServiceLoaderProvider.setLoader(c -> {
-				return StreamSupport.stream(ServiceLoader.load(c, c.getClassLoader()).spliterator(), false);
-			});
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
+	public void start(BundleContext context) throws Exception {
+		regs.add(context.registerService(WeavingHook.class.getName(), new NoSQLWeavingHook(), null));
 	}
 
 	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
+	public void stop(BundleContext context) throws Exception {
+		regs.forEach(ServiceRegistration::unregister);
+		regs.clear();
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import org.osgi.framework.FrameworkUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
+import jakarta.faces.application.ResourceHandler;
 import jakarta.faces.webapp.FacesServlet;
 
 /**
@@ -73,6 +74,15 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 	@Override
 	public String getServletClassName() {
 		return FacesServlet.class.getName();
+	}
+	
+	@Override
+	protected boolean checkExists(String servletPath, String pathInfo) {
+		if(servletPath.startsWith(ResourceHandler.RESOURCE_IDENTIFIER)) {
+			return true;
+		}
+		ComponentModule module = getModule();
+		return module.getResourceAsStream(servletPath) != null;
 	}
 	
 	@Override

@@ -1,7 +1,8 @@
 # XPages Jakarta EE Support
 
-This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](https://jakarta.ee/specifications/) included in the full Jakarta EE 9 spec, this project currently provides:
+This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](https://jakarta.ee/specifications/) included in the full Jakarta EE spec, this project currently provides:
 
+- Servlet 5.0 (Partial)
 - Expression Language 4.0
 - Contexts and Dependency Injection 3.0
     - Annotations 2.0
@@ -15,7 +16,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Mail 2.1
     - Activation 2.1
 - Server Pages 3.0
-- Server Faces 4.0 (snapshot)
+- Server Faces 3.0
 - MVC 2.0
 - NoSQL 1.0 (snapshot)
 
@@ -85,15 +86,15 @@ The contextual Domino objects - the `Database` and `Session`s - are available to
 
 ```java
 	@Inject
-	@Named("dominoClient")
+	@Named("dominoSession")
 	Session session;
 	
 	@Inject
-	@Named("dominoClientAsSigner")
+	@Named("dominoSessionAsSigner")
 	Session sessionAsSigner;
 	
 	@Inject
-	@Named("dominoClientAsSignerWithFullAccess")
+	@Named("dominoSessionAsSignerWithFullAccess")
 	Session sessionAsSignerWithFullAccess;
 ```
 
@@ -143,6 +144,40 @@ The EL 4 handler is currently stricter about null values than the default handle
 ```
 
 In standard XPages, this will result in an empty output. With the EL 4 resolver, however, this will cause an exception like `ELResolver cannot handle a null base Object with identifier 'beanThatDoesNotExist'`. I'm considering changing this behavior to match the XPages default, but there's also some value in the strictness, especially because the exception is helpful in referencing the object it's trying to resolve against, which could help track down subtle bugs.
+
+## Servlets
+
+This project adds support for specifying Servlets in an NSF using the `@WebServlet` annotation. For example:
+
+```java
+package servlet;
+
+import java.io.IOException;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet(urlPatterns = { "/someservlet", "/someservlet/*", "*.hello" })
+public class ExampleServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		resp.setContentType("text/plain");
+		resp.getWriter().println("Hello from ExampleServlet. context=" + req.getContextPath() + ", path=" + req.getServletPath() + ", pathInfo=" + req.getPathInfo());
+		resp.getWriter().flush();
+	}
+}
+```
+
+These Servlets will be available under `/xsp` in the NSF with matching patterns. For example, the above Servlet will match `/foo.nsf/xsp/someservlet`, `/foo.nsf/xsp/someservlet/bar`, and `/foo.nsf/xsp/testme.hello`.
+
+These Servlets participate in the XPages lifecycle and have programmatic access to CDI beans via `CDI.current()`.
+
+Note, however, that other Servlet artifacts such as `@WebFilter` and `@WebListener` are not yet supported.
 
 ## RESTful Web Services
 
@@ -227,6 +262,21 @@ public Response hello() {
 ```
 
 When such a service is executed, its performance is logged and becomes available via `/xsp/app/metrics` within the NSF.
+
+#### CORS
+
+CORS can be enabled and customized for REST services by enabling the MicroProfile Config feature (described below) and setting some or all of the following properties in the app's Xsp Properties:
+
+```
+rest.cors.enable=true                   # required for CORS
+rest.cors.allowCredentials=true         # defaults to true
+rest.cors.allowedMethods=GET,HEAD       # defaults to all
+rest.cors.allowedHeaders=Some-Header    # defaults to all
+rest.cors.exposedHeaders=Some-Header    # optional
+rest.cors.maxAge=600                    # optional
+# allowedOrigins is required, and can be "*"
+rest.cors.allowedOrigins=http://foo.com,http://bar.com
+```
 
 ## Bean Validation 3.0
 
@@ -480,6 +530,40 @@ public class NoSQLExample {
 		result.put("byQueryLastName", personRepository.findByLastName(lastName).collect(Collectors.toList()));
 		result.put("totalCount", personRepository.count());
 		return result;
+	}
+}
+```
+
+#### Document Sources
+
+By default, the driver assumes that documents are stored in the current database. This can be overridden by using the `org.openntf.xsp.nosql.mapping.extension.RepositoryProvider` annotation. For example:
+
+```java
+@RepositoryProvider("names")
+public interface PersonRepository extends Repository<Person, String> {
+	Stream<Person> findAll();
+	Stream<Person> findByLastName(String lastName);
+}
+```
+
+Then, create a CDI bean that can provide the desired database and a `sessionAsSigner` object (which is used for QueryResultsProcessor views), annotated with `jakarta.nosql.mapping.Database`. For example:
+
+```java
+@RequestScoped
+public class NamesRepositoryBean {
+	@Produces
+	@Database(value = DatabaseType.DOCUMENT, provider = "names")
+	public DominoDocumentCollectionManager getNamesManager() {
+		return new DefaultDominoDocumentCollectionManager(
+			() -> {
+				try {
+					return NotesContext.getCurrent().getSessionAsSigner().getDatabase("", "names.nsf");
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
+				}
+			},
+			() -> NotesContext.getCurrent().getSessionAsSigner()
+		);
 	}
 }
 ```

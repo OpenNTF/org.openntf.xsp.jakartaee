@@ -3,14 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile Fault Tolerance Support
 Bundle-SymbolicName: org.openntf.xsp.microprofile.fault.tolerance;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.fault.tolerance
-Bundle-Version: 2.4.0.qualifier
+Bundle-Version: 2.5.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  org.openntf.org.eclipse.microprofile.fault.tolerance;bundle-version="4.0.0";visibility:=reexport
 Import-Package: com.ibm.xsp.application,
  com.ibm.xsp.library,
- io.smallrye.faulttolerance,
+ io.smallrye.faulttolerance;version="6.0.0",
  jakarta.enterprise.inject.spi;version="3.0.0",
  org.openntf.xsp.cdi.discovery;version="2.2.0",
  org.openntf.xsp.jakartaee;version="2.2.0",

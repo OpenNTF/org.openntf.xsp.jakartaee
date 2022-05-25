@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class TestXPagesResolverBundle extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testBundleBeanResolution(WebDriver driver) {
-		driver.get(getBudleNsfRootUrl(driver) + "/home.xsp");
+		driver.get(getBundleNsfRootUrl(driver) + "/home.xsp");
 		
 		WebElement dd = driver.findElement(By.xpath("//div[@id='container']/span"));
 		assertEquals("Bundle bean says: Hello from bundleBean", dd.getText());

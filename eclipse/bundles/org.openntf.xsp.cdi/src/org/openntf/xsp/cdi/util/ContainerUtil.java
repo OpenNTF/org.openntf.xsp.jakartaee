@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Jesse Gallagher
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,10 +113,10 @@ public enum ContainerUtil {
 	private static final Map<String, Object> CONTAINER_INIT_LOCKS = Collections.synchronizedMap(new HashMap<>());
 	
 	/**
-	 * Gets or created a {@link WeldContainer} instance for the provided Application.
+	 * Gets or creates a {@link WeldContainer} instance for the provided Application.
 	 * 
 	 * @param application the active {@link ApplicationEx}
-	 * @return an existing or new {@link WeldContainer}
+	 * @return an existing or new {@link CDI}
 	 */
 	@SuppressWarnings("unchecked")
 	public static CDI<Object> getContainer(ApplicationEx application) {
@@ -178,6 +178,10 @@ public enum ContainerUtil {
 							if(extensions != null) {
 								weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
 							}
+							Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
+							if(extensionClasses != null) {
+								extensionClasses.forEach(weld::addExtensions);
+							}
 						}
 						
 						return weld.initialize();
@@ -191,6 +195,43 @@ public enum ContainerUtil {
 	}
 	
 	/**
+	 * Gets a {@link WeldContainer} instance for the provided Application, but does not
+	 * create one if none has been initialized.
+	 * 
+	 * @param application the active {@link ApplicationEx}
+	 * @return an existing {@link CDI}, or {@code null} if none has been initialized
+	 * @since 2.5.0
+	 */
+	public static CDI<Object> getContainerUnchecked(ApplicationEx application) {
+		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
+			String bundleId = getApplicationCDIBundle(application);
+			if(StringUtil.isNotEmpty(bundleId)) {
+				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+				if(bundle.isPresent()) {
+					// For now, at least, it's fine to passively activate a Bundle container
+					return getContainer(bundle.get());
+				}
+				
+				// Look for the database so we can share the replica ID
+				String id;
+				try {
+					id = NotesContext.getCurrent().getNotesDatabase().getReplicaID();
+				} catch (NotesAPIException e) {
+					throw new RuntimeException(e);
+				}
+				
+				WeldContainer instance = WeldContainer.instance(id);
+				if(instance == null || !instance.isRunning()) {
+					return null;
+				} else {
+					return instance;
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Retrieves or creates a CDI container specific to the provided OSGi bundle.
 	 * 
 	 * <p>The container is registered as an OSGi service.</p>
@@ -199,7 +240,7 @@ public enum ContainerUtil {
 	 * @return the existing container or a newly-registered one if one did not exist
 	 * @since 1.1.0
 	 */
-	@SuppressWarnings("nls")
+	@SuppressWarnings({ "nls", "unchecked" })
 	public static CDI<Object> getContainer(Bundle bundle) {
 		String id = bundle.getSymbolicName();
 
@@ -222,6 +263,20 @@ public enum ContainerUtil {
 					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
 					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
 					try {
+						for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
+							Collection<Class<?>> beanClasses = service.getBeanClasses();
+							if(beanClasses != null) {
+								weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
+							}
+							Collection<Extension> extensions = service.getExtensions();
+							if(extensions != null) {
+								weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+							}
+							Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
+							if(extensionClasses != null) {
+								extensionClasses.forEach(weld::addExtensions);
+							}
+						}
 						instance = weld.initialize();
 					} finally {
 						OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
@@ -284,6 +339,7 @@ public enum ContainerUtil {
 	 * @throws NotesAPIException if there is a problem reading the database
 	 * @throws UncheckedIOException if there is a problem parsing the database configuration
 	 */
+	@SuppressWarnings("unchecked")
 	public static CDI<Object> getContainer(NotesDatabase database) throws NotesAPIException {
 		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, database)) {
 			String bundleId = getApplicationCDIBundle(database);
@@ -332,6 +388,10 @@ public enum ContainerUtil {
 								Collection<Extension> extensions = service.getExtensions();
 								if(extensions != null) {
 									fweld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+								}
+								Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
+								if(extensionClasses != null) {
+									extensionClasses.forEach(fweld::addExtensions);
 								}
 							}
 							
