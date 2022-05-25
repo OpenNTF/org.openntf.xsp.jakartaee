@@ -39,10 +39,6 @@
 		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
-		<!-- Mail and Activation -->
-		<module>bundles/org.openntf.xsp.jakartamail.api</module>
-		<module>bundles/org.openntf.xsp.jakartamail.impl</module>
-		
 		<!-- Servlet -->
 		<module>bundles/org.openntf.xsp.jakarta.servlet</module>
 		<module>features/org.openntf.xsp.jakarta.servlet.feature</module>

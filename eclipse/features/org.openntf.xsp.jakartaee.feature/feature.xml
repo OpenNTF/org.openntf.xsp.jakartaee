@@ -256,8 +256,7 @@
 	<plugin id="jakarta.xml.soap-api" version="0.0.0"/>
 	
 	<!-- Mail -->
-	<plugin id="org.openntf.xsp.jakartamail.api" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.jakartamail.impl" version="0.0.0" fragment="true"/>
+	<plugin id="org.openntf.org.eclipse.angus.jakarta.mail" version="0.0.0"/>
 	<plugin id="jakarta.activation-api" version="0.0.0"/>
 	<plugin id="angus-activation" version="0.0.0"/>
 	
