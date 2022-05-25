@@ -32,6 +32,7 @@ import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jaxrs.JAXRSServletFactory;
 
 import com.ibm.commons.util.PathUtil;
+import com.ibm.commons.util.StringUtil;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import io.smallrye.openapi.api.OpenApiConfig;
@@ -130,13 +131,15 @@ public abstract class AbstractOpenAPIResource {
 		noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\""); //$NON-NLS-1$
 		noteCollection.buildCollection();
 		String noteID = noteCollection.getFirstNoteID();
-		Document designDoc = database.getDocumentByID(noteID);
-		
-		if (null != designDoc) {
-			String buildVersion = designDoc.getItemValueString("$TemplateBuild"); //$NON-NLS-1$
-			Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate(); //$NON-NLS-1$
-			String buildDateFormatted = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT).format(buildDate);
-			return MessageFormat.format("{0} ({1})", buildVersion, buildDateFormatted); //$NON-NLS-1$
+		if(StringUtil.isNotEmpty(noteID)) {
+			Document designDoc = database.getDocumentByID(noteID);
+			
+			if (null != designDoc) {
+				String buildVersion = designDoc.getItemValueString("$TemplateBuild"); //$NON-NLS-1$
+				Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate(); //$NON-NLS-1$
+				String buildDateFormatted = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT).format(buildDate);
+				return MessageFormat.format("{0} ({1})", buildVersion, buildDateFormatted); //$NON-NLS-1$
+			}
 		}
 		
 		return ""; //$NON-NLS-1$
