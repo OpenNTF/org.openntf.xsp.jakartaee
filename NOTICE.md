@@ -52,7 +52,7 @@ The binary distribution contains the following 3rd party code:
 - Reactive Streams, available from https://github.com/reactive-streams/reactive-streams-jvm and licensed under MIT No Attribution
 - GlassFish/Jasper JSP, available from https://mvnrepository.com/artifact/org.glassfish.web/jakarta.servlet.jsp/3.0.0 and licensed under the EPL 2.0
 - The GlassFish JSTL implementation, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/impl and licensed under the EPL 2.0
-- Apache MyFaces 4.0, available from https://myfaces.apache.org/ and licensed under Apache 2.0
+- Apache MyFaces 3.0.1, available from https://myfaces.apache.org/ and licensed under Apache 2.0
 	- See legal/NOTICE-myfaces.txt for downstream third-party components, which are licensed under Apache 2.0 and the CDDL
 - Eclipse Krazo, available from https://github.com/eclipse-ee4j/krazo and licensed under the EPL 2.0
 - Eclipse JNoSQL, available from https://github.com/eclipse/jnosql and licensed under the EPL 1.0

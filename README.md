@@ -16,7 +16,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Mail 2.1
     - Activation 2.1
 - Server Pages 3.0
-- Server Faces 4.0 (snapshot)
+- Server Faces 3.0
 - MVC 2.0
 - NoSQL 1.0 (snapshot)
 

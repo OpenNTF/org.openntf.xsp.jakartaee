@@ -42,29 +42,33 @@ public class TestJsf extends AbstractWebClientTest {
 	public void testHelloPage(WebDriver driver) {
 		driver.get(getRootUrl(driver) + "/hello.xhtml");
 
-		String expected = "inputValue" + System.currentTimeMillis();
-		{
-			WebElement form = driver.findElement(By.xpath("//form[1]"));
-
-			WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Request Method\"]/following-sibling::dd[1]"));
-			assertEquals("GET", dd.getText());
-			
-			WebElement input = form.findElement(By.xpath("input[1]"));
-			assertTrue(input.getAttribute("id").endsWith(":appGuyProperty"), () -> input.getAttribute("id"));
-			input.click();
-			input.sendKeys(expected);
-			assertEquals(expected, input.getAttribute("value"));
-			
-			WebElement submit = form.findElement(By.xpath("input[@type='submit']"));
-			assertEquals("Refresh", submit.getAttribute("value"));
-			submit.click();
-		}
-		{
-			
-			WebElement form = driver.findElement(By.xpath("//form[1]"));
-			
-			WebElement span = form.findElement(By.xpath("p/span[1]"));
-			assertEquals(expected, span.getText());
+		try {
+			String expected = "inputValue" + System.currentTimeMillis();
+			{
+				WebElement form = driver.findElement(By.xpath("//form[1]"));
+	
+				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Request Method\"]/following-sibling::dd[1]"));
+				assertEquals("GET", dd.getText());
+				
+				WebElement input = form.findElement(By.xpath("input[1]"));
+				assertTrue(input.getAttribute("id").endsWith(":appGuyProperty"), () -> input.getAttribute("id"));
+				input.click();
+				input.sendKeys(expected);
+				assertEquals(expected, input.getAttribute("value"));
+				
+				WebElement submit = form.findElement(By.xpath("input[@type='submit']"));
+				assertEquals("Refresh", submit.getAttribute("value"));
+				submit.click();
+			}
+			{
+				
+				WebElement form = driver.findElement(By.xpath("//form[1]"));
+				
+				WebElement span = form.findElement(By.xpath("p/span[1]"));
+				assertEquals(expected, span.getText());
+			}
+		} catch(Exception e) {
+			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 	

@@ -38,18 +38,20 @@ public class JsfCdiBeanContributor implements WeldBeanClassContributor {
 	public Collection<Extension> getExtensions() {
 		if(LibraryUtil.isLibraryActive(JsfLibrary.LIBRARY_ID)) {
 			return Arrays.asList(
-				new org.apache.myfaces.cdi.FacesScopeExtension(),
-				new org.apache.myfaces.cdi.FacesArtifactProducerExtension(),
-				new org.apache.myfaces.cdi.FacesApplicationArtifactHolderExtension(),
-				new org.apache.myfaces.cdi.config.FacesConfigExtension(),
-				new org.apache.myfaces.cdi.managedproperty.ManagedPropertyExtension(),
-				new org.apache.myfaces.cdi.model.FacesDataModelExtension(),
-				new org.apache.myfaces.cdi.view.ViewScopeExtension(),
-				new org.apache.myfaces.cdi.view.ViewTransientScopeExtension(),
+				new org.apache.myfaces.cdi.scope.ScopeExtension(),
+				new org.apache.myfaces.cdi.JsfApplicationArtifactHolderExtension(),
+				new org.apache.myfaces.cdi.view.ViewScopeContextExtension(),
+				new org.apache.myfaces.flow.cdi.FlowBuilderCDIExtension(),
+				new org.apache.myfaces.flow.cdi.FlowScopeCDIExtension(),
 				new org.apache.myfaces.config.annotation.CdiAnnotationProviderExtension(),
 				new org.apache.myfaces.push.cdi.PushContextCDIExtension(),
-				new org.apache.myfaces.flow.cdi.FlowScopeExtension(),
-				new org.apache.myfaces.cdi.clientwindow.ClientWindowScopeExtension()
+				new org.apache.myfaces.cdi.managedproperty.ManagedPropertyExtension(),
+				new org.apache.myfaces.cdi.converter.FacesConverterExtension(),
+				new org.apache.myfaces.cdi.validator.FacesValidatorExtension(),
+				new org.apache.myfaces.cdi.behavior.FacesBehaviorExtension(),
+				new org.apache.myfaces.cdi.model.FacesDataModelExtension(),
+				new org.apache.myfaces.cdi.config.FacesConfigExtension(),
+				new org.apache.myfaces.cdi.JsfArtifactProducerExtension()
 			);
 		} else {
 			return null;
