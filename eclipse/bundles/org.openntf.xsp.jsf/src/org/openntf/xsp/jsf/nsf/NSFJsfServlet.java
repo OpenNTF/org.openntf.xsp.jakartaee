@@ -196,6 +196,9 @@ public class NSFJsfServlet extends HttpServlet {
 					resp.getOutputStream().flush();
 				} catch(IllegalStateException e2) {
 					// Well, fine.
+				} catch(IOException e2) {
+					// Is "ServletOutputStream is closed" when serving resources
+					// Either way, nothing to do with it here
 				}
 			} catch(IOException e) {
 				// No need to propagate this

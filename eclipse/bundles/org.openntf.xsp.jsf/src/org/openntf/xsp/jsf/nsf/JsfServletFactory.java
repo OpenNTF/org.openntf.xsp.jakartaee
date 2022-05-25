@@ -49,6 +49,7 @@ import org.osgi.framework.FrameworkUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
+import jakarta.faces.application.ResourceHandler;
 import jakarta.faces.webapp.FacesServlet;
 
 /**
@@ -77,6 +78,9 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 	
 	@Override
 	protected boolean checkExists(String servletPath, String pathInfo) {
+		if(servletPath.startsWith(ResourceHandler.RESOURCE_IDENTIFIER)) {
+			return true;
+		}
 		ComponentModule module = getModule();
 		return module.getResourceAsStream(servletPath) != null;
 	}
