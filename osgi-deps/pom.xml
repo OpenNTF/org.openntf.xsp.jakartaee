@@ -458,7 +458,7 @@
 								-->
 								<artifact><id>jakarta.mail:jakarta.mail-api:2.1.0</id><source>true</source></artifact>
 								<artifact><id>jakarta.activation:jakarta.activation-api:2.1.0-RC1</id><source>true</source></artifact>
-								<artifact><id>org.eclipse.angus:angus-activation:1.0.0-M1</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.angus:angus-activation:1.0.0</id><source>true</source></artifact>
 								
 								<!--
 									JSP 
