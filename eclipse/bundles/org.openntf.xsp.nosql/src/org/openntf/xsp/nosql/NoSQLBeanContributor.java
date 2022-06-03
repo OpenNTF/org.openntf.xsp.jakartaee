@@ -47,8 +47,8 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
+		// These classes are housed in fragments, so access those in a roundabout way
 		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
-			// These classes are housed in fragments, so access those in a roundabout way
 			List<Class<?>> result = new ArrayList<>();
 			Stream.of(DatabaseQualifier.class, DefaultDocumentQueryPaginationProvider.class)
 				.map(FrameworkUtil::getBundle)

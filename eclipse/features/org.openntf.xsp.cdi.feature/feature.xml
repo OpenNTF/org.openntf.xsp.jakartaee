@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.cdi.feature"
       label="XPages CDI 3.0 Support Feature"
-      version="2.5.0.qualifier">
+      version="2.6.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -237,9 +237,8 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
+	<plugin id="org.openntf.jakarta.enterprise.cdi-api" version="0.0.0"/>
 	<plugin id="org.openntf.xsp.cdi" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.cdi.api" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.cdi.provider" version="0.0.0"/>
     
 	<plugin id="org.jboss.weld.api" version="0.0.0"/>
 	<plugin id="org.jboss.weld.spi" version="0.0.0"/>

@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jakartaee.feature"
       label="XPages Jakarta EE Platform Feature"
-      version="2.5.0.qualifier">
+      version="2.6.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -247,7 +247,8 @@
 	<plugin id="jakarta.inject.jakarta.inject-api" version="0.0.0"/>
 	<plugin id="jakarta.servlet-api" version="0.0.0"/>
 	<plugin id="jakarta.json.bind-api" version="0.0.0"/>
-	<plugin id="org.openntf.jakarta.websocket-api" version="0.0.0"/>
+	<plugin id="jakarta.websocket-client-api" version="0.0.0"/>
+	<plugin id="jakarta.websocket-api" version="0.0.0"/>
 	<plugin id="org.glassfish.jakarta.json" version="0.0.0"/>
 	<plugin id="jakarta.persistence-api" version="0.0.0"/>
 	<plugin id="jakarta.ejb-api" version="0.0.0"/>
@@ -256,8 +257,7 @@
 	<plugin id="jakarta.xml.soap-api" version="0.0.0"/>
 	
 	<!-- Mail -->
-	<plugin id="org.openntf.xsp.jakartamail.api" version="0.0.0"/>
-	<plugin id="org.openntf.xsp.jakartamail.impl" version="0.0.0" fragment="true"/>
+	<plugin id="org.openntf.org.eclipse.angus.jakarta.mail" version="0.0.0"/>
 	<plugin id="jakarta.activation-api" version="0.0.0"/>
 	<plugin id="angus-activation" version="0.0.0"/>
 	

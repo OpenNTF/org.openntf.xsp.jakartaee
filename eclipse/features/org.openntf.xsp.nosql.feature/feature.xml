@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.nosql.feature"
       label="XPages Jakarta NoSQL 1.0 Support Feature"
-      version="2.5.0.qualifier">
+      version="2.6.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -253,6 +253,6 @@
    <plugin id="org.openntf.org.eclipse.jnosql.mapping.core" version="0.0.0" fragment="true"/>
    <plugin id="org.openntf.org.eclipse.jnosql.mapping.document" version="0.0.0" fragment="true"/>
    
-   <plugin id="org.antlr.antlr4-runtime" version="0.0.0"/>
+   <plugin id="org.antlr.antlr4-runtime.jakarta" version="0.0.0"/>
 
 </feature>

@@ -19,7 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
@@ -35,36 +38,42 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestJsf extends AbstractWebClientTest {
 	
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@Order(1)
 	public void testHelloPage(WebDriver driver) {
 		driver.get(getRootUrl(driver) + "/hello.xhtml");
 
-		String expected = "inputValue" + System.currentTimeMillis();
-		{
-			WebElement form = driver.findElement(By.xpath("//form[1]"));
-
-			WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Request Method\"]/following-sibling::dd[1]"));
-			assertEquals("GET", dd.getText());
-			
-			WebElement input = form.findElement(By.xpath("input[1]"));
-			assertTrue(input.getAttribute("id").endsWith(":appGuyProperty"), () -> input.getAttribute("id"));
-			input.click();
-			input.sendKeys(expected);
-			assertEquals(expected, input.getAttribute("value"));
-			
-			WebElement submit = form.findElement(By.xpath("input[@type='submit']"));
-			assertEquals("Refresh", submit.getAttribute("value"));
-			submit.click();
-		}
-		{
-			
-			WebElement form = driver.findElement(By.xpath("//form[1]"));
-			
-			WebElement span = form.findElement(By.xpath("p/span[1]"));
-			assertEquals(expected, span.getText());
+		try {
+			String expected = "inputValue" + System.currentTimeMillis();
+			{
+				WebElement form = driver.findElement(By.xpath("//form[1]"));
+	
+				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Request Method\"]/following-sibling::dd[1]"));
+				assertEquals("GET", dd.getText());
+				
+				WebElement input = form.findElement(By.xpath("input[1]"));
+				assertTrue(input.getAttribute("id").endsWith(":appGuyProperty"), () -> input.getAttribute("id"));
+				input.click();
+				input.sendKeys(expected);
+				assertEquals(expected, input.getAttribute("value"));
+				
+				WebElement submit = form.findElement(By.xpath("input[@type='submit']"));
+				assertEquals("Refresh", submit.getAttribute("value"));
+				submit.click();
+			}
+			{
+				
+				WebElement form = driver.findElement(By.xpath("//form[1]"));
+				
+				WebElement span = form.findElement(By.xpath("p/span[1]"));
+				assertEquals(expected, span.getText());
+			}
+		} catch(Exception e) {
+			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 	
@@ -73,6 +82,7 @@ public class TestJsf extends AbstractWebClientTest {
 	 * non-empty 404 page.
 	 */
 	@Test
+	@Order(2)
 	public void testNotFound() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRootUrl(null) + "/somefakepage.xhtml");
@@ -82,5 +92,21 @@ public class TestJsf extends AbstractWebClientTest {
 		
 		String content = response.readEntity(String.class);
 		assertFalse(StringUtil.isEmpty(content));
+	}
+	
+	/**
+	 * Tests to ensure that the jsf.js resource can be properly loaded.
+	 */
+	@Test
+	@Order(3)
+	public void testJsfJs() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRootUrl(null) + "/jakarta.faces.resource/jsf.js.xhtml?ln=jakarta.faces");
+		Response response = target.request().get();
+		assertEquals(200, response.getStatus());
+
+		String content = response.readEntity(String.class);
+		assertFalse(StringUtil.isEmpty(content));
+		
 	}
 }

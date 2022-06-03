@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.myfaces.webapp.MyFacesContainerInitializer;
+import org.apache.myfaces.ee.MyFacesContainerInitializer;
+import org.apache.myfaces.shared.config.MyfacesConfig;
 import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
@@ -92,6 +93,7 @@ public class NSFJsfServlet extends HttpServlet {
 			CDI<Object> cdi = ContainerUtil.getContainer(NotesContext.getCurrent().getNotesDatabase());
 			ServletContext context = config.getServletContext();
 			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+			context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_JSP_AND_FACES_EL, String.valueOf(false));
 			// TODO investigate why partial state saving doesn't work with a basic form
 			context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 			
@@ -100,12 +102,18 @@ public class NSFJsfServlet extends HttpServlet {
 			context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
 			
 			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
+			Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
 			{
 				ServletContainerInitializer initializer = new MyFacesContainerInitializer();
 				Set<Class<?>> classes = null;
 				HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
 				if(types != null) {
 					classes = buildMatchingClasses(types, b);
+					if(classes == null) {
+						classes = buildMatchingClasses(types, b2);
+					} else {
+						classes.addAll(buildMatchingClasses(types, b2));
+					}
 				}
 				initializer.onStartup(classes, getServletContext());
 			}
@@ -188,6 +196,9 @@ public class NSFJsfServlet extends HttpServlet {
 					resp.getOutputStream().flush();
 				} catch(IllegalStateException e2) {
 					// Well, fine.
+				} catch(IOException e2) {
+					// Is "ServletOutputStream is closed" when serving resources
+					// Either way, nothing to do with it here
 				}
 			} catch(IOException e) {
 				// No need to propagate this
