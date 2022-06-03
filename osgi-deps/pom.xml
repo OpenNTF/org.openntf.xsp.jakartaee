@@ -607,6 +607,7 @@
 								<artifact>
 									<id>org.eclipse.jnosql.communication:communication-query:${nosql-version}</id>
 									<source>true</source>
+									<transform>jakarta</transform>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.query</Bundle-SymbolicName>

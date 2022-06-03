@@ -227,6 +227,7 @@
 						<plugin id="org.openntf.xsp.jaxrs.providers"/>
 						<plugin id="jakarta.servlet.jsp-api"/>
 						<plugin id="org.eclipse.jdt.core"/>
+						<plugin id="org.antlr.antlr4-runtime.jakarta"/>
 					</excludes>
 				</configuration>
 			</plugin>
