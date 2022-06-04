@@ -13,7 +13,7 @@ public class JakartaSapiServiceFactory implements JasapiServiceFactory {
 	@Override
 	public Collection<JavaSapiService> getServices(IJavaSapiEnvironment env) {
 		return Arrays.asList(
-			new JakartaSapiService(env)
+			new JwtService(env)
 		);
 	}
 

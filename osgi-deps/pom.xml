@@ -89,6 +89,7 @@
 								<artifact><id>jakarta.websocket:jakarta.websocket-api:2.1.0</id><source>true</source></artifact>
 								<!-- NB: XML WS 4.0.0 requires Java 11 -->
 								<artfiact><id>jakarta.xml.ws:jakarta.xml.ws-api:3.0.1</id><source>true</source></artfiact>
+								<artfiact><id>com.auth0:java-jwt:3.3.0</id><source>true</source></artfiact>
 								
 								<!-- Repackage to avoid trouble with a build finding a newer, beta-only version -->
 								<artifact>
