@@ -46,6 +46,7 @@ import lotus.domino.DateTime;
 import lotus.domino.DocumentCollection;
 import lotus.domino.Item;
 import lotus.domino.NotesException;
+import lotus.domino.RichTextItem;
 import lotus.domino.View;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
@@ -68,6 +69,23 @@ public enum EntityConverter {
 	 * Domino, currently {@value #NAME_FIELD}
 	 */
 	public static final String NAME_FIELD = "Form"; //$NON-NLS-1$
+	
+	/**
+	 * Options used when converting composite data to HTML. This list is based
+	 * on the options used by XPages.
+	 */
+	public static final Vector<String> HTML_CONVERSION_OPTIONS = new Vector<>(Arrays.asList(
+		"AutoClass=2", //$NON-NLS-1$
+		"RowAtATimeTableAlt=2", //$NON-NLS-1$
+		"SectionAlt=1", //$NON-NLS-1$
+		"XMLCompatibleHTML=1", //$NON-NLS-1$
+		"AttachmentLink=1", //$NON-NLS-1$
+		"TableStyle=1", //$NON-NLS-1$
+		"FontConversion=1", //$NON-NLS-1$
+		"LinkHandling=1", //$NON-NLS-1$
+		"ListFidelity=1", //$NON-NLS-1$
+		"ParagraphIndent=2" //$NON-NLS-1$
+	));
 	
 	static Stream<DocumentEntity> convert(Database database, View docs) throws NotesException {
 		// TODO stream this better
@@ -126,13 +144,22 @@ public enum EntityConverter {
 			if(NAME_FIELD.equalsIgnoreCase(itemName)) {
 				continue;
 			}
-			List<?> val = item.getValues();
-			if(val == null || val.isEmpty()) {
-				// Skip
-			} else if(val.size() == 1) {
-				docMap.put(item.getName(), toJavaFriendly(doc, val.get(0)));
+			
+			if(item instanceof RichTextItem) {
+				// Special handling here for RT -> HTML
+				String html = ((RichTextItem)item).convertToHTML(HTML_CONVERSION_OPTIONS);
+				docMap.put(item.getName(), html);
 			} else {
-				docMap.put(item.getName(), toJavaFriendly(doc, val));
+				// TODO handle MIME
+				
+				List<?> val = item.getValues();
+				if(val == null || val.isEmpty()) {
+					// Skip
+				} else if(val.size() == 1) {
+					docMap.put(item.getName(), toJavaFriendly(doc, val.get(0)));
+				} else {
+					docMap.put(item.getName(), toJavaFriendly(doc, val));
+				}
 			}
 		}
 		
