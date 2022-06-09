@@ -45,8 +45,10 @@ import lotus.domino.DateRange;
 import lotus.domino.DateTime;
 import lotus.domino.DocumentCollection;
 import lotus.domino.Item;
+import lotus.domino.MIMEEntity;
 import lotus.domino.NotesException;
 import lotus.domino.RichTextItem;
+import lotus.domino.Session;
 import lotus.domino.View;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
@@ -136,52 +138,93 @@ public enum EntityConverter {
 
 	@SuppressWarnings("unchecked")
 	public static List<Document> toDocuments(lotus.domino.Document doc) throws NotesException {
-		List<Document> result = new ArrayList<>();
-		result.add(Document.of(ID_FIELD, doc.getUniversalID()));
-		Map<String, Object> docMap = new LinkedHashMap<>();
-		for(Item item : (List<Item>)doc.getItems()) {
-			String itemName = item.getName();
-			if(NAME_FIELD.equalsIgnoreCase(itemName)) {
-				continue;
-			}
+		Session session = doc.getParentDatabase().getParent();
+		boolean convertMime = session.isConvertMime();
+		try {
+			session.setConvertMime(false);
 			
-			if(item instanceof RichTextItem) {
-				// Special handling here for RT -> HTML
-				String html = ((RichTextItem)item).convertToHTML(HTML_CONVERSION_OPTIONS);
-				docMap.put(item.getName(), html);
-			} else {
-				// TODO handle MIME
+			List<Document> result = new ArrayList<>();
+			result.add(Document.of(ID_FIELD, doc.getUniversalID()));
+			Map<String, Object> docMap = new LinkedHashMap<>();
+			for(Item item : (List<Item>)doc.getItems()) {
+				String itemName = item.getName();
+				if(NAME_FIELD.equalsIgnoreCase(itemName)) {
+					continue;
+				}
 				
-				List<?> val = item.getValues();
-				if(val == null || val.isEmpty()) {
-					// Skip
-				} else if(val.size() == 1) {
-					docMap.put(item.getName(), toJavaFriendly(doc, val.get(0)));
+				if(item instanceof RichTextItem) {
+					// Special handling here for RT -> HTML
+					String html = ((RichTextItem)item).convertToHTML(HTML_CONVERSION_OPTIONS);
+					docMap.put(item.getName(), html);
+				} else if(item.getType() == Item.MIME_PART) {
+					// TODO consider whether to pass this back as a Mail API MIME entity
+					MIMEEntity entity = doc.getMIMEEntity(itemName);
+					MIMEEntity html = findEntityForType(entity, "text", "html"); //$NON-NLS-1$ //$NON-NLS-2$
+					if(html != null) {
+						docMap.put(itemName, html.getContentAsText());
+					} else {
+						MIMEEntity text = findEntityForType(entity, "text", "plain"); //$NON-NLS-1$ //$NON-NLS-2$
+						if(text != null) {
+							docMap.put(itemName, text.getContentAsText());
+						} else {
+							docMap.put(itemName, entity.toString());
+						}
+					}
 				} else {
-					docMap.put(item.getName(), toJavaFriendly(doc, val));
+					List<?> val = item.getValues();
+					if(val == null || val.isEmpty()) {
+						// Skip
+					} else if(val.size() == 1) {
+						docMap.put(itemName, toJavaFriendly(doc, val.get(0)));
+					} else {
+						docMap.put(itemName, toJavaFriendly(doc, val));
+					}
 				}
 			}
+			
+			docMap.forEach((key, value) -> result.add(Document.of(key, value)));
+	
+			result.add(Document.of("_cdate", doc.getCreated().toJavaDate().toInstant())); //$NON-NLS-1$
+			result.add(Document.of("_mdate", doc.getCreated().toJavaDate().toInstant())); //$NON-NLS-1$
+			
+			// TODO attachments support
+	//		result.add(Document.of(ATTACHMENT_FIELD,
+	//			Stream.of(doc.getAttachments())
+	//				.map(t -> {
+	//					try {
+	//						return new DominoDocumentAttachment(t);
+	//					} catch (NotesException e) {
+	//						throw new RuntimeException(e);
+	//					}
+	//				})
+	//				.collect(Collectors.toList())
+	//		));
+			
+			return result;
+		} finally {
+			session.setConvertMime(convertMime);
 		}
-		
-		docMap.forEach((key, value) -> result.add(Document.of(key, value)));
-
-		result.add(Document.of("_cdate", doc.getCreated().toJavaDate().toInstant())); //$NON-NLS-1$
-		result.add(Document.of("_mdate", doc.getCreated().toJavaDate().toInstant())); //$NON-NLS-1$
-		
-		// TODO attachments support
-//		result.add(Document.of(ATTACHMENT_FIELD,
-//			Stream.of(doc.getAttachments())
-//				.map(t -> {
-//					try {
-//						return new DominoDocumentAttachment(t);
-//					} catch (NotesException e) {
-//						throw new RuntimeException(e);
-//					}
-//				})
-//				.collect(Collectors.toList())
-//		));
-		
-		return result;
+	}
+	
+	private static MIMEEntity findEntityForType(MIMEEntity entity, String targetType, String targetSubtype) throws NotesException {
+		String type = entity.getContentType();
+		String subtype = entity.getContentSubType();
+		if(targetType.equals(type) && targetSubtype.equals(subtype)) {
+			return entity;
+		} else if("multipart".equals(type)) { //$NON-NLS-1$
+			MIMEEntity child = entity.getFirstChildEntity();
+			while(child != null) {
+				MIMEEntity result = findEntityForType(child, targetType, targetSubtype);
+				if(result != null) {
+					return result;
+				}
+				
+				child = child.getNextSibling();
+			}
+			return null;
+		} else {
+			return null;
+		}
 	}
 
 	/**
