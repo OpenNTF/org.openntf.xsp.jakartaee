@@ -182,7 +182,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 				String userName = database.getParent().getEffectiveUserName();
 				String dqlQuery = queryResult.getStatement().toString();
-				String viewName = getClass().getName() + "-" + Objects.hash(sorts, skip, limit, userName, dqlQuery); //$NON-NLS-1$
+				String viewName = getClass().getName() + "-" + Objects.hash(sorts, userName, dqlQuery); //$NON-NLS-1$
 				View view = qrpDatabase.getView(viewName);
 				try {
 					if(view != null) {
@@ -212,10 +212,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 							for(Sort sort : sorts) {
 								int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
 								qrp.addColumn(sort.getName(), null, null, dir, false, false);
-							}
-							
-							if(skip == 0 && limit > 0 && limit <= Integer.MAX_VALUE) {
-								qrp.setMaxEntries((int)limit);
 							}
 							
 							view = qrp.executeToView(viewName, 24);
