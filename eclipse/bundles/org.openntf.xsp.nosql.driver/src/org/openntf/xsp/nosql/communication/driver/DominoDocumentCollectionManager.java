@@ -22,5 +22,7 @@ import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.mapping.Pagination;
 
 public interface DominoDocumentCollectionManager extends DocumentCollectionManager {
-	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination);
+	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
+	
+	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
 }

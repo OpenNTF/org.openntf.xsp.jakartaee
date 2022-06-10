@@ -138,6 +138,9 @@ public enum EntityConverter {
 			Vector<?> columnValues = entry.getColumnValues();
 			
 			List<Document> convertedEntry = new ArrayList<>(columnValues.size());
+
+			convertedEntry.add(Document.of(ID_FIELD, entry.getUniversalID()));
+			
 			for(int i = 0; i < columnValues.size(); i++) {
 				String itemName = columnNames.get(i);
 				Object value = columnValues.get(i);
@@ -150,6 +153,41 @@ public enum EntityConverter {
 			}
 
 			entry.recycle(columnValues);
+			ViewEntry tempEntry = entry;
+			entry = nav.getNext(entry);
+			tempEntry.recycle();
+		}
+		
+		return result.stream();
+	}
+	
+	static Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, long limit) throws NotesException {
+		// Read in the column names
+		View view = nav.getParentView();
+		@SuppressWarnings("unchecked")
+		Vector<ViewColumn> columns = view.getColumns();
+		List<String> columnNames = new ArrayList<>();
+		for(ViewColumn col : columns) {
+			if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
+				columnNames.add(col.getItemName());
+			}
+		}
+		view.recycle(columns);
+		
+		List<DocumentEntity> result = new ArrayList<>();
+		ViewEntry entry = nav.getFirst();
+		while(entry != null) {
+			if(entry.isDocument()) {
+				lotus.domino.Document doc = entry.getDocument();
+				List<Document> documents = toDocuments(doc);
+				String name = doc.getItemValueString(NAME_FIELD);
+				result.add(DocumentEntity.of(name, documents));
+				
+				if(limit > 0 && result.size() >= limit) {
+					break;
+				}
+			}
+			
 			ViewEntry tempEntry = entry;
 			entry = nav.getNext(entry);
 			tempEntry.recycle();

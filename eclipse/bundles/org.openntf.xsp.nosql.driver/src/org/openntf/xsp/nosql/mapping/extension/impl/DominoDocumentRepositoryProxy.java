@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.ViewCategory;
+import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
 import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Pagination;
@@ -79,7 +80,36 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			}
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			
-			return template.viewEntryQuery(entityName, viewEntries.value(), category, pagination);
+			return template.viewEntryQuery(entityName, viewEntries.value(), category, pagination, viewEntries.maxLevel());
+		}
+		
+		// View documents support
+		ViewDocuments viewDocuments = method.getAnnotation(ViewDocuments.class);
+		if(viewDocuments != null) {
+			// Check for category annotations on the method
+			// TODO consider support for multiple categories
+			String category = null;
+			Parameter[] params = method.getParameters();
+			for(int i = 0; i < params.length; i++) {
+				if(params[i].isAnnotationPresent(ViewCategory.class)) {
+					category = args[i] == null ? null : args[i].toString();
+					break;
+				}
+			}
+			
+			Pagination pagination;
+			if(args != null) {
+				pagination = Stream.of(args)
+					.filter(Pagination.class::isInstance)
+					.map(Pagination.class::cast)
+					.findFirst()
+					.orElse(null);
+			} else {
+				pagination = null;
+			}
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			
+			return template.viewDocumentQuery(entityName, viewDocuments.value(), category, pagination, viewDocuments.maxLevel());
 		}
 		
 		return method.invoke(repository, args);

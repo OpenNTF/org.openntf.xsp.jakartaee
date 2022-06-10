@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -256,47 +257,30 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	}
 
 	@Override
-	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination) {
-		if(StringUtil.isEmpty(viewName)) {
-			throw new IllegalArgumentException("viewName cannot be empty");
-		}
-		
-		Database database = supplier.get();
-		try {
-			View view = database.getView(viewName);
-			Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
-			view.setAutoUpdate(false);
-			
-			ViewNavigator nav;
-			if(category == null) {
-				nav = view.createViewNav();
-			} else {
-				nav = view.createViewNavFromCategory(category);
-			}
-			
-			long limit = 0;
-			if(pagination != null) {
-				long skip = pagination.getSkip();
-				limit = pagination.getLimit();
-				
-				if(skip > Integer.MAX_VALUE) {
-					throw new UnsupportedOperationException("Domino does not support skipping more than Integer.MAX_VALUE entries");
-				}
-				if(skip > 0) {
-					nav.skip((int)skip);
+	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel) {
+		return buildNavigtor(viewName, category, pagination, maxLevel,
+			(nav, limit) -> {
+				try {
+					return EntityConverter.convertViewEntries(entityName, nav, limit);
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
 				}
 			}
-			
-			if(limit > 0) {
-				nav.setBufferMaxEntries((int)Math.max(400, limit));
-			} else {
-				nav.setBufferMaxEntries(400);
+		);
+	}
+	
+	@Override
+	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, String category,
+			Pagination pagination, int maxLevel) {
+		return buildNavigtor(viewName, category, pagination, maxLevel,
+			(nav, limit) -> {
+				try {
+					return EntityConverter.convertViewDocuments(entityName, nav, limit);
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
+				}
 			}
-			
-			return EntityConverter.convertViewEntries(entityName, nav, limit);
-		} catch(NotesException e) {
-			throw new RuntimeException(e);
-		}
+		);
 	}
 
 	@Override
@@ -321,6 +305,53 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	// *******************************************************************************
 	// * Internal implementation utilities
 	// *******************************************************************************
+	
+	private <T> T buildNavigtor(String viewName, String category, Pagination pagination, int maxLevel, BiFunction<ViewNavigator, Long, T> consumer) {
+		try {
+			if(StringUtil.isEmpty(viewName)) {
+				throw new IllegalArgumentException("viewName cannot be empty");
+			}
+			
+			Database database = supplier.get();
+			View view = database.getView(viewName);
+			Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
+			view.setAutoUpdate(false);
+			
+			ViewNavigator nav;
+			if(category == null) {
+				nav = view.createViewNav();
+			} else {
+				nav = view.createViewNavFromCategory(category);
+			}
+			
+			if(maxLevel > -1) {
+				nav.setMaxLevel(maxLevel);
+			}
+			
+			long limit = 0;
+			if(pagination != null) {
+				long skip = pagination.getSkip();
+				limit = pagination.getLimit();
+				
+				if(skip > Integer.MAX_VALUE) {
+					throw new UnsupportedOperationException("Domino does not support skipping more than Integer.MAX_VALUE entries");
+				}
+				if(skip > 0) {
+					nav.skip((int)skip);
+				}
+			}
+			
+			if(limit > 0) {
+				nav.setBufferMaxEntries((int)Math.max(400, limit));
+			} else {
+				nav.setBufferMaxEntries(400);
+			}
+			
+			return consumer.apply(nav, limit);
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	
 	private Database getQrpDatabase(Session session, Database database) throws NotesException {
 		String server = database.getServer();
