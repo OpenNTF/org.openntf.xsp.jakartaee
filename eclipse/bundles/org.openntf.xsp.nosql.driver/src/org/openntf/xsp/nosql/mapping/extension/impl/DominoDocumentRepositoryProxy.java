@@ -67,11 +67,16 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 				}
 			}
 			
-			Pagination pagination = Stream.of(args)
-				.filter(Pagination.class::isInstance)
-				.map(Pagination.class::cast)
-				.findFirst()
-				.orElse(null);
+			Pagination pagination;
+			if(args != null) {
+				pagination = Stream.of(args)
+					.filter(Pagination.class::isInstance)
+					.map(Pagination.class::cast)
+					.findFirst()
+					.orElse(null);
+			} else {
+				pagination = null;
+			}
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			
 			return template.viewEntryQuery(entityName, viewEntries.value(), category, pagination);
