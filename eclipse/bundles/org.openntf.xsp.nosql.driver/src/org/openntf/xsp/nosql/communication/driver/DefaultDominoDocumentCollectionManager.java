@@ -273,7 +273,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			} else {
 				nav = view.createViewNavFromCategory(category);
 			}
-			nav.setBufferMaxEntries(400);
 			
 			long limit = 0;
 			if(pagination != null) {
@@ -286,6 +285,12 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				if(skip > 0) {
 					nav.skip((int)skip);
 				}
+			}
+			
+			if(limit > 0) {
+				nav.setBufferMaxEntries((int)Math.max(400, limit));
+			} else {
+				nav.setBufferMaxEntries(400);
 			}
 			
 			return EntityConverter.convertViewEntries(entityName, nav, limit);
