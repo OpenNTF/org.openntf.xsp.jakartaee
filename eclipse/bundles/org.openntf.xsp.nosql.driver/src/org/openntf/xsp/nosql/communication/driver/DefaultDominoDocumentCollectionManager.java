@@ -45,6 +45,7 @@ import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
+import jakarta.nosql.mapping.Pagination;
 import lotus.domino.ACL;
 import lotus.domino.ACLEntry;
 import lotus.domino.Base;
@@ -255,7 +256,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	}
 
 	@Override
-	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category) {
+	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination) {
 		if(StringUtil.isEmpty(viewName)) {
 			throw new IllegalArgumentException("viewName cannot be empty");
 		}
@@ -274,7 +275,20 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			}
 			nav.setBufferMaxEntries(400);
 			
-			return EntityConverter.convertViewEntries(entityName, nav);
+			long limit = 0;
+			if(pagination != null) {
+				long skip = pagination.getSkip();
+				limit = pagination.getLimit();
+				
+				if(skip > Integer.MAX_VALUE) {
+					throw new UnsupportedOperationException("Domino does not support skipping more than Integer.MAX_VALUE entries");
+				}
+				if(skip > 0) {
+					nav.skip((int)skip);
+				}
+			}
+			
+			return EntityConverter.convertViewEntries(entityName, nav, limit);
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
 		}

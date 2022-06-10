@@ -19,11 +19,13 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
+import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.ViewCategory;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
 import jakarta.nosql.mapping.Entity;
+import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Repository;
 
 /**
@@ -65,8 +67,14 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 				}
 			}
 			
+			Pagination pagination = Stream.of(args)
+				.filter(Pagination.class::isInstance)
+				.map(Pagination.class::cast)
+				.findFirst()
+				.orElse(null);
 			String entityName = typeClass.getAnnotation(Entity.class).value();
-			return template.viewEntryQuery(entityName, viewEntries.value(), category);
+			
+			return template.viewEntryQuery(entityName, viewEntries.value(), category, pagination);
 		}
 		
 		return method.invoke(repository, args);

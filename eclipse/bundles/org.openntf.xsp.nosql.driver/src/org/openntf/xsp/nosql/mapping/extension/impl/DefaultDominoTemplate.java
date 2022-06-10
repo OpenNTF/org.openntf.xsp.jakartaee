@@ -27,6 +27,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import jakarta.nosql.mapping.Converters;
+import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.document.DocumentEntityConverter;
 import jakarta.nosql.mapping.document.DocumentEventPersistManager;
 import jakarta.nosql.mapping.document.DocumentWorkflow;
@@ -102,8 +103,8 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, String category) {
-		return getManager().viewEntryQuery(entityName, viewName, category)
+	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination) {
+		return getManager().viewEntryQuery(entityName, viewName, category, pagination)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}

@@ -19,7 +19,8 @@ import java.util.stream.Stream;
 
 import jakarta.nosql.document.DocumentCollectionManager;
 import jakarta.nosql.document.DocumentEntity;
+import jakarta.nosql.mapping.Pagination;
 
 public interface DominoDocumentCollectionManager extends DocumentCollectionManager {
-	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category);
+	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination);
 }

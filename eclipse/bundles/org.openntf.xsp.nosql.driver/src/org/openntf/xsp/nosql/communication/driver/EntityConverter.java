@@ -119,7 +119,7 @@ public enum EntityConverter {
 		return result.stream();
 	}
 	
-	static Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav) throws NotesException {
+	static Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, long limit) throws NotesException {
 		// Read in the column names
 		View view = nav.getParentView();
 		@SuppressWarnings("unchecked")
@@ -144,6 +144,10 @@ public enum EntityConverter {
 				convertedEntry.add(Document.of(itemName, toJavaFriendly(view.getParent(), value)));
 			}
 			result.add(DocumentEntity.of(entityName, convertedEntry));
+			
+			if(limit > 0 && result.size() >= limit) {
+				break;
+			}
 
 			entry.recycle(columnValues);
 			ViewEntry tempEntry = entry;
