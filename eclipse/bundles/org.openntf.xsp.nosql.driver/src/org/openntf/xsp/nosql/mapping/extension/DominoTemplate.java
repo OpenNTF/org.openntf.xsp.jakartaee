@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.nosql.mapping.extension;
 
+import java.util.stream.Stream;
+
 import jakarta.nosql.mapping.document.DocumentTemplate;
 
 /**
@@ -25,5 +27,15 @@ import jakarta.nosql.mapping.document.DocumentTemplate;
  * @since 2.5.0
  */
 public interface DominoTemplate extends DocumentTemplate {
-
+	/**
+	 * Reads entries from the provided view, restricted to the named category.
+	 * 
+	 * @param <T> the class of object returned
+	 * @param entityName the effective entity name returned by this type
+	 * @param viewName the name of the view to query
+	 * @param category the category to restrict to, or {@code null} to not restrict
+	 * @return a {@link Stream} of entities
+	 * @sine 2.6.0
+	 */
+	<T> Stream<T> viewEntryQuery(String entityName, String viewName, String category);
 }

@@ -50,6 +50,7 @@ import lotus.domino.NotesException;
 import lotus.domino.RichTextItem;
 import lotus.domino.Session;
 import lotus.domino.View;
+import lotus.domino.ViewColumn;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
 
@@ -97,7 +98,7 @@ public enum EntityConverter {
 		try {
 			ViewEntry entry = nav.getFirst();
 			while(entry != null) {
-				List<?> columnValues = entry.getColumnValues();
+				Vector<?> columnValues = entry.getColumnValues();
 				// The last column is the note ID in format "NT00000000"
 				String noteId = (String)columnValues.get(columnValues.size()-1);
 				lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
@@ -107,6 +108,7 @@ public enum EntityConverter {
 					result.add(DocumentEntity.of(name, documents));
 				}
 				
+				entry.recycle(columnValues);
 				ViewEntry tempEntry = entry;
 				entry = nav.getNext(entry);
 				tempEntry.recycle();
@@ -114,6 +116,41 @@ public enum EntityConverter {
 		} finally {
 			nav.recycle();
 		}
+		return result.stream();
+	}
+	
+	static Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav) throws NotesException {
+		// Read in the column names
+		View view = nav.getParentView();
+		@SuppressWarnings("unchecked")
+		Vector<ViewColumn> columns = view.getColumns();
+		List<String> columnNames = new ArrayList<>();
+		for(ViewColumn col : columns) {
+			if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
+				columnNames.add(col.getItemName());
+			}
+		}
+		view.recycle(columns);
+		
+		List<DocumentEntity> result = new ArrayList<>();
+		ViewEntry entry = nav.getFirst();
+		while(entry != null) {
+			Vector<?> columnValues = entry.getColumnValues();
+			
+			List<Document> convertedEntry = new ArrayList<>(columnValues.size());
+			for(int i = 0; i < columnValues.size(); i++) {
+				String itemName = columnNames.get(i);
+				Object value = columnValues.get(i);
+				convertedEntry.add(Document.of(itemName, toJavaFriendly(view.getParent(), value)));
+			}
+			result.add(DocumentEntity.of(entityName, convertedEntry));
+
+			entry.recycle(columnValues);
+			ViewEntry tempEntry = entry;
+			entry = nav.getNext(entry);
+			tempEntry.recycle();
+		}
+		
 		return result.stream();
 	}
 
@@ -175,9 +212,9 @@ public enum EntityConverter {
 					if(val == null || val.isEmpty()) {
 						// Skip
 					} else if(val.size() == 1) {
-						docMap.put(itemName, toJavaFriendly(doc, val.get(0)));
+						docMap.put(itemName, toJavaFriendly(doc.getParentDatabase(), val.get(0)));
 					} else {
-						docMap.put(itemName, toJavaFriendly(doc, val));
+						docMap.put(itemName, toJavaFriendly(doc.getParentDatabase(), val));
 					}
 				}
 			}
@@ -258,7 +295,7 @@ public enum EntityConverter {
 				if(value == null) {
 					target.removeItem(doc.getName());
 				} else {
-					target.replaceItemValue(doc.getName(), toDominoFriendly(target, value)).recycle();
+					target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), value)).recycle();
 				}
 			}
 		}
@@ -266,17 +303,17 @@ public enum EntityConverter {
 		target.replaceItemValue(NAME_FIELD, entity.getName());
 	}
 	
-	private static Object toDominoFriendly(lotus.domino.Document context, Object value) throws NotesException {
+	private static Object toDominoFriendly(Session session, Object value) throws NotesException {
 		if(value instanceof Iterable) {
 			Vector<Object> result = new Vector<Object>();
 			for(Object val : (Iterable<?>)value) {
-				result.add(toDominoFriendly(context, val));
+				result.add(toDominoFriendly(session, val));
 			}
 			return result;
 		} else if(value instanceof Date) {
-			return context.getParentDatabase().getParent().createDateTime((Date)value);
+			return session.createDateTime((Date)value);
 		} else if(value instanceof Calendar) {
-			return context.getParentDatabase().getParent().createDateTime((Calendar)value);
+			return session.createDateTime((Calendar)value);
 		} else if(value instanceof Number) {
 			return ((Number)value).doubleValue();
 		} else if(value instanceof Boolean) {
@@ -285,17 +322,17 @@ public enum EntityConverter {
 		} else if(value instanceof LocalDate) {
 			// TODO fix these Temporals when the API improves
 			Instant inst = ZonedDateTime.of((LocalDate)value, LocalTime.of(12, 0), ZoneId.systemDefault()).toInstant();
-			DateTime dt = context.getParentDatabase().getParent().createDateTime(Date.from(inst));
+			DateTime dt = session.createDateTime(Date.from(inst));
 			dt.setAnyTime();
 			return dt;
 		} else if(value instanceof LocalTime) {
 			Instant inst = ZonedDateTime.of(LocalDate.now(), (LocalTime)value, ZoneId.systemDefault()).toInstant();
-			DateTime dt = context.getParentDatabase().getParent().createDateTime(Date.from(inst));
+			DateTime dt = session.createDateTime(Date.from(inst));
 			dt.setAnyDate();
 			return dt;
 		} else if(value instanceof TemporalAccessor) {
 			Instant inst = Instant.from((TemporalAccessor)value);
-			DateTime dt = context.getParentDatabase().getParent().createDateTime(Date.from(inst));
+			DateTime dt = session.createDateTime(Date.from(inst));
 			return dt;
 		} else {
 			// TODO support other types above
@@ -328,7 +365,7 @@ public enum EntityConverter {
 	 * @param value the value to convert
 	 * @return a stock-JDK object representing the value
 	 */
-	private static Object toJavaFriendly(lotus.domino.Document context, Object value) {
+	private static Object toJavaFriendly(lotus.domino.Database context, Object value) {
 		if(value instanceof Iterable) {
 			return StreamSupport.stream(((Iterable<?>)value).spliterator(), false)
 				.map(val -> toJavaFriendly(context, val))
@@ -340,15 +377,17 @@ public enum EntityConverter {
 				String datePart = dt.getDateOnly();
 				String timePart = dt.getTimeOnly();
 				if(datePart == null || datePart.isEmpty()) {
-					context.replaceItemValue(ITEM_TEMPTIME, dt);
-					String iso = (String)dt.getParent().evaluate(FORMULA_TOISOTIME, context).get(0);
+					lotus.domino.Document tempDoc = context.createDocument();
+					tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
+					String iso = (String)dt.getParent().evaluate(FORMULA_TOISOTIME, tempDoc).get(0);
 					Instant inst = dt.toJavaDate().toInstant();
 					int nano = inst.getNano();
 					iso += "." + nano; //$NON-NLS-1$
 					return LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(iso));
 				} else if(timePart == null || timePart.isEmpty()) {
-					context.replaceItemValue(ITEM_TEMPTIME, dt);
-					String iso = (String)dt.getParent().evaluate(FORMULA_TOISODATE, context).get(0);
+					lotus.domino.Document tempDoc = context.createDocument();
+					tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
+					String iso = (String)dt.getParent().evaluate(FORMULA_TOISODATE, tempDoc).get(0);
 					return LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(iso));
 				} else {
 					return dt.toJavaDate().toInstant();
@@ -359,8 +398,8 @@ public enum EntityConverter {
 		} else if(value instanceof DateRange) {
 			try {
 				DateRange dr = (DateRange)value;
-				Temporal start = (Temporal)toDominoFriendly(context, dr.getStartDateTime());
-				Temporal end = (Temporal)toDominoFriendly(context, dr.getEndDateTime());
+				Temporal start = (Temporal)toDominoFriendly(context.getParent(), dr.getStartDateTime());
+				Temporal end = (Temporal)toDominoFriendly(context.getParent(), dr.getEndDateTime());
 				return Arrays.asList(start, end);
 			} catch (NotesException e) {
 				throw new RuntimeException(e);

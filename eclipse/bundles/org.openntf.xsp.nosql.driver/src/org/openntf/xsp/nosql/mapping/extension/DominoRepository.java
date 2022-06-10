@@ -26,6 +26,8 @@ import jakarta.nosql.mapping.Repository;
  * @param <T> the model-object type
  * @param <ID> the ID-field type, generally {@link String}
  * @since 2.5.0
+ * 
+ * @see {@link ViewEntries}
  */
 public interface DominoRepository<T, ID> extends Repository<T, ID> {
 

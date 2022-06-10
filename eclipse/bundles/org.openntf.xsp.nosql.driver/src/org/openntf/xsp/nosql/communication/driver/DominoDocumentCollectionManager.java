@@ -15,8 +15,11 @@
  */
 package org.openntf.xsp.nosql.communication.driver;
 
+import java.util.stream.Stream;
+
 import jakarta.nosql.document.DocumentCollectionManager;
+import jakarta.nosql.document.DocumentEntity;
 
 public interface DominoDocumentCollectionManager extends DocumentCollectionManager {
-
+	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category);
 }

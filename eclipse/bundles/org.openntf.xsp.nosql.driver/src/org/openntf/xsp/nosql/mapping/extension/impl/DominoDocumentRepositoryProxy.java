@@ -17,10 +17,13 @@ package org.openntf.xsp.nosql.mapping.extension.impl;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
-
+import org.openntf.xsp.nosql.mapping.extension.ViewCategory;
+import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
+import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Repository;
 
 /**
@@ -48,6 +51,24 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 	@Override
 	public Object invoke(Object o, Method method, Object[] args) throws Throwable {
 
+		// View entries support
+		ViewEntries viewEntries = method.getAnnotation(ViewEntries.class);
+		if(viewEntries != null) {
+			// Check for category annotations on the method
+			// TODO consider support for multiple categories
+			String category = null;
+			Parameter[] params = method.getParameters();
+			for(int i = 0; i < params.length; i++) {
+				if(params[i].isAnnotationPresent(ViewCategory.class)) {
+					category = args[i] == null ? null : args[i].toString();
+					break;
+				}
+			}
+			
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			return template.viewEntryQuery(entityName, viewEntries.value(), category);
+		}
+		
 		return method.invoke(repository, args);
 	}
 }

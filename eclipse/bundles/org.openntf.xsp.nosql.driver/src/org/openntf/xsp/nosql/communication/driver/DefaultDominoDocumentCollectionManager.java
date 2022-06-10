@@ -35,6 +35,7 @@ import java.util.stream.StreamSupport;
 import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.QueryConverter.QueryConverterResult;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesSession;
 
@@ -56,6 +57,7 @@ import lotus.domino.NotesException;
 import lotus.domino.QueryResultsProcessor;
 import lotus.domino.Session;
 import lotus.domino.View;
+import lotus.domino.ViewNavigator;
 
 public class DefaultDominoDocumentCollectionManager implements DominoDocumentCollectionManager {
 
@@ -253,6 +255,32 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	}
 
 	@Override
+	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category) {
+		if(StringUtil.isEmpty(viewName)) {
+			throw new IllegalArgumentException("viewName cannot be empty");
+		}
+		
+		Database database = supplier.get();
+		try {
+			View view = database.getView(viewName);
+			Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
+			view.setAutoUpdate(false);
+			
+			ViewNavigator nav;
+			if(category == null) {
+				nav = view.createViewNav();
+			} else {
+				nav = view.createViewNavFromCategory(category);
+			}
+			nav.setBufferMaxEntries(400);
+			
+			return EntityConverter.convertViewEntries(entityName, nav);
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
 	public long count(String documentCollection) {
 		try {
 			Database database = supplier.get();
@@ -270,6 +298,10 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	public void close() {
 	
 	}
+	
+	// *******************************************************************************
+	// * Internal implementation utilities
+	// *******************************************************************************
 	
 	private Database getQrpDatabase(Session session, Database database) throws NotesException {
 		String server = database.getServer();

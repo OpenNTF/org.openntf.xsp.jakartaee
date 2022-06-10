@@ -16,6 +16,7 @@
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
 import org.eclipse.jnosql.mapping.reflection.ClassMappings;
@@ -98,5 +99,13 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
     protected Converters getConverters() {
         return converters;
     }
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, String category) {
+		return getManager().viewEntryQuery(entityName, viewName, category)
+			.map(getConverter()::toEntity)
+			.map(d -> (T)d);
+	}
 
 }
