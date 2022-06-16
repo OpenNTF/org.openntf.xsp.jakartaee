@@ -1,9 +1,13 @@
 package org.glassfish.hk2.osgiresourcelocator;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,9 +15,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.Objects;
 import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -21,6 +26,9 @@ import java.util.stream.StreamSupport;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
+
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 /**
  * This class is intended to be API-compatible with the GlassFish
@@ -31,6 +39,8 @@ import org.osgi.framework.BundleEvent;
  * @since 2.6.0
  */
 public class ServiceLoader {
+	private static final Logger LOGGER = Logger.getLogger(ServiceLoader.class.getName());
+	
 	private static final String SERVICE_LOCATION = "META-INF/services"; //$NON-NLS-1$
 	private static final String COMMENT_PATTERN = "#"; //$NON-NLS-1$
 	private static final Map<Bundle, Set<String>> OSGI_PROVIDERS = Collections.synchronizedMap(new HashMap<>());
@@ -85,6 +95,14 @@ public class ServiceLoader {
 		Iterable<Class> osgi = OSGI_INSTANCES.computeIfAbsent(serviceClass, ServiceLoader::resolveBundleServices);
 		osgi.forEach(result::add);
 		
+		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
+		if(nsfContext != null) {
+			Iterable<Class> nsf = resolveModuleServices(nsfContext.getModule(), serviceClass);
+			nsf.forEach(result::add);
+		}
+		
+		// TODO support OSGi NotesContext
+		
 		return result;
     }
     
@@ -128,32 +146,69 @@ public class ServiceLoader {
 				URL url = bundle.getResource(SERVICE_LOCATION + '/' + serviceName);
 				if(url != null) {
 					// Read the file and ignore blank or comment lines
-					List<Class<?>> result = new ArrayList<>();
-					try(InputStream is = url.openStream(); Scanner scanner = new Scanner(is)) {
-						while(scanner.hasNextLine()) {
-							String line = scanner.nextLine();
-							if(!line.startsWith(COMMENT_PATTERN)) {
-								StringTokenizer tokenizer = new StringTokenizer(line);
-								while(tokenizer.hasMoreTokens()) {
-									String className = tokenizer.nextToken();
-									try {
-										Class<?> inst = bundle.loadClass(className);
-										result.add(inst);
-									} catch(Exception e) {
-										String msg = MessageFormat.format("Encountered exception loading class {0} from bundle {1}", serviceName, bundle.getSymbolicName());
-										new RuntimeException(msg, e).printStackTrace();
-									}
-								}
+					return parseServiceClassNames(url)
+						.map(className -> {
+							try {
+								return bundle.loadClass(className);
+							} catch(Exception e) {
+								String msg = MessageFormat.format("Encountered exception loading class {0} from bundle {1}", serviceName, bundle.getSymbolicName());
+								LOGGER.log(Level.SEVERE, msg, e);
+								return null;
 							}
-						}
-					} catch(IOException e) {
-						throw new UncheckedIOException(e);
-					}
-					return result.stream();
+						})
+						.filter(Objects::nonNull);
 				} else {
 					return Stream.empty();
 				}
 			})
 			.collect(Collectors.toList());
+    }
+    
+    @SuppressWarnings("rawtypes")
+	private static Iterable<Class> resolveModuleServices(ComponentModule module, Class<?> serviceClass) {
+    	String serviceName = serviceClass.getName();
+    	try {
+    		URL url = module.getResource(SERVICE_LOCATION + '/' + serviceName);
+    		if(url != null) {
+	    		return parseServiceClassNames(url)
+	    			.map(className -> {
+	    				try {
+							return Class.forName(className, true, module.getModuleClassLoader());
+						} catch (Exception e) {
+							String msg = MessageFormat.format("Encountered exception loading class {0} from module {1}", serviceName, module);
+							LOGGER.log(Level.SEVERE, msg, e);
+							return null;
+						}
+	    			})
+	    			.filter(Objects::nonNull)
+	    			.collect(Collectors.toList());
+    		} else {
+    			return Collections.emptyList();
+    		}
+    	} catch(IOException e) {
+    		throw new UncheckedIOException(e);
+    	}
+    }
+    
+    private static Stream<String> parseServiceClassNames(URL url) {
+    	List<String> result = new ArrayList<>();
+    	try(
+    		InputStream is = url.openStream();
+    		Reader r = new InputStreamReader(is, StandardCharsets.UTF_8);
+    		BufferedReader br = new BufferedReader(r);
+    	) {
+    		String line;
+    		while((line = br.readLine()) != null) {
+				if(!line.startsWith(COMMENT_PATTERN)) {
+					String className = line.trim();
+					if(!className.isEmpty()) {
+						result.add(className);
+					}
+				}
+			}
+    	} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+    	return result.stream();
     }
 }
