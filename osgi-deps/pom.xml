@@ -346,7 +346,7 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.apache.httpcomponents:httpcore:4.4.13</id>
+									<id>org.apache.httpcomponents:httpcore:4.4.15</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
