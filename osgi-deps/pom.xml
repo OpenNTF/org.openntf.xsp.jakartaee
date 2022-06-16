@@ -152,8 +152,9 @@
 								<!--
 									JAX-RS 
 								-->
+								<!-- NB: JAX-RS 3.1.0 requires Java 11 -->
 								<artifact><id>jakarta.ws.rs:jakarta.ws.rs-api:3.0.0</id><source>true</source></artifact>
-								<artifact><id>jakarta.interceptor:jakarta.interceptor-api:2.0.1</id><source>true</source></artifact>
+								<artifact><id>jakarta.interceptor:jakarta.interceptor-api:2.1.0</id><source>true</source></artifact>
 								<artifact>
 									<id>org.jboss.resteasy:resteasy-core:${resteasy-version}</id>
 									<source>true</source>
