@@ -538,6 +538,7 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.query</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -549,6 +550,7 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -560,6 +562,7 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -571,6 +574,7 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -582,6 +586,7 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -593,6 +598,7 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.query</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -604,6 +610,7 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -614,7 +621,7 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.mapping.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<DynamicImport-Package>org.jboss.weld.*,jakarta.*</DynamicImport-Package>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
@@ -626,7 +633,7 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.mapping.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<DynamicImport-Package>org.jboss.weld.*,jakarta.*</DynamicImport-Package>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
