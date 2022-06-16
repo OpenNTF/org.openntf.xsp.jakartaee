@@ -405,7 +405,7 @@
 								<artifact><id>org.jboss.weld:weld-api:4.0.SP1</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-spi:4.0.SP1</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.probe:weld-probe-core:${weld-version}</id><source>true</source></artifact>
-								<artifact><id>org.javassist:javassist:3.28.0-GA</id><source>true</source></artifact>
+								<artifact><id>org.javassist:javassist:3.29.0-GA</id><source>true</source></artifact>
 								
 								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to jvm/lib/ext on Domino -->
 								<artifact>
