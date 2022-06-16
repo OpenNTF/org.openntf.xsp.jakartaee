@@ -107,28 +107,8 @@
 								-->
 								<!-- NB: XML Binding 4.0.0 requires Java 11 -->
 								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:3.0.1</id><source>true</source></artifact>
-								<artifact>
-									<id>com.sun.xml.bind:jaxb-core:3.0.2</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.com.sun.xml.bind.jaxb-core</Bundle-SymbolicName>
-										<Bundle-Version>3.0.2.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="3.0.2"</Export-Package>
-										<Fragment-Host>jakarta.xml.bind-api</Fragment-Host>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>com.sun.xml.bind:jaxb-impl:3.0.2</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.com.sun.xml.bind.jaxb-impl</Bundle-SymbolicName>
-										<Bundle-Version>3.0.2.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="3.0.2"</Export-Package>
-										<Fragment-Host>jakarta.xml.bind-api</Fragment-Host>
-									</instructions>
-								</artifact>
+								<artifact><id>com.sun.xml.bind:jaxb-core:3.0.2</id><source>true</source></artifact>
+								<artifact><id>com.sun.xml.bind:jaxb-impl:3.0.2</id><source>true</source></artifact>
 								
 								<!--
 									JSON-P and JSON-B
@@ -316,6 +296,7 @@
 									<id>org.jboss.resteasy.microprofile:microprofile-rest-client-base:${resteasy-mp-version}</id>
 									<source>true</source>
 								</artifact>
+								<!-- NB: the RESTEasy MP Rest Client implementation uses java.util.ServiceLoader directly -->
 								<artifact>
 									<id>org.jboss.resteasy.microprofile:microprofile-rest-client:${resteasy-mp-version}</id>
 									<source>true</source>
