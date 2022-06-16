@@ -80,7 +80,7 @@ public class ServiceLoader {
 	
     @SuppressWarnings("rawtypes")
 	public static <T> Iterable<Class> lookupProviderClasses(Class<T> serviceClass) {
-    	List<Class> result = new ArrayList<>();
+		List<Class> result = new ArrayList<>();
 		
 		Iterable<Class> osgi = OSGI_INSTANCES.computeIfAbsent(serviceClass, ServiceLoader::resolveBundleServices);
 		osgi.forEach(result::add);

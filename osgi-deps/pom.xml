@@ -522,8 +522,11 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+										<Import-Package>
+											jakarta.*,
+											org.glassfish.hk2.osgiresourcelocator
+										</Import-Package>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -534,7 +537,6 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.query</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
@@ -546,7 +548,6 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
@@ -558,7 +559,6 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
@@ -570,7 +570,6 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
@@ -583,7 +582,6 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Fragment-Host>org.openntf.jakarta.nosql.communication.core</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -595,7 +593,6 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.query</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Fragment-Host>org.openntf.jakarta.nosql.communication.query</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -607,7 +604,6 @@
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.document</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Fragment-Host>org.openntf.jakarta.nosql.communication.document</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -620,7 +616,6 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Fragment-Host>org.openntf.jakarta.nosql.mapping.core</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -633,7 +628,6 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Fragment-Host>org.openntf.jakarta.nosql.mapping.document</Fragment-Host>
 									</instructions>
 								</artifact>
 								
