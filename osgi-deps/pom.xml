@@ -295,7 +295,7 @@
 								<!--
 									MicroProfile Metrics
 								-->
-								<artifact><id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0.1</id><source>true</source></artifact>
 								<artifact>
 									<id>io.smallrye:smallrye-metrics:4.0.0-RC1</id>
 									<source>true</source>
