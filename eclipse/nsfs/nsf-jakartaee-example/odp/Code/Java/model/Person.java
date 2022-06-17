@@ -42,6 +42,9 @@ public class Person {
 	
 	@Column("Added")
 	private Instant added;
+	
+	@Column("CustomProperty")
+	private CustomPropertyType customProperty;
 
 	public String getUnid() {
 		return unid;
@@ -86,5 +89,12 @@ public class Person {
 	}
 	public void setAdded(Instant added) {
 		this.added = added;
+	}
+	
+	public CustomPropertyType getCustomProperty() {
+		return customProperty;
+	}
+	public void setCustomProperty(CustomPropertyType customProperty) {
+		this.customProperty = customProperty;
 	}
 }
