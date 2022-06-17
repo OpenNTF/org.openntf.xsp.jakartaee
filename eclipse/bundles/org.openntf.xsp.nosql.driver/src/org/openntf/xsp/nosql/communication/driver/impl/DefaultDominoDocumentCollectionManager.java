@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver;
+package org.openntf.xsp.nosql.communication.driver.impl;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -33,8 +33,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
-import org.openntf.xsp.nosql.communication.driver.QueryConverter.QueryConverterResult;
+import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.SessionSupplier;
+import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
+import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter.QueryConverterResult;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;

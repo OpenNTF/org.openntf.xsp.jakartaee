@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver;
+package org.openntf.xsp.nosql.communication.driver.impl;
 
 import static jakarta.nosql.Condition.IN;
 
@@ -21,7 +21,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
+import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
 
 import jakarta.nosql.Condition;
 import jakarta.nosql.TypeReference;
