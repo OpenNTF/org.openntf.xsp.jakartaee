@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.glassfish.hk2.osgiresourcelocator;
+package model;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import jakarta.nosql.ValueReader;
 
-public class Activator implements BundleActivator {
-	
+public class CustomPropertyTypeReader implements ValueReader {
+
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
-		ServiceLoader.init(bundleContext);
+	public boolean test(Class<?> t) {
+		return CustomPropertyType.class.equals(t);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-		
+	public <T> T read(Class<T> clazz, Object value) {
+		CustomPropertyType prop = new CustomPropertyType();
+		prop.setValue(String.valueOf(value));
+		return (T)prop;
 	}
 
 }

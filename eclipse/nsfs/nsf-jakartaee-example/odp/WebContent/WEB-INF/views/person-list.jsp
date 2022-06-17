@@ -42,6 +42,7 @@
 					<th>Birthday</th>
 					<th>Favorite Time</th>
 					<th>Added</th>
+					<th>Custom Property</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -53,6 +54,7 @@
 						<td>${fn:escapeXml(person.birthday)}</td>
 						<td>${fn:escapeXml(person.favoriteTime)}</td>
 						<td>${fn:escapeXml(person.added)}</td>
+						<td>${fn:escapeXml(person.customProperty)}</td>
 						<td>
 							<form method="POST" action="${person.unid}/delete">
 								<input type="submit" value="Delete"/>

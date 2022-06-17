@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.glassfish.hk2.osgiresourcelocator;
+package model;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-
-public class Activator implements BundleActivator {
+public class CustomPropertyType {
+	private String value;
+	
+	public String getValue() {
+		return value;
+	}
+	public void setValue(String value) {
+		this.value = value;
+	}
 	
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
-		ServiceLoader.init(bundleContext);
+	public String toString() {
+		return "CustomPropertyType [value=" + value + "]";
 	}
-
-	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-		
-	}
-
 }

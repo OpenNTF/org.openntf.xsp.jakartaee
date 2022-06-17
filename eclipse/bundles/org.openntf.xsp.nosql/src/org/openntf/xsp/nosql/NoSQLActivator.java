@@ -13,21 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.glassfish.hk2.osgiresourcelocator;
+package org.openntf.xsp.nosql;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openntf.xsp.nosql.weaving.NoSQLWeavingHook;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.hooks.weaving.WeavingHook;
 
-public class Activator implements BundleActivator {
-	
+/**
+ * @author Jesse Gallagher
+ * @since 2.3.0
+ */
+public class NoSQLActivator implements BundleActivator {
+	private final List<ServiceRegistration<?>> regs = new ArrayList<>();
+
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
-		ServiceLoader.init(bundleContext);
+	public void start(BundleContext context) throws Exception {
+		regs.add(context.registerService(WeavingHook.class.getName(), new NoSQLWeavingHook(), null));
 	}
 
 	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-		
+	public void stop(BundleContext context) throws Exception {
+		regs.forEach(ServiceRegistration::unregister);
+		regs.clear();
 	}
 
 }

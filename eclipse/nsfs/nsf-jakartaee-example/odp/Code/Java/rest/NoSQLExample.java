@@ -44,6 +44,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import model.CustomPropertyType;
 import model.Person;
 import model.PersonRepository;
 import model.ServerRepository;
@@ -95,7 +96,8 @@ public class NoSQLExample {
 			@FormParam("lastName") String lastName,
 			@FormParam("birthday") String birthday,
 			@FormParam("favoriteTime") String favoriteTime,
-			@FormParam("added") String added
+			@FormParam("added") String added,
+			@FormParam("customProperty") String customProperty
 	) {
 		Person person = new Person();
 		person.setFirstName(firstName);
@@ -119,6 +121,11 @@ public class NoSQLExample {
 		} else {
 			person.setAdded(null);
 		}
+		
+		CustomPropertyType prop = new CustomPropertyType();
+		prop.setValue(customProperty);
+		person.setCustomProperty(prop);
+		
 		personRepository.save(person);
 		return "redirect:nosql/list";
 	}

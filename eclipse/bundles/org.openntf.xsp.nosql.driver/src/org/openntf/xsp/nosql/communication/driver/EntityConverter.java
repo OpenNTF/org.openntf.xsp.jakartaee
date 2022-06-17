@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import jakarta.nosql.ServiceLoaderProvider;
+import jakarta.nosql.ValueWriter;
 import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentEntity;
 import lotus.domino.Database;
@@ -331,13 +333,27 @@ public enum EntityConverter {
 	public static void convert(DocumentEntity entity, boolean retainId, lotus.domino.Document target) throws NotesException {
 		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
 
+		// NB: JNoSQL doesn't currently use ValueWriters, so gather them here
+		@SuppressWarnings("unchecked")
+		List<ValueWriter<Object, Object>> writers = ServiceLoaderProvider.getSupplierStream(ValueWriter.class)
+			.map(w -> (ValueWriter<Object, Object>)w)
+			.collect(Collectors.toList());
+
 		for(Document doc : entity.getDocuments()) {
 			if(!"$FILE".equalsIgnoreCase(doc.getName()) && !ID_FIELD.equalsIgnoreCase(doc.getName())) { //$NON-NLS-1$
 				Object value = doc.get();
 				if(value == null) {
 					target.removeItem(doc.getName());
 				} else {
-					target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), value)).recycle();
+					Object val = value;
+					for(ValueWriter<Object, Object> w : writers) {
+						if(w.test(value.getClass())) {
+							val = w.write(value);
+							break;
+						}
+					}
+					
+					target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val)).recycle();
 				}
 			}
 		}

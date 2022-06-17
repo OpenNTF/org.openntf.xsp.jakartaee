@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$Flags">
+    <text>34567Cg~[</text>
+  </item>
+  <item name="$TITLE">
+    <text>META-INF/services/jakarta.nosql.ValueReader</text>
+  </item>
+  <item name="$FileNames" sign="true">
+    <text>META-INF/services/jakarta.nosql.ValueReader</text>
+  </item>
+</note>
