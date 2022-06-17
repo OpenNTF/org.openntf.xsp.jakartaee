@@ -94,7 +94,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				entity.add(Document.of(EntityConverter.FIELD_ID, target.getUniversalID()));
 			}
 			
-			entityConverter.convert(entity, target);
+			entityConverter.convert(entity, false, target);
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -135,7 +135,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			
 			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
 			
-			entityConverter.convert(entity, target);
+			entityConverter.convert(entity, false, target);
 			target.save();
 			return entity;
 		} catch(NotesException e) {

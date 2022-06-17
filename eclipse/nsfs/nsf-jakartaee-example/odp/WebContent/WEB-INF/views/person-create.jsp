@@ -23,7 +23,7 @@
 		<title>Create New Person</title>
 	</head>
 	<body>
-		<form method="POST" enctype="application/x-www-form-urlencoded" action="create">
+		<form method="POST" enctype="multipart/form-data" action="create">
 			<dl>
 				<dt>First Name</dt>
 				<dd><input type="text" required name="firstName" /></dd>
@@ -42,6 +42,9 @@
 				
 				<dt>Custom Property</dt>
 				<dd><input type="text" name="customProperty" /></dd>
+				
+				<dt>Attachment</dt>
+				<dd><input type="file" name="attachment" /></dd>
 			</dl>
 			<input type="submit" value="Create Person" />
 		</form>

@@ -18,6 +18,12 @@ package org.openntf.xsp.nosql.communication.driver.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -29,11 +35,13 @@ import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,6 +49,7 @@ import java.util.stream.StreamSupport;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
 
 import com.ibm.commons.util.StringUtil;
@@ -53,6 +62,7 @@ import lotus.domino.Database;
 import lotus.domino.DateRange;
 import lotus.domino.DateTime;
 import lotus.domino.DocumentCollection;
+import lotus.domino.EmbeddedObject;
 import lotus.domino.Item;
 import lotus.domino.MIMEEntity;
 import lotus.domino.NotesException;
@@ -96,6 +106,11 @@ public class EntityConverter {
 	 * currently {@value #FIELD_ATTACHMENTS}
 	 */
 	public static final String FIELD_ATTACHMENTS = "_attachments"; //$NON-NLS-1$
+	
+	private static final Collection<String> SYSTEM_FIELDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+	static {
+		SYSTEM_FIELDS.addAll(Arrays.asList(FIELD_ID, FIELD_CDATE, FIELD_MDATE, FIELD_ATTACHMENTS));
+	}
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based
@@ -261,10 +276,13 @@ public class EntityConverter {
 			String unid = doc.getUniversalID();
 			result.add(Document.of(FIELD_ID, unid));
 			
+			// TODO when fieldNames is present, only loop over those names
 			Map<String, Object> docMap = new LinkedHashMap<>();
 			for(Item item : (List<Item>)doc.getItems()) {
 				String itemName = item.getName();
 				if(FIELD_NAME.equalsIgnoreCase(itemName)) {
+					continue;
+				} else if(SYSTEM_FIELDS.contains(itemName)) {
 					continue;
 				}
 				
@@ -340,53 +358,101 @@ public class EntityConverter {
 	 * Converts the provided {@link DocumentEntity} instance into a Domino
 	 * JSON object.
 	 * 
-	 * <p>This is equivalent to calling {@link #convert(DocumentEntity, boolean)} with
-	 * <code>false</code> as the second parameter.</p>
-	 * 
-	 * @param entity the entity instance to convert
-	 * @param target the target Domino Document to store in
-	 */
-	public void convert(DocumentEntity entity, lotus.domino.Document target) throws NotesException {
-		convert(entity, false, target);
-	}
-	
-	/**
-	 * Converts the provided {@link DocumentEntity} instance into a Domino
-	 * JSON object.
-	 * 
 	 * @param entity the entity instance to convert
 	 * @param retainId whether or not to remove the {@link #FIELD_ID} field during conversion
 	 * @param target the target Domino Document to store in
 	 */
 	public void convert(DocumentEntity entity, boolean retainId, lotus.domino.Document target) throws NotesException {
 		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
-
-		// NB: JNoSQL doesn't currently use ValueWriters, so gather them here
-		@SuppressWarnings("unchecked")
-		List<ValueWriter<Object, Object>> writers = ServiceLoaderProvider.getSupplierStream(ValueWriter.class)
-			.map(w -> (ValueWriter<Object, Object>)w)
-			.collect(Collectors.toList());
-
-		for(Document doc : entity.getDocuments()) {
-			if(!"$FILE".equalsIgnoreCase(doc.getName()) && !FIELD_ID.equalsIgnoreCase(doc.getName())) { //$NON-NLS-1$
-				Object value = doc.get();
-				if(value == null) {
-					target.removeItem(doc.getName());
-				} else {
-					Object val = value;
-					for(ValueWriter<Object, Object> w : writers) {
-						if(w.test(value.getClass())) {
-							val = w.write(value);
-							break;
+		try {
+			// NB: JNoSQL doesn't currently use ValueWriters, so gather them here
+			@SuppressWarnings("unchecked")
+			List<ValueWriter<Object, Object>> writers = ServiceLoaderProvider.getSupplierStream(ValueWriter.class)
+				.map(w -> (ValueWriter<Object, Object>)w)
+				.collect(Collectors.toList());
+	
+			for(Document doc : entity.getDocuments()) {
+				if(FIELD_ATTACHMENTS.equals(doc.getName())) {
+					@SuppressWarnings("unchecked")
+					List<EntityAttachment> incoming = (List<EntityAttachment>)doc.get();
+					Set<String> retain = incoming.stream()
+						.filter(DominoDocumentAttachment.class::isInstance)
+						.map(EntityAttachment::getName)
+						.collect(Collectors.toSet());
+					
+					// TODO change to account for specific rich text fields
+					// Remove any attachments no longer in the entity
+					@SuppressWarnings("unchecked")
+					List<String> existing = target.getParentDatabase().getParent()
+						.evaluate(" @AttachmentNames ", target); //$NON-NLS-1$;
+					for(String attName : existing) {
+						if(StringUtil.isNotEmpty(attName) && !retain.contains(attName)) {
+							EmbeddedObject eo = target.getAttachment(attName);
+							if(eo != null) {
+								eo.remove();
+								eo.recycle();
+							}
 						}
 					}
 					
-					target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val)).recycle();
+					// Now attach any incoming that aren't currently in the doc
+					List<EntityAttachment> newAttachments = incoming.stream()
+						.filter(att -> !(att instanceof DominoDocumentAttachment))
+						.collect(Collectors.toList());
+					if(!newAttachments.isEmpty()) {
+						RichTextItem body = (RichTextItem)target.getFirstItem(FIELD_ATTACHMENTS);
+						if(body == null) {
+							body = target.createRichTextItem(FIELD_ATTACHMENTS);
+						}
+						for(EntityAttachment att : newAttachments) {
+							// TODO check for if this field already exists
+							try {
+								Path tempDir = Files.createTempDirectory(LibraryUtil.getTempDirectory(), getClass().getSimpleName());
+								try {
+									// TODO consider options for when the name can't be stored on the filesystem
+									Path tempFile = tempDir.resolve(att.getName());
+									try(InputStream is = att.getData()) {
+										Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
+									}
+									body.embedObject(EmbeddedObject.EMBED_ATTACHMENT, "", tempFile.toString(), null); //$NON-NLS-1$
+								} finally {
+									Files.list(tempDir).forEach(t -> {
+										try {
+											Files.deleteIfExists(t);
+										} catch (IOException e) {
+											throw new UncheckedIOException(e);
+										}
+									});
+									Files.deleteIfExists(tempDir);
+								}
+							} catch (IOException e) {
+								throw new UncheckedIOException(e);
+							}
+						}
+					}
+				} else if(!"$FILE".equalsIgnoreCase(doc.getName()) && !FIELD_ID.equalsIgnoreCase(doc.getName())) { //$NON-NLS-1$
+					Object value = doc.get();
+					if(value == null) {
+						target.removeItem(doc.getName());
+					} else {
+						Object val = value;
+						for(ValueWriter<Object, Object> w : writers) {
+							if(w.test(value.getClass())) {
+								val = w.write(value);
+								break;
+							}
+						}
+						
+						target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val)).recycle();
+					}
 				}
 			}
+			
+			target.replaceItemValue(FIELD_NAME, entity.getName());
+		} catch(Exception e) {
+			e.printStackTrace();
+			throw e;
 		}
-		
-		target.replaceItemValue(FIELD_NAME, entity.getName());
 	}
 	
 	// *******************************************************************************

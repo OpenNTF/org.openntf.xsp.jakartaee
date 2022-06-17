@@ -15,19 +15,24 @@
  */
 package rest;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 
 import com.ibm.commons.util.StringUtil;
+import com.ibm.commons.util.io.StreamUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -35,6 +40,10 @@ import java.time.format.DateTimeFormatter;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.ContentDisposition;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.MimePart;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.nosql.mapping.Sorts;
@@ -108,35 +117,89 @@ public class NoSQLExample {
 			@FormParam("customProperty") String customProperty
 	) {
 		Person person = new Person();
-		person.setFirstName(firstName);
-		person.setLastName(lastName);
-		if(StringUtil.isNotEmpty(birthday)) {
-			LocalDate bd = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(birthday));
-			person.setBirthday(bd);
-		} else {
-			person.setBirthday(null);
-		}
-		if(StringUtil.isNotEmpty(favoriteTime)) {
-			LocalTime bd = LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(favoriteTime));
-			person.setFavoriteTime(bd);
-		} else {
-			person.setFavoriteTime(null);
-		}
-		if(StringUtil.isNotEmpty(added)) {
-			LocalDateTime dt = LocalDateTime.from(DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(added));
-			Instant bd = dt.toInstant(ZoneOffset.UTC);
-			person.setAdded(bd);
-		} else {
-			person.setAdded(null);
-		}
-		
-		CustomPropertyType prop = new CustomPropertyType();
-		prop.setValue(customProperty);
-		person.setCustomProperty(prop);
+		composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
 		
 		personRepository.save(person);
 		return "redirect:nosql/list";
 	}
+	
+	@Path("create")
+	@POST
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Controller
+	public String createPerson(MimeMultipart body) throws MessagingException, IOException {
+		String firstName = "";
+		String lastName = "";
+		String birthday = "";
+		String favoriteTime = "";
+		String added = "";
+		String customProperty = "";
+		
+		List<EntityAttachment> attachments = new ArrayList<>();
+		for(int i = 0; i < body.getCount(); i++) {
+			MimePart part = (MimePart)body.getBodyPart(i);
+			String dispositionValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION, null);
+			if(StringUtil.isNotEmpty(dispositionValue)) {
+				ContentDisposition disposition = new ContentDisposition(dispositionValue);
+				String name = disposition.getParameter("name");
+				switch(StringUtil.toString(name)) {
+				case "firstName":
+					firstName = StreamUtil.readString(part.getInputStream());
+					break;
+				case "lastName":
+					lastName = StreamUtil.readString(part.getInputStream());
+					break;
+				case "birthday":
+					birthday = StreamUtil.readString(part.getInputStream());
+					break;
+				case "favoriteTime":
+					favoriteTime = StreamUtil.readString(part.getInputStream());
+					break;
+				case "added":
+					added = StreamUtil.readString(part.getInputStream());
+					break;
+				case "customProperty":
+					customProperty = StreamUtil.readString(part.getInputStream());
+					break;
+				case "attachment":
+					String fileName = disposition.getParameter("filename");
+					if(StringUtil.isEmpty(fileName)) {
+						throw new IllegalArgumentException("attachment part must have a file name");
+					}
+					String contentType = part.getHeader(HttpHeaders.CONTENT_TYPE, null);
+					if(StringUtil.isEmpty(contentType)) {
+						contentType = MediaType.APPLICATION_OCTET_STREAM;
+					}
+					
+					// Ideally, this should go to a temp file
+					byte[] data;
+					try(
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						InputStream is = part.getInputStream();
+					) {
+						StreamUtil.copyStream(is, baos);
+						data = baos.toByteArray();
+					}
+					
+					EntityAttachment att = EntityAttachment.of(fileName, Instant.now().toEpochMilli(), contentType, data);
+					attachments.add(att);
+					
+					break;
+				default:
+					break;
+				}
+				
+			}
+		}
+		
+		Person person = new Person();
+		composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+		person.setAttachments(attachments);
+
+		personRepository.save(person);
+		return "redirect:nosql/list";
+	}
+			
 	
 	@Path("list")
 	@GET
@@ -252,5 +315,33 @@ public class NoSQLExample {
 			@FormParam("added") String added
 	) {
 		return update(id, firstName, lastName, birthday, favoriteTime, added);
+	}
+	
+	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {
+		person.setFirstName(firstName);
+		person.setLastName(lastName);
+		if(StringUtil.isNotEmpty(birthday)) {
+			LocalDate bd = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(birthday));
+			person.setBirthday(bd);
+		} else {
+			person.setBirthday(null);
+		}
+		if(StringUtil.isNotEmpty(favoriteTime)) {
+			LocalTime bd = LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(favoriteTime));
+			person.setFavoriteTime(bd);
+		} else {
+			person.setFavoriteTime(null);
+		}
+		if(StringUtil.isNotEmpty(added)) {
+			LocalDateTime dt = LocalDateTime.from(DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(added));
+			Instant bd = dt.toInstant(ZoneOffset.UTC);
+			person.setAdded(bd);
+		} else {
+			person.setAdded(null);
+		}
+		
+		CustomPropertyType prop = new CustomPropertyType();
+		prop.setValue(customProperty);
+		person.setCustomProperty(prop);
 	}
 }
