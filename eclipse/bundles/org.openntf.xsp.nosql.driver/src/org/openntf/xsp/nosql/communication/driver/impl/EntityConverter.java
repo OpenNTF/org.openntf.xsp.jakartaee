@@ -33,10 +33,13 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 
 import jakarta.nosql.ServiceLoaderProvider;
 import jakarta.nosql.ValueWriter;
@@ -92,7 +95,7 @@ public enum EntityConverter {
 		"ParagraphIndent=2" //$NON-NLS-1$
 	));
 	
-	static Stream<DocumentEntity> convert(Database database, View docs) throws NotesException {
+	static Stream<DocumentEntity> convert(Database database, View docs, ClassMapping classMapping) throws NotesException {
 		// TODO stream this better
 		// TODO create a lazy-loading list?
 		List<DocumentEntity> result = new ArrayList<>();
@@ -105,7 +108,7 @@ public enum EntityConverter {
 				String noteId = (String)columnValues.get(columnValues.size()-1);
 				lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
 				if(isValid(doc)) {
-					List<Document> documents = toDocuments(doc);
+					List<Document> documents = toDocuments(doc, classMapping);
 					String name = doc.getItemValueString(NAME_FIELD);
 					result.add(DocumentEntity.of(name, documents));
 				}
@@ -121,7 +124,7 @@ public enum EntityConverter {
 		return result.stream();
 	}
 	
-	static Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, long limit) throws NotesException {
+	static Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
 		// Read in the column names
 		View view = nav.getParentView();
 		@SuppressWarnings("unchecked")
@@ -163,7 +166,7 @@ public enum EntityConverter {
 		return result.stream();
 	}
 	
-	static Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, long limit) throws NotesException {
+	static Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
 		// Read in the column names
 		View view = nav.getParentView();
 		@SuppressWarnings("unchecked")
@@ -181,7 +184,7 @@ public enum EntityConverter {
 		while(entry != null) {
 			if(entry.isDocument()) {
 				lotus.domino.Document doc = entry.getDocument();
-				List<Document> documents = toDocuments(doc);
+				List<Document> documents = toDocuments(doc, classMapping);
 				String name = doc.getItemValueString(NAME_FIELD);
 				result.add(DocumentEntity.of(name, documents));
 				
@@ -198,14 +201,14 @@ public enum EntityConverter {
 		return result.stream();
 	}
 
-	static Stream<DocumentEntity> convert(DocumentCollection docs) throws NotesException {
+	static Stream<DocumentEntity> convert(DocumentCollection docs, ClassMapping classMapping) throws NotesException {
 		// TODO stream this better
 		// TODO create a lazy-loading list?
 		List<DocumentEntity> result = new ArrayList<>();
 		lotus.domino.Document doc = docs.getFirstDocument();
 		while(doc != null) {
 			if(isValid(doc)) {
-				List<Document> documents = toDocuments(doc);
+				List<Document> documents = toDocuments(doc, classMapping);
 				String name = doc.getItemValueString(NAME_FIELD);
 				result.add(DocumentEntity.of(name, documents));
 			}
@@ -218,7 +221,12 @@ public enum EntityConverter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Document> toDocuments(lotus.domino.Document doc) throws NotesException {
+	public static List<Document> toDocuments(lotus.domino.Document doc, ClassMapping classMapping) throws NotesException {
+		Set<String> fieldNames = classMapping == null ? null : classMapping.getFieldsName()
+			.stream()
+			.filter(s -> !ID_FIELD.equals(s))
+			.collect(Collectors.toSet());
+		
 		Session session = doc.getParentDatabase().getParent();
 		boolean convertMime = session.isConvertMime();
 		try {
@@ -226,6 +234,7 @@ public enum EntityConverter {
 			
 			List<Document> result = new ArrayList<>();
 			result.add(Document.of(ID_FIELD, doc.getUniversalID()));
+			
 			Map<String, Object> docMap = new LinkedHashMap<>();
 			for(Item item : (List<Item>)doc.getItems()) {
 				String itemName = item.getName();
@@ -233,10 +242,23 @@ public enum EntityConverter {
 					continue;
 				}
 				
+				// If we have field information, restrict to only those fields
+				//   and match capitalization
+				if(fieldNames != null) {
+					String fItemName = itemName;
+					itemName = fieldNames.stream()
+						.filter(fieldName -> fieldName.equalsIgnoreCase(fItemName))
+						.findFirst()
+						.orElse(null);
+					if(itemName == null) {
+						continue;
+					}
+				}
+				
 				if(item instanceof RichTextItem) {
 					// Special handling here for RT -> HTML
 					String html = ((RichTextItem)item).convertToHTML(HTML_CONVERSION_OPTIONS);
-					docMap.put(item.getName(), html);
+					docMap.put(itemName, html);
 				} else if(item.getType() == Item.MIME_PART) {
 					// TODO consider whether to pass this back as a Mail API MIME entity
 					MIMEEntity entity = doc.getMIMEEntity(itemName);

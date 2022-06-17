@@ -34,7 +34,7 @@ public class Person {
 	@Column("LastName")
 	private String lastName;
 	
-	@Column("Birthday")
+	@Column("birthday")
 	private LocalDate birthday;
 	
 	@Column("FavoriteTime")

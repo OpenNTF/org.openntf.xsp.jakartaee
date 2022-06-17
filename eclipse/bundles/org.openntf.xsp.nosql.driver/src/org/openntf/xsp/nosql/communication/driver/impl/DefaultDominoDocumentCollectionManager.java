@@ -33,6 +33,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.eclipse.jnosql.mapping.reflection.ClassInformationNotFoundException;
+import org.eclipse.jnosql.mapping.reflection.ClassMapping;
+import org.eclipse.jnosql.mapping.reflection.ClassMappings;
 import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.SessionSupplier;
@@ -43,6 +46,7 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesSession;
 
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.Sort;
 import jakarta.nosql.SortType;
 import jakarta.nosql.document.Document;
@@ -175,6 +179,9 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	@Override
 	public Stream<DocumentEntity> select(DocumentQuery query) {
 		try {
+			String entityName = query.getDocumentCollection();
+			ClassMapping mapping = getClassMapping(entityName);
+			
 			QueryConverterResult queryResult = QueryConverter.select(query);
 			
 			long skip = queryResult.getSkip();
@@ -210,7 +217,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					}
 	
 					if(view != null) {
-						result = EntityConverter.convert(database, view);
+						result = EntityConverter.convert(database, view, mapping);
 					} else {
 						DominoQuery dominoQuery = database.createDominoQuery();		
 						QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
@@ -223,7 +230,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 							
 							view = qrp.executeToView(viewName, 24);
 							try {
-								result = EntityConverter.convert(database, view);
+								result = EntityConverter.convert(database, view, mapping);
 							} finally {
 								recycle(view);
 							}
@@ -240,7 +247,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				DominoQuery dominoQuery = database.createDominoQuery();		
 				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
 				try {
-					result = EntityConverter.convert(docs);
+					result = EntityConverter.convert(docs, mapping);
 				} finally {
 					recycle(docs, dominoQuery);
 				}
@@ -261,10 +268,11 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 	@Override
 	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel) {
+		ClassMapping mapping = getClassMapping(entityName);
 		return buildNavigtor(viewName, category, pagination, maxLevel,
 			(nav, limit) -> {
 				try {
-					return EntityConverter.convertViewEntries(entityName, nav, limit);
+					return EntityConverter.convertViewEntries(entityName, nav, limit, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -275,10 +283,11 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	@Override
 	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, String category,
 			Pagination pagination, int maxLevel) {
+		ClassMapping mapping = getClassMapping(entityName);
 		return buildNavigtor(viewName, category, pagination, maxLevel,
 			(nav, limit) -> {
 				try {
-					return EntityConverter.convertViewDocuments(entityName, nav, limit);
+					return EntityConverter.convertViewDocuments(entityName, nav, limit, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -420,6 +429,16 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					// Ignore
 				}
 			}
+		}
+	}
+	
+	private ClassMapping getClassMapping(String entityName) {
+		ClassMappings mappings = CDI.current().select(ClassMappings.class).get();
+		try {
+			return mappings.findByName(entityName);
+		} catch(ClassInformationNotFoundException e) {
+			// Shouldn't happen, but we should account for it
+			return null;
 		}
 	}
 }
