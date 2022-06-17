@@ -2,16 +2,13 @@ package org.openntf.xsp.nosql.communication.driver.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
 
 import com.ibm.commons.util.StringUtil;
+
 import jakarta.activation.MimetypesFileTypeMap;
 import lotus.domino.Database;
 import lotus.domino.Document;
@@ -30,6 +27,7 @@ public class DominoDocumentAttachment implements EntityAttachment {
 		this.databaseSupplier = databaseSupplier;
 		this.unid = unid;
 		this.attachmentName = attachmentName;
+		this.contentType = guessContentType(attachmentName);
 	}
 
 	@Override
@@ -45,20 +43,7 @@ public class DominoDocumentAttachment implements EntityAttachment {
 
 	@Override
 	public String getContentType() {
-		cacheMeta();
-		
-		String contentType = URLConnection.guessContentTypeFromName(this.attachmentName);
-		if(StringUtil.isNotEmpty(contentType)) {
-			return contentType;
-		}
-		
-		MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
-	    contentType = fileTypeMap.getContentType(this.attachmentName);
-		if(StringUtil.isNotEmpty(contentType)) {
-			return contentType;
-		}
-		
-		return "application/octet-stream"; //$NON-NLS-1$
+		return this.contentType;
 	}
 
 	@Override
@@ -92,8 +77,6 @@ public class DominoDocumentAttachment implements EntityAttachment {
 			try {
 				EmbeddedObject eo = getEmbeddedObject();
 				this.lastModified = eo.getFileModified().toJavaDate().getTime();
-				// TODO try to guess this
-				this.contentType = "application/octet-stream"; //$NON-NLS-1$
 				this.length = (long)eo.getFileSize();
 				eo.recycle();
 			} catch(NotesException ne) {
@@ -110,5 +93,20 @@ public class DominoDocumentAttachment implements EntityAttachment {
 		} catch(NotesException ne) {
 			throw new RuntimeException(ne);
 		}
+	}
+	
+	private static String guessContentType(String fileName) {
+		String contentType = URLConnection.guessContentTypeFromName(fileName);
+		if(StringUtil.isNotEmpty(contentType)) {
+			return contentType;
+		}
+		
+		MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
+	    contentType = fileTypeMap.getContentType(fileName);
+		if(StringUtil.isNotEmpty(contentType)) {
+			return contentType;
+		}
+		
+		return "application/octet-stream"; //$NON-NLS-1$
 	}
 }

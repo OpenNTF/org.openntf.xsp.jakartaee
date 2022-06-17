@@ -53,7 +53,6 @@ import lotus.domino.Database;
 import lotus.domino.DateRange;
 import lotus.domino.DateTime;
 import lotus.domino.DocumentCollection;
-import lotus.domino.EmbeddedObject;
 import lotus.domino.Item;
 import lotus.domino.MIMEEntity;
 import lotus.domino.NotesException;
