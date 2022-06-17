@@ -24,6 +24,8 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -61,5 +63,16 @@ public class TestJaxRs extends AbstractWebClientTest {
 		Element time = (Element) applicationGuy.getElementsByTagName("time").item(0);
 		assertFalse(time.getTextContent().isEmpty());
 		Long.parseLong(time.getTextContent());
+	}
+	
+	@ParameterizedTest
+	@ValueSource(strings = { "/", "" })
+	public void testBaseResource(String path) {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + path);
+		Response response = target.request().get();
+		
+		String output = response.readEntity(String.class);
+		assertEquals("I am the base resource.", output);
 	}
 }
