@@ -30,6 +30,7 @@ import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 
+import org.checkerframework.checker.nullness.qual.AssertNonNullIfNonNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -62,6 +63,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
 			payload.putSingle("firstName", "foo"); //$NON-NLS-1$ //$NON-NLS-2$
 			payload.putSingle("lastName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
+			payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
 			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
 			Response response = postTarget.request().post(Entity.form(payload));
 			assertEquals(303, response.getStatus());
@@ -78,6 +80,12 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertFalse(byQueryLastName.isEmpty());
 			Map<String, Object> entry = byQueryLastName.get(0);
 			assertEquals("CreatedUnitTest", entry.get("lastName")); //$NON-NLS-1$ //$NON-NLS-2$
+			{
+				Object customProp = entry.get("customProperty"); //$NON-NLS-1$
+				assertTrue(customProp instanceof Map, "customProperty should be a Map"); //$NON-NLS-1$
+				String val = (String)((Map<String, Object>)customProp).get("value"); //$NON-NLS-1$
+				assertEquals("i am custom property", val); //$NON-NLS-1$
+			}
 			assertFalse(((String)entry.get("unid")).isEmpty()); //$NON-NLS-1$
 		}
 	}
