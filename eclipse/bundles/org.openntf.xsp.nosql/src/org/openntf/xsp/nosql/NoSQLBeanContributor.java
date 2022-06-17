@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.document.DefaultDocumentQueryPaginationProvider;
 import org.eclipse.jnosql.mapping.document.spi.DocumentExtension;
@@ -47,19 +46,16 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		// These classes are housed in fragments, so access those in a roundabout way
 		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
 			List<Class<?>> result = new ArrayList<>();
 			Stream.of(DatabaseQualifier.class, DefaultDocumentQueryPaginationProvider.class)
 				.map(FrameworkUtil::getBundle)
-				.map(Platform::getFragments)
-				.flatMap(Arrays::stream)
 				.flatMap(t -> {
 					try {
 						return DiscoveryUtil.findExportedClassNames(t, true)
 							.map(className -> {
 								try {
-									return Platform.getHosts(t)[0].loadClass(className);
+									return t.loadClass(className);
 								} catch (ClassNotFoundException e) {
 									throw new RuntimeException(e);
 								}

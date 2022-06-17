@@ -234,11 +234,12 @@
    </license>
 
 	<plugin id="org.openntf.xsp.jakartaee.commons" version="0.0.0"/>
+	<plugin id="org.openntf.xsp.jakartaee.osgiresourcelocator" version="0.0.0"/>
 	
 	<!-- XML Binding -->
 	<plugin id="jakarta.xml.bind-api" version="0.0.0"/>
-	<plugin id="org.openntf.com.sun.xml.bind.jaxb-core" version="0.0.0" fragment="true"/>
-	<plugin id="org.openntf.com.sun.xml.bind.jaxb-impl" version="0.0.0" fragment="true"/>
+	<plugin id="com.sun.xml.bind.jaxb-core" version="0.0.0"/>
+	<plugin id="com.sun.xml.bind.jaxb-impl" version="0.0.0"/>
 
 	<plugin id="jakarta.annotation-api" version="0.0.0"/>
 	<plugin id="jakarta.el-api" version="0.0.0"/>
@@ -263,7 +264,6 @@
 	
 	<plugin id="org.openntf.jboss-classfilewriter" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.logging.jboss-logging" version="0.0.0"/>
-	<plugin id="org.openntf.org.glassfish.hk2.osgi-resource-locator" version="0.0.0"/>
 	<plugin id="javassist" version="0.0.0"/>
 
 </feature>

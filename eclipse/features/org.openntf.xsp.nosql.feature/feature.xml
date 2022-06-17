@@ -247,11 +247,11 @@
    <plugin id="org.openntf.jakarta.nosql.mapping.core" version="0.0.0"/>
    <plugin id="org.openntf.jakarta.nosql.mapping.document" version="0.0.0"/>
    
-   <plugin id="org.openntf.org.eclipse.jnosql.communication.core" version="0.0.0" fragment="true"/>
-   <plugin id="org.openntf.org.eclipse.jnosql.communication.document" version="0.0.0" fragment="true"/>
-   <plugin id="org.openntf.org.eclipse.jnosql.communication.query" version="0.0.0" fragment="true"/>
-   <plugin id="org.openntf.org.eclipse.jnosql.mapping.core" version="0.0.0" fragment="true"/>
-   <plugin id="org.openntf.org.eclipse.jnosql.mapping.document" version="0.0.0" fragment="true"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.communication.core" version="0.0.0"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.communication.document" version="0.0.0"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.communication.query" version="0.0.0"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.mapping.core" version="0.0.0"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.mapping.document" version="0.0.0"/>
    
    <plugin id="org.antlr.antlr4-runtime.jakarta" version="0.0.0"/>
 
