@@ -39,7 +39,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
+import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
+
+import com.ibm.commons.util.StringUtil;
 
 import jakarta.nosql.ServiceLoaderProvider;
 import jakarta.nosql.ValueWriter;
@@ -49,6 +53,7 @@ import lotus.domino.Database;
 import lotus.domino.DateRange;
 import lotus.domino.DateTime;
 import lotus.domino.DocumentCollection;
+import lotus.domino.EmbeddedObject;
 import lotus.domino.Item;
 import lotus.domino.MIMEEntity;
 import lotus.domino.NotesException;
@@ -65,18 +70,33 @@ import lotus.domino.ViewNavigator;
  * @author Jesse Gallagher
  * @since 2.3.0
  */
-public enum EntityConverter {
-	;
+public class EntityConverter {
 	/**
-	 * The field used to store the UNID of the document during JSON
-	 * serialization, currently {@value #ID_FIELD}
+	 * The field used to store the UNID of the document during NoSQL
+	 * conversion, currently {@value #FIELD_ID}
 	 */
-	public static final String ID_FIELD = "_id"; //$NON-NLS-1$
+	public static final String FIELD_ID = "_id"; //$NON-NLS-1$
 	/**
 	 * The expected field containing the collection name of the document in
-	 * Domino, currently {@value #NAME_FIELD}
+	 * Domino, currently {@value #FIELD_NAME}
 	 */
-	public static final String NAME_FIELD = "Form"; //$NON-NLS-1$
+	public static final String FIELD_NAME = "Form"; //$NON-NLS-1$
+	
+	/**
+	 * The field used to store the creation date of the document during
+	 * NoSQL conversion, currently {@value #FIELD_CDATE}
+	 */
+	public static final String FIELD_CDATE = "_cdate"; //$NON-NLS-1$
+	/**
+	 * The field used to store the last modification date of the document during
+	 * NoSQL conversion, currently {@value #FIELD_MDATE}
+	 */
+	public static final String FIELD_MDATE = "_mdate"; //$NON-NLS-1$
+	/**
+	 * The field used to store document attachments during NoSQL conversion,
+	 * currently {@value #FIELD_ATTACHMENTS}
+	 */
+	public static final String FIELD_ATTACHMENTS = "_attachments"; //$NON-NLS-1$
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based
@@ -95,7 +115,13 @@ public enum EntityConverter {
 		"ParagraphIndent=2" //$NON-NLS-1$
 	));
 	
-	static Stream<DocumentEntity> convert(Database database, View docs, ClassMapping classMapping) throws NotesException {
+	private final DatabaseSupplier databaseSupplier;
+	
+	public EntityConverter(DatabaseSupplier databaseSupplier) {
+		this.databaseSupplier = databaseSupplier;
+	}
+	
+	public Stream<DocumentEntity> convert(Database database, View docs, ClassMapping classMapping) throws NotesException {
 		// TODO stream this better
 		// TODO create a lazy-loading list?
 		List<DocumentEntity> result = new ArrayList<>();
@@ -109,7 +135,7 @@ public enum EntityConverter {
 				lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
 				if(isValid(doc)) {
 					List<Document> documents = toDocuments(doc, classMapping);
-					String name = doc.getItemValueString(NAME_FIELD);
+					String name = doc.getItemValueString(FIELD_NAME);
 					result.add(DocumentEntity.of(name, documents));
 				}
 				
@@ -124,7 +150,7 @@ public enum EntityConverter {
 		return result.stream();
 	}
 	
-	static Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
 		// Read in the column names
 		View view = nav.getParentView();
 		@SuppressWarnings("unchecked")
@@ -144,7 +170,7 @@ public enum EntityConverter {
 			
 			List<Document> convertedEntry = new ArrayList<>(columnValues.size());
 
-			convertedEntry.add(Document.of(ID_FIELD, entry.getUniversalID()));
+			convertedEntry.add(Document.of(FIELD_ID, entry.getUniversalID()));
 			
 			for(int i = 0; i < columnValues.size(); i++) {
 				String itemName = columnNames.get(i);
@@ -166,7 +192,7 @@ public enum EntityConverter {
 		return result.stream();
 	}
 	
-	static Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
 		// Read in the column names
 		View view = nav.getParentView();
 		@SuppressWarnings("unchecked")
@@ -185,7 +211,7 @@ public enum EntityConverter {
 			if(entry.isDocument()) {
 				lotus.domino.Document doc = entry.getDocument();
 				List<Document> documents = toDocuments(doc, classMapping);
-				String name = doc.getItemValueString(NAME_FIELD);
+				String name = doc.getItemValueString(FIELD_NAME);
 				result.add(DocumentEntity.of(name, documents));
 				
 				if(limit > 0 && result.size() >= limit) {
@@ -201,7 +227,7 @@ public enum EntityConverter {
 		return result.stream();
 	}
 
-	static Stream<DocumentEntity> convert(DocumentCollection docs, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convert(DocumentCollection docs, ClassMapping classMapping) throws NotesException {
 		// TODO stream this better
 		// TODO create a lazy-loading list?
 		List<DocumentEntity> result = new ArrayList<>();
@@ -209,7 +235,7 @@ public enum EntityConverter {
 		while(doc != null) {
 			if(isValid(doc)) {
 				List<Document> documents = toDocuments(doc, classMapping);
-				String name = doc.getItemValueString(NAME_FIELD);
+				String name = doc.getItemValueString(FIELD_NAME);
 				result.add(DocumentEntity.of(name, documents));
 			}
 			
@@ -221,10 +247,10 @@ public enum EntityConverter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Document> toDocuments(lotus.domino.Document doc, ClassMapping classMapping) throws NotesException {
+	public List<Document> toDocuments(lotus.domino.Document doc, ClassMapping classMapping) throws NotesException {
 		Set<String> fieldNames = classMapping == null ? null : classMapping.getFieldsName()
 			.stream()
-			.filter(s -> !ID_FIELD.equals(s))
+			.filter(s -> !FIELD_ID.equals(s))
 			.collect(Collectors.toSet());
 		
 		Session session = doc.getParentDatabase().getParent();
@@ -233,12 +259,13 @@ public enum EntityConverter {
 			session.setConvertMime(false);
 			
 			List<Document> result = new ArrayList<>();
-			result.add(Document.of(ID_FIELD, doc.getUniversalID()));
+			String unid = doc.getUniversalID();
+			result.add(Document.of(FIELD_ID, unid));
 			
 			Map<String, Object> docMap = new LinkedHashMap<>();
 			for(Item item : (List<Item>)doc.getItems()) {
 				String itemName = item.getName();
-				if(NAME_FIELD.equalsIgnoreCase(itemName)) {
+				if(FIELD_NAME.equalsIgnoreCase(itemName)) {
 					continue;
 				}
 				
@@ -287,27 +314,85 @@ public enum EntityConverter {
 			
 			docMap.forEach((key, value) -> result.add(Document.of(key, value)));
 	
-			result.add(Document.of("_cdate", doc.getCreated().toJavaDate().toInstant())); //$NON-NLS-1$
-			result.add(Document.of("_mdate", doc.getCreated().toJavaDate().toInstant())); //$NON-NLS-1$
+			if(fieldNames.contains(FIELD_CDATE)) {
+				result.add(Document.of(FIELD_CDATE, doc.getCreated().toJavaDate().toInstant()));
+			}
+			if(fieldNames.contains(FIELD_MDATE)) {
+				result.add(Document.of(FIELD_MDATE, doc.getCreated().toJavaDate().toInstant()));
+			}
 			
-			// TODO attachments support
-	//		result.add(Document.of(ATTACHMENT_FIELD,
-	//			Stream.of(doc.getAttachments())
-	//				.map(t -> {
-	//					try {
-	//						return new DominoDocumentAttachment(t);
-	//					} catch (NotesException e) {
-	//						throw new RuntimeException(e);
-	//					}
-	//				})
-	//				.collect(Collectors.toList())
-	//		));
+			if(fieldNames.contains(FIELD_ATTACHMENTS)) {
+				List<String> attachmentNames = doc.getParentDatabase().getParent()
+					.evaluate(" @AttachmentNames ", doc); //$NON-NLS-1$
+				List<EntityAttachment> attachments = attachmentNames.stream()
+					.filter(StringUtil::isNotEmpty)
+					.map(attachmentName -> new DominoDocumentAttachment(this.databaseSupplier, unid, attachmentName))
+					.collect(Collectors.toList());
+				result.add(Document.of(FIELD_ATTACHMENTS, attachments));
+			}
 			
 			return result;
 		} finally {
 			session.setConvertMime(convertMime);
 		}
 	}
+
+	/**
+	 * Converts the provided {@link DocumentEntity} instance into a Domino
+	 * JSON object.
+	 * 
+	 * <p>This is equivalent to calling {@link #convert(DocumentEntity, boolean)} with
+	 * <code>false</code> as the second parameter.</p>
+	 * 
+	 * @param entity the entity instance to convert
+	 * @param target the target Domino Document to store in
+	 */
+	public void convert(DocumentEntity entity, lotus.domino.Document target) throws NotesException {
+		convert(entity, false, target);
+	}
+	
+	/**
+	 * Converts the provided {@link DocumentEntity} instance into a Domino
+	 * JSON object.
+	 * 
+	 * @param entity the entity instance to convert
+	 * @param retainId whether or not to remove the {@link #FIELD_ID} field during conversion
+	 * @param target the target Domino Document to store in
+	 */
+	public void convert(DocumentEntity entity, boolean retainId, lotus.domino.Document target) throws NotesException {
+		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
+
+		// NB: JNoSQL doesn't currently use ValueWriters, so gather them here
+		@SuppressWarnings("unchecked")
+		List<ValueWriter<Object, Object>> writers = ServiceLoaderProvider.getSupplierStream(ValueWriter.class)
+			.map(w -> (ValueWriter<Object, Object>)w)
+			.collect(Collectors.toList());
+
+		for(Document doc : entity.getDocuments()) {
+			if(!"$FILE".equalsIgnoreCase(doc.getName()) && !FIELD_ID.equalsIgnoreCase(doc.getName())) { //$NON-NLS-1$
+				Object value = doc.get();
+				if(value == null) {
+					target.removeItem(doc.getName());
+				} else {
+					Object val = value;
+					for(ValueWriter<Object, Object> w : writers) {
+						if(w.test(value.getClass())) {
+							val = w.write(value);
+							break;
+						}
+					}
+					
+					target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val)).recycle();
+				}
+			}
+		}
+		
+		target.replaceItemValue(FIELD_NAME, entity.getName());
+	}
+	
+	// *******************************************************************************
+	// * Utility methods
+	// *******************************************************************************
 	
 	private static MIMEEntity findEntityForType(MIMEEntity entity, String targetType, String targetSubtype) throws NotesException {
 		String type = entity.getContentType();
@@ -328,59 +413,6 @@ public enum EntityConverter {
 		} else {
 			return null;
 		}
-	}
-
-	/**
-	 * Converts the provided {@link DocumentEntity} instance into a Domino
-	 * JSON object.
-	 * 
-	 * <p>This is equivalent to calling {@link #convert(DocumentEntity, boolean)} with
-	 * <code>false</code> as the second parameter.</p>
-	 * 
-	 * @param entity the entity instance to convert
-	 * @param target the target Domino Document to store in
-	 */
-	public static void convert(DocumentEntity entity, lotus.domino.Document target) throws NotesException {
-		convert(entity, false, target);
-	}
-	
-	/**
-	 * Converts the provided {@link DocumentEntity} instance into a Domino
-	 * JSON object.
-	 * 
-	 * @param entity the entity instance to convert
-	 * @param retainId whether or not to remove the {@link #ID_FIELD} field during conversion
-	 * @param target the target Domino Document to store in
-	 */
-	public static void convert(DocumentEntity entity, boolean retainId, lotus.domino.Document target) throws NotesException {
-		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
-
-		// NB: JNoSQL doesn't currently use ValueWriters, so gather them here
-		@SuppressWarnings("unchecked")
-		List<ValueWriter<Object, Object>> writers = ServiceLoaderProvider.getSupplierStream(ValueWriter.class)
-			.map(w -> (ValueWriter<Object, Object>)w)
-			.collect(Collectors.toList());
-
-		for(Document doc : entity.getDocuments()) {
-			if(!"$FILE".equalsIgnoreCase(doc.getName()) && !ID_FIELD.equalsIgnoreCase(doc.getName())) { //$NON-NLS-1$
-				Object value = doc.get();
-				if(value == null) {
-					target.removeItem(doc.getName());
-				} else {
-					Object val = value;
-					for(ValueWriter<Object, Object> w : writers) {
-						if(w.test(value.getClass())) {
-							val = w.write(value);
-							break;
-						}
-					}
-					
-					target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val)).recycle();
-				}
-			}
-		}
-		
-		target.replaceItemValue(NAME_FIELD, entity.getName());
 	}
 	
 	private static Object toDominoFriendly(Session session, Object value) throws NotesException {

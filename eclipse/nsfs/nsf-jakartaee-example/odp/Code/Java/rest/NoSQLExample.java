@@ -19,12 +19,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
+
 import com.ibm.commons.util.StringUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
@@ -37,13 +42,16 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import model.CustomPropertyType;
 import model.Person;
 import model.PersonRepository;
@@ -149,6 +157,30 @@ public class NoSQLExample {
 	public String show(@PathParam("id") String id) {
 		models.put("person", personRepository.findById(id).get());
 		return "person-show.jsp";
+	}
+	
+	@Path("{id}/attachment/{attachmentName}")
+	@GET
+	public Response getAttachment(@PathParam("id") String id, @PathParam("attachmentName") String attachmentName) {
+		Person person = personRepository.findById(id).get();
+		
+		String name = attachmentName.replace('+', ' ');
+		EntityAttachment att = person.getAttachments()
+			.stream()
+			.filter(a -> a.getName().equals(name))
+			.findFirst()
+			.orElseThrow(() -> new NotFoundException(MessageFormat.format("Could not find attachment {0} on document {1}", attachmentName, id)));
+		
+		try {
+			return Response.ok()
+				.entity(att.getData())
+				.type(att.getContentType())
+				.header(HttpHeaders.CONTENT_LENGTH, att.getLength())
+				.header(HttpHeaders.LAST_MODIFIED, Instant.ofEpochMilli(att.getLastModified()))
+				.build();
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 	
 	@Path("{id}")

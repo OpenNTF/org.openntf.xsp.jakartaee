@@ -43,6 +43,7 @@
 					<th>Favorite Time</th>
 					<th>Added</th>
 					<th>Custom Property</th>
+					<th>Attachments</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -55,6 +56,11 @@
 						<td>${fn:escapeXml(person.favoriteTime)}</td>
 						<td>${fn:escapeXml(person.added)}</td>
 						<td>${fn:escapeXml(person.customProperty)}</td>
+						<td>
+							<c:forEach items="${person.attachments}" var="att">
+								<a href="${person.unid}/attachment/${encoderBean.urlEncode(att.name)}">${fn:escapeXml(att.name)}</a>
+							</c:forEach>
+						</td>
 						<td>
 							<form method="POST" action="${person.unid}/delete">
 								<input type="submit" value="Delete"/>

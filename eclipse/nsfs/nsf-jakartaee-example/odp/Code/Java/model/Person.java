@@ -17,6 +17,10 @@ package model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+
+import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
+
 import java.time.Instant;
 
 import jakarta.nosql.mapping.Column;
@@ -45,6 +49,9 @@ public class Person {
 	
 	@Column("CustomProperty")
 	private CustomPropertyType customProperty;
+	
+	@Column("_attachments")
+	private List<EntityAttachment> attachments;
 
 	public String getUnid() {
 		return unid;
@@ -96,5 +103,12 @@ public class Person {
 	}
 	public void setCustomProperty(CustomPropertyType customProperty) {
 		this.customProperty = customProperty;
+	}
+	
+	public List<EntityAttachment> getAttachments() {
+		return attachments;
+	}
+	public void setAttachments(List<EntityAttachment> attachments) {
+		this.attachments = attachments;
 	}
 }

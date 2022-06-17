@@ -72,7 +72,7 @@ public enum QueryConverter {
 
 		// Convert special names
 		String name = document.getName();
-		if (String.valueOf(name).equals(EntityConverter.ID_FIELD)) {
+		if (String.valueOf(name).equals(EntityConverter.FIELD_ID)) {
 			name = "@DocumentUniqueID"; //$NON-NLS-1$
 		}
 
@@ -183,9 +183,9 @@ public enum QueryConverter {
 			return condition;
 		} else {
 			if(condition == null) {
-				return DQL.item(EntityConverter.NAME_FIELD).isEqualTo(formName);
+				return DQL.item(EntityConverter.FIELD_NAME).isEqualTo(formName);
 			} else {
-				return DQL.and(condition, DQL.item(EntityConverter.NAME_FIELD).isEqualTo(formName));
+				return DQL.and(condition, DQL.item(EntityConverter.FIELD_NAME).isEqualTo(formName));
 			}
 		}
 	}

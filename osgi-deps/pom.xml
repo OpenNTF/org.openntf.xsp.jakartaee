@@ -614,6 +614,18 @@
 									</instructions>
 								</artifact>
 								<artifact>
+									<id>org.eclipse.jnosql.communication:communication-driver-commons:${nosql-version}</id>
+									<source>true</source>
+									<transform>jakarta</transform>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.driver.commons</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
+								<artifact>
 									<id>org.eclipse.jnosql.mapping:mapping-core:${nosql-version}</id>
 									<source>true</source>
 									<transform>jakarta</transform>

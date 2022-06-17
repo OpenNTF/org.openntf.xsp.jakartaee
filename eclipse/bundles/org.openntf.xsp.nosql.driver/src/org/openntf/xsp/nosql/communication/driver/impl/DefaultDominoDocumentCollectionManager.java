@@ -72,10 +72,12 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 	private final DatabaseSupplier supplier;
 	private final SessionSupplier sessionSupplier;
+	private final EntityConverter entityConverter;
 	
 	public DefaultDominoDocumentCollectionManager(DatabaseSupplier supplier, SessionSupplier sessionSupplier) {
 		this.supplier = supplier;
 		this.sessionSupplier = sessionSupplier;
+		this.entityConverter = new EntityConverter(supplier);
 	}
 	
 	@Override
@@ -84,15 +86,15 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			Database database = supplier.get();
 			lotus.domino.Document target = database.createDocument();
 			
-			Optional<Document> maybeId = entity.find(EntityConverter.ID_FIELD);
+			Optional<Document> maybeId = entity.find(EntityConverter.FIELD_ID);
 			if(maybeId.isPresent()) {
 				target.setUniversalID(maybeId.get().get().toString());
 			} else {
 				// Write the generated UNID into the entity
-				entity.add(Document.of(EntityConverter.ID_FIELD, target.getUniversalID()));
+				entity.add(Document.of(EntityConverter.FIELD_ID, target.getUniversalID()));
 			}
 			
-			EntityConverter.convert(entity, target);
+			entityConverter.convert(entity, target);
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -128,12 +130,12 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		try {
 			Database database = supplier.get();
 			
-			Document id = entity.find(EntityConverter.ID_FIELD)
-				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", EntityConverter.ID_FIELD)));
+			Document id = entity.find(EntityConverter.FIELD_ID)
+				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", EntityConverter.FIELD_ID)));
 			
 			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
 			
-			EntityConverter.convert(entity, target);
+			entityConverter.convert(entity, target);
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -217,7 +219,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					}
 	
 					if(view != null) {
-						result = EntityConverter.convert(database, view, mapping);
+						result = entityConverter.convert(database, view, mapping);
 					} else {
 						DominoQuery dominoQuery = database.createDominoQuery();		
 						QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
@@ -230,7 +232,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 							
 							view = qrp.executeToView(viewName, 24);
 							try {
-								result = EntityConverter.convert(database, view, mapping);
+								result = entityConverter.convert(database, view, mapping);
 							} finally {
 								recycle(view);
 							}
@@ -247,7 +249,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				DominoQuery dominoQuery = database.createDominoQuery();		
 				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
 				try {
-					result = EntityConverter.convert(docs, mapping);
+					result = entityConverter.convert(docs, mapping);
 				} finally {
 					recycle(docs, dominoQuery);
 				}
@@ -272,7 +274,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		return buildNavigtor(viewName, category, pagination, maxLevel,
 			(nav, limit) -> {
 				try {
-					return EntityConverter.convertViewEntries(entityName, nav, limit, mapping);
+					return entityConverter.convertViewEntries(entityName, nav, limit, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -287,7 +289,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		return buildNavigtor(viewName, category, pagination, maxLevel,
 			(nav, limit) -> {
 				try {
-					return EntityConverter.convertViewDocuments(entityName, nav, limit, mapping);
+					return entityConverter.convertViewDocuments(entityName, nav, limit, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -300,7 +302,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		try {
 			Database database = supplier.get();
 			DominoQuery dominoQuery = database.createDominoQuery();
-			DQLTerm dql = DQL.item(EntityConverter.NAME_FIELD).isEqualTo(documentCollection);
+			DQLTerm dql = DQL.item(EntityConverter.FIELD_NAME).isEqualTo(documentCollection);
 			DocumentCollection result = dominoQuery.execute(dql.toString());
 			return result.getCount();
 		} catch(NotesException e) {
