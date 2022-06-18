@@ -52,6 +52,7 @@ import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.nosql.communication.driver.impl.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
 
 import com.ibm.commons.util.StringUtil;
 
@@ -265,22 +266,18 @@ public class LSXBEEntityConverter {
 	 * @throws NotesException if there is a problem reading the documents
 	 */
 	public Stream<DocumentEntity> convertDocuments(DocumentCollection docs, ClassMapping classMapping) throws NotesException {
-		// TODO stream this better
-		// TODO create a lazy-loading list?
-		List<DocumentEntity> result = new ArrayList<>();
-		lotus.domino.Document doc = docs.getFirstDocument();
-		while(doc != null) {
-			if(isValid(doc)) {
-				List<Document> documents = toNoSQLDocuments(doc, classMapping);
-				String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
-				result.add(DocumentEntity.of(name, documents));
-			}
-			
-			lotus.domino.Document tempDoc = doc;
-			doc = docs.getNextDocument();
-			tempDoc.recycle();
-		}
-		return result.stream();
+		DocumentCollectionIterator iter = new DocumentCollectionIterator(docs);
+		return StreamSupport.stream(iter.spliterator(), false)
+			.filter(LSXBEEntityConverter::isValid)
+			.map(doc -> {
+				try {
+					List<Document> documents = toNoSQLDocuments(doc, classMapping);
+					String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
+					return DocumentEntity.of(name, documents);
+				} catch(NotesException e) {
+					throw new RuntimeException(e);
+				}
+			});
 	}
 
 	/**
@@ -611,6 +608,5 @@ public class LSXBEEntityConverter {
 			return value;
 		}
 	}
-	
 	
 }

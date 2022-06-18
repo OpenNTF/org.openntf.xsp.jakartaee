@@ -254,7 +254,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				try {
 					result = entityConverter.convertDocuments(docs, mapping);
 				} finally {
-					recycle(docs, dominoQuery);
+					recycle(dominoQuery);
 				}
 			}
 			
