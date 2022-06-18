@@ -1,5 +1,8 @@
 package org.openntf.xsp.nosql.communication.driver.impl;
 
+import java.util.Arrays;
+import java.util.Vector;
+
 /**
  * Contains constant values used by the Domino NoSQL driver for mapping
  * and querying.
@@ -34,4 +37,20 @@ public interface DominoConstants {
 	 * currently {@value #FIELD_ATTACHMENTS}
 	 */
 	String FIELD_ATTACHMENTS = "_attachments"; //$NON-NLS-1$
+	/**
+	 * Options used when converting composite data to HTML. This list is based
+	 * on the options used by XPages.
+	 */
+	Vector<String> HTML_CONVERSION_OPTIONS = new Vector<>(Arrays.asList(
+		"AutoClass=2", //$NON-NLS-1$
+		"RowAtATimeTableAlt=2", //$NON-NLS-1$
+		"SectionAlt=1", //$NON-NLS-1$
+		"XMLCompatibleHTML=1", //$NON-NLS-1$
+		"AttachmentLink=1", //$NON-NLS-1$
+		"TableStyle=1", //$NON-NLS-1$
+		"FontConversion=1", //$NON-NLS-1$
+		"LinkHandling=1", //$NON-NLS-1$
+		"ListFidelity=1", //$NON-NLS-1$
+		"ParagraphIndent=2" //$NON-NLS-1$
+	));
 }

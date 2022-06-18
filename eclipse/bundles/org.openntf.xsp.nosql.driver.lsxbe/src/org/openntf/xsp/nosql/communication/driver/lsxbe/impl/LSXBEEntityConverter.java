@@ -94,23 +94,6 @@ public class LSXBEEntityConverter {
 		));
 	}
 	
-	/**
-	 * Options used when converting composite data to HTML. This list is based
-	 * on the options used by XPages.
-	 */
-	public static final Vector<String> HTML_CONVERSION_OPTIONS = new Vector<>(Arrays.asList(
-		"AutoClass=2", //$NON-NLS-1$
-		"RowAtATimeTableAlt=2", //$NON-NLS-1$
-		"SectionAlt=1", //$NON-NLS-1$
-		"XMLCompatibleHTML=1", //$NON-NLS-1$
-		"AttachmentLink=1", //$NON-NLS-1$
-		"TableStyle=1", //$NON-NLS-1$
-		"FontConversion=1", //$NON-NLS-1$
-		"LinkHandling=1", //$NON-NLS-1$
-		"ListFidelity=1", //$NON-NLS-1$
-		"ParagraphIndent=2" //$NON-NLS-1$
-	));
-	
 	private final DatabaseSupplier databaseSupplier;
 	
 	public LSXBEEntityConverter(DatabaseSupplier databaseSupplier) {
@@ -419,7 +402,7 @@ public class LSXBEEntityConverter {
 				
 				if(item instanceof RichTextItem) {
 					// Special handling here for RT -> HTML
-					String html = ((RichTextItem)item).convertToHTML(HTML_CONVERSION_OPTIONS);
+					String html = ((RichTextItem)item).convertToHTML(DominoConstants.HTML_CONVERSION_OPTIONS);
 					docMap.put(itemName, html);
 				} else if(item.getType() == Item.MIME_PART) {
 					// TODO consider whether to pass this back as a Mail API MIME entity
