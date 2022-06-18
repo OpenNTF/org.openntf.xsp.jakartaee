@@ -75,12 +75,12 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 	private final DatabaseSupplier supplier;
 	private final SessionSupplier sessionSupplier;
-	private final EntityConverter entityConverter;
+	private final LSXBEEntityConverter entityConverter;
 	
 	public DefaultDominoDocumentCollectionManager(DatabaseSupplier supplier, SessionSupplier sessionSupplier) {
 		this.supplier = supplier;
 		this.sessionSupplier = sessionSupplier;
-		this.entityConverter = new EntityConverter(supplier);
+		this.entityConverter = new LSXBEEntityConverter(supplier);
 	}
 	
 	@Override
@@ -97,7 +97,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				entity.add(Document.of(DominoConstants.FIELD_ID, target.getUniversalID()));
 			}
 			
-			entityConverter.convert(entity, false, target);
+			entityConverter.convertNoSQLEntity(entity, false, target);
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -138,7 +138,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			
 			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
 			
-			entityConverter.convert(entity, false, target);
+			entityConverter.convertNoSQLEntity(entity, false, target);
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -222,7 +222,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					}
 	
 					if(view != null) {
-						result = entityConverter.convert(database, view, mapping);
+						result = entityConverter.convertQRPViewDocuments(database, view, mapping);
 					} else {
 						DominoQuery dominoQuery = database.createDominoQuery();		
 						QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
@@ -235,7 +235,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 							
 							view = qrp.executeToView(viewName, 24);
 							try {
-								result = entityConverter.convert(database, view, mapping);
+								result = entityConverter.convertQRPViewDocuments(database, view, mapping);
 							} finally {
 								recycle(view);
 							}
@@ -252,7 +252,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				DominoQuery dominoQuery = database.createDominoQuery();		
 				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
 				try {
-					result = entityConverter.convert(docs, mapping);
+					result = entityConverter.convertDocuments(docs, mapping);
 				} finally {
 					recycle(docs, dominoQuery);
 				}

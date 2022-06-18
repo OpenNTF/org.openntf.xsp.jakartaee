@@ -1,5 +1,12 @@
 package org.openntf.xsp.nosql.communication.driver.impl;
 
+/**
+ * Contains constant values used by the Domino NoSQL driver for mapping
+ * and querying.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.6.0
+ */
 public interface DominoConstants {
 	/**
 	 * The field used to store the UNID of the document during NoSQL
