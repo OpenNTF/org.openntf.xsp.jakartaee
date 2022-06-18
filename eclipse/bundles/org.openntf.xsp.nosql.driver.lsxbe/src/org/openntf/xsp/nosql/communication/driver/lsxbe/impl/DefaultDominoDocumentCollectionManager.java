@@ -203,48 +203,40 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				String dqlQuery = queryResult.getStatement().toString();
 				String viewName = getClass().getName() + "-" + Objects.hash(sorts, userName, dqlQuery); //$NON-NLS-1$
 				View view = qrpDatabase.getView(viewName);
-				try {
-					if(view != null) {
-						// Check to see if we need to "expire" it based on the data mod time of the DB
-						DateTime created = view.getCreated();
-						try {
-							long dataMod = NotesSession.getLastDataModificationDateByName(database.getServer(), database.getFilePath());
-							if(dataMod > (created.toJavaDate().getTime() / 1000)) {
-								view.remove();
-								view.recycle();
-								view = null;
-							}
-						} catch (NotesAPIException e) {
-							throw new RuntimeException(e);
-						} finally {
-							recycle(created);
+				if(view != null) {
+					// Check to see if we need to "expire" it based on the data mod time of the DB
+					DateTime created = view.getCreated();
+					try {
+						long dataMod = NotesSession.getLastDataModificationDateByName(database.getServer(), database.getFilePath());
+						if(dataMod > (created.toJavaDate().getTime() / 1000)) {
+							view.remove();
+							view.recycle();
+							view = null;
 						}
+					} catch (NotesAPIException e) {
+						throw new RuntimeException(e);
+					} finally {
+						recycle(created);
 					}
-	
-					if(view != null) {
+				}
+
+				if(view != null) {
+					result = entityConverter.convertQRPViewDocuments(database, view, mapping);
+				} else {
+					DominoQuery dominoQuery = database.createDominoQuery();		
+					QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
+					try {
+						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
+						for(Sort sort : sorts) {
+							int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
+							qrp.addColumn(sort.getName(), null, null, dir, false, false);
+						}
+						
+						view = qrp.executeToView(viewName, 24);
 						result = entityConverter.convertQRPViewDocuments(database, view, mapping);
-					} else {
-						DominoQuery dominoQuery = database.createDominoQuery();		
-						QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
-						try {
-							qrp.addDominoQuery(dominoQuery, dqlQuery, null);
-							for(Sort sort : sorts) {
-								int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
-								qrp.addColumn(sort.getName(), null, null, dir, false, false);
-							}
-							
-							view = qrp.executeToView(viewName, 24);
-							try {
-								result = entityConverter.convertQRPViewDocuments(database, view, mapping);
-							} finally {
-								recycle(view);
-							}
-						} finally {
-							recycle(qrp, dominoQuery, qrpDatabase);
-						}
+					} finally {
+						recycle(qrp, dominoQuery);
 					}
-				} finally {
-					recycle(view);
 				}
 				
 			} else {

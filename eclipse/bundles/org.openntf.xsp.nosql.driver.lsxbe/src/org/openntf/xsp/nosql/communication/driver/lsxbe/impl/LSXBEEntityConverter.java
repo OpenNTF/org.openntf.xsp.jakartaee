@@ -40,6 +40,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -53,6 +54,7 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.nosql.communication.driver.impl.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
 
 import com.ibm.commons.util.StringUtil;
 
@@ -72,7 +74,6 @@ import lotus.domino.RichTextItem;
 import lotus.domino.Session;
 import lotus.domino.View;
 import lotus.domino.ViewColumn;
-import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
 
 /**
@@ -126,32 +127,31 @@ public class LSXBEEntityConverter {
 	 * @throws NotesException if there is a problem reading the view or documents
 	 */
 	public Stream<DocumentEntity> convertQRPViewDocuments(Database database, View docs, ClassMapping classMapping) throws NotesException {
-		// TODO stream this better
-		// TODO create a lazy-loading list?
-		List<DocumentEntity> result = new ArrayList<>();
 		ViewNavigator nav = docs.createViewNav();
-		try {
-			ViewEntry entry = nav.getFirst();
-			while(entry != null) {
-				Vector<?> columnValues = entry.getColumnValues();
-				// The last column is the note ID in format "NT00000000"
-				String noteId = (String)columnValues.get(columnValues.size()-1);
-				lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
-				if(isValid(doc)) {
-					List<Document> documents = toNoSQLDocuments(doc, classMapping);
-					String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
-					result.add(DocumentEntity.of(name, documents));
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav);
+		return iter.stream()
+			.map(entry -> {
+				try {
+					Vector<?> columnValues = entry.getColumnValues();
+					try {
+						// The last column is the note ID in format "NT00000000"
+						String noteId = (String)columnValues.get(columnValues.size()-1);
+						lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
+						if(isValid(doc)) {
+							List<Document> documents = toNoSQLDocuments(doc, classMapping);
+							String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
+							return DocumentEntity.of(name, documents);
+						} else {
+							return null;
+						}
+					} finally {
+						entry.recycle(columnValues);
+					}
+				} catch(NotesException e) {
+					throw new RuntimeException(e);
 				}
-				
-				entry.recycle(columnValues);
-				ViewEntry tempEntry = entry;
-				entry = nav.getNext(entry);
-				tempEntry.recycle();
-			}
-		} finally {
-			nav.recycle();
-		}
-		return result.stream();
+			})
+			.filter(Objects::nonNull);
 	}
 	
 	/**
@@ -160,7 +160,7 @@ public class LSXBEEntityConverter {
 	 * 
 	 * @param entityName the name of the target entity
 	 * @param nav the {@link ViewNavigator} to traverse
-	 * @param limit the maximum number of entries to read
+	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
 	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
 	 * @throws NotesException if there is a problem reading the view
@@ -180,33 +180,33 @@ public class LSXBEEntityConverter {
 		}
 		view.recycle(columns);
 		
-		List<DocumentEntity> result = new ArrayList<>();
-		ViewEntry entry = nav.getFirst();
-		while(entry != null) {
-			Vector<?> columnValues = entry.getColumnValues();
-			
-			List<Document> convertedEntry = new ArrayList<>(columnValues.size());
-
-			convertedEntry.add(Document.of(DominoConstants.FIELD_ID, entry.getUniversalID()));
-			
-			for(int i = 0; i < columnValues.size(); i++) {
-				String itemName = columnNames.get(i);
-				Object value = columnValues.get(i);
-				convertedEntry.add(Document.of(itemName, toJavaFriendly(view.getParent(), value)));
-			}
-			result.add(DocumentEntity.of(entityName, convertedEntry));
-			
-			if(limit > 0 && result.size() >= limit) {
-				break;
-			}
-
-			entry.recycle(columnValues);
-			ViewEntry tempEntry = entry;
-			entry = nav.getNext(entry);
-			tempEntry.recycle();
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav);
+		Stream<DocumentEntity> result = iter.stream()
+			.map(entry -> {
+				try {
+					Vector<?> columnValues = entry.getColumnValues();
+					try {
+						List<Document> convertedEntry = new ArrayList<>(columnValues.size());
+	
+						convertedEntry.add(Document.of(DominoConstants.FIELD_ID, entry.getUniversalID()));
+						
+						for(int i = 0; i < columnValues.size(); i++) {
+							String itemName = columnNames.get(i);
+							Object value = columnValues.get(i);
+							convertedEntry.add(Document.of(itemName, toJavaFriendly(view.getParent(), value)));
+						}
+						return DocumentEntity.of(entityName, convertedEntry);
+					} finally {
+						entry.recycle(columnValues);
+					}
+				} catch(NotesException e) {
+					throw new RuntimeException(e);
+				}
+			});
+		if(limit > 0) {
+			result = result.limit(limit);
 		}
-		
-		return result.stream();
+		return result;
 	}
 	
 	/**
@@ -215,7 +215,7 @@ public class LSXBEEntityConverter {
 	 * 
 	 * @param entityName the name of the target entity
 	 * @param nav the {@link ViewNavigator} to traverse
-	 * @param limit the maximum number of entries to read
+	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
 	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
 	 * @throws NotesException if there is a problem reading the view or documents
@@ -223,38 +223,29 @@ public class LSXBEEntityConverter {
 	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOLUMNVALUES | ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
-		// Read in the column names
-		View view = nav.getParentView();
-		@SuppressWarnings("unchecked")
-		Vector<ViewColumn> columns = view.getColumns();
-		List<String> columnNames = new ArrayList<>();
-		for(ViewColumn col : columns) {
-			if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
-				columnNames.add(col.getItemName());
-			}
-		}
-		view.recycle(columns);
-		
-		List<DocumentEntity> result = new ArrayList<>();
-		ViewEntry entry = nav.getFirst();
-		while(entry != null) {
-			if(entry.isDocument()) {
-				lotus.domino.Document doc = entry.getDocument();
-				List<Document> documents = toNoSQLDocuments(doc, classMapping);
-				String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
-				result.add(DocumentEntity.of(name, documents));
-				
-				if(limit > 0 && result.size() >= limit) {
-					break;
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav);
+		Stream<DocumentEntity> result = iter.stream()
+			.filter(entry -> {
+				try {
+					return entry.isDocument();
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
 				}
-			}
-			
-			ViewEntry tempEntry = entry;
-			entry = nav.getNext(entry);
-			tempEntry.recycle();
+			})
+			.map(entry -> {
+				try {
+					lotus.domino.Document doc = entry.getDocument();
+					List<Document> documents = toNoSQLDocuments(doc, classMapping);
+					String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
+					return DocumentEntity.of(name, documents);
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
+				}
+			});
+		if(limit > 0) {
+			result = result.limit(limit);
 		}
-		
-		return result.stream();
+		return result;
 	}
 
 	/**
@@ -267,7 +258,7 @@ public class LSXBEEntityConverter {
 	 */
 	public Stream<DocumentEntity> convertDocuments(DocumentCollection docs, ClassMapping classMapping) throws NotesException {
 		DocumentCollectionIterator iter = new DocumentCollectionIterator(docs);
-		return StreamSupport.stream(iter.spliterator(), false)
+		return iter.stream()
 			.filter(LSXBEEntityConverter::isValid)
 			.map(doc -> {
 				try {

@@ -1,8 +1,6 @@
 package org.openntf.xsp.nosql.communication.driver.lsxbe.util;
 
 import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
 
 import lotus.domino.Document;
 import lotus.domino.DocumentCollection;
@@ -19,24 +17,13 @@ import lotus.domino.NotesException;
  * @author Jesse Gallagher
  * @since 2.6.0
  */
-public class DocumentCollectionIterator implements Iterator<Document> {
+public class DocumentCollectionIterator extends AbstractCollectionIterator<Document> {
 	private final DocumentCollection docs;
-	private final int size;
-	private int fetched = 0;
 	private Document prev;
 	
-	public DocumentCollectionIterator(DocumentCollection docs) {
+	public DocumentCollectionIterator(DocumentCollection docs) throws NotesException {
+		super(docs.getCount());
 		this.docs = docs;
-		try {
-			this.size = docs.getCount();
-		} catch (NotesException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public boolean hasNext() {
-		return fetched < size;
 	}
 
 	@Override
@@ -60,10 +47,6 @@ public class DocumentCollectionIterator implements Iterator<Document> {
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-	public Spliterator<Document> spliterator() {
-		return Spliterators.spliterator(this, size, Spliterator.DISTINCT | Spliterator.ORDERED | Spliterator.SIZED);
 	}
 	
 }
