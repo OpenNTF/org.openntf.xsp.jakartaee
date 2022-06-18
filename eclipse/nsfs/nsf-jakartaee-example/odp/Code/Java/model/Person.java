@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
+import org.openntf.xsp.nosql.communication.driver.impl.DominoConstants;
 
 import java.time.Instant;
 
@@ -50,7 +51,7 @@ public class Person {
 	@Column("CustomProperty")
 	private CustomPropertyType customProperty;
 	
-	@Column("_attachments")
+	@Column(DominoConstants.FIELD_ATTACHMENTS)
 	private List<EntityAttachment> attachments;
 
 	public String getUnid() {
