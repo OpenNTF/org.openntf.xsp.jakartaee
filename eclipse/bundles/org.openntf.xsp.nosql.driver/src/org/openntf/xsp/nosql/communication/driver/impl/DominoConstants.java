@@ -13,9 +13,12 @@ import java.util.Vector;
 public interface DominoConstants {
 	/**
 	 * The field used to store the UNID of the document during NoSQL
-	 * conversion, currently {@value #FIELD_ID}
+	 * conversion, currently {@value #FIELD_ID}.
+	 * 
+	 * <p>This value is shared with the default value for the
+	 * {@link jakarta.nosql.mapping.Id @Id} annotation from Jakarta NoSQL.</p>
 	 */
-	String FIELD_ID = "@unid"; //$NON-NLS-1$
+	String FIELD_ID = "_id"; //$NON-NLS-1$
 	/**
 	 * The expected field containing the collection name of the document in
 	 * Domino, currently {@value #FIELD_NAME}
