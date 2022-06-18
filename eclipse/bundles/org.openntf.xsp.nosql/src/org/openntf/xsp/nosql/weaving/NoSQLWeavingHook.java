@@ -49,7 +49,6 @@ public class NoSQLWeavingHook implements WeavingHook {
 		if("jakarta.nosql.ValueReaderDecorator".equals(c.getClassName())) { //$NON-NLS-1$
 			processValueReader(c);
 		} else if("org.eclipse.jnosql.communication.writer.ValueWriterDecorator".equals(c.getClassName())) { //$NON-NLS-1$
-			System.out.println("patching ValueWriterDecorator!");
 			processValueWriter(c);
 		}
 	}
