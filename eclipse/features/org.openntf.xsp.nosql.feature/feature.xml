@@ -240,6 +240,7 @@
 
    <plugin id="org.openntf.xsp.nosql" version="0.0.0"/>
    <plugin id="org.openntf.xsp.nosql.driver" version="0.0.0"/>
+   <plugin id="org.openntf.xsp.nosql.driver.lsxbe" version="0.0.0"/>
 	
    <plugin id="org.openntf.jakarta.nosql.communication.core" version="0.0.0"/>
    <plugin id="org.openntf.jakarta.nosql.communication.document" version="0.0.0"/>

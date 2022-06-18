@@ -16,7 +16,7 @@
 package org.openntf.xsp.nosql.bean;
 
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
-import org.openntf.xsp.nosql.communication.driver.impl.DominoDocumentConfiguration;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.impl.DominoDocumentConfiguration;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver.impl;
+package org.openntf.xsp.nosql.communication.driver.lsxbe.impl;
 
 
 import static java.util.Objects.requireNonNull;
@@ -50,7 +50,8 @@ import java.util.stream.StreamSupport;
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
+import org.openntf.xsp.nosql.communication.driver.impl.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 
 import com.ibm.commons.util.StringUtil;
 
@@ -80,36 +81,15 @@ import lotus.domino.ViewNavigator;
  * @since 2.3.0
  */
 public class EntityConverter {
-	/**
-	 * The field used to store the UNID of the document during NoSQL
-	 * conversion, currently {@value #FIELD_ID}
-	 */
-	public static final String FIELD_ID = "_id"; //$NON-NLS-1$
-	/**
-	 * The expected field containing the collection name of the document in
-	 * Domino, currently {@value #FIELD_NAME}
-	 */
-	public static final String FIELD_NAME = "Form"; //$NON-NLS-1$
-	
-	/**
-	 * The field used to store the creation date of the document during
-	 * NoSQL conversion, currently {@value #FIELD_CDATE}
-	 */
-	public static final String FIELD_CDATE = "_cdate"; //$NON-NLS-1$
-	/**
-	 * The field used to store the last modification date of the document during
-	 * NoSQL conversion, currently {@value #FIELD_MDATE}
-	 */
-	public static final String FIELD_MDATE = "_mdate"; //$NON-NLS-1$
-	/**
-	 * The field used to store document attachments during NoSQL conversion,
-	 * currently {@value #FIELD_ATTACHMENTS}
-	 */
-	public static final String FIELD_ATTACHMENTS = "_attachments"; //$NON-NLS-1$
 	
 	private static final Collection<String> SYSTEM_FIELDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	static {
-		SYSTEM_FIELDS.addAll(Arrays.asList(FIELD_ID, FIELD_CDATE, FIELD_MDATE, FIELD_ATTACHMENTS));
+		SYSTEM_FIELDS.addAll(Arrays.asList(
+			DominoConstants.FIELD_ID,
+			DominoConstants.FIELD_CDATE,
+			DominoConstants.FIELD_MDATE,
+			DominoConstants.FIELD_ATTACHMENTS
+		));
 	}
 	
 	/**
@@ -149,7 +129,7 @@ public class EntityConverter {
 				lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
 				if(isValid(doc)) {
 					List<Document> documents = toDocuments(doc, classMapping);
-					String name = doc.getItemValueString(FIELD_NAME);
+					String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
 					result.add(DocumentEntity.of(name, documents));
 				}
 				
@@ -184,7 +164,7 @@ public class EntityConverter {
 			
 			List<Document> convertedEntry = new ArrayList<>(columnValues.size());
 
-			convertedEntry.add(Document.of(FIELD_ID, entry.getUniversalID()));
+			convertedEntry.add(Document.of(DominoConstants.FIELD_ID, entry.getUniversalID()));
 			
 			for(int i = 0; i < columnValues.size(); i++) {
 				String itemName = columnNames.get(i);
@@ -225,7 +205,7 @@ public class EntityConverter {
 			if(entry.isDocument()) {
 				lotus.domino.Document doc = entry.getDocument();
 				List<Document> documents = toDocuments(doc, classMapping);
-				String name = doc.getItemValueString(FIELD_NAME);
+				String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
 				result.add(DocumentEntity.of(name, documents));
 				
 				if(limit > 0 && result.size() >= limit) {
@@ -249,7 +229,7 @@ public class EntityConverter {
 		while(doc != null) {
 			if(isValid(doc)) {
 				List<Document> documents = toDocuments(doc, classMapping);
-				String name = doc.getItemValueString(FIELD_NAME);
+				String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
 				result.add(DocumentEntity.of(name, documents));
 			}
 			
@@ -264,7 +244,7 @@ public class EntityConverter {
 	public List<Document> toDocuments(lotus.domino.Document doc, ClassMapping classMapping) throws NotesException {
 		Set<String> fieldNames = classMapping == null ? null : classMapping.getFieldsName()
 			.stream()
-			.filter(s -> !FIELD_ID.equals(s))
+			.filter(s -> !DominoConstants.FIELD_ID.equals(s))
 			.collect(Collectors.toSet());
 		
 		Session session = doc.getParentDatabase().getParent();
@@ -274,13 +254,13 @@ public class EntityConverter {
 			
 			List<Document> result = new ArrayList<>();
 			String unid = doc.getUniversalID();
-			result.add(Document.of(FIELD_ID, unid));
+			result.add(Document.of(DominoConstants.FIELD_ID, unid));
 			
 			// TODO when fieldNames is present, only loop over those names
 			Map<String, Object> docMap = new LinkedHashMap<>();
 			for(Item item : (List<Item>)doc.getItems()) {
 				String itemName = item.getName();
-				if(FIELD_NAME.equalsIgnoreCase(itemName)) {
+				if(DominoConstants.FIELD_NAME.equalsIgnoreCase(itemName)) {
 					continue;
 				} else if(SYSTEM_FIELDS.contains(itemName)) {
 					continue;
@@ -331,21 +311,21 @@ public class EntityConverter {
 			
 			docMap.forEach((key, value) -> result.add(Document.of(key, value)));
 	
-			if(fieldNames.contains(FIELD_CDATE)) {
-				result.add(Document.of(FIELD_CDATE, doc.getCreated().toJavaDate().toInstant()));
+			if(fieldNames.contains(DominoConstants.FIELD_CDATE)) {
+				result.add(Document.of(DominoConstants.FIELD_CDATE, doc.getCreated().toJavaDate().toInstant()));
 			}
-			if(fieldNames.contains(FIELD_MDATE)) {
-				result.add(Document.of(FIELD_MDATE, doc.getCreated().toJavaDate().toInstant()));
+			if(fieldNames.contains(DominoConstants.FIELD_MDATE)) {
+				result.add(Document.of(DominoConstants.FIELD_MDATE, doc.getCreated().toJavaDate().toInstant()));
 			}
 			
-			if(fieldNames.contains(FIELD_ATTACHMENTS)) {
+			if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
 				List<String> attachmentNames = doc.getParentDatabase().getParent()
 					.evaluate(" @AttachmentNames ", doc); //$NON-NLS-1$
 				List<EntityAttachment> attachments = attachmentNames.stream()
 					.filter(StringUtil::isNotEmpty)
 					.map(attachmentName -> new DominoDocumentAttachment(this.databaseSupplier, unid, attachmentName))
 					.collect(Collectors.toList());
-				result.add(Document.of(FIELD_ATTACHMENTS, attachments));
+				result.add(Document.of(DominoConstants.FIELD_ATTACHMENTS, attachments));
 			}
 			
 			return result;
@@ -372,7 +352,7 @@ public class EntityConverter {
 				.collect(Collectors.toList());
 	
 			for(Document doc : entity.getDocuments()) {
-				if(FIELD_ATTACHMENTS.equals(doc.getName())) {
+				if(DominoConstants.FIELD_ATTACHMENTS.equals(doc.getName())) {
 					@SuppressWarnings("unchecked")
 					List<EntityAttachment> incoming = (List<EntityAttachment>)doc.get();
 					Set<String> retain = incoming.stream()
@@ -400,9 +380,9 @@ public class EntityConverter {
 						.filter(att -> !(att instanceof DominoDocumentAttachment))
 						.collect(Collectors.toList());
 					if(!newAttachments.isEmpty()) {
-						RichTextItem body = (RichTextItem)target.getFirstItem(FIELD_ATTACHMENTS);
+						RichTextItem body = (RichTextItem)target.getFirstItem(DominoConstants.FIELD_ATTACHMENTS);
 						if(body == null) {
-							body = target.createRichTextItem(FIELD_ATTACHMENTS);
+							body = target.createRichTextItem(DominoConstants.FIELD_ATTACHMENTS);
 						}
 						for(EntityAttachment att : newAttachments) {
 							// TODO check for if this field already exists
@@ -430,7 +410,7 @@ public class EntityConverter {
 							}
 						}
 					}
-				} else if(!"$FILE".equalsIgnoreCase(doc.getName()) && !FIELD_ID.equalsIgnoreCase(doc.getName())) { //$NON-NLS-1$
+				} else if(!"$FILE".equalsIgnoreCase(doc.getName()) && !DominoConstants.FIELD_ID.equalsIgnoreCase(doc.getName())) { //$NON-NLS-1$
 					Object value = doc.get();
 					if(value == null) {
 						target.removeItem(doc.getName());
@@ -448,7 +428,7 @@ public class EntityConverter {
 				}
 			}
 			
-			target.replaceItemValue(FIELD_NAME, entity.getName());
+			target.replaceItemValue(DominoConstants.FIELD_NAME, entity.getName());
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;

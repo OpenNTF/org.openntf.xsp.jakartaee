@@ -42,7 +42,7 @@ public enum QueryConverter {
 
 	private static final String[] ALL_SELECT = { "*" }; //$NON-NLS-1$
 
-	static QueryConverterResult select(DocumentQuery query) {
+	public static QueryConverterResult select(DocumentQuery query) {
 		String[] documents = query.getDocuments().toArray(new String[0]);
 		if (documents.length == 0) {
 			documents = ALL_SELECT;
@@ -72,7 +72,7 @@ public enum QueryConverter {
 
 		// Convert special names
 		String name = document.getName();
-		if (String.valueOf(name).equals(EntityConverter.FIELD_ID)) {
+		if (String.valueOf(name).equals(DominoConstants.FIELD_ID)) {
 			name = "@DocumentUniqueID"; //$NON-NLS-1$
 		}
 
@@ -146,7 +146,7 @@ public enum QueryConverter {
 		}
 	}
 
-	static class QueryConverterResult {
+	public static class QueryConverterResult {
 
 		private final String[] unids;
 		private final DQLTerm dql;
@@ -164,7 +164,7 @@ public enum QueryConverter {
 			return unids;
 		}
 
-		DQLTerm getStatement() {
+		public DQLTerm getStatement() {
 			return dql;
 		}
 		
@@ -183,9 +183,9 @@ public enum QueryConverter {
 			return condition;
 		} else {
 			if(condition == null) {
-				return DQL.item(EntityConverter.FIELD_NAME).isEqualTo(formName);
+				return DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName);
 			} else {
-				return DQL.and(condition, DQL.item(EntityConverter.FIELD_NAME).isEqualTo(formName));
+				return DQL.and(condition, DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName));
 			}
 		}
 	}

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver.impl;
+package org.openntf.xsp.nosql.communication.driver.lsxbe.impl;
 
-import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
-import org.openntf.xsp.nosql.communication.driver.SessionSupplier;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.Settings;

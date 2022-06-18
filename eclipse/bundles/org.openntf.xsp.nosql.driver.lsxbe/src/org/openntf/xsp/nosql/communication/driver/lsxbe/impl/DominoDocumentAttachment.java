@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver.impl;
+package org.openntf.xsp.nosql.communication.driver.lsxbe.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
-import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 
 import com.ibm.commons.util.StringUtil;
 

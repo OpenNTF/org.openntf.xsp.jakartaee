@@ -86,6 +86,7 @@
 	
 		<!-- NoSQL -->
 		<module>bundles/org.openntf.xsp.nosql.driver</module>
+		<module>bundles/org.openntf.xsp.nosql.driver.lsxbe</module>
 		<module>bundles/org.openntf.xsp.nosql</module>
 		<module>features/org.openntf.xsp.nosql.feature</module>
 	

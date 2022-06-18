@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver.impl;
+package org.openntf.xsp.nosql.communication.driver.lsxbe.impl;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -36,11 +36,14 @@ import java.util.stream.StreamSupport;
 import org.eclipse.jnosql.mapping.reflection.ClassInformationNotFoundException;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.eclipse.jnosql.mapping.reflection.ClassMappings;
-import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
-import org.openntf.xsp.nosql.communication.driver.SessionSupplier;
+import org.openntf.xsp.nosql.communication.driver.impl.DQL;
+import org.openntf.xsp.nosql.communication.driver.impl.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter.QueryConverterResult;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -86,12 +89,12 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			Database database = supplier.get();
 			lotus.domino.Document target = database.createDocument();
 			
-			Optional<Document> maybeId = entity.find(EntityConverter.FIELD_ID);
+			Optional<Document> maybeId = entity.find(DominoConstants.FIELD_ID);
 			if(maybeId.isPresent()) {
 				target.setUniversalID(maybeId.get().get().toString());
 			} else {
 				// Write the generated UNID into the entity
-				entity.add(Document.of(EntityConverter.FIELD_ID, target.getUniversalID()));
+				entity.add(Document.of(DominoConstants.FIELD_ID, target.getUniversalID()));
 			}
 			
 			entityConverter.convert(entity, false, target);
@@ -130,8 +133,8 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		try {
 			Database database = supplier.get();
 			
-			Document id = entity.find(EntityConverter.FIELD_ID)
-				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", EntityConverter.FIELD_ID)));
+			Document id = entity.find(DominoConstants.FIELD_ID)
+				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", DominoConstants.FIELD_ID)));
 			
 			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
 			
@@ -302,7 +305,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		try {
 			Database database = supplier.get();
 			DominoQuery dominoQuery = database.createDominoQuery();
-			DQLTerm dql = DQL.item(EntityConverter.FIELD_NAME).isEqualTo(documentCollection);
+			DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(documentCollection);
 			DocumentCollection result = dominoQuery.execute(dql.toString());
 			return result.getCount();
 		} catch(NotesException e) {

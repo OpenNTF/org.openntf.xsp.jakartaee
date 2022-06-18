@@ -13,7 +13,8 @@ Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  org.openntf.jakarta.nosql.mapping.core;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.jakarta.nosql.mapping.document;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.org.eclipse.jnosql.communication.driver.commons;bundle-version="1.0.0";visibility:=reexport,
- org.openntf.xsp.nosql.driver;bundle-version="2.3.0";visibility:=reexport
+ org.openntf.xsp.nosql.driver;bundle-version="2.6.0";visibility:=reexport,
+ org.openntf.xsp.nosql.driver.lsxbe;bundle-version="2.6.0";visibility:=reexport
 Import-Package: com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.application,
  com.ibm.xsp.library,
