@@ -16,6 +16,7 @@
 package it.org.openntf.xsp.jakartaee.nsf.microprofile;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -53,7 +54,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
-		assertNotEquals("I should have stopped.", result);
+		assertFalse(result.contains("I should have stopped."));
 
 		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, result);
 		assertTrue(jsonObject.containsKey("stackTrace"));
