@@ -89,6 +89,37 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 	}
 	
+	/**
+	 * Tests to make sure a missing firstName is caught, which is enforced at the JAX-RS level.
+	 */
+	@Test
+	public void testMissingFirstName() throws JsonException {
+		Client client = getAnonymousClient();
+		
+		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+		payload.putSingle("lastName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
+		payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
+		WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+		Response response = postTarget.request().post(Entity.form(payload));
+		assertEquals(400, response.getStatus());
+	}
+	
+	/**
+	 * Tests to make sure a missing lastName is caught, which is enforced at the JNoSQL level.
+	 */
+	@Test
+	public void testMissingLastName() throws JsonException {
+		Client client = getAnonymousClient();
+		
+		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+		payload.putSingle("firstName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
+		payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
+		WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+		Response response = postTarget.request().post(Entity.form(payload));
+		// NB: this currently throws a 500 due to the exception being UndeclaredThrowableException (Issue #211)
+		assertTrue(response.getStatus() >= 400, () -> "Response code should be an error; got " + response.getStatus()); //$NON-NLS-1$
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Test
 	@Disabled("QRP#executeToView is currently broken on Linux (12.0.1IF2)")

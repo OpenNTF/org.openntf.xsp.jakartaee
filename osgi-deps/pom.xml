@@ -649,6 +649,18 @@
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 									</instructions>
 								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.mapping:mapping-validation:${nosql-version}</id>
+									<source>true</source>
+									<transform>jakarta</transform>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.mapping.validation</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>org.jboss.weld.*,jakarta.*</DynamicImport-Package>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+									</instructions>
+								</artifact>
 								
 								
 								<!--

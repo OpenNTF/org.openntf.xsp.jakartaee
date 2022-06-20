@@ -47,6 +47,7 @@ import jakarta.mail.internet.MimePart;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.nosql.mapping.Sorts;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
@@ -109,7 +110,7 @@ public class NoSQLExample {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Controller
 	public String createPerson(
-			@FormParam("firstName") String firstName,
+			@FormParam("firstName") @NotEmpty String firstName,
 			@FormParam("lastName") String lastName,
 			@FormParam("birthday") String birthday,
 			@FormParam("favoriteTime") String favoriteTime,

@@ -27,16 +27,17 @@ import java.time.Instant;
 import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Id;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 public class Person {
 	@Id
 	private String unid;
 	
-	@Column("FirstName")
+	@Column("FirstName") @NotEmpty
 	private String firstName;
 	
-	@Column("LastName")
+	@Column("LastName") @NotEmpty
 	private String lastName;
 	
 	@Column("birthday")

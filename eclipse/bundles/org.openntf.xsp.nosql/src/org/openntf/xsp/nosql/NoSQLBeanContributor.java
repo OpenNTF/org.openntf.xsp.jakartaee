@@ -26,6 +26,7 @@ import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.document.DefaultDocumentQueryPaginationProvider;
 import org.eclipse.jnosql.mapping.document.spi.DocumentExtension;
 import org.eclipse.jnosql.mapping.reflection.ClassMappingExtension;
+import org.eclipse.jnosql.mapping.validation.MappingValidator;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -48,7 +49,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 	public Collection<Class<?>> getBeanClasses() {
 		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
 			List<Class<?>> result = new ArrayList<>();
-			Stream.of(DatabaseQualifier.class, DefaultDocumentQueryPaginationProvider.class)
+			Stream.of(DatabaseQualifier.class, DefaultDocumentQueryPaginationProvider.class, MappingValidator.class)
 				.map(FrameworkUtil::getBundle)
 				.flatMap(t -> {
 					try {
