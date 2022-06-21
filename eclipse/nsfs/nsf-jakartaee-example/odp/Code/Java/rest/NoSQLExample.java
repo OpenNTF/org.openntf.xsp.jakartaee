@@ -80,7 +80,7 @@ public class NoSQLExample {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object get(@QueryParam("lastName") String lastName) {
+	public Object getByLastName(@QueryParam("lastName") String lastName) {
 		Map<String, Object> result = new LinkedHashMap<>();
 		result.put("byQueryLastName", personRepository.findByLastName(lastName).collect(Collectors.toList()));
 		result.put("totalCount", personRepository.count());
