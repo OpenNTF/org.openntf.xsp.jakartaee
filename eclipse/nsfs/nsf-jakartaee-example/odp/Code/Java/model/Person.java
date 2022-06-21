@@ -54,6 +54,12 @@ public class Person {
 	
 	@Column(DominoConstants.FIELD_ATTACHMENTS)
 	private List<EntityAttachment> attachments;
+	
+	@Column(DominoConstants.FIELD_CDATE)
+	private Instant created;
+	
+	@Column(DominoConstants.FIELD_MDATE)
+	private Instant modified;
 
 	public String getUnid() {
 		return unid;
@@ -112,5 +118,12 @@ public class Person {
 	}
 	public void setAttachments(List<EntityAttachment> attachments) {
 		this.attachments = attachments;
+	}
+	
+	public Instant getCreated() {
+		return created;
+	}
+	public Instant getModified() {
+		return modified;
 	}
 }

@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +68,9 @@ public class TestNoSQL extends AbstractWebClientTest {
 			payload.putSingle("lastName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
 			payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
 			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
-			Response response = postTarget.request().post(Entity.form(payload));
+			Response response = postTarget.request()
+				.accept(MediaType.TEXT_HTML_TYPE) // Ensure that it routes to MVC
+				.post(Entity.form(payload));
 			assertEquals(303, response.getStatus());
 		}
 		
@@ -182,6 +186,10 @@ public class TestNoSQL extends AbstractWebClientTest {
 			String getUnid = (String)jsonObject.get("unid");
 			assertEquals(unid, getUnid);
 			assertEquals(lastName, jsonObject.get("lastName"));
+			
+			// Make sure it has sensible mdate and cdate values
+			Instant.parse((String)jsonObject.get("created"));
+			Instant.parse((String)jsonObject.get("modified"));
 		}
 	}
 	
