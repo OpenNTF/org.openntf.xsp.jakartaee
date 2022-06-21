@@ -26,10 +26,12 @@ import java.util.Map;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -139,5 +141,106 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertEquals("CN=JakartaEE/O=OpenNTFTest", entry.get("serverName"), () -> json); //$NON-NLS-1$ //$NON-NLS-2$
 		assertFalse(((String)entry.get("unid")).isEmpty(), () -> json); //$NON-NLS-1$
 		assertEquals(1d, ((Number)jsonObject.get("totalCount")).doubleValue(), () -> json); //$NON-NLS-1$
+	}
+	
+	@SuppressWarnings({ "nls", "unchecked" })
+	@Test
+	public void testMultipartCreate() throws JsonException {
+		Client client = getAnonymousClient();
+		String unid;
+		String lastName = "Fooson" + System.nanoTime();
+		{
+			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			
+			MultipartFormDataOutput payload = new MultipartFormDataOutput();
+			payload.addFormData("firstName", "Foo", MediaType.TEXT_PLAIN_TYPE);
+			payload.addFormData("lastName", lastName, MediaType.TEXT_PLAIN_TYPE);
+			
+			Response response = postTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.post(Entity.entity(payload, MediaType.MULTIPART_FORM_DATA_TYPE));
+			assertEquals(200, response.getStatus());
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Fetch the doc by UNID
+		{
+			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			
+			Response response = getTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.get();
+			assertEquals(200, response.getStatus());
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			String getUnid = (String)jsonObject.get("unid");
+			assertEquals(unid, getUnid);
+			assertEquals(lastName, jsonObject.get("lastName"));
+		}
+	}
+	
+	@SuppressWarnings({ "nls", "unchecked" })
+	@Test
+	public void testAttachmentCreate() throws JsonException {
+		Client client = getAnonymousClient();
+		String unid;
+		String lastName = "Fooson" + System.nanoTime();
+		{
+			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			
+			MultipartFormDataOutput payload = new MultipartFormDataOutput();
+			payload.addFormData("firstName", "Foo", MediaType.TEXT_PLAIN_TYPE);
+			payload.addFormData("lastName", lastName, MediaType.TEXT_PLAIN_TYPE);
+			payload.addFormData("attachment", "<p>I am foo HTML</p>", MediaType.TEXT_HTML_TYPE, "foo.html");
+			
+			Response response = postTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.post(Entity.entity(payload, MediaType.MULTIPART_FORM_DATA_TYPE));
+			assertEquals(200, response.getStatus());
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Fetch the doc by UNID
+		{
+			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			
+			Response response = getTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.get();
+			assertEquals(200, response.getStatus());
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			String getUnid = (String)jsonObject.get("unid");
+			assertEquals(unid, getUnid);
+			assertEquals(lastName, jsonObject.get("lastName"));
+			
+			List<Map<String, Object>> attachments = (List<Map<String, Object>>)jsonObject.get("attachments");
+			assertNotNull(attachments);
+			assertFalse(attachments.isEmpty());
+			assertTrue(attachments.stream().anyMatch(att -> "foo.html".equals(att.get("name"))));
+		}
+		
+		// Fetch the attachment
+		{
+			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid + "/attachment/foo.html");
+
+			Response response = getTarget.request().get();
+			assertEquals(200, response.getStatus());
+
+			String html = response.readEntity(String.class);
+			assertEquals("<p>I am foo HTML</p>", html);
+		}
 	}
 }

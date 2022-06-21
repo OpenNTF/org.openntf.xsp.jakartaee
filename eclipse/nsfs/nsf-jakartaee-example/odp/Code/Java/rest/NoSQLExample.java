@@ -15,6 +15,17 @@
  */
 package rest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,21 +33,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
+import org.openntf.xsp.nosql.communication.driver.ByteArrayEntityAttachment;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -127,6 +127,7 @@ public class NoSQLExample {
 	@Path("create")
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.TEXT_HTML)
 	@Controller
 	public String createPerson(MimeMultipart body) throws MessagingException, IOException {
 		String firstName = "";
@@ -182,7 +183,7 @@ public class NoSQLExample {
 						data = baos.toByteArray();
 					}
 					
-					EntityAttachment att = EntityAttachment.of(fileName, Instant.now().toEpochMilli(), contentType, data);
+					EntityAttachment att = new ByteArrayEntityAttachment(fileName, contentType, Instant.now().toEpochMilli(), data);
 					attachments.add(att);
 					
 					break;
@@ -199,6 +200,82 @@ public class NoSQLExample {
 
 		personRepository.save(person);
 		return "redirect:nosql/list";
+	}
+	
+	@Path("create")
+	@POST
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person createPersonJson(MimeMultipart body) throws MessagingException, IOException {
+		String firstName = "";
+		String lastName = "";
+		String birthday = "";
+		String favoriteTime = "";
+		String added = "";
+		String customProperty = "";
+		
+		List<EntityAttachment> attachments = new ArrayList<>();
+		for(int i = 0; i < body.getCount(); i++) {
+			MimePart part = (MimePart)body.getBodyPart(i);
+			String dispositionValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION, null);
+			if(StringUtil.isNotEmpty(dispositionValue)) {
+				ContentDisposition disposition = new ContentDisposition(dispositionValue);
+				String name = disposition.getParameter("name");
+				switch(StringUtil.toString(name)) {
+				case "firstName":
+					firstName = StreamUtil.readString(part.getInputStream());
+					break;
+				case "lastName":
+					lastName = StreamUtil.readString(part.getInputStream());
+					break;
+				case "birthday":
+					birthday = StreamUtil.readString(part.getInputStream());
+					break;
+				case "favoriteTime":
+					favoriteTime = StreamUtil.readString(part.getInputStream());
+					break;
+				case "added":
+					added = StreamUtil.readString(part.getInputStream());
+					break;
+				case "customProperty":
+					customProperty = StreamUtil.readString(part.getInputStream());
+					break;
+				case "attachment":
+					String fileName = disposition.getParameter("filename");
+					if(StringUtil.isEmpty(fileName)) {
+						throw new IllegalArgumentException("attachment part must have a file name");
+					}
+					String contentType = part.getHeader(HttpHeaders.CONTENT_TYPE, null);
+					if(StringUtil.isEmpty(contentType)) {
+						contentType = MediaType.APPLICATION_OCTET_STREAM;
+					}
+					
+					// Ideally, this should go to a temp file
+					byte[] data;
+					try(
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						InputStream is = part.getInputStream();
+					) {
+						StreamUtil.copyStream(is, baos);
+						data = baos.toByteArray();
+					}
+
+					EntityAttachment att = new ByteArrayEntityAttachment(fileName, contentType, Instant.now().toEpochMilli(), data);
+					attachments.add(att);
+					
+					break;
+				default:
+					break;
+				}
+				
+			}
+		}
+		
+		Person person = new Person();
+		composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+		person.setAttachments(attachments);
+
+		return personRepository.save(person);
 	}
 			
 	
@@ -217,7 +294,16 @@ public class NoSQLExample {
 	
 	@Path("{id}")
 	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPerson(@PathParam("id") String id) {
+		return personRepository.findById(id)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for ID " + id));
+	}
+	
+	@Path("{id}")
+	@GET
 	@Controller
+	@Produces(MediaType.TEXT_HTML)
 	public String show(@PathParam("id") String id) {
 		models.put("person", personRepository.findById(id).get());
 		return "person-show.jsp";

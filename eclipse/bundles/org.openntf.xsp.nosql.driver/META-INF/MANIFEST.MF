@@ -17,6 +17,7 @@ Import-Package: jakarta.enterprise.context;version="3.0.0",
  jakarta.nosql.document;version="1.0.0",
  jakarta.nosql.mapping;version="1.0.0",
  jakarta.nosql.mapping.document;version="1.0.0",
+ org.eclipse.jnosql.communication.driver.attachment;version="1.0.0",
  org.eclipse.jnosql.mapping;version="1.0.0",
  org.eclipse.jnosql.mapping.document;version="1.0.0",
  org.eclipse.jnosql.mapping.reflection;version="1.0.0"
