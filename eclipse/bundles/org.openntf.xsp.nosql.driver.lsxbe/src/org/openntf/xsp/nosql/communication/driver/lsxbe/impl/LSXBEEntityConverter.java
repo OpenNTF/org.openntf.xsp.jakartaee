@@ -265,7 +265,6 @@ public class LSXBEEntityConverter {
 	public void convertNoSQLEntity(DocumentEntity entity, boolean retainId, lotus.domino.Document target) throws NotesException {
 		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
 		try {
-			// NB: JNoSQL doesn't currently use ValueWriters, so gather them here
 			@SuppressWarnings("unchecked")
 			List<ValueWriter<Object, Object>> writers = ServiceLoaderProvider.getSupplierStream(ValueWriter.class)
 				.map(w -> (ValueWriter<Object, Object>)w)
