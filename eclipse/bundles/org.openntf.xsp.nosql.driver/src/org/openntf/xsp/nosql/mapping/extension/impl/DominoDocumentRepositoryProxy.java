@@ -15,16 +15,21 @@
  */
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.util.stream.Stream;
 
+import org.eclipse.jnosql.mapping.reflection.Reflections;
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.ViewCategory;
 import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
+
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Repository;
@@ -112,6 +117,38 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			return template.viewDocumentQuery(entityName, viewDocuments.value(), category, pagination, viewDocuments.maxLevel());
 		}
 		
+		Method putInFolder = DominoRepository.class.getDeclaredMethod("putInFolder", Object.class, String.class); //$NON-NLS-1$
+		if(method.equals(putInFolder)) {
+			String id = getId(args[0]);
+			String folderName = (String)args[1];
+			
+			template.putInFolder(id, folderName);
+		}
+		Method removeFromFolder = DominoRepository.class.getDeclaredMethod("removeFromFolder", Object.class, String.class); //$NON-NLS-1$
+		if(method.equals(removeFromFolder)) {
+			String id = getId(args[0]);
+			String folderName = (String)args[1];
+			
+			template.removeFromFolder(id, folderName);
+		}
+		
 		return method.invoke(repository, args);
+	}
+	
+	private String getId(Object entity) {
+		Reflections reflections = CDI.current().select(Reflections.class).get();
+		
+		Field idField = reflections.getFields(entity.getClass())
+			.stream()
+			.filter(reflections::isIdField)
+			.findFirst()
+			.orElseThrow(() -> new IllegalStateException("Unable to find @Id field on " + entity.getClass()));
+		
+		try {
+			idField.setAccessible(true);
+			return (String)idField.get(entity);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

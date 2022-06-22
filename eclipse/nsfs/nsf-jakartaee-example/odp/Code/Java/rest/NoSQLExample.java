@@ -87,6 +87,13 @@ public class NoSQLExample {
 		return result;
 	}
 	
+	@Path("inFolder")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getInFolder() {
+		return personRepository.findInPersonsFolder().collect(Collectors.toList());
+	}
+	
 	@Path("servers")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -402,6 +409,26 @@ public class NoSQLExample {
 			@FormParam("added") String added
 	) {
 		return update(id, firstName, lastName, birthday, favoriteTime, added);
+	}
+	
+	@Path("{id}/putInFolder")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean putInFolder(@PathParam("id") String id) {
+		Person person = personRepository.findById(id)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for ID " + id));
+		personRepository.putInFolder(person, PersonRepository.FOLDER_PERSONS);
+		return true;
+	}
+	
+	@Path("{id}/removeFromFolder")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean removeFromFolder(@PathParam("id") String id) {
+		Person person = personRepository.findById(id)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for ID " + id));
+		personRepository.removeFromFolder(person, PersonRepository.FOLDER_PERSONS);
+		return true;
 	}
 	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {

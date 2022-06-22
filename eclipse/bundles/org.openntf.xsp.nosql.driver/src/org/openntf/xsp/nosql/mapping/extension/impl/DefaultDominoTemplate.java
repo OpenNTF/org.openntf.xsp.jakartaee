@@ -116,5 +116,15 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}
+	
+	@Override
+	public void putInFolder(String entityId, String folderName) {
+		getManager().putInFolder(entityId, folderName);
+	}
+	
+	@Override
+	public void removeFromFolder(String entityId, String folderName) {
+		getManager().removeFromFolder(entityId, folderName);
+	}
 
 }

@@ -55,4 +55,26 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @sine 2.6.0
 	 */
 	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
+
+	/**
+	 * Adds the entity to the named folder, creating the folder if it doesn't
+	 * exist.
+	 * 
+	 * @param entityId the UNID of the entity to add to a folder
+	 * @param folderName the folder to add the entity to
+	 * @throws IllegalStateException if the document has not yet been saved
+	 * @throws IllegalArgumentException if {@code folderName} is empty
+	 * @since 2.6.0
+	 */
+	void putInFolder(String entityId, String folderName);
+	
+	/**
+	 * Removes the entity from the named folder.
+	 * 
+	 * @param entityId the UNID of the entity to remove from a folder
+	 * @param folderName the folder to remove the entity from
+	 * @throws IllegalArgumentException if {@code folderName} is empty
+	 * @since 2.6.0
+	 */
+	void removeFromFolder(String entityId, String folderName);
 }

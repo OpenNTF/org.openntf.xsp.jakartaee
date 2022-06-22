@@ -30,5 +30,25 @@ import jakarta.nosql.mapping.Repository;
  * @see {@link ViewEntries}
  */
 public interface DominoRepository<T, ID> extends Repository<T, ID> {
-
+	/**
+	 * Adds the entity to the named folder, creating the folder if it doesn't
+	 * exist.
+	 * 
+	 * @param entity the entity to add to a folder
+	 * @param folderName the folder to add the entity to
+	 * @throws IllegalStateException if the document has not yet been saved
+	 * @throws IllegalArgumentException if {@code folderName} is empty
+	 * @since 2.6.0
+	 */
+	void putInFolder(T entity, String folderName);
+	
+	/**
+	 * Removes the entity from the named folder.
+	 * 
+	 * @param entity the entity to remove from a folder
+	 * @param folderName the folder to remove the entity from
+	 * @throws IllegalArgumentException if {@code folderName} is empty
+	 * @since 2.6.0
+	 */
+	void removeFromFolder(T entity, String folderName);
 }

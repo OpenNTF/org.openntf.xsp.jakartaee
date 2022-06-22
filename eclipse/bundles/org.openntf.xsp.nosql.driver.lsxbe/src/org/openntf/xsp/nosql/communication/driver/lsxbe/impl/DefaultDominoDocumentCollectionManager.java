@@ -291,6 +291,47 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			}
 		);
 	}
+	
+	@Override
+	public void putInFolder(String entityId, String folderName) {
+		if(StringUtil.isEmpty(entityId)) {
+			throw new IllegalArgumentException("entityId cannot be empty");
+		}
+		if(StringUtil.isEmpty(folderName)) {
+			throw new IllegalArgumentException("folderName cannot be empty");
+		}
+		
+		Database database = supplier.get();
+		try {
+			lotus.domino.Document doc = database.getDocumentByUNID(entityId);
+			if(doc != null) {
+				doc.putInFolder(folderName);
+			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public void removeFromFolder(String entityId, String folderName) {
+		if(StringUtil.isEmpty(entityId)) {
+			// No harm here
+			return;
+		}
+		if(StringUtil.isEmpty(folderName)) {
+			throw new IllegalArgumentException("folderName cannot be empty");
+		}
+		
+		Database database = supplier.get();
+		try {
+			lotus.domino.Document doc = database.getDocumentByUNID(entityId);
+			if(doc != null) {
+				doc.removeFromFolder(folderName);
+			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	@Override
 	public long count(String documentCollection) {

@@ -431,21 +431,23 @@ public class LSXBEEntityConverter {
 			
 			docMap.forEach((key, value) -> result.add(Document.of(key, value)));
 	
-			if(fieldNames.contains(DominoConstants.FIELD_CDATE)) {
-				result.add(Document.of(DominoConstants.FIELD_CDATE, doc.getCreated().toJavaDate().toInstant()));
-			}
-			if(fieldNames.contains(DominoConstants.FIELD_MDATE)) {
-				result.add(Document.of(DominoConstants.FIELD_MDATE, doc.getCreated().toJavaDate().toInstant()));
-			}
-			
-			if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
-				List<String> attachmentNames = doc.getParentDatabase().getParent()
-					.evaluate(" @AttachmentNames ", doc); //$NON-NLS-1$
-				List<EntityAttachment> attachments = attachmentNames.stream()
-					.filter(StringUtil::isNotEmpty)
-					.map(attachmentName -> new DominoDocumentAttachment(this.databaseSupplier, unid, attachmentName))
-					.collect(Collectors.toList());
-				result.add(Document.of(DominoConstants.FIELD_ATTACHMENTS, attachments));
+			if(fieldNames != null) {
+				if(fieldNames.contains(DominoConstants.FIELD_CDATE)) {
+					result.add(Document.of(DominoConstants.FIELD_CDATE, doc.getCreated().toJavaDate().toInstant()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_MDATE)) {
+					result.add(Document.of(DominoConstants.FIELD_MDATE, doc.getCreated().toJavaDate().toInstant()));
+				}
+				
+				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
+					List<String> attachmentNames = doc.getParentDatabase().getParent()
+						.evaluate(" @AttachmentNames ", doc); //$NON-NLS-1$
+					List<EntityAttachment> attachments = attachmentNames.stream()
+						.filter(StringUtil::isNotEmpty)
+						.map(attachmentName -> new DominoDocumentAttachment(this.databaseSupplier, unid, attachmentName))
+						.collect(Collectors.toList());
+					result.add(Document.of(DominoConstants.FIELD_ATTACHMENTS, attachments));
+				}
 			}
 			
 			return result;

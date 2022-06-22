@@ -21,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
@@ -250,5 +250,74 @@ public class TestNoSQL extends AbstractWebClientTest {
 			String html = response.readEntity(String.class);
 			assertEquals("<p>I am foo HTML</p>", html);
 		}
+	}
+	
+	@SuppressWarnings({ "nls", "unchecked" })
+	@Test
+	public void testFolderOperations() throws JsonException {
+		Client client = getAdminClient();
+		String unid;
+		String lastName = "Fooson" + System.nanoTime();
+		{
+			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			
+			MultipartFormDataOutput payload = new MultipartFormDataOutput();
+			payload.addFormData("firstName", "Foo", MediaType.TEXT_PLAIN_TYPE);
+			payload.addFormData("lastName", lastName, MediaType.TEXT_PLAIN_TYPE);
+			
+			Response response = postTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.post(Entity.entity(payload, MediaType.MULTIPART_FORM_DATA_TYPE));
+			assertEquals(200, response.getStatus());
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		Predicate<String> isInFolder = documentId -> {
+			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/inFolder"); //$NON-NLS-1$
+			
+			Response response = getTarget.request().get();
+			String json = response.readEntity(String.class);
+			assertEquals(200, response.getStatus(), () -> "Received unexpected response code " + response.getStatus() + ": " + json);
+
+			try {
+				List<Map<String, Object>> result = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+				
+				return result.stream().anyMatch(person -> documentId.equals(person.get("unid")));
+			} catch (JsonException e) {
+				throw new RuntimeException(e);
+			}
+		};
+		
+		// Make sure it's not in the folder
+		assertFalse(isInFolder.test(unid));
+		
+		// Add it to the folder
+		{
+			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/" + unid + "/putInFolder");
+
+			Response response = postTarget.request().post(Entity.form(new MultivaluedHashMap<>()));
+			String json = response.readEntity(String.class);
+			assertEquals(200, response.getStatus(), () -> "Received unexpected response code " + response.getStatus() + ": " + json);
+		}
+		
+		// Make sure it's in the folder now
+		assertTrue(isInFolder.test(unid));
+		
+		// Remove it from the folder
+		{
+			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/" + unid + "/removeFromFolder");
+
+			Response response = postTarget.request().post(Entity.form(new MultivaluedHashMap<>()));
+			String json = response.readEntity(String.class);
+			assertEquals(200, response.getStatus(), () -> "Received unexpected response code " + response.getStatus() + ": " + json);
+		}
+		
+		// Make sure it's not in the folder
+		assertFalse(isInFolder.test(unid));
 	}
 }

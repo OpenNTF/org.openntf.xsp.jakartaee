@@ -25,4 +25,8 @@ public interface DominoDocumentCollectionManager extends DocumentCollectionManag
 	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
 	
 	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
+	
+	void putInFolder(String entityId, String folderName);
+	
+	void removeFromFolder(String entityId, String folderName);
 }
