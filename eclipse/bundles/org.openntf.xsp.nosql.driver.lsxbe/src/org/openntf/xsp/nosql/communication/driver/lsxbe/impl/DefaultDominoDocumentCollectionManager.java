@@ -96,8 +96,9 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				// Write the generated UNID into the entity
 				entity.add(Document.of(DominoConstants.FIELD_ID, target.getUniversalID()));
 			}
-			
-			entityConverter.convertNoSQLEntity(entity, false, target);
+
+			ClassMapping mapping = getClassMapping(entity.getName());
+			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -137,8 +138,9 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", DominoConstants.FIELD_ID)));
 			
 			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
-			
-			entityConverter.convertNoSQLEntity(entity, false, target);
+
+			ClassMapping mapping = getClassMapping(entity.getName());
+			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
 			target.save();
 			return entity;
 		} catch(NotesException e) {

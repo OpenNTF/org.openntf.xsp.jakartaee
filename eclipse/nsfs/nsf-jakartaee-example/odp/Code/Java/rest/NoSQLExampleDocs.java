@@ -30,10 +30,11 @@ public class NoSQLExampleDocs {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ExampleDoc create(@FormParam("title") String title, @FormParam("categories") List<String> categories) {
+	public ExampleDoc create(@FormParam("title") String title, @FormParam("categories") List<String> categories, @FormParam("authors") List<String> authors) {
 		ExampleDoc exampleDoc = new ExampleDoc();
 		exampleDoc.setTitle(title);
 		exampleDoc.setCategories(categories);
+		exampleDoc.setAuthors(authors);
 		return repository.save(exampleDoc);
 	}
 	

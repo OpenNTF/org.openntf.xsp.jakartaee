@@ -51,12 +51,14 @@ import java.util.stream.StreamSupport;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
+import org.eclipse.jnosql.mapping.reflection.FieldMapping;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
+import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
 
 import com.ibm.commons.util.StringUtil;
 
@@ -269,7 +271,7 @@ public class LSXBEEntityConverter {
 	 * @param retainId whether or not to remove the {@link #FIELD_ID} field during conversion
 	 * @param target the target Domino Document to store in
 	 */
-	public void convertNoSQLEntity(DocumentEntity entity, boolean retainId, lotus.domino.Document target) throws NotesException {
+	public void convertNoSQLEntity(DocumentEntity entity, boolean retainId, lotus.domino.Document target, ClassMapping classMapping) throws NotesException {
 		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
 		try {
 			@SuppressWarnings("unchecked")
@@ -349,7 +351,35 @@ public class LSXBEEntityConverter {
 							}
 						}
 						
-						target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val)).recycle();
+						Item item = target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val));
+						
+						// Check for a @ItemFlags annotation
+						if(classMapping != null) {
+							Optional<ItemFlags> itemFlagsOpt = classMapping.getFields()
+								.stream()
+								.filter(f -> doc.getName().equals(f.getName()))
+								.findFirst()
+								.map(FieldMapping::getNativeField)
+								.map(f -> f.getAnnotation(ItemFlags.class));
+							if(itemFlagsOpt.isPresent()) {
+								ItemFlags itemFlags = itemFlagsOpt.get();
+								item.setAuthors(itemFlags.authors());
+								item.setReaders(itemFlags.readers());
+								if(itemFlags.authors() || itemFlags.readers() || itemFlags.names()) {
+									item.setNames(true);
+								} else {
+									item.setNames(false);
+								}
+								item.setEncrypted(itemFlags.encrypted());
+								item.setProtected(itemFlags.protectedItem());
+								item.setSigned(itemFlags.signed());
+								if(!(item instanceof RichTextItem) && item.getType() != Item.MIME_PART) {
+									item.setSummary(itemFlags.summary());
+								}
+							}
+						}
+						
+						item.recycle();
 					}
 				}
 			}

@@ -3,6 +3,7 @@ package model;
 import java.util.List;
 
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
+import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
 
 import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Entity;
@@ -17,6 +18,7 @@ public class ExampleDoc {
 	@Column("$$Categories")
 	private List<String> categories;
 	@Column("Authors")
+	@ItemFlags(authors=true)
 	private List<String> authors;
 	@Column("Body")
 	private String body;
