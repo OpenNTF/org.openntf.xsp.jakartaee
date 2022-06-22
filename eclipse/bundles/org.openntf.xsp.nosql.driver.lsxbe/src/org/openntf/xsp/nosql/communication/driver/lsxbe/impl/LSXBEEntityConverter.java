@@ -386,7 +386,6 @@ public class LSXBEEntityConverter {
 			
 			target.replaceItemValue(DominoConstants.FIELD_NAME, entity.getName());
 		} catch(Exception e) {
-			e.printStackTrace();
 			throw e;
 		}
 	}
