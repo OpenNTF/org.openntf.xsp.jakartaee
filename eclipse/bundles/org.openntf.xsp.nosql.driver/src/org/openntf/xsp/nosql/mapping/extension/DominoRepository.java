@@ -51,4 +51,17 @@ public interface DominoRepository<T, ID> extends Repository<T, ID> {
 	 * @since 2.6.0
 	 */
 	void removeFromFolder(T entity, String folderName);
+	
+	/**
+     * Saves entity, optionally computing the document with its form when saved
+     *
+     * @param <S>    the entity type
+     * @param entity entity to be saved
+     * @param computeWithForm whether the document should be computed with its form
+     *        before saving
+     * @return the entity saved
+     * @throws NullPointerException when {@code entity} is null
+     * @since 2.6.0
+     */
+    <S extends T> S save(S entity, boolean computeWithForm);
 }

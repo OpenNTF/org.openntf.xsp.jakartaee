@@ -85,6 +85,14 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	
 	@Override
 	public DocumentEntity insert(DocumentEntity entity) {
+		return insert(entity, false);
+	}
+	
+	/**
+	 * @since 2.6.0
+	 */
+	@Override
+	public DocumentEntity insert(DocumentEntity entity, boolean computeWithForm) {
 		try {
 			Database database = supplier.get();
 			lotus.domino.Document target = database.createDocument();
@@ -99,6 +107,9 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 			ClassMapping mapping = getClassMapping(entity.getName());
 			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
+			if(computeWithForm) {
+				target.computeWithForm(false, false);
+			}
 			target.save();
 			return entity;
 		} catch(NotesException e) {

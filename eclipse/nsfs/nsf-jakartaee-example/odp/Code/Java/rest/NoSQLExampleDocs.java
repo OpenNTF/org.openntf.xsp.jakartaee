@@ -35,7 +35,7 @@ public class NoSQLExampleDocs {
 		exampleDoc.setTitle(title);
 		exampleDoc.setCategories(categories);
 		exampleDoc.setAuthors(authors);
-		return repository.save(exampleDoc);
+		return repository.save(exampleDoc, true);
 	}
 	
 	@Path("{id}")

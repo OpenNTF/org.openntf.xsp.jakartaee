@@ -29,4 +29,15 @@ public interface DominoDocumentCollectionManager extends DocumentCollectionManag
 	void putInFolder(String entityId, String folderName);
 	
 	void removeFromFolder(String entityId, String folderName);
+	
+	/**
+     * Saves document collection entity
+     *
+     * @param entity entity to be saved
+     * @param computeWithForm whether to compute the document with its form
+     * @return the entity saved
+     * @throws NullPointerException when document is null
+     * @since 2.6.0
+     */
+    DocumentEntity insert(DocumentEntity entity, boolean computeWithForm);
 }

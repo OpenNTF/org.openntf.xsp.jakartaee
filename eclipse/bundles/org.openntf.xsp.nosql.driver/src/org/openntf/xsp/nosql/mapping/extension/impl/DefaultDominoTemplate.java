@@ -126,5 +126,10 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	public void removeFromFolder(String entityId, String folderName) {
 		getManager().removeFromFolder(entityId, folderName);
 	}
+	
+	@Override
+	public <T> T insert(T entity, boolean computeWithForm) {
+		return getWorkflow().flow(entity, documentEntity -> getManager().insert(documentEntity, computeWithForm));
+	}
 
 }

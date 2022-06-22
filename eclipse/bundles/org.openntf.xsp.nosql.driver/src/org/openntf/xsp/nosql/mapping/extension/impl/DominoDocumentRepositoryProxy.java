@@ -123,6 +123,7 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			String folderName = (String)args[1];
 			
 			template.putInFolder(id, folderName);
+			return null;
 		}
 		Method removeFromFolder = DominoRepository.class.getDeclaredMethod("removeFromFolder", Object.class, String.class); //$NON-NLS-1$
 		if(method.equals(removeFromFolder)) {
@@ -130,6 +131,12 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			String folderName = (String)args[1];
 			
 			template.removeFromFolder(id, folderName);
+			return null;
+		}
+		
+		Method saveWithForm = DominoRepository.class.getDeclaredMethod("save", Object.class, boolean.class); //$NON-NLS-1$
+		if(method.equals(saveWithForm)) {
+			return template.insert(args[0], (boolean)args[1]);
 		}
 		
 		return method.invoke(repository, args);

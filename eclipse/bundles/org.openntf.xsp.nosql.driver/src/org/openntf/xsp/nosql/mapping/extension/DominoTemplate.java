@@ -77,4 +77,16 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @since 2.6.0
 	 */
 	void removeFromFolder(String entityId, String folderName);
+	
+	/**
+     * Inserts entity, optionally computing with the document's form.
+     *
+     * @param entity entity to insert
+     * @param <T>    the instance type
+     * @param computeWithForm whether to compute the document with its form
+     * @return the entity saved
+     * @throws NullPointerException when entity is null
+     * @since 2.6.0
+     */
+    <T> T insert(T entity, boolean computeWithForm);
 }

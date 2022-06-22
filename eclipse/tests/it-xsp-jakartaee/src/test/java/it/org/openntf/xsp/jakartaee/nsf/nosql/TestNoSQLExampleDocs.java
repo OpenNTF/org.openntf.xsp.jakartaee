@@ -40,7 +40,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			
 			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
-			assertEquals(200, response.getStatus());
+			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
 			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
@@ -53,8 +53,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		{
 			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
+			checkResponse(200, response);
 			String json = response.readEntity(String.class);
-			assertEquals(200, response.getStatus(), () -> "Received unexpected code " + response.getStatus() + ": " + json);
 
 			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
 			
@@ -70,6 +70,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertEquals("foo", title);
 		}
 	}
+	
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testExampleDocAuthors() throws JsonException, XMLException {
@@ -85,7 +86,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			
 			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
-			assertEquals(200, response.getStatus());
+			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
 			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
@@ -98,8 +99,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		{
 			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
+			checkResponse(200, response);
 			String json = response.readEntity(String.class);
-			assertEquals(200, response.getStatus(), () -> "Received unexpected code " + response.getStatus() + ": " + json);
 
 			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
 			
@@ -114,6 +115,52 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			Element authors = (Element)DOMUtil.evaluateXPath(xmlDoc, "//*[name()='item'][@name='Authors']").getSingleNode();
 			assertNotNull(authors);
 			assertEquals("true", authors.getAttribute("authors"));
+		}
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testComputeWithForm() throws JsonException, XMLException {
+		Client client = getAnonymousClient();
+		
+		// Create a new doc
+		String unid;
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.putSingle("title", "foo");
+			payload.put("categories", Arrays.asList("foo", "bar"));
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.form(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			
+			assertEquals(unid, jsonObject.get("unid"));
+			
+			String dxl = (String)jsonObject.get("dxl");
+			assertNotNull(dxl);
+			assertFalse(dxl.isEmpty());
+			
+			org.w3c.dom.Document xmlDoc = DOMUtil.createDocument(dxl);
+			assertNotNull(xmlDoc);
+			String val = DOMUtil.evaluateXPath(xmlDoc, "//*[name()='item'][@name='DefaultValue']/*[name()='text']/text()").getStringValue();
+			assertNotNull(val);
+			assertEquals("I am the default value", val);
 		}
 	}
 }
