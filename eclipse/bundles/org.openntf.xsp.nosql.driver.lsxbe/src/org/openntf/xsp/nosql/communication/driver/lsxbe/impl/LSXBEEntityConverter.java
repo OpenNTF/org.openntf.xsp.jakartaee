@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -51,10 +52,11 @@ import java.util.stream.StreamSupport;
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.nosql.communication.driver.impl.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
+import org.openntf.xsp.nosql.mapping.extension.DXLExport;
 
 import com.ibm.commons.util.StringUtil;
 
@@ -66,6 +68,7 @@ import lotus.domino.Database;
 import lotus.domino.DateRange;
 import lotus.domino.DateTime;
 import lotus.domino.DocumentCollection;
+import lotus.domino.DxlExporter;
 import lotus.domino.EmbeddedObject;
 import lotus.domino.Item;
 import lotus.domino.MIMEEntity;
@@ -85,13 +88,17 @@ import lotus.domino.ViewNavigator;
 public class LSXBEEntityConverter {
 	
 	private static final Collection<String> SYSTEM_FIELDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+	private static final Collection<String> SKIP_WRITING_FIELDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	static {
 		SYSTEM_FIELDS.addAll(Arrays.asList(
 			DominoConstants.FIELD_ID,
 			DominoConstants.FIELD_CDATE,
 			DominoConstants.FIELD_MDATE,
-			DominoConstants.FIELD_ATTACHMENTS
+			DominoConstants.FIELD_ATTACHMENTS,
+			DominoConstants.FIELD_DXL
 		));
+		SKIP_WRITING_FIELDS.add("$FILE"); //$NON-NLS-1$
+		SKIP_WRITING_FIELDS.addAll(SYSTEM_FIELDS);
 	}
 	
 	private final DatabaseSupplier databaseSupplier;
@@ -329,7 +336,7 @@ public class LSXBEEntityConverter {
 							}
 						}
 					}
-				} else if(!"$FILE".equalsIgnoreCase(doc.getName()) && !DominoConstants.FIELD_ID.equalsIgnoreCase(doc.getName())) { //$NON-NLS-1$
+				} else if(!SKIP_WRITING_FIELDS.contains(doc.getName())) {
 					Object value = doc.get();
 					if(value == null) {
 						target.removeItem(doc.getName());
@@ -447,6 +454,56 @@ public class LSXBEEntityConverter {
 						.map(attachmentName -> new DominoDocumentAttachment(this.databaseSupplier, unid, attachmentName))
 						.collect(Collectors.toList());
 					result.add(Document.of(DominoConstants.FIELD_ATTACHMENTS, attachments));
+				}
+				
+				if(fieldNames.contains(DominoConstants.FIELD_DXL)) {
+					DxlExporter exporter = session.createDxlExporter();
+					
+					Optional<DXLExport> optSettings = classMapping.getFields()
+						.stream()
+						.filter(field -> DominoConstants.FIELD_DXL.equals(field.getName()))
+						.findFirst()
+						.map(field -> field.getNativeField())
+						.map(field -> field.getAnnotation(DXLExport.class));
+					if(optSettings.isPresent()) {
+						DXLExport settings = optSettings.get();
+						
+						if(StringUtil.isNotEmpty(settings.attachmentOmittedText())) {
+							exporter.setAttachmentOmittedText(settings.attachmentOmittedText());
+						}
+						exporter.setConvertNotesBitmapsToGIF(settings.convertNotesBitmapsToGIF());
+						if(StringUtil.isNotEmpty(settings.doctypeSYSTEM())) {
+							exporter.setDoctypeSYSTEM(settings.doctypeSYSTEM());
+						}
+						exporter.setExitOnFirstFatalError(settings.exitOnFirstFatalError());
+						exporter.setForceNoteFormat(settings.forceNoteFormat());
+						if(settings.encapsulateMime()) {
+							exporter.setMIMEOption(DxlExporter.DXLMIMEOPTION_DXL);
+						}
+						if(StringUtil.isNotEmpty(settings.oleObjectOmittedText())) {
+							exporter.setOLEObjectOmittedText(settings.oleObjectOmittedText());
+						}
+						if(settings.omitItemNames() != null && settings.omitItemNames().length > 0) {
+							exporter.setOmitItemNames(new Vector<>(Arrays.asList(settings.omitItemNames())));
+						}
+						exporter.setOmitMiscFileObjects(settings.omitMiscFileObjects());
+						exporter.setOmitOLEObjects(settings.omitOleObjects());
+						exporter.setOmitRichtextAttachments(settings.omitRichTextAttachments());
+						exporter.setOmitRichtextPictures(settings.omitRichTextPictures());
+						exporter.setOutputDOCTYPE(settings.outputDOCTYPE());
+						if(StringUtil.isNotEmpty(settings.pictureOmittedText())) {
+							exporter.setPictureOmittedText(settings.pictureOmittedText());
+						}
+						if(settings.restrictToItemNames() != null && settings.restrictToItemNames().length > 0) {
+							exporter.setRestrictToItemNames(new Vector<>(Arrays.asList(settings.restrictToItemNames())));
+						}
+						if(!settings.encapsulateRichText()) {
+							exporter.setRichTextOption(DxlExporter.DXLRICHTEXTOPTION_RAW);
+						}
+					}
+					
+					String dxl = exporter.exportDxl(doc);
+					result.add(Document.of(DominoConstants.FIELD_DXL, dxl));
 				}
 			}
 			

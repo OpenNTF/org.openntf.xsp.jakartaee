@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver.impl;
+package org.openntf.xsp.nosql.communication.driver;
 
 import java.util.Arrays;
 import java.util.Vector;
@@ -45,16 +45,25 @@ public interface DominoConstants {
 	 * NoSQL conversion, currently {@value #FIELD_CDATE}
 	 */
 	String FIELD_CDATE = "@cdate"; //$NON-NLS-1$
+	
 	/**
 	 * The field used to store the last modification date of the document during
 	 * NoSQL conversion, currently {@value #FIELD_MDATE}
 	 */
 	String FIELD_MDATE = "@mdate"; //$NON-NLS-1$
+	
 	/**
 	 * The field used to store document attachments during NoSQL conversion,
 	 * currently {@value #FIELD_ATTACHMENTS}
 	 */
 	String FIELD_ATTACHMENTS = "@attachments"; //$NON-NLS-1$
+	
+	/**
+	 * The field used to request storage of a DXL representation of the document during
+	 * NoSQL conversion, currently {@value #FIELD_DXL}
+	 */
+	String FIELD_DXL = "@dxl"; //$NON-NLS-1$
+	
 	/**
 	 * Options used when converting composite data to HTML. This list is based
 	 * on the options used by XPages.

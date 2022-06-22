@@ -20,7 +20,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
-import org.openntf.xsp.nosql.communication.driver.impl.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 
 import java.time.Instant;
 
