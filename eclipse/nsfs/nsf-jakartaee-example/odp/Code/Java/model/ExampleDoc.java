@@ -2,6 +2,7 @@ package model;
 
 import java.util.List;
 
+import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
 import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
 
@@ -23,7 +24,7 @@ public class ExampleDoc {
 	@Column("Body")
 	private String body;
 	
-	@Column("@dxl")
+	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
 	private String dxl;
 
