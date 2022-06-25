@@ -173,7 +173,8 @@ public class NoSQLExample {
 				case "attachment":
 					String fileName = disposition.getParameter("filename");
 					if(StringUtil.isEmpty(fileName)) {
-						throw new IllegalArgumentException("attachment part must have a file name");
+						// Then assume there's no actual attachment
+						continue;
 					}
 					String contentType = part.getHeader(HttpHeaders.CONTENT_TYPE, null);
 					if(StringUtil.isEmpty(contentType)) {
@@ -334,6 +335,7 @@ public class NoSQLExample {
 				.type(att.getContentType())
 				.header(HttpHeaders.CONTENT_LENGTH, att.getLength())
 				.header(HttpHeaders.LAST_MODIFIED, Instant.ofEpochMilli(att.getLastModified()))
+				.tag(att.getETag())
 				.build();
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);

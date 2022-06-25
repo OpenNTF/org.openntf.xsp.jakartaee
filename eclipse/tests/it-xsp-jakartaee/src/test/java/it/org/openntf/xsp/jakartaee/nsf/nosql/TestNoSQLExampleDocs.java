@@ -17,6 +17,8 @@ import com.ibm.commons.xml.DOMUtil;
 import com.ibm.commons.xml.XMLException;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
@@ -161,6 +163,74 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			String val = DOMUtil.evaluateXPath(xmlDoc, "//*[name()='item'][@name='DefaultValue']/*[name()='text']/text()").getStringValue();
 			assertNotNull(val);
 			assertEquals("I am the default value", val);
+		}
+	}
+	
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testItemStorage() throws JsonException, XMLException {
+		Client client = getAnonymousClient();
+		// Create a new doc
+		String unid;
+		{
+			JsonObject jsonGuy = Json.createObjectBuilder()
+				.add("firstName", "Foo")
+				.add("lastName", "Fooson")
+				.build();
+			JsonObject mimeGuy = Json.createObjectBuilder()
+				.add("title", "I am the title")
+				.add("address", "123 Road St.")
+				.build();
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am outer title")
+				.add("jsonGuy", jsonGuy)
+				.add("mimeGuy", mimeGuy)
+				.add("body", "<p>I am body HTML</p>")
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			System.out.println("got entity: " + json);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			
+			assertEquals(unid, jsonObject.get("unid"));
+			
+			assertEquals("I am outer title", jsonObject.get("title"));
+			assertEquals("I am body HTML", jsonObject.get("body"));
+			Map<String, Object> jsonGuy = (Map<String, Object>)jsonObject.get("jsonGuy");
+			assertEquals("Foo", jsonGuy.get("firstName"));
+			assertEquals("Fooson", jsonGuy.get("lastName"));
+			Map<String, Object> mimeGuy = (Map<String, Object>)jsonObject.get("mimeGuy");
+			assertEquals("I am the title", mimeGuy.get("title"));
+			assertEquals("123 Road St.", mimeGuy.get("address"));
+
+			// Make sure all the types are what we'd expect
+			String dxl = (String)jsonObject.get("dxl");
+			assertNotNull(dxl);
+			assertFalse(dxl.isEmpty());
+			
+			
+//			org.w3c.dom.Document xmlDoc = DOMUtil.createDocument(dxl);
+//			assertNotNull(xmlDoc);
+//			String val = DOMUtil.evaluateXPath(xmlDoc, "//*[name()='item'][@name='DefaultValue']/*[name()='text']/text()").getStringValue();
+//			assertNotNull(val);
+//			assertEquals("I am the default value", val);
 		}
 	}
 }

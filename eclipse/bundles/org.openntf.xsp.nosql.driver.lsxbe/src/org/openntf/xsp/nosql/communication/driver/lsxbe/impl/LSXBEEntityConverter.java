@@ -18,12 +18,20 @@ package org.openntf.xsp.nosql.communication.driver.lsxbe.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.UncheckedIOException;
+import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -48,6 +56,7 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import java.util.zip.GZIPInputStream;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
@@ -56,12 +65,16 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.util.LoaderObjectInputStream;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
 import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
+import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
 
 import com.ibm.commons.util.StringUtil;
 
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.nosql.ServiceLoaderProvider;
 import jakarta.nosql.ValueWriter;
 import jakarta.nosql.document.Document;
@@ -74,6 +87,7 @@ import lotus.domino.DxlExporter;
 import lotus.domino.EmbeddedObject;
 import lotus.domino.Item;
 import lotus.domino.MIMEEntity;
+import lotus.domino.MIMEHeader;
 import lotus.domino.NotesException;
 import lotus.domino.RichTextItem;
 import lotus.domino.Session;
@@ -351,16 +365,70 @@ public class LSXBEEntityConverter {
 							}
 						}
 						
-						Item item = target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val));
+						Item item;
+						
+						// Check if the item is expected to be stored specially, which may be handled down the line
+						Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.getName(), ItemStorage.class);
+						if(optStorage.isPresent() && optStorage.get().type() != ItemStorage.Type.Default) {
+							ItemStorage storage = optStorage.get();
+							switch(storage.type()) {
+							case JSON:
+								Object fVal = val;
+								String json = AccessController.doPrivileged((PrivilegedAction<String>)() -> getJsonb().toJson(fVal));
+								item = target.replaceItemValue(doc.getName(), json);
+								item.setSummary(false);
+								break;
+							case MIME: {
+								target.removeItem(doc.getName());
+								MIMEEntity mimeEntity = target.createMIMEEntity(doc.getName());
+								lotus.domino.Stream mimeStream = target.getParentDatabase().getParent().createStream();
+								try {
+									mimeStream.writeText(val.toString());
+									mimeEntity.setContentFromText(mimeStream, storage.mimeType(), MIMEEntity.ENC_NONE);
+								} finally {
+									mimeStream.close();
+									mimeStream.recycle();
+								}
+								continue;
+							}
+							case MIMEBean:
+								byte[] serialized;
+								try(
+									ByteArrayOutputStream baos = new ByteArrayOutputStream();
+									ObjectOutputStream oos = new ObjectOutputStream(baos);
+								) {
+									oos.writeObject(val);
+									oos.flush();
+									serialized = baos.toByteArray();
+								} catch(IOException e) {
+									throw new UncheckedIOException(e);
+								}
+								target.removeItem(doc.getName());
+								MIMEEntity mimeEntity = target.createMIMEEntity(doc.getName());
+								mimeEntity.createHeader(DominoConstants.HEADER_JAVA_CLASS).setHeaderVal(val.getClass().getName());
+								lotus.domino.Stream mimeStream = target.getParentDatabase().getParent().createStream();
+								try {
+									mimeStream.write(serialized);
+									mimeStream.setPosition(0);
+									mimeEntity.setContentFromBytes(mimeStream, DominoConstants.MIME_TYPE_SERIALIZED_OBJECT, MIMEEntity.ENC_NONE);
+								} finally {
+									mimeStream.close();
+									mimeStream.recycle();
+								}
+								
+								continue;
+							case Default:
+							default:
+								// Shouldn't get here
+								throw new UnsupportedOperationException(MessageFormat.format("Unable to handle storage type {0}", storage.type()));
+							}
+						} else {
+							item = target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val));
+						}
 						
 						// Check for a @ItemFlags annotation
 						if(classMapping != null) {
-							Optional<ItemFlags> itemFlagsOpt = classMapping.getFields()
-								.stream()
-								.filter(f -> doc.getName().equals(f.getName()))
-								.findFirst()
-								.map(FieldMapping::getNativeField)
-								.map(f -> f.getAnnotation(ItemFlags.class));
+							Optional<ItemFlags> itemFlagsOpt = getFieldAnnotation(classMapping, doc.getName(), ItemFlags.class);
 							if(itemFlagsOpt.isPresent()) {
 								ItemFlags itemFlags = itemFlagsOpt.get();
 								item.setAuthors(itemFlags.authors());
@@ -385,6 +453,8 @@ public class LSXBEEntityConverter {
 			}
 			
 			target.replaceItemValue(DominoConstants.FIELD_NAME, entity.getName());
+			
+			target.closeMIMEEntities(true);
 		} catch(Exception e) {
 			throw e;
 		}
@@ -435,13 +505,56 @@ public class LSXBEEntityConverter {
 					}
 				}
 				
+				// Check if the item is expected to be stored specially, which may be handled down the line
+				Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, itemName, ItemStorage.class);
+				
 				if(item instanceof RichTextItem) {
 					// Special handling here for RT -> HTML
 					String html = ((RichTextItem)item).convertToHTML(DominoConstants.HTML_CONVERSION_OPTIONS);
 					docMap.put(itemName, html);
 				} else if(item.getType() == Item.MIME_PART) {
-					// TODO consider whether to pass this back as a Mail API MIME entity
 					MIMEEntity entity = doc.getMIMEEntity(itemName);
+					
+					// See if this is expected to be MIMEBean
+					if(optStorage.isPresent() && optStorage.get().type() == ItemStorage.Type.MIMEBean) {
+						// If so, deserialize it
+
+						byte[] serialized;
+						lotus.domino.Stream outStream = session.createStream();
+						try {
+							entity.getContentAsBytes(outStream);
+							try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+								outStream.getContents(baos);
+								serialized = baos.toByteArray();
+							} catch (IOException e) {
+								throw new UncheckedIOException(e);
+							}
+						} finally {
+							outStream.close();
+							outStream.recycle();
+						}
+						
+						String encoding = null;
+						MIMEHeader encodingHeader = entity.getNthHeader("Content-Encoding"); //$NON-NLS-1$
+						if(encodingHeader != null) {
+							encoding = encodingHeader.getHeaderVal();
+						}
+						
+						try(
+							InputStream bais = new ByteArrayInputStream(serialized);
+							InputStream is = wrapInputStream(bais, encoding);
+							ObjectInputStream ois = new LoaderObjectInputStream(is)
+						) {
+							docMap.put(itemName, ois.readObject());
+							continue;
+						} catch (IOException e) {
+							throw new UncheckedIOException(e);
+						} catch (ClassNotFoundException e) {
+							throw new RuntimeException(e);
+						}
+					}
+					
+					// TODO consider whether to pass this back as a Mail API MIME entity
 					MIMEEntity html = findEntityForType(entity, "text", "html"); //$NON-NLS-1$ //$NON-NLS-2$
 					if(html != null) {
 						docMap.put(itemName, html.getContentAsText());
@@ -458,6 +571,26 @@ public class LSXBEEntityConverter {
 					if(val == null || val.isEmpty()) {
 						// Skip
 					} else if(val.size() == 1) {
+						// It may be stored as JSON
+						if(val.get(0) != null) {
+							if(optStorage.isPresent() && optStorage.get().type() == ItemStorage.Type.JSON) {
+								Optional<Class<?>> targetType = getFieldType(classMapping, itemName);
+								if(targetType.isPresent()) {
+									if(String.class.equals(targetType.get())) {
+										// Ignore when the target is a string
+									} else {
+										// Then try to deserialize it as the target type
+										Object dest = AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
+											Jsonb jsonb = getJsonb();
+											return jsonb.fromJson(val.get(0).toString(), targetType.get());
+										});
+										docMap.put(itemName, dest);
+										continue;
+									}
+								}
+							}
+						}
+						
 						docMap.put(itemName, toJavaFriendly(doc.getParentDatabase(), val.get(0)));
 					} else {
 						docMap.put(itemName, toJavaFriendly(doc.getParentDatabase(), val));
@@ -488,12 +621,7 @@ public class LSXBEEntityConverter {
 				if(fieldNames.contains(DominoConstants.FIELD_DXL)) {
 					DxlExporter exporter = session.createDxlExporter();
 					
-					Optional<DXLExport> optSettings = classMapping.getFields()
-						.stream()
-						.filter(field -> DominoConstants.FIELD_DXL.equals(field.getName()))
-						.findFirst()
-						.map(field -> field.getNativeField())
-						.map(field -> field.getAnnotation(DXLExport.class));
+					Optional<DXLExport> optSettings = getFieldAnnotation(classMapping, DominoConstants.FIELD_DXL, DXLExport.class);
 					if(optSettings.isPresent()) {
 						DXLExport settings = optSettings.get();
 						
@@ -670,4 +798,35 @@ public class LSXBEEntityConverter {
 		}
 	}
 	
+	private <T extends Annotation> Optional<T> getFieldAnnotation(ClassMapping classMapping, String fieldName, Class<T> annotation) {
+		return classMapping.getFields()
+			.stream()
+			.filter(field -> fieldName.equals(field.getName()))
+			.findFirst()
+			.map(FieldMapping::getNativeField)
+			.map(field -> field.getAnnotation(annotation));
+	}
+	
+	private Optional<Class<?>> getFieldType(ClassMapping classMapping, String fieldName) {
+		return classMapping.getFields()
+			.stream()
+			.filter(field -> fieldName.equals(field.getName()))
+			.findFirst()
+			.map(FieldMapping::getNativeField)
+			.map(field -> field.getType());
+	}
+	
+	private Jsonb getJsonb() {
+		return JsonbBuilder.create();
+	}
+	
+	private InputStream wrapInputStream(InputStream is, String encoding) throws IOException {
+		if("gzip".equals(encoding)) { //$NON-NLS-1$
+			return new GZIPInputStream(is);
+		} else if(encoding == null || encoding.isEmpty()) {
+			return is;
+		} else {
+			throw new UnsupportedOperationException("Unsupported MIMEBean encoding: " + encoding);
+		}
+	}
 }

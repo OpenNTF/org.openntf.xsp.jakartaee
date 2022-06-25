@@ -80,4 +80,15 @@ public interface DominoConstants {
 		"ListFidelity=1", //$NON-NLS-1$
 		"ParagraphIndent=2" //$NON-NLS-1$
 	));
+	
+	/**
+	 * This header is used to denote the stored Java class for "MIMEBean"-type storage.
+	 * @since 2.6.0
+	 */
+	String HEADER_JAVA_CLASS = "X-Java-Class"; //$NON-NLS-1$
+	/**
+	 * This MIME type is used to indicate a serialized Java object for "MIMEBean"-type storage.
+	 * @since 2.6.0
+	 */
+	String MIME_TYPE_SERIALIZED_OBJECT = "application/x-java-serialized-object"; //$NON-NLS-1$
 }

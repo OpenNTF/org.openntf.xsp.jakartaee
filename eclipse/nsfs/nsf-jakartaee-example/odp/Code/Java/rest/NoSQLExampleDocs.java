@@ -38,6 +38,13 @@ public class NoSQLExampleDocs {
 		return repository.save(exampleDoc, true);
 	}
 	
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ExampleDoc createJson(ExampleDoc exampleDoc) {
+		return repository.save(exampleDoc);
+	}
+	
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
