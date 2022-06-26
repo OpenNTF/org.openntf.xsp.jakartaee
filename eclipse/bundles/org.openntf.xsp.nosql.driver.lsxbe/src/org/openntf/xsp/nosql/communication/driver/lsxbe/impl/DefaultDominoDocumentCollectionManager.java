@@ -139,9 +139,14 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		// TODO consider supporting ttl
 		return insert(entities);
 	}
-
+	
 	@Override
 	public DocumentEntity update(DocumentEntity entity) {
+		return update(entity, false);
+	}
+
+	@Override
+	public DocumentEntity update(DocumentEntity entity, boolean computeWithForm) {
 		try {
 			Database database = supplier.get();
 			
@@ -152,6 +157,9 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 			ClassMapping mapping = getClassMapping(entity.getName());
 			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
+			if(computeWithForm) {
+				target.computeWithForm(false, false);
+			}
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -358,6 +366,19 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			throw new RuntimeException(e);
 		}
 		
+	}
+	
+	@Override
+	public boolean existsById(String unid) {
+		try {
+			Database database = supplier.get();
+			lotus.domino.Document doc = database.getDocumentByUNID(unid);
+			// TODO consider checking the form
+			return doc != null;
+		} catch(NotesException e) {
+			// Assume it doesn't exist
+			return false;
+		}
 	}
 
 	@Override

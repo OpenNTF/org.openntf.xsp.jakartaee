@@ -131,5 +131,15 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	public <T> T insert(T entity, boolean computeWithForm) {
 		return getWorkflow().flow(entity, documentEntity -> getManager().insert(documentEntity, computeWithForm));
 	}
+	
+	@Override
+	public <T> T update(T entity, boolean computeWithForm) {
+		return getWorkflow().flow(entity, documentEntity -> getManager().update(documentEntity, computeWithForm));
+	}
+	
+	@Override
+	public boolean existsById(String unid) {
+		return getManager().existsById(unid);
+	}
 
 }

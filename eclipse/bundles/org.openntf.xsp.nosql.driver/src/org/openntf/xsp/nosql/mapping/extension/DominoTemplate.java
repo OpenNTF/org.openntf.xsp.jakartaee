@@ -89,4 +89,26 @@ public interface DominoTemplate extends DocumentTemplate {
      * @since 2.6.0
      */
     <T> T insert(T entity, boolean computeWithForm);
+
+	
+	/**
+     * Update entity, optionally computing with the document's form.
+     *
+     * @param entity entity to update
+     * @param <T>    the instance type
+     * @param computeWithForm whether to compute the document with its form
+     * @return the entity saved
+     * @throws NullPointerException when entity is null
+     * @since 2.6.0
+     */
+    <T> T update(T entity, boolean computeWithForm);
+    
+    /**
+     * Determines whether a document exists with the provided UNID.
+     * 
+     * @param unid the UNID to check
+     * @return {@code true} if a document exists with that UNID; {@code false} otherwise
+     * @since 2.7.0
+     */
+    boolean existsById(String unid);
 }
