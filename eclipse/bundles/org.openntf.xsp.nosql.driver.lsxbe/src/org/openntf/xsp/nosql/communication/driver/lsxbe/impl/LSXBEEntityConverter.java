@@ -498,24 +498,23 @@ public class LSXBEEntityConverter {
 						}
 						
 						// Check for a @ItemFlags annotation
-						if(classMapping != null) {
-							Optional<ItemFlags> itemFlagsOpt = getFieldAnnotation(classMapping, doc.getName(), ItemFlags.class);
-							if(itemFlagsOpt.isPresent()) {
-								ItemFlags itemFlags = itemFlagsOpt.get();
-								item.setAuthors(itemFlags.authors());
-								item.setReaders(itemFlags.readers());
-								if(itemFlags.authors() || itemFlags.readers() || itemFlags.names()) {
-									item.setNames(true);
-								} else {
-									item.setNames(false);
-								}
-								item.setEncrypted(itemFlags.encrypted());
-								item.setProtected(itemFlags.protectedItem());
-								item.setSigned(itemFlags.signed());
-								if(!(item instanceof RichTextItem) && item.getType() != Item.MIME_PART) {
-									item.setSummary(itemFlags.summary());
-								}
+						Optional<ItemFlags> itemFlagsOpt = getFieldAnnotation(classMapping, doc.getName(), ItemFlags.class);
+						if(itemFlagsOpt.isPresent()) {
+							ItemFlags itemFlags = itemFlagsOpt.get();
+							item.setAuthors(itemFlags.authors());
+							item.setReaders(itemFlags.readers());
+							if(itemFlags.authors() || itemFlags.readers() || itemFlags.names()) {
+								item.setNames(true);
+							} else {
+								item.setNames(false);
 							}
+							item.setEncrypted(itemFlags.encrypted());
+							item.setProtected(itemFlags.protectedItem());
+							item.setSigned(itemFlags.signed());
+							if(!(item instanceof RichTextItem) && item.getType() != Item.MIME_PART) {
+								item.setSummary(itemFlags.summary());
+							}
+							item.setSaveToDisk(itemFlags.saveToDisk());
 						}
 						
 						item.recycle();

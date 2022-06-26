@@ -28,4 +28,10 @@ public @interface ItemFlags {
 	boolean signed() default false;
 	boolean protectedItem() default false;
 	boolean summary() default true;
+	/**
+	 * Indicates that the item should not actually be written to storage
+	 * when the backend document is saved.
+	 * @since 2.7.0
+	 */
+	boolean saveToDisk() default true;
 }
