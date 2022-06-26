@@ -70,6 +70,9 @@ public class Person {
 	
 	@Column(DominoConstants.FIELD_POSITION)
 	private String position;
+	
+	@Column(DominoConstants.FIELD_SIZE)
+	private int size;
 
 	public String getUnid() {
 		return unid;
@@ -140,18 +143,16 @@ public class Person {
 	public EntryType getEntryType() {
 		return entryType;
 	}
-	public void setEntryType(EntryType entryType) {
-		this.entryType = entryType;
-	}
 	
 	public String getPosition() {
 		return position;
 	}
-	public void setPosition(String position) {
-		this.position = position;
-	}
 	
 	public boolean isRead() {
 		return read;
+	}
+	
+	public int getSize() {
+		return size;
 	}
 }

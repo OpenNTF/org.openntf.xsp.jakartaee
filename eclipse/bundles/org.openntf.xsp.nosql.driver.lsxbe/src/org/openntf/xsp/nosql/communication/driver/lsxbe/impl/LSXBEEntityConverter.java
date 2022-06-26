@@ -626,6 +626,9 @@ public class LSXBEEntityConverter {
 				if(fieldNames.contains(DominoConstants.FIELD_READ)) {
 					result.add(Document.of(DominoConstants.FIELD_READ, doc.getRead()));
 				}
+				if(fieldNames.contains(DominoConstants.FIELD_SIZE)) {
+					result.add(Document.of(DominoConstants.FIELD_SIZE, doc.getSize()));
+				}
 				
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
 					List<String> attachmentNames = doc.getParentDatabase().getParent()

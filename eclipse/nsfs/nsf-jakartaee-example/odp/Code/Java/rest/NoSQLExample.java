@@ -300,6 +300,17 @@ public class NoSQLExample {
 		return "person-list.jsp";
 	}
 	
+	@Path("list")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> listJson(@QueryParam("sortCol") String sortCol) {
+		if(sortCol == null || sortCol.isEmpty()) {
+			return personRepository.findAll().collect(Collectors.toList());
+		} else {
+			return personRepository.findAll(Sorts.sorts().asc(sortCol)).collect(Collectors.toList());
+		}
+	}
+	
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

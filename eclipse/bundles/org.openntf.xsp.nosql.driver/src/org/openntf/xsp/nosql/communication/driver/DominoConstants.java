@@ -80,6 +80,11 @@ public interface DominoConstants {
 	 * during NoSQL conversion, currently {@value #FIELD_READ}
 	 */
 	String FIELD_READ = "@read"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of the size in bytes of a document during NoSQL
+	 * conversion, currently {@value #FIELD_SIZE}
+	 */
+	String FIELD_SIZE = "@size"; //$NON-NLS-1$
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based
