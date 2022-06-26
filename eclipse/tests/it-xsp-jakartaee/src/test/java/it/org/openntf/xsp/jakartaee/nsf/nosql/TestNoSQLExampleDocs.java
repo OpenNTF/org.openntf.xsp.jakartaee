@@ -206,13 +206,12 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			System.out.println("got entity: " + json);
 			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
 			
 			assertEquals(unid, jsonObject.get("unid"));
 			
 			assertEquals("I am outer title", jsonObject.get("title"));
-			assertEquals("I am body HTML", jsonObject.get("body"));
+			assertEquals("<p>I am body HTML</p>", jsonObject.get("body"));
 			Map<String, Object> jsonGuy = (Map<String, Object>)jsonObject.get("jsonGuy");
 			assertEquals("Foo", jsonGuy.get("firstName"));
 			assertEquals("Fooson", jsonGuy.get("lastName"));
@@ -224,13 +223,6 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			String dxl = (String)jsonObject.get("dxl");
 			assertNotNull(dxl);
 			assertFalse(dxl.isEmpty());
-			
-			
-//			org.w3c.dom.Document xmlDoc = DOMUtil.createDocument(dxl);
-//			assertNotNull(xmlDoc);
-//			String val = DOMUtil.evaluateXPath(xmlDoc, "//*[name()='item'][@name='DefaultValue']/*[name()='text']/text()").getStringValue();
-//			assertNotNull(val);
-//			assertEquals("I am the default value", val);
 		}
 	}
 }
