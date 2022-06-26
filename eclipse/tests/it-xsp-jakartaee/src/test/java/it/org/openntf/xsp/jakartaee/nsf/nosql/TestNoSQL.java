@@ -92,6 +92,10 @@ public class TestNoSQL extends AbstractWebClientTest {
 				assertEquals("i am custom property", val); //$NON-NLS-1$
 			}
 			assertFalse(((String)entry.get("unid")).isEmpty()); //$NON-NLS-1$
+			
+			Object size = entry.get("size"); //$NON-NLS-1$
+			assertTrue(size instanceof Number);
+			assertTrue(((Number)size).intValue() > 0);
 		}
 	}
 	

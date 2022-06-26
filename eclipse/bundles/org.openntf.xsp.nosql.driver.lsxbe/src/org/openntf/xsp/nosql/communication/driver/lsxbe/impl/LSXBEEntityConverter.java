@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -183,9 +184,11 @@ public class LSXBEEntityConverter {
 		@SuppressWarnings("unchecked")
 		Vector<ViewColumn> columns = view.getColumns();
 		List<String> columnNames = new ArrayList<>();
+		List<String> columnFormulas = new ArrayList<>();
 		for(ViewColumn col : columns) {
 			if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
 				columnNames.add(col.getItemName());
+				columnFormulas.add(col.getFormula());
 			}
 		}
 		view.recycle(columns);
@@ -205,7 +208,8 @@ public class LSXBEEntityConverter {
 					try {
 						List<Document> convertedEntry = new ArrayList<>(columnValues.size());
 	
-						convertedEntry.add(Document.of(DominoConstants.FIELD_ID, entry.getUniversalID()));
+						String universalId = entry.getUniversalID();
+						convertedEntry.add(Document.of(DominoConstants.FIELD_ID, universalId));
 						convertedEntry.add(Document.of(DominoConstants.FIELD_POSITION, entry.getPosition('.')));
 						convertedEntry.add(Document.of(DominoConstants.FIELD_READ, entry.getRead()));
 						
@@ -223,7 +227,8 @@ public class LSXBEEntityConverter {
 							String itemName = columnNames.get(i);
 							Object value = columnValues.get(i);
 							
-							// Check to see if we have a matching time-based field and strip empty strings
+							// Check to see if we have a matching time-based field and strip empty strings,
+							//   since JNoSQL will otherwise try to parse them and will throw an exception
 							if(itemTypes != null) {
 								Class<?> itemType = itemTypes.get(itemName);
 								if(itemType != null && TemporalAccessor.class.isAssignableFrom(itemType)) {
@@ -232,6 +237,37 @@ public class LSXBEEntityConverter {
 										continue;
 									}
 								}
+							}
+							
+							// Check for known system formula equivalents
+							switch(String.valueOf(columnFormulas.get(i))) {
+							case "@DocLength": //$NON-NLS-1$
+								itemName = DominoConstants.FIELD_SIZE;
+								break;
+							case "@Created": //$NON-NLS-1$
+								itemName = DominoConstants.FIELD_CDATE;
+								break;
+							case "@Modified": //$NON-NLS-1$
+								itemName = DominoConstants.FIELD_MDATE;
+								break;
+							case "@AttachmentNames": //$NON-NLS-1$
+								// Very special handling for this
+								itemName = DominoConstants.FIELD_ATTACHMENTS;
+								if(value instanceof List) {
+									@SuppressWarnings("unchecked")
+									List<EntityAttachment> attachments = ((List<String>)value).stream()
+										.map(attName -> new DominoDocumentAttachment(databaseSupplier, universalId, attName))
+										.collect(Collectors.toList());
+									convertedEntry.add(Document.of(itemName, attachments));
+								} else if(value instanceof String && !((String)value).isEmpty()) {
+									EntityAttachment attachment = new DominoDocumentAttachment(databaseSupplier, universalId, (String)value);
+									convertedEntry.add(Document.of(itemName, Collections.singletonList(attachment)));
+								} else {
+									convertedEntry.add(Document.of(itemName, Collections.emptyList()));
+								}
+								continue; // Skip to the next column
+							default:
+								break;
 							}
 							
 							convertedEntry.add(Document.of(itemName, toJavaFriendly(view.getParent(), value)));
