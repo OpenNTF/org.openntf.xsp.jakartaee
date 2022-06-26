@@ -51,4 +51,19 @@ public @interface ItemStorage {
 	 * @return the MIME type to use for MIME storage
 	 */
 	String mimeType() default "text/html";
+	
+	/**
+	 * Indicates whether this value should be written to the back end when
+	 * creating a new document.
+	 * 
+	 * @since 2.7.0
+	 */
+	boolean insertable() default true;
+	/**
+	 * Indicates whether this value should be written to the back end when
+	 * updating an existing document.
+	 * 
+	 * @since 2.7.0
+	 */
+	boolean updatable() default true;
 }

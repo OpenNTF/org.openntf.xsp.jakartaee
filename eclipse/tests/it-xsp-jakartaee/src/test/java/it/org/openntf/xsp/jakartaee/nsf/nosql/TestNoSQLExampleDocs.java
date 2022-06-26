@@ -225,4 +225,140 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertFalse(dxl.isEmpty());
 		}
 	}
+	
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testSaveToDisk() throws JsonException, XMLException {
+		Client client = getAdminClient();
+		// Create a new doc
+		String unid;
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am saveToDisk guy")
+				.add("computedValue", "I am written by the test")
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			
+			assertEquals(unid, jsonObject.get("unid"));
+			
+			assertEquals("I am saveToDisk guy", jsonObject.get("title"));
+			assertEquals(null, jsonObject.get("computedValue"));
+		}
+		
+		// Update to try to set the computed value
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am saveToDisk guy!")
+				.add("computedValue", "I am written by the test again")
+				.build();
+			
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			Response response = target.request().put(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+		}
+		
+		// Fetch it again
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			
+			assertEquals(unid, jsonObject.get("unid"));
+			
+			assertEquals("I am saveToDisk guy!", jsonObject.get("title"));
+			assertEquals(null, jsonObject.get("computedValue"));
+		}
+	}
+	
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testInsertableUpdatable() throws JsonException, XMLException {
+		Client client = getAdminClient();
+		// Create a new doc
+		String unid;
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am insertUpdate guy")
+				.add("nonInsertable", "I should not be written during insert")
+				.add("nonUpdatable", "I should be written during insert")
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			
+			assertEquals(unid, jsonObject.get("unid"));
+			
+			assertEquals("I am insertUpdate guy", jsonObject.get("title"));
+			assertEquals(null, jsonObject.get("nonInsertable"));
+			assertEquals("I should be written during insert", jsonObject.get("nonUpdatable"));
+		}
+		
+		// Update to try to set the computed value
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am insertUpdate guy!")
+				.add("nonInsertable", "I should be written during update")
+				.add("nonUpdatable", "I should not be written during update")
+				.build();
+			
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			Response response = target.request().put(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+		}
+		
+		// Fetch it again
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			
+			assertEquals(unid, jsonObject.get("unid"));
+
+			assertEquals("I am insertUpdate guy!", jsonObject.get("title"));
+			assertEquals("I should be written during update", jsonObject.get("nonInsertable"));
+			assertEquals("I should be written during insert", jsonObject.get("nonUpdatable"));
+		}
+	}
 }

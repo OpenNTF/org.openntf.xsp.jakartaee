@@ -424,6 +424,17 @@ public class LSXBEEntityConverter {
 						}
 					}
 				} else if(!SKIP_WRITING_FIELDS.contains(doc.getName())) {
+					Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.getName(), ItemStorage.class);
+					// Check if we should skip processing
+					if(optStorage.isPresent()) {
+						ItemStorage storage = optStorage.get();
+						if(!storage.insertable() && target.isNewNote()) {
+							continue;
+						} else if(!storage.updatable() && !target.isNewNote()) {
+							continue;
+						}
+					}
+					
 					Object value = doc.get();
 					if(value == null) {
 						target.removeItem(doc.getName());
@@ -439,7 +450,6 @@ public class LSXBEEntityConverter {
 						Item item;
 						
 						// Check if the item is expected to be stored specially, which may be handled down the line
-						Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.getName(), ItemStorage.class);
 						if(optStorage.isPresent() && optStorage.get().type() != ItemStorage.Type.Default) {
 							ItemStorage storage = optStorage.get();
 							switch(storage.type()) {

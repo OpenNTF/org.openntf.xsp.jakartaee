@@ -69,6 +69,15 @@ public class ExampleDoc {
 	@Column("MIMEGuy")
 	@ItemStorage(type=ItemStorage.Type.MIMEBean)
 	private MimeStorage mimeGuy;
+	@Column("SkippedValue")
+	@ItemFlags(saveToDisk=false)
+	private String computedValue;
+	@Column("Noninsertable")
+	@ItemStorage(insertable=false)
+	private String nonInsertable;
+	@Column("Nonupdatable")
+	@ItemStorage(updatable=false)
+	private String nonUpdatable;
 	
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
@@ -125,5 +134,25 @@ public class ExampleDoc {
 	}
 	public void setMimeGuy(MimeStorage mimeGuy) {
 		this.mimeGuy = mimeGuy;
+	}
+	
+	public String getComputedValue() {
+		return computedValue;
+	}
+	public void setComputedValue(String computedValue) {
+		this.computedValue = computedValue;
+	}
+	
+	public String getNonInsertable() {
+		return nonInsertable;
+	}
+	public void setNonInsertable(String nonInsertable) {
+		this.nonInsertable = nonInsertable;
+	}
+	public String getNonUpdatable() {
+		return nonUpdatable;
+	}
+	public void setNonUpdatable(String nonUpdatable) {
+		this.nonUpdatable = nonUpdatable;
 	}
 }

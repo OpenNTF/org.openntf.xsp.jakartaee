@@ -9,6 +9,7 @@ import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -42,7 +43,7 @@ public class NoSQLExampleDocs {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public ExampleDoc createJson(ExampleDoc exampleDoc) {
-		return repository.save(exampleDoc);
+		return repository.save(exampleDoc, true);
 	}
 	
 	@Path("{id}")
@@ -51,5 +52,14 @@ public class NoSQLExampleDocs {
 	public ExampleDoc getDoc(@PathParam("id") String id) {
 		return repository.findById(id)
 			.orElseThrow(() -> new NotFoundException("Could not find example doc for ID " + id));
+	}
+	
+	@Path("{id}")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public ExampleDoc updateDoc(@PathParam("id") String id, ExampleDoc exampleDoc) {
+		exampleDoc.setUnid(id);
+		return repository.save(exampleDoc, true);
 	}
 }
