@@ -37,10 +37,11 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @param category the category to restrict to, or {@code null} to not restrict
 	 * @param pagination the pagination settings to use, or {@code null} to skip pagination
 	 * @param maxLevel the maximum view entry level to process
+	 * @param docsOnly whether to process only document entries
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
+	<T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly);
 
 	/**
 	 * Reads documents from the provided view, restricted to the named category.

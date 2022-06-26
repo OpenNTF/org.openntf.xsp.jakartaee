@@ -88,7 +88,7 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 				entityName = typeClass.getSimpleName();
 			}
 			
-			return template.viewEntryQuery(entityName, viewEntries.value(), category, pagination, viewEntries.maxLevel());
+			return template.viewEntryQuery(entityName, viewEntries.value(), category, pagination, viewEntries.maxLevel(), viewEntries.documentsOnly());
 		}
 		
 		// View documents support

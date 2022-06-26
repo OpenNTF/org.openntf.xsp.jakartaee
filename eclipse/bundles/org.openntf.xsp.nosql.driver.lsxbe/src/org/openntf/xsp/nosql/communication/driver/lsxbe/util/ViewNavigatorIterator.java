@@ -28,12 +28,14 @@ import lotus.domino.ViewNavigator;
 
 public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 	private final ViewNavigator nav;
+	private final boolean docsOnly;
 	private ViewEntry prev;
 	private ViewEntry onDeck;
 	private boolean done;
 	
-	public ViewNavigatorIterator(ViewNavigator nav) throws NotesException {
+	public ViewNavigatorIterator(ViewNavigator nav, boolean docsOnly) throws NotesException {
 		this.nav = nav;
+		this.docsOnly = docsOnly;
 	}
 
 	@Override
@@ -83,9 +85,17 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 	private ViewEntry fetchNext() throws NotesException {
 		ViewEntry next;
 		if(prev == null) {
-			next = nav.getFirst();
+			if(docsOnly) {
+				next = nav.getFirstDocument();
+			} else {
+				next = nav.getFirst();
+			}
 		} else {
-			next = nav.getNext(prev);
+			if(docsOnly) {
+				next = nav.getNextDocument();
+			} else {
+				next = nav.getNext(prev);
+			}
 		}
 		if(next == null) {
 			this.done = true;

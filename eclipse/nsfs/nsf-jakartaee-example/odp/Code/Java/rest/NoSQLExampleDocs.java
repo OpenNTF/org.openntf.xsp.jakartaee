@@ -13,6 +13,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import model.ExampleDoc;
 import model.ExampleDocRepository;
@@ -61,5 +62,23 @@ public class NoSQLExampleDocs {
 	public ExampleDoc updateDoc(@PathParam("id") String id, ExampleDoc exampleDoc) {
 		exampleDoc.setUnid(id);
 		return repository.save(exampleDoc, true);
+	}
+	
+	@Path("inView")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getInView(@QueryParam("docsOnly") boolean docsOnly) {
+		if(docsOnly) {
+			return repository.getViewEntriesDocsOnly().collect(Collectors.toList());
+		} else {
+			return repository.getViewEntries().collect(Collectors.toList());
+		}
+	}
+	
+	@Path("viewCategories")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getViewCategories() {
+		return repository.getViewCategories().collect(Collectors.toList());
 	}
 }

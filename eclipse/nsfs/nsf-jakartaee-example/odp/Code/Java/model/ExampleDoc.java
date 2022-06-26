@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
+import org.openntf.xsp.nosql.mapping.extension.EntryType;
 import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
 import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
 
@@ -78,6 +79,8 @@ public class ExampleDoc {
 	@Column("Nonupdatable")
 	@ItemStorage(updatable=false)
 	private String nonUpdatable;
+	@Column(DominoConstants.FIELD_ENTRY_TYPE)
+	private EntryType entryType;
 	
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
@@ -154,5 +157,9 @@ public class ExampleDoc {
 	}
 	public void setNonUpdatable(String nonUpdatable) {
 		this.nonUpdatable = nonUpdatable;
+	}
+	
+	public EntryType getEntryType() {
+		return entryType;
 	}
 }

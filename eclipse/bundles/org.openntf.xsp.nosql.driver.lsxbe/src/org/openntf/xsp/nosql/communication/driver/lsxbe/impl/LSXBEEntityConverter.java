@@ -139,7 +139,7 @@ public class LSXBEEntityConverter {
 	 */
 	public Stream<DocumentEntity> convertQRPViewDocuments(Database database, View docs, ClassMapping classMapping) throws NotesException {
 		ViewNavigator nav = docs.createViewNav();
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, false);
 		return iter.stream()
 			.map(entry -> {
 				try {
@@ -172,11 +172,12 @@ public class LSXBEEntityConverter {
 	 * @param entityName the name of the target entity
 	 * @param nav the {@link ViewNavigator} to traverse
 	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
+	 * @param docsOnly whether to restrict processing to document entries only
 	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
 	 * @throws NotesException if there is a problem reading the view
 	 */
-	public Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, long limit, boolean docsOnly, ClassMapping classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
 		// Read in the column names
@@ -200,7 +201,7 @@ public class LSXBEEntityConverter {
 				f -> f.getNativeField().getType()
 			));
 		
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, docsOnly);
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
@@ -300,15 +301,8 @@ public class LSXBEEntityConverter {
 	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOLUMNVALUES | ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, true);
 		Stream<DocumentEntity> result = iter.stream()
-			.filter(entry -> {
-				try {
-					return entry.isDocument();
-				} catch (NotesException e) {
-					throw new RuntimeException(e);
-				}
-			})
 			.map(entry -> {
 				try {
 					lotus.domino.Document doc = entry.getDocument();

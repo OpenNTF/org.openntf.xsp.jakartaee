@@ -3,8 +3,10 @@ package it.org.openntf.xsp.jakartaee.nsf.nosql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -359,6 +361,123 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertEquals("I am insertUpdate guy!", jsonObject.get("title"));
 			assertEquals("I should be written during update", jsonObject.get("nonInsertable"));
 			assertEquals("I should be written during insert", jsonObject.get("nonUpdatable"));
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testReadViewEntries() throws JsonException {
+		Client client = getAnonymousClient();
+		
+		// Create a new doc
+		String unid;
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.putSingle("title", "foo");
+			payload.put("categories", Arrays.asList("foo", "bar"));
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.form(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Make sure it shows up in the view entries
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/inView");
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			String json = response.readEntity(String.class);
+			List<Map<String, Object>> jsonObjects = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			assertNotNull(jsonObjects);
+			assertFalse(jsonObjects.isEmpty());
+			
+			assertTrue(jsonObjects.stream().anyMatch(obj -> unid.equals(obj.get("unid")) && "DOCUMENT".equals(obj.get("entryType"))));
+			assertTrue(jsonObjects.stream().anyMatch(obj -> "CATEGORY".equals(obj.get("entryType"))));
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testReadViewEntriesDocsOnly() throws JsonException {
+		Client client = getAnonymousClient();
+		
+		// Create a new doc
+		String unid;
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.putSingle("title", "foo");
+			payload.put("categories", Arrays.asList("foo", "bar"));
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.form(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Make sure it shows up in the view entries
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/inView?docsOnly=true");
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			String json = response.readEntity(String.class);
+			List<Map<String, Object>> jsonObjects = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			assertNotNull(jsonObjects);
+			assertFalse(jsonObjects.isEmpty());
+			
+			assertTrue(jsonObjects.stream().anyMatch(obj -> unid.equals(obj.get("unid")) && "DOCUMENT".equals(obj.get("entryType"))));
+			assertFalse(jsonObjects.stream().anyMatch(obj -> "CATEGORY".equals(obj.get("entryType"))));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testReadViewEntriesMaxLevel() throws JsonException {
+		Client client = getAnonymousClient();
+		
+		// Create a new doc
+		String unid;
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.putSingle("title", "foo");
+			payload.put("categories", Arrays.asList("foo", "bar"));
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.form(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Make sure it shows up in the view entries
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/viewCategories");
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			String json = response.readEntity(String.class);
+			List<Map<String, Object>> jsonObjects = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			assertNotNull(jsonObjects);
+			assertFalse(jsonObjects.isEmpty());
+			
+			assertTrue(jsonObjects.stream().anyMatch(obj -> "CATEGORY".equals(obj.get("entryType"))));
+			assertFalse(jsonObjects.stream().anyMatch(obj -> "DOCUMENT".equals(obj.get("entryType"))));
 		}
 	}
 }

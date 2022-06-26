@@ -285,12 +285,12 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	}
 
 	@Override
-	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel) {
+	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly) {
 		ClassMapping mapping = getClassMapping(entityName);
 		return buildNavigtor(viewName, category, pagination, maxLevel,
 			(nav, limit) -> {
 				try {
-					return entityConverter.convertViewEntries(entityName, nav, limit, mapping);
+					return entityConverter.convertViewEntries(entityName, nav, limit, docsOnly, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
