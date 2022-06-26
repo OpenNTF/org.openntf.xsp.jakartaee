@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile Metrics Support
 Bundle-SymbolicName: org.openntf.xsp.microprofile.metrics;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.metrics
-Bundle-Version: 2.6.0.qualifier
+Bundle-Version: 2.7.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: io.smallrye.metrics,

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile Config Support
 Bundle-SymbolicName: org.openntf.xsp.microprofile.config;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.config
-Bundle-Version: 2.6.0.qualifier
+Bundle-Version: 2.7.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
@@ -30,4 +30,4 @@ Import-Package: com.ibm.commons.util,
  org.openntf.xsp.jakartaee.util;version="2.3.0",
  org.openntf.xsp.jaxrs;version="2.5.0",
  org.osgi.framework;version="1.8.0"
-Export-Package: org.openntf.xsp.microprofile.config;version="2.6.0"
+Export-Package: org.openntf.xsp.microprofile.config;version="2.7.0"
