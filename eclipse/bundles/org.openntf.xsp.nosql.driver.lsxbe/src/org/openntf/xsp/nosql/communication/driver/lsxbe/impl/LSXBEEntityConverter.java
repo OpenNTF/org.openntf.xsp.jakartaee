@@ -68,6 +68,7 @@ import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionI
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.LoaderObjectInputStream;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
+import org.openntf.xsp.nosql.mapping.extension.EntryType;
 import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
 import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
 
@@ -195,6 +196,18 @@ public class LSXBEEntityConverter {
 						List<Document> convertedEntry = new ArrayList<>(columnValues.size());
 	
 						convertedEntry.add(Document.of(DominoConstants.FIELD_ID, entry.getUniversalID()));
+						convertedEntry.add(Document.of(DominoConstants.FIELD_POSITION, entry.getPosition('.')));
+						convertedEntry.add(Document.of(DominoConstants.FIELD_READ, entry.getRead()));
+						
+						EntryType type;
+						if(entry.isCategory()) {
+							type = EntryType.CATEGORY;
+						} else if(entry.isTotal()) {
+							type = EntryType.TOTAL;
+						} else {
+							type = EntryType.DOCUMENT;
+						}
+						convertedEntry.add(Document.of(DominoConstants.FIELD_ENTRY_TYPE, type));
 						
 						for(int i = 0; i < columnValues.size(); i++) {
 							String itemName = columnNames.get(i);
@@ -606,6 +619,9 @@ public class LSXBEEntityConverter {
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_MDATE)) {
 					result.add(Document.of(DominoConstants.FIELD_MDATE, doc.getCreated().toJavaDate().toInstant()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_READ)) {
+					result.add(Document.of(DominoConstants.FIELD_READ, doc.getRead()));
 				}
 				
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {

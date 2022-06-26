@@ -18,6 +18,8 @@ package org.openntf.xsp.nosql.communication.driver;
 import java.util.Arrays;
 import java.util.Vector;
 
+import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
+
 /**
  * Contains constant values used by the Domino NoSQL driver for mapping
  * and querying.
@@ -63,6 +65,21 @@ public interface DominoConstants {
 	 * NoSQL conversion, currently {@value #FIELD_DXL}
 	 */
 	String FIELD_DXL = "@dxl"; //$NON-NLS-1$
+	/**
+	 * The field used to store the position tumbler when using the {@link ViewEntries @ViewEntries}
+	 * annotation, currently {@value #FIELD_POSITION}
+	 */
+	String FIELD_POSITION = "@position"; //$NON-NLS-1$
+	/**
+	 * The field used to store the type of entry when using the {@link ViewEntries @ViewEntries}
+	 * annotation, currently {@value #FIELD_ENTRY_TYPE}
+	 */
+	String FIELD_ENTRY_TYPE = "@entrytype"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of the unread status of a document or view entry
+	 * during NoSQL conversion, currently {@value #FIELD_READ}
+	 */
+	String FIELD_READ = "@read"; //$NON-NLS-1$
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based

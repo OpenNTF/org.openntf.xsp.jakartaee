@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.mapping.extension.EntryType;
 
 import java.time.Instant;
 
@@ -29,7 +30,7 @@ import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Id;
 import jakarta.validation.constraints.NotEmpty;
 
-@Entity
+@Entity("Person")
 public class Person {
 	@Id
 	private String unid;
@@ -60,6 +61,15 @@ public class Person {
 	
 	@Column(DominoConstants.FIELD_MDATE)
 	private Instant modified;
+	
+	@Column(DominoConstants.FIELD_ENTRY_TYPE)
+	private EntryType entryType;
+	
+	@Column(DominoConstants.FIELD_READ)
+	private boolean read;
+	
+	@Column(DominoConstants.FIELD_POSITION)
+	private String position;
 
 	public String getUnid() {
 		return unid;
@@ -125,5 +135,23 @@ public class Person {
 	}
 	public Instant getModified() {
 		return modified;
+	}
+	
+	public EntryType getEntryType() {
+		return entryType;
+	}
+	public void setEntryType(EntryType entryType) {
+		this.entryType = entryType;
+	}
+	
+	public String getPosition() {
+		return position;
+	}
+	public void setPosition(String position) {
+		this.position = position;
+	}
+	
+	public boolean isRead() {
+		return read;
 	}
 }
