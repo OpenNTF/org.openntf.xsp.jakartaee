@@ -84,6 +84,9 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 				pagination = null;
 			}
 			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
 			
 			return template.viewEntryQuery(entityName, viewEntries.value(), category, pagination, viewEntries.maxLevel());
 		}
@@ -113,6 +116,9 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 				pagination = null;
 			}
 			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
 			
 			return template.viewDocumentQuery(entityName, viewDocuments.value(), category, pagination, viewDocuments.maxLevel());
 		}
