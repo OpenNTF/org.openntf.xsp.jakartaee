@@ -112,7 +112,10 @@ public class LSXBEEntityConverter {
 			DominoConstants.FIELD_CDATE,
 			DominoConstants.FIELD_MDATE,
 			DominoConstants.FIELD_ATTACHMENTS,
-			DominoConstants.FIELD_DXL
+			DominoConstants.FIELD_DXL,
+			DominoConstants.FIELD_POSITION,
+			DominoConstants.FIELD_ENTRY_TYPE,
+			DominoConstants.FIELD_READ
 		));
 		SKIP_WRITING_FIELDS.add("$FILE"); //$NON-NLS-1$
 		SKIP_WRITING_FIELDS.addAll(SYSTEM_FIELDS);
