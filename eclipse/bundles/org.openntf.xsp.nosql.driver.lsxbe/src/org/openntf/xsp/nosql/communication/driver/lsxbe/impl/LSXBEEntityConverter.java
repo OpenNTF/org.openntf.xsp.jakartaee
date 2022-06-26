@@ -190,6 +190,13 @@ public class LSXBEEntityConverter {
 		}
 		view.recycle(columns);
 		
+		Map<String, Class<?>> itemTypes = classMapping == null ? null : classMapping.getFields()
+			.stream()
+			.collect(Collectors.toMap(
+				f -> f.getName(),
+				f -> f.getNativeField().getType()
+			));
+		
 		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav);
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
@@ -215,6 +222,18 @@ public class LSXBEEntityConverter {
 						for(int i = 0; i < columnValues.size(); i++) {
 							String itemName = columnNames.get(i);
 							Object value = columnValues.get(i);
+							
+							// Check to see if we have a matching time-based field and strip empty strings
+							if(itemTypes != null) {
+								Class<?> itemType = itemTypes.get(itemName);
+								if(itemType != null && TemporalAccessor.class.isAssignableFrom(itemType)) {
+									if(value instanceof String && ((String)value).isEmpty()) {
+										// Then skip the field
+										continue;
+									}
+								}
+							}
+							
 							convertedEntry.add(Document.of(itemName, toJavaFriendly(view.getParent(), value)));
 						}
 						return DocumentEntity.of(entityName, convertedEntry);
