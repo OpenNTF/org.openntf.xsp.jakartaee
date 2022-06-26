@@ -799,6 +799,9 @@ public class LSXBEEntityConverter {
 	}
 	
 	private <T extends Annotation> Optional<T> getFieldAnnotation(ClassMapping classMapping, String fieldName, Class<T> annotation) {
+		if(classMapping == null) {
+			return Optional.empty();
+		}
 		return classMapping.getFields()
 			.stream()
 			.filter(field -> fieldName.equals(field.getName()))
@@ -808,6 +811,9 @@ public class LSXBEEntityConverter {
 	}
 	
 	private Optional<Class<?>> getFieldType(ClassMapping classMapping, String fieldName) {
+		if(classMapping == null) {
+			return Optional.empty();
+		}
 		return classMapping.getFields()
 			.stream()
 			.filter(field -> fieldName.equals(field.getName()))
