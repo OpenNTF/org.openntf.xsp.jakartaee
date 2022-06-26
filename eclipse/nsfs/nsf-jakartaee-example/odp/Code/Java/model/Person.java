@@ -17,24 +17,31 @@ package model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
+
+import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
+import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.mapping.extension.EntryType;
+
 import java.time.Instant;
 
 import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Id;
+import jakarta.validation.constraints.NotEmpty;
 
-@Entity
+@Entity("Person")
 public class Person {
 	@Id
 	private String unid;
 	
-	@Column("FirstName")
+	@Column("FirstName") @NotEmpty
 	private String firstName;
 	
-	@Column("LastName")
+	@Column("LastName") @NotEmpty
 	private String lastName;
 	
-	@Column("Birthday")
+	@Column("birthday")
 	private LocalDate birthday;
 	
 	@Column("FavoriteTime")
@@ -42,6 +49,30 @@ public class Person {
 	
 	@Column("Added")
 	private Instant added;
+	
+	@Column("CustomProperty")
+	private CustomPropertyType customProperty;
+	
+	@Column(DominoConstants.FIELD_ATTACHMENTS)
+	private List<EntityAttachment> attachments;
+	
+	@Column(DominoConstants.FIELD_CDATE)
+	private Instant created;
+	
+	@Column(DominoConstants.FIELD_MDATE)
+	private Instant modified;
+	
+	@Column(DominoConstants.FIELD_ENTRY_TYPE)
+	private EntryType entryType;
+	
+	@Column(DominoConstants.FIELD_READ)
+	private boolean read;
+	
+	@Column(DominoConstants.FIELD_POSITION)
+	private String position;
+	
+	@Column(DominoConstants.FIELD_SIZE)
+	private int size;
 
 	public String getUnid() {
 		return unid;
@@ -86,5 +117,42 @@ public class Person {
 	}
 	public void setAdded(Instant added) {
 		this.added = added;
+	}
+	
+	public CustomPropertyType getCustomProperty() {
+		return customProperty;
+	}
+	public void setCustomProperty(CustomPropertyType customProperty) {
+		this.customProperty = customProperty;
+	}
+	
+	public List<EntityAttachment> getAttachments() {
+		return attachments;
+	}
+	public void setAttachments(List<EntityAttachment> attachments) {
+		this.attachments = attachments;
+	}
+	
+	public Instant getCreated() {
+		return created;
+	}
+	public Instant getModified() {
+		return modified;
+	}
+	
+	public EntryType getEntryType() {
+		return entryType;
+	}
+	
+	public String getPosition() {
+		return position;
+	}
+	
+	public boolean isRead() {
+		return read;
+	}
+	
+	public int getSize() {
+		return size;
 	}
 }

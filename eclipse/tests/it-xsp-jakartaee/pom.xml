@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.openntf.xsp</groupId>
 		<artifactId>xsp-jakartaee</artifactId>
-		<version>2.5.0</version>
+		<version>2.6.0</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>it-xsp-jakartaee</artifactId>
@@ -35,6 +35,12 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
+            <version>6.0.0.Final</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-multipart-provider</artifactId>
             <version>6.0.0.Final</version>
             <scope>test</scope>
         </dependency>
@@ -78,6 +84,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.ibm.sbt</groupId>
+			<artifactId>com.ibm.commons.xml</artifactId>
+			<version>9.0.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.36</version>
@@ -88,6 +100,11 @@
             <artifactId>jakarta.mail-api</artifactId>
             <version>2.1.0</version>
         </dependency>
+		<dependency>
+			<groupId>org.eclipse</groupId>
+			<artifactId>yasson</artifactId>
+			<version>2.0.4</version>
+		</dependency>
 	</dependencies>
 
 	<build>

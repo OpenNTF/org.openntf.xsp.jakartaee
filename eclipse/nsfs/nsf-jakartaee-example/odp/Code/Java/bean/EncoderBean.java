@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver;
+package bean;
 
-import java.util.function.Supplier;
+import java.io.UncheckedIOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
-import lotus.domino.Database;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 
-/**
- * @author Jesse Gallagher
- * @since 2.3.0
- */
-@FunctionalInterface
-public interface DatabaseSupplier extends Supplier<Database> {
-
+@ApplicationScoped
+@Named("encoderBean")
+public class EncoderBean {
+	public String urlEncode(String value) {
+		try {
+			return URLEncoder.encode(value, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
 }

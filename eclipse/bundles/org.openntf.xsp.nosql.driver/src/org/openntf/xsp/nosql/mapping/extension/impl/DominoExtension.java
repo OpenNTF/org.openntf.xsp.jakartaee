@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.DatabaseMetadata;
 import org.eclipse.jnosql.mapping.Databases;
@@ -56,8 +55,7 @@ public class DominoExtension implements Extension {
 			return;
 		}
 
-		if (Stream.of(javaClass.getInterfaces()).anyMatch(DominoRepository.class::equals)
-				&& Modifier.isInterface(javaClass.getModifiers())) {
+		if (DominoRepository.class.isAssignableFrom(javaClass) && Modifier.isInterface(javaClass.getModifiers())) {
 			crudTypes.add(javaClass);
 		}
 	}

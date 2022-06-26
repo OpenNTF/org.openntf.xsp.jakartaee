@@ -26,7 +26,42 @@ import jakarta.nosql.mapping.Repository;
  * @param <T> the model-object type
  * @param <ID> the ID-field type, generally {@link String}
  * @since 2.5.0
+ * 
+ * @see {@link ViewEntries}
  */
 public interface DominoRepository<T, ID> extends Repository<T, ID> {
-
+	/**
+	 * Adds the entity to the named folder, creating the folder if it doesn't
+	 * exist.
+	 * 
+	 * @param entity the entity to add to a folder
+	 * @param folderName the folder to add the entity to
+	 * @throws IllegalStateException if the document has not yet been saved
+	 * @throws IllegalArgumentException if {@code folderName} is empty
+	 * @since 2.6.0
+	 */
+	void putInFolder(T entity, String folderName);
+	
+	/**
+	 * Removes the entity from the named folder.
+	 * 
+	 * @param entity the entity to remove from a folder
+	 * @param folderName the folder to remove the entity from
+	 * @throws IllegalArgumentException if {@code folderName} is empty
+	 * @since 2.6.0
+	 */
+	void removeFromFolder(T entity, String folderName);
+	
+	/**
+     * Saves entity, optionally computing the document with its form when saved
+     *
+     * @param <S>    the entity type
+     * @param entity entity to be saved
+     * @param computeWithForm whether the document should be computed with its form
+     *        before saving
+     * @return the entity saved
+     * @throws NullPointerException when {@code entity} is null
+     * @since 2.6.0
+     */
+    <S extends T> S save(S entity, boolean computeWithForm);
 }

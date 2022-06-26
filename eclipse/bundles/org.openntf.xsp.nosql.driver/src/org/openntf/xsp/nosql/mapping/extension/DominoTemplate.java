@@ -15,6 +15,9 @@
  */
 package org.openntf.xsp.nosql.mapping.extension;
 
+import java.util.stream.Stream;
+
+import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.document.DocumentTemplate;
 
 /**
@@ -25,5 +28,65 @@ import jakarta.nosql.mapping.document.DocumentTemplate;
  * @since 2.5.0
  */
 public interface DominoTemplate extends DocumentTemplate {
+	/**
+	 * Reads entries from the provided view, restricted to the named category.
+	 * 
+	 * @param <T> the class of object returned
+	 * @param entityName the effective entity name returned by this type
+	 * @param viewName the name of the view to query
+	 * @param category the category to restrict to, or {@code null} to not restrict
+	 * @param pagination the pagination settings to use, or {@code null} to skip pagination
+	 * @param maxLevel the maximum view entry level to process
+	 * @return a {@link Stream} of entities
+	 * @sine 2.6.0
+	 */
+	<T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
 
+	/**
+	 * Reads documents from the provided view, restricted to the named category.
+	 * 
+	 * @param <T> the class of object returned
+	 * @param entityName the effective entity name returned by this type
+	 * @param viewName the name of the view to query
+	 * @param category the category to restrict to, or {@code null} to not restrict
+	 * @param pagination the pagination settings to use, or {@code null} to skip pagination
+	 * @param maxLevel the maximum view entry level to process
+	 * @return a {@link Stream} of entities
+	 * @sine 2.6.0
+	 */
+	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
+
+	/**
+	 * Adds the entity to the named folder, creating the folder if it doesn't
+	 * exist.
+	 * 
+	 * @param entityId the UNID of the entity to add to a folder
+	 * @param folderName the folder to add the entity to
+	 * @throws IllegalStateException if the document has not yet been saved
+	 * @throws IllegalArgumentException if {@code folderName} is empty
+	 * @since 2.6.0
+	 */
+	void putInFolder(String entityId, String folderName);
+	
+	/**
+	 * Removes the entity from the named folder.
+	 * 
+	 * @param entityId the UNID of the entity to remove from a folder
+	 * @param folderName the folder to remove the entity from
+	 * @throws IllegalArgumentException if {@code folderName} is empty
+	 * @since 2.6.0
+	 */
+	void removeFromFolder(String entityId, String folderName);
+	
+	/**
+     * Inserts entity, optionally computing with the document's form.
+     *
+     * @param entity entity to insert
+     * @param <T>    the instance type
+     * @param computeWithForm whether to compute the document with its form
+     * @return the entity saved
+     * @throws NullPointerException when entity is null
+     * @since 2.6.0
+     */
+    <T> T insert(T entity, boolean computeWithForm);
 }

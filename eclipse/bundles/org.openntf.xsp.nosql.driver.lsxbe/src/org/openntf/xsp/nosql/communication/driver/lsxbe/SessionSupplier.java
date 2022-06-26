@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver;
+package org.openntf.xsp.nosql.communication.driver.lsxbe;
 
 import java.util.function.Supplier;
 import lotus.domino.Session;

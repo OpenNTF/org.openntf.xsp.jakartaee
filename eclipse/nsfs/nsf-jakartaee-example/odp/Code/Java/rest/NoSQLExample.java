@@ -15,35 +15,54 @@
  */
 package rest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.ibm.commons.util.StringUtil;
+import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
+import org.openntf.xsp.nosql.communication.driver.ByteArrayEntityAttachment;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
+import com.ibm.commons.util.StringUtil;
+import com.ibm.commons.util.io.StreamUtil;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.ContentDisposition;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.MimePart;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.nosql.mapping.Sorts;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import model.CustomPropertyType;
 import model.Person;
 import model.PersonRepository;
 import model.ServerRepository;
@@ -61,11 +80,18 @@ public class NoSQLExample {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object get(@QueryParam("lastName") String lastName) {
+	public Object getByLastName(@QueryParam("lastName") String lastName) {
 		Map<String, Object> result = new LinkedHashMap<>();
 		result.put("byQueryLastName", personRepository.findByLastName(lastName).collect(Collectors.toList()));
 		result.put("totalCount", personRepository.count());
 		return result;
+	}
+	
+	@Path("inFolder")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getInFolder() {
+		return personRepository.findInPersonsFolder().collect(Collectors.toList());
 	}
 	
 	@Path("servers")
@@ -91,37 +117,175 @@ public class NoSQLExample {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Controller
 	public String createPerson(
-			@FormParam("firstName") String firstName,
+			@FormParam("firstName") @NotEmpty String firstName,
 			@FormParam("lastName") String lastName,
 			@FormParam("birthday") String birthday,
 			@FormParam("favoriteTime") String favoriteTime,
-			@FormParam("added") String added
+			@FormParam("added") String added,
+			@FormParam("customProperty") String customProperty
 	) {
 		Person person = new Person();
-		person.setFirstName(firstName);
-		person.setLastName(lastName);
-		if(StringUtil.isNotEmpty(birthday)) {
-			LocalDate bd = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(birthday));
-			person.setBirthday(bd);
-		} else {
-			person.setBirthday(null);
-		}
-		if(StringUtil.isNotEmpty(favoriteTime)) {
-			LocalTime bd = LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(favoriteTime));
-			person.setFavoriteTime(bd);
-		} else {
-			person.setFavoriteTime(null);
-		}
-		if(StringUtil.isNotEmpty(added)) {
-			LocalDateTime dt = LocalDateTime.from(DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(added));
-			Instant bd = dt.toInstant(ZoneOffset.UTC);
-			person.setAdded(bd);
-		} else {
-			person.setAdded(null);
-		}
+		composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+		
 		personRepository.save(person);
 		return "redirect:nosql/list";
 	}
+	
+	@Path("create")
+	@POST
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.TEXT_HTML)
+	@Controller
+	public String createPerson(MimeMultipart body) throws MessagingException, IOException {
+		String firstName = "";
+		String lastName = "";
+		String birthday = "";
+		String favoriteTime = "";
+		String added = "";
+		String customProperty = "";
+		
+		List<EntityAttachment> attachments = new ArrayList<>();
+		for(int i = 0; i < body.getCount(); i++) {
+			MimePart part = (MimePart)body.getBodyPart(i);
+			String dispositionValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION, null);
+			if(StringUtil.isNotEmpty(dispositionValue)) {
+				ContentDisposition disposition = new ContentDisposition(dispositionValue);
+				String name = disposition.getParameter("name");
+				switch(StringUtil.toString(name)) {
+				case "firstName":
+					firstName = StreamUtil.readString(part.getInputStream());
+					break;
+				case "lastName":
+					lastName = StreamUtil.readString(part.getInputStream());
+					break;
+				case "birthday":
+					birthday = StreamUtil.readString(part.getInputStream());
+					break;
+				case "favoriteTime":
+					favoriteTime = StreamUtil.readString(part.getInputStream());
+					break;
+				case "added":
+					added = StreamUtil.readString(part.getInputStream());
+					break;
+				case "customProperty":
+					customProperty = StreamUtil.readString(part.getInputStream());
+					break;
+				case "attachment":
+					String fileName = disposition.getParameter("filename");
+					if(StringUtil.isEmpty(fileName)) {
+						// Then assume there's no actual attachment
+						continue;
+					}
+					String contentType = part.getHeader(HttpHeaders.CONTENT_TYPE, null);
+					if(StringUtil.isEmpty(contentType)) {
+						contentType = MediaType.APPLICATION_OCTET_STREAM;
+					}
+					
+					// Ideally, this should go to a temp file
+					byte[] data;
+					try(
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						InputStream is = part.getInputStream();
+					) {
+						StreamUtil.copyStream(is, baos);
+						data = baos.toByteArray();
+					}
+					
+					EntityAttachment att = new ByteArrayEntityAttachment(fileName, contentType, Instant.now().toEpochMilli(), data);
+					attachments.add(att);
+					
+					break;
+				default:
+					break;
+				}
+				
+			}
+		}
+		
+		Person person = new Person();
+		composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+		person.setAttachments(attachments);
+
+		personRepository.save(person);
+		return "redirect:nosql/list";
+	}
+	
+	@Path("create")
+	@POST
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person createPersonJson(MimeMultipart body) throws MessagingException, IOException {
+		String firstName = "";
+		String lastName = "";
+		String birthday = "";
+		String favoriteTime = "";
+		String added = "";
+		String customProperty = "";
+		
+		List<EntityAttachment> attachments = new ArrayList<>();
+		for(int i = 0; i < body.getCount(); i++) {
+			MimePart part = (MimePart)body.getBodyPart(i);
+			String dispositionValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION, null);
+			if(StringUtil.isNotEmpty(dispositionValue)) {
+				ContentDisposition disposition = new ContentDisposition(dispositionValue);
+				String name = disposition.getParameter("name");
+				switch(StringUtil.toString(name)) {
+				case "firstName":
+					firstName = StreamUtil.readString(part.getInputStream());
+					break;
+				case "lastName":
+					lastName = StreamUtil.readString(part.getInputStream());
+					break;
+				case "birthday":
+					birthday = StreamUtil.readString(part.getInputStream());
+					break;
+				case "favoriteTime":
+					favoriteTime = StreamUtil.readString(part.getInputStream());
+					break;
+				case "added":
+					added = StreamUtil.readString(part.getInputStream());
+					break;
+				case "customProperty":
+					customProperty = StreamUtil.readString(part.getInputStream());
+					break;
+				case "attachment":
+					String fileName = disposition.getParameter("filename");
+					if(StringUtil.isEmpty(fileName)) {
+						throw new IllegalArgumentException("attachment part must have a file name");
+					}
+					String contentType = part.getHeader(HttpHeaders.CONTENT_TYPE, null);
+					if(StringUtil.isEmpty(contentType)) {
+						contentType = MediaType.APPLICATION_OCTET_STREAM;
+					}
+					
+					// Ideally, this should go to a temp file
+					byte[] data;
+					try(
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						InputStream is = part.getInputStream();
+					) {
+						StreamUtil.copyStream(is, baos);
+						data = baos.toByteArray();
+					}
+
+					EntityAttachment att = new ByteArrayEntityAttachment(fileName, contentType, Instant.now().toEpochMilli(), data);
+					attachments.add(att);
+					
+					break;
+				default:
+					break;
+				}
+				
+			}
+		}
+		
+		Person person = new Person();
+		composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+		person.setAttachments(attachments);
+
+		return personRepository.save(person);
+	}
+			
 	
 	@Path("list")
 	@GET
@@ -136,12 +300,57 @@ public class NoSQLExample {
 		return "person-list.jsp";
 	}
 	
+	@Path("list")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> listJson(@QueryParam("sortCol") String sortCol) {
+		if(sortCol == null || sortCol.isEmpty()) {
+			return personRepository.findAll().collect(Collectors.toList());
+		} else {
+			return personRepository.findAll(Sorts.sorts().asc(sortCol)).collect(Collectors.toList());
+		}
+	}
+	
+	@Path("{id}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPerson(@PathParam("id") String id) {
+		return personRepository.findById(id)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for ID " + id));
+	}
+	
 	@Path("{id}")
 	@GET
 	@Controller
+	@Produces(MediaType.TEXT_HTML)
 	public String show(@PathParam("id") String id) {
 		models.put("person", personRepository.findById(id).get());
 		return "person-show.jsp";
+	}
+	
+	@Path("{id}/attachment/{attachmentName}")
+	@GET
+	public Response getAttachment(@PathParam("id") String id, @PathParam("attachmentName") String attachmentName) {
+		Person person = personRepository.findById(id).get();
+		
+		String name = attachmentName.replace('+', ' ');
+		EntityAttachment att = person.getAttachments()
+			.stream()
+			.filter(a -> a.getName().equals(name))
+			.findFirst()
+			.orElseThrow(() -> new NotFoundException(MessageFormat.format("Could not find attachment {0} on document {1}", attachmentName, id)));
+		
+		try {
+			return Response.ok()
+				.entity(att.getData())
+				.type(att.getContentType())
+				.header(HttpHeaders.CONTENT_LENGTH, att.getLength())
+				.header(HttpHeaders.LAST_MODIFIED, Instant.ofEpochMilli(att.getLastModified()))
+				.tag(att.getETag())
+				.build();
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 	
 	@Path("{id}")
@@ -213,5 +422,53 @@ public class NoSQLExample {
 			@FormParam("added") String added
 	) {
 		return update(id, firstName, lastName, birthday, favoriteTime, added);
+	}
+	
+	@Path("{id}/putInFolder")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean putInFolder(@PathParam("id") String id) {
+		Person person = personRepository.findById(id)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for ID " + id));
+		personRepository.putInFolder(person, PersonRepository.FOLDER_PERSONS);
+		return true;
+	}
+	
+	@Path("{id}/removeFromFolder")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean removeFromFolder(@PathParam("id") String id) {
+		Person person = personRepository.findById(id)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for ID " + id));
+		personRepository.removeFromFolder(person, PersonRepository.FOLDER_PERSONS);
+		return true;
+	}
+	
+	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {
+		person.setFirstName(firstName);
+		person.setLastName(lastName);
+		if(StringUtil.isNotEmpty(birthday)) {
+			LocalDate bd = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(birthday));
+			person.setBirthday(bd);
+		} else {
+			person.setBirthday(null);
+		}
+		if(StringUtil.isNotEmpty(favoriteTime)) {
+			LocalTime bd = LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(favoriteTime));
+			person.setFavoriteTime(bd);
+		} else {
+			person.setFavoriteTime(null);
+		}
+		if(StringUtil.isNotEmpty(added)) {
+			LocalDateTime dt = LocalDateTime.from(DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(added));
+			Instant bd = dt.toInstant(ZoneOffset.UTC);
+			person.setAdded(bd);
+		} else {
+			person.setAdded(null);
+		}
+		
+		CustomPropertyType prop = new CustomPropertyType();
+		prop.setValue(customProperty);
+		person.setCustomProperty(prop);
 	}
 }

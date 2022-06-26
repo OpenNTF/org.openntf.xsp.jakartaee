@@ -23,7 +23,7 @@
 		<title>Create New Person</title>
 	</head>
 	<body>
-		<form method="POST" enctype="application/x-www-form-urlencoded" action="create">
+		<form method="POST" enctype="multipart/form-data" action="create">
 			<dl>
 				<dt>First Name</dt>
 				<dd><input type="text" required name="firstName" /></dd>
@@ -32,13 +32,19 @@
 				<dd><input type="text" required name="lastName" /></dd>
 				
 				<dt>Birthday</dt>
-				<dd><input type="date" required name="birthday" /></dd>
+				<dd><input type="date" name="birthday" /></dd>
 				
 				<dt>Favorite Time</dt>
-				<dd><input type="time" required name="favoriteTime" value="${person.favoriteTime}" /></dd>
+				<dd><input type="time" name="favoriteTime" value="${person.favoriteTime}" /></dd>
 				
 				<dt>Added</dt>
-				<dd><input type="datetime-local" required name="added" value="${personadded}" /></dd>
+				<dd><input type="datetime-local" name="added" value="${personadded}" /></dd>
+				
+				<dt>Custom Property</dt>
+				<dd><input type="text" name="customProperty" /></dd>
+				
+				<dt>Attachment</dt>
+				<dd><input type="file" name="attachment" /></dd>
 			</dl>
 			<input type="submit" value="Create Person" />
 		</form>

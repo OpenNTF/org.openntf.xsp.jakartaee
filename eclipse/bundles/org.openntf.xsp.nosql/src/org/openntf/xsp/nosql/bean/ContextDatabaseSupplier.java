@@ -15,8 +15,8 @@
  */
 package org.openntf.xsp.nosql.bean;
 
-import org.openntf.xsp.nosql.communication.driver.DatabaseSupplier;
-import org.openntf.xsp.nosql.communication.driver.SessionSupplier;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 

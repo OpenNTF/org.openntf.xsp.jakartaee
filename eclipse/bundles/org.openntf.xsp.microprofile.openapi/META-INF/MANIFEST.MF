@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile OpenAPI Support
 Bundle-SymbolicName: org.openntf.xsp.microprofile.openapi;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.openapi
-Bundle-Version: 2.5.0.qualifier
+Bundle-Version: 2.6.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.openntf.xsp.jaxrs

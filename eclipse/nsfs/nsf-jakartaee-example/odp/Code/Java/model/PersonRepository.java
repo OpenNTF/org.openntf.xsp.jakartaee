@@ -18,11 +18,17 @@ package model;
 import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
 
 import jakarta.nosql.mapping.Sorts;
 
 public interface PersonRepository extends DominoRepository<Person, String> {
+	String FOLDER_PERSONS = "Persons Folder";
+	
 	Stream<Person> findAll();
 	Stream<Person> findAll(Sorts sorts);
 	Stream<Person> findByLastName(String lastName);
+	
+	@ViewEntries(FOLDER_PERSONS)
+	Stream<Person> findInPersonsFolder();
 }

@@ -16,6 +16,7 @@
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
 import org.eclipse.jnosql.mapping.reflection.ClassMappings;
@@ -26,6 +27,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import jakarta.nosql.mapping.Converters;
+import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.document.DocumentEntityConverter;
 import jakarta.nosql.mapping.document.DocumentEventPersistManager;
 import jakarta.nosql.mapping.document.DocumentWorkflow;
@@ -98,5 +100,36 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
     protected Converters getConverters() {
         return converters;
     }
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel) {
+		return getManager().viewEntryQuery(entityName, viewName, category, pagination, maxLevel)
+			.map(getConverter()::toEntity)
+			.map(d -> (T)d);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel) {
+		return getManager().viewDocumentQuery(entityName, viewName, category, pagination, maxLevel)
+			.map(getConverter()::toEntity)
+			.map(d -> (T)d);
+	}
+	
+	@Override
+	public void putInFolder(String entityId, String folderName) {
+		getManager().putInFolder(entityId, folderName);
+	}
+	
+	@Override
+	public void removeFromFolder(String entityId, String folderName) {
+		getManager().removeFromFolder(entityId, folderName);
+	}
+	
+	@Override
+	public <T> T insert(T entity, boolean computeWithForm) {
+		return getWorkflow().flow(entity, documentEntity -> getManager().insert(documentEntity, computeWithForm));
+	}
 
 }

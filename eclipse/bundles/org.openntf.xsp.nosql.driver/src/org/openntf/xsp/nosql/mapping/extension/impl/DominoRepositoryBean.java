@@ -18,6 +18,8 @@ package org.openntf.xsp.nosql.mapping.extension.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Optional;
@@ -78,12 +80,15 @@ public class DominoRepositoryBean implements Bean<DominoRepository<?, ?>>, Passi
 		}
 		DocumentRepositoryProducer producer = getInstance(DocumentRepositoryProducer.class)
 			.orElseThrow(() -> new IllegalStateException("Unable to locate bean for " + DocumentRepositoryProducer.class));
-		@SuppressWarnings("unchecked")
-		Repository<Object, Object> repository = producer.get((Class<Repository<Object, Object>>) type, template);
+		// The default DocumentRepositoryProducer uses Class#getClassLoader
+		return AccessController.doPrivileged((PrivilegedAction<DominoRepository<?, ?>>)() -> {
+			@SuppressWarnings("unchecked")
+			Repository<Object, Object> repository = producer.get((Class<Repository<Object, Object>>) type, template);
 
-		DominoDocumentRepositoryProxy<DominoRepository<?, ?>> handler = new DominoDocumentRepositoryProxy<>(template,
-				type, repository);
-		return (DominoRepository<?, ?>) Proxy.newProxyInstance(type.getClassLoader(), new Class[] { type }, handler);
+			DominoDocumentRepositoryProxy<DominoRepository<?, ?>> handler = new DominoDocumentRepositoryProxy<>(template,
+					type, repository);
+			return (DominoRepository<?, ?>) Proxy.newProxyInstance(type.getClassLoader(), new Class[] { type }, handler);
+		});
 	}
 
 	@SuppressWarnings("unchecked")

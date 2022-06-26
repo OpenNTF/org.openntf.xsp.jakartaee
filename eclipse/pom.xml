@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf.xsp</groupId>
 	<artifactId>xsp-jakartaee</artifactId>
-	<version>2.5.0</version>
+	<version>2.6.0</version>
 	<packaging>pom</packaging>
 
 	<name>XPages Jakarta EE Support</name>
@@ -37,6 +37,7 @@
 	<modules>
 		<!-- General Jakarta EE platform -->
 		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
+		<module>bundles/org.openntf.xsp.jakartaee.osgiresourcelocator</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
 		<!-- Servlet -->
@@ -85,6 +86,7 @@
 	
 		<!-- NoSQL -->
 		<module>bundles/org.openntf.xsp.nosql.driver</module>
+		<module>bundles/org.openntf.xsp.nosql.driver.lsxbe</module>
 		<module>bundles/org.openntf.xsp.nosql</module>
 		<module>features/org.openntf.xsp.nosql.feature</module>
 	
@@ -227,6 +229,7 @@
 						<plugin id="org.openntf.xsp.jaxrs.providers"/>
 						<plugin id="jakarta.servlet.jsp-api"/>
 						<plugin id="org.eclipse.jdt.core"/>
+						<plugin id="org.antlr.antlr4-runtime.jakarta"/>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -323,6 +326,7 @@
 						<exclude>**/database.properties</exclude>
 						<exclude>**/xspdesign.properties</exclude>
 						<exclude>**/DQL.java</exclude>
+						<exclude>**/odp/WebContent/WEB-INF/faces-config.xml</exclude>
 					</excludes>
 					<properties>
 						<owner>Contributors to the XPages Jakarta EE Support Project</owner>

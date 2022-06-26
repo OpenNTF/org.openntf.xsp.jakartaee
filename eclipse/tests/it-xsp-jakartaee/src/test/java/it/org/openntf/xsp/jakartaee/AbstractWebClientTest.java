@@ -17,6 +17,9 @@ package it.org.openntf.xsp.jakartaee;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.Response;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -132,5 +135,9 @@ public abstract class AbstractWebClientTest {
 		
 		String context = getBaseBundleExampleContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
+	}
+
+	protected void checkResponse(int expectedCode, Response response) {
+		assertEquals(expectedCode, response.getStatus(), () -> "Received unexpected code " + response.getStatus() + ": " + response.readEntity(String.class));
 	}
 }

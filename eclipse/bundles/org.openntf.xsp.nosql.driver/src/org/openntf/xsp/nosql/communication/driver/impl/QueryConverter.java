@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver;
+package org.openntf.xsp.nosql.communication.driver.impl;
 
 import static jakarta.nosql.Condition.IN;
 
@@ -21,7 +21,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
+import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
 
 import jakarta.nosql.Condition;
 import jakarta.nosql.TypeReference;
@@ -42,7 +43,7 @@ public enum QueryConverter {
 
 	private static final String[] ALL_SELECT = { "*" }; //$NON-NLS-1$
 
-	static QueryConverterResult select(DocumentQuery query) {
+	public static QueryConverterResult select(DocumentQuery query) {
 		String[] documents = query.getDocuments().toArray(new String[0]);
 		if (documents.length == 0) {
 			documents = ALL_SELECT;
@@ -72,7 +73,7 @@ public enum QueryConverter {
 
 		// Convert special names
 		String name = document.getName();
-		if (String.valueOf(name).equals(EntityConverter.ID_FIELD)) {
+		if (String.valueOf(name).equals(DominoConstants.FIELD_ID)) {
 			name = "@DocumentUniqueID"; //$NON-NLS-1$
 		}
 
@@ -146,7 +147,7 @@ public enum QueryConverter {
 		}
 	}
 
-	static class QueryConverterResult {
+	public static class QueryConverterResult {
 
 		private final String[] unids;
 		private final DQLTerm dql;
@@ -164,7 +165,7 @@ public enum QueryConverter {
 			return unids;
 		}
 
-		DQLTerm getStatement() {
+		public DQLTerm getStatement() {
 			return dql;
 		}
 		
@@ -183,9 +184,9 @@ public enum QueryConverter {
 			return condition;
 		} else {
 			if(condition == null) {
-				return DQL.item(EntityConverter.NAME_FIELD).isEqualTo(formName);
+				return DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName);
 			} else {
-				return DQL.and(condition, DQL.item(EntityConverter.NAME_FIELD).isEqualTo(formName));
+				return DQL.and(condition, DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName));
 			}
 		}
 	}

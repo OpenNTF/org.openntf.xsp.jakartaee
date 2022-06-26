@@ -1,4 +1,4 @@
-package org.openntf.xsp.nosql.communication.driver;
+package org.openntf.xsp.nosql.communication.driver.impl;
 
 import java.text.MessageFormat;
 import java.time.Instant;

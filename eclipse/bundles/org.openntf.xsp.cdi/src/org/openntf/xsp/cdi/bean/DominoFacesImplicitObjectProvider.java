@@ -15,8 +15,6 @@
  */
 package org.openntf.xsp.cdi.bean;
 
-import javax.faces.context.FacesContext;
-
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -28,7 +26,7 @@ import lotus.domino.Session;
 
 /**
  * This bean provides access to implicit objects from the current
- * {@link FacesContext}, when available.
+ * {@link NotesContext}, when available.
  * 
  * @author Jesse Gallagher
  * @since 2.1.0

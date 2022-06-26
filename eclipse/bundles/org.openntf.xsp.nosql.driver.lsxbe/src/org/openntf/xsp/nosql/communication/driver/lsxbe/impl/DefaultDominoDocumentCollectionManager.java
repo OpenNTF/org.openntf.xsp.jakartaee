@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.communication.driver;
+package org.openntf.xsp.nosql.communication.driver.lsxbe.impl;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -28,22 +28,35 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.openntf.xsp.nosql.communication.driver.DQL.DQLTerm;
-import org.openntf.xsp.nosql.communication.driver.QueryConverter.QueryConverterResult;
+import org.eclipse.jnosql.mapping.reflection.ClassInformationNotFoundException;
+import org.eclipse.jnosql.mapping.reflection.ClassMapping;
+import org.eclipse.jnosql.mapping.reflection.ClassMappings;
+import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.impl.DQL;
+import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter;
+import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
+import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter.QueryConverterResult;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesSession;
 
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.Sort;
 import jakarta.nosql.SortType;
 import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
+import jakarta.nosql.mapping.Pagination;
 import lotus.domino.ACL;
 import lotus.domino.ACLEntry;
 import lotus.domino.Base;
@@ -56,32 +69,47 @@ import lotus.domino.NotesException;
 import lotus.domino.QueryResultsProcessor;
 import lotus.domino.Session;
 import lotus.domino.View;
+import lotus.domino.ViewNavigator;
 
 public class DefaultDominoDocumentCollectionManager implements DominoDocumentCollectionManager {
 
 	private final DatabaseSupplier supplier;
 	private final SessionSupplier sessionSupplier;
+	private final LSXBEEntityConverter entityConverter;
 	
 	public DefaultDominoDocumentCollectionManager(DatabaseSupplier supplier, SessionSupplier sessionSupplier) {
 		this.supplier = supplier;
 		this.sessionSupplier = sessionSupplier;
+		this.entityConverter = new LSXBEEntityConverter(supplier);
 	}
 	
 	@Override
 	public DocumentEntity insert(DocumentEntity entity) {
+		return insert(entity, false);
+	}
+	
+	/**
+	 * @since 2.6.0
+	 */
+	@Override
+	public DocumentEntity insert(DocumentEntity entity, boolean computeWithForm) {
 		try {
 			Database database = supplier.get();
 			lotus.domino.Document target = database.createDocument();
 			
-			Optional<Document> maybeId = entity.find(EntityConverter.ID_FIELD);
+			Optional<Document> maybeId = entity.find(DominoConstants.FIELD_ID);
 			if(maybeId.isPresent()) {
 				target.setUniversalID(maybeId.get().get().toString());
 			} else {
 				// Write the generated UNID into the entity
-				entity.add(Document.of(EntityConverter.ID_FIELD, target.getUniversalID()));
+				entity.add(Document.of(DominoConstants.FIELD_ID, target.getUniversalID()));
 			}
-			
-			EntityConverter.convert(entity, target);
+
+			ClassMapping mapping = getClassMapping(entity.getName());
+			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
+			if(computeWithForm) {
+				target.computeWithForm(false, false);
+			}
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -117,12 +145,13 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		try {
 			Database database = supplier.get();
 			
-			Document id = entity.find(EntityConverter.ID_FIELD)
-				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", EntityConverter.ID_FIELD)));
+			Document id = entity.find(DominoConstants.FIELD_ID)
+				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", DominoConstants.FIELD_ID)));
 			
 			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
-			
-			EntityConverter.convert(entity, target);
+
+			ClassMapping mapping = getClassMapping(entity.getName());
+			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -168,6 +197,9 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	@Override
 	public Stream<DocumentEntity> select(DocumentQuery query) {
 		try {
+			String entityName = query.getDocumentCollection();
+			ClassMapping mapping = getClassMapping(entityName);
+			
 			QueryConverterResult queryResult = QueryConverter.select(query);
 			
 			long skip = queryResult.getSkip();
@@ -182,54 +214,42 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 				String userName = database.getParent().getEffectiveUserName();
 				String dqlQuery = queryResult.getStatement().toString();
-				String viewName = getClass().getName() + "-" + Objects.hash(sorts, skip, limit, userName, dqlQuery); //$NON-NLS-1$
+				String viewName = getClass().getName() + "-" + Objects.hash(sorts, userName, dqlQuery); //$NON-NLS-1$
 				View view = qrpDatabase.getView(viewName);
-				try {
-					if(view != null) {
-						// Check to see if we need to "expire" it based on the data mod time of the DB
-						DateTime created = view.getCreated();
-						try {
-							long dataMod = NotesSession.getLastDataModificationDateByName(database.getServer(), database.getFilePath());
-							if(dataMod > (created.toJavaDate().getTime() / 1000)) {
-								view.remove();
-								view.recycle();
-								view = null;
-							}
-						} catch (NotesAPIException e) {
-							throw new RuntimeException(e);
-						} finally {
-							recycle(created);
+				if(view != null) {
+					// Check to see if we need to "expire" it based on the data mod time of the DB
+					DateTime created = view.getCreated();
+					try {
+						long dataMod = NotesSession.getLastDataModificationDateByName(database.getServer(), database.getFilePath());
+						if(dataMod > (created.toJavaDate().getTime() / 1000)) {
+							view.remove();
+							view.recycle();
+							view = null;
 						}
+					} catch (NotesAPIException e) {
+						throw new RuntimeException(e);
+					} finally {
+						recycle(created);
 					}
-	
-					if(view != null) {
-						result = EntityConverter.convert(database, view);
-					} else {
-						DominoQuery dominoQuery = database.createDominoQuery();		
-						QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
-						try {
-							qrp.addDominoQuery(dominoQuery, dqlQuery, null);
-							for(Sort sort : sorts) {
-								int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
-								qrp.addColumn(sort.getName(), null, null, dir, false, false);
-							}
-							
-							if(skip == 0 && limit > 0 && limit <= Integer.MAX_VALUE) {
-								qrp.setMaxEntries((int)limit);
-							}
-							
-							view = qrp.executeToView(viewName, 24);
-							try {
-								result = EntityConverter.convert(database, view);
-							} finally {
-								recycle(view);
-							}
-						} finally {
-							recycle(qrp, dominoQuery, qrpDatabase);
+				}
+
+				if(view != null) {
+					result = entityConverter.convertQRPViewDocuments(database, view, mapping);
+				} else {
+					DominoQuery dominoQuery = database.createDominoQuery();		
+					QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
+					try {
+						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
+						for(Sort sort : sorts) {
+							int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
+							qrp.addColumn(sort.getName(), null, null, dir, false, false);
 						}
+						
+						view = qrp.executeToView(viewName, 24);
+						result = entityConverter.convertQRPViewDocuments(database, view, mapping);
+					} finally {
+						recycle(qrp, dominoQuery);
 					}
-				} finally {
-					recycle(view);
 				}
 				
 			} else {
@@ -237,9 +257,9 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				DominoQuery dominoQuery = database.createDominoQuery();		
 				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
 				try {
-					result = EntityConverter.convert(docs);
+					result = entityConverter.convertDocuments(docs, mapping);
 				} finally {
-					recycle(docs, dominoQuery);
+					recycle(dominoQuery);
 				}
 			}
 			
@@ -257,11 +277,81 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	}
 
 	@Override
+	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel) {
+		ClassMapping mapping = getClassMapping(entityName);
+		return buildNavigtor(viewName, category, pagination, maxLevel,
+			(nav, limit) -> {
+				try {
+					return entityConverter.convertViewEntries(entityName, nav, limit, mapping);
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		);
+	}
+	
+	@Override
+	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, String category,
+			Pagination pagination, int maxLevel) {
+		ClassMapping mapping = getClassMapping(entityName);
+		return buildNavigtor(viewName, category, pagination, maxLevel,
+			(nav, limit) -> {
+				try {
+					return entityConverter.convertViewDocuments(entityName, nav, limit, mapping);
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		);
+	}
+	
+	@Override
+	public void putInFolder(String entityId, String folderName) {
+		if(StringUtil.isEmpty(entityId)) {
+			throw new IllegalArgumentException("entityId cannot be empty");
+		}
+		if(StringUtil.isEmpty(folderName)) {
+			throw new IllegalArgumentException("folderName cannot be empty");
+		}
+		
+		Database database = supplier.get();
+		try {
+			lotus.domino.Document doc = database.getDocumentByUNID(entityId);
+			if(doc != null) {
+				doc.putInFolder(folderName);
+			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public void removeFromFolder(String entityId, String folderName) {
+		if(StringUtil.isEmpty(entityId)) {
+			// No harm here
+			return;
+		}
+		if(StringUtil.isEmpty(folderName)) {
+			throw new IllegalArgumentException("folderName cannot be empty");
+		}
+		
+		Database database = supplier.get();
+		try {
+			lotus.domino.Document doc = database.getDocumentByUNID(entityId);
+			if(doc != null) {
+				doc.removeFromFolder(folderName);
+			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
 	public long count(String documentCollection) {
 		try {
 			Database database = supplier.get();
 			DominoQuery dominoQuery = database.createDominoQuery();
-			DQLTerm dql = DQL.item(EntityConverter.NAME_FIELD).isEqualTo(documentCollection);
+			DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(documentCollection);
 			DocumentCollection result = dominoQuery.execute(dql.toString());
 			return result.getCount();
 		} catch(NotesException e) {
@@ -273,6 +363,57 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	@Override
 	public void close() {
 	
+	}
+	
+	// *******************************************************************************
+	// * Internal implementation utilities
+	// *******************************************************************************
+	
+	private <T> T buildNavigtor(String viewName, String category, Pagination pagination, int maxLevel, BiFunction<ViewNavigator, Long, T> consumer) {
+		try {
+			if(StringUtil.isEmpty(viewName)) {
+				throw new IllegalArgumentException("viewName cannot be empty");
+			}
+			
+			Database database = supplier.get();
+			View view = database.getView(viewName);
+			Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
+			view.setAutoUpdate(false);
+			
+			ViewNavigator nav;
+			if(category == null) {
+				nav = view.createViewNav();
+			} else {
+				nav = view.createViewNavFromCategory(category);
+			}
+			
+			if(maxLevel > -1) {
+				nav.setMaxLevel(maxLevel);
+			}
+			
+			long limit = 0;
+			if(pagination != null) {
+				long skip = pagination.getSkip();
+				limit = pagination.getLimit();
+				
+				if(skip > Integer.MAX_VALUE) {
+					throw new UnsupportedOperationException("Domino does not support skipping more than Integer.MAX_VALUE entries");
+				}
+				if(skip > 0) {
+					nav.skip((int)skip);
+				}
+			}
+			
+			if(limit > 0) {
+				nav.setBufferMaxEntries((int)Math.max(400, limit));
+			} else {
+				nav.setBufferMaxEntries(400);
+			}
+			
+			return consumer.apply(nav, limit);
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private Database getQrpDatabase(Session session, Database database) throws NotesException {
@@ -339,6 +480,16 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					// Ignore
 				}
 			}
+		}
+	}
+	
+	private ClassMapping getClassMapping(String entityName) {
+		ClassMappings mappings = CDI.current().select(ClassMappings.class).get();
+		try {
+			return mappings.findByName(entityName);
+		} catch(ClassInformationNotFoundException e) {
+			// Shouldn't happen, but we should account for it
+			return null;
 		}
 	}
 }
