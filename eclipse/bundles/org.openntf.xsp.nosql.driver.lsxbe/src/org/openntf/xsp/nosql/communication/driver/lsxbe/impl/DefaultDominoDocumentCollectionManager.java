@@ -426,7 +426,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			}
 			
 			if(limit > 0) {
-				nav.setBufferMaxEntries((int)Math.max(400, limit));
+				nav.setBufferMaxEntries((int)Math.min(400, limit));
 			} else {
 				nav.setBufferMaxEntries(400);
 			}
