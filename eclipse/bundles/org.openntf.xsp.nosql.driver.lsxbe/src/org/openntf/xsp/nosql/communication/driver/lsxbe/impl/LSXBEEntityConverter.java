@@ -559,9 +559,7 @@ public class LSXBEEntityConverter {
 			Map<String, Object> docMap = new LinkedHashMap<>();
 			for(Item item : (List<Item>)doc.getItems()) {
 				String itemName = item.getName();
-				if(DominoConstants.FIELD_NAME.equalsIgnoreCase(itemName)) {
-					continue;
-				} else if(SYSTEM_FIELDS.contains(itemName)) {
+				if(SYSTEM_FIELDS.contains(itemName)) {
 					continue;
 				}
 				
