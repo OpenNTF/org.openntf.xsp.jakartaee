@@ -36,6 +36,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.core.runtime.Platform;
+import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
+import org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator;
 import org.osgi.framework.Bundle;
 
 import lotus.domino.Database;
@@ -49,8 +51,6 @@ import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.osgi.core.context.ContextInfo;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
 /**
@@ -87,28 +87,11 @@ public enum LibraryUtil {
 	 * @since 2.3.0
 	 */
 	public static boolean isLibraryActive(String libraryId) {
-		ApplicationEx app = ApplicationEx.getInstance();
-		if(app != null) {
-			return usesLibrary(libraryId, app);
-		}
-		NotesContext ctx = NotesContext.getCurrentUnchecked();
-		if(ctx != null) {
-			ComponentModule module = ctx.getModule();
-			if(module != null) {
-				return usesLibrary(libraryId, module);
-			}
-		}
-		try {
-			NotesDatabase database = ContextInfo.getServerDatabase();
-			if(database != null) {
-				return usesLibrary(libraryId, database);
-			}
-		} catch(NoClassDefFoundError e) {
-			// Ignore
-		} catch (NotesAPIException e) {
-			throw new RuntimeException(e);
-		}
-		return false;
+		return findExtensions(ComponentEnabledLocator.class)
+			.stream()
+			.sorted(DescendingPriorityComparator.INSTANCE)
+			.filter(ComponentEnabledLocator::isActive)
+			.anyMatch(locator -> locator.isComponentEnabled(libraryId));
 	}
 	
 	/**
@@ -122,27 +105,13 @@ public enum LibraryUtil {
 	 * @since 2.3.0
 	 */
 	public static String getApplicationProperty(String prop, String defaultValue) {
-		ApplicationEx app = ApplicationEx.getInstance();
-		if(app != null) {
-			return app.getApplicationProperty(prop, defaultValue);
-		}
-		NotesContext ctx = NotesContext.getCurrentUnchecked();
-		if(ctx != null) {
-			ComponentModule module = ctx.getModule();
-			if(module != null) {
-				return getXspProperties(module).getProperty(prop, defaultValue);
-			}
-			
-			try {
-				NotesDatabase database = ctx.getNotesDatabase();
-				if(database != null) {
-					return getXspProperties(database).getProperty(prop, defaultValue);
-				}
-			} catch(NotesAPIException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return defaultValue;
+		return findExtensions(ApplicationPropertyLocator.class)
+			.stream()
+			.sorted(DescendingPriorityComparator.INSTANCE)
+			.filter(ApplicationPropertyLocator::isActive)
+			.map(locator -> locator.getApplicationProperty(prop, defaultValue))
+			.findFirst()
+			.orElse(defaultValue);
 	}
 	
 	/**
