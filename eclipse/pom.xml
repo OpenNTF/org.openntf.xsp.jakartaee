@@ -341,7 +341,6 @@
 				<version>3.0.0-M1</version>
 				<executions>
 					<execution>
-						<?m2e ignore?>
 						<id>enforce-maven-and-java</id>
 						<goals>
 							<goal>enforce</goal>
