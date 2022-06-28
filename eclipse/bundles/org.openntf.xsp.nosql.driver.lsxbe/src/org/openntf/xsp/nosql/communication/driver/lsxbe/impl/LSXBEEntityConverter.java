@@ -307,8 +307,7 @@ public class LSXBEEntityConverter {
 				try {
 					lotus.domino.Document doc = entry.getDocument();
 					List<Document> documents = toNoSQLDocuments(doc, classMapping);
-					String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
-					return DocumentEntity.of(name, documents);
+					return DocumentEntity.of(entityName, documents);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
