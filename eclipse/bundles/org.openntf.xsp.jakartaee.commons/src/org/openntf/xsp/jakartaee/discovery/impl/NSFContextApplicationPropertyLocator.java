@@ -18,7 +18,8 @@ package org.openntf.xsp.jakartaee.discovery.impl;
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.annotation.Priority;
@@ -38,9 +39,13 @@ public class NSFContextApplicationPropertyLocator implements ApplicationProperty
 	public boolean isActive() {
 		NotesContext ctx = NotesContext.getCurrentUnchecked();
 		if(ctx != null) {
-			ComponentModule module = ctx.getModule();
-			if(module != null) {
-				return true;
+			try {
+				NotesDatabase database = ctx.getNotesDatabase();
+				if(database != null) {
+					return true;
+				}
+			} catch(NotesAPIException e) {
+				// Ignore
 			}
 		}
 		return false;
@@ -49,11 +54,13 @@ public class NSFContextApplicationPropertyLocator implements ApplicationProperty
 	@Override
 	public String getApplicationProperty(String prop, String defaultValue) {
 		NotesContext ctx = NotesContext.getCurrentUnchecked();
-		if(ctx != null) {
-			ComponentModule module = ctx.getModule();
-			if(module != null) {
-				return LibraryUtil.getXspProperties(module).getProperty(prop, defaultValue);
+		try {
+			NotesDatabase database = ctx.getNotesDatabase();
+			if(database != null) {
+				return LibraryUtil.getXspProperties(database).getProperty(prop, defaultValue);
 			}
+		} catch(NotesAPIException e) {
+			throw new RuntimeException(e);
 		}
 		return defaultValue;
 	}
