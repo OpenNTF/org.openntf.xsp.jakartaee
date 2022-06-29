@@ -350,11 +350,12 @@ public enum LibraryUtil {
 	 * @since 2.4.0
 	 */
 	public static Path getTempDirectory() {
-		String osName = System.getProperty("os.name"); //$NON-NLS-1$
+		String osName = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("os.name")); //$NON-NLS-1$
 		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
 			return Paths.get("/tmp"); //$NON-NLS-1$
 		} else {
-			return Paths.get(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+			String tempDir = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+			return Paths.get(tempDir);
 		}
 	}
 }

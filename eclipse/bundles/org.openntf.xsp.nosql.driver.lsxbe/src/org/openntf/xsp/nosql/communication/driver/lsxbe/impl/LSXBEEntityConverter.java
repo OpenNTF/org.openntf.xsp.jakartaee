@@ -62,10 +62,10 @@ import java.util.zip.GZIPInputStream;
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.eclipse.jnosql.mapping.reflection.FieldMapping;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.util.FileUtil;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.LoaderObjectInputStream;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
@@ -393,7 +393,7 @@ public class LSXBEEntityConverter {
 						for(EntityAttachment att : newAttachments) {
 							// TODO check for if this field already exists
 							try {
-								Path tempDir = Files.createTempDirectory(LibraryUtil.getTempDirectory(), getClass().getSimpleName());
+								Path tempDir = Files.createTempDirectory(FileUtil.getTempDirectory(), getClass().getSimpleName());
 								try {
 									// TODO consider options for when the name can't be stored on the filesystem
 									Path tempFile = tempDir.resolve(att.getName());
