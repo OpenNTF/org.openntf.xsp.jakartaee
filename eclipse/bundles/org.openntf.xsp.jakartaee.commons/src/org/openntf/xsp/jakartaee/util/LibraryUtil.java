@@ -109,8 +109,8 @@ public enum LibraryUtil {
 			.stream()
 			.sorted(DescendingPriorityComparator.INSTANCE)
 			.filter(ApplicationPropertyLocator::isActive)
-			.map(locator -> locator.getApplicationProperty(prop, defaultValue))
 			.findFirst()
+			.map(locator -> locator.getApplicationProperty(prop, defaultValue))
 			.orElse(defaultValue);
 	}
 	
