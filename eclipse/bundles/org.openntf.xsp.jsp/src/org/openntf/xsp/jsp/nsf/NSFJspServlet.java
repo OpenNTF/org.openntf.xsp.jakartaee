@@ -32,6 +32,7 @@ import org.apache.jasper.Constants;
 import org.apache.jasper.servlet.JspServlet;
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jsp.EarlyInitFactory;
 import org.openntf.xsp.jsp.el.NSFELResolver;
 import org.osgi.framework.BundleException;
@@ -42,6 +43,8 @@ import com.ibm.xsp.application.ApplicationEx;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -83,10 +86,14 @@ public class NSFJspServlet extends AbstractXspLifecycleServlet {
 				
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(buildJspClassLoader(current));
+				ServletUtil.getListeners(context, ServletRequestListener.class)
+					.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), request)));
 				try {
 					ParserUtils.setDtdResourcePrefix(EarlyInitFactory.getServletDtdPath().toUri().toString());
 					delegate.service(request, response);
 				} finally {
+					ServletUtil.getListeners(context, ServletRequestListener.class)
+						.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), request)));
 					Thread.currentThread().setContextClassLoader(current);
 					context.removeAttribute("org.glassfish.jsp.beanManagerELResolver"); //$NON-NLS-1$
 					context.removeAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP);
