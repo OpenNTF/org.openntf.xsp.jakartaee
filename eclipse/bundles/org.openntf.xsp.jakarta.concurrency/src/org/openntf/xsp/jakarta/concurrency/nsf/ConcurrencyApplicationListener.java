@@ -94,7 +94,7 @@ public class ConcurrencyApplicationListener implements ApplicationListener2 {
 				}
 			}
 			
-			ManagedScheduledExecutorService scheduledExec = (ManagedScheduledExecutorService)ctx.getAttribute(ATTR_EXECUTORSERVICE);
+			ManagedScheduledExecutorService scheduledExec = (ManagedScheduledExecutorService)ctx.getAttribute(ATTR_SCHEDULEDEXECUTORSERVICE);
 			if(scheduledExec != null) {
 				try {
 					scheduledExec.shutdownNow();
