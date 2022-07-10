@@ -11,7 +11,8 @@ import org.glassfish.enterprise.concurrent.ManagedExecutorServiceImpl;
 import org.glassfish.enterprise.concurrent.ManagedScheduledExecutorServiceImpl;
 import org.glassfish.enterprise.concurrent.ManagedThreadFactoryImpl;
 import org.glassfish.enterprise.concurrent.spi.ContextSetupProvider;
-import org.openntf.xsp.jakarta.concurrency.ComponentModuleContextSetupProvider;
+import org.openntf.xsp.jakarta.concurrency.DominoContextSetupProvider;
+import org.openntf.xsp.jakarta.concurrency.servlet.ConcurrencyRequestListener;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
@@ -34,15 +35,13 @@ import jakarta.servlet.ServletContext;
 public class ConcurrencyApplicationListener implements ApplicationListener2 {
 	private static final Logger log = Logger.getLogger(ConcurrencyApplicationListener.class.getPackage().getName());
 	
-	public static final String ATTR_EXECUTORSERVICE = ConcurrencyApplicationListener.class.getName() + "_exec"; //$NON-NLS-1$
-	public static final String ATTR_SCHEDULEDEXECUTORSERVICE = ConcurrencyApplicationListener.class.getName() + "_scheduledExec"; //$NON-NLS-1$
 
 	@Override
 	public void applicationCreated(ApplicationEx app) {
 		getServletContext().ifPresent(ctx -> {
 			ctx.addListener(new ConcurrencyRequestListener());
 			
-			ContextSetupProvider provider = new ComponentModuleContextSetupProvider(NotesContext.getCurrent().getModule());
+			ContextSetupProvider provider = new DominoContextSetupProvider();
 			
 			ContextServiceImpl contextService = new ContextServiceImpl("contextService" + app.getApplicationId(), provider); //$NON-NLS-1$
 			ManagedThreadFactoryImpl factory = new ManagedThreadFactoryImpl("fac" + app.getApplicationId(), contextService); //$NON-NLS-1$
@@ -61,7 +60,7 @@ public class ConcurrencyApplicationListener implements ApplicationListener2 {
 				contextService,
 				RejectPolicy.ABORT
 			);
-			ctx.setAttribute(ATTR_EXECUTORSERVICE, exec);
+			ctx.setAttribute(ConcurrencyRequestListener.ATTR_EXECUTORSERVICE, exec);
 			
 			ManagedScheduledExecutorService scheduledExec = new ManagedScheduledExecutorServiceImpl(
 				"scheduledExecutor" + app.getApplicationId(), //$NON-NLS-1$
@@ -75,14 +74,14 @@ public class ConcurrencyApplicationListener implements ApplicationListener2 {
 				contextService,
 				RejectPolicy.ABORT
 			);
-			ctx.setAttribute(ATTR_SCHEDULEDEXECUTORSERVICE, scheduledExec);
+			ctx.setAttribute(ConcurrencyRequestListener.ATTR_SCHEDULEDEXECUTORSERVICE, scheduledExec);
 		});
 	}
 
 	@Override
 	public void applicationDestroyed(ApplicationEx app) {
 		getServletContext().ifPresent(ctx -> {
-			ManagedExecutorService exec = (ManagedExecutorService)ctx.getAttribute(ATTR_EXECUTORSERVICE);
+			ManagedExecutorService exec = (ManagedExecutorService)ctx.getAttribute(ConcurrencyRequestListener.ATTR_EXECUTORSERVICE);
 			if(exec != null) {
 				try {
 					exec.shutdownNow();
@@ -94,7 +93,7 @@ public class ConcurrencyApplicationListener implements ApplicationListener2 {
 				}
 			}
 			
-			ManagedScheduledExecutorService scheduledExec = (ManagedScheduledExecutorService)ctx.getAttribute(ATTR_SCHEDULEDEXECUTORSERVICE);
+			ManagedScheduledExecutorService scheduledExec = (ManagedScheduledExecutorService)ctx.getAttribute(ConcurrencyRequestListener.ATTR_SCHEDULEDEXECUTORSERVICE);
 			if(scheduledExec != null) {
 				try {
 					scheduledExec.shutdownNow();
@@ -112,17 +111,21 @@ public class ConcurrencyApplicationListener implements ApplicationListener2 {
 	public void applicationRefreshed(ApplicationEx app) {
 		
 	}
-
-	private Optional<ServletContext> getServletContext() {
+	
+	private Optional<NSFComponentModule> getModule() {
 		NotesContext ctx = NotesContext.getCurrentUnchecked();
 		if(ctx != null) {
-			NSFComponentModule module = ctx.getModule();
-			if(module != null) {
-				javax.servlet.ServletContext oldContext = module.getServletContext();
-				ServletContext servletContext = ServletUtil.oldToNew(module.getDatabasePath(), oldContext);
-				return Optional.of(servletContext);
-			}
+			return Optional.ofNullable(ctx.getModule());
 		}
 		return Optional.empty();
+	}
+
+	private Optional<ServletContext> getServletContext() {
+		return getModule()
+			.map(module -> {
+				javax.servlet.ServletContext oldContext = module.getServletContext();
+				ServletContext servletContext = ServletUtil.oldToNew(module.getDatabasePath(), oldContext);
+				return servletContext;
+			});
 	}
 }

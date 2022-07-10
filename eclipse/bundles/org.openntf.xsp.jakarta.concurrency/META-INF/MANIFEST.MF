@@ -12,6 +12,9 @@ Require-Bundle: jakarta.enterprise.concurrent-api;bundle-version="2.0.0";visibil
  org.openntf.xsp.jakartaee.commons;bundle-version="2.7.0"
 Import-Package: com.ibm.designer.runtime.domino.adapter,
  com.ibm.domino.xsp.module.nsf,
+ jakarta.annotation;version="2.1.1",
  jakarta.servlet;version="5.0.0",
  jakarta.servlet.http;version="5.0.0",
  lotus.domino
+Export-Package: org.openntf.xsp.jakarta.concurrency;version="2.7.0",
+ org.openntf.xsp.jakarta.concurrency.nsf;version="2.7.0"
