@@ -15,6 +15,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - XML Binding 3.0
 - Mail 2.1
     - Activation 2.1
+- Concurrency 2.0 (without Transaction support)
 - Server Pages 3.0
 - Server Faces 3.0
 - MVC 2.0
@@ -384,6 +385,20 @@ When this library is enabled, .jsp files in the "Files" or "WebContent" parts of
 ```
 
 As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and will allow the use of CDI beans.
+
+## Concurrency
+
+The [Concurrency API](https://jakarta.ee/specifications/concurrency/2.0/concurrency-spec-2.0.html) provides a mechanism for locating and using managed variants of `ExecutorService` and `ScheduledExecutorService` to use contextual application services from within a multithreaded context. These objects can be retrieved using JNDI:
+
+```java
+ExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+
+// ...
+
+ScheduledExecutorService scheduler = InitialContext.doLookup("java:comp/DefaultManagedScheduledExecutorService");
+```
+
+Tasks run from these executors will retain their NSF and requesting user context as well as the application's CDI container.
 
 ## Server Faces 4.0
 
