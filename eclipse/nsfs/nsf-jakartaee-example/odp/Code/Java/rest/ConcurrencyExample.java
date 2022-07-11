@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.naming.InitialContext;
 
+import bean.ApplicationGuy;
 import jakarta.enterprise.inject.literal.NamedLiteral;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.ws.rs.GET;
@@ -38,6 +39,9 @@ public class ConcurrencyExample {
 				
 				String database = exec.submit(() -> "Database is: " + CDI.current().select(Database.class).get()).get();
 				w.println(database);
+				
+				String applicationGuy = exec.submit(() -> "applicationGuy is: " + CDI.current().select(ApplicationGuy.class).get().getMessage()).get();
+				w.println(applicationGuy);
 			} catch(Throwable t) {
 				t.printStackTrace(w);
 			} finally {

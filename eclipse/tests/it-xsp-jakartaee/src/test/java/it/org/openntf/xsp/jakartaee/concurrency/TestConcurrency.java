@@ -23,6 +23,7 @@ public class TestConcurrency extends AbstractWebClientTest {
 		assertTrue(output.contains("CDI is org"), () -> "Received unexpected output: " + output);
 		assertTrue(output.contains("Username is: Anonymous"), () -> "Received unexpected output: " + output);
 		assertTrue(output.contains("Database is: dev"), () -> "Received unexpected output: " + output);
+		assertTrue(output.contains("applicationGuy is: I'm application guy"), () -> "Received unexpected output: " + output);
 	}
 
 	@Test
@@ -37,6 +38,7 @@ public class TestConcurrency extends AbstractWebClientTest {
 		assertTrue(output.contains("CDI is org"), () -> "Received unexpected output: " + output);
 		assertTrue(output.contains("Username is: CN="), () -> "Received unexpected output: " + output);
 		assertTrue(output.contains("Database is: dev"), () -> "Received unexpected output: " + output);
+		assertTrue(output.contains("applicationGuy is: I'm application guy"), () -> "Received unexpected output: " + output);
 	}
 	
 	@Test
