@@ -24,7 +24,6 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Named;
 import lotus.domino.Database;
-import lotus.domino.NotesException;
 import lotus.domino.Session;
 
 /**
@@ -40,15 +39,6 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("database")
 	public Database produceDatabase() {
-		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSION.get();
-		if(threadSession != null) {
-			try {
-				return threadSession.getCurrentDatabase();
-			} catch (NotesException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
 			return context.getCurrentDatabase();
@@ -61,11 +51,6 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("dominoSession")
 	public Session produceSession() {
-		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSION.get();
-		if(threadSession != null) {
-			return threadSession;
-		}
-		
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
 			return context.getCurrentSession();
