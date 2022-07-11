@@ -1,6 +1,7 @@
 package org.openntf.xsp.jakarta.concurrency.servlet;
 
 import javax.naming.InitialContext;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
 import org.openntf.xsp.jakarta.concurrency.nsf.ConcurrencyApplicationListener;
@@ -23,10 +24,10 @@ public class ConcurrencyRequestListener implements ServletRequestListener {
 			InitialContext jndi = new InitialContext();
 			
 			ManagedExecutorService exec = (ManagedExecutorService)sre.getServletContext().getAttribute(ATTR_EXECUTORSERVICE);
-			jndi.bind(JNDI_EXECUTORSERVICE, exec);
+			jndi.rebind(JNDI_EXECUTORSERVICE, exec);
 			
 			ManagedScheduledExecutorService scheduler = (ManagedScheduledExecutorService)sre.getServletContext().getAttribute(ATTR_SCHEDULEDEXECUTORSERVICE);
-			jndi.bind(JNDI_SCHEDULEDEXECUTORSERVICE, scheduler);
+			jndi.rebind(JNDI_SCHEDULEDEXECUTORSERVICE, scheduler);
 		} catch (NamingException e) {
 			throw new RuntimeException(e);
 		}
@@ -39,6 +40,8 @@ public class ConcurrencyRequestListener implements ServletRequestListener {
 			
 			jndi.unbind(JNDI_EXECUTORSERVICE);
 			jndi.unbind(JNDI_SCHEDULEDEXECUTORSERVICE);
+		} catch(NameNotFoundException e) {
+			// Ignore - that's fine
 		} catch (NamingException e) {
 			throw new RuntimeException(e);
 		}
