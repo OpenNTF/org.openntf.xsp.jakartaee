@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.cdi.bean;
 
+import org.openntf.xsp.cdi.concurrency.NSFSessionClonerSetupParticipant;
+
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -22,6 +24,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Named;
 import lotus.domino.Database;
+import lotus.domino.NotesException;
 import lotus.domino.Session;
 
 /**
@@ -37,6 +40,15 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("database")
 	public Database produceDatabase() {
+		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSION.get();
+		if(threadSession != null) {
+			try {
+				return threadSession.getCurrentDatabase();
+			} catch (NotesException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
 			return context.getCurrentDatabase();
@@ -49,6 +61,11 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("dominoSession")
 	public Session produceSession() {
+		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSION.get();
+		if(threadSession != null) {
+			return threadSession;
+		}
+		
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
 			return context.getCurrentSession();
@@ -61,6 +78,11 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("dominoSessionAsSigner")
 	public Session produceSessionAsSigner() {
+		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSIONASSIGNER.get();
+		if(threadSession != null) {
+			return threadSession;
+		}
+		
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
 			return context.getSessionAsSigner();
@@ -73,6 +95,11 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("dominoSessionAsSignerWithFullAccess")
 	public Session produceSessionAsSignerWithFullAccess() {
+		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSIONASSIGNER.get();
+		if(threadSession != null) {
+			return threadSession;
+		}
+		
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
 			return context.getSessionAsSignerFullAdmin();

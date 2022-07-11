@@ -23,7 +23,7 @@ public class NotesManagedThreadFactory extends ManagedThreadFactoryImpl {
 	public NotesManagedThreadFactory(String name, ContextServiceImpl contextService, int priority) {
 		super(name, contextService, priority);
 	}
-
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected AbstractManagedThread createThread(final Runnable r, final ContextHandle contextHandleForSetup) {
         if (System.getSecurityManager() == null) {
@@ -32,6 +32,21 @@ public class NotesManagedThreadFactory extends ManagedThreadFactoryImpl {
             return (ManagedThread) AccessController.doPrivileged((PrivilegedAction) () -> new ManagedNotesThread(r, contextHandleForSetup));
         }
     }
+	
+	@Override
+	public void stop() {
+		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+			super.stop();
+			return null;
+		});
+	}
+	
+	@Override
+	public Thread newThread(Runnable r) {
+		Thread t = super.newThread(r);
+		t.setDaemon(false);
+		return t;
+	}
 	
 	public class ManagedNotesThread extends ManagedThread {
 
@@ -48,7 +63,5 @@ public class NotesManagedThreadFactory extends ManagedThreadFactoryImpl {
 				NotesThread.stermThread();
 			}
 		}
-		
 	}
-	
 }

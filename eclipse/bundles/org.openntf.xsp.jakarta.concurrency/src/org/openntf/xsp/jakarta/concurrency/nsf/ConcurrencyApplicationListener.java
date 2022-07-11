@@ -9,9 +9,9 @@ import org.glassfish.enterprise.concurrent.AbstractManagedExecutorService.Reject
 import org.glassfish.enterprise.concurrent.ContextServiceImpl;
 import org.glassfish.enterprise.concurrent.ManagedExecutorServiceImpl;
 import org.glassfish.enterprise.concurrent.ManagedScheduledExecutorServiceImpl;
-import org.glassfish.enterprise.concurrent.ManagedThreadFactoryImpl;
 import org.glassfish.enterprise.concurrent.spi.ContextSetupProvider;
 import org.openntf.xsp.jakarta.concurrency.DominoContextSetupProvider;
+import org.openntf.xsp.jakarta.concurrency.NotesManagedThreadFactory;
 import org.openntf.xsp.jakarta.concurrency.servlet.ConcurrencyRequestListener;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
@@ -34,28 +34,31 @@ import jakarta.servlet.ServletContext;
  */
 public class ConcurrencyApplicationListener implements ApplicationListener2 {
 	private static final Logger log = Logger.getLogger(ConcurrencyApplicationListener.class.getPackage().getName());
-	
+
+	public static final String ATTR_THREADFACTORY = ConcurrencyApplicationListener.class.getName() + "_threadFactory"; //$NON-NLS-1$
 
 	@Override
 	public void applicationCreated(ApplicationEx app) {
+		
 		getServletContext().ifPresent(ctx -> {
 			ctx.addListener(new ConcurrencyRequestListener());
 			
 			ContextSetupProvider provider = new DominoContextSetupProvider();
 			
 			ContextServiceImpl contextService = new ContextServiceImpl("contextService" + app.getApplicationId(), provider); //$NON-NLS-1$
-			ManagedThreadFactoryImpl factory = new ManagedThreadFactoryImpl("fac" + app.getApplicationId(), contextService); //$NON-NLS-1$
+			NotesManagedThreadFactory factory = new NotesManagedThreadFactory("fac" + app.getApplicationId(), contextService); //$NON-NLS-1$
+			ctx.setAttribute(ATTR_THREADFACTORY, factory);
 			
 			ManagedExecutorService exec = new ManagedExecutorServiceImpl(
 				"executor" + app.getApplicationId(), //$NON-NLS-1$
 				factory,
 				0,
-				false,
+				true,
 				5,
 				10,
 				30,
 				TimeUnit.MINUTES,
-				0,
+				TimeUnit.MINUTES.toSeconds(30),
 				0,
 				contextService,
 				RejectPolicy.ABORT
@@ -70,7 +73,7 @@ public class ConcurrencyApplicationListener implements ApplicationListener2 {
 				5,
 				30,
 				TimeUnit.MINUTES,
-				0,
+				TimeUnit.MINUTES.toSeconds(30),
 				contextService,
 				RejectPolicy.ABORT
 			);
@@ -87,6 +90,7 @@ public class ConcurrencyApplicationListener implements ApplicationListener2 {
 					exec.shutdownNow();
 					exec.awaitTermination(5, TimeUnit.MINUTES);
 				} catch (Exception e) {
+					e.printStackTrace();
 					if(log.isLoggable(Level.SEVERE)) {
 						log.log(Level.SEVERE, "Encountered exception terminating executor service", e);
 					}
@@ -99,10 +103,16 @@ public class ConcurrencyApplicationListener implements ApplicationListener2 {
 					scheduledExec.shutdownNow();
 					scheduledExec.awaitTermination(5, TimeUnit.MINUTES);
 				} catch (Exception e) {
+					e.printStackTrace();
 					if(log.isLoggable(Level.SEVERE)) {
 						log.log(Level.SEVERE, "Encountered exception terminating scheduled executor service", e);
 					}
 				}
+			}
+			
+			NotesManagedThreadFactory fac = (NotesManagedThreadFactory)ctx.getAttribute(ATTR_THREADFACTORY);
+			if(fac != null) {
+				fac.stop();
 			}
 		});
 	}

@@ -18,9 +18,15 @@ package rest;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -52,16 +58,24 @@ public class RestClientExample {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object get() {
+	public Object get() throws InterruptedException, ExecutionException, NamingException {
 		URI uri = URI.create(request.getRequestURL().toString());
-		URI serviceUri = uri.resolve("jsonExample");
-		JsonExampleService service = RestClientBuilder.newBuilder()
-			.baseUri(serviceUri)
-			.build(JsonExampleService.class);
-		JsonExampleObject responseObj = service.get();
-		Map<String, Object> result = new LinkedHashMap<>();
-		result.put("called", serviceUri);
-		result.put("response", responseObj);
-		return result;
+		ExecutorService exec = (ExecutorService)InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+		return exec.submit(() -> {
+			try {
+				URI serviceUri = uri.resolve("jsonExample");
+				JsonExampleService service = RestClientBuilder.newBuilder()
+					.baseUri(serviceUri)
+					.build(JsonExampleService.class);
+				JsonExampleObject responseObj = service.get();
+				Map<String, Object> result = new LinkedHashMap<>();
+				result.put("called", serviceUri);
+				result.put("response", responseObj);
+				return result;
+			} catch(Throwable t) {
+				t.printStackTrace();
+				return "failed";
+			}
+		}).get();
 	}
 }

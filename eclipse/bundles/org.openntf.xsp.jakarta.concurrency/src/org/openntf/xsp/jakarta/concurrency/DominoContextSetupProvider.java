@@ -1,6 +1,8 @@
 package org.openntf.xsp.jakarta.concurrency;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.glassfish.enterprise.concurrent.spi.ContextHandle;
 import org.glassfish.enterprise.concurrent.spi.ContextSetupProvider;
@@ -41,8 +43,10 @@ public class DominoContextSetupProvider implements ContextSetupProvider {
 
 	@Override
 	public ContextHandle setup(ContextHandle contextHandle) throws IllegalStateException {
-		LibraryUtil.findExtensionsSorted(ContextSetupParticipant.class, false)
-			.forEach(participant -> participant.setup(contextHandle));
+		if(shouldSetup()) {
+			LibraryUtil.findExtensionsSorted(ContextSetupParticipant.class, false)
+				.forEach(participant -> participant.setup(contextHandle));
+		}
 		
 		return contextHandle;
 	}
@@ -50,7 +54,18 @@ public class DominoContextSetupProvider implements ContextSetupProvider {
 	@Override
 	public void reset(ContextHandle contextHandle) {
 		LibraryUtil.findExtensionsSorted(ContextSetupParticipant.class, true)
-			.forEach(participant -> participant.setup(contextHandle));
+			.forEach(participant -> participant.reset(contextHandle));
 	}
 
+	/**
+	 * Setup is called twice with the same thread object, but we only want to actually call setup participants
+	 * when run from the internal executor service.
+	 * 
+	 * @return {@code true} if participants should be called to set up; {@code false} otherwise
+	 */
+	private boolean shouldSetup() {
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		return Arrays.stream(stack)
+			.anyMatch(el -> ThreadPoolExecutor.class.getName().equals(el.getClassName()));
+	}
 }

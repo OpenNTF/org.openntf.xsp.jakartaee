@@ -6,6 +6,7 @@ import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
+import jakarta.annotation.Priority;
 import jakarta.enterprise.inject.spi.CDI;
 
 /**
@@ -14,6 +15,7 @@ import jakarta.enterprise.inject.spi.CDI;
  * @author Jesse Gallagher
  * @since 2.7.0
  */
+@Priority(2)
 public class CDIContextSetupParticipant implements ContextSetupParticipant {
 	private static final String ATTR_CDI = CDIContextSetupParticipant.class.getName();
 	
@@ -29,7 +31,7 @@ public class CDIContextSetupParticipant implements ContextSetupParticipant {
 	@Override
 	public void setup(ContextHandle contextHandle) throws IllegalStateException {
 		if(contextHandle instanceof AttributedContextHandle) {
-			CDI<Object> cdi =((AttributedContextHandle)contextHandle).getAttribute(ATTR_CDI);
+			CDI<Object> cdi = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_CDI);
 			ConcurrencyCDIContainerLocator.setCdi(cdi);
 		}
 	}
