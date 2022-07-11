@@ -21,6 +21,7 @@ import java.util.List;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.openntf.xsp.cdi.ext.CDIConstants;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -28,6 +29,8 @@ import com.ibm.xsp.application.ApplicationEx;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -67,10 +70,14 @@ public class FacesJAXRSServletContainer extends AbstractXspLifecycleServlet {
     	for(ServiceParticipant participant : participants) {
     		participant.doBeforeService(request, response);
     	}
+    	ServletUtil.getListeners(request.getServletContext(), ServletRequestListener.class)
+			.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), request)));
     	
     	try {
     		delegate.service(request, response);
     	} finally {
+    		ServletUtil.getListeners(request.getServletContext(), ServletRequestListener.class)
+				.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), request)));
     		for(ServiceParticipant participant : participants) {
 	    		participant.doAfterService(request, response);
 	    	}

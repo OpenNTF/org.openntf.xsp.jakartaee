@@ -48,6 +48,51 @@ public class NSFCDIProvider implements CDIProvider {
 		
 		CDIContainerUtility util = LibraryUtil.findRequiredExtension(CDIContainerUtility.class);
 		
+		// Check in any available locator extensions
+		List<CDIContainerLocator> locators = LibraryUtil.findExtensionsSorted(CDIContainerLocator.class, false);
+		try {
+			for(CDIContainerLocator locator : locators) {
+				Object container = locator.getContainer();
+				if(container != null) {
+					return (CDI<Object>)container;
+				}
+				
+				String nsfPath = locator.getNsfPath();
+				if(StringUtil.isNotEmpty(nsfPath)) {
+					NotesSession session = new NotesSession();
+					try {
+						NotesDatabase database = session.getDatabaseByPath(nsfPath);
+						try {
+							database.open();
+							result = (CDI<Object>)util.getContainer(database);
+							if(result != null) {
+								return result;
+							}
+						} finally {
+							if(database != null) {
+								database.recycle();
+							}
+						}
+					} catch (NotesAPIException | IOException e) {
+						// Log and move on
+						e.printStackTrace();
+					} finally {
+						session.recycle();
+					}
+				}
+				
+				String bundleId = locator.getBundleId();
+				if(StringUtil.isNotEmpty(bundleId)) {
+					Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
+					if(bundle.isPresent()) {
+						return (CDI<Object>)util.getContainer(bundle.get());
+					}
+				}
+			}
+		} catch (NotesAPIException e) {
+			// Ignore
+		}
+		
 		String databasePath = util.getThreadContextDatabasePath();
 		if(StringUtil.isNotEmpty(databasePath)) {
 			try {
@@ -92,48 +137,6 @@ public class NSFCDIProvider implements CDIProvider {
 		}
 		if(result != null) {
 			return result;
-		}
-		
-		// Check in any available locator extensions
-		List<CDIContainerLocator> locators = LibraryUtil.findExtensions(CDIContainerLocator.class);
-		NotesSession session = new NotesSession();
-		try {
-			for(CDIContainerLocator locator : locators) {
-				String nsfPath = locator.getNsfPath();
-				if(StringUtil.isNotEmpty(nsfPath)) {
-					try {
-						NotesDatabase database = session.getDatabaseByPath(nsfPath);
-						try {
-							database.open();
-							result = (CDI<Object>)util.getContainer(database);
-							if(result != null) {
-								return result;
-							}
-						} finally {
-							if(database != null) {
-								database.recycle();
-							}
-						}
-					} catch (NotesAPIException | IOException e) {
-						// Log and move on
-						e.printStackTrace();
-					}
-				}
-				
-				String bundleId = locator.getBundleId();
-				if(StringUtil.isNotEmpty(bundleId)) {
-					Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
-					if(bundle.isPresent()) {
-						return (CDI<Object>)util.getContainer(bundle.get());
-					}
-				}
-			}
-		} finally {
-			try {
-				session.recycle();
-			} catch (NotesAPIException e) {
-				// Ignore
-			}
 		}
 		
 		return null;

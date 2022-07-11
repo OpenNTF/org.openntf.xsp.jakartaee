@@ -43,9 +43,11 @@ public class Sample {
 	@SimplyTimed
 	public Response hello() {
 		try {
-			String message = applicationGuy.getMessage() + "\n" + requestGuy.getMessage();;
+			String message = applicationGuy.getMessage() + "\n" + requestGuy.getMessage();
+			
 			return Response.ok().type(MediaType.TEXT_PLAIN).entity(message).build();
 		} catch (Throwable t) {
+			t.printStackTrace();
 			return Response.serverError().build();
 		}
 	}

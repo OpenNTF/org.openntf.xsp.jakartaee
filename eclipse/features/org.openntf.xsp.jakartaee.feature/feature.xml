@@ -257,6 +257,10 @@
 	<plugin id="jakarta.xml.ws-api" version="0.0.0"/>
 	<plugin id="jakarta.xml.soap-api" version="0.0.0"/>
 	
+	<plugin id="jakarta.enterprise.concurrent-api" version="0.0.0"/>
+	<plugin id="org.glassfish.jakarta.enterprise.concurrent" version="0.0.0"/>
+	<plugin id="org.openntf.xsp.jakarta.concurrency" version="0.0.0"/>
+	
 	<!-- Mail -->
 	<plugin id="org.openntf.org.eclipse.angus.jakarta.mail" version="0.0.0"/>
 	<plugin id="jakarta.activation-api" version="0.0.0"/>

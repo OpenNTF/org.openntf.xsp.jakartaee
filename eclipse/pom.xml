@@ -38,6 +38,7 @@
 		<!-- General Jakarta EE platform -->
 		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
 		<module>bundles/org.openntf.xsp.jakartaee.osgiresourcelocator</module>
+		<module>bundles/org.openntf.xsp.jakarta.concurrency</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
 		<!-- Servlet -->

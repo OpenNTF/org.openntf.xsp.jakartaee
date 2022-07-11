@@ -29,7 +29,7 @@ import org.jboss.weld.proxy.WeldClientProxy.Metadata;
 
 /**
  * This {@link ContainerResponseFilter} checks for outgoing Weld bean proxies and unwraps them,
- * which avoids trouble with many {@link javax.ws.rs.ext.MessageBodyWriter MessageBodyWriter}
+ * which avoids trouble with many {@code MessageBodyWriter}
  * that rely on reflection and annotations.
  * 
  * @author Jesse Gallagher

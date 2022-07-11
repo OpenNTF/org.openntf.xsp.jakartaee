@@ -30,10 +30,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.Platform;
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
@@ -52,6 +54,8 @@ import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.xsp.application.ApplicationEx;
+
+import jakarta.annotation.Priority;
 
 /**
  * Utility methods for working with XSP Libraries.
@@ -249,6 +253,34 @@ public enum LibraryUtil {
 				ExtensionManager.findServices(null, extensionClass.getClassLoader(), extensionClass.getName(), extensionClass)
 			)
 		);
+	}
+	
+	/**
+	 * Finds extension for the given class using the IBM Commons extension mechanism, sorted based
+	 * on the {@link Priority} annotation.
+	 * s the qualified class name.</p>
+	 * 
+	 * @param <T> the class of extension to find
+	 * @param extensionClass the class object representing the extension point
+	 * @param ascending {@code true} if the value of the {@link Priority} annotation should be sorted
+	 *                  in ascending order; {@code false} otherwise
+	 * @return a {@link List} of service objects for the class
+	 * @since 2.7.0
+	 */
+	public static <T> List<T> findExtensionsSorted(Class<T> extensionClass, boolean ascending) {
+		return findExtensions(extensionClass)
+			.stream()
+			.filter(Objects::nonNull)
+			.sorted((a, b) -> {
+				int priorityA = Optional.ofNullable(a.getClass().getAnnotation(Priority.class))
+					.map(Priority::value)
+					.orElse(ascending ? Integer.MAX_VALUE : 0);
+				int priorityB = Optional.ofNullable(b.getClass().getAnnotation(Priority.class))
+					.map(Priority::value)
+					.orElse(ascending ? Integer.MAX_VALUE : 0);
+				return Integer.compare(priorityA, priorityB);
+			})
+			.collect(Collectors.toList());
 	}
 	
 	/**
