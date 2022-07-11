@@ -8,20 +8,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
 import org.glassfish.enterprise.concurrent.spi.ContextHandle;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
-import com.ibm.domino.xsp.module.nsf.SessionCloner;
 
 import jakarta.annotation.Priority;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * This {@link ContextSetupParticipant} will initialize and terminate an NSF-specific
