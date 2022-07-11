@@ -2,6 +2,8 @@ package rest;
 
 import java.io.PrintWriter;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.naming.InitialContext;
 
@@ -36,6 +38,29 @@ public class ConcurrencyExample {
 				
 				String database = exec.submit(() -> "Database is: " + CDI.current().select(Database.class).get()).get();
 				w.println(database);
+			} catch(Throwable t) {
+				t.printStackTrace(w);
+			} finally {
+				w.flush();
+			}
+		};
+	}
+	
+	@Path("scheduled")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public StreamingOutput getScheduled() {
+		return os -> {
+			PrintWriter w = new PrintWriter(os);
+			try {
+				w.println("Going to schedule");
+				
+				String[] val = new String[1];
+				ScheduledExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedScheduledExecutorService");
+				exec.schedule(() -> { val[0] = "hello from scheduler"; }, 250, TimeUnit.MILLISECONDS);
+				Thread.sleep(300);
+				
+				w.println("Scheduled task provided: " + val[0]);
 			} catch(Throwable t) {
 				t.printStackTrace(w);
 			} finally {
