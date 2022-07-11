@@ -17,17 +17,12 @@ package rest;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import javax.naming.InitialContext;
 
 import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
 
 import bean.ApplicationGuy;
 import bean.RequestGuy;
-import jakarta.enterprise.inject.literal.NamedLiteral;
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -35,7 +30,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
-import lotus.domino.Session;
 
 @Path("/sample")
 public class Sample {
@@ -50,19 +44,6 @@ public class Sample {
 	public Response hello() {
 		try {
 			String message = applicationGuy.getMessage() + "\n" + requestGuy.getMessage();
-			
-//			new InitialContext().bind("java:comp/DefaultManagedExecutorService", "foo");
-			ExecutorService exec = (ExecutorService)InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
-			exec.submit(() -> {
-				try {
-					System.out.println("CDI is: " + CDI.current());
-					System.out.println("session is: " + CDI.current().select(Session.class, NamedLiteral.of("dominoSession")).get().getEffectiveUserName());
-				} catch(Throwable t) {
-					t.printStackTrace();
-				}
-			}).get();
-//			new InitialContext().bind("java:comp/DefaultManagedExecutorService", null);
-//			System.out.println("obj: " + InitialContext.doLookup("java:comp/DefaultManagedExecutorService"));
 			
 			return Response.ok().type(MediaType.TEXT_PLAIN).entity(message).build();
 		} catch (Throwable t) {
