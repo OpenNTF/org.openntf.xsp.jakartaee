@@ -2,12 +2,12 @@ package rest;
 
 import java.io.PrintWriter;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.naming.InitialContext;
 
 import bean.ApplicationGuy;
+import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import jakarta.enterprise.inject.literal.NamedLiteral;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.ws.rs.GET;
@@ -60,7 +60,7 @@ public class ConcurrencyExample {
 				w.println("Going to schedule");
 				
 				String[] val = new String[1];
-				ScheduledExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedScheduledExecutorService");
+				ManagedScheduledExecutorService exec = CDI.current().select(ManagedScheduledExecutorService.class).get();
 				exec.schedule(() -> { val[0] = "hello from scheduler"; }, 250, TimeUnit.MILLISECONDS);
 				Thread.sleep(300);
 				
