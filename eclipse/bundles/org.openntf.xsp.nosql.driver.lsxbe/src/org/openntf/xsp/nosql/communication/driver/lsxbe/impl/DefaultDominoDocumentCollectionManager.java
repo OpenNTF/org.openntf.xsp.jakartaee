@@ -29,9 +29,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 
 import org.eclipse.jnosql.mapping.reflection.ClassInformationNotFoundException;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
@@ -49,6 +55,7 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesSession;
 
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.Sort;
 import jakarta.nosql.SortType;
@@ -57,6 +64,10 @@ import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
 import jakarta.nosql.mapping.Pagination;
+import jakarta.transaction.RollbackException;
+import jakarta.transaction.Status;
+import jakarta.transaction.SystemException;
+import jakarta.transaction.Transaction;
 import lotus.domino.ACL;
 import lotus.domino.ACLEntry;
 import lotus.domino.Base;
@@ -72,10 +83,24 @@ import lotus.domino.View;
 import lotus.domino.ViewNavigator;
 
 public class DefaultDominoDocumentCollectionManager implements DominoDocumentCollectionManager {
-
+	private final Logger log = Logger.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
+	
+	private static final boolean transactionsAvailable;
+	static {
+		boolean found;
+		try {
+			Class.forName("jakarta.transaction.Transaction"); //$NON-NLS-1$
+			found = true;
+		} catch(Exception e) {
+			found = false;
+		}
+		transactionsAvailable = found;
+	}
+	
 	private final DatabaseSupplier supplier;
 	private final SessionSupplier sessionSupplier;
 	private final LSXBEEntityConverter entityConverter;
+	private XAResource transactionResource;
 	
 	public DefaultDominoDocumentCollectionManager(DatabaseSupplier supplier, SessionSupplier sessionSupplier) {
 		this.supplier = supplier;
@@ -95,6 +120,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	public DocumentEntity insert(DocumentEntity entity, boolean computeWithForm) {
 		try {
 			Database database = supplier.get();
+			beginTransaction(database);
 			lotus.domino.Document target = database.createDocument();
 			
 			Optional<Document> maybeId = entity.find(DominoConstants.FIELD_ID);
@@ -149,6 +175,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	public DocumentEntity update(DocumentEntity entity, boolean computeWithForm) {
 		try {
 			Database database = supplier.get();
+			beginTransaction(database);
 			
 			Document id = entity.find(DominoConstants.FIELD_ID)
 				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", DominoConstants.FIELD_ID)));
@@ -182,6 +209,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	public void delete(DocumentDeleteQuery query) {
 		try {
 			Database database = supplier.get();
+			beginTransaction(database);
 			List<String> unids = query.getDocuments();
 			if(unids != null && !unids.isEmpty()) {
 				for(String unid : unids) {
@@ -214,9 +242,10 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			long limit = queryResult.getLimit();
 			List<Sort> sorts = query.getSorts();
 			Stream<DocumentEntity> result;
-			
+
+			Database database = supplier.get();
+			beginTransaction(database);
 			if(sorts != null && !sorts.isEmpty()) {
-				Database database = supplier.get();
 				Session sessionAsSigner = sessionSupplier.get();
 				Database qrpDatabase = getQrpDatabase(sessionAsSigner, database);
 
@@ -261,7 +290,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				}
 				
 			} else {
-				Database database = supplier.get();
 				DominoQuery dominoQuery = database.createDominoQuery();		
 				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
 				try {
@@ -323,6 +351,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		}
 		
 		Database database = supplier.get();
+		beginTransaction(database);
 		try {
 			lotus.domino.Document doc = database.getDocumentByUNID(entityId);
 			if(doc != null) {
@@ -344,6 +373,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		}
 		
 		Database database = supplier.get();
+		beginTransaction(database);
 		try {
 			lotus.domino.Document doc = database.getDocumentByUNID(entityId);
 			if(doc != null) {
@@ -358,6 +388,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	public long count(String documentCollection) {
 		try {
 			Database database = supplier.get();
+			beginTransaction(database);
 			DominoQuery dominoQuery = database.createDominoQuery();
 			DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(documentCollection);
 			DocumentCollection result = dominoQuery.execute(dql.toString());
@@ -372,6 +403,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	public boolean existsById(String unid) {
 		try {
 			Database database = supplier.get();
+			beginTransaction(database);
 			lotus.domino.Document doc = database.getDocumentByUNID(unid);
 			// TODO consider checking the form
 			return doc != null;
@@ -383,7 +415,19 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 	@Override
 	public void close() {
-	
+		if(transactionsAvailable && this.transactionResource != null) {
+			Instance<Transaction> transaction = CDI.current().select(Transaction.class);
+			if(transaction.isResolvable()) {
+				// TODO determine what flag should be used here
+				try {
+					transaction.get().delistResource(this.transactionResource, XAResource.TMSUCCESS);
+				} catch (IllegalStateException | SystemException e) {
+					if(log.isLoggable(Level.SEVERE)) {
+						log.log(Level.SEVERE, "Encountered unexpected exception delisting the transaction resource", e);
+					}
+				}
+			}
+		}
 	}
 	
 	// *******************************************************************************
@@ -397,6 +441,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			}
 			
 			Database database = supplier.get();
+			beginTransaction(database);
 			View view = database.getView(viewName);
 			Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 			view.setAutoUpdate(false);
@@ -512,5 +557,103 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			// Shouldn't happen, but we should account for it
 			return null;
 		}
+	}
+	
+	private void beginTransaction(Database database) {
+		if(transactionsAvailable && this.transactionResource == null) {
+			Instance<Transaction> transaction = CDI.current().select(Transaction.class);
+			if(transaction.isResolvable()) {
+				Transaction t = transaction.get();
+				try {
+					if(t.getStatus() != Status.STATUS_ACTIVE) {
+						// Ignore softly
+						// TODO determine if this should throw an exception in other states
+						return;
+					}
+					
+					database.transactionBegin();
+					this.transactionResource = new DatabaseXAResource(database);
+					t.enlistResource(this.transactionResource);
+				} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
+					if(log.isLoggable(Level.SEVERE)) {
+						log.log(Level.SEVERE, "Encountered unexpected exception enlisting the transaction resource", e);
+					}
+				}
+			}
+		}
+	}
+	
+	private static class DatabaseXAResource implements XAResource {
+		
+		private final Database database;
+		private int transactionTimeout = Integer.MAX_VALUE;
+		
+		public DatabaseXAResource(Database database) {
+			this.database = database;
+		}
+
+		@Override
+		public void commit(Xid xid, boolean onePhase) throws XAException {
+			try {
+				database.transactionCommit();
+			} catch (NotesException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public void end(Xid xid, int flags) throws XAException {
+			// TODO Figure out what to do here
+			
+		}
+
+		@Override
+		public void forget(Xid xid) throws XAException {
+			// TODO Figure out what to do here
+			
+		}
+
+		@Override
+		public int getTransactionTimeout() throws XAException {
+			return this.transactionTimeout;
+		}
+
+		@Override
+		public boolean isSameRM(XAResource xares) throws XAException {
+			return this == xares;
+		}
+
+		@Override
+		public int prepare(Xid xid) throws XAException {
+			// NOP for Domino
+			return XA_OK;
+		}
+
+		@Override
+		public Xid[] recover(int flag) throws XAException {
+			// TODO Figure out what to do here
+			return new Xid[0];
+		}
+
+		@Override
+		public void rollback(Xid xid) throws XAException {
+			try {
+				database.transactionRollback();
+			} catch (NotesException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public boolean setTransactionTimeout(int seconds) throws XAException {
+			this.transactionTimeout = seconds;
+			return true;
+		}
+
+		@Override
+		public void start(Xid xid, int flags) throws XAException {
+			// TODO Figure out what to do here
+		}
+		
 	}
 }

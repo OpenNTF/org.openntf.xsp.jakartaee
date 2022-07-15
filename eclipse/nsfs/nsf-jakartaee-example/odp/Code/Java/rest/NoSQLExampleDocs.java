@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
+import jakarta.transaction.UserTransaction;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
@@ -38,6 +39,9 @@ public class NoSQLExampleDocs {
 	@Inject
 	private ExampleDocRepository repository;
 	
+	@Inject
+	private UserTransaction transaction;
+	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ExampleDoc> get() {
@@ -47,12 +51,23 @@ public class NoSQLExampleDocs {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
-	public ExampleDoc create(@FormParam("title") String title, @FormParam("categories") List<String> categories, @FormParam("authors") List<String> authors) {
-		ExampleDoc exampleDoc = new ExampleDoc();
-		exampleDoc.setTitle(title);
-		exampleDoc.setCategories(categories);
-		exampleDoc.setAuthors(authors);
-		return repository.save(exampleDoc, true);
+	public ExampleDoc create(@FormParam("title") String title, @FormParam("categories") List<String> categories, @FormParam("authors") List<String> authors, @FormParam("intentionallyRollBack") boolean intentionallyRollBack) throws Exception {
+		transaction.begin();
+		try {
+			ExampleDoc exampleDoc = new ExampleDoc();
+			exampleDoc.setTitle(title);
+			exampleDoc.setCategories(categories);
+			exampleDoc.setAuthors(authors);
+			ExampleDoc result = repository.save(exampleDoc, true);
+			if(intentionallyRollBack) {
+				throw new RuntimeException("I was asked to intentionally roll back");
+			}
+			transaction.commit();
+			return result;
+		} catch(Exception e) {
+			transaction.rollback();
+			throw e;
+		}
 	}
 	
 	@POST

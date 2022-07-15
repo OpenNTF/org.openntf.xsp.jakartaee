@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Jakarta Transaction Support
+Bundle-SymbolicName: org.openntf.xsp.jakarta.transaction;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.jakarta.transaction
+Bundle-Version: 2.7.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="2.7.0",
+ jakarta.transaction-api;bundle-version="2.0.0"
+Import-Package: jakarta.annotation;version="2.1.1",
+ jakarta.enterprise.context;version="3.0.0",
+ jakarta.enterprise.event;version="3.0.0",
+ jakarta.enterprise.inject;version="3.0.0",
+ jakarta.enterprise.inject.spi;version="3.0.0",
+ jakarta.inject;version="2.0.0",
+ jakarta.interceptor;version="2.1.0",
+ org.openntf.xsp.cdi.discovery;version="2.7.0"
