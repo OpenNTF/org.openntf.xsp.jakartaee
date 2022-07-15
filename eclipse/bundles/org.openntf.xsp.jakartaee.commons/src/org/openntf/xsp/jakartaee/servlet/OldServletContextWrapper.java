@@ -77,8 +77,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate, int majorVersion, int minorVersion) {
-		this.delegate = delegate;
-		this.contextPath = contextPath;
+		this(contextPath, delegate);
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
 	}
