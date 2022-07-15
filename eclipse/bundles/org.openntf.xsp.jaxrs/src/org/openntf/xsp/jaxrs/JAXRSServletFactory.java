@@ -101,17 +101,19 @@ public class JAXRSServletFactory implements IServletFactory {
 
 	@Override
 	public ServletMatch getServletMatch(String contextPath, String path) throws ServletException {
-		String baseServletPath = getServletPath(module);
-		// Match either a resource within the path or the specific base path without the trailing "/"
-		String trimmedBaseServletPath = baseServletPath.substring(0, baseServletPath.length()-1);
-		if (path.startsWith(baseServletPath) || path.equals(trimmedBaseServletPath)) {
-			int len = baseServletPath.length()-1;
-			String servletPath = path.substring(0, len);
-			if(servletPath.endsWith("/")) { //$NON-NLS-1$
-				servletPath = servletPath.substring(0, servletPath.length()-1);
+		if(LibraryUtil.isLibraryActive(JAXRSLibrary.LIBRARY_ID)) {
+			String baseServletPath = getServletPath(module);
+			// Match either a resource within the path or the specific base path without the trailing "/"
+			String trimmedBaseServletPath = baseServletPath.substring(0, baseServletPath.length()-1);
+			if (path.startsWith(baseServletPath) || path.equals(trimmedBaseServletPath)) {
+				int len = baseServletPath.length()-1;
+				String servletPath = path.substring(0, len);
+				if(servletPath.endsWith("/")) { //$NON-NLS-1$
+					servletPath = servletPath.substring(0, servletPath.length()-1);
+				}
+				String pathInfo = path.substring(len);
+				return new ServletMatch(getExecutorServlet(), servletPath, pathInfo);
 			}
-			String pathInfo = path.substring(len);
-			return new ServletMatch(getExecutorServlet(), servletPath, pathInfo);
 		}
 		return null;
 	}
