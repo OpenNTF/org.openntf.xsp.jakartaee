@@ -20,11 +20,11 @@ public class JAXRSContextSetupParticipant implements ContextSetupParticipant {
 
 	@Override
 	public void saveContext(ContextHandle contextHandle) {
-		if(LibraryUtil.isLibraryActive(JAXRSLibrary.LIBRARY_ID)) {
-			if(contextHandle instanceof AttributedContextHandle) {
-				((AttributedContextHandle)contextHandle).setAttribute(ATTR_DELEGATE, RuntimeDelegate.getInstance());
-			}
-		}
+//		if(LibraryUtil.isLibraryActive(JAXRSLibrary.LIBRARY_ID)) {
+//			if(contextHandle instanceof AttributedContextHandle) {
+//				((AttributedContextHandle)contextHandle).setAttribute(ATTR_DELEGATE, RuntimeDelegate.getInstance());
+//			}
+//		}
 	}
 
 	@Override

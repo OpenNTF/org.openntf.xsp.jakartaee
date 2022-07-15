@@ -51,4 +51,15 @@ public class TestConcurrency extends AbstractWebClientTest {
 		
 		assertTrue(output.contains("hello from scheduler"), () -> "Received unexpected output: " + output);
 	}
+	
+	@Test
+	public void testXPages() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRootUrl(null) + "/concurrency.xsp");
+		Response response = target.request().get();
+		
+		String output = response.readEntity(String.class);
+		
+		assertTrue(output.contains("bean says: Hello from executor"), () -> "Received unexpected output: " + output);
+	}
 }

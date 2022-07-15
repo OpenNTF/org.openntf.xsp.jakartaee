@@ -18,9 +18,13 @@ package rest;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
+import jakarta.enterprise.concurrent.ManagedExecutorService;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -50,6 +54,9 @@ public class RestClientExample {
 	@Context
 	HttpServletRequest request;
 	
+	@Inject @Named("java:comp/DefaultManagedExecutorService")
+	ManagedExecutorService exec;
+	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object get() {
@@ -63,5 +70,23 @@ public class RestClientExample {
 		result.put("called", serviceUri);
 		result.put("response", responseObj);
 		return result;
+	}
+	
+	@Path("async")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Object getAsync() throws InterruptedException, ExecutionException {
+		URI uri = URI.create(request.getRequestURL().toString());
+		return exec.submit(() -> {
+			URI serviceUri = uri.resolve("../jsonExample");
+			JsonExampleService service = RestClientBuilder.newBuilder()
+				.baseUri(serviceUri)
+				.build(JsonExampleService.class);
+			JsonExampleObject responseObj = service.get();
+			Map<String, Object> result = new LinkedHashMap<>();
+			result.put("called", serviceUri);
+			result.put("response", responseObj);
+			return result;
+		}).get();
 	}
 }

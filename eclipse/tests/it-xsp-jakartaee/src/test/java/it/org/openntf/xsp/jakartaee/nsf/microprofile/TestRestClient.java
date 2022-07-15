@@ -49,4 +49,19 @@ public class TestRestClient extends AbstractWebClientTest {
 		assertNotNull(responseObj, () -> json);
 		assertEquals("bar", responseObj.get("foo"), () -> json);
 	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	@Disabled("Disabled pending figuring out local URLs in a container")
+	public void testRestClientAsync() throws JsonException {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/restClient/async");
+		Response response = target.request().get();
+		
+		String json = response.readEntity(String.class);
+		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+		Map<String, Object> responseObj = (Map<String, Object>)jsonObject.get("response");
+		assertNotNull(responseObj, () -> json);
+		assertEquals("bar", responseObj.get("foo"), () -> json);
+	}
 }

@@ -21,9 +21,11 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.openntf.xsp.jsonapi.JSONBindUtil;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -48,13 +50,13 @@ public class RestClientBean {
 		JsonExampleObject get();
 	}
 	
-	public JsonExampleObject getObjectViaRest() {
+	public Object getObjectViaRest() {
 		HttpServletRequest request = (HttpServletRequest)FacesContext.getCurrentInstance().getExternalContext().getRequest(); 
 		URI uri = URI.create(request.getRequestURL().toString());
-		URI serviceUri = uri.resolve("jsonExample");
+		URI serviceUri = uri.resolve("xsp/app/jsonExample");
 		JsonExampleService service = RestClientBuilder.newBuilder()
 			.baseUri(serviceUri)
 			.build(JsonExampleService.class);
-		return service.get();
+		return JSONBindUtil.toJson(service.get(), JsonbBuilder.create());
 	}
 }
