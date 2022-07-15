@@ -47,6 +47,7 @@ import jakarta.mail.internet.MimePart;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.nosql.mapping.Sorts;
+import jakarta.transaction.UserTransaction;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -77,6 +78,9 @@ public class NoSQLExample {
 
 	@Inject
 	Models models;
+	
+	@Inject
+	UserTransaction transaction;
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -123,12 +127,19 @@ public class NoSQLExample {
 			@FormParam("favoriteTime") String favoriteTime,
 			@FormParam("added") String added,
 			@FormParam("customProperty") String customProperty
-	) {
-		Person person = new Person();
-		composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
-		
-		personRepository.save(person);
-		return "redirect:nosql/list";
+	) throws Exception {
+		transaction.begin();
+		try {
+			Person person = new Person();
+			composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+			
+			personRepository.save(person);
+			transaction.commit();
+			return "redirect:nosql/list";
+		} catch(Exception e) {
+			transaction.rollback();
+			throw e;
+		}
 	}
 	
 	@Path("create")
@@ -136,13 +147,14 @@ public class NoSQLExample {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_HTML)
 	@Controller
-	public String createPerson(MimeMultipart body) throws MessagingException, IOException {
+	public String createPerson(MimeMultipart body) throws Exception {
 		String firstName = "";
 		String lastName = "";
 		String birthday = "";
 		String favoriteTime = "";
 		String added = "";
 		String customProperty = "";
+		boolean intentionallyRollBack = false;
 		
 		List<EntityAttachment> attachments = new ArrayList<>();
 		for(int i = 0; i < body.getCount(); i++) {
@@ -169,6 +181,9 @@ public class NoSQLExample {
 					break;
 				case "customProperty":
 					customProperty = StreamUtil.readString(part.getInputStream());
+					break;
+				case "intentionallyRollBack":
+					intentionallyRollBack = Boolean.parseBoolean(StreamUtil.readString(part.getInputStream()));
 					break;
 				case "attachment":
 					String fileName = disposition.getParameter("filename");
@@ -202,12 +217,22 @@ public class NoSQLExample {
 			}
 		}
 		
-		Person person = new Person();
-		composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
-		person.setAttachments(attachments);
+		transaction.begin();
+		try {
+			Person person = new Person();
+			composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+			person.setAttachments(attachments);
 
-		personRepository.save(person);
-		return "redirect:nosql/list";
+			personRepository.save(person);
+			if(intentionallyRollBack) {
+				throw new RuntimeException("I was asked to intentionally roll back");
+			}
+			//transaction.commit();
+			return "redirect:nosql/list";
+		} catch(Exception e) {
+			transaction.rollback();
+			throw e;
+		}
 	}
 	
 	@Path("create")

@@ -495,4 +495,41 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertFalse(jsonObjects.stream().anyMatch(obj -> "DOCUMENT".equals(obj.get("entryType"))));
 		}
 	}
+	
+	@Test
+	public void testIntentionalRollBack() throws JsonException {
+		Client client = getAnonymousClient();
+		
+		// Create a new doc
+		String title;
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			title = "foo" + System.nanoTime();
+			payload.putSingle("title", "foo");
+			payload.put("categories", Arrays.asList("foo", "bar"));
+			payload.putSingle("intentionallyRollBack", "true");
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.form(payload));
+			checkResponse(500, response);
+			
+			String content = response.readEntity(String.class);
+			assertTrue(content.contains("I was asked to intentionally roll back"), () -> "Received unexpected content " + content);
+		}
+		
+		// Make sure it doesn't show up in the view entries
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/inView");
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			String json = response.readEntity(String.class);
+			@SuppressWarnings("unchecked")
+			List<Map<String, Object>> jsonObjects = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			assertNotNull(jsonObjects);
+			assertFalse(jsonObjects.isEmpty());
+			
+			assertFalse(jsonObjects.stream().anyMatch(obj -> title.equals(obj.get("title"))));
+		}
+	}
 }
