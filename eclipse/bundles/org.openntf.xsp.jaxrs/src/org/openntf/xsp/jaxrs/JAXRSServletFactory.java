@@ -24,9 +24,10 @@ import java.util.Properties;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-
+import org.jboss.resteasy.core.providerfactory.ResteasyProviderFactoryImpl;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jaxrs.impl.FacesJAXRSServletContainer;
 import org.openntf.xsp.jaxrs.impl.NSFJAXRSApplication;
 
@@ -35,6 +36,8 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
+
+import jakarta.ws.rs.ext.RuntimeDelegate;
 
 /**
  * An {@link IServletFactory} implementation that provides a Jersey servlet in the context
@@ -97,6 +100,8 @@ public class JAXRSServletFactory implements IServletFactory {
 	public void init(ComponentModule module) {
 		this.module = module;
 		this.lastUpdate = module.getLastRefresh();
+		
+		RuntimeDelegate.setInstance(new ResteasyProviderFactoryImpl());
 	}
 
 	@Override
@@ -125,6 +130,7 @@ public class JAXRSServletFactory implements IServletFactory {
 			// TODO move this to the fragment somehow
 			params.put("resteasy.injector.factory", "org.openntf.xsp.jaxrs.weld.NSFCdiInjectorFactory"); //$NON-NLS-1$ //$NON-NLS-2$
 			params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, getServletPath(module));
+			params.put("resteasy.use.deployment.sensitive.factory", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			
 			servlet = module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new FacesJAXRSServletContainer(module)), "XSP JAX-RS Servlet", params); //$NON-NLS-1$
 			lastUpdate = this.module.getLastRefresh();
