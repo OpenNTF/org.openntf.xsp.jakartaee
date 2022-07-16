@@ -100,7 +100,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	private final DatabaseSupplier supplier;
 	private final SessionSupplier sessionSupplier;
 	private final LSXBEEntityConverter entityConverter;
-	private XAResource transactionResource;
 	
 	public DefaultDominoDocumentCollectionManager(DatabaseSupplier supplier, SessionSupplier sessionSupplier) {
 		this.supplier = supplier;
@@ -415,19 +414,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 	@Override
 	public void close() {
-		if(transactionsAvailable && this.transactionResource != null) {
-			Instance<Transaction> transaction = CDI.current().select(Transaction.class);
-			if(transaction.isResolvable()) {
-				// TODO determine what flag should be used here
-				try {
-					transaction.get().delistResource(this.transactionResource, XAResource.TMSUCCESS);
-				} catch (IllegalStateException | SystemException e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered unexpected exception delisting the transaction resource", e);
-					}
-				}
-			}
-		}
 	}
 	
 	// *******************************************************************************
@@ -560,7 +546,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	}
 	
 	private void beginTransaction(Database database) {
-		if(transactionsAvailable && this.transactionResource == null) {
+		if(transactionsAvailable) {
 			Instance<Transaction> transaction = CDI.current().select(Transaction.class);
 			if(transaction.isResolvable()) {
 				Transaction t = transaction.get();
@@ -571,9 +557,14 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 						return;
 					}
 					
-					database.transactionBegin();
-					this.transactionResource = new DatabaseXAResource(database);
-					t.enlistResource(this.transactionResource);
+					DatabaseXAResource res = new DatabaseXAResource(database);
+					if(t.enlistResource(res)) {
+						// Only begin a DB transaction if there wasn't already a transaction
+						//  for it
+						database.transactionBegin();
+					}
+					
+					
 				} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
 					if(log.isLoggable(Level.SEVERE)) {
 						log.log(Level.SEVERE, "Encountered unexpected exception enlisting the transaction resource", e);
@@ -586,15 +577,20 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	private static class DatabaseXAResource implements XAResource {
 		
 		private final Database database;
+		private final String server;
+		private final String filePath;
 		private int transactionTimeout = Integer.MAX_VALUE;
 		
-		public DatabaseXAResource(Database database) {
+		public DatabaseXAResource(Database database) throws NotesException {
 			this.database = database;
+			this.server = database.getServer();
+			this.filePath = database.getFilePath();
 		}
 
 		@Override
 		public void commit(Xid xid, boolean onePhase) throws XAException {
 			try {
+				System.out.println(">> hit transaction commit");
 				database.transactionCommit();
 			} catch (NotesException e) {
 				throw new RuntimeException(e);
@@ -620,7 +616,14 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 
 		@Override
 		public boolean isSameRM(XAResource xares) throws XAException {
-			return this == xares;
+			if(xares == this) {
+				return true;
+			} else if(xares instanceof DatabaseXAResource) {
+				DatabaseXAResource dbres = (DatabaseXAResource)xares;
+				return StringUtil.equals(server, dbres.server) && StringUtil.equals(filePath, dbres.filePath);
+			} else {
+				return false;
+			}
 		}
 
 		@Override
@@ -638,6 +641,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		@Override
 		public void rollback(Xid xid) throws XAException {
 			try {
+				System.out.println(">> hit transaction rollback");
 				database.transactionRollback();
 			} catch (NotesException e) {
 				throw new RuntimeException(e);
@@ -654,6 +658,12 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		public void start(Xid xid, int flags) throws XAException {
 			// TODO Figure out what to do here
 		}
+
+		@Override
+		public String toString() {
+			return String.format("DatabaseXAResource [server=%s, filePath=%s]", server, filePath); //$NON-NLS-1$
+		}
+
 		
 	}
 }

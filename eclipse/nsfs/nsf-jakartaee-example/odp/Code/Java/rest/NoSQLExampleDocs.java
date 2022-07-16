@@ -15,10 +15,14 @@
  */
 package rest;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
+import jakarta.transaction.SystemException;
+import jakarta.transaction.Transactional;
 import jakarta.transaction.UserTransaction;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
@@ -33,6 +37,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import model.ExampleDoc;
 import model.ExampleDocRepository;
+import model.Person;
+import model.PersonRepository;
 
 @Path("exampleDocs")
 public class NoSQLExampleDocs {
@@ -41,6 +47,9 @@ public class NoSQLExampleDocs {
 	
 	@Inject
 	private UserTransaction transaction;
+	
+	@Inject
+	private PersonRepository personRepository;
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -110,5 +119,51 @@ public class NoSQLExampleDocs {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ExampleDoc> getViewCategories() {
 		return repository.getViewCategories().collect(Collectors.toList());
+	}
+	
+	/**
+	 * This method is used for a test to ensure that transactions can be active for two
+	 * entities in the same database.
+	 */
+	@Path("exampleDocAndPersonTransaction")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
+	public Map<String, Object> createExampleDocAndPerson() {
+		Person person = new Person();
+		person.setFirstName("At " + System.nanoTime());
+		person.setLastName("Created for createExampleDocAndPerson");
+		person = personRepository.save(person);
+		
+		ExampleDoc exampleDoc = new ExampleDoc();
+		exampleDoc.setTitle("I am created for createExampleDocAndPerson at " + System.nanoTime());
+		exampleDoc = repository.save(exampleDoc);
+		
+		Map<String, Object> result = new HashMap<>();
+		result.put("person", person);
+		result.put("exampleDoc", exampleDoc);
+		return result;
+	}
+	
+	/**
+	 * This method is used for a test to ensure that transactions can be active for two
+	 * entities in the same database and also that the Transactional annotation will prevent
+	 * saving to disk
+	 */
+	@Path("exampleDocAndPersonTransactionThenFail")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
+	public Map<String, Object> createExampleDocAndPersonThenFail() {
+		Person person = new Person();
+		person.setFirstName("At " + System.nanoTime());
+		person.setLastName("Created for exampleDocAndPersonTransactionThenFail");
+		person = personRepository.save(person);
+		
+		ExampleDoc exampleDoc = new ExampleDoc();
+		exampleDoc.setTitle("I am created for exampleDocAndPersonTransactionThenFail at " + System.nanoTime());
+		exampleDoc = repository.save(exampleDoc);
+		
+		throw new RuntimeException("I am intentionally failing to trigger a rollback");
 	}
 }

@@ -13,7 +13,9 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
+import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
+import jakarta.transaction.Synchronization;
 import jakarta.transaction.SystemException;
 import jakarta.transaction.Transaction;
 import jakarta.transaction.UserTransaction;
@@ -46,13 +48,33 @@ public class UserTransactionProducer {
 		return getTransaction();
 	}
 	
+	public void terminateTransaction() {
+		this.transaction.set(null);
+	}
+	
 	private DominoUserTransaction getTransaction() {
 		return this.transaction.updateAndGet(existing -> existing == null ? createTransaction() : existing);
 	}
 	
 	private DominoUserTransaction createTransaction() {
 		Xid id = new DominoXid();
-		return new DominoUserTransaction(id);
+		DominoUserTransaction result = new DominoUserTransaction(id);
+		try {
+			result.registerSynchronization(new Synchronization() {
+				@Override
+				public void beforeCompletion() {
+					// NOP
+				}
+				
+				@Override
+				public void afterCompletion(int status) {
+					UserTransactionProducer.this.transaction.set(null);
+				}
+			});
+		} catch (IllegalStateException | RollbackException | SystemException e) {
+			// Ignore in this case
+		}
+		return result;
 	}
 	
 	@PreDestroy

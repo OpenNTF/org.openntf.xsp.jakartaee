@@ -3,6 +3,9 @@ package org.openntf.xsp.jakarta.transaction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -27,6 +30,8 @@ import jakarta.transaction.UserTransaction;
  * @since 2.7.0
  */
 public class DominoUserTransaction implements UserTransaction, Transaction {
+	private static final Logger log = Logger.getLogger(DominoUserTransaction.class.getName());
+	
 	private int status = Status.STATUS_NO_TRANSACTION;
 	private boolean rollbackOnly = false;
 	
@@ -92,14 +97,20 @@ public class DominoUserTransaction implements UserTransaction, Transaction {
 			throw new IllegalStateException("Transaction was not begun");
 		}
 		status = Status.STATUS_ROLLING_BACK;
-		for(XAResource res : new ArrayList<>(this.resources)) {
-			try {
-				res.rollback(this.id);
-			} catch (XAException e) {
-				throw new RuntimeException(e);
+		try {
+			for(XAResource res : new ArrayList<>(this.resources)) {
+				try {
+					res.rollback(this.id);
+				} catch (XAException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			status = Status.STATUS_ROLLEDBACK;
+		} finally {
+			for(Synchronization sync : new ArrayList<>(this.synchronizations)) {
+				sync.afterCompletion(status);
 			}
 		}
-		status = Status.STATUS_ROLLEDBACK;
 	}
 
 	@Override
@@ -129,13 +140,45 @@ public class DominoUserTransaction implements UserTransaction, Transaction {
 
 	@Override
 	public boolean delistResource(XAResource xaRes, int flag) throws IllegalStateException, SystemException {
-		return this.resources.remove(xaRes);
+		if(xaRes != null) {
+			Iterator<XAResource> iter = this.resources.iterator();
+			while(iter.hasNext()) {
+				XAResource res = iter.next();
+				try {
+					if(xaRes.isSameRM(res)) {
+						iter.remove();
+						return true;
+					}
+				} catch (XAException e) {
+					if(log.isLoggable(Level.SEVERE)) {
+						log.log(Level.SEVERE, "Encountered exception matching existing resources", e);
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
 	public boolean enlistResource(XAResource xaRes) throws RollbackException, IllegalStateException, SystemException {
-		this.resources.add(xaRes);
-		return true;
+		if(xaRes != null) {
+			if(this.resources.stream().anyMatch(res -> {
+				try {
+					return xaRes.isSameRM(res);
+				} catch (XAException e) {
+					if(log.isLoggable(Level.SEVERE)) {
+						log.log(Level.SEVERE, "Encountered exception matching existing resources", e);
+					}
+					return false;
+				}
+			})) {
+				// Don't re-add the same database
+				return false;
+			}
+			this.resources.add(xaRes);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

@@ -532,4 +532,42 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertFalse(jsonObjects.stream().anyMatch(obj -> title.equals(obj.get("title"))));
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSequentialOperations() throws JsonException {
+		Client client = getAnonymousClient();
+		
+		String unid;
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/exampleDocAndPersonTransaction");
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			String json = response.readEntity(String.class);
+			Map<String, Object> result = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			assertNotNull(result);
+			assertFalse(result.isEmpty());
+			
+			Map<String, Object> exampleDoc = (Map<String, Object>)result.get("exampleDoc");
+			assertNotNull(exampleDoc);
+			unid = (String)exampleDoc.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Make sure it shows up in the view entries
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/inView?docsOnly=true");
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			String json = response.readEntity(String.class);
+			List<Map<String, Object>> jsonObjects = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			assertNotNull(jsonObjects);
+			assertFalse(jsonObjects.isEmpty());
+			
+			assertTrue(jsonObjects.stream().anyMatch(obj -> unid.equals(obj.get("unid")) && "DOCUMENT".equals(obj.get("entryType"))));
+		}
+	}
 }
