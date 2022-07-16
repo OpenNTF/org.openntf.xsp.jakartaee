@@ -550,6 +550,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			Instance<Transaction> transaction = CDI.current().select(Transaction.class);
 			if(transaction.isResolvable()) {
 				Transaction t = transaction.get();
+				DatabaseXAResource res = null;
 				try {
 					if(t.getStatus() != Status.STATUS_ACTIVE) {
 						// Ignore softly
@@ -557,7 +558,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 						return;
 					}
 					
-					DatabaseXAResource res = new DatabaseXAResource(database);
+					res = new DatabaseXAResource(database);
 					if(t.enlistResource(res)) {
 						// Only begin a DB transaction if there wasn't already a transaction
 						//  for it
@@ -567,7 +568,19 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					
 				} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
 					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered unexpected exception enlisting the transaction resource", e);
+						if(e instanceof NotesException && ((NotesException)e).id == 4864) {
+							// "Transactional Logging must be enabled for this function"
+							log.log(Level.SEVERE, "Transactional logging is not enabled for this server; skipping transaction registration", e);
+							if(res != null) {
+								try {
+									t.delistResource(res, XAResource.TMNOFLAGS);
+								} catch (IllegalStateException | SystemException e1) {
+									// Ignore
+								}
+							}
+						} else {
+							log.log(Level.SEVERE, "Encountered unexpected exception enlisting the transaction resource", e);
+						}
 					}
 				}
 			}
