@@ -1,5 +1,6 @@
 package org.openntf.xsp.jakarta.transaction;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -7,7 +8,14 @@ import java.util.Random;
 
 import javax.transaction.xa.Xid;
 
-public class DominoXid implements Xid {
+/**
+ * 
+ * @author Jesse Gallagher
+ * @since 2.7.0
+ */
+public class DominoXid implements Xid, Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private int formatId = 83925;
 	private byte[] globalTransactionId;
 	private byte[] branchQualifier;
