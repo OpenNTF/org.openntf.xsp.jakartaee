@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
+import org.openntf.xsp.jakarta.transaction.DominoUserTransaction;
 
 import jakarta.enterprise.inject.spi.Extension;
 
@@ -17,7 +18,8 @@ public class TransactionClassContributor implements WeldBeanClassContributor {
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
 		return Arrays.asList(
-			UserTransactionProducer.class
+			UserTransactionProducer.class,
+			DominoUserTransaction.class
 		);
 	}
 

@@ -21,6 +21,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
+import jakarta.transaction.HeuristicMixedException;
+import jakarta.transaction.HeuristicRollbackException;
+import jakarta.transaction.NotSupportedException;
+import jakarta.transaction.RollbackException;
 import jakarta.transaction.SystemException;
 import jakarta.transaction.Transactional;
 import jakarta.transaction.UserTransaction;
@@ -165,5 +169,28 @@ public class NoSQLExampleDocs {
 		exampleDoc = repository.save(exampleDoc);
 		
 		throw new RuntimeException("I am intentionally failing to trigger a rollback");
+	}
+	
+	@Path("exampleDocAndPersonSequential")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Map<String, Object> createExampleDocAndPersonSequential() throws NotSupportedException, SystemException, SecurityException, IllegalStateException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
+		transaction.begin();
+		Person person = new Person();
+		person.setFirstName("At " + System.nanoTime());
+		person.setLastName("Created for createExampleDocAndPersonSequential");
+		person = personRepository.save(person);
+		transaction.commit();
+		
+		transaction.begin();
+		ExampleDoc exampleDoc = new ExampleDoc();
+		exampleDoc.setTitle("I am created for createExampleDocAndPersonSequential at " + System.nanoTime());
+		exampleDoc = repository.save(exampleDoc);
+		transaction.commit();
+		
+		Map<String, Object> result = new HashMap<>();
+		result.put("person", person);
+		result.put("exampleDoc", exampleDoc);
+		return result;
 	}
 }

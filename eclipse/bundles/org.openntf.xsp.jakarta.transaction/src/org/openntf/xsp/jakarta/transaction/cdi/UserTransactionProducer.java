@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import javax.transaction.xa.Xid;
 
-import org.openntf.xsp.jakarta.transaction.DominoUserTransaction;
+import org.openntf.xsp.jakarta.transaction.DominoTransaction;
 import org.openntf.xsp.jakarta.transaction.DominoXid;
 
 import jakarta.annotation.PostConstruct;
@@ -31,16 +31,11 @@ import jakarta.transaction.UserTransaction;
 public class UserTransactionProducer {
 	private final Logger log = Logger.getLogger(UserTransactionProducer.class.getName());
 
-	private AtomicReference<DominoUserTransaction> transaction;
+	private AtomicReference<DominoTransaction> transaction;
 	
 	@PostConstruct
 	public void postConstruct() {
 		this.transaction = new AtomicReference<>();
-	}
-	
-	@Produces
-	public UserTransaction produceUserTransaction() {
-		return getTransaction();
 	}
 	
 	@Produces
@@ -52,13 +47,13 @@ public class UserTransactionProducer {
 		this.transaction.set(null);
 	}
 	
-	private DominoUserTransaction getTransaction() {
+	private DominoTransaction getTransaction() {
 		return this.transaction.updateAndGet(existing -> existing == null ? createTransaction() : existing);
 	}
 	
-	private DominoUserTransaction createTransaction() {
+	private DominoTransaction createTransaction() {
 		Xid id = new DominoXid();
-		DominoUserTransaction result = new DominoUserTransaction(id);
+		DominoTransaction result = new DominoTransaction(id);
 		try {
 			result.registerSynchronization(new Synchronization() {
 				@Override
@@ -79,7 +74,7 @@ public class UserTransactionProducer {
 	
 	@PreDestroy
 	public void preDestroy() {
-		DominoUserTransaction transaction = this.transaction.get();
+		DominoTransaction transaction = this.transaction.get();
 		if(transaction != null) {
 			int status = transaction.getStatus();
 			if(status == Status.STATUS_ACTIVE) {
