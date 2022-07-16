@@ -16,6 +16,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Mail 2.1
     - Activation 2.1
 - Concurrency 2.0 (without Transaction support)
+- Transactions 2.0 (partial)
 - Server Pages 3.0
 - Server Faces 3.0
 - MVC 2.0
@@ -386,7 +387,7 @@ When this library is enabled, .jsp files in the "Files" or "WebContent" parts of
 
 As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and will allow the use of CDI beans.
 
-## Concurrency
+## Concurrency 2.0
 
 The [Concurrency API](https://jakarta.ee/specifications/concurrency/2.0/concurrency-spec-2.0.html) provides a mechanism for locating and using managed variants of `ExecutorService` and `ScheduledExecutorService` to use contextual application services from within a multithreaded context. These objects can be retrieved using JNDI:
 
@@ -399,6 +400,32 @@ ScheduledExecutorService scheduler = InitialContext.doLookup("java:comp/DefaultM
 ```
 
 Tasks run from these executors will retain their NSF and requesting user context as well as the application's CDI container.
+
+## Transactions 2.0
+
+The [Transactions API](https://jakarta.ee/specifications/transactions/2.0/jakarta-transactions-spec-2.0.html) provides a generic way to handle resource transactions. The implementation in this project is a partial one that aims to allow for transactions in the Domino NoSQL driver implementation (see below). For example:
+
+```java
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+@Transactional
+public Map<String, Object> createExampleDocAndPersonThenFail() {
+	Person person = new Person();
+	person.setFirstName("At " + System.nanoTime());
+	person.setLastName("Created for exampleDocAndPersonTransactionThenFail");
+	person = personRepository.save(person);
+	
+	ExampleDoc exampleDoc = new ExampleDoc();
+	exampleDoc.setTitle("I am created for exampleDocAndPersonTransactionThenFail at " + System.nanoTime());
+	exampleDoc = repository.save(exampleDoc);
+	
+	throw new RuntimeException("I am intentionally failing to trigger a rollback");
+}
+```
+
+In this case, neither document will actually be saved to their databases.
+
+This implementation does not currently support transactions across Concurrency thread boundaries, JNDI referencing, or transaction suspension.
 
 ## Server Faces 4.0
 

@@ -32,6 +32,7 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta Server Faces API, MyFaces variant, available from https://myfaces.apache.org/ and licensed under Apache 2.0
 	- See legal/NOTICE-myfaces.txt for downstream third-party components, which are licensed under Apache 2.0 and the Dojo modified BSD license
 - The Jakarta Concurrency API, available from https://github.com/jakartaee/concurrency and licensed under the EPL 2.0
+- The Jakarta Transactions API, available from https://github.com/jakartaee/transactions and licensed under the EPL 2.0
 - The Jakarta MVC API, available from https://github.com/eclipse-ee4j/mvc-api and licensed under the EPL 2.0
 - The Jakarta NoSQL API, available from https://github.com/eclipse-ee4j/nosql and licensed under the EPL 2.0
 - The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
