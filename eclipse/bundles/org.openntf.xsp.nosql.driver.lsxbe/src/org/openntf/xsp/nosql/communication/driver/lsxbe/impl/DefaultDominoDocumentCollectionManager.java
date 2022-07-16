@@ -603,7 +603,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		@Override
 		public void commit(Xid xid, boolean onePhase) throws XAException {
 			try {
-				System.out.println(">> hit transaction commit");
 				database.transactionCommit();
 			} catch (NotesException e) {
 				throw new RuntimeException(e);
@@ -654,7 +653,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		@Override
 		public void rollback(Xid xid) throws XAException {
 			try {
-				System.out.println(">> hit transaction rollback");
 				database.transactionRollback();
 			} catch (NotesException e) {
 				throw new RuntimeException(e);
