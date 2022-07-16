@@ -319,7 +319,7 @@
 			            <exclude>src/test/resources/**</exclude>
 			            <exclude>src/main/resources/**</exclude>
 						<exclude>**/build.properties</exclude>
-						<exclude>**/jakarta/**</exclude>
+						<exclude>**src/main/java/jakarta/**</exclude>
 						<exclude>**/org/jboss/**</exclude>
 						<exclude>**/org/openntf/com/sun/mail/**</exclude>
 						<exclude>**/gfprobe-provider.xml</exclude>
