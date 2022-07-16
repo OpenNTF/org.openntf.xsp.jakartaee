@@ -12,6 +12,6 @@ import jakarta.transaction.Transactional;
  */
 @Interceptor
 @Transactional(Transactional.TxType.MANDATORY)
-@Priority(Interceptor.Priority.LIBRARY_BEFORE)
+@Priority(Interceptor.Priority.PLATFORM_BEFORE+200)
 public class TransactionalInterceptorMandatory extends AbstractTransactionalInterceptor {
 }

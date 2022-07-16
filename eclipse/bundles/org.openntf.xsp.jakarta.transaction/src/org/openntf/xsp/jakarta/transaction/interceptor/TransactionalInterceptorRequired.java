@@ -12,7 +12,7 @@ import jakarta.transaction.Transactional;
  */
 @Interceptor
 @Transactional(Transactional.TxType.REQUIRED)
-@Priority(Interceptor.Priority.LIBRARY_BEFORE)
+@Priority(Interceptor.Priority.PLATFORM_BEFORE+200)
 public class TransactionalInterceptorRequired extends AbstractTransactionalInterceptor {
 
 }
