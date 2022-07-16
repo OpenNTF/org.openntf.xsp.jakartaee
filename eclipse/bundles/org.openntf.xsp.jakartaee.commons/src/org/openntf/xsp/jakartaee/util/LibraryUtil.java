@@ -278,7 +278,11 @@ public enum LibraryUtil {
 				int priorityB = Optional.ofNullable(b.getClass().getAnnotation(Priority.class))
 					.map(Priority::value)
 					.orElse(ascending ? Integer.MAX_VALUE : 0);
-				return Integer.compare(priorityA, priorityB);
+				if(ascending) {
+					return Integer.compare(priorityA, priorityB);
+				} else {
+					return Integer.compare(priorityB, priorityA);
+				}
 			})
 			.collect(Collectors.toList());
 	}
