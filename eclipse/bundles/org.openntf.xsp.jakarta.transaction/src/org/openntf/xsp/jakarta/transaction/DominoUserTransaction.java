@@ -15,12 +15,16 @@
  */
 package org.openntf.xsp.jakarta.transaction;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 
@@ -40,7 +44,8 @@ import jakarta.transaction.UserTransaction;
  * @since 2.7.0
  */
 @RequestScoped
-public class DominoUserTransaction implements UserTransaction {
+public class DominoUserTransaction implements UserTransaction, Serializable, Referenceable {
+	private static final long serialVersionUID = 1L;
 	private final Logger log = Logger.getLogger(DominoUserTransaction.class.getName());
 
 	@Override
@@ -91,6 +96,12 @@ public class DominoUserTransaction implements UserTransaction {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Reference getReference() throws NamingException {
+		// TODO determine if this should return a better value
+		return new Reference(getClass().getName());
 	}
 
 }
