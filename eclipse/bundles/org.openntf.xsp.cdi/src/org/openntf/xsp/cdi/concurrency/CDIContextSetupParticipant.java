@@ -17,6 +17,7 @@ package org.openntf.xsp.cdi.concurrency;
 
 import org.glassfish.enterprise.concurrent.spi.ContextHandle;
 import org.openntf.xsp.cdi.CDILibrary;
+import org.openntf.xsp.cdi.context.RequestScopeContext;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -46,8 +47,12 @@ public class CDIContextSetupParticipant implements ContextSetupParticipant {
 	@Override
 	public void setup(ContextHandle contextHandle) throws IllegalStateException {
 		if(contextHandle instanceof AttributedContextHandle) {
+			RequestScopeContext.FORCE_ACTIVE.set(true);
 			CDI<Object> cdi = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_CDI);
 			ConcurrencyCDIContainerLocator.setCdi(cdi);
+
+			// TODO investigate propagating the same beans from here outside of XPages (Issue #286)
+			// May be handled if we move to WeldWebModule
 		}
 	}
 
@@ -55,6 +60,7 @@ public class CDIContextSetupParticipant implements ContextSetupParticipant {
 	public void reset(ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
 			ConcurrencyCDIContainerLocator.setCdi(null);
+			RequestScopeContext.FORCE_ACTIVE.set(false);
 		}
 	}
 
