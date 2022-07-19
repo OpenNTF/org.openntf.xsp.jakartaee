@@ -15,7 +15,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - XML Binding 3.0
 - Mail 2.1
     - Activation 2.1
-- Concurrency 2.0 (without Transaction support)
+- Concurrency 2.0
 - Transactions 2.0 (partial)
 - Server Pages 3.0
 - Server Faces 3.0
@@ -425,7 +425,7 @@ public Map<String, Object> createExampleDocAndPersonThenFail() {
 
 In this case, neither document will actually be saved to their databases.
 
-This implementation does not currently support transactions across Concurrency thread boundaries, JNDI referencing, or transaction suspension.
+This implementation does not currently support JNDI referencing or transaction suspension. Though transactions are propagated across Concurrency boundaries, note that Domino transactions are thread-specific and thus should be started and committed within a single thread.
 
 ## Server Faces 4.0
 

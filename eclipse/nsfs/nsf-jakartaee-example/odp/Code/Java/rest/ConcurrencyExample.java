@@ -1,5 +1,5 @@
 /**
- * Copyright Â© 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,11 @@ import java.util.concurrent.TimeUnit;
 import javax.naming.InitialContext;
 
 import bean.ApplicationGuy;
+import bean.RequestGuy;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import jakarta.enterprise.inject.literal.NamedLiteral;
 import jakarta.enterprise.inject.spi.CDI;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -35,6 +37,9 @@ import lotus.domino.Session;
 
 @Path("concurrency")
 public class ConcurrencyExample {
+	
+	@Inject
+	private RequestGuy requestGuy;
 
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
@@ -80,6 +85,24 @@ public class ConcurrencyExample {
 				Thread.sleep(300);
 				
 				w.println("Scheduled task provided: " + val[0]);
+			} catch(Throwable t) {
+				t.printStackTrace(w);
+			} finally {
+				w.flush();
+			}
+		};
+	}
+	
+	@Path("requestScope")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public StreamingOutput getRequestScope() {
+		return os -> {
+			PrintWriter w = new PrintWriter(os);
+			try {
+				ExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+				String basic = exec.submit(() -> "requestGuy is: " + requestGuy.getMessage()).get();
+				w.println(basic);
 			} catch(Throwable t) {
 				t.printStackTrace(w);
 			} finally {

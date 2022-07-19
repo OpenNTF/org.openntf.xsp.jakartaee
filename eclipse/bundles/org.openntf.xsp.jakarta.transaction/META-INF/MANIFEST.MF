@@ -15,5 +15,7 @@ Import-Package: jakarta.annotation;version="2.1.1",
  jakarta.enterprise.inject.spi;version="3.0.0",
  jakarta.inject;version="2.0.0",
  jakarta.interceptor;version="2.1.0",
- org.openntf.xsp.cdi.discovery;version="2.7.0"
+ org.glassfish.enterprise.concurrent.spi;version="2.0.0",
+ org.openntf.xsp.cdi.discovery;version="2.7.0",
+ org.openntf.xsp.jakarta.concurrency;version="2.7.0"
 DynamicImport-Package: org.jboss.weld.*

@@ -43,8 +43,8 @@ import jakarta.transaction.UserTransaction;
  * @since 2.7.0
  */
 @RequestScoped
-public class UserTransactionProducer {
-	private final Logger log = Logger.getLogger(UserTransactionProducer.class.getName());
+public class DominoTransactionProducer {
+	private final Logger log = Logger.getLogger(DominoTransactionProducer.class.getName());
 
 	private AtomicReference<DominoTransaction> transaction;
 	
@@ -58,8 +58,16 @@ public class UserTransactionProducer {
 		return getTransaction();
 	}
 	
-	public void terminateTransaction() {
-		this.transaction.set(null);
+	public DominoTransaction peekTransaction() {
+		return this.transaction.get();
+	}
+	
+	public void setTransaction(DominoTransaction transaction) {
+		this.transaction.set(transaction);
+	}
+	
+	public void clearTransaction() {
+		setTransaction(null);
 	}
 	
 	private DominoTransaction getTransaction() {
@@ -78,7 +86,7 @@ public class UserTransactionProducer {
 				
 				@Override
 				public void afterCompletion(int status) {
-					UserTransactionProducer.this.transaction.set(null);
+					DominoTransactionProducer.this.transaction.set(null);
 				}
 			});
 		} catch (IllegalStateException | RollbackException | SystemException e) {

@@ -33,7 +33,7 @@ public class TransactionClassContributor implements WeldBeanClassContributor {
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
 		return Arrays.asList(
-			UserTransactionProducer.class,
+			DominoTransactionProducer.class,
 			DominoUserTransaction.class
 		);
 	}
