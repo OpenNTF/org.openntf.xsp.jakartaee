@@ -65,13 +65,16 @@ public class NSFSessionClonerSetupParticipant implements ContextSetupParticipant
 				
 				Session sessionAsSigner = AccessController.doPrivileged((PrivilegedAction<Session>)() -> {
 					ClassLoader cl = Thread.currentThread().getContextClassLoader();
+					SecurityManager sm = System.getSecurityManager();
 					try {
 						Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+						System.setSecurityManager(null);
 						// TODO pull in session as signer name
 						return NotesFactory.createSession();
 					} catch (NotesException e) {
 						throw new RuntimeException(e);
 					} finally {
+						System.setSecurityManager(sm);
 						Thread.currentThread().setContextClassLoader(cl);
 					}
 				});
