@@ -15,6 +15,9 @@
  */
 package rest;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import jakarta.inject.Inject;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
@@ -58,5 +61,12 @@ public class TransactionExample {
 	@Transactional
 	public String getAnnotated() {
 		return "committed via transactional REST method";
+	}
+	
+	@Path("jndi")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getJndi() throws NamingException {
+		return "I found: " + (UserTransaction)InitialContext.doLookup("java:comp/UserTransaction");
 	}
 }

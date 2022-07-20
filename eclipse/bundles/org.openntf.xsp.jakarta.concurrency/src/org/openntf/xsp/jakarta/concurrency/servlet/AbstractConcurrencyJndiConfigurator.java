@@ -30,7 +30,7 @@ import jakarta.servlet.ServletContext;
  * @author Jesse Gallagher
  * @since 2.7.0
  */
-public interface AbstractServletJndiConfigurator {
+public interface AbstractConcurrencyJndiConfigurator {
 	
 	public static final String JNDI_EXECUTORSERVICE = "java:comp/DefaultManagedExecutorService"; //$NON-NLS-1$
 	public static final String JNDI_SCHEDULEDEXECUTORSERVICE = "java:comp/DefaultManagedScheduledExecutorService"; //$NON-NLS-1$

@@ -17,7 +17,7 @@ package org.openntf.xsp.jakarta.concurrency.nsf;
 
 import javax.faces.context.FacesContext;
 
-import org.openntf.xsp.jakarta.concurrency.servlet.AbstractServletJndiConfigurator;
+import org.openntf.xsp.jakarta.concurrency.servlet.AbstractConcurrencyJndiConfigurator;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import com.ibm.xsp.context.FacesContextEx;
@@ -33,7 +33,7 @@ import jakarta.servlet.ServletContext;
  * @author Jesse Gallagher
  * @since 2.7.0
  */
-public class NSFConcurrencyRequestCustomizerFactory extends RequestCustomizerFactory implements AbstractServletJndiConfigurator {
+public class NSFConcurrencyRequestCustomizerFactory extends RequestCustomizerFactory implements AbstractConcurrencyJndiConfigurator {
 
 	@Override
 	public void initializeParameters(FacesContext facesContext, RequestParameters requestParameters) {

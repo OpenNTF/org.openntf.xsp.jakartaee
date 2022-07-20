@@ -23,7 +23,7 @@ import jakarta.servlet.ServletRequestListener;
  * @author Jesse Gallagher
  * @since 2.7.0
  */
-public class ConcurrencyRequestListener implements AbstractServletJndiConfigurator, ServletRequestListener {
+public class ConcurrencyRequestListener implements AbstractConcurrencyJndiConfigurator, ServletRequestListener {
 	
 	@Override
 	public void requestInitialized(ServletRequestEvent sre) {
