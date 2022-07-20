@@ -23,6 +23,7 @@ import org.openntf.xsp.jakarta.transaction.interceptor.TransactionalInterceptorR
 import org.openntf.xsp.jakarta.transaction.interceptor.TransactionalInterceptorSupports;
 
 import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.BeforeBeanDiscovery;
 import jakarta.enterprise.inject.spi.Extension;
@@ -49,5 +50,9 @@ public class TransactionExtension implements Extension {
 			bbd.addAnnotatedType(manager.createAnnotatedType(clazz), extensionName + "_" + clazz.getName()); //$NON-NLS-1$
 		}
 	}
+	
+	public void registerContext(@Observes final AfterBeanDiscovery event) {
+        event.addContext(new TransactionScopeContext());
+    }
 
 }
