@@ -27,7 +27,7 @@ import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.Provider;
 
 @Provider
-@Priority(Priorities.AUTHORIZATION-1)
+@Priority(Priorities.AUTHORIZATION-2)
 public class SecurityRequestFilter implements ContainerRequestFilter {
 	@Context
 	UriInfo uriInfo;

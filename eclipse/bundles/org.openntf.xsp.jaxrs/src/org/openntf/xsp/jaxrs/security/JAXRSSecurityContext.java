@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,8 +29,9 @@ import lotus.domino.Database;
 import lotus.domino.NotesException;
 
 public class JAXRSSecurityContext implements SecurityContext {
+	public static final String ATTR_ROLES = JAXRSSecurityContext.class.getName() + "_roles"; //$NON-NLS-1$
+	
 	private final HttpServletRequest req;
-	private Collection<String> roles;
 
 	public JAXRSSecurityContext(HttpServletRequest req) {
 		this.req = req;
@@ -47,7 +49,13 @@ public class JAXRSSecurityContext implements SecurityContext {
 		}
 		switch(role) {
 		case "login": //$NON-NLS-1$
-			return !"Anonymous".equals(req.getUserPrincipal().getName()); //$NON-NLS-1$
+			Principal user = getUserPrincipal();
+			if(user != null) {
+				String name = user.getName();
+				return StringUtil.isNotEmpty(name) && !"Anonymous".equalsIgnoreCase(name); //$NON-NLS-1$
+			} else {
+				return false;
+			}
 		default:
 			return getRoles().contains(role);
 		}
@@ -65,15 +73,19 @@ public class JAXRSSecurityContext implements SecurityContext {
 	}
 	
 	private Collection<String> getRoles() {
-		if(this.roles == null) {
+		@SuppressWarnings("unchecked")
+		Collection<String> roles = (Collection<String>)this.req.getAttribute(ATTR_ROLES);
+		if(roles == null) {
+			// TODO handle cases when there's no current database
 			Database database = ExtLibUtil.getCurrentDatabase();
 			try {
-				this.roles = LibraryUtil.getUserNamesList(database);
+				roles = LibraryUtil.getUserNamesList(database);
+				this.req.setAttribute(ATTR_ROLES, roles);
 			} catch(NotesException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		return this.roles;
+		return roles;
 	}
 
 }
