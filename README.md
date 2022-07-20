@@ -20,7 +20,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - Server Pages 3.0
 - Server Faces 3.0
 - MVC 2.0
-- NoSQL 1.0 (snapshot)
+- NoSQL 1.0b4
 
 It also provides components from [MicroProfile](https://microprofile.io/):
 
