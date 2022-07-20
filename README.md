@@ -2,7 +2,7 @@
 
 This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](https://jakarta.ee/specifications/) included in the full Jakarta EE spec, this project currently provides:
 
-- Servlet 5.0 (Partial)
+- Servlet 5.0 (partial)
 - Expression Language 4.0
 - Contexts and Dependency Injection 3.0
     - Annotations 2.0
