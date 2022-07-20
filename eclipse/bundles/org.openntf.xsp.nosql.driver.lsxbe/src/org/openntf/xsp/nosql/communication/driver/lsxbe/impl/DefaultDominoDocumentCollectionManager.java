@@ -68,6 +68,7 @@ import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
 import jakarta.transaction.SystemException;
 import jakarta.transaction.Transaction;
+import jakarta.transaction.TransactionManager;
 import lotus.domino.ACL;
 import lotus.domino.ACLEntry;
 import lotus.domino.Base;
@@ -547,39 +548,49 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	
 	private void beginTransaction(Database database) {
 		if(transactionsAvailable) {
-			Instance<Transaction> transaction = CDI.current().select(Transaction.class);
-			if(transaction.isResolvable()) {
-				Transaction t = transaction.get();
-				DatabaseXAResource res = null;
+			Instance<TransactionManager> tm = CDI.current().select(TransactionManager.class);
+			if(tm.isResolvable()) {
+				Transaction t = null;
 				try {
-					if(t.getStatus() != Status.STATUS_ACTIVE) {
-						// Ignore softly
-						// TODO determine if this should throw an exception in other states
-						return;
-					}
-					
-					res = new DatabaseXAResource(database);
-					if(t.enlistResource(res)) {
-						// Only begin a DB transaction if there wasn't already a transaction
-						//  for it
-						database.transactionBegin();
-					}
-					
-					
-				} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
+					t = tm.get().getTransaction();
+				} catch (SystemException e) {
 					if(log.isLoggable(Level.SEVERE)) {
-						if(e instanceof NotesException && ((NotesException)e).id == 4864) {
-							// "Transactional Logging must be enabled for this function"
-							log.log(Level.SEVERE, "Transactional logging is not enabled for this server; skipping transaction registration", e);
-							if(res != null) {
-								try {
-									t.delistResource(res, XAResource.TMNOFLAGS);
-								} catch (IllegalStateException | SystemException e1) {
-									// Ignore
+						log.log(Level.SEVERE, "Encountered unexpected exception retrieving active transaction", e);
+					}
+					return;
+				}
+				if(t != null) {
+					DatabaseXAResource res = null;
+					try {
+						if(t.getStatus() != Status.STATUS_ACTIVE) {
+							// Ignore softly
+							// TODO determine if this should throw an exception in other states
+							return;
+						}
+						
+						res = new DatabaseXAResource(database);
+						if(t.enlistResource(res)) {
+							// Only begin a DB transaction if there wasn't already a transaction
+							//  for it
+							database.transactionBegin();
+						}
+						
+						
+					} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
+						if(log.isLoggable(Level.SEVERE)) {
+							if(e instanceof NotesException && ((NotesException)e).id == 4864) {
+								// "Transactional Logging must be enabled for this function"
+								log.log(Level.SEVERE, "Transactional logging is not enabled for this server; skipping transaction registration", e);
+								if(res != null) {
+									try {
+										t.delistResource(res, XAResource.TMNOFLAGS);
+									} catch (IllegalStateException | SystemException e1) {
+										// Ignore
+									}
 								}
+							} else {
+								log.log(Level.SEVERE, "Encountered unexpected exception enlisting the transaction resource", e);
 							}
-						} else {
-							log.log(Level.SEVERE, "Encountered unexpected exception enlisting the transaction resource", e);
 						}
 					}
 				}
