@@ -16,7 +16,9 @@
 package org.openntf.xsp.jakarta.transaction.interceptor;
 
 import jakarta.annotation.Priority;
+import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
 import jakarta.transaction.Transactional;
 
 /**
@@ -30,4 +32,9 @@ import jakarta.transaction.Transactional;
 @Priority(Interceptor.Priority.PLATFORM_BEFORE+200)
 public class TransactionalInterceptorSupports extends AbstractTransactionalInterceptor {
 
+	@AroundInvoke
+	public Object wrapMethod(InvocationContext ctx) throws Exception {
+		// No difference in behavior here between an active transaction and not
+		return super.doWrapMethod(ctx);
+	}
 }

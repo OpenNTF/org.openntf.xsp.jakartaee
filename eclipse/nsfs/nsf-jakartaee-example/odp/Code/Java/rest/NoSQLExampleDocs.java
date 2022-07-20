@@ -154,12 +154,7 @@ public class NoSQLExampleDocs {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Map<String, Object> createExampleDocAndPersonThenFail() throws NotSupportedException, SystemException, SecurityException, IllegalStateException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
-		transaction.begin();
-		try {
-			return transactionBean.createExampleDocAndPersonThenFail();
-		} finally {
-			transaction.commit();
-		}
+		return transactionBean.createExampleDocAndPersonThenFail();
 	}
 	
 	@Path("exampleDocAndPersonSequential")

@@ -33,8 +33,7 @@ import jakarta.transaction.Transactional;
  */
 public abstract class AbstractTransactionalInterceptor {
 
-	@AroundInvoke
-	public Object wrapMethod(InvocationContext ctx) throws Exception {
+	public Object doWrapMethod(InvocationContext ctx) throws Exception {
 		Transactional transactional = ctx.getMethod().getAnnotation(Transactional.class);
 		// If it's not on the method, find it on superclasses
 		if(transactional == null) {

@@ -16,7 +16,11 @@
 package org.openntf.xsp.jakarta.transaction.interceptor;
 
 import jakarta.annotation.Priority;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
+import jakarta.transaction.TransactionManager;
 import jakarta.transaction.Transactional;
 
 /**
@@ -30,4 +34,19 @@ import jakarta.transaction.Transactional;
 @Priority(Interceptor.Priority.PLATFORM_BEFORE+200)
 public class TransactionalInterceptorRequiresNew extends AbstractTransactionalInterceptor {
 
+	@AroundInvoke
+	public Object wrapMethod(InvocationContext ctx) throws Exception {
+		TransactionManager man = CDI.current().select(TransactionManager.class).get();
+		if(man.getTransaction() == null) {
+			// Then we run the transaction
+			man.begin();
+			try {
+				return super.doWrapMethod(ctx);
+			} finally {
+				man.commit();
+			}
+		} else {
+			throw new UnsupportedOperationException("Domino Transactions implementation does not support suspending existing transactions");
+		}
+	}
 }
