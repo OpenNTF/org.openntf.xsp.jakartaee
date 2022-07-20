@@ -15,18 +15,19 @@
  */
 package rest;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import bean.TransactionBean;
 import jakarta.inject.Inject;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
 import jakarta.transaction.NotSupportedException;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.SystemException;
-import jakarta.transaction.Transactional;
 import jakarta.transaction.UserTransaction;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
@@ -54,6 +55,9 @@ public class NoSQLExampleDocs {
 	
 	@Inject
 	private PersonRepository personRepository;
+	
+	@Inject
+	private TransactionBean transactionBean;
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -132,21 +136,13 @@ public class NoSQLExampleDocs {
 	@Path("exampleDocAndPersonTransaction")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
-	public Map<String, Object> createExampleDocAndPerson() {
-		Person person = new Person();
-		person.setFirstName("At " + System.nanoTime());
-		person.setLastName("Created for createExampleDocAndPerson");
-		person = personRepository.save(person);
-		
-		ExampleDoc exampleDoc = new ExampleDoc();
-		exampleDoc.setTitle("I am created for createExampleDocAndPerson at " + System.nanoTime());
-		exampleDoc = repository.save(exampleDoc);
-		
-		Map<String, Object> result = new HashMap<>();
-		result.put("person", person);
-		result.put("exampleDoc", exampleDoc);
-		return result;
+	public Map<String, Object> createExampleDocAndPerson() throws NotSupportedException, SystemException, SecurityException, IllegalStateException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
+		transaction.begin();
+		try {
+			return transactionBean.createExampleDocAndPerson();
+		} finally {
+			transaction.commit();
+		}
 	}
 	
 	/**
@@ -157,18 +153,13 @@ public class NoSQLExampleDocs {
 	@Path("exampleDocAndPersonTransactionThenFail")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
-	public Map<String, Object> createExampleDocAndPersonThenFail() {
-		Person person = new Person();
-		person.setFirstName("At " + System.nanoTime());
-		person.setLastName("Created for exampleDocAndPersonTransactionThenFail");
-		person = personRepository.save(person);
-		
-		ExampleDoc exampleDoc = new ExampleDoc();
-		exampleDoc.setTitle("I am created for exampleDocAndPersonTransactionThenFail at " + System.nanoTime());
-		exampleDoc = repository.save(exampleDoc);
-		
-		throw new RuntimeException("I am intentionally failing to trigger a rollback");
+	public Map<String, Object> createExampleDocAndPersonThenFail() throws NotSupportedException, SystemException, SecurityException, IllegalStateException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
+		transaction.begin();
+		try {
+			return transactionBean.createExampleDocAndPersonThenFail();
+		} finally {
+			transaction.commit();
+		}
 	}
 	
 	@Path("exampleDocAndPersonSequential")
@@ -192,5 +183,30 @@ public class NoSQLExampleDocs {
 		result.put("person", person);
 		result.put("exampleDoc", exampleDoc);
 		return result;
+	}
+	
+	/**
+	 * This method is used for a test to ensure that transactions can be active for two
+	 * entities in the same database.
+	 * @throws SystemException 
+	 * @throws NotSupportedException 
+	 * @throws HeuristicRollbackException 
+	 * @throws HeuristicMixedException 
+	 * @throws RollbackException 
+	 * @throws IllegalStateException 
+	 * @throws SecurityException 
+	 */
+	@Path("exampleDocTransactionDontRollback")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Map<String, Object> createExampleDocDontRollback() throws NotSupportedException, SystemException, SecurityException, IllegalStateException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
+		transaction.begin();
+		try {
+			transactionBean.createExampleDocDontRollback();
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+		transaction.commit();
+		return Collections.singletonMap("created", true);
 	}
 }

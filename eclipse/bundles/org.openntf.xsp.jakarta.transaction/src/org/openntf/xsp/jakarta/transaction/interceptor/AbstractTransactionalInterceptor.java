@@ -15,11 +15,15 @@
  */
 package org.openntf.xsp.jakarta.transaction.interceptor;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.InvocationContext;
+import jakarta.transaction.SystemException;
+import jakarta.transaction.TransactionManager;
 import jakarta.transaction.Transactional;
-import jakarta.transaction.UserTransaction;
 
 /**
  * Basic CDI implementation of the {@link Transactional @Transactional} annotation.
@@ -31,17 +35,63 @@ public abstract class AbstractTransactionalInterceptor {
 
 	@AroundInvoke
 	public Object wrapMethod(InvocationContext ctx) throws Exception {
-		UserTransaction transaction = CDI.current().select(UserTransaction.class).get();
+		Transactional transactional = ctx.getMethod().getAnnotation(Transactional.class);
+		// If it's not on the method, find it on superclasses
+		if(transactional == null) {
+			transactional = findAnnotation(ctx.getTarget().getClass());
+		}
+		Objects.requireNonNull(transactional, "Unable to find @Transactional annotation");
+		
+		Class<?>[] rollbackOn = transactional.rollbackOn();
+		Class<?>[] dontRollbackOn = transactional.dontRollbackOn();
+		
 		try {
-			transaction.begin();
-			Object result = ctx.proceed();
-			transaction.commit();
-			return result;
-		} catch(Throwable e) {
-			// TODO check dontRollbackOn
-			transaction.rollback();
+			return ctx.proceed();
+		} catch(RuntimeException | Error e) {
+			// Note: spec makes no mention of thrown Errors. Though it may be too late at this
+			//   point, I think it makes sense to treat them as RuntimeException. In Domino, it's
+			//   uncharacteristically likely to hit NoClassDefFoundError specifically
+			
+			// See if it's explicitly ignored
+			if(Arrays.stream(dontRollbackOn).anyMatch(c -> c.isAssignableFrom(e.getClass()))) {
+				// Skip the rollback
+				throw e;
+			}
+			
+			// Default for unchecked exceptions is to roll back
+			markRollback();
+			throw e;
+		} catch(Exception e) {
+			// Check to see if we should ignore this
+			if(Arrays.stream(rollbackOn).anyMatch(c -> c.isAssignableFrom(e.getClass()))) {
+				// Roll back
+				markRollback();
+				throw e;
+			}
+			
+			// Default for checked exceptions is to not roll back
 			throw e;
 		}
 	}
 
+	private Transactional findAnnotation(Class<?> clazz) {
+		Transactional transactional = clazz.getAnnotation(Transactional.class);
+		if(transactional != null) {
+			return transactional;
+		} else {
+			Class<?> sup = clazz.getSuperclass();
+			if(sup != null) {
+				return findAnnotation(sup);
+			} else {
+				return null;
+			}
+		}
+	}
+	
+	private void markRollback() throws IllegalStateException, SystemException {
+		TransactionManager man = CDI.current().select(TransactionManager.class).get();
+		if(man.getTransaction() != null) {
+			man.setRollbackOnly();
+		}
+	}
 }

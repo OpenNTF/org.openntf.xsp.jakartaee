@@ -34,7 +34,8 @@ public class TransactionClassContributor implements WeldBeanClassContributor {
 	public Collection<Class<?>> getBeanClasses() {
 		return Arrays.asList(
 			DominoTransactionProducer.class,
-			DominoUserTransaction.class
+			DominoUserTransaction.class,
+			DominoTransactionManager.class
 		);
 	}
 

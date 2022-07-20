@@ -52,7 +52,7 @@ public class DominoTransactionManager implements jakarta.transaction.Transaction
 
 	@Override
 	public Transaction getTransaction() throws SystemException {
-		return CDI.current().select(Transaction.class).get();
+		return CDI.current().select(DominoTransactionProducer.class).get().peekTransaction();
 	}
 
 	@Override
