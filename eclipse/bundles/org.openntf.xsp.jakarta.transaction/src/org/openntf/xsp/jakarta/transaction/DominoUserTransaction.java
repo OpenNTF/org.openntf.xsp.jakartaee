@@ -44,6 +44,13 @@ import jakarta.transaction.UserTransaction;
 public class DominoUserTransaction implements UserTransaction, Serializable {
 	private static final long serialVersionUID = 1L;
 	private final Logger log = Logger.getLogger(DominoUserTransaction.class.getName());
+	
+	/**
+	 * This shared instance may be used in any context when CDI is not yet available.
+	 * All methods on this class are proxies for dynamically-looked-up CDI operations and
+	 * individual instances contain no instance variables.
+	 */
+	public static final DominoUserTransaction SHARED_INSTANCE = new DominoUserTransaction();
 
 	@Override
 	public void begin() throws NotSupportedException, SystemException {

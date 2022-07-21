@@ -19,10 +19,7 @@ import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
-import jakarta.enterprise.context.ContextNotActiveException;
-import jakarta.enterprise.inject.Instance;
-import jakarta.enterprise.inject.spi.CDI;
-import jakarta.transaction.UserTransaction;
+import org.openntf.xsp.jakarta.transaction.DominoUserTransaction;
 
 /**
  * 
@@ -39,15 +36,7 @@ public interface AbstractTransactionJndiConfigurator {
 	default void pushTransaction() {
 		try {
 			InitialContext jndi = new InitialContext();
-			
-			Instance<UserTransaction> transaction = CDI.current().select(UserTransaction.class);
-			if(transaction.isResolvable()) {
-				try {
-					jndi.rebind(JNDI_USERTRANSACTION, transaction.get());
-				} catch(ContextNotActiveException e) {
-					// May be very early in a non-XPages request - ignore
-				}
-			}
+			jndi.rebind(JNDI_USERTRANSACTION, DominoUserTransaction.SHARED_INSTANCE);
 		} catch (NamingException e) {
 			throw new RuntimeException(e);
 		}
