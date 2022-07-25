@@ -25,7 +25,7 @@
 	
 	<!-- Standard ComponentEnableLocator implementations -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator" class="org.openntf.xsp.jakartaee.discovery.impl.NSFModuleComponentEnabledLocator"/>
+		<service type="org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator" class="org.openntf.xsp.jakartaee.discovery.impl.ComponentModuleComponentEnabledLocator"/>
 	</extension>
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator" class="org.openntf.xsp.jakartaee.discovery.impl.OSGiServletComponentEnabledLocator"/>
@@ -39,7 +39,7 @@
 		<service type="org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator" class="org.openntf.xsp.jakartaee.discovery.impl.NSFContextApplicationPropertyLocator"/>
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator" class="org.openntf.xsp.jakartaee.discovery.impl.NSFModuleApplicationPropertyLocator"/>
+		<service type="org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator" class="org.openntf.xsp.jakartaee.discovery.impl.ComponentModuleApplicationPropertyLocator"/>
 	</extension>
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator" class="org.openntf.xsp.jakartaee.discovery.impl.XPagesApplicationPropertyLocator"/>

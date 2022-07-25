@@ -114,7 +114,7 @@ public abstract class AbstractOpenAPIResource {
 			
 			URI uri = URI.create(req.getRequestURL().toString());
 			
-			String jaxrsRoot = JAXRSServletFactory.getServletPath(notesContext.getModule());
+			String jaxrsRoot = JAXRSServletFactory.getServletPath(ComponentModuleLocator.getDefault().get().getActiveModule());
 			uri = uri.resolve(PathUtil.concat(req.getContextPath(), jaxrsRoot, '/'));
 			String uriString = uri.toString();
 			if(uriString.endsWith("/")) { //$NON-NLS-1$

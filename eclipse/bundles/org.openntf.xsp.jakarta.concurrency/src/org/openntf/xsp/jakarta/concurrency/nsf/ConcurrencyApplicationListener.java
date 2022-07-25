@@ -18,10 +18,8 @@ package org.openntf.xsp.jakarta.concurrency.nsf;
 import java.util.Optional;
 
 import org.openntf.xsp.jakarta.concurrency.AbstractServletConcurrencyContainer;
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
-import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.events.ApplicationListener2;
 
@@ -50,22 +48,10 @@ public class ConcurrencyApplicationListener extends AbstractServletConcurrencyCo
 	public void applicationRefreshed(ApplicationEx app) {
 		
 	}
-	
-	private Optional<NSFComponentModule> getModule() {
-		NotesContext ctx = NotesContext.getCurrentUnchecked();
-		if(ctx != null) {
-			return Optional.ofNullable(ctx.getModule());
-		}
-		return Optional.empty();
-	}
 
 	@Override
 	protected Optional<ServletContext> getServletContext() {
-		return getModule()
-			.map(module -> {
-				javax.servlet.ServletContext oldContext = module.getServletContext();
-				ServletContext servletContext = ServletUtil.oldToNew(module.getDatabasePath(), oldContext);
-				return servletContext;
-			});
+		return ComponentModuleLocator.getDefault()
+			.flatMap(ComponentModuleLocator::getServletContext);
 	}
 }
