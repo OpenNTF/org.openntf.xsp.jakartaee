@@ -23,7 +23,6 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
@@ -35,7 +34,6 @@ public class TestAdminRole extends AbstractWebClientTest {
 	 * require [Admin].
 	 */
 	@Test
-	@Disabled("This is currently unreliable - likely a timing issue in server launch")
 	public void testAdminRole() {
 		// Anonymous should get a login form
 		{
@@ -84,6 +82,34 @@ public class TestAdminRole extends AbstractWebClientTest {
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
 			assertTrue(html.contains("/names.nsf?Login"));
+		}
+	}
+	
+	/**
+	 * Tests rest.AdminRoleExample#getLoginRole, which uses {@code @RolesAllowed} to
+	 * require any authenticated user
+	 */
+	@Test
+	public void testLoginRole() {
+		// Anonymous should get a login form
+		{
+			Client client = getAnonymousClient();
+			WebTarget target = client.target(getRestUrl(null) + "/adminrole/login");
+			Response response = target.request().get();
+			
+			String html = response.readEntity(String.class);
+			assertNotNull(html);
+			assertTrue(html.contains("/names.nsf?Login"));
+		}
+		// Admin should get basic text
+		{
+			Client client = getAdminClient();
+			WebTarget target = client.target(getRestUrl(null) + "/adminrole/login");
+			Response response = target.request().get();
+			
+			String html = response.readEntity(String.class);
+			assertNotNull(html);
+			assertEquals("I think you're an authenticated user", html);
 		}
 	}
 }

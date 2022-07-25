@@ -30,6 +30,8 @@ import org.openntf.xsp.cdi.ext.CDIConstants;
  */
 public class RequestScopeContext extends AbstractProxyingContext {
 	private static final long serialVersionUID = 1L;
+	
+	public static final ThreadLocal<Boolean> FORCE_ACTIVE = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
 	@Override
 	public Class<? extends Annotation> getScope() {
@@ -56,6 +58,9 @@ public class RequestScopeContext extends AbstractProxyingContext {
 	
 	@Override
 	public boolean isActive() {
+		if(FORCE_ACTIVE.get() == Boolean.TRUE) {
+			return true;
+		}
 		Object jaxrsFlag = getHttpServletRequest()
 			.map(req -> req.getAttribute(CDIConstants.CDI_JAXRS_REQUEST))
 			.orElse(null);

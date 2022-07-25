@@ -25,22 +25,22 @@ AAAAUEECICABAAD/////+A4DgA==
   <item name="$DBTheme">
     <text>Classic.theme</text>
   </item>
-  <item name="$DefaultWebFrameset">
-    <text>Web Frame</text>
-  </item>
-  <item name="$TITLE">
-    <text>XPages JEE Example</text>
-  </item>
-  <item name="$FlagsNoRefresh">
-    <text>rv</text>
-  </item>
   <item name="$Daos">
     <text>1</text>
   </item>
   <item name="$LargeSummary">
     <text>0</text>
   </item>
+  <item name="$DefaultWebFrameset">
+    <text>Web Frame</text>
+  </item>
+  <item name="$TITLE">
+    <text>XPages JEE Example</text>
+  </item>
   <item name="$Flags">
     <text>J7qNS</text>
+  </item>
+  <item name="$FlagsNoRefresh">
+    <text>rv</text>
   </item>
 </note>

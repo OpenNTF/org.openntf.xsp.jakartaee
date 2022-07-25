@@ -43,6 +43,9 @@
 				<dt>Custom Property</dt>
 				<dd><input type="text" name="customProperty" /></dd>
 				
+				<dt>Intentionally Fail Commit</dt>
+				<dd><input type="checkbox" name="intentionallyRollBack" value="true"/></dd>
+				
 				<dt>Attachment</dt>
 				<dd><input type="file" name="attachment" /></dd>
 			</dl>

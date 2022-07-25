@@ -31,12 +31,26 @@ public interface CDIContainerLocator {
 	 * 
 	 * @return an API path to an NSF, or {@code null} to skip providing this information
 	 */
-	String getNsfPath();
+	default String getNsfPath() {
+		return null;
+	}
 	
 	/**
-	 * Indicates that rhe CDI container should be loaded based on a given OSGi bundle.
+	 * Indicates that the CDI container should be loaded based on a given OSGi bundle.
 	 * 
 	 * @return a symbolic name of a bundle, or {@code null} to skip providing this information
 	 */
-	String getBundleId();
+	default String getBundleId() {
+		return null;
+	}
+	
+	/**
+	 * Directly provides a CDI container. It is assumed that the return is an instance of
+	 * {@code jakarta.enterprise.inject.spi.CDI}.
+	 * 
+	 * @return a {@code CDI} instance, or {@code null} to skip providing this information
+	 */
+	default Object getContainer() {
+		return null;
+	}
 }

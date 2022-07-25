@@ -1,3 +1,18 @@
+/**
+ * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package model;
 
 import java.io.Serializable;
@@ -5,6 +20,7 @@ import java.util.List;
 
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
+import org.openntf.xsp.nosql.mapping.extension.EntryType;
 import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
 import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
 
@@ -69,6 +85,17 @@ public class ExampleDoc {
 	@Column("MIMEGuy")
 	@ItemStorage(type=ItemStorage.Type.MIMEBean)
 	private MimeStorage mimeGuy;
+	@Column("SkippedValue")
+	@ItemFlags(saveToDisk=false)
+	private String computedValue;
+	@Column("Noninsertable")
+	@ItemStorage(insertable=false)
+	private String nonInsertable;
+	@Column("Nonupdatable")
+	@ItemStorage(updatable=false)
+	private String nonUpdatable;
+	@Column(DominoConstants.FIELD_ENTRY_TYPE)
+	private EntryType entryType;
 	
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
@@ -125,5 +152,29 @@ public class ExampleDoc {
 	}
 	public void setMimeGuy(MimeStorage mimeGuy) {
 		this.mimeGuy = mimeGuy;
+	}
+	
+	public String getComputedValue() {
+		return computedValue;
+	}
+	public void setComputedValue(String computedValue) {
+		this.computedValue = computedValue;
+	}
+	
+	public String getNonInsertable() {
+		return nonInsertable;
+	}
+	public void setNonInsertable(String nonInsertable) {
+		this.nonInsertable = nonInsertable;
+	}
+	public String getNonUpdatable() {
+		return nonUpdatable;
+	}
+	public void setNonUpdatable(String nonUpdatable) {
+		this.nonUpdatable = nonUpdatable;
+	}
+	
+	public EntryType getEntryType() {
+		return entryType;
 	}
 }

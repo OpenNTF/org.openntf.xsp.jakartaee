@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.cdi.bean;
 
+import org.openntf.xsp.cdi.concurrency.NSFSessionClonerSetupParticipant;
+
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -61,6 +63,11 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("dominoSessionAsSigner")
 	public Session produceSessionAsSigner() {
+		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSIONASSIGNER.get();
+		if(threadSession != null) {
+			return threadSession;
+		}
+		
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
 			return context.getSessionAsSigner();
@@ -73,6 +80,11 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("dominoSessionAsSignerWithFullAccess")
 	public Session produceSessionAsSignerWithFullAccess() {
+		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSIONASSIGNER.get();
+		if(threadSession != null) {
+			return threadSession;
+		}
+		
 		NotesContext context = NotesContext.getCurrentUnchecked();
 		if(context != null) {
 			return context.getSessionAsSignerFullAdmin();

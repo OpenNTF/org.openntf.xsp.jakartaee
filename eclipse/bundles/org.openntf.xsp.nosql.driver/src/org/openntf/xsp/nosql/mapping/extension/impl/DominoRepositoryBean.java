@@ -83,9 +83,9 @@ public class DominoRepositoryBean implements Bean<DominoRepository<?, ?>>, Passi
 		// The default DocumentRepositoryProducer uses Class#getClassLoader
 		return AccessController.doPrivileged((PrivilegedAction<DominoRepository<?, ?>>)() -> {
 			@SuppressWarnings("unchecked")
-			Repository<Object, Object> repository = producer.get((Class<Repository<Object, Object>>) type, template);
+			Repository<Object, String> repository = producer.get((Class<Repository<Object, String>>) type, template);
 
-			DominoDocumentRepositoryProxy<DominoRepository<?, ?>> handler = new DominoDocumentRepositoryProxy<>(template,
+			DominoDocumentRepositoryProxy<DominoRepository<?, String>> handler = new DominoDocumentRepositoryProxy<>(template,
 					type, repository);
 			return (DominoRepository<?, ?>) Proxy.newProxyInstance(type.getClassLoader(), new Class[] { type }, handler);
 		});

@@ -26,32 +26,37 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.Platform;
+import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
+import org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator;
 import org.osgi.framework.Bundle;
 
 import lotus.domino.Database;
-import lotus.domino.Document;
 import lotus.domino.NotesException;
 import lotus.domino.Session;
-
 import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.osgi.core.context.ContextInfo;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
+
+import jakarta.annotation.Priority;
 
 /**
  * Utility methods for working with XSP Libraries.
@@ -87,28 +92,11 @@ public enum LibraryUtil {
 	 * @since 2.3.0
 	 */
 	public static boolean isLibraryActive(String libraryId) {
-		ApplicationEx app = ApplicationEx.getInstance();
-		if(app != null) {
-			return usesLibrary(libraryId, app);
-		}
-		NotesContext ctx = NotesContext.getCurrentUnchecked();
-		if(ctx != null) {
-			ComponentModule module = ctx.getModule();
-			if(module != null) {
-				return usesLibrary(libraryId, module);
-			}
-		}
-		try {
-			NotesDatabase database = ContextInfo.getServerDatabase();
-			if(database != null) {
-				return usesLibrary(libraryId, database);
-			}
-		} catch(NoClassDefFoundError e) {
-			// Ignore
-		} catch (NotesAPIException e) {
-			throw new RuntimeException(e);
-		}
-		return false;
+		return findExtensions(ComponentEnabledLocator.class)
+			.stream()
+			.sorted(DescendingPriorityComparator.INSTANCE)
+			.filter(ComponentEnabledLocator::isActive)
+			.anyMatch(locator -> locator.isComponentEnabled(libraryId));
 	}
 	
 	/**
@@ -122,27 +110,13 @@ public enum LibraryUtil {
 	 * @since 2.3.0
 	 */
 	public static String getApplicationProperty(String prop, String defaultValue) {
-		ApplicationEx app = ApplicationEx.getInstance();
-		if(app != null) {
-			return app.getApplicationProperty(prop, defaultValue);
-		}
-		NotesContext ctx = NotesContext.getCurrentUnchecked();
-		if(ctx != null) {
-			ComponentModule module = ctx.getModule();
-			if(module != null) {
-				return getXspProperties(module).getProperty(prop, defaultValue);
-			}
-			
-			try {
-				NotesDatabase database = ctx.getNotesDatabase();
-				if(database != null) {
-					return getXspProperties(database).getProperty(prop, defaultValue);
-				}
-			} catch(NotesAPIException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return defaultValue;
+		return findExtensions(ApplicationPropertyLocator.class)
+			.stream()
+			.sorted(DescendingPriorityComparator.INSTANCE)
+			.filter(ApplicationPropertyLocator::isActive)
+			.findFirst()
+			.map(locator -> locator.getApplicationProperty(prop, defaultValue))
+			.orElse(defaultValue);
 	}
 	
 	/**
@@ -283,6 +257,38 @@ public enum LibraryUtil {
 	}
 	
 	/**
+	 * Finds extension for the given class using the IBM Commons extension mechanism, sorted based
+	 * on the {@link Priority} annotation.
+	 * s the qualified class name.</p>
+	 * 
+	 * @param <T> the class of extension to find
+	 * @param extensionClass the class object representing the extension point
+	 * @param ascending {@code true} if the value of the {@link Priority} annotation should be sorted
+	 *                  in ascending order; {@code false} otherwise
+	 * @return a {@link List} of service objects for the class
+	 * @since 2.7.0
+	 */
+	public static <T> List<T> findExtensionsSorted(Class<T> extensionClass, boolean ascending) {
+		return findExtensions(extensionClass)
+			.stream()
+			.filter(Objects::nonNull)
+			.sorted((a, b) -> {
+				int priorityA = Optional.ofNullable(a.getClass().getAnnotation(Priority.class))
+					.map(Priority::value)
+					.orElse(ascending ? Integer.MAX_VALUE : 0);
+				int priorityB = Optional.ofNullable(b.getClass().getAnnotation(Priority.class))
+					.map(Priority::value)
+					.orElse(ascending ? Integer.MAX_VALUE : 0);
+				if(ascending) {
+					return Integer.compare(priorityA, priorityB);
+				} else {
+					return Integer.compare(priorityB, priorityA);
+				}
+			})
+			.collect(Collectors.toList());
+	}
+	
+	/**
 	 * Finds an implementation of the given extension class, throwing an exception if no implementation
 	 * is found.
 	 * 
@@ -342,18 +348,13 @@ public enum LibraryUtil {
 	 * @throws NotesException if there is a problem reading the names list
 	 * @since 2.3.0
 	 */
-	public static List<String> getUserNamesList(Database database) throws NotesException {
-		// TODO see if this can be done more simply in the NAPI
+	@SuppressWarnings("unchecked")
+	public static Collection<String> getUserNamesList(Database database) throws NotesException {
+		Set<String> result = new HashSet<>();
 		Session session = database.getParent();
-		Document doc = database.createDocument();
-		try {
-			// session.getUserNameList returns the name of the server
-			@SuppressWarnings("unchecked")
-			List<String> names = session.evaluate(" @UserNamesList ", doc); //$NON-NLS-1$
-			return names;
-		} finally {
-			doc.recycle();
-		}
+		result.addAll(session.evaluate(" @UserNamesList ")); //$NON-NLS-1$
+		result.addAll(database.queryAccessRoles(session.getEffectiveUserName()));
+		return result;
 	}
 	
 	/**
@@ -381,11 +382,12 @@ public enum LibraryUtil {
 	 * @since 2.4.0
 	 */
 	public static Path getTempDirectory() {
-		String osName = System.getProperty("os.name"); //$NON-NLS-1$
+		String osName = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("os.name")); //$NON-NLS-1$
 		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
 			return Paths.get("/tmp"); //$NON-NLS-1$
 		} else {
-			return Paths.get(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+			String tempDir = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+			return Paths.get(tempDir);
 		}
 	}
 }

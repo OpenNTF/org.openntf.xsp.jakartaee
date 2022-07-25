@@ -37,4 +37,12 @@ public class AdminRoleExample {
 	public String getFakeUser() {
 		return "It's unlikely, but I suppose possible, that you're allowed to see this.";
 	}
+	
+	@Path("login")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	@RolesAllowed("login")
+	public String getLoginRole() {
+		return "I think you're an authenticated user";
+	}
 }

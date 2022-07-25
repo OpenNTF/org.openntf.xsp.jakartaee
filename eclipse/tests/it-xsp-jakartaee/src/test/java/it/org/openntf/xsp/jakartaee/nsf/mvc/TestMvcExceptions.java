@@ -52,7 +52,7 @@ public class TestMvcExceptions extends AbstractWebClientTest {
 			driver.get(getRestUrl(driver) + "/mvc/notFound");
 			
 			WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
-			assertTrue(span.getText().startsWith("I am a programmatic not-found exception from MVC"));
+			assertTrue(span.getText().startsWith("I am a programmatic not-found exception from MVC"), () -> "Received unexpected page content: " + driver.getPageSource());
 		}
 		{
 			Client client = getAnonymousClient();

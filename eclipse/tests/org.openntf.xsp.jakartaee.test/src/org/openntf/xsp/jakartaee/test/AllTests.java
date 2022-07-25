@@ -20,9 +20,12 @@ import org.junit.runners.Suite;
 import org.openntf.xsp.jakartaee.test.beanvalidation.TestValidationBasics;
 import org.openntf.xsp.jakartaee.test.jsonb.TestJsonb;
 import org.openntf.xsp.jakartaee.test.jsonp.TestJsonp;
+import org.openntf.xsp.jakartaee.test.util.TestLibraryUtil;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	TestLibraryUtil.class,
+	
 	TestValidationBasics.class,
 	
 	TestJsonb.class,

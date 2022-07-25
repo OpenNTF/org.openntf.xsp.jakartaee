@@ -103,6 +103,12 @@
 								</artifact>
 								
 								<!--
+									Concurrency
+								-->
+								<artifact><id>jakarta.enterprise.concurrent:jakarta.enterprise.concurrent-api:2.0.0</id><source>true</source></artifact>
+								<artifact><id>org.glassfish:jakarta.enterprise.concurrent:2.0.0</id><source>true</source></artifact>
+								
+								<!--
 									JAX-B 
 								-->
 								<!-- NB: XML Binding 4.0.0 requires Java 11 -->

@@ -46,10 +46,10 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 
 	private final Class<T> typeClass;
 	private final DominoTemplate template;
-	private final Repository<?, ?> repository;
+	private final Repository<?, String> repository;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	DominoDocumentRepositoryProxy(DominoTemplate template, Class<?> repositoryType, Repository<?, ?> repository) {
+	DominoDocumentRepositoryProxy(DominoTemplate template, Class<?> repositoryType, Repository<?, String> repository) {
         this.template = template;
         this.typeClass = (Class) ((ParameterizedType) repositoryType.getGenericInterfaces()[0])
                 .getActualTypeArguments()[0];
@@ -84,8 +84,11 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 				pagination = null;
 			}
 			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
 			
-			return template.viewEntryQuery(entityName, viewEntries.value(), category, pagination, viewEntries.maxLevel());
+			return template.viewEntryQuery(entityName, viewEntries.value(), category, pagination, viewEntries.maxLevel(), viewEntries.documentsOnly());
 		}
 		
 		// View documents support
@@ -113,6 +116,9 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 				pagination = null;
 			}
 			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
 			
 			return template.viewDocumentQuery(entityName, viewDocuments.value(), category, pagination, viewDocuments.maxLevel());
 		}
@@ -136,7 +142,12 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 		
 		Method saveWithForm = DominoRepository.class.getDeclaredMethod("save", Object.class, boolean.class); //$NON-NLS-1$
 		if(method.equals(saveWithForm)) {
-			return template.insert(args[0], (boolean)args[1]);
+			String id = getId(args[0]);
+			if(id !=null && !id.isEmpty() && template.existsById(id)) {
+				return template.update(args[0], (boolean)args[1]);
+			} else {
+				return template.insert(args[0], (boolean)args[1]);
+			}
 		}
 		
 		return method.invoke(repository, args);

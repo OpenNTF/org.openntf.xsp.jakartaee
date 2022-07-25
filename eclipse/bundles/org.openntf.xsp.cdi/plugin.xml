@@ -35,4 +35,19 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.bean.BuiltinBeanClassContributor" />
 	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.concurrency.ConcurrencyCDIContainerLocator" />
+	</extension>
+	
+	<!-- Concurrency thread assistants -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant" class="org.openntf.xsp.cdi.concurrency.CDIContextSetupParticipant" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant" class="org.openntf.xsp.cdi.concurrency.NSFSessionClonerSetupParticipant" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.concurrency.ConcurrencyBeanClassContributor" />
+	</extension>
 </plugin>

@@ -112,6 +112,8 @@ public enum ContainerUtil {
 	//   the same init, and thus it would be preferable to find a better solution
 	private static final Map<String, Object> CONTAINER_INIT_LOCKS = Collections.synchronizedMap(new HashMap<>());
 	
+	private static final String ATTR_CONTEXTCONTAINER = CDILibrary.LIBRARY_ID + ".cdicontainer"; //$NON-NLS-1$
+	
 	/**
 	 * Gets or creates a {@link WeldContainer} instance for the provided Application.
 	 * 
@@ -186,6 +188,11 @@ public enum ContainerUtil {
 						
 						return weld.initialize();
 					});
+					
+					// Also set it in the ServletContext for other use
+					// NotesContext must be set if we're here
+					javax.servlet.ServletContext oldContext = NotesContext.getCurrent().getModule().getServletContext();
+					oldContext.setAttribute(ATTR_CONTEXTCONTAINER, instance);
 				}
 				return instance;
 			});
@@ -294,6 +301,19 @@ public enum ContainerUtil {
 			}
 			return instance;
 		});
+	}
+	
+	/**
+	 * Retrieves the CDI container for the provided ComponentModule, if it has been
+	 * initialized.
+	 * 
+	 * @param servletContext the {@link ComponentModule} instance to query
+	 * @return the module's container, or {@code null} if it has not been initialized
+	 * @since 2.7.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static CDI<Object> getContainerUnchecked(ComponentModule module) {
+		return (CDI<Object>)module.getAttributes().get(ATTR_CONTEXTCONTAINER);
 	}
 	
 	private static void addBundleBeans(Bundle bundle, Weld weld, Set<String> bundleNames, Set<String> classNames) throws BundleException {

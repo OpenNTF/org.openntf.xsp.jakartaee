@@ -22,7 +22,7 @@ import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.mapping.Pagination;
 
 public interface DominoDocumentCollectionManager extends DocumentCollectionManager {
-	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
+	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly);
 	
 	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
 	
@@ -40,4 +40,24 @@ public interface DominoDocumentCollectionManager extends DocumentCollectionManag
      * @since 2.6.0
      */
     DocumentEntity insert(DocumentEntity entity, boolean computeWithForm);
+	
+	/**
+     * Saves document collection entity
+     *
+     * @param entity entity to be saved
+     * @param computeWithForm whether to compute the document with its form
+     * @return the entity saved
+     * @throws NullPointerException when document is null
+     * @since 2.6.0
+     */
+    DocumentEntity update(DocumentEntity entity, boolean computeWithForm);
+    
+    /**
+     * Determines whether a document exists with the provided UNID.
+     * 
+     * @param unid the UNID to check
+     * @return {@code true} if a document exists with that UNID; {@code false} otherwise
+     * @since 2.7.0
+     */
+    boolean existsById(String unid);
 }

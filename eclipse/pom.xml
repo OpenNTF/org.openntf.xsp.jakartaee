@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf.xsp</groupId>
 	<artifactId>xsp-jakartaee</artifactId>
-	<version>2.6.0</version>
+	<version>2.7.0</version>
 	<packaging>pom</packaging>
 
 	<name>XPages Jakarta EE Support</name>
@@ -38,6 +38,7 @@
 		<!-- General Jakarta EE platform -->
 		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
 		<module>bundles/org.openntf.xsp.jakartaee.osgiresourcelocator</module>
+		<module>bundles/org.openntf.xsp.jakarta.concurrency</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
 		<!-- Servlet -->
@@ -46,6 +47,7 @@
 		
 		<!-- CDI 3.0 -->
 		<module>bundles/org.openntf.xsp.cdi</module>
+		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
 		<module>features/org.openntf.xsp.cdi.feature</module>
 		
 		<!-- Expression Language 4.0 -->
@@ -317,7 +319,7 @@
 			            <exclude>src/test/resources/**</exclude>
 			            <exclude>src/main/resources/**</exclude>
 						<exclude>**/build.properties</exclude>
-						<exclude>**/jakarta/**</exclude>
+						<exclude>**src/main/java/jakarta/**</exclude>
 						<exclude>**/org/jboss/**</exclude>
 						<exclude>**/org/openntf/com/sun/mail/**</exclude>
 						<exclude>**/gfprobe-provider.xml</exclude>
@@ -341,7 +343,6 @@
 				<version>3.0.0-M1</version>
 				<executions>
 					<execution>
-						<?m2e ignore?>
 						<id>enforce-maven-and-java</id>
 						<goals>
 							<goal>enforce</goal>

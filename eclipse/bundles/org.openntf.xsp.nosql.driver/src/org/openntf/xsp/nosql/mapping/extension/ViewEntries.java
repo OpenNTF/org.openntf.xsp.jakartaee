@@ -45,4 +45,11 @@ public @interface ViewEntries {
 	 * @return the maximum entry level to process
 	 */
 	int maxLevel() default -1;
+	
+	/**
+	 * Sets whether view reading should only process document-type entries.
+	 * 
+	 * @since 2.7.0
+	 */
+	boolean documentsOnly() default false;
 }

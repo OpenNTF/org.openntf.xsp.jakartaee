@@ -103,8 +103,8 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel) {
-		return getManager().viewEntryQuery(entityName, viewName, category, pagination, maxLevel)
+	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly) {
+		return getManager().viewEntryQuery(entityName, viewName, category, pagination, maxLevel, docsOnly)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}
@@ -130,6 +130,16 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	@Override
 	public <T> T insert(T entity, boolean computeWithForm) {
 		return getWorkflow().flow(entity, documentEntity -> getManager().insert(documentEntity, computeWithForm));
+	}
+	
+	@Override
+	public <T> T update(T entity, boolean computeWithForm) {
+		return getWorkflow().flow(entity, documentEntity -> getManager().update(documentEntity, computeWithForm));
+	}
+	
+	@Override
+	public boolean existsById(String unid) {
+		return getManager().existsById(unid);
 	}
 
 }

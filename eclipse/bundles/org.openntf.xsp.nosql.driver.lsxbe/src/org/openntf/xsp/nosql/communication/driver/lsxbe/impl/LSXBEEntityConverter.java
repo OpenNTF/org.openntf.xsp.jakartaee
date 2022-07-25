@@ -62,10 +62,10 @@ import java.util.zip.GZIPInputStream;
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.eclipse.jnosql.mapping.reflection.FieldMapping;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.util.FileUtil;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.LoaderObjectInputStream;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
@@ -139,7 +139,7 @@ public class LSXBEEntityConverter {
 	 */
 	public Stream<DocumentEntity> convertQRPViewDocuments(Database database, View docs, ClassMapping classMapping) throws NotesException {
 		ViewNavigator nav = docs.createViewNav();
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, false);
 		return iter.stream()
 			.map(entry -> {
 				try {
@@ -172,11 +172,12 @@ public class LSXBEEntityConverter {
 	 * @param entityName the name of the target entity
 	 * @param nav the {@link ViewNavigator} to traverse
 	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
+	 * @param docsOnly whether to restrict processing to document entries only
 	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
 	 * @throws NotesException if there is a problem reading the view
 	 */
-	public Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, long limit, boolean docsOnly, ClassMapping classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
 		// Read in the column names
@@ -200,7 +201,7 @@ public class LSXBEEntityConverter {
 				f -> f.getNativeField().getType()
 			));
 		
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, docsOnly);
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
@@ -300,21 +301,13 @@ public class LSXBEEntityConverter {
 	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, long limit, ClassMapping classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOLUMNVALUES | ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, true);
 		Stream<DocumentEntity> result = iter.stream()
-			.filter(entry -> {
-				try {
-					return entry.isDocument();
-				} catch (NotesException e) {
-					throw new RuntimeException(e);
-				}
-			})
 			.map(entry -> {
 				try {
 					lotus.domino.Document doc = entry.getDocument();
 					List<Document> documents = toNoSQLDocuments(doc, classMapping);
-					String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
-					return DocumentEntity.of(name, documents);
+					return DocumentEntity.of(entityName, documents);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -400,7 +393,7 @@ public class LSXBEEntityConverter {
 						for(EntityAttachment att : newAttachments) {
 							// TODO check for if this field already exists
 							try {
-								Path tempDir = Files.createTempDirectory(LibraryUtil.getTempDirectory(), getClass().getSimpleName());
+								Path tempDir = Files.createTempDirectory(FileUtil.getTempDirectory(), getClass().getSimpleName());
 								try {
 									// TODO consider options for when the name can't be stored on the filesystem
 									Path tempFile = tempDir.resolve(att.getName());
@@ -424,6 +417,17 @@ public class LSXBEEntityConverter {
 						}
 					}
 				} else if(!SKIP_WRITING_FIELDS.contains(doc.getName())) {
+					Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.getName(), ItemStorage.class);
+					// Check if we should skip processing
+					if(optStorage.isPresent()) {
+						ItemStorage storage = optStorage.get();
+						if(!storage.insertable() && target.isNewNote()) {
+							continue;
+						} else if(!storage.updatable() && !target.isNewNote()) {
+							continue;
+						}
+					}
+					
 					Object value = doc.get();
 					if(value == null) {
 						target.removeItem(doc.getName());
@@ -439,7 +443,6 @@ public class LSXBEEntityConverter {
 						Item item;
 						
 						// Check if the item is expected to be stored specially, which may be handled down the line
-						Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.getName(), ItemStorage.class);
 						if(optStorage.isPresent() && optStorage.get().type() != ItemStorage.Type.Default) {
 							ItemStorage storage = optStorage.get();
 							switch(storage.type()) {
@@ -498,24 +501,23 @@ public class LSXBEEntityConverter {
 						}
 						
 						// Check for a @ItemFlags annotation
-						if(classMapping != null) {
-							Optional<ItemFlags> itemFlagsOpt = getFieldAnnotation(classMapping, doc.getName(), ItemFlags.class);
-							if(itemFlagsOpt.isPresent()) {
-								ItemFlags itemFlags = itemFlagsOpt.get();
-								item.setAuthors(itemFlags.authors());
-								item.setReaders(itemFlags.readers());
-								if(itemFlags.authors() || itemFlags.readers() || itemFlags.names()) {
-									item.setNames(true);
-								} else {
-									item.setNames(false);
-								}
-								item.setEncrypted(itemFlags.encrypted());
-								item.setProtected(itemFlags.protectedItem());
-								item.setSigned(itemFlags.signed());
-								if(!(item instanceof RichTextItem) && item.getType() != Item.MIME_PART) {
-									item.setSummary(itemFlags.summary());
-								}
+						Optional<ItemFlags> itemFlagsOpt = getFieldAnnotation(classMapping, doc.getName(), ItemFlags.class);
+						if(itemFlagsOpt.isPresent()) {
+							ItemFlags itemFlags = itemFlagsOpt.get();
+							item.setAuthors(itemFlags.authors());
+							item.setReaders(itemFlags.readers());
+							if(itemFlags.authors() || itemFlags.readers() || itemFlags.names()) {
+								item.setNames(true);
+							} else {
+								item.setNames(false);
 							}
+							item.setEncrypted(itemFlags.encrypted());
+							item.setProtected(itemFlags.protectedItem());
+							item.setSigned(itemFlags.signed());
+							if(!(item instanceof RichTextItem) && item.getType() != Item.MIME_PART) {
+								item.setSummary(itemFlags.summary());
+							}
+							item.setSaveToDisk(itemFlags.saveToDisk());
 						}
 						
 						item.recycle();
@@ -557,9 +559,7 @@ public class LSXBEEntityConverter {
 			Map<String, Object> docMap = new LinkedHashMap<>();
 			for(Item item : (List<Item>)doc.getItems()) {
 				String itemName = item.getName();
-				if(DominoConstants.FIELD_NAME.equalsIgnoreCase(itemName)) {
-					continue;
-				} else if(SYSTEM_FIELDS.contains(itemName)) {
+				if(SYSTEM_FIELDS.contains(itemName)) {
 					continue;
 				}
 				
