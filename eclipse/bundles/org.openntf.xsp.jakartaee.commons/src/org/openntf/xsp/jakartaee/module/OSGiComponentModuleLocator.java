@@ -23,7 +23,7 @@ import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
  * @since 2.8.0
  */
 @Priority(2)
-public class OSGiComponentModuleLocator implements ComponentModuleLocator<AbstractOSGIModule> {
+public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 	private static final Field osgiNotesContextRequestField;
 	private static final Field osgiNotesContextModuleField;
 	static {
@@ -59,44 +59,50 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator<Abstra
 	private boolean isAvailable() {
 		return osgiNotesContextRequestField != null;
 	}
+	
+	@Override
+	public boolean isActive() {
+		return isAvailable() && NotesContext.getCurrentUnchecked() != null;
+	}
 
 	@Override
-	public Optional<AbstractOSGIModule> findActiveModule() {
+	public AbstractOSGIModule getActiveModule() {
 		if(!isAvailable()) {
-			return Optional.empty();
+			return null;
 		}
 		NotesContext osgiContext = NotesContext.getCurrentUnchecked();
 		if(osgiContext != null) {
 			try {
-				return Optional.of((AbstractOSGIModule)osgiNotesContextModuleField.get(osgiContext));
+				return (AbstractOSGIModule)osgiNotesContextModuleField.get(osgiContext);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		return Optional.empty();
+		return null;
 	}
 
 	@Override
-	public Optional<ServletContext> findServletContext() {
-		return findActiveModule()
-			.map(mod -> {
-				// TODO determine if this is useful when working in a WebContainer app
-				javax.servlet.ServletContext ctx = mod.getServletContext();
-				String contextPath = findServletRequest().get().getContextPath();
-				return ServletUtil.oldToNew(contextPath, ctx);
-			});
+	public Optional<ServletContext> getServletContext() {
+		if(!isActive()) {
+			return Optional.empty();
+		}
+		// TODO determine if this is useful when working in a WebContainer app
+		AbstractOSGIModule module = getActiveModule();
+		javax.servlet.ServletContext ctx = module.getServletContext();
+		String contextPath = getServletRequest().get().getContextPath();
+		return Optional.ofNullable(ServletUtil.oldToNew(contextPath, ctx));
 	}
 	
 	@Override
-	public Optional<HttpServletRequest> findServletRequest() {
-		if(!isAvailable()) {
+	public Optional<HttpServletRequest> getServletRequest() {
+		if(!isActive()) {
 			return Optional.empty();
 		}
 		NotesContext osgiContext = NotesContext.getCurrentUnchecked();
 		if(osgiContext != null) {
 			try {
 				javax.servlet.http.HttpServletRequest request = (javax.servlet.http.HttpServletRequest)osgiNotesContextRequestField.get(osgiContext);
-				javax.servlet.ServletContext servletContext = findActiveModule().get().getServletContext();
+				javax.servlet.ServletContext servletContext = getActiveModule().getServletContext();
 				return Optional.of(ServletUtil.oldToNew(servletContext, request));
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new RuntimeException(e);

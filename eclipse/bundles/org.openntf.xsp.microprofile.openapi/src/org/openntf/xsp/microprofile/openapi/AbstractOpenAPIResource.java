@@ -29,6 +29,7 @@ import org.eclipse.microprofile.openapi.models.info.Info;
 import org.eclipse.microprofile.openapi.models.servers.Server;
 import org.jboss.jandex.Index;
 import org.openntf.xsp.jakartaee.DelegatingClassLoader;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jaxrs.JAXRSServletFactory;
 
 import com.ibm.commons.util.PathUtil;
@@ -112,6 +113,7 @@ public abstract class AbstractOpenAPIResource {
 			Server server = new ServerImpl();
 			
 			URI uri = URI.create(req.getRequestURL().toString());
+			
 			String jaxrsRoot = JAXRSServletFactory.getServletPath(notesContext.getModule());
 			uri = uri.resolve(PathUtil.concat(req.getContextPath(), jaxrsRoot, '/'));
 			String uriString = uri.toString();

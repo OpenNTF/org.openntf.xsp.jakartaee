@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @since 2.8.0
  */
 @Priority(1)
-public class NSFComponentModuleLocator implements ComponentModuleLocator<NSFComponentModule> {
+public class NSFComponentModuleLocator implements ComponentModuleLocator {
 	private static final Field notesContextRequestField;
 	static {
 		notesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
@@ -35,29 +35,36 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator<NSFComp
 			}
 		});
 	}
+	
+	@Override
+	public boolean isActive() {
+		return NotesContext.getCurrentUnchecked() != null;
+	}
 
 	@Override
-	public Optional<NSFComponentModule> findActiveModule() {
+	public NSFComponentModule getActiveModule() {
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
 		if(nsfContext != null) {
-			return Optional.of(nsfContext.getModule());
+			return nsfContext.getModule();
+		}
+		return null;
+	}
+
+	@Override
+	public Optional<ServletContext> getServletContext() {
+		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
+		if(nsfContext != null) {
+			NSFComponentModule module = nsfContext.getModule();
+			String path = module.getDatabasePath().replace('\\', '/');
+			javax.servlet.ServletContext servletContext = module.getServletContext();
+			return Optional.of(ServletUtil.oldToNew(path, servletContext));
 		}
 		return Optional.empty();
 	}
 
 	@Override
-	public Optional<ServletContext> findServletContext() {
-		return findActiveModule()
-			.map(module -> {
-				String path = module.getDatabasePath().replace('\\', '/');
-				javax.servlet.ServletContext servletContext = module.getServletContext();
-				return ServletUtil.oldToNew(path, servletContext);
-			});
-	}
-
-	@Override
-	public Optional<HttpServletRequest> findServletRequest() {
-		return findServletContext()
+	public Optional<HttpServletRequest> getServletRequest() {
+		return getServletContext()
 			.flatMap(servletContext -> {
 				NotesContext nsfContext = NotesContext.getCurrentUnchecked();
 				if(nsfContext != null) {

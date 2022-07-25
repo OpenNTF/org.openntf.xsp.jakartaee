@@ -86,7 +86,6 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 		return getClass().getName() + '-' + id;
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected Optional<HttpServletRequest> getHttpServletRequest() {
 		if(THREAD_REQUESTS.get() != null) {
 			return Optional.of(THREAD_REQUESTS.get());
@@ -102,7 +101,7 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 		
 		return LibraryUtil.findExtensionsSorted(ComponentModuleLocator.class, false)
 			.stream()
-			.map(loc -> (Optional<HttpServletRequest>)loc.findServletRequest())
+			.map(ComponentModuleLocator::getServletRequest)
 			.filter(Optional::isPresent)
 			.findFirst()
 			.map(Optional::get);

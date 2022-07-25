@@ -48,7 +48,7 @@ public class TestWebappServlet extends AbstractWebClientTest {
 		
 		String body = response.readEntity(String.class);
 		
-		assertFalse(body.contains("Module: Optional.empty"), () -> "Received unexpected body: " + body);
+		assertFalse(body.contains("Module: null"), () -> "Received unexpected body: " + body);
 		assertFalse(body.contains("Request: Optional.empty"), () -> "Received unexpected body: " + body);
 		assertFalse(body.contains("Context: Optional.empty"), () -> "Received unexpected body: " + body);
 	}
