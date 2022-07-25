@@ -27,23 +27,17 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-import org.openntf.xsp.jsp.webapp.JspExtensionFactory;
-
 import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.domino.napi.c.Os;
 import com.ibm.domino.xsp.module.nsf.NSFService;
-import com.ibm.ws.webcontainer.WebContainer;
-import com.ibm.wsspi.webcontainer.logging.LoggerFactory;
 
 import jakarta.servlet.Servlet;
 
@@ -60,11 +54,6 @@ public class EarlyInitFactory implements IServiceFactory {
 	@Override
 	public HttpService[] getServices(LCDEnvironment env) {
 		try {
-			initWebContainer();
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-		try {
 			initNsf();
 		} catch(Throwable t) {
 			t.printStackTrace();
@@ -77,17 +66,6 @@ public class EarlyInitFactory implements IServiceFactory {
 		
 		
 		return null;
-	}
-	
-	/**
-	 * Adds JSP support to bundle-based web applications.
-	 */
-	private void initWebContainer() {
-//		if(debug) {
-//			Logger logger = LoggerFactory.getInstance().getLogger("com.ibm.ws.webcontainer.servlet"); //$NON-NLS-1$
-//			logger.setLevel(Level.ALL);
-//		}
-//		WebContainer.addExtensionFactory(new JspExtensionFactory());
 	}
 	
 	/**
@@ -132,6 +110,7 @@ public class EarlyInitFactory implements IServiceFactory {
 		Bundle jstl = LibraryUtil.getBundle("org.glassfish.web.jakarta.servlet.jsp.jstl").get(); //$NON-NLS-1$
 		Path jstlDest = destDir.resolve(jstl.getSymbolicName() + "_" + jstl.getVersion() + ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
 		if(!Files.exists(jstlDest)) {
+			@SuppressWarnings("deprecation")
 			Path jstlSource = FileLocator.getBundleFile(jstl).toPath();
 			Files.copy(jstlSource, jstlDest);
 		}

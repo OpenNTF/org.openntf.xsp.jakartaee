@@ -43,6 +43,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	private static final String[] BUNDLE_DEPS = {
 		"org.openntf.xsp.test.postinstall", //$NON-NLS-1$
 		"org.openntf.xsp.test.beanbundle", //$NON-NLS-1$
+		"org.openntf.xsp.jakarta.example.webapp" //$NON-NLS-1$
 	};
 	
 	public static final Set<Path> tempFiles = new HashSet<>();
