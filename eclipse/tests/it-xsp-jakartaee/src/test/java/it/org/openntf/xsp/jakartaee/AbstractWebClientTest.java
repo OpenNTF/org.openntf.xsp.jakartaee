@@ -67,6 +67,10 @@ public abstract class AbstractWebClientTest {
 		return "/dev/jeebasebundle.nsf";
 	}
 	
+	public String getWebappContextPath() {
+		return "/jeeExample";
+	}
+	
 	public String getRootUrl(WebDriver driver) {
 		String host;
 		int port;
@@ -114,6 +118,21 @@ public abstract class AbstractWebClientTest {
 		}
 		
 		String context = getBundleExampleContextPath();
+		return PathUtil.concat("http://" + host + ":" + port, context, '/');
+	}
+	
+	public String getWebappRootUrl(WebDriver driver) {
+		String host;
+		int port;
+		if(driver instanceof RemoteWebDriver) {
+			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
+			port = 80;
+		} else {
+			host = JakartaTestContainers.instance.domino.getHost();
+			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+		}
+		
+		String context = getWebappContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
