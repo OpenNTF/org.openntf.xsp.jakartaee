@@ -16,23 +16,21 @@
 package org.openntf.xsp.cdi.context;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Optional;
 import java.util.UUID;
+
+import javax.faces.context.FacesContext;
+
+import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.enterprise.context.spi.Context;
 import jakarta.enterprise.context.spi.Contextual;
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.enterprise.inject.spi.Bean;
-import javax.faces.context.FacesContext;
 import jakarta.servlet.http.HttpServletRequest;
-
-import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 /**
  * 
@@ -44,35 +42,6 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 	
 	private static final ThreadLocal<HttpServletRequest> THREAD_REQUESTS = new ThreadLocal<>();
 	
-	private static final Field notesContextRequestField;
-	private static final Field osgiNotesContextRequestField;
-	static {
-		notesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
-			try {
-				Field field = NotesContext.class.getDeclaredField("httpRequest"); //$NON-NLS-1$
-				field.setAccessible(true);
-				return field;
-			} catch (NoSuchFieldException | SecurityException e) {
-				throw new RuntimeException(e);
-			}
-		});
-		osgiNotesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
-			Class<?> osgiContextClass = null;
-			try {
-				osgiContextClass = Class.forName("com.ibm.domino.xsp.adapter.osgi.NotesContext"); //$NON-NLS-1$
-			} catch (ClassNotFoundException e1) {
-				// In Notes or other non-full environment
-				return null;
-			}
-			try {
-				Field field = osgiContextClass.getDeclaredField("request"); //$NON-NLS-1$
-				field.setAccessible(true);
-				return field;
-			} catch (NoSuchFieldException | SecurityException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
 	
 	public static void setThreadContextRequest(HttpServletRequest request) {
 		THREAD_REQUESTS.set(request);
@@ -117,6 +86,7 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 		return getClass().getName() + '-' + id;
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected Optional<HttpServletRequest> getHttpServletRequest() {
 		if(THREAD_REQUESTS.get() != null) {
 			return Optional.of(THREAD_REQUESTS.get());
@@ -130,47 +100,11 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 			return Optional.ofNullable(ServletUtil.oldToNew(context, request));
 		}
 		
-		// If we're not in a Faces context, check the OSGi servlet context
-		NotesContext notesContext = NotesContext.getCurrentUnchecked();
-		if(notesContext != null) {
-			Optional<HttpServletRequest> request = getHttpServletRequest(notesContext);
-			if(request.isPresent()) {
-				return request;
-			}
-		}
-		
-		if(osgiNotesContextRequestField != null) {
-			com.ibm.domino.xsp.adapter.osgi.NotesContext osgiContext = com.ibm.domino.xsp.adapter.osgi.NotesContext.getCurrentUnchecked();
-			if(osgiContext != null) {
-				Optional<HttpServletRequest> request = getHttpServletRequest(osgiContext);
-				if(request.isPresent()) {
-					return request;
-				}
-			}
-		}
-		
-		return Optional.empty();
-	}
-	
-	protected Optional<HttpServletRequest> getHttpServletRequest(NotesContext context) {
-		return AccessController.doPrivileged((PrivilegedAction<Optional<HttpServletRequest>>)() -> {
-			try {
-				javax.servlet.http.HttpServletRequest oldReq = (javax.servlet.http.HttpServletRequest)notesContextRequestField.get(context);
-				return Optional.ofNullable(ServletUtil.oldToNew(null, oldReq));
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
-	
-	protected Optional<HttpServletRequest> getHttpServletRequest(com.ibm.domino.xsp.adapter.osgi.NotesContext context) {
-		return AccessController.doPrivileged((PrivilegedAction<Optional<HttpServletRequest>>)() -> {
-			try {
-				javax.servlet.http.HttpServletRequest oldReq = (javax.servlet.http.HttpServletRequest)osgiNotesContextRequestField.get(context);
-				return Optional.ofNullable(ServletUtil.oldToNew(null, oldReq));
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		});
+		return LibraryUtil.findExtensionsSorted(ComponentModuleLocator.class, false)
+			.stream()
+			.map(loc -> (Optional<HttpServletRequest>)loc.findServletRequest())
+			.filter(Optional::isPresent)
+			.findFirst()
+			.map(Optional::get);
 	}
 }

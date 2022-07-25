@@ -14,4 +14,32 @@
 		<servlet-name>JspServlet</servlet-name>
 		<url-pattern>*.jsp</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>ExampleServlet</servlet-name>
+		<servlet-class>org.openntf.xsp.jakarta.servlet.webapp.JakartaServletFacade</servlet-class>
+		
+		<init-param>
+			<param-name>org.openntf.xsp.jakarta.servlet.class</param-name>
+			<param-value>org.openntf.xsp.jakarta.example.webapp.ExampleServlet</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ExampleServlet</servlet-name>
+		<url-pattern>/exampleServlet</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>LocatorTestServlet</servlet-name>
+		<servlet-class>org.openntf.xsp.jakarta.servlet.webapp.JakartaServletFacade</servlet-class>
+		
+		<init-param>
+			<param-name>org.openntf.xsp.jakarta.servlet.class</param-name>
+			<param-value>org.openntf.xsp.jakarta.example.webapp.LocatorTestServlet</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>LocatorTestServlet</servlet-name>
+		<url-pattern>/locatorTestServlet</url-pattern>
+	</servlet-mapping>
 </web-app>

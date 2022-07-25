@@ -44,4 +44,12 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator" class="org.openntf.xsp.jakartaee.discovery.impl.XPagesApplicationPropertyLocator"/>
 	</extension>
+	
+	<!-- Standard ComponentModuleLocator implementations -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleLocator" class="org.openntf.xsp.jakartaee.module.OSGiComponentModuleLocator"/>
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleLocator" class="org.openntf.xsp.jakartaee.module.NSFComponentModuleLocator"/>
+	</extension>
 </plugin>
