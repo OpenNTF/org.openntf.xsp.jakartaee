@@ -108,7 +108,8 @@
 		<module>bundles/org.openntf.xsp.microprofile.health</module>
 		<module>features/org.openntf.xsp.microprofile.health.feature</module>
 		
-		<!-- Integration test support -->
+		<!-- Integration test support and examples -->
+		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
 		<module>tests/org.openntf.xsp.test.beanbundle</module>
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		

@@ -38,6 +38,7 @@ public class JspExtensionFactory implements ExtensionFactory {
 
 	@Override
 	public ExtensionProcessor createExtensionProcessor(IServletContext context) throws Exception {
+		System.out.println("thinking about adding an extension processor for " + context + " - " + context.getClass().getName());
 		if(context.getClass().getName().equals(BUNDLE_WEBAPP_NAME)) {
 			return new JspExtensionProcessor(context);
 		} else {

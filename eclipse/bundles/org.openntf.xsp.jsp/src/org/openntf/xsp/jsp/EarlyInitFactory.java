@@ -27,21 +27,23 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-//import org.openntf.xsp.jsp.webapp.JspExtensionFactory;
+import org.openntf.xsp.jsp.webapp.JspExtensionFactory;
 
 import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.domino.napi.c.Os;
 import com.ibm.domino.xsp.module.nsf.NSFService;
-//import com.ibm.ws.webcontainer.WebContainer;
-//import com.ibm.wsspi.webcontainer.logging.LoggerFactory;
+import com.ibm.ws.webcontainer.WebContainer;
+import com.ibm.wsspi.webcontainer.logging.LoggerFactory;
 
 import jakarta.servlet.Servlet;
 

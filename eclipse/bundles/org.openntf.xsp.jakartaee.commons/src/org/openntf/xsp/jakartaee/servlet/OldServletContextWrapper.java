@@ -578,18 +578,24 @@ class OldServletContextWrapper implements ServletContext {
 	}
 	
 	private List<IServletFactory> getServletFactories() {
-		try {
-			return AccessController.doPrivileged((PrivilegedExceptionAction<List<IServletFactory>>)() -> {
-				NotesContext context = NotesContext.getCurrentUnchecked();
-				NSFComponentModule module = context.getModule();
-				Field servletFactoriesField = ComponentModule.class.getDeclaredField("servletFactories"); //$NON-NLS-1$
-				servletFactoriesField.setAccessible(true);
-				List<IServletFactory> factories = (List<IServletFactory>) servletFactoriesField.get(module);
-				return factories;
-			});
-		} catch (PrivilegedActionException e) {
-			throw new RuntimeException(e.getCause());
-		} 
+		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
+		if(nsfContext != null) {
+			try {
+				return AccessController.doPrivileged((PrivilegedExceptionAction<List<IServletFactory>>)() -> {
+					NotesContext context = NotesContext.getCurrentUnchecked();
+					NSFComponentModule module = context.getModule();
+					Field servletFactoriesField = ComponentModule.class.getDeclaredField("servletFactories"); //$NON-NLS-1$
+					servletFactoriesField.setAccessible(true);
+					List<IServletFactory> factories = (List<IServletFactory>) servletFactoriesField.get(module);
+					return factories;
+				});
+			} catch (PrivilegedActionException e) {
+				throw new RuntimeException(e.getCause());
+			}
+		} else {
+			// TODO support other contexts
+			return Collections.emptyList();
+		}
 	}
 	
 	private static final String ATTR_LISTENERS = OldServletContextWrapper.class.getName() + "_listeners"; //$NON-NLS-1$
@@ -611,7 +617,7 @@ class OldServletContextWrapper implements ServletContext {
 		return result;
 	}
 	
-	private Map<String, String> getExtraInitParameters() {
+	Map<String, String> getExtraInitParameters() {
 		Map<String, String> result = (Map<String, String>)delegate.getAttribute(ATTR_INITPARAMS);
 		if(result == null) {
 			result = new HashMap<>();

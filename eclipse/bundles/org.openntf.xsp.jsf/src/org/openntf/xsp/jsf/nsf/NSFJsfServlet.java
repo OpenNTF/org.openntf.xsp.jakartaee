@@ -45,7 +45,6 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
-import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.inject.spi.CDI;
@@ -240,30 +239,26 @@ public class NSFJsfServlet extends HttpServlet {
 	@SuppressWarnings("unchecked")
 	private Set<Class<?>> buildMatchingClasses(HandlesTypes types, Bundle bundle) {
 		Set<Class<?>> result = new HashSet<>();
-		if(module instanceof NSFComponentModule) {
-			// TODO consider whether we can handle other ComponentModules, were someone to make one
-			
-			ModuleUtil.getClassNames((NSFComponentModule)module)
-				.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-				.map(className -> {
-					try {
-						return module.getModuleClassLoader().loadClass(className);
-					} catch (ClassNotFoundException e) {
-						throw new RuntimeException(e);
+		ModuleUtil.getClassNames(module)
+			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
+			.map(className -> {
+				try {
+					return module.getModuleClassLoader().loadClass(className);
+				} catch (ClassNotFoundException e) {
+					throw new RuntimeException(e);
+				}
+			})
+			.filter(c -> {
+				for(Class<?> type : types.value()) {
+					if(type.isAnnotation()) {
+						return c.isAnnotationPresent((Class<? extends Annotation>)type);
+					} else {
+						return type.isAssignableFrom(c);
 					}
-				})
-				.filter(c -> {
-					for(Class<?> type : types.value()) {
-						if(type.isAnnotation()) {
-							return c.isAnnotationPresent((Class<? extends Annotation>)type);
-						} else {
-							return type.isAssignableFrom(c);
-						}
-					}
-					return true;
-				})
-				.forEach(result::add);
-		}
+				}
+				return true;
+			})
+			.forEach(result::add);
 		
 		// Find in the JSF bundle as well
 		String baseUrl = bundle.getEntry("/").toString(); //$NON-NLS-1$

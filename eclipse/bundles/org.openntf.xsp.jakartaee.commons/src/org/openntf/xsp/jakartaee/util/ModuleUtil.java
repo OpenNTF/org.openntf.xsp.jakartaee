@@ -18,18 +18,23 @@ package org.openntf.xsp.jakartaee.util;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 
+import java.text.MessageFormat;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- * This class contains methods for working with {@link NSFComponentModule} instances.
+ * This class contains methods for working with {@link ComponentModule} instances.
  * 
  * @author Jesse Gallagher
  * @since 1.0.0
  */
 public enum ModuleUtil {
 	;
+	
+	private static final Logger log = Logger.getLogger(ModuleUtil.class.getName());
 	
 	private static final String PREFIX_CLASSES = "WEB-INF/classes/"; //$NON-NLS-1$
 	private static final String SUFFIX_CLASS = ".class"; //$NON-NLS-1$
@@ -46,8 +51,14 @@ public enum ModuleUtil {
 				.filter(key -> key.startsWith(PREFIX_CLASSES) && key.endsWith(SUFFIX_CLASS))
 				.map(key -> key.substring(PREFIX_CLASSES.length(), key.length()-SUFFIX_CLASS.length()))
 				.map(key -> key.replace('/', '.'));
+		} else if(module == null) {
+			return Stream.empty();
 		} else {
-			throw new UnsupportedOperationException("Unsupported module type: " + (module == null ? "null" : module.getClass().getName())); //$NON-NLS-2$
+			// TODO support other module types
+			if(log.isLoggable(Level.WARNING)) {
+				log.warning(MessageFormat.format("Unable to read class names from unsupported ComponentModule type {0}", module.getClass().getName()));
+			}
+			return Stream.empty();
 		}
 	}
 	
