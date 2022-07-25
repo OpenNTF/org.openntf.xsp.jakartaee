@@ -52,4 +52,18 @@ public class TestWebappServlet extends AbstractWebClientTest {
 		assertFalse(body.contains("Request: Optional.empty"), () -> "Received unexpected body: " + body);
 		assertFalse(body.contains("Context: Optional.empty"), () -> "Received unexpected body: " + body);
 	}
+	
+	// Tests the functionality of ComponentModuleLocator in an OSGi Webapp context when run within an NSF path
+	@Test
+	public void testLocatorContextualServlet() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getWebappContextualRootUrl(null) + "/locatorTestServlet");
+		Response response = target.request().get();
+		
+		String body = response.readEntity(String.class);
+		
+		assertFalse(body.contains("Module: null"), () -> "Received unexpected body: " + body);
+		assertFalse(body.contains("Request: Optional.empty"), () -> "Received unexpected body: " + body);
+		assertFalse(body.contains("Context: Optional.empty"), () -> "Received unexpected body: " + body);
+	}
 }
