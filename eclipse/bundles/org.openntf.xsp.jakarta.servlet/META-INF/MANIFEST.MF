@@ -22,3 +22,4 @@ Import-Package: com.ibm.commons.util,
  javax.servlet.http;version="2.5.0",
  org.openntf.xsp.cdi;version="2.5.0",
  org.osgi.framework;version="1.8.0"
+Export-Package: org.openntf.xsp.jakarta.servlet.webapp;version="2.8.0"
