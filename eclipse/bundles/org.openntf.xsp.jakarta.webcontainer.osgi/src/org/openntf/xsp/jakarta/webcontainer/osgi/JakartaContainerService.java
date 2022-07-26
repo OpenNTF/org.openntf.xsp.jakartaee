@@ -74,6 +74,8 @@ public class JakartaContainerService extends HttpService {
         }
         
         // TODO initialize modules on another thread
+        //   This will need to allow for doService below to await initialization
+        modules.values().forEach(ComponentModule::initModule);
 	}
 
 	@Override
