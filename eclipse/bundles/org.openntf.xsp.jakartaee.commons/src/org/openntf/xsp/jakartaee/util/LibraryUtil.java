@@ -56,6 +56,8 @@ import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.xsp.application.ApplicationEx;
 
+import jakarta.activation.MimetypesFileTypeMap;
+import jakarta.activation.spi.MailcapRegistryProvider;
 import jakarta.annotation.Priority;
 
 /**
@@ -66,6 +68,20 @@ import jakarta.annotation.Priority;
  */
 public enum LibraryUtil {
 	;
+	
+	private static final MimetypesFileTypeMap mimeTypeMap;
+	static {
+		// Switch the current ClassLoader in order to allow MimetypesFileMap to find its resources
+		ClassLoader activationCl = MailcapRegistryProvider.class.getClassLoader();
+		mimeTypeMap = withClassLoader(activationCl, () -> {
+			try {
+				return new MimetypesFileTypeMap();
+			} catch(Exception e) {
+				e.printStackTrace();
+				throw e;
+			}
+		});
+	}
 	
 	private static final Map<String, Long> NSF_MOD = new HashMap<>();
 	private static final Map<String, Properties> NSF_PROPS = new ConcurrentHashMap<>();
@@ -425,5 +441,17 @@ public enum LibraryUtil {
 			String tempDir = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
 			return Paths.get(tempDir);
 		}
+	}
+	
+	/**
+	 * Attempts to glean the MIME type for the given file based on its name.
+	 * 
+	 * @param fileName the file name to analyze
+	 * @return a MIME type for the file, or {@code application/octet-stream} if
+	 *         none can be determined
+	 * @since 2.8.0
+	 */
+	public static String detectMimeType(String fileName) {
+		return mimeTypeMap.getContentType(fileName);
 	}
 }

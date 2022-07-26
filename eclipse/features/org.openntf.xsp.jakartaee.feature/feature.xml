@@ -264,7 +264,7 @@
 	<!-- Mail -->
 	<plugin id="org.openntf.org.eclipse.angus.jakarta.mail" version="0.0.0"/>
 	<plugin id="jakarta.activation-api" version="0.0.0"/>
-	<plugin id="angus-activation" version="0.0.0"/>
+	<plugin id="org.openntf.angus-activation" version="0.0.0" fragment="true"/>
 	
 	<plugin id="org.openntf.jboss-classfilewriter" version="0.0.0"/>
 	<plugin id="org.openntf.org.jboss.logging.jboss-logging" version="0.0.0"/>
