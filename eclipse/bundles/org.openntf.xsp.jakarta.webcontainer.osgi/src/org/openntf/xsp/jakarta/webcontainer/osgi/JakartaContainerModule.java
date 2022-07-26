@@ -13,6 +13,8 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 
 import com.ibm.commons.util.PathUtil;
@@ -24,6 +26,8 @@ import com.ibm.designer.runtime.domino.adapter.util.PageNotFoundException;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
+
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -31,10 +35,11 @@ import jakarta.servlet.http.HttpServletResponse;
  * @since 2.8.0
  */
 public class JakartaContainerModule extends ComponentModule {
-	
 	private final Bundle bundle;
 	private final String contextRoot;
 	private final Optional<String> contentLocation;
+	
+	private ServletContext servletContext;
 
 	public JakartaContainerModule(LCDEnvironment env, JakartaContainerService service, Bundle bundle, String contextRoot, String contentLocation) {
 		super(env, service, JakartaContainerModule.class.getSimpleName() + ": " + contextRoot, true); //$NON-NLS-1$
@@ -49,14 +54,14 @@ public class JakartaContainerModule extends ComponentModule {
 
 	@Override
 	protected void doInitModule() {
-		// TODO Auto-generated method stub
-
-		// TODO create a new ServletContext
+		this.servletContext = ServletUtil.oldToNew(this.contextRoot, this.createServletContext());
+		
 		// TODO initialize non-negative load-on-startup Servlets
 		// TODO keep track of uninitialized Servlets
 		// TODO fire listeners
 		// - use createServlet and createServletConfig from LCDEnvironment?
 		// TODO setApplicationTimeoutMs and setSessionTimeoutMs
+		// TODO look for ServletContainerInitializers in META-INF/services
 	}
 	
 	@Override
@@ -67,31 +72,26 @@ public class JakartaContainerModule extends ComponentModule {
 		// TODO fire listeners
 		// TODO match Servlets
 		
-		try {
-			// Look for a matching resource
-			int qIndex = path.indexOf('?');
-			if(qIndex > -1) {
-				path = path.substring(0, qIndex);
-			}
-			URL url = getResource(path);
-			if(url != null) {
-				try(InputStream is = url.openStream()) {
-					if(is != null) {
-						// TODO guess type
-						servletResponse.setStatus(HttpServletResponse.SC_OK);
-						servletResponse.setContentType("text/plain"); //$NON-NLS-1$
-						try(javax.servlet.ServletOutputStream os = servletResponse.getOutputStream()) {
-							StreamUtil.copyStream(is, os);
-						}
-						
-						return;
-					}
-				}
-			}
-		} catch(FileNotFoundException e) {
-			throw new PageNotFoundException(fullPath);
-		} catch(Throwable t) {
-			t.printStackTrace();
+		String resPath = path;
+		int qIndex = resPath.indexOf('?');
+		if(qIndex > -1) {
+			resPath = resPath.substring(0, qIndex);
+		}
+		
+		// TODO skip WEB-INF
+		
+		// Look in META-INF/resources
+		String metaPath = PathUtil.concat("/META-INF/resources", resPath, '/'); //$NON-NLS-1$
+		URL url = bundle.getResource(metaPath);
+		if(url != null) {
+			serveUrlResource(resPath, url, servletResponse);
+		}
+		
+		
+		// Look for a matching resource	in ContentLocation
+		url = getResource(resPath);
+		if(url != null) {
+			serveUrlResource(resPath, url, servletResponse);
 		}
 		
 		throw new PageNotFoundException(fullPath);
@@ -140,7 +140,15 @@ public class JakartaContainerModule extends ComponentModule {
 	public ClassLoader getModuleClassLoader() {
 		// TODO Implement to read from the bundle
 		return new ClassLoader() {
-			
+			@Override
+			protected Class<?> findClass(String name) throws ClassNotFoundException {
+				try {
+					bundle.loadClass(name);
+				} catch(ClassNotFoundException e) {
+					// ignore and delegate up
+				}
+				return super.findClass(name);
+			}
 		};
 	}
 
@@ -209,5 +217,32 @@ public class JakartaContainerModule extends ComponentModule {
 		return String.format("JakartaContainerModule [bundle=%s, contextRoot=%s, contentLocation=%s]", bundle,
 				contextRoot, contentLocation);
 	}
+	
+	// *******************************************************************************
+	// * Internal implementation methods
+	// *******************************************************************************
 
+	private void serveUrlResource(String resPath, URL url, HttpServletResponseAdapter servletResponse) {
+		try {
+			// Look for a matching resource
+			
+			try(InputStream is = url.openStream()) {
+				if(is != null) {
+					String mimeType = LibraryUtil.detectMimeType(resPath);
+					
+					servletResponse.setStatus(HttpServletResponse.SC_OK);
+					servletResponse.setContentType(mimeType);
+					try(javax.servlet.ServletOutputStream os = servletResponse.getOutputStream()) {
+						StreamUtil.copyStream(is, os);
+					}
+					
+					return;
+				}
+			}
+		} catch(FileNotFoundException e) {
+			throw new PageNotFoundException(resPath);
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+	}
 }
