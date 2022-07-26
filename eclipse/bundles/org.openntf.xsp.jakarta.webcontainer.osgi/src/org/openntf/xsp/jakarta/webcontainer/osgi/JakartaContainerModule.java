@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,7 +23,7 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
-import com.ibm.designer.runtime.domino.adapter.util.PageNotFoundException;
+import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
@@ -67,7 +68,7 @@ public class JakartaContainerModule extends ComponentModule {
 	@Override
 	public void doService(String contextPath, String fullPath, HttpSessionAdapter httpSessionAdapter, HttpServletRequestAdapter servletRequest,
 			HttpServletResponseAdapter servletResponse) throws javax.servlet.ServletException, IOException {
-		String path = StringUtil.toString(fullPath);
+		String path = PathUtil.concat("/", StringUtil.toString(fullPath), '/'); //$NON-NLS-1$
 		
 		// TODO fire listeners
 		// TODO match Servlets
@@ -84,17 +85,19 @@ public class JakartaContainerModule extends ComponentModule {
 		String metaPath = PathUtil.concat("/META-INF/resources", resPath, '/'); //$NON-NLS-1$
 		URL url = bundle.getResource(metaPath);
 		if(url != null) {
-			serveUrlResource(resPath, url, servletResponse);
+			serveUrlResource(resPath, url, servletRequest, servletResponse);
 		}
 		
 		
 		// Look for a matching resource	in ContentLocation
-		url = getResource(resPath);
-		if(url != null) {
-			serveUrlResource(resPath, url, servletResponse);
+		if(!path.startsWith("/WEB-INF/")) { //$NON-NLS-1$
+			url = getResource(resPath);
+			if(url != null) {
+				serveUrlResource(resPath, url, servletRequest, servletResponse);
+			}
 		}
 		
-		throw new PageNotFoundException(fullPath);
+		handlePageNotFound(resPath, servletRequest, servletResponse);
 		
 	}
 
@@ -222,7 +225,7 @@ public class JakartaContainerModule extends ComponentModule {
 	// * Internal implementation methods
 	// *******************************************************************************
 
-	private void serveUrlResource(String resPath, URL url, HttpServletResponseAdapter servletResponse) {
+	private void serveUrlResource(String resPath, URL url, HttpServletRequestAdapter servletRequest, HttpServletResponseAdapter servletResponse) {
 		try {
 			// Look for a matching resource
 			
@@ -240,9 +243,23 @@ public class JakartaContainerModule extends ComponentModule {
 				}
 			}
 		} catch(FileNotFoundException e) {
-			throw new PageNotFoundException(resPath);
+			handlePageNotFound(resPath, servletRequest, servletResponse);
 		} catch(Throwable t) {
 			t.printStackTrace();
+		}
+	}
+	
+	private void handlePageNotFound(String path, HttpServletRequestAdapter servletRequest, HttpServletResponseAdapter servletResponse) {
+		// TODO consider handling different Accept headers
+		servletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		
+		// TODO try to glean from server locale
+		String lang = null;
+		boolean rtl = false;
+		try(PrintWriter w = servletResponse.getWriter()) {
+			XSPErrorPage.handlePageNotFound(w, path, null, lang, rtl);
+		} catch(IOException e) {
+			throw new UncheckedIOException(e);
 		}
 	}
 }
