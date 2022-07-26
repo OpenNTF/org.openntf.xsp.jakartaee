@@ -151,6 +151,21 @@ public abstract class AbstractWebClientTest {
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
+	public String getContainerAppRootUrl(WebDriver driver) {
+		String host;
+		int port;
+		if(driver instanceof RemoteWebDriver) {
+			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
+			port = 80;
+		} else {
+			host = JakartaTestContainers.instance.domino.getHost();
+			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+		}
+		
+		String context = "jakartaContainerExample";
+		return PathUtil.concat("http://" + host + ":" + port, context, '/');
+	}
+	
 	public String getBundleNsfRestUrl(WebDriver driver) {
 		String root = getBundleNsfRootUrl(driver);
 		return PathUtil.concat(root, "xsp/app", '/');
