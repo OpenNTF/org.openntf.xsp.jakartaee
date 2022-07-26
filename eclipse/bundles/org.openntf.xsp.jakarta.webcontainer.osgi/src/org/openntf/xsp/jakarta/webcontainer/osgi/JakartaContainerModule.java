@@ -57,7 +57,7 @@ public class JakartaContainerModule extends ComponentModule {
 
 	@Override
 	protected void doInitModule() {
-		this.servletContext = ServletUtil.oldToNew(this.contextRoot, this.createServletContext());
+		this.servletContext = ServletUtil.oldToNew(this.contextRoot, this.getServletContext());
 		
 		// TODO initialize non-negative load-on-startup Servlets
 		// TODO keep track of uninitialized Servlets
