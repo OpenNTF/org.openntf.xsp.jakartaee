@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.LinkedHashSet;
@@ -30,6 +31,7 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.HttpHeaders;
 
 /**
  * @author Jesse Gallagher
@@ -84,6 +86,7 @@ public class JakartaContainerModule extends ComponentModule {
 		URL url = bundle.getResource(metaPath);
 		if(url != null) {
 			serveUrlResource(resPath, url, servletRequest, servletResponse);
+			return;
 		}
 		
 		
@@ -92,11 +95,11 @@ public class JakartaContainerModule extends ComponentModule {
 			url = getResource(resPath);
 			if(url != null) {
 				serveUrlResource(resPath, url, servletRequest, servletResponse);
+				return;
 			}
 		}
 		
 		handlePageNotFound(resPath, servletRequest, servletResponse);
-		
 	}
 
 	@Override
@@ -227,12 +230,29 @@ public class JakartaContainerModule extends ComponentModule {
 		try {
 			// Look for a matching resource
 			
-			try(InputStream is = url.openStream()) {
+			URLConnection conn = url.openConnection();
+			
+			try(InputStream is = conn.getInputStream()) {
 				if(is != null) {
+					
+					long lastMod = conn.getLastModified();
+					if(lastMod > 0) {
+						// Check for cache
+						long ifModifiedSince = servletRequest.getDateHeader(HttpHeaders.IF_MODIFIED_SINCE);
+						if(ifModifiedSince > 0 && ifModifiedSince >= lastMod) {
+							servletResponse.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+							return;
+						}
+					}
+					servletResponse.addDateHeader(HttpHeaders.LAST_MODIFIED, lastMod);
+					
 					String mimeType = LibraryUtil.detectMimeType(resPath);
 					
 					servletResponse.setStatus(HttpServletResponse.SC_OK);
 					servletResponse.setContentType(mimeType);
+					int contentLength = conn.getContentLength();
+					servletResponse.setContentLength(contentLength);
+					
 					try(javax.servlet.ServletOutputStream os = servletResponse.getOutputStream()) {
 						StreamUtil.copyStream(is, os);
 					}
