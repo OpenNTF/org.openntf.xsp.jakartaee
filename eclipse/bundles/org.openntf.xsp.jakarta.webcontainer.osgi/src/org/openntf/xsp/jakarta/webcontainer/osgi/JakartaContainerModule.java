@@ -62,7 +62,6 @@ public class JakartaContainerModule extends ComponentModule {
 		// TODO initialize non-negative load-on-startup Servlets
 		// TODO keep track of uninitialized Servlets
 		// TODO fire listeners
-		// - use createServlet and createServletConfig from LCDEnvironment?
 		// TODO setApplicationTimeoutMs and setSessionTimeoutMs
 		// TODO look for ServletContainerInitializers in META-INF/services
 	}
