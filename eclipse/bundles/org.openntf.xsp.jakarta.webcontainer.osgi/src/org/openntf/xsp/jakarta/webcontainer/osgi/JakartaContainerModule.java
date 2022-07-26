@@ -79,8 +79,6 @@ public class JakartaContainerModule extends ComponentModule {
 			resPath = resPath.substring(0, qIndex);
 		}
 		
-		// TODO skip WEB-INF
-		
 		// Look in META-INF/resources
 		String metaPath = PathUtil.concat("/META-INF/resources", resPath, '/'); //$NON-NLS-1$
 		URL url = bundle.getResource(metaPath);
