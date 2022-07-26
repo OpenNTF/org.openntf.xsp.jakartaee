@@ -110,6 +110,7 @@
 		
 		<!-- Container -->
 		<module>bundles/org.openntf.xsp.jakarta.webcontainer.osgi</module>
+		<module>features/org.openntf.xsp.jakarta.webcontainer.feature</module>
 		
 		<!-- Integration test support and examples -->
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
