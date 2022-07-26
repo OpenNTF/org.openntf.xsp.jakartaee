@@ -34,7 +34,6 @@ import org.openntf.xsp.nosql.bean.ContextDatabaseSupplier;
 import org.openntf.xsp.nosql.bean.ContextDocumentCollectionManagerProducer;
 import org.openntf.xsp.nosql.mapping.extension.impl.DefaultDominoTemplateProducer;
 import org.openntf.xsp.nosql.mapping.extension.impl.DominoExtension;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
 import jakarta.enterprise.inject.spi.Extension;
@@ -52,18 +51,14 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 			Stream.of(DatabaseQualifier.class, DefaultDocumentQueryPaginationProvider.class, MappingValidator.class)
 				.map(FrameworkUtil::getBundle)
 				.flatMap(t -> {
-					try {
-						return DiscoveryUtil.findExportedClassNames(t, true)
-							.map(className -> {
-								try {
-									return t.loadClass(className);
-								} catch (ClassNotFoundException e) {
-									throw new RuntimeException(e);
-								}
-							});
-					} catch (BundleException e) {
-						throw new RuntimeException(e);
-					}
+					return DiscoveryUtil.findExportedClassNames(t, true)
+						.map(className -> {
+							try {
+								return t.loadClass(className);
+							} catch (ClassNotFoundException e) {
+								throw new RuntimeException(e);
+							}
+						});
 				})
 				.forEach(result::add);
 			

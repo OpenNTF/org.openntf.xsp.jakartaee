@@ -18,12 +18,9 @@ package org.openntf.xsp.jsf.nsf;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
-import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -32,7 +29,6 @@ import org.apache.myfaces.shared.config.MyfacesConfig;
 import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
-import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -41,7 +37,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
-import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
@@ -261,15 +256,7 @@ public class NSFJsfServlet extends HttpServlet {
 			.forEach(result::add);
 		
 		// Find in the JSF bundle as well
-		String baseUrl = bundle.getEntry("/").toString(); //$NON-NLS-1$
-		List<URL> entries = Collections.list(bundle.findEntries("/", "*.class", true)); //$NON-NLS-1$ //$NON-NLS-2$
-		entries.stream()
-			.parallel()
-			.map(String::valueOf)
-			.map(url -> url.substring(baseUrl.length()))
-			.map(DiscoveryUtil::toClassName)
-			.filter(StringUtil::isNotEmpty)
-			.sequential()
+		LibraryUtil.findBundleClassNames(bundle, false)
 			.map(className -> {
 				try {
 					return bundle.loadClass(className);

@@ -23,7 +23,6 @@ import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
 import io.smallrye.health.ResponseProvider;
@@ -40,20 +39,16 @@ public class HealthBeanContributor implements WeldBeanClassContributor {
 		if(LibraryUtil.isLibraryActive(HealthLibrary.LIBRARY_ID)) {
 			// Look for annotated beans in io.smallrye.health
 			Bundle bundle = FrameworkUtil.getBundle(ResponseProvider.class);
-			try {
-				return DiscoveryUtil.findExportedClassNames(bundle, false)
-					.map(t -> {
-						try {
-							return bundle.loadClass(t);
-						} catch (ClassNotFoundException e) {
-							throw new RuntimeException(e);
-						}
-					})
-					// TODO filter to only annotated
-					.collect(Collectors.toList());
-			} catch (BundleException e) {
-				throw new RuntimeException(e);
-			}
+			return DiscoveryUtil.findExportedClassNames(bundle, false)
+				.map(t -> {
+					try {
+						return bundle.loadClass(t);
+					} catch (ClassNotFoundException e) {
+						throw new RuntimeException(e);
+					}
+				})
+				// TODO filter to only annotated
+				.collect(Collectors.toList());
 		} else {
 			return null;
 		}
