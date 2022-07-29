@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -61,6 +62,7 @@ public class JakartaContainerModule extends ComponentModule {
 		
 		// TODO initialize non-negative load-on-startup Servlets
 		// TODO keep track of uninitialized Servlets
+		// TODO account for jsp-file in Servlet listings
 		// TODO fire listeners
 		// TODO setApplicationTimeoutMs and setSessionTimeoutMs
 		// TODO look for ServletContainerInitializers in META-INF/services
@@ -142,6 +144,7 @@ public class JakartaContainerModule extends ComponentModule {
 	@Override
 	public ClassLoader getModuleClassLoader() {
 		// TODO Implement to read from the bundle
+		// TODO consider using BundleWebAppClassLoader
 		return new ClassLoader() {
 			@Override
 			protected Class<?> findClass(String name) throws ClassNotFoundException {
@@ -151,6 +154,24 @@ public class JakartaContainerModule extends ComponentModule {
 					// ignore and delegate up
 				}
 				return super.findClass(name);
+			}
+			
+			@Override
+			protected URL findResource(String name) {
+				URL res = bundle.getResource(name);
+				if(res != null) {
+					return res;
+				}
+				return super.findResource(name);
+			}
+			
+			@Override
+			protected Enumeration<URL> findResources(String name) throws IOException {
+				Enumeration<URL> res = bundle.getResources(name);
+				if(res != null && res.hasMoreElements()) {
+					return res;
+				}
+				return super.findResources(name);
 			}
 		};
 	}
