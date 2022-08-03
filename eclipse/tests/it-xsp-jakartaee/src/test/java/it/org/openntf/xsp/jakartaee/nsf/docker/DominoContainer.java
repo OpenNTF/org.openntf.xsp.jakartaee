@@ -71,7 +71,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				.withStrategy(new LogMessageWaitStrategy()
 					.withRegEx(".*Done with postinstall.*") //$NON-NLS-1$
 				)
-			.withStartupTimeout(Duration.ofMinutes(3))
+			.withStartupTimeout(Duration.ofMinutes(5))
 		);
 		
 		// Build temp files to use as volume binds
