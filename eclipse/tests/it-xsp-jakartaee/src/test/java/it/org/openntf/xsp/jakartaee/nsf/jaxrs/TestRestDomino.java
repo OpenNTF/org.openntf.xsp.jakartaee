@@ -50,18 +50,18 @@ public class TestRestDomino extends AbstractWebClientTest {
 		
 		String database = (String)jsonObject.get("database");
 		assertNotNull(database);
-		assertTrue(database.contains("XPagesDatabase"));
+		assertTrue(database.contains("XPagesDatabase"), () -> "Received unexpected JSON: " + json);
 		
 		String dominoSession = (String)jsonObject.get("dominoSession");
 		assertNotNull(dominoSession, () -> json);
-		assertTrue(dominoSession.startsWith("lotus.domino.local.Session"));
+		assertTrue(dominoSession.startsWith("lotus.domino.local.Session"), () -> "Received unexpected JSON: " + json);
 
 		String sessionAsSigner = (String)jsonObject.get("dominoSessionAsSigner");
 		assertNotNull(sessionAsSigner);
-		assertTrue(sessionAsSigner.startsWith("lotus.domino.local.Session"));
+		assertTrue(sessionAsSigner.startsWith("lotus.domino.local.Session"), () -> "Received unexpected JSON: " + json);
 
 		String sessionAsSignerWithFullAccess = (String)jsonObject.get("dominoSessionAsSignerWithFullAccess");
 		assertNotNull(sessionAsSignerWithFullAccess);
-		assertTrue(sessionAsSignerWithFullAccess.startsWith("lotus.domino.local.Session"));
+		assertTrue(sessionAsSignerWithFullAccess.startsWith("lotus.domino.local.Session"), () -> "Received unexpected JSON: " + json);
 	}
 }
