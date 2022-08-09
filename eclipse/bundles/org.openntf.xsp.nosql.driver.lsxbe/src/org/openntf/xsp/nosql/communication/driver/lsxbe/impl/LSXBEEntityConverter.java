@@ -26,6 +26,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -746,7 +748,17 @@ public class LSXBEEntityConverter {
 								throw new UnsupportedOperationException(MessageFormat.format("Unable to handle storage type {0}", storage.type()));
 							}
 						} else {
-							item = target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val));
+							Object dominoVal = toDominoFriendly(target.getParentDatabase().getParent(), val);
+							
+							// Set number precision if applicable
+							if(optStorage.isPresent()) {
+								int precision = optStorage.get().precision();
+								if(precision > 0) {
+									dominoVal = applyPrecision(dominoVal, precision);
+								}
+							}
+							
+							item = target.replaceItemValue(doc.getName(), dominoVal);
 						}
 						
 						// Check for a @ItemFlags annotation
@@ -950,5 +962,26 @@ public class LSXBEEntityConverter {
 		} else {
 			throw new UnsupportedOperationException("Unsupported MIMEBean encoding: " + encoding);
 		}
+	}
+	
+	private Object applyPrecision(Object dominoVal, int precision) {
+		if(dominoVal instanceof Number) {
+			BigDecimal decimal = BigDecimal.valueOf(((Number)dominoVal).doubleValue());
+			return decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue();
+		} else if(dominoVal instanceof Collection && !((Collection<?>)dominoVal).isEmpty()) {
+			Vector<Object> result = new Vector<>(((Collection<?>)dominoVal).size());
+			for(Object obj : ((Collection<?>)dominoVal)) {
+				if(obj instanceof Number) {
+					BigDecimal decimal = BigDecimal.valueOf(((Number)obj).doubleValue());
+					result.add(decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue());
+				} else {
+					result.add(obj);
+				}
+			}
+			return result;
+		} else {
+			return dominoVal;
+		}
+		
 	}
 }

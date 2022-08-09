@@ -570,4 +570,48 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertTrue(jsonObjects.stream().anyMatch(obj -> unid.equals(obj.get("unid")) && "DOCUMENT".equals(obj.get("entryType"))));
 		}
 	}
+	
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testNumberPrecision() throws JsonException, XMLException {
+		Client client = getAdminClient();
+		
+		// Create a new doc
+		String unid;
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am testNumberPrecision guy")
+				.add("numberGuy", 3.111)
+				.add("numbersGuy", Json.createArrayBuilder(Arrays.asList(4.111, 5.111)))
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)jsonObject.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			
+			assertEquals(unid, jsonObject.get("unid"));
+			
+			assertEquals("I am testNumberPrecision guy", jsonObject.get("title"));
+			assertEquals(3.11, ((Number)jsonObject.get("numberGuy")).doubleValue());
+			List<Number> numbersGuy = (List<Number>)jsonObject.get("numbersGuy");
+			assertEquals(4.11, numbersGuy.get(0).doubleValue());
+			assertEquals(5.11, numbersGuy.get(1).doubleValue());
+		}
+	}
 }
