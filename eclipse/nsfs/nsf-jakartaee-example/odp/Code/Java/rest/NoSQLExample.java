@@ -478,6 +478,13 @@ public class NoSQLExample {
 			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
 	}
 	
+	@Path("byViewKeyMulti/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getPersonByViewKeyMulti(@PathParam("lastName") String lastName) {
+		return personRepository.findByKeyMulti(lastName).collect(Collectors.toList());
+	}
+	
 	@Path("byViewTwoKeys/{lastName}/{firstName}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

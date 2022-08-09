@@ -41,6 +41,9 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	Optional<Person> findByKey(@ViewKey String lastName);
 	
 	@ViewEntries(VIEW_PERSONS)
+	Stream<Person> findByKeyMulti(@ViewKey String lastName);
+	
+	@ViewEntries(VIEW_PERSONS)
 	Optional<Person> findByTwoKeys(@ViewKey String lastName, @ViewKey String firstName);
 	
 	@ViewDocuments(VIEW_PERSONS)

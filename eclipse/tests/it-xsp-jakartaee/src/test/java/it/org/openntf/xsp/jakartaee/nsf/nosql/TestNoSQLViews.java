@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
@@ -92,6 +93,33 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		Map<String, Object> result = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
 		assertEquals(person.get("unid"), result.get("unid"));
 		assertEquals(person.get("lastName"), result.get("lastName"));
+	}
+	
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testQueryByKeyMulti() throws JsonException, UnsupportedEncodingException {
+		Client client = getAdminClient();
+		
+		// Create four documents with two distinct last names
+		createTwoPersonDocuments(true);
+		Map<String, Object> person = createTwoPersonDocuments(true);
+		
+		// Find by the last name of the second person
+		String lastName = (String)person.get("lastName");
+		assertNotNull(lastName);
+		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byViewKeyMulti/" + URLEncoder.encode(lastName, "UTF-8"));
+		
+		Response response = queryTarget.request()
+			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.get();
+		String json = response.readEntity(String.class);
+		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+		List<Map<String, Object>> result = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+		assertEquals(2, result.size());
+		Map<String, Object> resultPerson = result.get(1);
+		assertEquals(person.get("unid"), resultPerson.get("unid"));
+		assertEquals(person.get("lastName"), resultPerson.get("lastName"));
 	}
 	
 	/**
