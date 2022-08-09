@@ -501,6 +501,22 @@ public class NoSQLExample {
 			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
 	}
 	
+	@Path("byNoteId/{noteId}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByNoteID(@PathParam("noteId") String noteId) {
+		return personRepository.findByNoteId(noteId)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for note ID: " + noteId));
+	}
+	
+	@Path("byModified/{modified}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getPersonByModified(@PathParam("modified") String modified) {
+		Instant mod = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(modified));
+		return personRepository.findByModified(mod).collect(Collectors.toList());
+	}
+	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {
 		person.setFirstName(firstName);
 		person.setLastName(lastName);

@@ -72,9 +72,21 @@ public enum QueryConverter {
 		}
 
 		// Convert special names
-		String name = document.getName();
-		if (String.valueOf(name).equals(DominoConstants.FIELD_ID)) {
+		String name = String.valueOf(document.getName());
+		if (DominoConstants.FIELD_ID.equals(name)) {
 			name = "@DocumentUniqueID"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_CDATE.equals(name)) {
+			name = "@Created"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_MDATE.equals(name)) {
+			name = "@ModifiedInThisFile"; //$NON-NLS-1$
+		} else if("$REF".equalsIgnoreCase(name)) { //$NON-NLS-1$
+			name = "@Text($REF)"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_SIZE.equals(name)) {
+			name = "@DocLength"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_NOTEID.equals(name)) {
+			name = "@NoteID"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_ADATE.equals(name)) {
+			name = "@Accessed"; //$NON-NLS-1$
 		}
 
 		Object placeholder = document.get();

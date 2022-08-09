@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.nosql.mapping.extension;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.mapping.extension.impl.ViewKeyQuery;
@@ -118,4 +119,16 @@ public interface DominoTemplate extends DocumentTemplate {
      * @since 2.7.0
      */
     boolean existsById(String unid);
+    
+    /**
+     * Retrieves a document by its note ID.
+     * 
+     * @param <T> the type of document managed by this repository
+	 * @param entityName the effective entity name returned by this type
+     * @param noteId the note ID
+     * @return an {@link Optional} describing the entity, or an empty one if no document
+     *         by that ID is found
+     * @since 2.8.0
+     */
+    <T> Optional<T> getByNoteId(String entityName, String noteId);
 }

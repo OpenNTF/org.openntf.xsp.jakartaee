@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.nosql.communication.driver;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.mapping.extension.impl.ViewKeyQuery;
@@ -62,4 +63,15 @@ public interface DominoDocumentCollectionManager extends DocumentCollectionManag
      * @since 2.7.0
      */
     boolean existsById(String unid);
+    
+    /**
+     * Retrieves a document by its note ID.
+     * 
+     * @param entityName the entity type to find
+     * @param noteId the note ID
+     * @return an {@link Optional} describing the entity, or an empty one if no document
+     *         by that ID is found
+     * @since 2.8.0
+     */
+    Optional<DocumentEntity> getByNoteId(String entityName, String noteId);
 }

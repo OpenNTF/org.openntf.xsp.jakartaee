@@ -166,6 +166,16 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			}
 		}
 		
+		Method getByNoteId = DominoRepository.class.getDeclaredMethod("findByNoteId", String.class); //$NON-NLS-1$
+		if(method.equals(getByNoteId)) {
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.getByNoteId(entityName, (String)args[0]);
+			return convert(result, method);
+		}
+		
 		return method.invoke(repository, args);
 	}
 	

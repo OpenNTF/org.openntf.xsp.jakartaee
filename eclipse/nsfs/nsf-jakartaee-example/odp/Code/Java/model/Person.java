@@ -73,6 +73,12 @@ public class Person {
 	
 	@Column(DominoConstants.FIELD_SIZE)
 	private int size;
+	
+	@Column(DominoConstants.FIELD_NOTEID)
+	private String noteId;
+	
+	@Column(DominoConstants.FIELD_ADATE)
+	private Instant accessed;
 
 	public String getUnid() {
 		return unid;
@@ -154,5 +160,13 @@ public class Person {
 	
 	public int getSize() {
 		return size;
+	}
+	
+	public Instant getAccessed() {
+		return accessed;
+	}
+	
+	public String getNoteId() {
+		return noteId;
 	}
 }

@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.nosql.mapping.extension;
 
+import java.util.Optional;
+
 import jakarta.nosql.mapping.Repository;
 
 /**
@@ -64,4 +66,13 @@ public interface DominoRepository<T, ID> extends Repository<T, ID> {
      * @since 2.6.0
      */
     <S extends T> S save(S entity, boolean computeWithForm);
+    
+    /**
+     * Finds an entity given its note ID
+     *
+     * @param noteId the note ID
+     * @return the entity given the K
+     * @throws NullPointerException when noteId is null
+     */
+    Optional<T> findByNoteId(String noteId);
 }

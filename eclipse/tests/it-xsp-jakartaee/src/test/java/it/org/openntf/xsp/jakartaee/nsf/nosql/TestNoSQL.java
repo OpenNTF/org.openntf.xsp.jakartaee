@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,7 @@ import com.ibm.commons.util.io.json.JsonParser;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
+@SuppressWarnings("nls")
 public class TestNoSQL extends AbstractWebClientTest {
 	@SuppressWarnings("unchecked")
 	@Test
@@ -151,7 +154,138 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertEquals(1d, ((Number)jsonObject.get("totalCount")).doubleValue(), () -> json); //$NON-NLS-1$
 	}
 	
-	@SuppressWarnings({ "nls", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void testQueryNoteID() throws JsonException, UnsupportedEncodingException {
+		Client client = getAdminClient();
+		
+		String lastName;
+		String unid;
+		{
+			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			
+			lastName = "Fooson" + System.nanoTime();
+			MultipartFormDataOutput payload = new MultipartFormDataOutput();
+			payload.addFormData("firstName", "Foo" + System.nanoTime(), MediaType.TEXT_PLAIN_TYPE);
+			payload.addFormData("lastName", lastName, MediaType.TEXT_PLAIN_TYPE);
+			
+			Response response = postTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.post(Entity.entity(payload, MediaType.MULTIPART_FORM_DATA_TYPE));
+			String json = response.readEntity(String.class);
+			assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+			Map<String, Object> person = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)person.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		String noteId;
+		// Fetch it again to get the note ID
+		{
+			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			
+			Response response = getTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.get();
+			assertEquals(200, response.getStatus());
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			String getUnid = (String)jsonObject.get("unid");
+			assertEquals(unid, getUnid);
+			noteId = (String)jsonObject.get("noteId");
+			assertNotNull(noteId);
+			assertFalse(noteId.isEmpty());
+		}
+		
+		// Find by note ID
+		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byNoteId/" + URLEncoder.encode(noteId, "UTF-8"));
+		
+		Response response = queryTarget.request()
+			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.get();
+		String json = response.readEntity(String.class);
+		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+		Map<String, Object> result = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+		assertEquals(noteId, result.get("noteId"));
+		assertEquals(lastName, result.get("lastName"));
+	}
+	
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	@Disabled("Does not currently work - it's possible that the trouble is due to second/hundredths precision")
+	public void testQueryModTime() throws JsonException, UnsupportedEncodingException {
+		Client client = getAdminClient();
+		
+		String lastName;
+		String unid;
+		{
+			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			
+			lastName = "Fooson" + System.nanoTime();
+			MultipartFormDataOutput payload = new MultipartFormDataOutput();
+			payload.addFormData("firstName", "Foo" + System.nanoTime(), MediaType.TEXT_PLAIN_TYPE);
+			payload.addFormData("lastName", lastName, MediaType.TEXT_PLAIN_TYPE);
+			
+			Response response = postTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.post(Entity.entity(payload, MediaType.MULTIPART_FORM_DATA_TYPE));
+			String json = response.readEntity(String.class);
+			assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+			Map<String, Object> person = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			unid = (String)person.get("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		String modified;
+		// Fetch it again to get the mod time
+		{
+			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			
+			Response response = getTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.get();
+			assertEquals(200, response.getStatus());
+
+			String json = response.readEntity(String.class);
+			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			String getUnid = (String)jsonObject.get("unid");
+			assertEquals(unid, getUnid);
+			modified = (String)jsonObject.get("modified");
+			assertNotNull(modified);
+			assertFalse(modified.isEmpty());
+		}
+		
+		// Find by modified
+		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byModified/" + URLEncoder.encode(modified, "UTF-8"));
+		
+		Response response = queryTarget.request()
+			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.get();
+		String json = response.readEntity(String.class);
+		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+		List<Map<String, Object>> result = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+		assertTrue(result.stream().anyMatch(p -> modified.equals(p.get("modified")) && unid.equals(p.get("unid"))));
+	}
+	
+	@Test
+	public void testQueryByNoteIdNotFound() {
+		Client client = getAdminClient();
+		WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/byNoteId/doesNotExist");
+		
+		Response response = getTarget.request()
+			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.get();
+		assertEquals(404, response.getStatus());
+	}
+	
+	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testMultipartCreate() throws JsonException {
 		Client client = getAnonymousClient();
@@ -191,13 +325,18 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertEquals(unid, getUnid);
 			assertEquals(lastName, jsonObject.get("lastName"));
 			
-			// Make sure it has sensible mdate and cdate values
+			String noteId = (String)jsonObject.get("noteId");
+			assertNotNull(noteId);
+			assertFalse(noteId.isEmpty());
+			
+			// Make sure it has sensible date values
 			Instant.parse((String)jsonObject.get("created"));
 			Instant.parse((String)jsonObject.get("modified"));
+			Instant.parse((String)jsonObject.get("accessed"));
 		}
 	}
 	
-	@SuppressWarnings({ "nls", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testAttachmentCreate() throws JsonException {
 		Client client = getAnonymousClient();
@@ -256,7 +395,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 	}
 	
-	@SuppressWarnings({ "nls", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void testFolderOperations() throws JsonException {
 		Client client = getAdminClient();

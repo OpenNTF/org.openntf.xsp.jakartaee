@@ -85,6 +85,17 @@ public interface DominoConstants {
 	 * conversion, currently {@value #FIELD_SIZE}
 	 */
 	String FIELD_SIZE = "@size"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of a document's note ID, currently {@value #FIELD_NOTEID}
+	 * @since 2.8.0
+	 */
+	String FIELD_NOTEID = "@noteid"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of a document's last-accessed date, currently
+	 * {@value #FIELD_ADATE}
+	 * @since 2.8.0
+	 */
+	String FIELD_ADATE = "@adate"; //$NON-NLS-1$
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based

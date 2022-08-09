@@ -16,6 +16,7 @@
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
@@ -140,6 +141,11 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	@Override
 	public boolean existsById(String unid) {
 		return getManager().existsById(unid);
+	}
+	
+	@Override
+	public <T> Optional<T> getByNoteId(String entityName, String noteId) {
+		return getManager().getByNoteId(entityName, noteId).map(getConverter()::toEntity);
 	}
 
 }

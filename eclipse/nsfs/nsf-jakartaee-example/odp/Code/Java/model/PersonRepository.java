@@ -15,6 +15,7 @@
  */
 package model;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -48,4 +49,6 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	
 	@ViewDocuments(VIEW_PERSONS)
 	Optional<Person> findByCollection(@ViewKey Collection<Object> keys);
+	
+	Stream<Person> findByModified(Instant modified);
 }

@@ -120,7 +120,9 @@ public class LSXBEEntityConverter {
 			DominoConstants.FIELD_DXL,
 			DominoConstants.FIELD_POSITION,
 			DominoConstants.FIELD_ENTRY_TYPE,
-			DominoConstants.FIELD_READ
+			DominoConstants.FIELD_READ,
+			DominoConstants.FIELD_NOTEID,
+			DominoConstants.FIELD_ADATE
 		));
 		SKIP_WRITING_FIELDS.add("$FILE"); //$NON-NLS-1$
 		SKIP_WRITING_FIELDS.addAll(SYSTEM_FIELDS);
@@ -356,6 +358,12 @@ public class LSXBEEntityConverter {
 				case "@Modified": //$NON-NLS-1$
 					itemName = DominoConstants.FIELD_MDATE;
 					break;
+				case "@Accessed": //$NON-NLS-1$
+					itemName = DominoConstants.FIELD_ADATE;
+					break;
+				case "@NoteID": //$NON-NLS-1$
+					itemName = DominoConstants.FIELD_NOTEID;
+					break;
 				case "@AttachmentNames": //$NON-NLS-1$
 					// Very special handling for this
 					itemName = DominoConstants.FIELD_ATTACHMENTS;
@@ -528,6 +536,12 @@ public class LSXBEEntityConverter {
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_SIZE)) {
 					result.add(Document.of(DominoConstants.FIELD_SIZE, doc.getSize()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_ADATE)) {
+					result.add(Document.of(DominoConstants.FIELD_ADATE, doc.getLastAccessed().toJavaDate().toInstant()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_NOTEID)) {
+					result.add(Document.of(DominoConstants.FIELD_NOTEID, doc.getNoteID()));
 				}
 				
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
