@@ -103,16 +103,16 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly) {
-		return getManager().viewEntryQuery(entityName, viewName, category, pagination, maxLevel, docsOnly)
+	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly, ViewKeyQuery keyQuery) {
+		return getManager().viewEntryQuery(entityName, viewName, category, pagination, maxLevel, docsOnly, keyQuery)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel) {
-		return getManager().viewDocumentQuery(entityName, viewName, category, pagination, maxLevel)
+	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, ViewKeyQuery keyQuery) {
+		return getManager().viewDocumentQuery(entityName, viewName, category, pagination, maxLevel, keyQuery)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}

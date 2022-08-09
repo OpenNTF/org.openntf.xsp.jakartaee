@@ -17,6 +17,8 @@ package org.openntf.xsp.nosql.mapping.extension;
 
 import java.util.stream.Stream;
 
+import org.openntf.xsp.nosql.mapping.extension.impl.ViewKeyQuery;
+
 import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.document.DocumentTemplate;
 
@@ -38,10 +40,12 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @param pagination the pagination settings to use, or {@code null} to skip pagination
 	 * @param maxLevel the maximum view entry level to process
 	 * @param docsOnly whether to process only document entries
+	 * @param keyQuery a {@link KeyQuery} object defining the behavior of a key-based view lookup,
+	 *                 or {@code null} to not query by key
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly);
+	<T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly, ViewKeyQuery keyQuery);
 
 	/**
 	 * Reads documents from the provided view, restricted to the named category.
@@ -52,10 +56,12 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @param category the category to restrict to, or {@code null} to not restrict
 	 * @param pagination the pagination settings to use, or {@code null} to skip pagination
 	 * @param maxLevel the maximum view entry level to process
+	 * @param keyQuery a {@link KeyQuery} object defining the behavior of a key-based view lookup,
+	 *                 or {@code null} to not query by key
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
+	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, ViewKeyQuery keyQuery);
 
 	/**
 	 * Adds the entity to the named folder, creating the folder if it doesn't

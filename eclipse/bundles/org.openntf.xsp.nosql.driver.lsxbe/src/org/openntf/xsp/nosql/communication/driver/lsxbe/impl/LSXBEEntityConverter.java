@@ -95,6 +95,8 @@ import lotus.domino.RichTextItem;
 import lotus.domino.Session;
 import lotus.domino.View;
 import lotus.domino.ViewColumn;
+import lotus.domino.ViewEntry;
+import lotus.domino.ViewEntryCollection;
 import lotus.domino.ViewNavigator;
 
 /**
@@ -149,7 +151,7 @@ public class LSXBEEntityConverter {
 						String noteId = (String)columnValues.get(columnValues.size()-1);
 						lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
 						if(isValid(doc)) {
-							List<Document> documents = toNoSQLDocuments(doc, classMapping);
+							List<Document> documents = convertDominoDocument(doc, classMapping);
 							String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
 							return DocumentEntity.of(name, documents);
 						} else {
@@ -205,78 +207,7 @@ public class LSXBEEntityConverter {
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
-					Vector<?> columnValues = entry.getColumnValues();
-					try {
-						List<Document> convertedEntry = new ArrayList<>(columnValues.size());
-	
-						String universalId = entry.getUniversalID();
-						convertedEntry.add(Document.of(DominoConstants.FIELD_ID, universalId));
-						convertedEntry.add(Document.of(DominoConstants.FIELD_POSITION, entry.getPosition('.')));
-						convertedEntry.add(Document.of(DominoConstants.FIELD_READ, entry.getRead()));
-						
-						EntryType type;
-						if(entry.isCategory()) {
-							type = EntryType.CATEGORY;
-						} else if(entry.isTotal()) {
-							type = EntryType.TOTAL;
-						} else {
-							type = EntryType.DOCUMENT;
-						}
-						convertedEntry.add(Document.of(DominoConstants.FIELD_ENTRY_TYPE, type));
-						
-						for(int i = 0; i < columnValues.size(); i++) {
-							String itemName = columnNames.get(i);
-							Object value = columnValues.get(i);
-							
-							// Check to see if we have a matching time-based field and strip empty strings,
-							//   since JNoSQL will otherwise try to parse them and will throw an exception
-							if(itemTypes != null) {
-								Class<?> itemType = itemTypes.get(itemName);
-								if(itemType != null && TemporalAccessor.class.isAssignableFrom(itemType)) {
-									if(value instanceof String && ((String)value).isEmpty()) {
-										// Then skip the field
-										continue;
-									}
-								}
-							}
-							
-							// Check for known system formula equivalents
-							switch(String.valueOf(columnFormulas.get(i))) {
-							case "@DocLength": //$NON-NLS-1$
-								itemName = DominoConstants.FIELD_SIZE;
-								break;
-							case "@Created": //$NON-NLS-1$
-								itemName = DominoConstants.FIELD_CDATE;
-								break;
-							case "@Modified": //$NON-NLS-1$
-								itemName = DominoConstants.FIELD_MDATE;
-								break;
-							case "@AttachmentNames": //$NON-NLS-1$
-								// Very special handling for this
-								itemName = DominoConstants.FIELD_ATTACHMENTS;
-								if(value instanceof List) {
-									@SuppressWarnings("unchecked")
-									List<EntityAttachment> attachments = ((List<String>)value).stream()
-										.map(attName -> new DominoDocumentAttachment(databaseSupplier, universalId, attName))
-										.collect(Collectors.toList());
-									convertedEntry.add(Document.of(itemName, attachments));
-								} else if(value instanceof String && !((String)value).isEmpty()) {
-									EntityAttachment attachment = new DominoDocumentAttachment(databaseSupplier, universalId, (String)value);
-									convertedEntry.add(Document.of(itemName, Collections.singletonList(attachment)));
-								} else {
-									convertedEntry.add(Document.of(itemName, Collections.emptyList()));
-								}
-								continue; // Skip to the next column
-							default:
-								break;
-							}
-							
-							convertedEntry.add(Document.of(itemName, toJavaFriendly(view.getParent(), value)));
-						}
-						return DocumentEntity.of(entityName, convertedEntry);
-					} finally {
-						entry.recycle(columnValues);
-					}
+					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes);
 				} catch(NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -306,7 +237,7 @@ public class LSXBEEntityConverter {
 			.map(entry -> {
 				try {
 					lotus.domino.Document doc = entry.getDocument();
-					List<Document> documents = toNoSQLDocuments(doc, classMapping);
+					List<Document> documents = convertDominoDocument(doc, classMapping);
 					return DocumentEntity.of(entityName, documents);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
@@ -332,7 +263,7 @@ public class LSXBEEntityConverter {
 			.filter(LSXBEEntityConverter::isValid)
 			.map(doc -> {
 				try {
-					List<Document> documents = toNoSQLDocuments(doc, classMapping);
+					List<Document> documents = convertDominoDocument(doc, classMapping);
 					String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
 					return DocumentEntity.of(name, documents);
 				} catch(NotesException e) {
@@ -340,207 +271,119 @@ public class LSXBEEntityConverter {
 				}
 			});
 	}
-
-	/**
-	 * Converts the provided {@link DocumentEntity} instance into a Domino
-	 * JSON object.
-	 * 
-	 * @param entity the entity instance to convert
-	 * @param retainId whether or not to remove the {@link #FIELD_ID} field during conversion
-	 * @param target the target Domino Document to store in
-	 */
-	public void convertNoSQLEntity(DocumentEntity entity, boolean retainId, lotus.domino.Document target, ClassMapping classMapping) throws NotesException {
-		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
-		try {
-			@SuppressWarnings("unchecked")
-			List<ValueWriter<Object, Object>> writers = ServiceLoaderProvider.getSupplierStream(ValueWriter.class)
-				.map(w -> (ValueWriter<Object, Object>)w)
-				.collect(Collectors.toList());
 	
-			for(Document doc : entity.getDocuments()) {
-				if(DominoConstants.FIELD_ATTACHMENTS.equals(doc.getName())) {
-					@SuppressWarnings("unchecked")
-					List<EntityAttachment> incoming = (List<EntityAttachment>)doc.get();
-					Set<String> retain = incoming.stream()
-						.filter(DominoDocumentAttachment.class::isInstance)
-						.map(EntityAttachment::getName)
-						.collect(Collectors.toSet());
-					
-					// TODO change to account for specific rich text fields
-					// Remove any attachments no longer in the entity
-					@SuppressWarnings("unchecked")
-					List<String> existing = target.getParentDatabase().getParent()
-						.evaluate(" @AttachmentNames ", target); //$NON-NLS-1$;
-					for(String attName : existing) {
-						if(StringUtil.isNotEmpty(attName) && !retain.contains(attName)) {
-							EmbeddedObject eo = target.getAttachment(attName);
-							if(eo != null) {
-								eo.remove();
-								eo.recycle();
-							}
-						}
-					}
-					
-					// Now attach any incoming that aren't currently in the doc
-					List<EntityAttachment> newAttachments = incoming.stream()
-						.filter(att -> !(att instanceof DominoDocumentAttachment))
-						.collect(Collectors.toList());
-					if(!newAttachments.isEmpty()) {
-						RichTextItem body = (RichTextItem)target.getFirstItem(DominoConstants.FIELD_ATTACHMENTS);
-						if(body == null) {
-							body = target.createRichTextItem(DominoConstants.FIELD_ATTACHMENTS);
-						}
-						for(EntityAttachment att : newAttachments) {
-							// TODO check for if this field already exists
-							try {
-								Path tempDir = Files.createTempDirectory(FileUtil.getTempDirectory(), getClass().getSimpleName());
-								try {
-									// TODO consider options for when the name can't be stored on the filesystem
-									Path tempFile = tempDir.resolve(att.getName());
-									try(InputStream is = att.getData()) {
-										Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
-									}
-									body.embedObject(EmbeddedObject.EMBED_ATTACHMENT, "", tempFile.toString(), null); //$NON-NLS-1$
-								} finally {
-									Files.list(tempDir).forEach(t -> {
-										try {
-											Files.deleteIfExists(t);
-										} catch (IOException e) {
-											throw new UncheckedIOException(e);
-										}
-									});
-									Files.deleteIfExists(tempDir);
-								}
-							} catch (IOException e) {
-								throw new UncheckedIOException(e);
-							}
-						}
-					}
-				} else if(!SKIP_WRITING_FIELDS.contains(doc.getName())) {
-					Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.getName(), ItemStorage.class);
-					// Check if we should skip processing
-					if(optStorage.isPresent()) {
-						ItemStorage storage = optStorage.get();
-						if(!storage.insertable() && target.isNewNote()) {
-							continue;
-						} else if(!storage.updatable() && !target.isNewNote()) {
-							continue;
-						}
-					}
-					
-					Object value = doc.get();
-					if(value == null) {
-						target.removeItem(doc.getName());
-					} else {
-						Object val = value;
-						for(ValueWriter<Object, Object> w : writers) {
-							if(w.test(value.getClass())) {
-								val = w.write(value);
-								break;
-							}
-						}
-						
-						Item item;
-						
-						// Check if the item is expected to be stored specially, which may be handled down the line
-						if(optStorage.isPresent() && optStorage.get().type() != ItemStorage.Type.Default) {
-							ItemStorage storage = optStorage.get();
-							switch(storage.type()) {
-							case JSON:
-								Object fVal = val;
-								String json = AccessController.doPrivileged((PrivilegedAction<String>)() -> getJsonb().toJson(fVal));
-								item = target.replaceItemValue(doc.getName(), json);
-								item.setSummary(false);
-								break;
-							case MIME: {
-								target.removeItem(doc.getName());
-								MIMEEntity mimeEntity = target.createMIMEEntity(doc.getName());
-								lotus.domino.Stream mimeStream = target.getParentDatabase().getParent().createStream();
-								try {
-									mimeStream.writeText(val.toString());
-									mimeEntity.setContentFromText(mimeStream, storage.mimeType(), MIMEEntity.ENC_NONE);
-								} finally {
-									mimeStream.close();
-									mimeStream.recycle();
-								}
-								continue;
-							}
-							case MIMEBean:
-								byte[] serialized;
-								try(
-									ByteArrayOutputStream baos = new ByteArrayOutputStream();
-									ObjectOutputStream oos = new ObjectOutputStream(baos);
-								) {
-									oos.writeObject(val);
-									oos.flush();
-									serialized = baos.toByteArray();
-								} catch(IOException e) {
-									throw new UncheckedIOException(e);
-								}
-								target.removeItem(doc.getName());
-								MIMEEntity mimeEntity = target.createMIMEEntity(doc.getName());
-								mimeEntity.createHeader(DominoConstants.HEADER_JAVA_CLASS).setHeaderVal(val.getClass().getName());
-								lotus.domino.Stream mimeStream = target.getParentDatabase().getParent().createStream();
-								try {
-									mimeStream.write(serialized);
-									mimeStream.setPosition(0);
-									mimeEntity.setContentFromBytes(mimeStream, DominoConstants.MIME_TYPE_SERIALIZED_OBJECT, MIMEEntity.ENC_NONE);
-								} finally {
-									mimeStream.close();
-									mimeStream.recycle();
-								}
-								
-								continue;
-							case Default:
-							default:
-								// Shouldn't get here
-								throw new UnsupportedOperationException(MessageFormat.format("Unable to handle storage type {0}", storage.type()));
-							}
-						} else {
-							item = target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val));
-						}
-						
-						// Check for a @ItemFlags annotation
-						Optional<ItemFlags> itemFlagsOpt = getFieldAnnotation(classMapping, doc.getName(), ItemFlags.class);
-						if(itemFlagsOpt.isPresent()) {
-							ItemFlags itemFlags = itemFlagsOpt.get();
-							item.setAuthors(itemFlags.authors());
-							item.setReaders(itemFlags.readers());
-							if(itemFlags.authors() || itemFlags.readers() || itemFlags.names()) {
-								item.setNames(true);
-							} else {
-								item.setNames(false);
-							}
-							item.setEncrypted(itemFlags.encrypted());
-							item.setProtected(itemFlags.protectedItem());
-							item.setSigned(itemFlags.signed());
-							if(!(item instanceof RichTextItem) && item.getType() != Item.MIME_PART) {
-								item.setSummary(itemFlags.summary());
-							}
-							item.setSaveToDisk(itemFlags.saveToDisk());
-						}
-						
-						item.recycle();
-					}
-				}
-			}
-			
-			target.replaceItemValue(DominoConstants.FIELD_NAME, entity.getName());
-			
-			target.closeMIMEEntities(true);
-		} catch(Exception e) {
-			throw e;
+	public DocumentEntity convertViewEntry(String entityName, ViewEntry viewEntry, ClassMapping classMapping) throws NotesException {
+		Object parent = viewEntry.getParent();
+		View view;
+		if(parent instanceof View) {
+			view = ((View)parent);
+		} else if(parent instanceof ViewEntryCollection) {
+			view = ((ViewEntryCollection)parent).getParent();
+		} else if(parent instanceof ViewNavigator) {
+			view = ((ViewNavigator)parent).getParentView();
+		} else {
+			throw new RuntimeException("Unable to locate parent view from " + viewEntry);
 		}
+		
+		@SuppressWarnings("unchecked")
+		Vector<ViewColumn> columns = view.getColumns();
+		List<String> columnNames = new ArrayList<>();
+		List<String> columnFormulas = new ArrayList<>();
+		for(ViewColumn col : columns) {
+			if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
+				columnNames.add(col.getItemName());
+				columnFormulas.add(col.getFormula());
+			}
+		}
+		view.recycle(columns);
+		
+		Map<String, Class<?>> itemTypes = classMapping == null ? null : classMapping.getFields()
+			.stream()
+			.collect(Collectors.toMap(
+				f -> f.getName(),
+				f -> f.getNativeField().getType()
+			));
+		
+		return convertViewEntryInner(view.getParent(), viewEntry, columnNames, columnFormulas, entityName, itemTypes);
 	}
 	
-	// *******************************************************************************
-	// * Utility methods
-	// *******************************************************************************
-	
+	private DocumentEntity convertViewEntryInner(Database context, ViewEntry entry, List<String> columnNames, List<String> columnFormulas, String entityName, Map<String, Class<?>> itemTypes) throws NotesException {
+		Vector<?> columnValues = entry.getColumnValues();
+		try {
+			List<Document> convertedEntry = new ArrayList<>(columnValues.size());
 
+			String universalId = entry.getUniversalID();
+			convertedEntry.add(Document.of(DominoConstants.FIELD_ID, universalId));
+			convertedEntry.add(Document.of(DominoConstants.FIELD_POSITION, entry.getPosition('.')));
+			convertedEntry.add(Document.of(DominoConstants.FIELD_READ, entry.getRead()));
+			
+			EntryType type;
+			if(entry.isCategory()) {
+				type = EntryType.CATEGORY;
+			} else if(entry.isTotal()) {
+				type = EntryType.TOTAL;
+			} else {
+				type = EntryType.DOCUMENT;
+			}
+			convertedEntry.add(Document.of(DominoConstants.FIELD_ENTRY_TYPE, type));
+			
+			for(int i = 0; i < columnValues.size(); i++) {
+				String itemName = columnNames.get(i);
+				Object value = columnValues.get(i);
+				
+				// Check to see if we have a matching time-based field and strip empty strings,
+				//   since JNoSQL will otherwise try to parse them and will throw an exception
+				if(itemTypes != null) {
+					Class<?> itemType = itemTypes.get(itemName);
+					if(itemType != null && TemporalAccessor.class.isAssignableFrom(itemType)) {
+						if(value instanceof String && ((String)value).isEmpty()) {
+							// Then skip the field
+							continue;
+						}
+					}
+				}
+				
+				// Check for known system formula equivalents
+				switch(String.valueOf(columnFormulas.get(i))) {
+				case "@DocLength": //$NON-NLS-1$
+					itemName = DominoConstants.FIELD_SIZE;
+					break;
+				case "@Created": //$NON-NLS-1$
+					itemName = DominoConstants.FIELD_CDATE;
+					break;
+				case "@Modified": //$NON-NLS-1$
+					itemName = DominoConstants.FIELD_MDATE;
+					break;
+				case "@AttachmentNames": //$NON-NLS-1$
+					// Very special handling for this
+					itemName = DominoConstants.FIELD_ATTACHMENTS;
+					if(value instanceof List) {
+						@SuppressWarnings("unchecked")
+						List<EntityAttachment> attachments = ((List<String>)value).stream()
+							.map(attName -> new DominoDocumentAttachment(databaseSupplier, universalId, attName))
+							.collect(Collectors.toList());
+						convertedEntry.add(Document.of(itemName, attachments));
+					} else if(value instanceof String && !((String)value).isEmpty()) {
+						EntityAttachment attachment = new DominoDocumentAttachment(databaseSupplier, universalId, (String)value);
+						convertedEntry.add(Document.of(itemName, Collections.singletonList(attachment)));
+					} else {
+						convertedEntry.add(Document.of(itemName, Collections.emptyList()));
+					}
+					continue; // Skip to the next column
+				default:
+					break;
+				}
+				
+				convertedEntry.add(Document.of(itemName, toJavaFriendly(context, value)));
+			}
+			return DocumentEntity.of(entityName, convertedEntry);
+		} finally {
+			entry.recycle(columnValues);
+		}
+	}
 
 	@SuppressWarnings("unchecked")
-	private List<Document> toNoSQLDocuments(lotus.domino.Document doc, ClassMapping classMapping) throws NotesException {
+	public List<Document> convertDominoDocument(lotus.domino.Document doc, ClassMapping classMapping) throws NotesException {
 		Set<String> fieldNames = classMapping == null ? null : classMapping.getFieldsName()
 			.stream()
 			.filter(s -> !DominoConstants.FIELD_ID.equals(s))
@@ -746,6 +589,202 @@ public class LSXBEEntityConverter {
 			session.setConvertMime(convertMime);
 		}
 	}
+
+	/**
+	 * Converts the provided {@link DocumentEntity} instance into a Domino
+	 * JSON object.
+	 * 
+	 * @param entity the entity instance to convert
+	 * @param retainId whether or not to remove the {@link #FIELD_ID} field during conversion
+	 * @param target the target Domino Document to store in
+	 */
+	public void convertNoSQLEntity(DocumentEntity entity, boolean retainId, lotus.domino.Document target, ClassMapping classMapping) throws NotesException {
+		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
+		try {
+			@SuppressWarnings("unchecked")
+			List<ValueWriter<Object, Object>> writers = ServiceLoaderProvider.getSupplierStream(ValueWriter.class)
+				.map(w -> (ValueWriter<Object, Object>)w)
+				.collect(Collectors.toList());
+	
+			for(Document doc : entity.getDocuments()) {
+				if(DominoConstants.FIELD_ATTACHMENTS.equals(doc.getName())) {
+					@SuppressWarnings("unchecked")
+					List<EntityAttachment> incoming = (List<EntityAttachment>)doc.get();
+					Set<String> retain = incoming.stream()
+						.filter(DominoDocumentAttachment.class::isInstance)
+						.map(EntityAttachment::getName)
+						.collect(Collectors.toSet());
+					
+					// TODO change to account for specific rich text fields
+					// Remove any attachments no longer in the entity
+					@SuppressWarnings("unchecked")
+					List<String> existing = target.getParentDatabase().getParent()
+						.evaluate(" @AttachmentNames ", target); //$NON-NLS-1$;
+					for(String attName : existing) {
+						if(StringUtil.isNotEmpty(attName) && !retain.contains(attName)) {
+							EmbeddedObject eo = target.getAttachment(attName);
+							if(eo != null) {
+								eo.remove();
+								eo.recycle();
+							}
+						}
+					}
+					
+					// Now attach any incoming that aren't currently in the doc
+					List<EntityAttachment> newAttachments = incoming.stream()
+						.filter(att -> !(att instanceof DominoDocumentAttachment))
+						.collect(Collectors.toList());
+					if(!newAttachments.isEmpty()) {
+						RichTextItem body = (RichTextItem)target.getFirstItem(DominoConstants.FIELD_ATTACHMENTS);
+						if(body == null) {
+							body = target.createRichTextItem(DominoConstants.FIELD_ATTACHMENTS);
+						}
+						for(EntityAttachment att : newAttachments) {
+							// TODO check for if this field already exists
+							try {
+								Path tempDir = Files.createTempDirectory(FileUtil.getTempDirectory(), getClass().getSimpleName());
+								try {
+									// TODO consider options for when the name can't be stored on the filesystem
+									Path tempFile = tempDir.resolve(att.getName());
+									try(InputStream is = att.getData()) {
+										Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
+									}
+									body.embedObject(EmbeddedObject.EMBED_ATTACHMENT, "", tempFile.toString(), null); //$NON-NLS-1$
+								} finally {
+									Files.list(tempDir).forEach(t -> {
+										try {
+											Files.deleteIfExists(t);
+										} catch (IOException e) {
+											throw new UncheckedIOException(e);
+										}
+									});
+									Files.deleteIfExists(tempDir);
+								}
+							} catch (IOException e) {
+								throw new UncheckedIOException(e);
+							}
+						}
+					}
+				} else if(!SKIP_WRITING_FIELDS.contains(doc.getName())) {
+					Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.getName(), ItemStorage.class);
+					// Check if we should skip processing
+					if(optStorage.isPresent()) {
+						ItemStorage storage = optStorage.get();
+						if(!storage.insertable() && target.isNewNote()) {
+							continue;
+						} else if(!storage.updatable() && !target.isNewNote()) {
+							continue;
+						}
+					}
+					
+					Object value = doc.get();
+					if(value == null) {
+						target.removeItem(doc.getName());
+					} else {
+						Object val = value;
+						for(ValueWriter<Object, Object> w : writers) {
+							if(w.test(value.getClass())) {
+								val = w.write(value);
+								break;
+							}
+						}
+						
+						Item item;
+						
+						// Check if the item is expected to be stored specially, which may be handled down the line
+						if(optStorage.isPresent() && optStorage.get().type() != ItemStorage.Type.Default) {
+							ItemStorage storage = optStorage.get();
+							switch(storage.type()) {
+							case JSON:
+								Object fVal = val;
+								String json = AccessController.doPrivileged((PrivilegedAction<String>)() -> getJsonb().toJson(fVal));
+								item = target.replaceItemValue(doc.getName(), json);
+								item.setSummary(false);
+								break;
+							case MIME: {
+								target.removeItem(doc.getName());
+								MIMEEntity mimeEntity = target.createMIMEEntity(doc.getName());
+								lotus.domino.Stream mimeStream = target.getParentDatabase().getParent().createStream();
+								try {
+									mimeStream.writeText(val.toString());
+									mimeEntity.setContentFromText(mimeStream, storage.mimeType(), MIMEEntity.ENC_NONE);
+								} finally {
+									mimeStream.close();
+									mimeStream.recycle();
+								}
+								continue;
+							}
+							case MIMEBean:
+								byte[] serialized;
+								try(
+									ByteArrayOutputStream baos = new ByteArrayOutputStream();
+									ObjectOutputStream oos = new ObjectOutputStream(baos);
+								) {
+									oos.writeObject(val);
+									oos.flush();
+									serialized = baos.toByteArray();
+								} catch(IOException e) {
+									throw new UncheckedIOException(e);
+								}
+								target.removeItem(doc.getName());
+								MIMEEntity mimeEntity = target.createMIMEEntity(doc.getName());
+								mimeEntity.createHeader(DominoConstants.HEADER_JAVA_CLASS).setHeaderVal(val.getClass().getName());
+								lotus.domino.Stream mimeStream = target.getParentDatabase().getParent().createStream();
+								try {
+									mimeStream.write(serialized);
+									mimeStream.setPosition(0);
+									mimeEntity.setContentFromBytes(mimeStream, DominoConstants.MIME_TYPE_SERIALIZED_OBJECT, MIMEEntity.ENC_NONE);
+								} finally {
+									mimeStream.close();
+									mimeStream.recycle();
+								}
+								
+								continue;
+							case Default:
+							default:
+								// Shouldn't get here
+								throw new UnsupportedOperationException(MessageFormat.format("Unable to handle storage type {0}", storage.type()));
+							}
+						} else {
+							item = target.replaceItemValue(doc.getName(), toDominoFriendly(target.getParentDatabase().getParent(), val));
+						}
+						
+						// Check for a @ItemFlags annotation
+						Optional<ItemFlags> itemFlagsOpt = getFieldAnnotation(classMapping, doc.getName(), ItemFlags.class);
+						if(itemFlagsOpt.isPresent()) {
+							ItemFlags itemFlags = itemFlagsOpt.get();
+							item.setAuthors(itemFlags.authors());
+							item.setReaders(itemFlags.readers());
+							if(itemFlags.authors() || itemFlags.readers() || itemFlags.names()) {
+								item.setNames(true);
+							} else {
+								item.setNames(false);
+							}
+							item.setEncrypted(itemFlags.encrypted());
+							item.setProtected(itemFlags.protectedItem());
+							item.setSigned(itemFlags.signed());
+							if(!(item instanceof RichTextItem) && item.getType() != Item.MIME_PART) {
+								item.setSummary(itemFlags.summary());
+							}
+							item.setSaveToDisk(itemFlags.saveToDisk());
+						}
+						
+						item.recycle();
+					}
+				}
+			}
+			
+			target.replaceItemValue(DominoConstants.FIELD_NAME, entity.getName());
+			
+			target.closeMIMEEntities(true);
+		} catch(Exception e) {
+			throw e;
+		}
+	}
+	
+	// *******************************************************************************
+	// * Utility methods
+	// *******************************************************************************
 	
 	private static MIMEEntity findEntityForType(MIMEEntity entity, String targetType, String targetSubtype) throws NotesException {
 		String type = entity.getContentType();
@@ -768,7 +807,7 @@ public class LSXBEEntityConverter {
 		}
 	}
 	
-	private static Object toDominoFriendly(Session session, Object value) throws NotesException {
+	public Object toDominoFriendly(Session session, Object value) throws NotesException {
 		if(value instanceof Iterable) {
 			Vector<Object> result = new Vector<Object>();
 			for(Object val : (Iterable<?>)value) {
@@ -830,7 +869,7 @@ public class LSXBEEntityConverter {
 	 * @param value the value to convert
 	 * @return a stock-JDK object representing the value
 	 */
-	private static Object toJavaFriendly(lotus.domino.Database context, Object value) {
+	private Object toJavaFriendly(lotus.domino.Database context, Object value) {
 		if(value instanceof Iterable) {
 			return StreamSupport.stream(((Iterable<?>)value).spliterator(), false)
 				.map(val -> toJavaFriendly(context, val))

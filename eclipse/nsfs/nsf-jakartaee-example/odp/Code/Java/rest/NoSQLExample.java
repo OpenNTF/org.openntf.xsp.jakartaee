@@ -27,6 +27,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -467,6 +468,30 @@ public class NoSQLExample {
 			.orElseThrow(() -> new NotFoundException("Unable to find Person for ID " + id));
 		personRepository.removeFromFolder(person, PersonRepository.FOLDER_PERSONS);
 		return true;
+	}
+	
+	@Path("byViewKey/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByViewKey(@PathParam("lastName") String lastName) {
+		return personRepository.findByKey(lastName)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
+	}
+	
+	@Path("byViewTwoKeys/{lastName}/{firstName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByViewTwoKey(@PathParam("lastName") String lastName, @PathParam("firstName") String firstName) {
+		return personRepository.findByTwoKeys(lastName, firstName)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
+	}
+	
+	@Path("byViewCollectionKey/{lastName}/{firstName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByViewCollectionKey(@PathParam("lastName") String lastName, @PathParam("firstName") String firstName) {
+		return personRepository.findByCollection(Arrays.asList(lastName, firstName))
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
 	}
 	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {
