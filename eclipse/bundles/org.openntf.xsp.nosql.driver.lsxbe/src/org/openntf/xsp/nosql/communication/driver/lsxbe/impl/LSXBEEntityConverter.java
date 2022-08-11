@@ -529,7 +529,7 @@ public class LSXBEEntityConverter {
 					result.add(Document.of(DominoConstants.FIELD_CDATE, doc.getCreated().toJavaDate().toInstant()));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_MDATE)) {
-					result.add(Document.of(DominoConstants.FIELD_MDATE, doc.getCreated().toJavaDate().toInstant()));
+					result.add(Document.of(DominoConstants.FIELD_MDATE, doc.getInitiallyModified().toJavaDate().toInstant()));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_READ)) {
 					result.add(Document.of(DominoConstants.FIELD_READ, doc.getRead()));
