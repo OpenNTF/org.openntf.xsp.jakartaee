@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.nosql.communication.driver.lsxbe.impl;
 
+import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 
@@ -31,7 +32,7 @@ public class DominoDocumentCollectionManagerFactory implements DocumentCollectio
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public DefaultDominoDocumentCollectionManager get(String type) {
+	public AbstractDominoDocumentCollectionManager get(String type) {
 		return new DefaultDominoDocumentCollectionManager(databaseSupplier, sessionSupplier);
 	}
 

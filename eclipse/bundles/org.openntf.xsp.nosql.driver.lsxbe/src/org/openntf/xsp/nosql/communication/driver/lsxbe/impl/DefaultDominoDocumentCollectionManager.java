@@ -19,11 +19,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -40,18 +38,18 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.eclipse.jnosql.mapping.reflection.ClassInformationNotFoundException;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
-import org.eclipse.jnosql.mapping.reflection.ClassMappings;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL;
-import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
+import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter.QueryConverterResult;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
 import org.openntf.xsp.nosql.mapping.extension.impl.ViewKeyQuery;
+
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesSession;
@@ -85,20 +83,8 @@ import lotus.domino.View;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
 
-public class DefaultDominoDocumentCollectionManager implements DominoDocumentCollectionManager {
+public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocumentCollectionManager {
 	private final Logger log = Logger.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
-	
-	private static final boolean transactionsAvailable;
-	static {
-		boolean found;
-		try {
-			Class.forName("jakarta.transaction.Transaction"); //$NON-NLS-1$
-			found = true;
-		} catch(Exception e) {
-			found = false;
-		}
-		transactionsAvailable = found;
-	}
 	
 	private final DatabaseSupplier supplier;
 	private final SessionSupplier sessionSupplier;
@@ -108,11 +94,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		this.supplier = supplier;
 		this.sessionSupplier = sessionSupplier;
 		this.entityConverter = new LSXBEEntityConverter(supplier);
-	}
-	
-	@Override
-	public DocumentEntity insert(DocumentEntity entity) {
-		return insert(entity, false);
 	}
 	
 	/**
@@ -146,12 +127,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	}
 
 	@Override
-	public DocumentEntity insert(DocumentEntity entity, Duration ttl) {
-		// TODO consider supporting ttl
-		return insert(entity);
-	}
-
-	@Override
 	public Iterable<DocumentEntity> insert(Iterable<DocumentEntity> entities) {
 		if(entities == null) {
 			return Collections.emptySet();
@@ -160,17 +135,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				.map(this::insert)
 				.collect(Collectors.toList());
 		}
-	}
-
-	@Override
-	public Iterable<DocumentEntity> insert(Iterable<DocumentEntity> entities, Duration ttl) {
-		// TODO consider supporting ttl
-		return insert(entities);
-	}
-	
-	@Override
-	public DocumentEntity update(DocumentEntity entity) {
-		return update(entity, false);
 	}
 
 	@Override
@@ -193,17 +157,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			return entity;
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public Iterable<DocumentEntity> update(Iterable<DocumentEntity> entities) {
-		if(entities == null) {
-			return Collections.emptySet();
-		} else {
-			return StreamSupport.stream(entities.spliterator(), false)
-				.map(this::update)
-				.collect(Collectors.toList());
 		}
 	}
 
@@ -327,7 +280,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 				
 				@SuppressWarnings("unchecked")
-				Vector<Object> vecKeys = (Vector<Object>)entityConverter.toDominoFriendly(database.getParent(), keyQuery.getKeys());
+				Vector<Object> vecKeys = (Vector<Object>)DominoNoSQLUtil.toDominoFriendly(database.getParent(), keyQuery.getKeys());
 				ViewEntry entry = view.getEntryByKey(vecKeys, keyQuery.isExact());
 				if(entry == null) {
 					return Stream.empty();
@@ -362,7 +315,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 				
 				@SuppressWarnings("unchecked")
-				Vector<Object> vecKeys = (Vector<Object>)entityConverter.toDominoFriendly(database.getParent(), keyQuery.getKeys());
+				Vector<Object> vecKeys = (Vector<Object>)DominoNoSQLUtil.toDominoFriendly(database.getParent(), keyQuery.getKeys());
 				lotus.domino.Document doc = view.getDocumentByKey(vecKeys, keyQuery.isExact());
 				if(doc == null) {
 					return Stream.empty();
@@ -528,7 +481,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			if(category == null) {
 				if(keyQuery != null && keyQuery.hasKeys()) {
 					@SuppressWarnings("unchecked")
-					Vector<Object> vecKeys = (Vector<Object>)entityConverter.toDominoFriendly(database.getParent(), keyQuery.getKeys());
+					Vector<Object> vecKeys = (Vector<Object>)DominoNoSQLUtil.toDominoFriendly(database.getParent(), keyQuery.getKeys());
 					nav = view.createViewNavFromKey(vecKeys, keyQuery.isExact());
 				} else {
 					nav = view.createViewNav();
@@ -580,7 +533,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		try {
 			String fileName = md5(server + filePath) + ".nsf"; //$NON-NLS-1$
 			
-			Path tempDir = getTempDirectory();
+			Path tempDir = DominoNoSQLUtil.getTempDirectory();
 			Path dest = tempDir.resolve(getClass().getPackage().getName());
 			Files.createDirectories(dest);
 			Path dbPath = dest.resolve(fileName);
@@ -604,16 +557,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		
 	}
 	
-	private Path getTempDirectory() {
-		String osName = System.getProperty("os.name"); //$NON-NLS-1$
-		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
-			return Paths.get("/tmp"); //$NON-NLS-1$
-		} else {
-			return Paths.get(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
-		}
-	}
-	
-	private String md5(String value) {
+	protected String md5(String value) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
 			md.update(String.valueOf(value).getBytes());
@@ -637,16 +581,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					// Ignore
 				}
 			}
-		}
-	}
-	
-	private ClassMapping getClassMapping(String entityName) {
-		ClassMappings mappings = CDI.current().select(ClassMappings.class).get();
-		try {
-			return mappings.findByName(entityName);
-		} catch(ClassInformationNotFoundException e) {
-			// Shouldn't happen, but we should account for it
-			return null;
 		}
 	}
 	

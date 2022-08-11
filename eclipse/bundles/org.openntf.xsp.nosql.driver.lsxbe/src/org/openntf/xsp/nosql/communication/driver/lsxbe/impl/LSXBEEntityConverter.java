@@ -26,28 +26,17 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,8 +47,6 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-import java.util.zip.GZIPInputStream;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
@@ -67,7 +54,7 @@ import org.eclipse.jnosql.mapping.reflection.FieldMapping;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
-import org.openntf.xsp.nosql.communication.driver.lsxbe.util.FileUtil;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.LoaderObjectInputStream;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
@@ -84,7 +71,6 @@ import jakarta.nosql.ValueWriter;
 import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentEntity;
 import lotus.domino.Database;
-import lotus.domino.DateRange;
 import lotus.domino.DateTime;
 import lotus.domino.DocumentCollection;
 import lotus.domino.DxlExporter;
@@ -131,9 +117,11 @@ public class LSXBEEntityConverter {
 	}
 	
 	private final DatabaseSupplier databaseSupplier;
+	private final Jsonb jsonb;
 	
 	public LSXBEEntityConverter(DatabaseSupplier databaseSupplier) {
 		this.databaseSupplier = databaseSupplier;
+		this.jsonb = JsonbBuilder.create();
 	}
 	
 	/**
@@ -156,7 +144,7 @@ public class LSXBEEntityConverter {
 						// The last column is the note ID in format "NT00000000"
 						String noteId = (String)columnValues.get(columnValues.size()-1);
 						lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
-						if(isValid(doc)) {
+						if(DominoNoSQLUtil.isValid(doc)) {
 							List<Document> documents = convertDominoDocument(doc, classMapping);
 							String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
 							return DocumentEntity.of(name, documents);
@@ -266,7 +254,7 @@ public class LSXBEEntityConverter {
 	public Stream<DocumentEntity> convertDocuments(DocumentCollection docs, ClassMapping classMapping) throws NotesException {
 		DocumentCollectionIterator iter = new DocumentCollectionIterator(docs);
 		return iter.stream()
-			.filter(LSXBEEntityConverter::isValid)
+			.filter(DominoNoSQLUtil::isValid)
 			.map(doc -> {
 				try {
 					List<Document> documents = convertDominoDocument(doc, classMapping);
@@ -392,7 +380,7 @@ public class LSXBEEntityConverter {
 					break;
 				}
 				
-				convertedEntry.add(Document.of(itemName, toJavaFriendly(context, value)));
+				convertedEntry.add(Document.of(itemName, DominoNoSQLUtil.toJavaFriendly(context, value)));
 			}
 			return DocumentEntity.of(entityName, convertedEntry);
 		} finally {
@@ -474,7 +462,7 @@ public class LSXBEEntityConverter {
 						
 						try(
 							InputStream bais = new ByteArrayInputStream(serialized);
-							InputStream is = wrapInputStream(bais, encoding);
+							InputStream is = DominoNoSQLUtil.wrapInputStream(bais, encoding);
 							ObjectInputStream ois = new LoaderObjectInputStream(is)
 						) {
 							docMap.put(itemName, ois.readObject());
@@ -513,7 +501,6 @@ public class LSXBEEntityConverter {
 									} else {
 										// Then try to deserialize it as the target type
 										Object dest = AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
-											Jsonb jsonb = getJsonb();
 											return jsonb.fromJson(val.get(0).toString(), targetType.get());
 										});
 										docMap.put(itemName, dest);
@@ -523,9 +510,9 @@ public class LSXBEEntityConverter {
 							}
 						}
 						
-						docMap.put(itemName, toJavaFriendly(doc.getParentDatabase(), val.get(0)));
+						docMap.put(itemName, DominoNoSQLUtil.toJavaFriendly(doc.getParentDatabase(), val.get(0)));
 					} else {
-						docMap.put(itemName, toJavaFriendly(doc.getParentDatabase(), val));
+						docMap.put(itemName, DominoNoSQLUtil.toJavaFriendly(doc.getParentDatabase(), val));
 					}
 				}
 			}
@@ -534,10 +521,10 @@ public class LSXBEEntityConverter {
 	
 			if(fieldNames != null) {
 				if(fieldNames.contains(DominoConstants.FIELD_CDATE)) {
-					result.add(Document.of(DominoConstants.FIELD_CDATE, toTemporal(doc.getCreated())));
+					result.add(Document.of(DominoConstants.FIELD_CDATE, DominoNoSQLUtil.toTemporal(doc.getCreated())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_MDATE)) {
-					result.add(Document.of(DominoConstants.FIELD_MDATE, toTemporal(doc.getInitiallyModified())));
+					result.add(Document.of(DominoConstants.FIELD_MDATE, DominoNoSQLUtil.toTemporal(doc.getInitiallyModified())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_READ)) {
 					result.add(Document.of(DominoConstants.FIELD_READ, doc.getRead()));
@@ -546,17 +533,17 @@ public class LSXBEEntityConverter {
 					result.add(Document.of(DominoConstants.FIELD_SIZE, doc.getSize()));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_ADATE)) {
-					result.add(Document.of(DominoConstants.FIELD_ADATE, toTemporal(doc.getLastAccessed())));
+					result.add(Document.of(DominoConstants.FIELD_ADATE, DominoNoSQLUtil.toTemporal(doc.getLastAccessed())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_NOTEID)) {
 					result.add(Document.of(DominoConstants.FIELD_NOTEID, doc.getNoteID()));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_ADDED)) {
 					DateTime added = (DateTime)session.evaluate(" @AddedToThisFile ", doc).get(0); //$NON-NLS-1$
-					result.add(Document.of(DominoConstants.FIELD_ADDED, toTemporal(added)));
+					result.add(Document.of(DominoConstants.FIELD_ADDED, DominoNoSQLUtil.toTemporal(added)));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE)) {
-					result.add(Document.of(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE, toTemporal(doc.getLastModified())));
+					result.add(Document.of(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE, DominoNoSQLUtil.toTemporal(doc.getLastModified())));
 				}
 				
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
@@ -673,7 +660,7 @@ public class LSXBEEntityConverter {
 						for(EntityAttachment att : newAttachments) {
 							// TODO check for if this field already exists
 							try {
-								Path tempDir = Files.createTempDirectory(FileUtil.getTempDirectory(), getClass().getSimpleName());
+								Path tempDir = Files.createTempDirectory(DominoNoSQLUtil.getTempDirectory(), getClass().getSimpleName());
 								try {
 									// TODO consider options for when the name can't be stored on the filesystem
 									Path tempFile = tempDir.resolve(att.getName());
@@ -728,7 +715,7 @@ public class LSXBEEntityConverter {
 							switch(storage.type()) {
 							case JSON:
 								Object fVal = val;
-								String json = AccessController.doPrivileged((PrivilegedAction<String>)() -> getJsonb().toJson(fVal));
+								String json = AccessController.doPrivileged((PrivilegedAction<String>)() -> jsonb.toJson(fVal));
 								item = target.replaceItemValue(doc.getName(), json);
 								item.setSummary(false);
 								break;
@@ -777,13 +764,13 @@ public class LSXBEEntityConverter {
 								throw new UnsupportedOperationException(MessageFormat.format("Unable to handle storage type {0}", storage.type()));
 							}
 						} else {
-							Object dominoVal = toDominoFriendly(target.getParentDatabase().getParent(), val);
+							Object dominoVal = DominoNoSQLUtil.toDominoFriendly(target.getParentDatabase().getParent(), val);
 							
 							// Set number precision if applicable
 							if(optStorage.isPresent()) {
 								int precision = optStorage.get().precision();
 								if(precision > 0) {
-									dominoVal = applyPrecision(dominoVal, precision);
+									dominoVal = DominoNoSQLUtil.applyPrecision(dominoVal, precision);
 								}
 							}
 							
@@ -848,113 +835,6 @@ public class LSXBEEntityConverter {
 		}
 	}
 	
-	public Object toDominoFriendly(Session session, Object value) throws NotesException {
-		if(value instanceof Iterable) {
-			Vector<Object> result = new Vector<Object>();
-			for(Object val : (Iterable<?>)value) {
-				result.add(toDominoFriendly(session, val));
-			}
-			return result;
-		} else if(value instanceof Date) {
-			return session.createDateTime((Date)value);
-		} else if(value instanceof Calendar) {
-			return session.createDateTime((Calendar)value);
-		} else if(value instanceof Number) {
-			return ((Number)value).doubleValue();
-		} else if(value instanceof Boolean) {
-			// TODO figure out if this can be customized, perhaps from the Settings element
-			return (Boolean)value ? "Y": "N"; //$NON-NLS-1$ //$NON-NLS-2$
-		} else if(value instanceof LocalDate) {
-			// TODO fix these Temporals when the API improves
-			Instant inst = ZonedDateTime.of((LocalDate)value, LocalTime.of(12, 0), ZoneId.systemDefault()).toInstant();
-			DateTime dt = session.createDateTime(Date.from(inst));
-			dt.setAnyTime();
-			return dt;
-		} else if(value instanceof LocalTime) {
-			Instant inst = ZonedDateTime.of(LocalDate.now(), (LocalTime)value, ZoneId.systemDefault()).toInstant();
-			DateTime dt = session.createDateTime(Date.from(inst));
-			dt.setAnyDate();
-			return dt;
-		} else if(value instanceof TemporalAccessor) {
-			Instant inst = Instant.from((TemporalAccessor)value);
-			DateTime dt = session.createDateTime(Date.from(inst));
-			return dt;
-		} else {
-			// TODO support other types above
-			return value.toString();
-		}
-	}
-	
-	private static boolean isValid(lotus.domino.Document doc) {
-		try {
-			return doc != null && doc.isValid() && !doc.isDeleted() && doc.getCreated() != null;
-		} catch (NotesException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	private static final String ITEM_TEMPTIME = "$$TempTime"; //$NON-NLS-1$
-	@SuppressWarnings("nls")
-	private static final String FORMULA_TOISODATE = "m := @Month($$TempTime);\n"
-		+ "d := @Day($$TempTime);\n"
-		+ "@Text(@Year($$TempTime)) + \"-\" + @If(m < 10; \"0\"; \"\") + @Text(m) + \"-\" + @If(d < 10; \"0\"; \"\") + @Text(d)";
-	@SuppressWarnings("nls")
-	private static final String FORMULA_TOISOTIME = "h := @Hour($$TempTime);\n"
-		+ "m := @Minute($$TempTime);\n"
-		+ "s := @Second($$TempTime);\n"
-		+ "@If(h < 10; \"0\"; \"\") + @Text(h) + \":\" + @If(m < 10; \"0\"; \"\") + @Text(m) + \":\" + @If(s < 10; \"0\"; \"\") + @Text(s)";
-	
-	/**
-	 * Converts the provided value read from Domino to a stock JDK type, if necessary.
-	 * 
-	 * @param value the value to convert
-	 * @return a stock-JDK object representing the value
-	 */
-	private Object toJavaFriendly(lotus.domino.Database context, Object value) {
-		if(value instanceof Iterable) {
-			return StreamSupport.stream(((Iterable<?>)value).spliterator(), false)
-				.map(val -> toJavaFriendly(context, val))
-				.collect(Collectors.toList());
-		} else if(value instanceof DateTime) {
-			// TODO improve with a better API
-			try {
-				DateTime dt = (DateTime)value;
-				String datePart = dt.getDateOnly();
-				String timePart = dt.getTimeOnly();
-				if(datePart == null || datePart.isEmpty()) {
-					lotus.domino.Document tempDoc = context.createDocument();
-					tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
-					String iso = (String)dt.getParent().evaluate(FORMULA_TOISOTIME, tempDoc).get(0);
-					Instant inst = dt.toJavaDate().toInstant();
-					int nano = inst.getNano();
-					iso += "." + nano; //$NON-NLS-1$
-					return LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(iso));
-				} else if(timePart == null || timePart.isEmpty()) {
-					lotus.domino.Document tempDoc = context.createDocument();
-					tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
-					String iso = (String)dt.getParent().evaluate(FORMULA_TOISODATE, tempDoc).get(0);
-					return LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(iso));
-				} else {
-					return dt.toJavaDate().toInstant();
-				}
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		} else if(value instanceof DateRange) {
-			try {
-				DateRange dr = (DateRange)value;
-				Temporal start = (Temporal)toDominoFriendly(context.getParent(), dr.getStartDateTime());
-				Temporal end = (Temporal)toDominoFriendly(context.getParent(), dr.getEndDateTime());
-				return Arrays.asList(start, end);
-			} catch (NotesException e) {
-				throw new RuntimeException(e);
-			}
-		} else {
-			// String, Double
-			return value;
-		}
-	}
-	
 	private <T extends Annotation> Optional<T> getFieldAnnotation(ClassMapping classMapping, String fieldName, Class<T> annotation) {
 		if(classMapping == null) {
 			return Optional.empty();
@@ -977,47 +857,5 @@ public class LSXBEEntityConverter {
 			.findFirst()
 			.map(FieldMapping::getNativeField)
 			.map(field -> field.getType());
-	}
-	
-	private Jsonb getJsonb() {
-		return JsonbBuilder.create();
-	}
-	
-	private InputStream wrapInputStream(InputStream is, String encoding) throws IOException {
-		if("gzip".equals(encoding)) { //$NON-NLS-1$
-			return new GZIPInputStream(is);
-		} else if(encoding == null || encoding.isEmpty()) {
-			return is;
-		} else {
-			throw new UnsupportedOperationException("Unsupported MIMEBean encoding: " + encoding);
-		}
-	}
-	
-	private Object applyPrecision(Object dominoVal, int precision) {
-		if(dominoVal instanceof Number) {
-			BigDecimal decimal = BigDecimal.valueOf(((Number)dominoVal).doubleValue());
-			return decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue();
-		} else if(dominoVal instanceof Collection && !((Collection<?>)dominoVal).isEmpty()) {
-			Vector<Object> result = new Vector<>(((Collection<?>)dominoVal).size());
-			for(Object obj : ((Collection<?>)dominoVal)) {
-				if(obj instanceof Number) {
-					BigDecimal decimal = BigDecimal.valueOf(((Number)obj).doubleValue());
-					result.add(decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue());
-				} else {
-					result.add(obj);
-				}
-			}
-			return result;
-		} else {
-			return dominoVal;
-		}
-	}
-	
-	private Temporal toTemporal(DateTime dt) throws NotesException {
-		try {
-			return dt.toJavaDate().toInstant();
-		} finally {
-			dt.recycle();
-		}
 	}
 }
