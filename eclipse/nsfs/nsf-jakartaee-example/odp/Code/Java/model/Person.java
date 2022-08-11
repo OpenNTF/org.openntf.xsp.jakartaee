@@ -79,6 +79,12 @@ public class Person {
 	
 	@Column(DominoConstants.FIELD_ADATE)
 	private Instant accessed;
+	
+	@Column(DominoConstants.FIELD_ADDED)
+	private Instant addedToFile;
+	
+	@Column(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE)
+	private Instant modifiedInFile;
 
 	public String getUnid() {
 		return unid;
@@ -168,5 +174,12 @@ public class Person {
 	
 	public String getNoteId() {
 		return noteId;
+	}
+	
+	public Instant getAddedToFile() {
+		return addedToFile;
+	}
+	public Instant getModifiedInFile() {
+		return modifiedInFile;
 	}
 }

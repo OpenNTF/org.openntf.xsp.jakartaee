@@ -122,7 +122,9 @@ public class LSXBEEntityConverter {
 			DominoConstants.FIELD_ENTRY_TYPE,
 			DominoConstants.FIELD_READ,
 			DominoConstants.FIELD_NOTEID,
-			DominoConstants.FIELD_ADATE
+			DominoConstants.FIELD_ADATE,
+			DominoConstants.FIELD_ADDED,
+			DominoConstants.FIELD_MODIFIED_IN_THIS_FILE
 		));
 		SKIP_WRITING_FIELDS.add("$FILE"); //$NON-NLS-1$
 		SKIP_WRITING_FIELDS.addAll(SYSTEM_FIELDS);
@@ -364,6 +366,12 @@ public class LSXBEEntityConverter {
 				case "@NoteID": //$NON-NLS-1$
 					itemName = DominoConstants.FIELD_NOTEID;
 					break;
+				case "@AddedToThisFile": //$NON-NLS-1$
+					itemName = DominoConstants.FIELD_ADDED;
+					break;
+				case "@ModifiedInThisFile": //$NON-NLS-1$
+					itemName = DominoConstants.FIELD_MODIFIED_IN_THIS_FILE;
+					break;
 				case "@AttachmentNames": //$NON-NLS-1$
 					// Very special handling for this
 					itemName = DominoConstants.FIELD_ATTACHMENTS;
@@ -526,10 +534,10 @@ public class LSXBEEntityConverter {
 	
 			if(fieldNames != null) {
 				if(fieldNames.contains(DominoConstants.FIELD_CDATE)) {
-					result.add(Document.of(DominoConstants.FIELD_CDATE, doc.getCreated().toJavaDate().toInstant()));
+					result.add(Document.of(DominoConstants.FIELD_CDATE, toTemporal(doc.getCreated())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_MDATE)) {
-					result.add(Document.of(DominoConstants.FIELD_MDATE, doc.getInitiallyModified().toJavaDate().toInstant()));
+					result.add(Document.of(DominoConstants.FIELD_MDATE, toTemporal(doc.getInitiallyModified())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_READ)) {
 					result.add(Document.of(DominoConstants.FIELD_READ, doc.getRead()));
@@ -538,10 +546,17 @@ public class LSXBEEntityConverter {
 					result.add(Document.of(DominoConstants.FIELD_SIZE, doc.getSize()));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_ADATE)) {
-					result.add(Document.of(DominoConstants.FIELD_ADATE, doc.getLastAccessed().toJavaDate().toInstant()));
+					result.add(Document.of(DominoConstants.FIELD_ADATE, toTemporal(doc.getLastAccessed())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_NOTEID)) {
 					result.add(Document.of(DominoConstants.FIELD_NOTEID, doc.getNoteID()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_ADDED)) {
+					DateTime added = (DateTime)session.evaluate(" @AddedToThisFile ", doc).get(0); //$NON-NLS-1$
+					result.add(Document.of(DominoConstants.FIELD_ADDED, toTemporal(added)));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE)) {
+					result.add(Document.of(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE, toTemporal(doc.getLastModified())));
 				}
 				
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
@@ -996,6 +1011,13 @@ public class LSXBEEntityConverter {
 		} else {
 			return dominoVal;
 		}
-		
+	}
+	
+	private Temporal toTemporal(DateTime dt) throws NotesException {
+		try {
+			return dt.toJavaDate().toInstant();
+		} finally {
+			dt.recycle();
+		}
 	}
 }

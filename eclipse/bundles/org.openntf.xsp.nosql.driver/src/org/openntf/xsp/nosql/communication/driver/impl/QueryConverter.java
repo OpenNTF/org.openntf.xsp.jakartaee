@@ -88,6 +88,10 @@ public enum QueryConverter {
 			name = "@NoteID"; //$NON-NLS-1$
 		} else if(DominoConstants.FIELD_ADATE.equals(name)) {
 			name = "@Accessed"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_ADDED.equals(name)) {
+			name = "@AddedToThisFile"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE.equals(name)) {
+			name = "@ModifiedInThisFile"; //$NON-NLS-1$
 		}
 
 		Object value = document.get();

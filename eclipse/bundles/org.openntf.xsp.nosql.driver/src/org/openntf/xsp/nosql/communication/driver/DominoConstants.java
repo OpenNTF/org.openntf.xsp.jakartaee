@@ -96,6 +96,18 @@ public interface DominoConstants {
 	 * @since 2.8.0
 	 */
 	String FIELD_ADATE = "@adate"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of a document's last-modified-in-this-file date,
+	 * currently {@value #FIELD_MODIFIED_IN_THIS_FILE}
+	 * @since 2.8.0
+	 */
+	String FIELD_MODIFIED_IN_THIS_FILE = "@modifiedinthisfile"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of a document's added-to-this-file date, currently
+	 * {@value #FIELD_ADDED}
+	 * @since 2.8.0
+	 */
+	String FIELD_ADDED = "@added"; //$NON-NLS-1$
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based
