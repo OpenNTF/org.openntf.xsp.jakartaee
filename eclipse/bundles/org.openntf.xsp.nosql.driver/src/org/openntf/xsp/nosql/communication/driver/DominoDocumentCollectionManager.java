@@ -74,4 +74,15 @@ public interface DominoDocumentCollectionManager extends DocumentCollectionManag
      * @since 2.8.0
      */
     Optional<DocumentEntity> getByNoteId(String entityName, String noteId);
+    
+    /**
+     * Retrieves a document by its UNID.
+     * 
+     * @param entityName the entity type to find
+     * @param id the document UNID
+     * @return an {@link Optional} describing the entity, or an empty one if no document
+     *         by that ID is found
+     * @since 2.8.0
+     */
+    Optional<DocumentEntity> getById(String entityName, String id);
 }

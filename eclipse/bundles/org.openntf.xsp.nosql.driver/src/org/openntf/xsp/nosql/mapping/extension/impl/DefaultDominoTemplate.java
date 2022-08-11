@@ -28,6 +28,7 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import jakarta.nosql.mapping.Converters;
+import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.document.DocumentEntityConverter;
 import jakarta.nosql.mapping.document.DocumentEventPersistManager;
@@ -146,6 +147,17 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	@Override
 	public <T> Optional<T> getByNoteId(String entityName, String noteId) {
 		return getManager().getByNoteId(entityName, noteId).map(getConverter()::toEntity);
+	}
+	
+	@Override
+	public <T, K> Optional<T> find(Class<T> entityClass, K id) {
+		Entity entityAnnotation = entityClass.getAnnotation(Entity.class);
+		String entityName = entityAnnotation == null ? "" : entityAnnotation.value(); //$NON-NLS-1$
+		if(entityName.isEmpty()) {
+			entityName = entityClass.getSimpleName();
+		}
+		
+		return getManager().getById(entityName, String.valueOf(id)).map(getConverter()::toEntity);
 	}
 
 }

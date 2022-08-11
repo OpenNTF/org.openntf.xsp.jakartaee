@@ -474,6 +474,35 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			return Optional.empty();
 		}
 	}
+	
+	@Override
+	public Optional<DocumentEntity> getById(String entityName, String id) {
+		try {
+			Database database = supplier.get();
+			beginTransaction(database);
+			lotus.domino.Document doc = database.getDocumentByUNID(id);
+			if(doc != null) {
+				if(doc.isDeleted()) {
+					return Optional.empty();
+				} else if(!doc.isValid()) {
+					return Optional.empty();
+				}
+				String unid = doc.getUniversalID();
+				if(unid == null || unid.isEmpty()) {
+					return Optional.empty();
+				}
+				
+				// TODO consider checking the form
+				List<Document> result = entityConverter.convertDominoDocument(doc, getClassMapping(entityName));
+				return Optional.of(DocumentEntity.of(entityName, result));
+			} else {
+				return Optional.empty();
+			}
+		} catch(NotesException e) {
+			// Assume it doesn't exist
+			return Optional.empty();
+		}
+	}
 
 	@Override
 	public void close() {
