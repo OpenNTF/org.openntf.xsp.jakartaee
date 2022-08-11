@@ -2,11 +2,16 @@ package org.openntf.xsp.nosql.communication.driver.impl;
 
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * Utility class to programmatically compose syntactically correct
@@ -661,6 +666,26 @@ public class DQL {
 		public ValueComparisonTerm isGreaterThan(Date dtVal) {
 			return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, dtVal);
 		}
+		
+		public ValueComparisonTerm isEqualTo(Temporal dtVal) {
+			return new ValueComparisonTerm(this, TermRelation.EQUAL, dtVal);
+		}
+		
+		public ValueComparisonTerm isLessThan(Temporal dtVal) {
+			return new ValueComparisonTerm(this, TermRelation.LESSTHAN, dtVal);
+		}
+
+		public ValueComparisonTerm isLessThanOrEqual(Temporal dtVal) {
+			return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, dtVal);
+		}
+
+		public ValueComparisonTerm isGreaterThanOrEqual(Temporal dtVal) {
+			return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, dtVal);
+		}
+
+		public ValueComparisonTerm isGreaterThan(Temporal dtVal) {
+			return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, dtVal);
+		}
 
 	}
 	
@@ -795,6 +820,11 @@ public class DQL {
 						sb.append(formatDateValue(dateValues[i]));
 					}
 				}
+				else if (m_value instanceof Temporal[]) {
+					Temporal[] temporalValues = (Temporal[]) m_value;
+					
+					sb.append(Arrays.stream(temporalValues).map(DQL::formatTemporalValue).collect(Collectors.joining(", "))); //$NON-NLS-1$
+				}
 				else if (m_value instanceof String) {
 					sb
 					.append("'")
@@ -809,6 +839,9 @@ public class DQL {
 				}
 				else if (m_value instanceof Date) {
 					sb.append(formatDateValue((Date) m_value));
+				}
+				else if (m_value instanceof Temporal) {
+					sb.append(formatTemporalValue((Temporal) m_value));
 				}
 				else {
 					throw new IllegalArgumentException("Unknown value found: "+m_value+" (type="+(m_value==null ? "null" : m_value.getClass().getName()+")"));
@@ -886,5 +919,17 @@ public class DQL {
 		dateValueMS -= (millis-millisRounded);
 
 		return MessageFormat.format("@dt(''{0}'')", DQL.RFC3339_PATTERN_DATETIME.get().format(OffsetDateTime.ofInstant(Instant.ofEpochMilli(dateValueMS), ZoneId.of("UTC")))); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	private static String formatTemporalValue(Temporal temporalValue) {
+		if(temporalValue instanceof LocalDate) {
+			return MessageFormat.format("@dt(''{0}'')", DateTimeFormatter.ISO_LOCAL_DATE.format(temporalValue)); //$NON-NLS-1$
+		} else if(temporalValue instanceof LocalTime) {
+			return MessageFormat.format("@dt(''{0}'')", DateTimeFormatter.ISO_LOCAL_TIME.format(temporalValue)); //$NON-NLS-1$
+		} else {
+			// Treat it as an instant
+			Instant inst = Instant.from(temporalValue);
+			return formatDateValue(Date.from(inst));
+		}
 	}
 }

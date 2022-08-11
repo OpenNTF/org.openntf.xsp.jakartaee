@@ -509,12 +509,12 @@ public class NoSQLExample {
 			.orElseThrow(() -> new NotFoundException("Unable to find Person for note ID: " + noteId));
 	}
 	
-	@Path("byModified/{modified}")
+	@Path("modifiedSince/{modified}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Person> getPersonByModified(@PathParam("modified") String modified) {
 		Instant mod = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(modified));
-		return personRepository.findByModified(mod).collect(Collectors.toList());
+		return personRepository.findModifiedSince(mod).collect(Collectors.toList());
 	}
 	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {

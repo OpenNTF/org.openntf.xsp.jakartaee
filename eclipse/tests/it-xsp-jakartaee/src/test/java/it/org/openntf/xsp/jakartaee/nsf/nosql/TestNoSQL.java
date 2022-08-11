@@ -216,7 +216,6 @@ public class TestNoSQL extends AbstractWebClientTest {
 	
 	@SuppressWarnings({ "unchecked" })
 	@Test
-	@Disabled("Does not currently work - it's possible that the trouble is due to second/hundredths precision")
 	public void testQueryModTime() throws JsonException, UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
@@ -262,7 +261,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		// Find by modified
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byModified/" + URLEncoder.encode(modified, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/modifiedSince/" + URLEncoder.encode(modified, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
