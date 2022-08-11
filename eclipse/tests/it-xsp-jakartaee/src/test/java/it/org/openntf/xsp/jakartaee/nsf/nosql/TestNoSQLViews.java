@@ -19,21 +19,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.List;
-import java.util.Map;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
-
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
@@ -42,15 +40,14 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestNoSQLViews extends AbstractWebClientTest {
-	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testQueryByKey() throws JsonException, UnsupportedEncodingException {
+	public void testQueryByKey() throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
-		Map<String, Object> person = createTwoPersonDocuments(false);
+		JsonObject person = createTwoPersonDocuments(false);
 		
 		// Find by the last name of the second person
-		String lastName = (String)person.get("lastName");
+		String lastName = person.getString("lastName");
 		assertNotNull(lastName);
 		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byViewKey/" + URLEncoder.encode(lastName, "UTF-8"));
 		
@@ -60,23 +57,22 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String json = response.readEntity(String.class);
 		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
-		Map<String, Object> result = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-		assertEquals(person.get("unid"), result.get("unid"));
-		assertEquals(person.get("lastName"), result.get("lastName"));
+		JsonObject result = Json.createReader(new StringReader(json)).readObject();
+		assertEquals(person.getString("unid"), result.getString("unid"));
+		assertEquals(person.getString("lastName"), result.getString("lastName"));
 	}
 	
-	@SuppressWarnings({ "unchecked" })
 	@ParameterizedTest
 	@ValueSource(strings = { "byViewTwoKeys", "byViewCollectionKey" })
-	public void testQueryByTwoKeys(String pathPart) throws JsonException, UnsupportedEncodingException {
+	public void testQueryByTwoKeys(String pathPart) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
-		Map<String, Object> person = createTwoPersonDocuments(true);
+		JsonObject person = createTwoPersonDocuments(true);
 		
 		// Find by the last name of the second person
-		String lastName = (String)person.get("lastName");
+		String lastName = person.getString("lastName");
 		assertNotNull(lastName);
-		String firstName = (String)person.get("firstName");
+		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
 		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/" + pathPart
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
@@ -90,22 +86,21 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String json = response.readEntity(String.class);
 		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
-		Map<String, Object> result = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-		assertEquals(person.get("unid"), result.get("unid"));
-		assertEquals(person.get("lastName"), result.get("lastName"));
+		JsonObject result = Json.createReader(new StringReader(json)).readObject();
+		assertEquals(person.getString("unid"), result.getString("unid"));
+		assertEquals(person.getString("lastName"), result.getString("lastName"));
 	}
 	
-	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testQueryByKeyMulti() throws JsonException, UnsupportedEncodingException {
+	public void testQueryByKeyMulti() throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		// Create four documents with two distinct last names
 		createTwoPersonDocuments(true);
-		Map<String, Object> person = createTwoPersonDocuments(true);
+		JsonObject person = createTwoPersonDocuments(true);
 		
 		// Find by the last name of the second person
-		String lastName = (String)person.get("lastName");
+		String lastName = person.getString("lastName");
 		assertNotNull(lastName);
 		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byViewKeyMulti/" + URLEncoder.encode(lastName, "UTF-8"));
 		
@@ -115,11 +110,11 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String json = response.readEntity(String.class);
 		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
-		List<Map<String, Object>> result = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+		JsonArray result = Json.createReader(new StringReader(json)).readArray();
 		assertEquals(2, result.size());
-		Map<String, Object> resultPerson = result.get(1);
-		assertEquals(person.get("unid"), resultPerson.get("unid"));
-		assertEquals(person.get("lastName"), resultPerson.get("lastName"));
+		JsonObject resultPerson = result.getJsonObject(1);
+		assertEquals(person.getString("unid"), resultPerson.getString("unid"));
+		assertEquals(person.getString("lastName"), resultPerson.getString("lastName"));
 	}
 	
 	/**
@@ -130,13 +125,12 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 	 * @return the second document created
 	 * @throws JsonException if there is a problem parsing the result
 	 */
-	@SuppressWarnings("unchecked")
-	private Map<String, Object> createTwoPersonDocuments(boolean retainLastName) throws JsonException {
+	private JsonObject createTwoPersonDocuments(boolean retainLastName){
 		Client client = getAdminClient();
 		
 		// Create two documents to ensure that we can query by the second
 		String lastName = null;
-		Map<String, Object> person = null;
+		JsonObject person = null;
 		for(int i = 0; i < 2; i++) {
 			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
 
@@ -153,8 +147,8 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 			String json = response.readEntity(String.class);
 			assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
-			person = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			String unid = (String)person.get("unid");
+			person = Json.createReader(new StringReader(json)).readObject();
+			String unid = person.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}

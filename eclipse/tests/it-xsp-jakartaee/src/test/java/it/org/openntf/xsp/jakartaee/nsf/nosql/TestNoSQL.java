@@ -21,16 +21,17 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
@@ -43,17 +44,12 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
-
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
 @SuppressWarnings("nls")
 public class TestNoSQL extends AbstractWebClientTest {
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testNoSql() throws JsonException {
+	public void testNoSql() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/nosql?lastName=CreatedUnitTest"); //$NON-NLS-1$
 		
@@ -61,10 +57,9 @@ public class TestNoSQL extends AbstractWebClientTest {
 			Response response = target.request().get();
 			
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			List<Object> byQueryLastName = (List<Object>)jsonObject.get("byQueryLastName"); //$NON-NLS-1$
-			assertNotNull(byQueryLastName, () -> String.valueOf(jsonObject));
+			JsonArray byQueryLastName = jsonObject.getJsonArray("byQueryLastName"); //$NON-NLS-1$
 			assertTrue(byQueryLastName.isEmpty(), () -> String.valueOf(jsonObject));
 		}
 		
@@ -86,23 +81,21 @@ public class TestNoSQL extends AbstractWebClientTest {
 			Response response = target.request().get();
 			
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			List<Map<String, Object>> byQueryLastName = (List<Map<String, Object>>)jsonObject.get("byQueryLastName"); //$NON-NLS-1$
+			JsonArray byQueryLastName = jsonObject.getJsonArray("byQueryLastName"); //$NON-NLS-1$
 			assertFalse(byQueryLastName.isEmpty());
-			Map<String, Object> entry = byQueryLastName.get(0);
-			assertEquals("CreatedUnitTest", entry.get("lastName")); //$NON-NLS-1$ //$NON-NLS-2$
+			JsonObject entry = byQueryLastName.getJsonObject(0);
+			assertEquals("CreatedUnitTest", entry.getString("lastName")); //$NON-NLS-1$ //$NON-NLS-2$
 			{
-				Object customProp = entry.get("customProperty"); //$NON-NLS-1$
-				assertTrue(customProp instanceof Map, "customProperty should be a Map"); //$NON-NLS-1$
-				String val = (String)((Map<String, Object>)customProp).get("value"); //$NON-NLS-1$
+				JsonObject customProp = entry.getJsonObject("customProperty"); //$NON-NLS-1$
+				String val = customProp.getString("value"); //$NON-NLS-1$
 				assertEquals("i am custom property", val); //$NON-NLS-1$
 			}
-			assertFalse(((String)entry.get("unid")).isEmpty()); //$NON-NLS-1$
+			assertFalse(entry.getString("unid").isEmpty()); //$NON-NLS-1$
 			
-			Object size = entry.get("size"); //$NON-NLS-1$
-			assertTrue(size instanceof Number);
-			assertTrue(((Number)size).intValue() > 0);
+			int size = entry.getInt("size"); //$NON-NLS-1$
+			assertTrue(size > 0);
 		}
 	}
 	
@@ -110,7 +103,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 	 * Tests to make sure a missing firstName is caught, which is enforced at the JAX-RS level.
 	 */
 	@Test
-	public void testMissingFirstName() throws JsonException {
+	public void testMissingFirstName() {
 		Client client = getAnonymousClient();
 		
 		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
@@ -125,7 +118,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 	 * Tests to make sure a missing lastName is caught, which is enforced at the JNoSQL level.
 	 */
 	@Test
-	public void testMissingLastName() throws JsonException {
+	public void testMissingLastName() {
 		Client client = getAnonymousClient();
 		
 		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
@@ -137,30 +130,28 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertTrue(response.getStatus() >= 400, () -> "Response code should be an error; got " + response.getStatus()); //$NON-NLS-1$
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	@Disabled("QRP#executeToView is currently broken on Linux (12.0.1IF2)")
-	public void testNoSqlNames() throws JsonException {
+	public void testNoSqlNames() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/nosql/servers"); //$NON-NLS-1$
 		
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
-		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 		
-		List<Map<String, Object>> all = (List<Map<String, Object>>)jsonObject.get("all"); //$NON-NLS-1$
+		JsonArray all = jsonObject.getJsonArray("all"); //$NON-NLS-1$
 		assertNotNull(all, () -> json);
 		assertFalse(all.isEmpty(), () -> json);
-		Map<String, Object> entry = all.get(0);
-		assertEquals("CN=JakartaEE/O=OpenNTFTest", entry.get("serverName"), () -> json); //$NON-NLS-1$ //$NON-NLS-2$
-		assertFalse(((String)entry.get("unid")).isEmpty(), () -> json); //$NON-NLS-1$
-		assertEquals(1d, ((Number)jsonObject.get("totalCount")).doubleValue(), () -> json); //$NON-NLS-1$
+		JsonObject entry = all.getJsonObject(0);
+		assertEquals("CN=JakartaEE/O=OpenNTFTest", entry.getString("serverName"), () -> json); //$NON-NLS-1$ //$NON-NLS-2$
+		assertFalse(entry.getString("unid").isEmpty(), () -> json); //$NON-NLS-1$
+		assertEquals(1d, jsonObject.getJsonNumber("totalCount").doubleValue(), () -> json); //$NON-NLS-1$
 	}
 	
-	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testQueryNoteID() throws JsonException, UnsupportedEncodingException {
+	public void testQueryNoteID() throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		String lastName;
@@ -179,8 +170,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			String json = response.readEntity(String.class);
 			assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
-			Map<String, Object> person = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)person.get("unid");
+			JsonObject person = Json.createReader(new StringReader(json)).readObject();
+			unid = person.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -196,10 +187,10 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertEquals(200, response.getStatus());
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			String getUnid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			String getUnid = jsonObject.getString("unid");
 			assertEquals(unid, getUnid);
-			noteId = (String)jsonObject.get("noteId");
+			noteId = jsonObject.getString("noteId");
 			assertNotNull(noteId);
 			assertFalse(noteId.isEmpty());
 		}
@@ -213,14 +204,13 @@ public class TestNoSQL extends AbstractWebClientTest {
 		String json = response.readEntity(String.class);
 		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
-		Map<String, Object> result = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-		assertEquals(noteId, result.get("noteId"));
-		assertEquals(lastName, result.get("lastName"));
+		JsonObject result = Json.createReader(new StringReader(json)).readObject();
+		assertEquals(noteId, result.getString("noteId"));
+		assertEquals(lastName, result.getString("lastName"));
 	}
 	
-	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testQueryModTime() throws JsonException, UnsupportedEncodingException, InterruptedException {
+	public void testQueryModTime() throws UnsupportedEncodingException, InterruptedException {
 		Client client = getAdminClient();
 		
 		String lastName;
@@ -241,8 +231,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			String json = response.readEntity(String.class);
 			assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
-			Map<String, Object> person = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)person.get("unid");
+			JsonObject person = Json.createReader(new StringReader(json)).readObject();
+			unid = person.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -263,8 +253,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			String json = response.readEntity(String.class);
 			assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
-			Map<String, Object> person = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			String patchUnid = (String)person.get("unid");
+			JsonObject person = Json.createReader(new StringReader(json)).readObject();
+			String patchUnid = person.getString("unid");
 			assertEquals(unid, patchUnid);
 		}
 		
@@ -279,25 +269,25 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertEquals(200, response.getStatus());
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			String getUnid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			String getUnid = jsonObject.getString("unid");
 			assertEquals(unid, getUnid);
-			modified = (String)jsonObject.get("modified");
+			modified = jsonObject.getString("modified");
 			assertNotNull(modified);
 			assertFalse(modified.isEmpty());
 			
 			// Modified in this file should be the same, since it's the same NSF
-			String modifiedInThisFile = (String)jsonObject.get("modifiedInFile");
+			String modifiedInThisFile = jsonObject.getString("modifiedInFile");
 			assertNotNull(modifiedInThisFile);
 			assertEquals(modified, modifiedInThisFile);
 			
-			String created = (String)jsonObject.get("created");
+			String created = jsonObject.getString("created");
 			assertNotNull(created);
 			assertFalse(created.isEmpty());
 			assertNotEquals(modified, created);
 			
 			// Added should match created
-			String added = (String)jsonObject.get("addedToFile");
+			String added = jsonObject.getString("addedToFile");
 			assertNotNull(added);
 			assertFalse(added.isEmpty());
 			assertEquals(created, added);
@@ -312,13 +302,14 @@ public class TestNoSQL extends AbstractWebClientTest {
 		String json = response.readEntity(String.class);
 		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
-		List<Map<String, Object>> result = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-		Map<String, Object> person = result.stream()
-			.filter(p -> modified.equals(p.get("modified")) && unid.equals(p.get("unid")))
+		JsonArray result = Json.createReader(new StringReader(json)).readArray();
+		JsonObject person = result.stream()
+			.map(JsonValue::asJsonObject)
+			.filter(p -> modified.equals(p.getString("modified")) && unid.equals(p.getString("unid")))
 			.findFirst()
 			.get();
 		// Test to make sure the modification actually worked, too
-		assertEquals(lastName + "_mod", person.get("lastName"));
+		assertEquals(lastName + "_mod", person.getString("lastName"));
 	}
 	
 	@Test
@@ -332,9 +323,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertEquals(404, response.getStatus());
 	}
 	
-	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testMultipartCreate() throws JsonException {
+	public void testMultipartCreate() {
 		Client client = getAnonymousClient();
 		String unid;
 		String lastName = "Fooson" + System.nanoTime();
@@ -351,8 +341,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertEquals(200, response.getStatus());
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -367,25 +357,24 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertEquals(200, response.getStatus());
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			String getUnid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			String getUnid = jsonObject.getString("unid");
 			assertEquals(unid, getUnid);
-			assertEquals(lastName, jsonObject.get("lastName"));
+			assertEquals(lastName, jsonObject.getString("lastName"));
 			
-			String noteId = (String)jsonObject.get("noteId");
+			String noteId = jsonObject.getString("noteId");
 			assertNotNull(noteId);
 			assertFalse(noteId.isEmpty());
 			
 			// Make sure it has sensible date values
-			Instant.parse((String)jsonObject.get("created"));
-			Instant.parse((String)jsonObject.get("modified"));
-			Instant.parse((String)jsonObject.get("accessed"));
+			Instant.parse(jsonObject.getString("created"));
+			Instant.parse(jsonObject.getString("modified"));
+			Instant.parse(jsonObject.getString("accessed"));
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testAttachmentCreate() throws JsonException {
+	public void testAttachmentCreate() {
 		Client client = getAnonymousClient();
 		String unid;
 		String lastName = "Fooson" + System.nanoTime();
@@ -403,8 +392,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertEquals(200, response.getStatus());
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -419,15 +408,15 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertEquals(200, response.getStatus());
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			String getUnid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			String getUnid = jsonObject.getString("unid");
 			assertEquals(unid, getUnid);
-			assertEquals(lastName, jsonObject.get("lastName"));
+			assertEquals(lastName, jsonObject.getString("lastName"));
 			
-			List<Map<String, Object>> attachments = (List<Map<String, Object>>)jsonObject.get("attachments");
+			JsonArray attachments = jsonObject.getJsonArray("attachments");
 			assertNotNull(attachments);
 			assertFalse(attachments.isEmpty());
-			assertTrue(attachments.stream().anyMatch(att -> "foo.html".equals(att.get("name"))));
+			assertTrue(attachments.stream().map(JsonValue::asJsonObject).anyMatch(att -> "foo.html".equals(att.getString("name"))));
 		}
 		
 		// Fetch the attachment
@@ -442,9 +431,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testFolderOperations() throws JsonException {
+	public void testFolderOperations() {
 		Client client = getAdminClient();
 		String unid;
 		String lastName = "Fooson" + System.nanoTime();
@@ -461,8 +449,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertEquals(200, response.getStatus());
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -474,13 +462,9 @@ public class TestNoSQL extends AbstractWebClientTest {
 			String json = response.readEntity(String.class);
 			assertEquals(200, response.getStatus(), () -> "Received unexpected response code " + response.getStatus() + ": " + json);
 
-			try {
-				List<Map<String, Object>> result = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-				
-				return result.stream().anyMatch(person -> documentId.equals(person.get("unid")));
-			} catch (JsonException e) {
-				throw new RuntimeException(e);
-			}
+			JsonArray result = Json.createReader(new StringReader(json)).readArray();
+			
+			return result.stream().map(JsonValue::asJsonObject).anyMatch(person -> documentId.equals(person.getString("unid")));
 		};
 		
 		// Make sure it's not in the folder

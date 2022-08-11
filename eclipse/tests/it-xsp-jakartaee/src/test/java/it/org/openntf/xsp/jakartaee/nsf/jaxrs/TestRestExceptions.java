@@ -19,9 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.List;
-import java.util.Map;
+import java.io.StringReader;
 
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -33,10 +35,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
-
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 
@@ -46,24 +44,22 @@ public class TestRestExceptions extends AbstractWebClientTest {
 	 * Tests rest.ExceptionExample, which renders an exception as JSON
 	 * @throws JsonException 
 	 */
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testJson() throws JsonException {
+	public void testJson() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/exceptionExample");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
-		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 		
-		String message = (String)jsonObject.get("message");
-		assertNotNull(message);
+		String message = jsonObject.getString("message");
 		assertEquals("java.lang.RuntimeException: this is an example exception", message);
 		
-		List<List<String>> stackTrace = (List<List<String>>)jsonObject.get("stackTrace");
+		JsonArray stackTrace = jsonObject.getJsonArray("stackTrace");
 		assertNotNull(stackTrace);
 		assertEquals(2, stackTrace.size());
-		assertEquals("java.lang.RuntimeException: this is an example exception", stackTrace.get(0).get(0));
+		assertEquals("java.lang.RuntimeException: this is an example exception", stackTrace.getJsonArray(0).getString(0));
 	}
 	
 	/**
