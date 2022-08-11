@@ -292,7 +292,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				}
 				
 			} else {
-				DominoQuery dominoQuery = database.createDominoQuery();		
+				DominoQuery dominoQuery = database.createDominoQuery();
 				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
 				try {
 					result = entityConverter.convertDocuments(docs, mapping);
