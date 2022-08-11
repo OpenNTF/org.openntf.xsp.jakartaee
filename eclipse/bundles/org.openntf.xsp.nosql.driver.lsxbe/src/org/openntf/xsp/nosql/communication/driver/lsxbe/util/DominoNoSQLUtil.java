@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 
+import lotus.domino.Database;
 import lotus.domino.DateRange;
 import lotus.domino.DateTime;
 import lotus.domino.NotesException;
@@ -135,24 +136,7 @@ public enum DominoNoSQLUtil {
 			// TODO improve with a better API
 			try {
 				DateTime dt = (DateTime)value;
-				String datePart = dt.getDateOnly();
-				String timePart = dt.getTimeOnly();
-				if(datePart == null || datePart.isEmpty()) {
-					lotus.domino.Document tempDoc = context.createDocument();
-					tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
-					String iso = (String)dt.getParent().evaluate(FORMULA_TOISOTIME, tempDoc).get(0);
-					Instant inst = dt.toJavaDate().toInstant();
-					int nano = inst.getNano();
-					iso += "." + nano; //$NON-NLS-1$
-					return LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(iso));
-				} else if(timePart == null || timePart.isEmpty()) {
-					lotus.domino.Document tempDoc = context.createDocument();
-					tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
-					String iso = (String)dt.getParent().evaluate(FORMULA_TOISODATE, tempDoc).get(0);
-					return LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(iso));
-				} else {
-					return dt.toJavaDate().toInstant();
-				}
+				return toTemporal(context, dt);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -171,9 +155,26 @@ public enum DominoNoSQLUtil {
 		}
 	}
 
-	public static Temporal toTemporal(DateTime dt) throws NotesException {
+	public static Temporal toTemporal(Database context, DateTime dt) throws NotesException {
 		try {
-			return dt.toJavaDate().toInstant();
+			String datePart = dt.getDateOnly();
+			String timePart = dt.getTimeOnly();
+			if(datePart == null || datePart.isEmpty()) {
+				lotus.domino.Document tempDoc = context.createDocument();
+				tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
+				String iso = (String)dt.getParent().evaluate(FORMULA_TOISOTIME, tempDoc).get(0);
+				Instant inst = dt.toJavaDate().toInstant();
+				int nano = inst.getNano();
+				iso += "." + nano; //$NON-NLS-1$
+				return LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(iso));
+			} else if(timePart == null || timePart.isEmpty()) {
+				lotus.domino.Document tempDoc = context.createDocument();
+				tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
+				String iso = (String)dt.getParent().evaluate(FORMULA_TOISODATE, tempDoc).get(0);
+				return LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(iso));
+			} else {
+				return dt.toJavaDate().toInstant();
+			}
 		} finally {
 			dt.recycle();
 		}

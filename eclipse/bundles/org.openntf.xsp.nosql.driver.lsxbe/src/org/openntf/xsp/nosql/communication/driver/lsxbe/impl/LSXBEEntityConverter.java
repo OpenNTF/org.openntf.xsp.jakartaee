@@ -394,8 +394,9 @@ public class LSXBEEntityConverter {
 			.stream()
 			.filter(s -> !DominoConstants.FIELD_ID.equals(s))
 			.collect(Collectors.toSet());
-		
-		Session session = doc.getParentDatabase().getParent();
+
+		Database database = doc.getParentDatabase();
+		Session session = database.getParent();
 		boolean convertMime = session.isConvertMime();
 		try {
 			session.setConvertMime(false);
@@ -510,9 +511,9 @@ public class LSXBEEntityConverter {
 							}
 						}
 						
-						docMap.put(itemName, DominoNoSQLUtil.toJavaFriendly(doc.getParentDatabase(), val.get(0)));
+						docMap.put(itemName, DominoNoSQLUtil.toJavaFriendly(database, val.get(0)));
 					} else {
-						docMap.put(itemName, DominoNoSQLUtil.toJavaFriendly(doc.getParentDatabase(), val));
+						docMap.put(itemName, DominoNoSQLUtil.toJavaFriendly(database, val));
 					}
 				}
 			}
@@ -521,10 +522,10 @@ public class LSXBEEntityConverter {
 	
 			if(fieldNames != null) {
 				if(fieldNames.contains(DominoConstants.FIELD_CDATE)) {
-					result.add(Document.of(DominoConstants.FIELD_CDATE, DominoNoSQLUtil.toTemporal(doc.getCreated())));
+					result.add(Document.of(DominoConstants.FIELD_CDATE, DominoNoSQLUtil.toTemporal(database, doc.getCreated())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_MDATE)) {
-					result.add(Document.of(DominoConstants.FIELD_MDATE, DominoNoSQLUtil.toTemporal(doc.getInitiallyModified())));
+					result.add(Document.of(DominoConstants.FIELD_MDATE, DominoNoSQLUtil.toTemporal(database, doc.getInitiallyModified())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_READ)) {
 					result.add(Document.of(DominoConstants.FIELD_READ, doc.getRead()));
@@ -533,22 +534,21 @@ public class LSXBEEntityConverter {
 					result.add(Document.of(DominoConstants.FIELD_SIZE, doc.getSize()));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_ADATE)) {
-					result.add(Document.of(DominoConstants.FIELD_ADATE, DominoNoSQLUtil.toTemporal(doc.getLastAccessed())));
+					result.add(Document.of(DominoConstants.FIELD_ADATE, DominoNoSQLUtil.toTemporal(database, doc.getLastAccessed())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_NOTEID)) {
 					result.add(Document.of(DominoConstants.FIELD_NOTEID, doc.getNoteID()));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_ADDED)) {
 					DateTime added = (DateTime)session.evaluate(" @AddedToThisFile ", doc).get(0); //$NON-NLS-1$
-					result.add(Document.of(DominoConstants.FIELD_ADDED, DominoNoSQLUtil.toTemporal(added)));
+					result.add(Document.of(DominoConstants.FIELD_ADDED, DominoNoSQLUtil.toTemporal(database, added)));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE)) {
-					result.add(Document.of(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE, DominoNoSQLUtil.toTemporal(doc.getLastModified())));
+					result.add(Document.of(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE, DominoNoSQLUtil.toTemporal(database, doc.getLastModified())));
 				}
 				
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
-					List<String> attachmentNames = doc.getParentDatabase().getParent()
-						.evaluate(" @AttachmentNames ", doc); //$NON-NLS-1$
+					List<String> attachmentNames = session.evaluate(" @AttachmentNames ", doc); //$NON-NLS-1$
 					List<EntityAttachment> attachments = attachmentNames.stream()
 						.filter(StringUtil::isNotEmpty)
 						.map(attachmentName -> new DominoDocumentAttachment(this.databaseSupplier, unid, attachmentName))
