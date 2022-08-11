@@ -57,6 +57,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -448,6 +449,20 @@ public class NoSQLExample {
 			@FormParam("added") String added
 	) {
 		return update(id, firstName, lastName, birthday, favoriteTime, added);
+	}
+	
+	@Path("{id}")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person updateJson(
+			@PathParam("id") String id,
+			Person person
+	) {
+		personRepository.findById(id)
+			.orElseThrow(() -> new NotFoundException("Could not find Person for ID " + id));
+		person.setUnid(id);
+		return personRepository.save(person);
 	}
 	
 	@Path("{id}/putInFolder")

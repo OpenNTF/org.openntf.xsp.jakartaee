@@ -17,6 +17,7 @@ package it.org.openntf.xsp.jakartaee.nsf.nosql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -25,8 +26,11 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
@@ -216,17 +220,19 @@ public class TestNoSQL extends AbstractWebClientTest {
 	
 	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testQueryModTime() throws JsonException, UnsupportedEncodingException {
+	public void testQueryModTime() throws JsonException, UnsupportedEncodingException, InterruptedException {
 		Client client = getAdminClient();
 		
 		String lastName;
+		String firstName;
 		String unid;
 		{
 			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
 			
 			lastName = "Fooson" + System.nanoTime();
+			firstName = "Foo" + System.nanoTime();
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
-			payload.addFormData("firstName", "Foo" + System.nanoTime(), MediaType.TEXT_PLAIN_TYPE);
+			payload.addFormData("firstName", firstName, MediaType.TEXT_PLAIN_TYPE);
 			payload.addFormData("lastName", lastName, MediaType.TEXT_PLAIN_TYPE);
 			
 			Response response = postTarget.request()
@@ -239,6 +245,27 @@ public class TestNoSQL extends AbstractWebClientTest {
 			unid = (String)person.get("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
+		}
+		
+		// Update it to set the mod time
+		{
+			TimeUnit.SECONDS.sleep(1);
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			
+			JsonObject payload = Json.createObjectBuilder()
+					.add("firstName", firstName)
+					.add("lastName", lastName + "_mod")
+					.build();
+			Response response = postTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.put(Entity.json(payload.toString()));
+			String json = response.readEntity(String.class);
+			assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+			Map<String, Object> person = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			String patchUnid = (String)person.get("unid");
+			assertEquals(unid, patchUnid);
 		}
 		
 		String modified;
@@ -258,6 +285,22 @@ public class TestNoSQL extends AbstractWebClientTest {
 			modified = (String)jsonObject.get("modified");
 			assertNotNull(modified);
 			assertFalse(modified.isEmpty());
+			
+			// Modified in this file should be the same, since it's the same NSF
+			String modifiedInThisFile = (String)jsonObject.get("modifiedInFile");
+			assertNotNull(modifiedInThisFile);
+			assertEquals(modified, modifiedInThisFile);
+			
+			String created = (String)jsonObject.get("created");
+			assertNotNull(created);
+			assertFalse(created.isEmpty());
+			assertNotEquals(modified, created);
+			
+			// Added should match created
+			String added = (String)jsonObject.get("addedToFile");
+			assertNotNull(added);
+			assertFalse(added.isEmpty());
+			assertEquals(created, added);
 		}
 		
 		// Find by modified
@@ -270,7 +313,12 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
 		List<Map<String, Object>> result = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-		assertTrue(result.stream().anyMatch(p -> modified.equals(p.get("modified")) && unid.equals(p.get("unid"))));
+		Map<String, Object> person = result.stream()
+			.filter(p -> modified.equals(p.get("modified")) && unid.equals(p.get("unid")))
+			.findFirst()
+			.get();
+		// Test to make sure the modification actually worked, too
+		assertEquals(lastName + "_mod", person.get("lastName"));
 	}
 	
 	@Test
