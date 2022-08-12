@@ -22,6 +22,8 @@ import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedAction;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -215,6 +217,21 @@ public enum DominoNoSQLUtil {
 			return doc != null && doc.isValid() && !doc.isDeleted() && doc.getCreated() != null;
 		} catch (NotesException e) {
 			return false;
+		}
+	}
+	
+	public static String md5(String value) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
+			md.update(String.valueOf(value).getBytes());
+			byte[] digest = md.digest();
+			StringBuilder sb = new StringBuilder(digest.length * 2);
+			for (byte b : digest) {
+				sb.append(String.format("%02x", b)); //$NON-NLS-1$
+			}
+			return sb.toString();
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 }

@@ -108,6 +108,13 @@ public interface DominoConstants {
 	 * @since 2.8.0
 	 */
 	String FIELD_ADDED = "@added"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of an ETag-compatible value for the document, which
+	 * will represent the document's ID and last modification time. The value is currently
+	 * {@value #FIELD_ETAG}
+	 * @since 2.8.0
+	 */
+	String FIELD_ETAG = "@etag"; //$NON-NLS-1$
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based

@@ -531,7 +531,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		String filePath = database.getFilePath();
 
 		try {
-			String fileName = md5(server + filePath) + ".nsf"; //$NON-NLS-1$
+			String fileName = DominoNoSQLUtil.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
 			
 			Path tempDir = DominoNoSQLUtil.getTempDirectory();
 			Path dest = tempDir.resolve(getClass().getPackage().getName());
@@ -555,21 +555,6 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			throw new UncheckedIOException(e);
 		}
 		
-	}
-	
-	protected String md5(String value) {
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-			md.update(String.valueOf(value).getBytes());
-			byte[] digest = md.digest();
-			StringBuilder sb = new StringBuilder(digest.length * 2);
-			for (byte b : digest) {
-				sb.append(String.format("%02x", b)); //$NON-NLS-1$
-			}
-			return sb.toString();
-		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException(e);
-		}
 	}
 
 	private static void recycle(Object... objects) {

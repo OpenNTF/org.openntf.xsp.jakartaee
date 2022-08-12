@@ -32,6 +32,8 @@ import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,7 +112,8 @@ public class LSXBEEntityConverter {
 			DominoConstants.FIELD_NOTEID,
 			DominoConstants.FIELD_ADATE,
 			DominoConstants.FIELD_ADDED,
-			DominoConstants.FIELD_MODIFIED_IN_THIS_FILE
+			DominoConstants.FIELD_MODIFIED_IN_THIS_FILE,
+			DominoConstants.FIELD_ETAG
 		));
 		SKIP_WRITING_FIELDS.add("$FILE"); //$NON-NLS-1$
 		SKIP_WRITING_FIELDS.addAll(SYSTEM_FIELDS);
@@ -382,6 +385,21 @@ public class LSXBEEntityConverter {
 				
 				convertedEntry.add(Document.of(itemName, DominoNoSQLUtil.toJavaFriendly(context, value)));
 			}
+			
+			// If the entity requested an ETag and we happened to include the modified date, we can do that here
+			if(itemTypes.keySet().contains(DominoConstants.FIELD_ETAG)) {
+				Optional<Temporal> modified = convertedEntry.stream()
+					.filter(d -> DominoConstants.FIELD_MDATE.equals(d.getName()))
+					.map(Document::get)
+					.map(Temporal.class::cast)
+					.findFirst();
+				if(modified.isPresent()) {
+					String etag = composeEtag(universalId, modified.get());
+					convertedEntry.add(Document.of(DominoConstants.FIELD_ETAG, etag));
+				}
+			}
+			
+			
 			return DocumentEntity.of(entityName, convertedEntry);
 		} finally {
 			entry.recycle(columnValues);
@@ -545,6 +563,10 @@ public class LSXBEEntityConverter {
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE)) {
 					result.add(Document.of(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE, DominoNoSQLUtil.toTemporal(database, doc.getLastModified())));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_ETAG)) {
+					String etag = composeEtag(unid, DominoNoSQLUtil.toTemporal(database, doc.getInitiallyModified()));
+					result.add(Document.of(DominoConstants.FIELD_ETAG, etag));
 				}
 				
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
@@ -857,5 +879,10 @@ public class LSXBEEntityConverter {
 			.findFirst()
 			.map(FieldMapping::getNativeField)
 			.map(field -> field.getType());
+	}
+	
+	private String composeEtag(String universalId, Temporal modTime) {
+		Instant inst = Instant.from(modTime);
+		return DominoNoSQLUtil.md5(universalId + inst.getEpochSecond() + inst.getNano());
 	}
 }
