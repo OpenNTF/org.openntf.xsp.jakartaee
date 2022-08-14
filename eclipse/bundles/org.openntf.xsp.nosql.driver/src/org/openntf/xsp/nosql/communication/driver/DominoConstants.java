@@ -115,6 +115,24 @@ public interface DominoConstants {
 	 * @since 2.8.0
 	 */
 	String FIELD_ETAG = "@etag"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of the file path of the database housing the document,
+	 * currently {@value #FIELD_FILEPATH}
+	 * @since 2.8.0
+	 */
+	String FIELD_FILEPATH = "@filepath"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of the server hosting the database housing the document,
+	 * currently {@value #FIELD_SERVER}
+	 * @since 2.8.0
+	 */
+	String FIELD_SERVER = "@server"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of the replica ID of the database housing the document,
+	 * currently {@value #FIELD_REPLICAID}
+	 * @since 2.8.0
+	 */
+	String FIELD_REPLICAID = "@replicaid"; //$NON-NLS-1$
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based

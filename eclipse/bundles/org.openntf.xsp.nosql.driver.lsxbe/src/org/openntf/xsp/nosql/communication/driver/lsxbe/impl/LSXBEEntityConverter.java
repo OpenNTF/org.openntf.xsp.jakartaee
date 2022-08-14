@@ -113,7 +113,10 @@ public class LSXBEEntityConverter {
 			DominoConstants.FIELD_ADATE,
 			DominoConstants.FIELD_ADDED,
 			DominoConstants.FIELD_MODIFIED_IN_THIS_FILE,
-			DominoConstants.FIELD_ETAG
+			DominoConstants.FIELD_ETAG,
+			DominoConstants.FIELD_REPLICAID,
+			DominoConstants.FIELD_SERVER,
+			DominoConstants.FIELD_FILEPATH
 		));
 		SKIP_WRITING_FIELDS.add("$FILE"); //$NON-NLS-1$
 		SKIP_WRITING_FIELDS.addAll(SYSTEM_FIELDS);
@@ -387,7 +390,8 @@ public class LSXBEEntityConverter {
 			}
 			
 			// If the entity requested an ETag and we happened to include the modified date, we can do that here
-			if(itemTypes.keySet().contains(DominoConstants.FIELD_ETAG)) {
+			Set<String> fieldNames = itemTypes.keySet();
+			if(fieldNames.contains(DominoConstants.FIELD_ETAG)) {
 				Optional<Temporal> modified = convertedEntry.stream()
 					.filter(d -> DominoConstants.FIELD_MDATE.equals(d.getName()))
 					.map(Document::get)
@@ -399,6 +403,15 @@ public class LSXBEEntityConverter {
 				}
 			}
 			
+			if(fieldNames.contains(DominoConstants.FIELD_REPLICAID)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_REPLICAID, context.getReplicaID()));
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_FILEPATH)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_FILEPATH, context.getFilePath()));
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_SERVER)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_SERVER, context.getServer()));
+			}
 			
 			return DocumentEntity.of(entityName, convertedEntry);
 		} finally {
@@ -567,6 +580,15 @@ public class LSXBEEntityConverter {
 				if(fieldNames.contains(DominoConstants.FIELD_ETAG)) {
 					String etag = composeEtag(unid, DominoNoSQLUtil.toTemporal(database, doc.getInitiallyModified()));
 					result.add(Document.of(DominoConstants.FIELD_ETAG, etag));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_REPLICAID)) {
+					result.add(Document.of(DominoConstants.FIELD_REPLICAID, database.getReplicaID()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_FILEPATH)) {
+					result.add(Document.of(DominoConstants.FIELD_FILEPATH, database.getFilePath()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_SERVER)) {
+					result.add(Document.of(DominoConstants.FIELD_SERVER, database.getServer()));
 				}
 				
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
