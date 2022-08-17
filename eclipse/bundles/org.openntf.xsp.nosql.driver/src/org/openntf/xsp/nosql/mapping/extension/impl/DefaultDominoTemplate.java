@@ -23,6 +23,7 @@ import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
 import org.eclipse.jnosql.mapping.reflection.ClassMappings;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
+import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
@@ -105,16 +106,16 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly, ViewKeyQuery keyQuery) {
-		return getManager().viewEntryQuery(entityName, viewName, category, pagination, maxLevel, docsOnly, keyQuery)
+	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, Pagination pagination, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
+		return getManager().viewEntryQuery(entityName, viewName, pagination, maxLevel, docsOnly, viewQuery, singleResult)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, ViewKeyQuery keyQuery) {
-		return getManager().viewDocumentQuery(entityName, viewName, category, pagination, maxLevel, keyQuery)
+	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, int maxLevel, ViewQuery viewQuery, boolean singleResult) {
+		return getManager().viewDocumentQuery(entityName, viewName, pagination, maxLevel, viewQuery, singleResult)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}

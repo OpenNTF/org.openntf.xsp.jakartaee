@@ -18,16 +18,16 @@ package org.openntf.xsp.nosql.communication.driver;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.openntf.xsp.nosql.mapping.extension.impl.ViewKeyQuery;
+import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import jakarta.nosql.document.DocumentCollectionManager;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.mapping.Pagination;
 
 public interface DominoDocumentCollectionManager extends DocumentCollectionManager {
-	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly, ViewKeyQuery keyQuery);
+	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
 	
-	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, ViewKeyQuery keyQuery);
+	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination, int maxLevel, ViewQuery viewQuery, boolean singleResult);
 	
 	void putInFolder(String entityId, String folderName);
 	

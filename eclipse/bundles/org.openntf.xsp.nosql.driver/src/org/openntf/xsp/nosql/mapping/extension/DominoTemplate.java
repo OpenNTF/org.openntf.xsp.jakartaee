@@ -18,8 +18,6 @@ package org.openntf.xsp.nosql.mapping.extension;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.openntf.xsp.nosql.mapping.extension.impl.ViewKeyQuery;
-
 import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.document.DocumentTemplate;
 
@@ -37,16 +35,16 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @param <T> the class of object returned
 	 * @param entityName the effective entity name returned by this type
 	 * @param viewName the name of the view to query
-	 * @param category the category to restrict to, or {@code null} to not restrict
 	 * @param pagination the pagination settings to use, or {@code null} to skip pagination
 	 * @param maxLevel the maximum view entry level to process
 	 * @param docsOnly whether to process only document entries
-	 * @param keyQuery a {@link KeyQuery} object defining the behavior of a key-based view lookup,
+	 * @param viewQuery a {@link ViewQuery} object defining the behavior of a key-based view lookup,
 	 *                 or {@code null} to not query by key
+	 * @param singleResult whether a query performed by {@link ViewQuery} should return a single value
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly, ViewKeyQuery keyQuery);
+	<T> Stream<T> viewEntryQuery(String entityName, String viewName, Pagination pagination, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
 
 	/**
 	 * Reads documents from the provided view, restricted to the named category.
@@ -54,15 +52,15 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @param <T> the class of object returned
 	 * @param entityName the effective entity name returned by this type
 	 * @param viewName the name of the view to query
-	 * @param category the category to restrict to, or {@code null} to not restrict
 	 * @param pagination the pagination settings to use, or {@code null} to skip pagination
 	 * @param maxLevel the maximum view entry level to process
-	 * @param keyQuery a {@link KeyQuery} object defining the behavior of a key-based view lookup,
+	 * @param viewQuery a {@link ViewQuery} object defining the behavior of a key-based view lookup,
 	 *                 or {@code null} to not query by key
+	 * @param singleResult whether a query performed by {@link ViewQuery} should return a single value
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, ViewKeyQuery keyQuery);
+	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, int maxLevel, ViewQuery viewQuery, boolean singleResult);
 
 	/**
 	 * Adds the entity to the named folder, creating the folder if it doesn't

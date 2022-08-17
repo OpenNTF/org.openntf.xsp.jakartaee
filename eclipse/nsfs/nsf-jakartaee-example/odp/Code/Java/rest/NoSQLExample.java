@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.nosql.communication.driver.ByteArrayEntityAttachment;
+import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;
@@ -489,7 +490,8 @@ public class NoSQLExample {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Person getPersonByViewKey(@PathParam("lastName") String lastName) {
-		return personRepository.findByKey(lastName)
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.findByKey(query)
 			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
 	}
 	
@@ -497,22 +499,16 @@ public class NoSQLExample {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Person> getPersonByViewKeyMulti(@PathParam("lastName") String lastName) {
-		return personRepository.findByKeyMulti(lastName).collect(Collectors.toList());
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.findByKeyMulti(query).collect(Collectors.toList());
 	}
 	
 	@Path("byViewTwoKeys/{lastName}/{firstName}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Person getPersonByViewTwoKey(@PathParam("lastName") String lastName, @PathParam("firstName") String firstName) {
-		return personRepository.findByTwoKeys(lastName, firstName)
-			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
-	}
-	
-	@Path("byViewCollectionKey/{lastName}/{firstName}")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Person getPersonByViewCollectionKey(@PathParam("lastName") String lastName, @PathParam("firstName") String firstName) {
-		return personRepository.findByCollection(Arrays.asList(lastName, firstName))
+		ViewQuery query = ViewQuery.query().key(Arrays.asList(lastName, firstName), true);
+		return personRepository.findByKey(query)
 			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
 	}
 	

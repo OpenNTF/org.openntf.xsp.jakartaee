@@ -15,28 +15,23 @@
  */
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.reflection.Reflections;
 import org.eclipse.jnosql.mapping.repository.DynamicReturn;
-import org.eclipse.jnosql.mapping.repository.RepositoryReturn;
 import org.eclipse.jnosql.mapping.repository.DynamicReturn.DefaultDynamicReturnBuilder;
+import org.eclipse.jnosql.mapping.repository.RepositoryReturn;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
-import org.openntf.xsp.nosql.mapping.extension.ViewCategory;
 import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
-import org.openntf.xsp.nosql.mapping.extension.ViewKey;
+import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.ServiceLoaderProvider;
@@ -72,17 +67,6 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 		// View entries support
 		ViewEntries viewEntries = method.getAnnotation(ViewEntries.class);
 		if(viewEntries != null) {
-			// Check for category annotations on the method
-			// TODO consider support for multiple categories
-			String category = null;
-			Parameter[] params = method.getParameters();
-			for(int i = 0; i < params.length; i++) {
-				if(params[i].isAnnotationPresent(ViewCategory.class)) {
-					category = args[i] == null ? null : args[i].toString();
-					break;
-				}
-			}
-			
 			Pagination pagination;
 			if(args != null) {
 				pagination = Stream.of(args)
@@ -93,30 +77,31 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			} else {
 				pagination = null;
 			}
+			ViewQuery viewQuery;
+			if(args != null) {
+				viewQuery = Stream.of(args)
+					.filter(ViewQuery.class::isInstance)
+					.map(ViewQuery.class::cast)
+					.findFirst()
+					.orElse(null);
+			} else {
+				viewQuery = null;
+			}
+			
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
 				entityName = typeClass.getSimpleName();
 			}
 			
-			ViewKeyQuery keyQuery = composeViewKeyQuery(method, args);
-			Object result = template.viewEntryQuery(entityName, viewEntries.value(), category, pagination, viewEntries.maxLevel(), viewEntries.documentsOnly(), keyQuery);
+			Class<?> returnType = method.getReturnType();
+			boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
+			Object result = template.viewEntryQuery(entityName, viewEntries.value(), pagination, viewEntries.maxLevel(), viewEntries.documentsOnly(), viewQuery, singleResult);
 			return convert(result, method);
 		}
 		
 		// View documents support
 		ViewDocuments viewDocuments = method.getAnnotation(ViewDocuments.class);
 		if(viewDocuments != null) {
-			// Check for category annotations on the method
-			// TODO consider support for multiple categories
-			String category = null;
-			Parameter[] params = method.getParameters();
-			for(int i = 0; i < params.length; i++) {
-				if(params[i].isAnnotationPresent(ViewCategory.class)) {
-					category = args[i] == null ? null : args[i].toString();
-					break;
-				}
-			}
-			
 			Pagination pagination;
 			if(args != null) {
 				pagination = Stream.of(args)
@@ -127,13 +112,24 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			} else {
 				pagination = null;
 			}
+			ViewQuery viewQuery;
+			if(args != null) {
+				viewQuery = Stream.of(args)
+					.filter(ViewQuery.class::isInstance)
+					.map(ViewQuery.class::cast)
+					.findFirst()
+					.orElse(null);
+			} else {
+				viewQuery = null;
+			}
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
 				entityName = typeClass.getSimpleName();
 			}
 			
-			ViewKeyQuery keyQuery = composeViewKeyQuery(method, args);
-			Object result = template.viewDocumentQuery(entityName, viewDocuments.value(), category, pagination, viewDocuments.maxLevel(), keyQuery);
+			Class<?> returnType = method.getReturnType();
+			boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
+			Object result = template.viewDocumentQuery(entityName, viewDocuments.value(), pagination, viewDocuments.maxLevel(), viewQuery, singleResult);
 			return convert(result, method);
 		}
 		
@@ -229,47 +225,5 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			}
 			return repoReturn.convert(builder.build());
 		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	private ViewKeyQuery composeViewKeyQuery(Method method, Object[] args) {
-		Annotation[][] paramAnnotations = method.getParameterAnnotations();
-		Class<?>[] paramTypes = method.getParameterTypes();
-		Class<?> returnType = method.getReturnType();
-		
-		boolean exact = false;
-		Collection<Object> keys = null;
-		for(int i = 0; i < paramAnnotations.length; i++) {
-			Annotation[] param = paramAnnotations[i];
-			ViewKey viewKey = Arrays.stream(param)
-				.filter(ann -> ViewKey.class.equals(ann.annotationType()))
-				.map(ViewKey.class::cast)
-				.findFirst()
-				.orElse(null);
-			if(viewKey != null) {
-				// If this is our first one, store the exactMatch value
-				if(keys == null) {
-					exact = viewKey.exact();
-				}
-				
-				Object arg = args[i];
-				if(Collection.class.isAssignableFrom(paramTypes[i])) {
-					// Then ignore any subsequent keys
-					keys = (Collection<Object>)arg;
-					break;
-				} else {
-					// Then add to our existing pool
-					if(keys == null) {
-						keys = new ArrayList<>();
-					}
-					keys.add(arg);
-				}
-			}
-		}
-		
-		// Check the return type to see if it should be a single entry or not
-		boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
-		
-		return new ViewKeyQuery(keys, exact, singleResult);
 	}
 }

@@ -25,8 +25,6 @@ import java.net.URLEncoder;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import jakarta.json.Json;
@@ -62,9 +60,8 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertEquals(person.getString("lastName"), result.getString("lastName"));
 	}
 	
-	@ParameterizedTest
-	@ValueSource(strings = { "byViewTwoKeys", "byViewCollectionKey" })
-	public void testQueryByTwoKeys(String pathPart) throws UnsupportedEncodingException {
+	@Test
+	public void testQueryByTwoKeys() throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		JsonObject person = createTwoPersonDocuments(true);
@@ -74,7 +71,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertNotNull(lastName);
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/" + pathPart
+		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byViewTwoKeys"
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 			+ "/"
 			+ URLEncoder.encode(firstName, "UTF-8")

@@ -16,14 +16,12 @@
 package model;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
-import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
-import org.openntf.xsp.nosql.mapping.extension.ViewKey;
+import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import jakarta.nosql.mapping.Param;
 import jakarta.nosql.mapping.Query;
@@ -41,16 +39,10 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	Stream<Person> findInPersonsFolder();
 	
 	@ViewEntries(VIEW_PERSONS)
-	Optional<Person> findByKey(@ViewKey String lastName);
+	Optional<Person> findByKey(ViewQuery viewQuery);
 	
 	@ViewEntries(VIEW_PERSONS)
-	Stream<Person> findByKeyMulti(@ViewKey String lastName);
-	
-	@ViewEntries(VIEW_PERSONS)
-	Optional<Person> findByTwoKeys(@ViewKey String lastName, @ViewKey String firstName);
-	
-	@ViewDocuments(VIEW_PERSONS)
-	Optional<Person> findByCollection(@ViewKey Collection<Object> keys);
+	Stream<Person> findByKeyMulti(ViewQuery viewQuery);
 	
 	@Query("select * from Person where modified >= @modified")
 	Stream<Person> findModifiedSince(@Param("modified") Instant modified);

@@ -20,6 +20,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -47,7 +48,7 @@ import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter.QueryConve
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
-import org.openntf.xsp.nosql.mapping.extension.impl.ViewKeyQuery;
+import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -285,21 +286,27 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category,
-			Pagination pagination, int maxLevel, boolean docsOnly, ViewKeyQuery keyQuery) {
+	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination,
+			int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
 		ClassMapping mapping = getClassMapping(entityName);
 		
-		if(keyQuery != null && keyQuery.hasKeys() && keyQuery.isSingleResult()) {
+		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
 			try {
 				Database database = supplier.get();
 				beginTransaction(database);
 				View view = database.getView(viewName);
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 				
-				@SuppressWarnings("unchecked")
-				Vector<Object> vecKeys = (Vector<Object>)DominoNoSQLUtil.toDominoFriendly(database.getParent(), keyQuery.getKeys());
-				ViewEntry entry = view.getEntryByKey(vecKeys, keyQuery.isExact());
+				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+				Vector<Object> vecKeys;
+				if(keys instanceof List) {
+					vecKeys = (Vector<Object>)keys;
+				} else {
+					vecKeys = new Vector<>(Arrays.asList(keys));
+				}
+				ViewEntry entry = view.getEntryByKey(vecKeys, viewQuery.isExact());
 				if(entry == null) {
 					return Stream.empty();
 				}
@@ -309,7 +316,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		}
 		
-		return buildNavigtor(viewName, category, pagination, maxLevel, keyQuery,
+		return buildNavigtor(viewName, pagination, maxLevel, viewQuery, singleResult,
 			(nav, limit) -> {
 				try {
 					return entityConverter.convertViewEntries(entityName, nav, limit, docsOnly, mapping);
@@ -320,21 +327,27 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, String category,
-			Pagination pagination, int maxLevel, ViewKeyQuery keyQuery) {
+	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination,
+			int maxLevel, ViewQuery viewQuery, boolean singleResult) {
 		ClassMapping mapping = getClassMapping(entityName);
 		
-		if(keyQuery != null && keyQuery.hasKeys() && keyQuery.isSingleResult()) {
+		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
 			try {
 				Database database = supplier.get();
 				beginTransaction(database);
 				View view = database.getView(viewName);
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 				
-				@SuppressWarnings("unchecked")
-				Vector<Object> vecKeys = (Vector<Object>)DominoNoSQLUtil.toDominoFriendly(database.getParent(), keyQuery.getKeys());
-				lotus.domino.Document doc = view.getDocumentByKey(vecKeys, keyQuery.isExact());
+				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+				Vector<Object> vecKeys;
+				if(keys instanceof List) {
+					vecKeys = (Vector<Object>)keys;
+				} else {
+					vecKeys = new Vector<>(Arrays.asList(keys));
+				}
+				lotus.domino.Document doc = view.getDocumentByKey(vecKeys, viewQuery.isExact());
 				if(doc == null) {
 					return Stream.empty();
 				}
@@ -344,7 +357,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		}
 		
-		return buildNavigtor(viewName, category, pagination, maxLevel, keyQuery,
+		return buildNavigtor(viewName, pagination, maxLevel, viewQuery, singleResult,
 			(nav, limit) -> {
 				try {
 					return entityConverter.convertViewDocuments(entityName, nav, limit, mapping);
@@ -483,7 +496,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	// * Internal implementation utilities
 	// *******************************************************************************
 	
-	private <T> T buildNavigtor(String viewName, String category, Pagination pagination, int maxLevel, ViewKeyQuery keyQuery, BiFunction<ViewNavigator, Long, T> consumer) {
+	@SuppressWarnings("unchecked")
+	private <T> T buildNavigtor(String viewName, Pagination pagination, int maxLevel, ViewQuery viewQuery, boolean singleResult, BiFunction<ViewNavigator, Long, T> consumer) {
 		try {
 			if(StringUtil.isEmpty(viewName)) {
 				throw new IllegalArgumentException("viewName cannot be empty");
@@ -496,11 +510,17 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			view.setAutoUpdate(false);
 			
 			ViewNavigator nav;
+			String category = viewQuery == null ? null : viewQuery.getCategory();
 			if(category == null) {
-				if(keyQuery != null && keyQuery.hasKeys()) {
-					@SuppressWarnings("unchecked")
-					Vector<Object> vecKeys = (Vector<Object>)DominoNoSQLUtil.toDominoFriendly(database.getParent(), keyQuery.getKeys());
-					nav = view.createViewNavFromKey(vecKeys, keyQuery.isExact());
+				if(viewQuery != null && viewQuery.getKey() != null) {
+					Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+					Vector<Object> vecKeys;
+					if(keys instanceof List) {
+						vecKeys = (Vector<Object>)keys;
+					} else {
+						vecKeys = new Vector<>(Arrays.asList(keys));
+					}
+					nav = view.createViewNavFromKey(vecKeys, viewQuery.isExact());
 				} else {
 					nav = view.createViewNav();
 				}
@@ -526,8 +546,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 			
 			// Override anything above if we were told to get a single view entry
-			if(keyQuery != null && keyQuery.hasKeys()) {
-				if(keyQuery.isSingleResult()) {
+			if(viewQuery != null && viewQuery.getKey() != null) {
+				if(singleResult) {
 					limit = 1;
 				}
 			}
