@@ -37,6 +37,7 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
+import org.eclipse.jnosql.mapping.reflection.FieldMapping;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL;
@@ -60,6 +61,7 @@ import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
+import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Pagination;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
@@ -231,8 +233,26 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					try {
 						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
 						for(Sort sort : sorts) {
+							
+							// The incoming value is the Java programmatic name, so translate
+							//   that to the actual item name
+							String itemName;
+							if(mapping != null) {
+								Column annotation = mapping.getFieldMapping(sort.getName())
+									.map(FieldMapping::getNativeField)
+									.map(f -> f.getAnnotation(Column.class))
+									.orElse(null);
+								if(annotation != null && !annotation.value().isEmpty()) {
+									itemName = annotation.value();
+								} else {
+									itemName = sort.getName();
+								}
+							} else {
+								itemName = sort.getName();
+							}
+							
 							int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
-							qrp.addColumn(sort.getName(), null, null, dir, false, false);
+							qrp.addColumn(itemName, itemName, null, dir, false, false);
 						}
 						
 						view = qrp.executeToView(viewName, 24);
