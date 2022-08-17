@@ -42,6 +42,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 
+import org.eclipse.jnosql.mapping.reflection.ClassMapping;
+import org.eclipse.jnosql.mapping.reflection.FieldMapping;
+
+import jakarta.nosql.mapping.Column;
 import lotus.domino.Database;
 import lotus.domino.DateRange;
 import lotus.domino.DateTime;
@@ -232,6 +236,29 @@ public enum DominoNoSQLUtil {
 			return sb.toString();
 		} catch (NoSuchAlgorithmException e) {
 			throw new IllegalStateException(e);
+		}
+	}
+	
+	/**
+	 * Determines the back-end item name for the given Java property.
+	 * 
+	 * @param propName the Java property to check
+	 * @param mapping the {@link ClassMapping} instance for the class in question
+	 * @return the effective item name based on the class properties
+	 */
+	public static String findItemName(String propName, ClassMapping mapping) {
+		if(mapping != null) {
+			Column annotation = mapping.getFieldMapping(propName)
+				.map(FieldMapping::getNativeField)
+				.map(f -> f.getAnnotation(Column.class))
+				.orElse(null);
+			if(annotation != null && !annotation.value().isEmpty()) {
+				return annotation.value();
+			} else {
+				return propName;
+			}
+		} else {
+			return propName;
 		}
 	}
 }

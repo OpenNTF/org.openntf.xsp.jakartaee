@@ -38,6 +38,7 @@ import jakarta.nosql.ServiceLoaderProvider;
 import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Repository;
+import jakarta.nosql.mapping.Sorts;
 
 /**
  * Implementation proxy for extended capabilities for Domino document
@@ -67,26 +68,9 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 		// View entries support
 		ViewEntries viewEntries = method.getAnnotation(ViewEntries.class);
 		if(viewEntries != null) {
-			Pagination pagination;
-			if(args != null) {
-				pagination = Stream.of(args)
-					.filter(Pagination.class::isInstance)
-					.map(Pagination.class::cast)
-					.findFirst()
-					.orElse(null);
-			} else {
-				pagination = null;
-			}
-			ViewQuery viewQuery;
-			if(args != null) {
-				viewQuery = Stream.of(args)
-					.filter(ViewQuery.class::isInstance)
-					.map(ViewQuery.class::cast)
-					.findFirst()
-					.orElse(null);
-			} else {
-				viewQuery = null;
-			}
+			Pagination pagination = findArg(args, Pagination.class);
+			ViewQuery viewQuery = findArg(args, ViewQuery.class);
+			Sorts sorts = findArg(args, Sorts.class);
 			
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
@@ -95,33 +79,16 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			
 			Class<?> returnType = method.getReturnType();
 			boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
-			Object result = template.viewEntryQuery(entityName, viewEntries.value(), pagination, viewEntries.maxLevel(), viewEntries.documentsOnly(), viewQuery, singleResult);
+			Object result = template.viewEntryQuery(entityName, viewEntries.value(), pagination, sorts, viewEntries.maxLevel(), viewEntries.documentsOnly(), viewQuery, singleResult);
 			return convert(result, method);
 		}
 		
 		// View documents support
 		ViewDocuments viewDocuments = method.getAnnotation(ViewDocuments.class);
 		if(viewDocuments != null) {
-			Pagination pagination;
-			if(args != null) {
-				pagination = Stream.of(args)
-					.filter(Pagination.class::isInstance)
-					.map(Pagination.class::cast)
-					.findFirst()
-					.orElse(null);
-			} else {
-				pagination = null;
-			}
-			ViewQuery viewQuery;
-			if(args != null) {
-				viewQuery = Stream.of(args)
-					.filter(ViewQuery.class::isInstance)
-					.map(ViewQuery.class::cast)
-					.findFirst()
-					.orElse(null);
-			} else {
-				viewQuery = null;
-			}
+			Pagination pagination = findArg(args, Pagination.class);
+			ViewQuery viewQuery = findArg(args, ViewQuery.class);
+			Sorts sorts = findArg(args, Sorts.class);
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
 				entityName = typeClass.getSimpleName();
@@ -129,7 +96,7 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			
 			Class<?> returnType = method.getReturnType();
 			boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
-			Object result = template.viewDocumentQuery(entityName, viewDocuments.value(), pagination, viewDocuments.maxLevel(), viewQuery, singleResult);
+			Object result = template.viewDocumentQuery(entityName, viewDocuments.value(), pagination, sorts, viewDocuments.maxLevel(), viewQuery, singleResult);
 			return convert(result, method);
 		}
 		
@@ -224,6 +191,18 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 					.withSingleResult(() -> opt);
 			}
 			return repoReturn.convert(builder.build());
+		}
+	}
+	
+	private <A> A findArg(Object[] args, Class<A> clazz) {
+		if(args != null) {
+			return Stream.of(args)
+				.filter(clazz::isInstance)
+				.map(clazz::cast)
+				.findFirst()
+				.orElse(null);
+		} else {
+			return null;
 		}
 	}
 }

@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import jakarta.nosql.mapping.Pagination;
+import jakarta.nosql.mapping.Sorts;
 import jakarta.nosql.mapping.document.DocumentTemplate;
 
 /**
@@ -36,6 +37,7 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @param entityName the effective entity name returned by this type
 	 * @param viewName the name of the view to query
 	 * @param pagination the pagination settings to use, or {@code null} to skip pagination
+	 * @param sorts the sorting settings to use, or {@code null} to use existing sorting
 	 * @param maxLevel the maximum view entry level to process
 	 * @param docsOnly whether to process only document entries
 	 * @param viewQuery a {@link ViewQuery} object defining the behavior of a key-based view lookup,
@@ -44,7 +46,7 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewEntryQuery(String entityName, String viewName, Pagination pagination, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
+	<T> Stream<T> viewEntryQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
 
 	/**
 	 * Reads documents from the provided view, restricted to the named category.
@@ -53,6 +55,7 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @param entityName the effective entity name returned by this type
 	 * @param viewName the name of the view to query
 	 * @param pagination the pagination settings to use, or {@code null} to skip pagination
+	 * @param sorts the sorting settings to use, or {@code null} to use existing sorting
 	 * @param maxLevel the maximum view entry level to process
 	 * @param viewQuery a {@link ViewQuery} object defining the behavior of a key-based view lookup,
 	 *                 or {@code null} to not query by key
@@ -60,7 +63,7 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, int maxLevel, ViewQuery viewQuery, boolean singleResult);
+	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult);
 
 	/**
 	 * Adds the entity to the named folder, creating the folder if it doesn't

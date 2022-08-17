@@ -38,7 +38,6 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
-import org.eclipse.jnosql.mapping.reflection.FieldMapping;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL;
@@ -62,8 +61,8 @@ import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
-import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Pagination;
+import jakarta.nosql.mapping.Sorts;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
 import jakarta.transaction.SystemException;
@@ -234,23 +233,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					try {
 						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
 						for(Sort sort : sorts) {
-							
-							// The incoming value is the Java programmatic name, so translate
-							//   that to the actual item name
-							String itemName;
-							if(mapping != null) {
-								Column annotation = mapping.getFieldMapping(sort.getName())
-									.map(FieldMapping::getNativeField)
-									.map(f -> f.getAnnotation(Column.class))
-									.orElse(null);
-								if(annotation != null && !annotation.value().isEmpty()) {
-									itemName = annotation.value();
-								} else {
-									itemName = sort.getName();
-								}
-							} else {
-								itemName = sort.getName();
-							}
+							String itemName = DominoNoSQLUtil.findItemName(sort.getName(), mapping);
 							
 							int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
 							qrp.addColumn(itemName, itemName, null, dir, false, false);
@@ -289,7 +272,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	@SuppressWarnings("unchecked")
 	@Override
 	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination,
-			int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
+			Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
 		ClassMapping mapping = getClassMapping(entityName);
 		
 		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
@@ -298,6 +281,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				beginTransaction(database);
 				View view = database.getView(viewName);
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
+				
 				
 				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
 				Vector<Object> vecKeys;
@@ -316,7 +300,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		}
 		
-		return buildNavigtor(viewName, pagination, maxLevel, viewQuery, singleResult,
+		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
 			(nav, limit) -> {
 				try {
 					return entityConverter.convertViewEntries(entityName, nav, limit, docsOnly, mapping);
@@ -330,7 +314,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	@SuppressWarnings("unchecked")
 	@Override
 	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination,
-			int maxLevel, ViewQuery viewQuery, boolean singleResult) {
+			Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult) {
 		ClassMapping mapping = getClassMapping(entityName);
 		
 		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
@@ -357,7 +341,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		}
 		
-		return buildNavigtor(viewName, pagination, maxLevel, viewQuery, singleResult,
+		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
 			(nav, limit) -> {
 				try {
 					return entityConverter.convertViewDocuments(entityName, nav, limit, mapping);
@@ -497,7 +481,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	// *******************************************************************************
 	
 	@SuppressWarnings("unchecked")
-	private <T> T buildNavigtor(String viewName, Pagination pagination, int maxLevel, ViewQuery viewQuery, boolean singleResult, BiFunction<ViewNavigator, Long, T> consumer) {
+	private <T> T buildNavigtor(String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, ClassMapping mapping, BiFunction<ViewNavigator, Long, T> consumer) {
 		try {
 			if(StringUtil.isEmpty(viewName)) {
 				throw new IllegalArgumentException("viewName cannot be empty");
@@ -508,6 +492,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			View view = database.getView(viewName);
 			Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 			view.setAutoUpdate(false);
+			applySorts(view, sorts, mapping);
 			
 			ViewNavigator nav;
 			String category = viewQuery == null ? null : viewQuery.getCategory();
@@ -604,6 +589,24 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					// Ignore
 				}
 			}
+		}
+	}
+	
+	private static void applySorts(View view, Sorts sorts, ClassMapping mapping) throws NotesException {
+		if(sorts == null) {
+			return;
+		} else {
+			List<Sort> sortObjs = sorts.getSorts();
+			if(sortObjs == null || sortObjs.isEmpty()) {
+				return;
+			}
+			
+			if(sortObjs.size() > 1) {
+				throw new IllegalArgumentException("Views cannot be sorted by more than one resort column");
+			}
+			Sort sort = sortObjs.get(0);
+			String itemName = DominoNoSQLUtil.findItemName(sort.getName(), mapping);
+			view.resortView(itemName, sort.getType() != SortType.DESC);
 		}
 	}
 	

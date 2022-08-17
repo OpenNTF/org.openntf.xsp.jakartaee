@@ -23,11 +23,12 @@ import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 import jakarta.nosql.document.DocumentCollectionManager;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.mapping.Pagination;
+import jakarta.nosql.mapping.Sorts;
 
 public interface DominoDocumentCollectionManager extends DocumentCollectionManager {
-	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
+	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
 	
-	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination, int maxLevel, ViewQuery viewQuery, boolean singleResult);
+	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult);
 	
 	void putInFolder(String entityId, String folderName);
 	

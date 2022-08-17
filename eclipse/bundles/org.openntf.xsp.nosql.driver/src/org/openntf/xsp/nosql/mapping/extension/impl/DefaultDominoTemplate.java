@@ -31,6 +31,7 @@ import jakarta.inject.Inject;
 import jakarta.nosql.mapping.Converters;
 import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Pagination;
+import jakarta.nosql.mapping.Sorts;
 import jakarta.nosql.mapping.document.DocumentEntityConverter;
 import jakarta.nosql.mapping.document.DocumentEventPersistManager;
 import jakarta.nosql.mapping.document.DocumentWorkflow;
@@ -106,16 +107,16 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, Pagination pagination, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
-		return getManager().viewEntryQuery(entityName, viewName, pagination, maxLevel, docsOnly, viewQuery, singleResult)
+	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
+		return getManager().viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, viewQuery, singleResult)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, int maxLevel, ViewQuery viewQuery, boolean singleResult) {
-		return getManager().viewDocumentQuery(entityName, viewName, pagination, maxLevel, viewQuery, singleResult)
+	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult) {
+		return getManager().viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, singleResult)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}
