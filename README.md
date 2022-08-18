@@ -486,7 +486,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import lotus.domino.NotesException;
 
 @Path("mvc")
 @Controller
@@ -498,7 +497,7 @@ public class MvcExample {
 	
 	@GET
 	@Produces(MediaType.TEXT_HTML)
-	public String get(@QueryParam("foo") String foo) throws NotesException {
+	public String get(@QueryParam("foo") String foo) {
 		models.put("incomingFoo", foo);
 		return "mvc.jsp";
 	}
