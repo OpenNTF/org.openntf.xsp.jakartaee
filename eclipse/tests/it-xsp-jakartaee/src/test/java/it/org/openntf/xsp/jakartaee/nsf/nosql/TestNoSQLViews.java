@@ -108,7 +108,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
 		JsonArray result = Json.createReader(new StringReader(json)).readArray();
-		assertEquals(2, result.size());
+		assertEquals(2, result.size(), () -> "Received unexpected result: " + json);
 		JsonObject resultPerson = result.getJsonObject(1);
 		assertEquals(person.getString("unid"), resultPerson.getString("unid"));
 		assertEquals(person.getString("lastName"), resultPerson.getString("lastName"));

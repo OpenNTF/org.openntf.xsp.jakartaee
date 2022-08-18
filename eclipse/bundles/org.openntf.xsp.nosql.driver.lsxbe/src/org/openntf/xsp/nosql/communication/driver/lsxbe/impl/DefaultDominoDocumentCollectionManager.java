@@ -301,9 +301,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 		
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
-			(nav, limit) -> {
+			(nav, limit, didSkip) -> {
 				try {
-					return entityConverter.convertViewEntries(entityName, nav, limit, docsOnly, mapping);
+					return entityConverter.convertViewEntries(entityName, nav, didSkip, limit, docsOnly, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -342,9 +342,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 		
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
-			(nav, limit) -> {
+			(nav, limit, didSkip) -> {
 				try {
-					return entityConverter.convertViewDocuments(entityName, nav, limit, mapping);
+					return entityConverter.convertViewDocuments(entityName, nav, didSkip, limit, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -481,7 +481,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	// *******************************************************************************
 	
 	@SuppressWarnings("unchecked")
-	private <T> T buildNavigtor(String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, ClassMapping mapping, BiFunction<ViewNavigator, Long, T> consumer) {
+	private <T> T buildNavigtor(String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, ClassMapping mapping, TriFunction<ViewNavigator, Long, Boolean, T> consumer) {
 		try {
 			if(StringUtil.isEmpty(viewName)) {
 				throw new IllegalArgumentException("viewName cannot be empty");
@@ -518,6 +518,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 			
 			long limit = 0;
+			boolean didSkip = false;
 			if(pagination != null) {
 				long skip = pagination.getSkip();
 				limit = pagination.getLimit();
@@ -526,7 +527,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					throw new UnsupportedOperationException("Domino does not support skipping more than Integer.MAX_VALUE entries");
 				}
 				if(skip > 0) {
-					nav.skip((int)skip);
+					nav.skip((int)skip-1);
+					didSkip = true;
 				}
 			}
 			
@@ -543,7 +545,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				nav.setBufferMaxEntries(400);
 			}
 			
-			return consumer.apply(nav, limit);
+			return consumer.apply(nav, limit, didSkip);
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
 		}
@@ -751,5 +753,19 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 
 		
+	}
+	
+	@FunctionalInterface
+	public interface TriFunction<T, U, V, R> {
+
+	    /**
+	     * Applies this function to the given arguments.
+	     *
+	     * @param t the first function argument
+	     * @param u the second function argument
+	     * @param v the third function argument
+	     * @return the function result
+	     */
+	    R apply(T t, U u, V v);
 	}
 }
