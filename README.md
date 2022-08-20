@@ -88,6 +88,9 @@ The contextual Domino objects - the `Database` and `Session`s - are available to
 
 ```java
 	@Inject
+	Database database;
+	
+	@Inject
 	@Named("dominoSession")
 	Session session;
 	
