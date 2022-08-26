@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="1.0" replicaid="8525888F0055A237" version="12.0">
+<noteinfo noteid="18e" sequence="45" unid="230A8C96477BCB528525888F005E803B">
+<created><datetime dst="true">20220730T131212,11-04</datetime></created>
+<modified><datetime dst="true">20220731T144902,32-04</datetime></modified>
+<revised><datetime dst="true">20220731T144902,31-04</datetime></revised>
+<lastaccessed><datetime dst="true">20220731T144902,31-04</datetime></lastaccessed>
+<addedtofile><datetime dst="true">20220730T131212,11-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$TITLE"><text>restclient/GitHubIssues.java</text></item>
+
+
+
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>restclient/GitHubIssues.java</text></item>
+
+
+
+</note>

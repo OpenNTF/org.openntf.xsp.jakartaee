@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>layout</component-type>
+    <composite-name>layout</composite-name>
+    <composite-file>/layout.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&#xd;
+	&lt;xp:table style="width:100.0%"&gt;&#xd;
+		&lt;xp:tr&gt;&#xd;
+			&lt;xp:td colspan="3" style="background-color:rgb(225,225,225)"&gt;Header&lt;/xp:td&gt;&#xd;
+&#xd;
+		&lt;/xp:tr&gt;&#xd;
+		&lt;xp:tr&gt;&#xd;
+			&lt;xp:td style="width: 200px"&gt;&lt;xp:callback facetName="LeftColumn" id="callback1"&gt;&lt;/xp:callback&gt;&lt;/xp:td&gt;&#xd;
+			&lt;xp:td&gt;&#xd;
+				&lt;p&gt;&lt;xp:callback id="callback2"/&gt;&lt;/p&gt;&#xd;
+			&lt;/xp:td&gt;&#xd;
+		&lt;/xp:tr&gt;&#xd;
+	&lt;/xp:table&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+      </designer-extension>
+    </composite-extension>
+  </composite-component>
+</faces-config>
