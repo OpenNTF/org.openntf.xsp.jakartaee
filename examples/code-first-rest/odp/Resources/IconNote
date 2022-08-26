@@ -16,8 +16,8 @@ EREdd3fRERER8AAAAAAA////Ed3dEf///wAAAAAAAAAAAPERER8AAAAAAAAAAAAAAAAP///wAAAA
 AAAAUEECICABAAD/////+A4DgA==
 </rawitemdata>
   </item>
-  <item name="$Flags">
-    <text>J7</text>
+  <item name="$TITLE">
+    <text>Jakarta Code-First REST</text>
   </item>
   <item name="$Daos">
     <text>0</text>
@@ -25,7 +25,7 @@ AAAAUEECICABAAD/////+A4DgA==
   <item name="$LargeSummary">
     <text>0</text>
   </item>
-  <item name="$TITLE">
-    <text>Jakarta Code-First REST</text>
+  <item name="$Flags">
+    <text>J7</text>
   </item>
 </note>

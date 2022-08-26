@@ -2,6 +2,7 @@ package model;
 
 import java.util.stream.Stream;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 
 import jakarta.nosql.mapping.Column;
@@ -11,6 +12,7 @@ import jakarta.nosql.mapping.Sorts;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 
+@Schema(description = "Represents an individual employee within the system")
 @Entity
 public class Employee {
 	public interface Repository extends DominoRepository<Employee, String> {
@@ -18,9 +20,13 @@ public class Employee {
 	}
 	
 	private @Id String id;
+	@Schema(description="The employee's full name", example="Foo Fooson")
 	private @Column @NotEmpty String name;
+	@Schema(description="The employee's job title", example="CTO")
 	private @Column @NotEmpty String title;
+	@Schema(description="The name of the employee's current department within the company", example="IT")
 	private @Column @NotEmpty String department;
+	@Schema(description="The employee's current age", example="80")
 	private @Column @Min(1) int age;
 	
 	public String getId() {

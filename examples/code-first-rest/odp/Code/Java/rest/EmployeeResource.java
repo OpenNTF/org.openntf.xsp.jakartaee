@@ -4,6 +4,8 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+
 import jakarta.inject.Inject;
 import jakarta.nosql.mapping.Sorts;
 import jakarta.validation.Valid;
@@ -27,6 +29,7 @@ public class EmployeeResource {
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@Operation(description="Retrieves a list of all employee entities in the data store")
 	public List<Employee> get() {
 		return employees.findAll(Sorts.sorts().asc("name")).collect(Collectors.toList());
 	}
