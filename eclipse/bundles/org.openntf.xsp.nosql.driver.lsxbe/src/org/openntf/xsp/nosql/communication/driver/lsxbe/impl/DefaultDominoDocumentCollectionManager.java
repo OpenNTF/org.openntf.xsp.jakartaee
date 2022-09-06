@@ -39,6 +39,7 @@ import javax.transaction.xa.Xid;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter;
@@ -555,7 +556,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		String filePath = database.getFilePath();
 
 		try {
-			String fileName = DominoNoSQLUtil.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
+			String fileName = AbstractEntityConverter.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
 			
 			Path tempDir = DominoNoSQLUtil.getTempDirectory();
 			Path dest = tempDir.resolve(getClass().getPackage().getName());

@@ -47,7 +47,7 @@ public abstract class AbstractEntityConverter {
 		return md5(universalId + inst.getEpochSecond() + inst.getNano());
 	}
 	
-	protected String md5(String value) {
+	public static String md5(String value) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
 			md.update(String.valueOf(value).getBytes());
