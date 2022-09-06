@@ -25,14 +25,12 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UncheckedIOException;
-import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
-import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
@@ -50,8 +48,8 @@ import java.util.stream.Stream;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
-import org.eclipse.jnosql.mapping.reflection.FieldMapping;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
@@ -93,7 +91,7 @@ import lotus.domino.ViewNavigator;
  * @author Jesse Gallagher
  * @since 2.3.0
  */
-public class LSXBEEntityConverter {
+public class LSXBEEntityConverter extends AbstractEntityConverter {
 	
 	private final DatabaseSupplier databaseSupplier;
 	private final Jsonb jsonb;
@@ -852,34 +850,5 @@ public class LSXBEEntityConverter {
 		} else {
 			return null;
 		}
-	}
-	
-	private <T extends Annotation> Optional<T> getFieldAnnotation(ClassMapping classMapping, String fieldName, Class<T> annotation) {
-		if(classMapping == null) {
-			return Optional.empty();
-		}
-		return classMapping.getFields()
-			.stream()
-			.filter(field -> fieldName.equals(field.getName()))
-			.findFirst()
-			.map(FieldMapping::getNativeField)
-			.map(field -> field.getAnnotation(annotation));
-	}
-	
-	private Optional<Class<?>> getFieldType(ClassMapping classMapping, String fieldName) {
-		if(classMapping == null) {
-			return Optional.empty();
-		}
-		return classMapping.getFields()
-			.stream()
-			.filter(field -> fieldName.equals(field.getName()))
-			.findFirst()
-			.map(FieldMapping::getNativeField)
-			.map(field -> field.getType());
-	}
-	
-	private String composeEtag(String universalId, Temporal modTime) {
-		Instant inst = Instant.from(modTime);
-		return DominoNoSQLUtil.md5(universalId + inst.getEpochSecond() + inst.getNano());
 	}
 }
