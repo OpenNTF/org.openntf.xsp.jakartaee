@@ -787,7 +787,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							if(optStorage.isPresent()) {
 								int precision = optStorage.get().precision();
 								if(precision > 0) {
-									dominoVal = DominoNoSQLUtil.applyPrecision(dominoVal, precision);
+									dominoVal = applyPrecision(dominoVal, precision);
 								}
 							}
 							

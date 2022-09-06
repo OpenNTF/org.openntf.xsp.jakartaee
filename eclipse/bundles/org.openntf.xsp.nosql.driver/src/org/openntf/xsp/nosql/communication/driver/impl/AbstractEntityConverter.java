@@ -1,11 +1,15 @@
 package org.openntf.xsp.nosql.communication.driver.impl;
 
 import java.lang.annotation.Annotation;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.temporal.Temporal;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Vector;
 
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.eclipse.jnosql.mapping.reflection.FieldMapping;
@@ -59,6 +63,26 @@ public abstract class AbstractEntityConverter {
 			return sb.toString();
 		} catch (NoSuchAlgorithmException e) {
 			throw new IllegalStateException(e);
+		}
+	}
+	
+	public static Object applyPrecision(Object dominoVal, int precision) {
+		if(dominoVal instanceof Number) {
+			BigDecimal decimal = BigDecimal.valueOf(((Number)dominoVal).doubleValue());
+			return decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue();
+		} else if(dominoVal instanceof Collection && !((Collection<?>)dominoVal).isEmpty()) {
+			Vector<Object> result = new Vector<>(((Collection<?>)dominoVal).size());
+			for(Object obj : ((Collection<?>)dominoVal)) {
+				if(obj instanceof Number) {
+					BigDecimal decimal = BigDecimal.valueOf(((Number)obj).doubleValue());
+					result.add(decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue());
+				} else {
+					result.add(obj);
+				}
+			}
+			return result;
+		} else {
+			return dominoVal;
 		}
 	}
 }

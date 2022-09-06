@@ -17,13 +17,9 @@ package org.openntf.xsp.nosql.communication.driver.lsxbe.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedAction;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -35,7 +31,6 @@ import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -183,26 +178,6 @@ public enum DominoNoSQLUtil {
 			}
 		} finally {
 			dt.recycle();
-		}
-	}
-
-	public static Object applyPrecision(Object dominoVal, int precision) {
-		if(dominoVal instanceof Number) {
-			BigDecimal decimal = BigDecimal.valueOf(((Number)dominoVal).doubleValue());
-			return decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue();
-		} else if(dominoVal instanceof Collection && !((Collection<?>)dominoVal).isEmpty()) {
-			Vector<Object> result = new Vector<>(((Collection<?>)dominoVal).size());
-			for(Object obj : ((Collection<?>)dominoVal)) {
-				if(obj instanceof Number) {
-					BigDecimal decimal = BigDecimal.valueOf(((Number)obj).doubleValue());
-					result.add(decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue());
-				} else {
-					result.add(obj);
-				}
-			}
-			return result;
-		} else {
-			return dominoVal;
 		}
 	}
 
