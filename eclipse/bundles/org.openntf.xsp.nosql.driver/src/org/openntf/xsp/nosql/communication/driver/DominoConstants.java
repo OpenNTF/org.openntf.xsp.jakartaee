@@ -16,6 +16,10 @@
 package org.openntf.xsp.nosql.communication.driver;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
@@ -27,7 +31,9 @@ import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
  * @author Jesse Gallagher
  * @since 2.6.0
  */
-public interface DominoConstants {
+public enum DominoConstants {
+	;
+	
 	/**
 	 * The field used to store the UNID of the document during NoSQL
 	 * conversion, currently {@value #FIELD_ID}.
@@ -35,110 +41,110 @@ public interface DominoConstants {
 	 * <p>This value is shared with the default value for the
 	 * {@link jakarta.nosql.mapping.Id @Id} annotation from Jakarta NoSQL.</p>
 	 */
-	String FIELD_ID = "_id"; //$NON-NLS-1$
+	public static final String FIELD_ID = "_id"; //$NON-NLS-1$
 	/**
 	 * The expected field containing the collection name of the document in
 	 * Domino, currently {@value #FIELD_NAME}
 	 */
-	String FIELD_NAME = "Form"; //$NON-NLS-1$
+	public static final String FIELD_NAME = "Form"; //$NON-NLS-1$
 	
 	/**
 	 * The field used to store the creation date of the document during
 	 * NoSQL conversion, currently {@value #FIELD_CDATE}
 	 */
-	String FIELD_CDATE = "@cdate"; //$NON-NLS-1$
+	public static final String FIELD_CDATE = "@cdate"; //$NON-NLS-1$
 	
 	/**
 	 * The field used to store the last modification date of the document during
 	 * NoSQL conversion, currently {@value #FIELD_MDATE}
 	 */
-	String FIELD_MDATE = "@mdate"; //$NON-NLS-1$
+	public static final String FIELD_MDATE = "@mdate"; //$NON-NLS-1$
 	
 	/**
 	 * The field used to store document attachments during NoSQL conversion,
 	 * currently {@value #FIELD_ATTACHMENTS}
 	 */
-	String FIELD_ATTACHMENTS = "@attachments"; //$NON-NLS-1$
+	public static final String FIELD_ATTACHMENTS = "@attachments"; //$NON-NLS-1$
 	
 	/**
 	 * The field used to request storage of a DXL representation of the document during
 	 * NoSQL conversion, currently {@value #FIELD_DXL}
 	 */
-	String FIELD_DXL = "@dxl"; //$NON-NLS-1$
+	public static final String FIELD_DXL = "@dxl"; //$NON-NLS-1$
 	/**
 	 * The field used to store the position tumbler when using the {@link ViewEntries @ViewEntries}
 	 * annotation, currently {@value #FIELD_POSITION}
 	 */
-	String FIELD_POSITION = "@position"; //$NON-NLS-1$
+	public static final String FIELD_POSITION = "@position"; //$NON-NLS-1$
 	/**
 	 * The field used to store the type of entry when using the {@link ViewEntries @ViewEntries}
 	 * annotation, currently {@value #FIELD_ENTRY_TYPE}
 	 */
-	String FIELD_ENTRY_TYPE = "@entrytype"; //$NON-NLS-1$
+	public static final String FIELD_ENTRY_TYPE = "@entrytype"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of the unread status of a document or view entry
 	 * during NoSQL conversion, currently {@value #FIELD_READ}
 	 */
-	String FIELD_READ = "@read"; //$NON-NLS-1$
+	public static final String FIELD_READ = "@read"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of the size in bytes of a document during NoSQL
 	 * conversion, currently {@value #FIELD_SIZE}
 	 */
-	String FIELD_SIZE = "@size"; //$NON-NLS-1$
+	public static final String FIELD_SIZE = "@size"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of a document's note ID, currently {@value #FIELD_NOTEID}
 	 * @since 2.8.0
 	 */
-	String FIELD_NOTEID = "@noteid"; //$NON-NLS-1$
+	public static final String FIELD_NOTEID = "@noteid"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of a document's last-accessed date, currently
 	 * {@value #FIELD_ADATE}
 	 * @since 2.8.0
 	 */
-	String FIELD_ADATE = "@adate"; //$NON-NLS-1$
+	public static final String FIELD_ADATE = "@adate"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of a document's last-modified-in-this-file date,
 	 * currently {@value #FIELD_MODIFIED_IN_THIS_FILE}
 	 * @since 2.8.0
 	 */
-	String FIELD_MODIFIED_IN_THIS_FILE = "@modifiedinthisfile"; //$NON-NLS-1$
+	public static final String FIELD_MODIFIED_IN_THIS_FILE = "@modifiedinthisfile"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of a document's added-to-this-file date, currently
 	 * {@value #FIELD_ADDED}
 	 * @since 2.8.0
 	 */
-	String FIELD_ADDED = "@added"; //$NON-NLS-1$
+	public static final String FIELD_ADDED = "@added"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of an ETag-compatible value for the document, which
 	 * will represent the document's ID and last modification time. The value is currently
 	 * {@value #FIELD_ETAG}
 	 * @since 2.8.0
 	 */
-	String FIELD_ETAG = "@etag"; //$NON-NLS-1$
+	public static final String FIELD_ETAG = "@etag"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of the file path of the database housing the document,
 	 * currently {@value #FIELD_FILEPATH}
 	 * @since 2.8.0
 	 */
-	String FIELD_FILEPATH = "@filepath"; //$NON-NLS-1$
+	public static final String FIELD_FILEPATH = "@filepath"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of the server hosting the database housing the document,
 	 * currently {@value #FIELD_SERVER}
 	 * @since 2.8.0
 	 */
-	String FIELD_SERVER = "@server"; //$NON-NLS-1$
+	public static final String FIELD_SERVER = "@server"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of the replica ID of the database housing the document,
 	 * currently {@value #FIELD_REPLICAID}
 	 * @since 2.8.0
 	 */
-	String FIELD_REPLICAID = "@replicaid"; //$NON-NLS-1$
+	public static final String FIELD_REPLICAID = "@replicaid"; //$NON-NLS-1$
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based
 	 * on the options used by XPages.
 	 */
-	Vector<String> HTML_CONVERSION_OPTIONS = new Vector<>(Arrays.asList(
+	public static final Vector<String> HTML_CONVERSION_OPTIONS = new Vector<>(Arrays.asList(
 		"AutoClass=2", //$NON-NLS-1$
 		"RowAtATimeTableAlt=2", //$NON-NLS-1$
 		"SectionAlt=1", //$NON-NLS-1$
@@ -155,10 +161,40 @@ public interface DominoConstants {
 	 * This header is used to denote the stored Java class for "MIMEBean"-type storage.
 	 * @since 2.6.0
 	 */
-	String HEADER_JAVA_CLASS = "X-Java-Class"; //$NON-NLS-1$
+	public static final String HEADER_JAVA_CLASS = "X-Java-Class"; //$NON-NLS-1$
 	/**
 	 * This MIME type is used to indicate a serialized Java object for "MIMEBean"-type storage.
 	 * @since 2.6.0
 	 */
-	String MIME_TYPE_SERIALIZED_OBJECT = "application/x-java-serialized-object"; //$NON-NLS-1$
+	public static final String MIME_TYPE_SERIALIZED_OBJECT = "application/x-java-serialized-object"; //$NON-NLS-1$
+	
+	public static final Collection<String> SYSTEM_FIELDS;
+	public static final Collection<String> SKIP_WRITING_FIELDS;
+	static {
+		Set<String> systemFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		systemFields.addAll(Arrays.asList(
+			DominoConstants.FIELD_ID,
+			DominoConstants.FIELD_CDATE,
+			DominoConstants.FIELD_MDATE,
+			DominoConstants.FIELD_ATTACHMENTS,
+			DominoConstants.FIELD_DXL,
+			DominoConstants.FIELD_POSITION,
+			DominoConstants.FIELD_ENTRY_TYPE,
+			DominoConstants.FIELD_READ,
+			DominoConstants.FIELD_NOTEID,
+			DominoConstants.FIELD_ADATE,
+			DominoConstants.FIELD_ADDED,
+			DominoConstants.FIELD_MODIFIED_IN_THIS_FILE,
+			DominoConstants.FIELD_ETAG,
+			DominoConstants.FIELD_REPLICAID,
+			DominoConstants.FIELD_SERVER,
+			DominoConstants.FIELD_FILEPATH
+		));
+		SYSTEM_FIELDS = Collections.unmodifiableSet(systemFields);
+		
+		Set<String> skipWritingFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		skipWritingFields.add("$FILE"); //$NON-NLS-1$
+		skipWritingFields.addAll(SYSTEM_FIELDS);
+		SKIP_WRITING_FIELDS = Collections.unmodifiableSet(skipWritingFields);
+	}
 }

@@ -37,7 +37,6 @@ import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,7 +44,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -96,31 +94,6 @@ import lotus.domino.ViewNavigator;
  * @since 2.3.0
  */
 public class LSXBEEntityConverter {
-	
-	private static final Collection<String> SYSTEM_FIELDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-	private static final Collection<String> SKIP_WRITING_FIELDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-	static {
-		SYSTEM_FIELDS.addAll(Arrays.asList(
-			DominoConstants.FIELD_ID,
-			DominoConstants.FIELD_CDATE,
-			DominoConstants.FIELD_MDATE,
-			DominoConstants.FIELD_ATTACHMENTS,
-			DominoConstants.FIELD_DXL,
-			DominoConstants.FIELD_POSITION,
-			DominoConstants.FIELD_ENTRY_TYPE,
-			DominoConstants.FIELD_READ,
-			DominoConstants.FIELD_NOTEID,
-			DominoConstants.FIELD_ADATE,
-			DominoConstants.FIELD_ADDED,
-			DominoConstants.FIELD_MODIFIED_IN_THIS_FILE,
-			DominoConstants.FIELD_ETAG,
-			DominoConstants.FIELD_REPLICAID,
-			DominoConstants.FIELD_SERVER,
-			DominoConstants.FIELD_FILEPATH
-		));
-		SKIP_WRITING_FIELDS.add("$FILE"); //$NON-NLS-1$
-		SKIP_WRITING_FIELDS.addAll(SYSTEM_FIELDS);
-	}
 	
 	private final DatabaseSupplier databaseSupplier;
 	private final Jsonb jsonb;
@@ -442,7 +415,7 @@ public class LSXBEEntityConverter {
 			Map<String, Object> docMap = new LinkedHashMap<>();
 			for(Item item : (List<Item>)doc.getItems()) {
 				String itemName = item.getName();
-				if(SYSTEM_FIELDS.contains(itemName)) {
+				if(DominoConstants.SYSTEM_FIELDS.contains(itemName)) {
 					continue;
 				}
 				
@@ -729,7 +702,7 @@ public class LSXBEEntityConverter {
 							}
 						}
 					}
-				} else if(!SKIP_WRITING_FIELDS.contains(doc.getName())) {
+				} else if(!DominoConstants.SKIP_WRITING_FIELDS.contains(doc.getName())) {
 					Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.getName(), ItemStorage.class);
 					// Check if we should skip processing
 					if(optStorage.isPresent()) {
