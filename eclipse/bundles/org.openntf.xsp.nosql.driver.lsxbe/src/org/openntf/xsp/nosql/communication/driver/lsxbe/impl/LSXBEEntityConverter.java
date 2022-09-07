@@ -25,19 +25,16 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UncheckedIOException;
-import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
-import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,15 +42,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
-import org.eclipse.jnosql.mapping.reflection.FieldMapping;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
@@ -95,32 +91,7 @@ import lotus.domino.ViewNavigator;
  * @author Jesse Gallagher
  * @since 2.3.0
  */
-public class LSXBEEntityConverter {
-	
-	private static final Collection<String> SYSTEM_FIELDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-	private static final Collection<String> SKIP_WRITING_FIELDS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-	static {
-		SYSTEM_FIELDS.addAll(Arrays.asList(
-			DominoConstants.FIELD_ID,
-			DominoConstants.FIELD_CDATE,
-			DominoConstants.FIELD_MDATE,
-			DominoConstants.FIELD_ATTACHMENTS,
-			DominoConstants.FIELD_DXL,
-			DominoConstants.FIELD_POSITION,
-			DominoConstants.FIELD_ENTRY_TYPE,
-			DominoConstants.FIELD_READ,
-			DominoConstants.FIELD_NOTEID,
-			DominoConstants.FIELD_ADATE,
-			DominoConstants.FIELD_ADDED,
-			DominoConstants.FIELD_MODIFIED_IN_THIS_FILE,
-			DominoConstants.FIELD_ETAG,
-			DominoConstants.FIELD_REPLICAID,
-			DominoConstants.FIELD_SERVER,
-			DominoConstants.FIELD_FILEPATH
-		));
-		SKIP_WRITING_FIELDS.add("$FILE"); //$NON-NLS-1$
-		SKIP_WRITING_FIELDS.addAll(SYSTEM_FIELDS);
-	}
+public class LSXBEEntityConverter extends AbstractEntityConverter {
 	
 	private final DatabaseSupplier databaseSupplier;
 	private final Jsonb jsonb;
@@ -442,7 +413,7 @@ public class LSXBEEntityConverter {
 			Map<String, Object> docMap = new LinkedHashMap<>();
 			for(Item item : (List<Item>)doc.getItems()) {
 				String itemName = item.getName();
-				if(SYSTEM_FIELDS.contains(itemName)) {
+				if(DominoConstants.SYSTEM_FIELDS.contains(itemName)) {
 					continue;
 				}
 				
@@ -729,7 +700,7 @@ public class LSXBEEntityConverter {
 							}
 						}
 					}
-				} else if(!SKIP_WRITING_FIELDS.contains(doc.getName())) {
+				} else if(!DominoConstants.SKIP_WRITING_FIELDS.contains(doc.getName())) {
 					Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.getName(), ItemStorage.class);
 					// Check if we should skip processing
 					if(optStorage.isPresent()) {
@@ -816,7 +787,7 @@ public class LSXBEEntityConverter {
 							if(optStorage.isPresent()) {
 								int precision = optStorage.get().precision();
 								if(precision > 0) {
-									dominoVal = DominoNoSQLUtil.applyPrecision(dominoVal, precision);
+									dominoVal = applyPrecision(dominoVal, precision);
 								}
 							}
 							
@@ -879,34 +850,5 @@ public class LSXBEEntityConverter {
 		} else {
 			return null;
 		}
-	}
-	
-	private <T extends Annotation> Optional<T> getFieldAnnotation(ClassMapping classMapping, String fieldName, Class<T> annotation) {
-		if(classMapping == null) {
-			return Optional.empty();
-		}
-		return classMapping.getFields()
-			.stream()
-			.filter(field -> fieldName.equals(field.getName()))
-			.findFirst()
-			.map(FieldMapping::getNativeField)
-			.map(field -> field.getAnnotation(annotation));
-	}
-	
-	private Optional<Class<?>> getFieldType(ClassMapping classMapping, String fieldName) {
-		if(classMapping == null) {
-			return Optional.empty();
-		}
-		return classMapping.getFields()
-			.stream()
-			.filter(field -> fieldName.equals(field.getName()))
-			.findFirst()
-			.map(FieldMapping::getNativeField)
-			.map(field -> field.getType());
-	}
-	
-	private String composeEtag(String universalId, Temporal modTime) {
-		Instant inst = Instant.from(modTime);
-		return DominoNoSQLUtil.md5(universalId + inst.getEpochSecond() + inst.getNano());
 	}
 }

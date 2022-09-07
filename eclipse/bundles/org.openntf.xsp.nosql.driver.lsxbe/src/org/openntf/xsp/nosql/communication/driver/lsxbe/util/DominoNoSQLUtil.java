@@ -17,13 +17,9 @@ package org.openntf.xsp.nosql.communication.driver.lsxbe.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedAction;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -35,7 +31,6 @@ import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Vector;
 import java.util.stream.Collectors;
@@ -186,26 +181,6 @@ public enum DominoNoSQLUtil {
 		}
 	}
 
-	public static Object applyPrecision(Object dominoVal, int precision) {
-		if(dominoVal instanceof Number) {
-			BigDecimal decimal = BigDecimal.valueOf(((Number)dominoVal).doubleValue());
-			return decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue();
-		} else if(dominoVal instanceof Collection && !((Collection<?>)dominoVal).isEmpty()) {
-			Vector<Object> result = new Vector<>(((Collection<?>)dominoVal).size());
-			for(Object obj : ((Collection<?>)dominoVal)) {
-				if(obj instanceof Number) {
-					BigDecimal decimal = BigDecimal.valueOf(((Number)obj).doubleValue());
-					result.add(decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue());
-				} else {
-					result.add(obj);
-				}
-			}
-			return result;
-		} else {
-			return dominoVal;
-		}
-	}
-
 	public static InputStream wrapInputStream(InputStream is, String encoding) throws IOException {
 		if("gzip".equals(encoding)) { //$NON-NLS-1$
 			return new GZIPInputStream(is);
@@ -221,21 +196,6 @@ public enum DominoNoSQLUtil {
 			return doc != null && doc.isValid() && !doc.isDeleted() && doc.getCreated() != null;
 		} catch (NotesException e) {
 			return false;
-		}
-	}
-	
-	public static String md5(String value) {
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-			md.update(String.valueOf(value).getBytes());
-			byte[] digest = md.digest();
-			StringBuilder sb = new StringBuilder(digest.length * 2);
-			for (byte b : digest) {
-				sb.append(String.format("%02x", b)); //$NON-NLS-1$
-			}
-			return sb.toString();
-		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException(e);
 		}
 	}
 	
