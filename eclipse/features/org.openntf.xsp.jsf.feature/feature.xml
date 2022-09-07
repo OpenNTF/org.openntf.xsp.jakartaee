@@ -237,9 +237,9 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-   <plugin id="org.openntf.xsp.jsf" version="0.0.0"/>
+   <plugin id="org.openntf.xsp.jsf" version="0.0.0" unpack="false"/>
 
-   <plugin id="org.openntf.org.apache.myfaces.core.api" version="0.0.0"/>
-   <plugin id="org.openntf.org.apache.myfaces.core.impl" version="0.0.0"/>
+   <plugin id="org.openntf.org.apache.myfaces.core.api" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.apache.myfaces.core.impl" version="0.0.0" unpack="false"/>
 
 </feature>

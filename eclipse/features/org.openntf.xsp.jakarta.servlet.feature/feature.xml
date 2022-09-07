@@ -233,6 +233,6 @@
    limitations under the License.
    </license>
 
-	<plugin id="org.openntf.xsp.jakarta.servlet" version="0.0.0"/>
+	<plugin id="org.openntf.xsp.jakarta.servlet" version="0.0.0" unpack="false"/>
 
 </feature>

@@ -239,15 +239,15 @@
       <import feature="org.openntf.xsp.cdi.feature"/>
    </requires>
 
-   <plugin id="org.openntf.xsp.microprofile.rest.client" version="0.0.0"/>
+   <plugin id="org.openntf.xsp.microprofile.rest.client" version="0.0.0" unpack="false"/>
 	
-   <plugin id="org.eclipse.microprofile.rest.client" version="0.0.0"/>
-   <plugin id="org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0"/>
-   <plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client" version="0.0.0" fragment="true"/>
-   <plugin id="org.apache.commons.commons-codec" version="0.0.0"/>
-   <plugin id="org.apache.commons.io" version="0.0.0"/>
-   <plugin id="org.apache.commons.logging" version="0.0.0"/>
-   <plugin id="org.apache.httpcomponents.httpclient" version="0.0.0"/>
-   <plugin id="org.apache.httpcomponents.httpcore" version="0.0.0"/>
+   <plugin id="org.eclipse.microprofile.rest.client" version="0.0.0" unpack="false"/>
+   <plugin id="org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client" version="0.0.0" fragment="true" unpack="false"/>
+   <plugin id="org.apache.commons.commons-codec" version="0.0.0" unpack="false"/>
+   <plugin id="org.apache.commons.io" version="0.0.0" unpack="false"/>
+   <plugin id="org.apache.commons.logging" version="0.0.0" unpack="false"/>
+   <plugin id="org.apache.httpcomponents.httpclient" version="0.0.0" unpack="false"/>
+   <plugin id="org.apache.httpcomponents.httpcore" version="0.0.0" unpack="false"/>
 
 </feature>

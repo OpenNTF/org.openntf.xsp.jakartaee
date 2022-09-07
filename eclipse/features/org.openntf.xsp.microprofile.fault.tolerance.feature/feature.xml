@@ -239,13 +239,13 @@
       <import feature="org.openntf.xsp.cdi.feature"/>
    </requires>
 
-   <plugin id="org.openntf.xsp.microprofile.fault.tolerance" version="0.0.0"/>
+   <plugin id="org.openntf.xsp.microprofile.fault.tolerance" version="0.0.0" unpack="false"/>
    
-   <plugin id="org.openntf.org.eclipse.microprofile.fault.tolerance" version="0.0.0"/>
-   <plugin id="org.openntf.io.smallrye.fault-tolerance" version="0.0.0"/>
-   <plugin id="io.smallrye.fault-tolerance-api" version="0.0.0"/>
-   <plugin id="io.smallrye.fault-tolerance-core" version="0.0.0"/>
-   <plugin id="io.smallrye.fault-tolerance-autoconfig-core" version="0.0.0"/>
-   <plugin id="io.smallrye.reactive.smallrye-reactive-converter-api" version="0.0.0"/>
+   <plugin id="org.openntf.org.eclipse.microprofile.fault.tolerance" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.io.smallrye.fault-tolerance" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.fault-tolerance-api" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.fault-tolerance-core" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.fault-tolerance-autoconfig-core" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.reactive.smallrye-reactive-converter-api" version="0.0.0" unpack="false"/>
 
 </feature>

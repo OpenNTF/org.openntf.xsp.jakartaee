@@ -237,10 +237,10 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-   <plugin id="org.openntf.xsp.mvc" version="0.0.0"/>
+   <plugin id="org.openntf.xsp.mvc" version="0.0.0" unpack="false"/>
    
-   <plugin id="jakarta.mvc-api" version="0.0.0"/>
-   <plugin id="org.openntf.org.eclipse.krazo.core" version="0.0.0"/>
-   <plugin id="org.openntf.org.eclipse.krazo.resteasy" version="0.0.0" fragment="true"/>
+   <plugin id="jakarta.mvc-api" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.krazo.core" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.krazo.resteasy" version="0.0.0" fragment="true" unpack="false"/>
 
 </feature>

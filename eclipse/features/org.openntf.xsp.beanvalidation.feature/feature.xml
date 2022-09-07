@@ -238,28 +238,12 @@
       <import feature="org.openntf.xsp.el.feature"/>
    </requires>
 
-   <plugin
-         id="org.openntf.xsp.beanvalidation"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin id="org.openntf.xsp.beanvalidation" version="0.0.0" unpack="false"/>
 
-   <plugin
-         id="com.fasterxml.classmate"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin id="com.fasterxml.classmate" version="0.0.0" unpack="false"/>
 
-   <plugin
-         id="jakarta.validation.jakarta.validation-api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin id="jakarta.validation.jakarta.validation-api" version="0.0.0" unpack="false"/>
 
-   <plugin
-         id="org.hibernate.validator"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin id="org.hibernate.validator" version="0.0.0" unpack="false"/>
 
 </feature>

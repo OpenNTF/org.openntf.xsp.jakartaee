@@ -238,24 +238,24 @@
       <import feature="org.openntf.xsp.cdi.feature"/>
    </requires>
 
-   <plugin id="org.openntf.xsp.nosql" version="0.0.0"/>
-   <plugin id="org.openntf.xsp.nosql.driver" version="0.0.0"/>
-   <plugin id="org.openntf.xsp.nosql.driver.lsxbe" version="0.0.0"/>
+   <plugin id="org.openntf.xsp.nosql" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.xsp.nosql.driver" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.xsp.nosql.driver.lsxbe" version="0.0.0" unpack="false"/>
 	
-   <plugin id="org.openntf.jakarta.nosql.communication.core" version="0.0.0"/>
-   <plugin id="org.openntf.jakarta.nosql.communication.document" version="0.0.0"/>
-   <plugin id="org.openntf.jakarta.nosql.communication.query" version="0.0.0"/>
-   <plugin id="org.openntf.jakarta.nosql.mapping.core" version="0.0.0"/>
-   <plugin id="org.openntf.jakarta.nosql.mapping.document" version="0.0.0"/>
+   <plugin id="org.openntf.jakarta.nosql.communication.core" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.jakarta.nosql.communication.document" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.jakarta.nosql.communication.query" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.jakarta.nosql.mapping.core" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.jakarta.nosql.mapping.document" version="0.0.0" unpack="false"/>
    
-   <plugin id="org.openntf.org.eclipse.jnosql.communication.core" version="0.0.0"/>
-   <plugin id="org.openntf.org.eclipse.jnosql.communication.document" version="0.0.0"/>
-   <plugin id="org.openntf.org.eclipse.jnosql.communication.query" version="0.0.0"/>
-   <plugin id="org.openntf.org.eclipse.jnosql.communication.driver.commons" version="0.0.0"/>
-   <plugin id="org.openntf.org.eclipse.jnosql.mapping.core" version="0.0.0"/>
-   <plugin id="org.openntf.org.eclipse.jnosql.mapping.validation" version="0.0.0"/>
-   <plugin id="org.openntf.org.eclipse.jnosql.mapping.document" version="0.0.0"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.communication.core" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.communication.document" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.communication.query" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.communication.driver.commons" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.mapping.core" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.mapping.validation" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.jnosql.mapping.document" version="0.0.0" unpack="false"/>
    
-   <plugin id="org.antlr.antlr4-runtime.jakarta" version="0.0.0"/>
+   <plugin id="org.antlr.antlr4-runtime.jakarta" version="0.0.0" unpack="false"/>
 
 </feature>

@@ -239,16 +239,16 @@
       <import feature="org.openntf.xsp.cdi.feature"/>
    </requires>
 
-   <plugin id="org.openntf.xsp.microprofile.health" version="0.0.0"/>
+   <plugin id="org.openntf.xsp.microprofile.health" version="0.0.0" unpack="false"/>
 	
-   <plugin id="org.eclipse.microprofile.health" version="0.0.0"/>
-   <plugin id="org.openntf.io.smallrye.health" version="0.0.0"/>
-   <plugin id="io.smallrye.health-api" version="0.0.0"/>
-   <plugin id="io.smallrye.reactive.mutiny" version="0.0.0"/>
-   <plugin id="io.smallrye.common.smallrye-common-annotation" version="0.0.0"/>
-   <plugin id="io.smallrye.common.smallrye-common-classloader" version="0.0.0"/>
-   <plugin id="io.smallrye.common.smallrye-common-constraint" version="0.0.0"/>
-   <plugin id="io.smallrye.common.smallrye-common-expression" version="0.0.0"/>
-   <plugin id="io.smallrye.common.smallrye-common-function" version="0.0.0"/>
+   <plugin id="org.eclipse.microprofile.health" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.io.smallrye.health" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.health-api" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.reactive.mutiny" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.common.smallrye-common-annotation" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.common.smallrye-common-classloader" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.common.smallrye-common-constraint" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.common.smallrye-common-expression" version="0.0.0" unpack="false"/>
+   <plugin id="io.smallrye.common.smallrye-common-function" version="0.0.0" unpack="false"/>
 
 </feature>

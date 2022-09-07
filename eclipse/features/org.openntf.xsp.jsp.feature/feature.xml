@@ -237,34 +237,12 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-   <plugin
-         id="org.openntf.xsp.jsp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin id="org.openntf.xsp.jsp" version="0.0.0" unpack="false"/>
 
-   <plugin
-         id="jakarta.servlet.jsp-api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin id="jakarta.servlet.jsp-api" version="0.0.0" unpack="false"/>
+   <plugin id="jakarta.servlet.jsp.jstl-api" version="0.0.0" unpack="false"/>
 
-   <plugin
-         id="jakarta.servlet.jsp.jstl-api"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.glassfish.web.jakarta.servlet.jsp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.glassfish.web.jakarta.servlet.jsp.jstl"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin id="org.glassfish.web.jakarta.servlet.jsp" version="0.0.0" unpack="false"/>
+   <plugin id="org.glassfish.web.jakarta.servlet.jsp.jstl" version="0.0.0" unpack="false"/>
 
 </feature>
