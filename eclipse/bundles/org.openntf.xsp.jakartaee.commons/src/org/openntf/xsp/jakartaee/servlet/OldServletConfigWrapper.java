@@ -16,6 +16,7 @@
 package org.openntf.xsp.jakartaee.servlet;
 
 import java.util.Enumeration;
+import java.util.Map;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -39,6 +40,13 @@ class OldServletConfigWrapper implements ServletConfig {
 
 	@Override
 	public String getInitParameter(String name) {
+		ServletContext context = getServletContext();
+		if(context instanceof OldServletContextWrapper) {
+			Map<String, String> params = ((OldServletContextWrapper)context).getExtraInitParameters();
+			if(params.containsKey(name)) {
+				return params.get(name);
+			}
+		}
 		return delegate.getInitParameter(name);
 	}
 

@@ -16,18 +16,22 @@
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
 import org.eclipse.jnosql.mapping.reflection.ClassMappings;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
+import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
 import jakarta.nosql.mapping.Converters;
+import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Pagination;
+import jakarta.nosql.mapping.Sorts;
 import jakarta.nosql.mapping.document.DocumentEntityConverter;
 import jakarta.nosql.mapping.document.DocumentEventPersistManager;
 import jakarta.nosql.mapping.document.DocumentWorkflow;
@@ -103,16 +107,16 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly) {
-		return getManager().viewEntryQuery(entityName, viewName, category, pagination, maxLevel, docsOnly)
+	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
+		return getManager().viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, viewQuery, singleResult)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel) {
-		return getManager().viewDocumentQuery(entityName, viewName, category, pagination, maxLevel)
+	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult) {
+		return getManager().viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, singleResult)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}
@@ -140,6 +144,22 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	@Override
 	public boolean existsById(String unid) {
 		return getManager().existsById(unid);
+	}
+	
+	@Override
+	public <T> Optional<T> getByNoteId(String entityName, String noteId) {
+		return getManager().getByNoteId(entityName, noteId).map(getConverter()::toEntity);
+	}
+	
+	@Override
+	public <T, K> Optional<T> find(Class<T> entityClass, K id) {
+		Entity entityAnnotation = entityClass.getAnnotation(Entity.class);
+		String entityName = entityAnnotation == null ? "" : entityAnnotation.value(); //$NON-NLS-1$
+		if(entityName.isEmpty()) {
+			entityName = entityClass.getSimpleName();
+		}
+		
+		return getManager().getById(entityName, String.valueOf(id)).map(getConverter()::toEntity);
 	}
 
 }

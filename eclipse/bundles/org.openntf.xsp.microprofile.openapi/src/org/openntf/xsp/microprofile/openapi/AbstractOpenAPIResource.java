@@ -29,6 +29,8 @@ import org.eclipse.microprofile.openapi.models.info.Info;
 import org.eclipse.microprofile.openapi.models.servers.Server;
 import org.jboss.jandex.Index;
 import org.openntf.xsp.jakartaee.DelegatingClassLoader;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.openntf.xsp.jaxrs.JAXRSServletFactory;
 
 import com.ibm.commons.util.PathUtil;
@@ -71,6 +73,11 @@ public abstract class AbstractOpenAPIResource {
 		Set<Class<?>> classes = new HashSet<>();
 		classes.addAll(application.getClasses());
 		classes.add(application.getClass());
+
+		NotesContext notesContext = NotesContext.getCurrent();
+		ModuleUtil.getClasses(notesContext.getModule())
+			.forEach(classes::add);
+		
 		Index index = Index.of(classes);
 		
 		Config mpConfig = CDI.current().select(Config.class).get();
@@ -82,7 +89,6 @@ public abstract class AbstractOpenAPIResource {
 			openapi = OpenApiProcessor.bootstrap(config, index, cl);
 		}
 		
-		NotesContext notesContext = NotesContext.getCurrent();
 		Database database = notesContext.getCurrentDatabase();
 		Session sessionAsSigner = notesContext.getSessionAsSigner();
 		Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
@@ -112,7 +118,8 @@ public abstract class AbstractOpenAPIResource {
 			Server server = new ServerImpl();
 			
 			URI uri = URI.create(req.getRequestURL().toString());
-			String jaxrsRoot = JAXRSServletFactory.getServletPath(notesContext.getModule());
+			
+			String jaxrsRoot = JAXRSServletFactory.getServletPath(ComponentModuleLocator.getDefault().get().getActiveModule());
 			uri = uri.resolve(PathUtil.concat(req.getContextPath(), jaxrsRoot, '/'));
 			String uriString = uri.toString();
 			if(uriString.endsWith("/")) { //$NON-NLS-1$

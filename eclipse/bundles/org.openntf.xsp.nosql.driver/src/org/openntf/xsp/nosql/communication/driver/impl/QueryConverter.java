@@ -17,6 +17,7 @@ package org.openntf.xsp.nosql.communication.driver.impl;
 
 import static jakarta.nosql.Condition.IN;
 
+import java.time.temporal.Temporal;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -72,58 +73,84 @@ public enum QueryConverter {
 		}
 
 		// Convert special names
-		String name = document.getName();
-		if (String.valueOf(name).equals(DominoConstants.FIELD_ID)) {
+		String name = String.valueOf(document.getName());
+		if (DominoConstants.FIELD_ID.equals(name)) {
 			name = "@DocumentUniqueID"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_CDATE.equals(name)) {
+			name = "@Created"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_MDATE.equals(name)) {
+			name = "@Modified"; //$NON-NLS-1$
+		} else if("$REF".equalsIgnoreCase(name)) { //$NON-NLS-1$
+			name = "@Text($REF)"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_SIZE.equals(name)) {
+			name = "@DocLength"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_NOTEID.equals(name)) {
+			name = "@NoteID"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_ADATE.equals(name)) {
+			name = "@Accessed"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_ADDED.equals(name)) {
+			name = "@AddedToThisFile"; //$NON-NLS-1$
+		} else if(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE.equals(name)) {
+			name = "@ModifiedInThisFile"; //$NON-NLS-1$
 		}
 
-		Object placeholder = document.get();
-		if(placeholder != null && placeholder.getClass().isEnum()) {
-			placeholder = placeholder.toString();
+		Object value = document.get();
+		if(value != null && value.getClass().isEnum()) {
+			value = value.toString();
 		}
 		switch (condition.getCondition()) {
 			case EQUALS:
-				if(placeholder instanceof Number) {
-					return DQL.item(name).isEqualTo(((Number)placeholder).doubleValue());
+				if(value instanceof Number) {
+					return DQL.item(name).isEqualTo(((Number)value).doubleValue());
+				} else if(value instanceof Temporal) {
+					return DQL.item(name).isEqualTo((Temporal)value);
 				} else {
-					return DQL.item(name).isEqualTo(placeholder == null ? "" : placeholder.toString()); //$NON-NLS-1$
+					return DQL.item(name).isEqualTo(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case LESSER_THAN:
-				if(placeholder instanceof Number) {
-					return DQL.item(name).isLessThan(((Number)placeholder).doubleValue());
+				if(value instanceof Number) {
+					return DQL.item(name).isLessThan(((Number)value).doubleValue());
+				} else if(value instanceof Temporal) {
+					return DQL.item(name).isLessThan((Temporal)value);
 				} else {
-					return DQL.item(name).isLessThan(placeholder == null ? "" : placeholder.toString()); //$NON-NLS-1$
+					return DQL.item(name).isLessThan(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case LESSER_EQUALS_THAN:
-				if(placeholder instanceof Number) {
-					return DQL.item(name).isLessThanOrEqual(((Number)placeholder).doubleValue());
+				if(value instanceof Number) {
+					return DQL.item(name).isLessThanOrEqual(((Number)value).doubleValue());
+				} else if(value instanceof Temporal) {
+					return DQL.item(name).isLessThanOrEqual((Temporal)value);
 				} else {
-					return DQL.item(name).isLessThanOrEqual(placeholder == null ? "" : placeholder.toString()); //$NON-NLS-1$
+					return DQL.item(name).isLessThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case GREATER_THAN:
-				if(placeholder instanceof Number) {
-					return DQL.item(name).isGreaterThan(((Number)placeholder).doubleValue());
+				if(value instanceof Number) {
+					return DQL.item(name).isGreaterThan(((Number)value).doubleValue());
+				} else if(value instanceof Temporal) {
+					return DQL.item(name).isGreaterThan((Temporal)value);
 				} else {
-					return DQL.item(name).isGreaterThan(placeholder == null ? "" : placeholder.toString()); //$NON-NLS-1$
+					return DQL.item(name).isGreaterThan(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case GREATER_EQUALS_THAN:
-				if(placeholder instanceof Number) {
-					return DQL.item(name).isGreaterThanOrEqual(((Number)placeholder).doubleValue());
+				if(value instanceof Number) {
+					return DQL.item(name).isGreaterThanOrEqual(((Number)value).doubleValue());
+				} else if(value instanceof Temporal) {
+					return DQL.item(name).isGreaterThanOrEqual((Temporal)value);
 				} else {
-					return DQL.item(name).isGreaterThanOrEqual(placeholder == null ? "" : placeholder.toString()); //$NON-NLS-1$
+					return DQL.item(name).isGreaterThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case LIKE:
 				// TODO investigate @Like
-				if(placeholder instanceof Number) {
+				if(value instanceof Number) {
 					throw new IllegalArgumentException("Unable to perform LIKE query on a number");
 				} else {
-					return DQL.item(name).contains(placeholder == null ? "" : placeholder.toString()); //$NON-NLS-1$
+					return DQL.item(name).contains(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case IN:
-				if(placeholder instanceof Number) {
+				if(value instanceof Number) {
 					throw new IllegalArgumentException("Unable to perform IN query on a number");
 				} else {
-					return DQL.item(name).contains(placeholder == null ? "" : placeholder.toString()); //$NON-NLS-1$
+					return DQL.item(name).contains(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case AND: {
 				List<DocumentCondition> conditions = document.get(new TypeReference<List<DocumentCondition>>() {});

@@ -20,17 +20,20 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
-import org.testcontainers.containers.BrowserWebDriverContainer;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 
 public class BrowserArgumentsProvider implements ArgumentsProvider {
+	private final static ThreadLocal<WebDriver> HTMLUNIT_DRIVER = ThreadLocal.withInitial(() -> new HtmlUnitDriver(BrowserVersion.FIREFOX));
 
 	@Override
 	public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
 		// Just HtmlUnit for now
 		return Stream.of(
-			JakartaTestContainers.instance.firefox
+			HTMLUNIT_DRIVER.get()
 		)
-		.map(BrowserWebDriverContainer::getWebDriver)
 		.map(Arguments::of);
 	}
 

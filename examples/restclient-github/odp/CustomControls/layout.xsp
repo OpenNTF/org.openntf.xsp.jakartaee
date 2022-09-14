@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex">
+	<xe:applicationLayout id="applicationLayout1">
+
+		<xe:this.configuration>
+			<xe:applicationConfiguration banner="true">
+				<xe:this.bannerApplicationLinks>
+					<xe:basicLeafNode href="/" label="#{database.title}">
+					</xe:basicLeafNode>
+				</xe:this.bannerApplicationLinks>
+			</xe:applicationConfiguration>
+		</xe:this.configuration>
+
+		<xp:this.facets>
+			<xe:navigator xp:key="LeftColumn">
+				<xe:this.treeNodes>
+					<xe:pageTreeNode label="Home" page="/index.xsp"/>
+					<xe:pageTreeNode label="GitHub Issues" page="/gitHubIssues.xsp"/>
+				</xe:this.treeNodes>
+			</xe:navigator>
+		</xp:this.facets>
+		
+		<xp:callback />
+	</xe:applicationLayout>
+</xp:view>

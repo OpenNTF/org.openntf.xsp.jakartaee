@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta NoSQL Driver
 Bundle-SymbolicName: org.openntf.xsp.nosql.driver;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.nosql.driver
-Bundle-Version: 2.7.0.qualifier
+Bundle-Version: 2.8.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: jakarta.enterprise.context;version="3.0.0",
@@ -20,9 +20,10 @@ Import-Package: jakarta.enterprise.context;version="3.0.0",
  org.eclipse.jnosql.communication.driver.attachment;version="1.0.0",
  org.eclipse.jnosql.mapping;version="1.0.0",
  org.eclipse.jnosql.mapping.document;version="1.0.0",
- org.eclipse.jnosql.mapping.reflection;version="1.0.0"
-Export-Package: org.openntf.xsp.nosql.communication.driver;version="2.7.0",
- org.openntf.xsp.nosql.communication.driver.impl;version="2.7.0",
- org.openntf.xsp.nosql.mapping.extension;version="2.7.0",
- org.openntf.xsp.nosql.mapping.extension.impl;version="2.7.0"
+ org.eclipse.jnosql.mapping.reflection;version="1.0.0",
+ org.eclipse.jnosql.mapping.repository;version="1.0.0"
+Export-Package: org.openntf.xsp.nosql.communication.driver;version="2.8.0",
+ org.openntf.xsp.nosql.communication.driver.impl;version="2.8.0",
+ org.openntf.xsp.nosql.mapping.extension;version="2.8.0",
+ org.openntf.xsp.nosql.mapping.extension.impl;version="2.8.0"
 DynamicImport-Package: org.jboss.weld.*

@@ -15,9 +15,6 @@
  */
 package org.openntf.xsp.jaxrs.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -96,12 +93,7 @@ public class NSFJAXRSApplication extends Application {
 		Map<String, Object> result = new LinkedHashMap<>();
 		// Read in xsp.properties
 		NSFComponentModule module = NotesContext.getCurrent().getModule();
-		Properties xspProperties = new Properties();
-		try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
-			xspProperties.load(is);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
+		Properties xspProperties = LibraryUtil.getXspProperties(module);
 		xspProperties.forEach((key, value) -> result.put(key.toString(), value));
 		return result;
 	}

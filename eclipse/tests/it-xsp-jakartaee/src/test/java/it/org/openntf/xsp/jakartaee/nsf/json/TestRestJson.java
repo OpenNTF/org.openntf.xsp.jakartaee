@@ -18,56 +18,51 @@ package it.org.openntf.xsp.jakartaee.nsf.json;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Map;
+import java.io.StringReader;
 
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
-
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
 @SuppressWarnings("nls")
 public class TestRestJson extends AbstractWebClientTest {
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testJsonp() throws JsonException {
+	public void testJsonp() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonp");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
-		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-		assertEquals("baz", jsonObject.get("bar"));
+		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+		assertEquals("baz", jsonObject.getString("bar"));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testJsonb() throws JsonException {
+	public void testJsonb() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/jsonExample");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
-		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-		assertEquals("bar", jsonObject.get("foo"));
+		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+		assertEquals("bar", jsonObject.getString("foo"));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testJsonbCdi() throws JsonException {
+	public void testJsonbCdi() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonb");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
-		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-		String jsonMessage = (String)jsonObject.get("jsonMessage");
+		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+		String jsonMessage = jsonObject.getString("jsonMessage");
 		assertTrue(jsonMessage.startsWith("I'm application guy at "));
 	}
 }

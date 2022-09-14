@@ -19,16 +19,13 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
-import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -39,17 +36,18 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.eclipse.jnosql.mapping.reflection.ClassInformationNotFoundException;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
-import org.eclipse.jnosql.mapping.reflection.ClassMappings;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL;
-import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
+import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter.QueryConverterResult;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
+import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -64,6 +62,7 @@ import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
 import jakarta.nosql.mapping.Pagination;
+import jakarta.nosql.mapping.Sorts;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
 import jakarta.transaction.SystemException;
@@ -81,22 +80,11 @@ import lotus.domino.NotesException;
 import lotus.domino.QueryResultsProcessor;
 import lotus.domino.Session;
 import lotus.domino.View;
+import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
 
-public class DefaultDominoDocumentCollectionManager implements DominoDocumentCollectionManager {
+public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocumentCollectionManager {
 	private final Logger log = Logger.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
-	
-	private static final boolean transactionsAvailable;
-	static {
-		boolean found;
-		try {
-			Class.forName("jakarta.transaction.Transaction"); //$NON-NLS-1$
-			found = true;
-		} catch(Exception e) {
-			found = false;
-		}
-		transactionsAvailable = found;
-	}
 	
 	private final DatabaseSupplier supplier;
 	private final SessionSupplier sessionSupplier;
@@ -106,11 +94,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		this.supplier = supplier;
 		this.sessionSupplier = sessionSupplier;
 		this.entityConverter = new LSXBEEntityConverter(supplier);
-	}
-	
-	@Override
-	public DocumentEntity insert(DocumentEntity entity) {
-		return insert(entity, false);
 	}
 	
 	/**
@@ -144,12 +127,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	}
 
 	@Override
-	public DocumentEntity insert(DocumentEntity entity, Duration ttl) {
-		// TODO consider supporting ttl
-		return insert(entity);
-	}
-
-	@Override
 	public Iterable<DocumentEntity> insert(Iterable<DocumentEntity> entities) {
 		if(entities == null) {
 			return Collections.emptySet();
@@ -158,17 +135,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				.map(this::insert)
 				.collect(Collectors.toList());
 		}
-	}
-
-	@Override
-	public Iterable<DocumentEntity> insert(Iterable<DocumentEntity> entities, Duration ttl) {
-		// TODO consider supporting ttl
-		return insert(entities);
-	}
-	
-	@Override
-	public DocumentEntity update(DocumentEntity entity) {
-		return update(entity, false);
 	}
 
 	@Override
@@ -191,17 +157,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			return entity;
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public Iterable<DocumentEntity> update(Iterable<DocumentEntity> entities) {
-		if(entities == null) {
-			return Collections.emptySet();
-		} else {
-			return StreamSupport.stream(entities.spliterator(), false)
-				.map(this::update)
-				.collect(Collectors.toList());
 		}
 	}
 
@@ -278,8 +233,10 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					try {
 						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
 						for(Sort sort : sorts) {
+							String itemName = DominoNoSQLUtil.findItemName(sort.getName(), mapping);
+							
 							int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
-							qrp.addColumn(sort.getName(), null, null, dir, false, false);
+							qrp.addColumn(itemName, itemName, null, dir, false, false);
 						}
 						
 						view = qrp.executeToView(viewName, 24);
@@ -290,7 +247,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				}
 				
 			} else {
-				DominoQuery dominoQuery = database.createDominoQuery();		
+				DominoQuery dominoQuery = database.createDominoQuery();
 				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
 				try {
 					result = entityConverter.convertDocuments(docs, mapping);
@@ -312,13 +269,41 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly) {
+	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination,
+			Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
 		ClassMapping mapping = getClassMapping(entityName);
-		return buildNavigtor(viewName, category, pagination, maxLevel,
-			(nav, limit) -> {
+		
+		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
+			try {
+				Database database = supplier.get();
+				beginTransaction(database);
+				View view = database.getView(viewName);
+				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
+				
+				
+				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+				Vector<Object> vecKeys;
+				if(keys instanceof List) {
+					vecKeys = (Vector<Object>)keys;
+				} else {
+					vecKeys = new Vector<>(Arrays.asList(keys));
+				}
+				ViewEntry entry = view.getEntryByKey(vecKeys, viewQuery.isExact());
+				if(entry == null) {
+					return Stream.empty();
+				}
+				return Stream.of(entityConverter.convertViewEntry(entityName, entry, mapping));
+			} catch(NotesException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
+			(nav, limit, didSkip) -> {
 				try {
-					return entityConverter.convertViewEntries(entityName, nav, limit, docsOnly, mapping);
+					return entityConverter.convertViewEntries(entityName, nav, didSkip, limit, docsOnly, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -326,14 +311,40 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, String category,
-			Pagination pagination, int maxLevel) {
+	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination,
+			Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult) {
 		ClassMapping mapping = getClassMapping(entityName);
-		return buildNavigtor(viewName, category, pagination, maxLevel,
-			(nav, limit) -> {
+		
+		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
+			try {
+				Database database = supplier.get();
+				beginTransaction(database);
+				View view = database.getView(viewName);
+				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
+				
+				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+				Vector<Object> vecKeys;
+				if(keys instanceof List) {
+					vecKeys = (Vector<Object>)keys;
+				} else {
+					vecKeys = new Vector<>(Arrays.asList(keys));
+				}
+				lotus.domino.Document doc = view.getDocumentByKey(vecKeys, viewQuery.isExact());
+				if(doc == null) {
+					return Stream.empty();
+				}
+				return Stream.of(DocumentEntity.of(entityName, entityConverter.convertDominoDocument(doc, mapping)));
+			} catch(NotesException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
+			(nav, limit, didSkip) -> {
 				try {
-					return entityConverter.convertViewDocuments(entityName, nav, limit, mapping);
+					return entityConverter.convertViewDocuments(entityName, nav, didSkip, limit, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -412,6 +423,54 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			return false;
 		}
 	}
+	
+	@Override
+	public Optional<DocumentEntity> getByNoteId(String entityName, String noteId) {
+		try {
+			Database database = supplier.get();
+			beginTransaction(database);
+			lotus.domino.Document doc = database.getDocumentByID(noteId);
+			if(doc != null) {
+				// TODO consider checking the form
+				List<Document> result = entityConverter.convertDominoDocument(doc, getClassMapping(entityName));
+				return Optional.of(DocumentEntity.of(entityName, result));
+			} else {
+				return Optional.empty();
+			}
+		} catch(NotesException e) {
+			// Assume it doesn't exist
+			return Optional.empty();
+		}
+	}
+	
+	@Override
+	public Optional<DocumentEntity> getById(String entityName, String id) {
+		try {
+			Database database = supplier.get();
+			beginTransaction(database);
+			lotus.domino.Document doc = database.getDocumentByUNID(id);
+			if(doc != null) {
+				if(doc.isDeleted()) {
+					return Optional.empty();
+				} else if(!doc.isValid()) {
+					return Optional.empty();
+				}
+				String unid = doc.getUniversalID();
+				if(unid == null || unid.isEmpty()) {
+					return Optional.empty();
+				}
+				
+				// TODO consider checking the form
+				List<Document> result = entityConverter.convertDominoDocument(doc, getClassMapping(entityName));
+				return Optional.of(DocumentEntity.of(entityName, result));
+			} else {
+				return Optional.empty();
+			}
+		} catch(NotesException e) {
+			// Assume it doesn't exist
+			return Optional.empty();
+		}
+	}
 
 	@Override
 	public void close() {
@@ -421,7 +480,8 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 	// * Internal implementation utilities
 	// *******************************************************************************
 	
-	private <T> T buildNavigtor(String viewName, String category, Pagination pagination, int maxLevel, BiFunction<ViewNavigator, Long, T> consumer) {
+	@SuppressWarnings("unchecked")
+	private <T> T buildNavigtor(String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, ClassMapping mapping, TriFunction<ViewNavigator, Long, Boolean, T> consumer) {
 		try {
 			if(StringUtil.isEmpty(viewName)) {
 				throw new IllegalArgumentException("viewName cannot be empty");
@@ -432,10 +492,23 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			View view = database.getView(viewName);
 			Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 			view.setAutoUpdate(false);
+			applySorts(view, sorts, mapping);
 			
 			ViewNavigator nav;
+			String category = viewQuery == null ? null : viewQuery.getCategory();
 			if(category == null) {
-				nav = view.createViewNav();
+				if(viewQuery != null && viewQuery.getKey() != null) {
+					Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+					Vector<Object> vecKeys;
+					if(keys instanceof List) {
+						vecKeys = (Vector<Object>)keys;
+					} else {
+						vecKeys = new Vector<>(Arrays.asList(keys));
+					}
+					nav = view.createViewNavFromKey(vecKeys, viewQuery.isExact());
+				} else {
+					nav = view.createViewNav();
+				}
 			} else {
 				nav = view.createViewNavFromCategory(category);
 			}
@@ -445,6 +518,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 			}
 			
 			long limit = 0;
+			boolean didSkip = false;
 			if(pagination != null) {
 				long skip = pagination.getSkip();
 				limit = pagination.getLimit();
@@ -453,7 +527,15 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 					throw new UnsupportedOperationException("Domino does not support skipping more than Integer.MAX_VALUE entries");
 				}
 				if(skip > 0) {
-					nav.skip((int)skip);
+					nav.skip((int)skip-1);
+					didSkip = true;
+				}
+			}
+			
+			// Override anything above if we were told to get a single view entry
+			if(viewQuery != null && viewQuery.getKey() != null) {
+				if(singleResult) {
+					limit = 1;
 				}
 			}
 			
@@ -463,7 +545,7 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 				nav.setBufferMaxEntries(400);
 			}
 			
-			return consumer.apply(nav, limit);
+			return consumer.apply(nav, limit, didSkip);
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
 		}
@@ -474,9 +556,9 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		String filePath = database.getFilePath();
 
 		try {
-			String fileName = md5(server + filePath) + ".nsf"; //$NON-NLS-1$
+			String fileName = AbstractEntityConverter.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
 			
-			Path tempDir = getTempDirectory();
+			Path tempDir = DominoNoSQLUtil.getTempDirectory();
 			Path dest = tempDir.resolve(getClass().getPackage().getName());
 			Files.createDirectories(dest);
 			Path dbPath = dest.resolve(fileName);
@@ -499,30 +581,6 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		}
 		
 	}
-	
-	private Path getTempDirectory() {
-		String osName = System.getProperty("os.name"); //$NON-NLS-1$
-		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
-			return Paths.get("/tmp"); //$NON-NLS-1$
-		} else {
-			return Paths.get(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
-		}
-	}
-	
-	private String md5(String value) {
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-			md.update(String.valueOf(value).getBytes());
-			byte[] digest = md.digest();
-			StringBuilder sb = new StringBuilder(digest.length * 2);
-			for (byte b : digest) {
-				sb.append(String.format("%02x", b)); //$NON-NLS-1$
-			}
-			return sb.toString();
-		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException(e);
-		}
-	}
 
 	private static void recycle(Object... objects) {
 		for(Object obj : objects) {
@@ -536,13 +594,21 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		}
 	}
 	
-	private ClassMapping getClassMapping(String entityName) {
-		ClassMappings mappings = CDI.current().select(ClassMappings.class).get();
-		try {
-			return mappings.findByName(entityName);
-		} catch(ClassInformationNotFoundException e) {
-			// Shouldn't happen, but we should account for it
-			return null;
+	private static void applySorts(View view, Sorts sorts, ClassMapping mapping) throws NotesException {
+		if(sorts == null) {
+			return;
+		} else {
+			List<Sort> sortObjs = sorts.getSorts();
+			if(sortObjs == null || sortObjs.isEmpty()) {
+				return;
+			}
+			
+			if(sortObjs.size() > 1) {
+				throw new IllegalArgumentException("Views cannot be sorted by more than one resort column");
+			}
+			Sort sort = sortObjs.get(0);
+			String itemName = DominoNoSQLUtil.findItemName(sort.getName(), mapping);
+			view.resortView(itemName, sort.getType() != SortType.DESC);
 		}
 	}
 	
@@ -687,5 +753,19 @@ public class DefaultDominoDocumentCollectionManager implements DominoDocumentCol
 		}
 
 		
+	}
+	
+	@FunctionalInterface
+	public interface TriFunction<T, U, V, R> {
+
+	    /**
+	     * Applies this function to the given arguments.
+	     *
+	     * @param t the first function argument
+	     * @param u the second function argument
+	     * @param v the third function argument
+	     * @return the function result
+	     */
+	    R apply(T t, U u, V v);
 	}
 }

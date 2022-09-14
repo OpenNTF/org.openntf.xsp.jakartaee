@@ -16,35 +16,26 @@
 package org.openntf.xsp.jsp.nsf;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.osgi.util.ManifestElement;
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jsp.JspLibrary;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.FrameworkUtil;
+import org.openntf.xsp.jsp.util.DominoJspUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -56,8 +47,6 @@ import com.ibm.xsp.extlib.util.ExtLibUtil;
  * @since 2.1.0
  */
 public class JspServletFactory extends MappingBasedServletFactory {
-	private static final String PATH_SEP = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("path.separator")); //$NON-NLS-1$
-
 	public JspServletFactory() {
 	}
 	
@@ -87,10 +76,10 @@ public class JspServletFactory extends MappingBasedServletFactory {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
 				Map<String, String> params = new HashMap<>();
-				String classpath = buildBundleClassPath()
+				String classpath = DominoJspUtil.buildBundleClassPath()
 					.stream()
 					.map(File::toString)
-					.collect(Collectors.joining(PATH_SEP));
+					.collect(Collectors.joining(DominoJspUtil.PATH_SEP));
 				params.put("classpath", classpath); //$NON-NLS-1$
 				params.put("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
 
@@ -108,33 +97,6 @@ public class JspServletFactory extends MappingBasedServletFactory {
 			});
 		} catch (PrivilegedActionException e) {
 			throw new ServletException(e.getCause());
-		}
-	}
-
-	public static List<File> buildBundleClassPath() throws BundleException, IOException {
-		Bundle bundle = FrameworkUtil.getBundle(JspServletFactory.class);
-		List<File> classpath = new ArrayList<>();
-		toClasspathEntry(bundle, classpath);
-		
-		return classpath;
-	}
-	
-	private static void toClasspathEntry(Bundle bundle, List<File> classpath) throws BundleException, IOException {
-		// These entries MUST be filesystem paths
-		classpath.add(FileLocator.getBundleFile(bundle));
-		
-		String req = bundle.getHeaders().get("Require-Bundle"); //$NON-NLS-1$
-		if(StringUtil.isNotEmpty(req)) {
-			ManifestElement[] elements = ManifestElement.parseHeader("Require-Bundle", req); //$NON-NLS-1$
-			for(ManifestElement element : elements) {
-				String visibility = element.getDirective("visibility"); //$NON-NLS-1$
-				if("reexport".equals(visibility)) { //$NON-NLS-1$
-					Optional<Bundle> dep = LibraryUtil.getBundle(element.getValue());
-					if(dep.isPresent()) {
-						toClasspathEntry(dep.get(), classpath);
-					}
-				}
-			}
 		}
 	}
 }

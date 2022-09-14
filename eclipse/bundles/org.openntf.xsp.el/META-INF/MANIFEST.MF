@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Expression Language 3.0 Support
 Bundle-SymbolicName: org.openntf.xsp.el;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.el3
-Bundle-Version: 2.7.0.qualifier
+Bundle-Version: 2.8.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
@@ -25,5 +25,5 @@ Import-Package: com.ibm.commons.util,
  com.ibm.xsp.model.domino,
  com.ibm.xsp.util,
  lotus.domino
-Export-Package: org.openntf.xsp.el;version="2.7.0",
- org.openntf.xsp.el.ext;version="2.7.0"
+Export-Package: org.openntf.xsp.el;version="2.8.0",
+ org.openntf.xsp.el.ext;version="2.8.0"

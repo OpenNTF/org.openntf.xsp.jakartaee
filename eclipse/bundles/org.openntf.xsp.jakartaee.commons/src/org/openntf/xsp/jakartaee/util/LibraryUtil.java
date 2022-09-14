@@ -83,6 +83,18 @@ public enum LibraryUtil {
 	private static final Map<Class<?>, List<?>> EXTENSION_CACHE = Collections.synchronizedMap(new HashMap<>());
 	
 	/**
+	 * Property used to house the time that the xsp.properties resource in a ComponentModule
+	 * was last read.
+	 * @since 2.8.0
+	 */
+	public static final String PROP_XSPPROPSREAD = LibraryUtil.class.getName() + "_xsppropsread"; //$NON-NLS-1$
+	/**
+	 * Property used to house the parsed xsp.properties value for a ComponentModule
+	 * @since 2.8.0
+	 */
+	public static final String PROP_XSPPROPS = LibraryUtil.class.getName() + "_xspprops"; //$NON-NLS-1$
+	
+	/**
 	 * Attempts to determine whether the given XPages Library is active for the
 	 * current application.
 	 * 
@@ -229,13 +241,37 @@ public enum LibraryUtil {
 	 * @since 2.3.0
 	 */
 	public static Properties getXspProperties(ComponentModule module) {
-		Properties props = new Properties();
-		try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
-			props.load(is);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
+		
+		Map<String, Object> attributes = module.getAttributes();
+		synchronized(attributes) {
+			long lastMod = module.getLastRefresh();
+			boolean needsRebuild = false;
+			Properties props = (Properties)attributes.get(PROP_XSPPROPS);
+			if(props != null) {
+				Long updated = (Long)attributes.get(PROP_XSPPROPSREAD);
+				if(lastMod > updated) {
+					needsRebuild = true;
+				}
+			} else {
+				needsRebuild = true;
+			}
+			
+			if(needsRebuild) {
+				props = new Properties();
+				try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
+					if(is != null) {
+						props.load(is);
+					}
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
+				attributes.put(PROP_XSPPROPS, props);
+				attributes.put(PROP_XSPPROPSREAD, lastMod);
+			}
+			
+			return props;
 		}
-		return props;
+		
 	}
 	
 	/**

@@ -21,8 +21,7 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,12 +37,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
-import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterRegistration;
@@ -578,18 +576,23 @@ class OldServletContextWrapper implements ServletContext {
 	}
 	
 	private List<IServletFactory> getServletFactories() {
-		try {
-			return AccessController.doPrivileged((PrivilegedExceptionAction<List<IServletFactory>>)() -> {
-				NotesContext context = NotesContext.getCurrentUnchecked();
-				NSFComponentModule module = context.getModule();
-				Field servletFactoriesField = ComponentModule.class.getDeclaredField("servletFactories"); //$NON-NLS-1$
-				servletFactoriesField.setAccessible(true);
-				List<IServletFactory> factories = (List<IServletFactory>) servletFactoriesField.get(module);
-				return factories;
-			});
-		} catch (PrivilegedActionException e) {
-			throw new RuntimeException(e.getCause());
-		} 
+		return ComponentModuleLocator.getDefault()
+			.map(ComponentModuleLocator::getActiveModule)
+			.map(module -> AccessController.doPrivileged((PrivilegedAction<List<IServletFactory>>)() -> {
+				try {
+					Field servletFactoriesField = ComponentModule.class.getDeclaredField("servletFactories"); //$NON-NLS-1$
+					servletFactoriesField.setAccessible(true);
+					List<IServletFactory> factories = (List<IServletFactory>) servletFactoriesField.get(module);
+					if(factories != null) {
+						return factories;
+					} else {
+						return Collections.emptyList();
+					}
+				} catch(Exception e) {
+					throw new RuntimeException(e);
+				}
+			}))
+			.orElseGet(Collections::emptyList);
 	}
 	
 	private static final String ATTR_LISTENERS = OldServletContextWrapper.class.getName() + "_listeners"; //$NON-NLS-1$
@@ -611,7 +614,7 @@ class OldServletContextWrapper implements ServletContext {
 		return result;
 	}
 	
-	private Map<String, String> getExtraInitParameters() {
+	Map<String, String> getExtraInitParameters() {
 		Map<String, String> result = (Map<String, String>)delegate.getAttribute(ATTR_INITPARAMS);
 		if(result == null) {
 			result = new HashMap<>();

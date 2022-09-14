@@ -267,6 +267,27 @@ public enum ServletUtil {
 		}
 	}
 	
+	/**
+	 * Wraps an old {@code ServletException} with a new one.
+	 * 
+	 * @param e the old-style exception to wrap
+	 * @return a new-style exception
+	 * @since 2.8.0
+	 */
+	public static jakarta.servlet.ServletException oldToNew(javax.servlet.ServletException e) {
+		return new jakarta.servlet.ServletException(e);
+	}
+	/**
+	 * Wraps a new {@code ServletException} with an old one.
+	 * 
+	 * @param e the new-style exception to wrap
+	 * @return an old-style exception
+	 * @since 2.8.0
+	 */
+	public static javax.servlet.ServletException newToOld(jakarta.servlet.ServletException e) {
+		return new javax.servlet.ServletException(e);
+	}
+	
 	// *******************************************************************************
 	// * Shim methods for working with listeners
 	// *******************************************************************************

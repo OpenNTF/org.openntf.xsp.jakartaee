@@ -20,22 +20,20 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.StringReader;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
 import com.ibm.commons.xml.DOMUtil;
 import com.ibm.commons.xml.XMLException;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import jakarta.json.Json;
+import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
@@ -45,9 +43,8 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestNoSQLExampleDocs extends AbstractWebClientTest {
-	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testExampleDoc() throws JsonException, XMLException {
+	public void testExampleDoc() throws XMLException {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -62,8 +59,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -75,11 +72,11 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.get("unid"));
+			assertEquals(unid, jsonObject.getString("unid"));
 			
-			String dxl = (String)jsonObject.get("dxl");
+			String dxl = jsonObject.getString("dxl");
 			assertNotNull(dxl);
 			assertFalse(dxl.isEmpty());
 			
@@ -90,9 +87,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testExampleDocAuthors() throws JsonException, XMLException {
+	public void testExampleDocAuthors() throws XMLException {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -108,8 +104,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -121,11 +117,11 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.get("unid"));
+			assertEquals(unid, jsonObject.getString("unid"));
 			
-			String dxl = (String)jsonObject.get("dxl");
+			String dxl = jsonObject.getString("dxl");
 			assertNotNull(dxl);
 			assertFalse(dxl.isEmpty());
 			
@@ -137,9 +133,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void testComputeWithForm() throws JsonException, XMLException {
+	public void testComputeWithForm() throws XMLException {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -154,8 +149,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -167,11 +162,11 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.get("unid"));
+			assertEquals(unid, jsonObject.getString("unid"));
 			
-			String dxl = (String)jsonObject.get("dxl");
+			String dxl = jsonObject.getString("dxl");
 			assertNotNull(dxl);
 			assertFalse(dxl.isEmpty());
 			
@@ -184,8 +179,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
-	public void testItemStorage() throws JsonException, XMLException {
+	public void testItemStorage() throws XMLException {
 		Client client = getAnonymousClient();
 		// Create a new doc
 		String unid;
@@ -210,8 +204,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -223,29 +217,28 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.get("unid"));
+			assertEquals(unid, jsonObject.getString("unid"));
 			
-			assertEquals("I am outer title", jsonObject.get("title"));
-			assertEquals("<p>I am body HTML</p>", jsonObject.get("body"));
-			Map<String, Object> jsonGuy = (Map<String, Object>)jsonObject.get("jsonGuy");
-			assertEquals("Foo", jsonGuy.get("firstName"));
-			assertEquals("Fooson", jsonGuy.get("lastName"));
-			Map<String, Object> mimeGuy = (Map<String, Object>)jsonObject.get("mimeGuy");
-			assertEquals("I am the title", mimeGuy.get("title"));
-			assertEquals("123 Road St.", mimeGuy.get("address"));
+			assertEquals("I am outer title", jsonObject.getString("title"));
+			assertEquals("<p>I am body HTML</p>", jsonObject.getString("body"));
+			JsonObject jsonGuy = jsonObject.getJsonObject("jsonGuy");
+			assertEquals("Foo", jsonGuy.getString("firstName"));
+			assertEquals("Fooson", jsonGuy.getString("lastName"));
+			JsonObject mimeGuy = jsonObject.getJsonObject("mimeGuy");
+			assertEquals("I am the title", mimeGuy.getString("title"));
+			assertEquals("123 Road St.", mimeGuy.getString("address"));
 
 			// Make sure all the types are what we'd expect
-			String dxl = (String)jsonObject.get("dxl");
+			String dxl = jsonObject.getString("dxl");
 			assertNotNull(dxl);
 			assertFalse(dxl.isEmpty());
 		}
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
-	public void testSaveToDisk() throws JsonException, XMLException {
+	public void testSaveToDisk() throws XMLException {
 		Client client = getAdminClient();
 		// Create a new doc
 		String unid;
@@ -260,8 +253,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -273,12 +266,12 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.get("unid"));
+			assertEquals(unid, jsonObject.getString("unid"));
 			
-			assertEquals("I am saveToDisk guy", jsonObject.get("title"));
-			assertEquals(null, jsonObject.get("computedValue"));
+			assertEquals("I am saveToDisk guy", jsonObject.getString("title"));
+			assertFalse(jsonObject.containsKey("computedValue"));
 		}
 		
 		// Update to try to set the computed value
@@ -300,18 +293,17 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.get("unid"));
+			assertEquals(unid, jsonObject.getString("unid"));
 			
-			assertEquals("I am saveToDisk guy!", jsonObject.get("title"));
-			assertEquals(null, jsonObject.get("computedValue"));
+			assertEquals("I am saveToDisk guy!", jsonObject.getString("title"));
+			assertFalse(jsonObject.containsKey("computedValue"));
 		}
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
-	public void testInsertableUpdatable() throws JsonException, XMLException {
+	public void testInsertableUpdatable() throws XMLException {
 		Client client = getAdminClient();
 		// Create a new doc
 		String unid;
@@ -327,8 +319,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -340,13 +332,13 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.get("unid"));
+			assertEquals(unid, jsonObject.getString("unid"));
 			
-			assertEquals("I am insertUpdate guy", jsonObject.get("title"));
-			assertEquals(null, jsonObject.get("nonInsertable"));
-			assertEquals("I should be written during insert", jsonObject.get("nonUpdatable"));
+			assertEquals("I am insertUpdate guy", jsonObject.getString("title"));
+			assertFalse(jsonObject.containsKey("nonInsertable"));
+			assertEquals("I should be written during insert", jsonObject.getString("nonUpdatable"));
 		}
 		
 		// Update to try to set the computed value
@@ -369,19 +361,18 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.get("unid"));
+			assertEquals(unid, jsonObject.getString("unid"));
 
-			assertEquals("I am insertUpdate guy!", jsonObject.get("title"));
-			assertEquals("I should be written during update", jsonObject.get("nonInsertable"));
-			assertEquals("I should be written during insert", jsonObject.get("nonUpdatable"));
+			assertEquals("I am insertUpdate guy!", jsonObject.getString("title"));
+			assertEquals("I should be written during update", jsonObject.getString("nonInsertable"));
+			assertEquals("I should be written during insert", jsonObject.getString("nonUpdatable"));
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testReadViewEntries() throws JsonException {
+	public void testReadViewEntries() {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -396,8 +387,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -409,18 +400,17 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			
 			String json = response.readEntity(String.class);
-			List<Map<String, Object>> jsonObjects = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonArray jsonObjects = Json.createReader(new StringReader(json)).readArray();
 			assertNotNull(jsonObjects);
 			assertFalse(jsonObjects.isEmpty());
 			
-			assertTrue(jsonObjects.stream().anyMatch(obj -> unid.equals(obj.get("unid")) && "DOCUMENT".equals(obj.get("entryType"))));
-			assertTrue(jsonObjects.stream().anyMatch(obj -> "CATEGORY".equals(obj.get("entryType"))));
+			assertTrue(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> unid.equals(obj.getString("unid")) && "DOCUMENT".equals(obj.getString("entryType"))));
+			assertTrue(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> "CATEGORY".equals(obj.getString("entryType"))));
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testReadViewEntriesDocsOnly() throws JsonException {
+	public void testReadViewEntriesDocsOnly() {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -435,8 +425,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -448,18 +438,17 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			
 			String json = response.readEntity(String.class);
-			List<Map<String, Object>> jsonObjects = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonArray jsonObjects = Json.createReader(new StringReader(json)).readArray();
 			assertNotNull(jsonObjects);
 			assertFalse(jsonObjects.isEmpty());
 			
-			assertTrue(jsonObjects.stream().anyMatch(obj -> unid.equals(obj.get("unid")) && "DOCUMENT".equals(obj.get("entryType"))));
-			assertFalse(jsonObjects.stream().anyMatch(obj -> "CATEGORY".equals(obj.get("entryType"))));
+			assertTrue(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> unid.equals(obj.getString("unid")) && "DOCUMENT".equals(obj.getString("entryType"))));
+			assertFalse(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> "CATEGORY".equals(obj.getString("entryType"))));
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testReadViewEntriesMaxLevel() throws JsonException {
+	public void testReadViewEntriesMaxLevel() {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -474,8 +463,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
-			Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-			unid = (String)jsonObject.get("unid");
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -487,17 +476,17 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			
 			String json = response.readEntity(String.class);
-			List<Map<String, Object>> jsonObjects = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonArray jsonObjects = Json.createReader(new StringReader(json)).readArray();
 			assertNotNull(jsonObjects);
 			assertFalse(jsonObjects.isEmpty());
 			
-			assertTrue(jsonObjects.stream().anyMatch(obj -> "CATEGORY".equals(obj.get("entryType"))));
-			assertFalse(jsonObjects.stream().anyMatch(obj -> "DOCUMENT".equals(obj.get("entryType"))));
+			assertTrue(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> "CATEGORY".equals(obj.getString("entryType"))));
+			assertFalse(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> "DOCUMENT".equals(obj.getString("entryType"))));
 		}
 	}
 	
 	@Test
-	public void testIntentionalRollBack() throws JsonException {
+	public void testIntentionalRollBack() {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -524,18 +513,16 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			
 			String json = response.readEntity(String.class);
-			@SuppressWarnings("unchecked")
-			List<Map<String, Object>> jsonObjects = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonArray jsonObjects = Json.createReader(new StringReader(json)).readArray();
 			assertNotNull(jsonObjects);
 			assertFalse(jsonObjects.isEmpty());
 			
-			assertFalse(jsonObjects.stream().anyMatch(obj -> title.equals(obj.get("title"))));
+			assertFalse(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> obj.containsKey("title") && title.equals(obj.getString("title"))));
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testSequentialOperations() throws JsonException {
+	public void testSequentialOperations() {
 		Client client = getAnonymousClient();
 		
 		String unid;
@@ -545,13 +532,13 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			
 			String json = response.readEntity(String.class);
-			Map<String, Object> result = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonObject result = Json.createReader(new StringReader(json)).readObject();
 			assertNotNull(result);
 			assertFalse(result.isEmpty());
 			
-			Map<String, Object> exampleDoc = (Map<String, Object>)result.get("exampleDoc");
+			JsonObject exampleDoc = result.getJsonObject("exampleDoc");
 			assertNotNull(exampleDoc);
-			unid = (String)exampleDoc.get("unid");
+			unid = exampleDoc.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
 		}
@@ -563,11 +550,54 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(200, response);
 			
 			String json = response.readEntity(String.class);
-			List<Map<String, Object>> jsonObjects = (List<Map<String, Object>>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+			JsonArray jsonObjects = Json.createReader(new StringReader(json)).readArray();
 			assertNotNull(jsonObjects);
 			assertFalse(jsonObjects.isEmpty());
 			
-			assertTrue(jsonObjects.stream().anyMatch(obj -> unid.equals(obj.get("unid")) && "DOCUMENT".equals(obj.get("entryType"))));
+			assertTrue(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> unid.equals(obj.getString("unid")) && "DOCUMENT".equals(obj.getString("entryType"))));
+		}
+	}
+	
+	@Test
+	public void testNumberPrecision() throws XMLException {
+		Client client = getAdminClient();
+		
+		// Create a new doc
+		String unid;
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am testNumberPrecision guy")
+				.add("numberGuy", 3.111)
+				.add("numbersGuy", Json.createArrayBuilder(Arrays.asList(4.111, 5.111)))
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(unid, jsonObject.getString("unid"));
+			
+			assertEquals("I am testNumberPrecision guy", jsonObject.getString("title"));
+			assertEquals(3.11, jsonObject.getJsonNumber("numberGuy").doubleValue());
+			JsonArray numbersGuy = jsonObject.getJsonArray("numbersGuy");
+			assertEquals(4.11, numbersGuy.getJsonNumber(0).doubleValue());
+			assertEquals(5.11, numbersGuy.getJsonNumber(1).doubleValue());
 		}
 	}
 }

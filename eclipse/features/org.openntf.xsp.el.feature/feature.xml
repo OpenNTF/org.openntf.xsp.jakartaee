@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.el.feature"
       label="XPages EL 4.0 Support Feature"
-      version="2.7.0.qualifier">
+      version="2.8.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -237,10 +237,6 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-   <plugin
-         id="org.openntf.xsp.el"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin id="org.openntf.xsp.el" version="0.0.0" unpack="false"/>
 
 </feature>

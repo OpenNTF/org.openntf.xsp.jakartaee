@@ -15,16 +15,20 @@
  */
 package org.openntf.xsp.nosql.communication.driver;
 
+import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import jakarta.nosql.document.DocumentCollectionManager;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.mapping.Pagination;
+import jakarta.nosql.mapping.Sorts;
 
 public interface DominoDocumentCollectionManager extends DocumentCollectionManager {
-	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel, boolean docsOnly);
+	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
 	
-	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, String category, Pagination pagination, int maxLevel);
+	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult);
 	
 	void putInFolder(String entityId, String folderName);
 	
@@ -60,4 +64,26 @@ public interface DominoDocumentCollectionManager extends DocumentCollectionManag
      * @since 2.7.0
      */
     boolean existsById(String unid);
+    
+    /**
+     * Retrieves a document by its note ID.
+     * 
+     * @param entityName the entity type to find
+     * @param noteId the note ID
+     * @return an {@link Optional} describing the entity, or an empty one if no document
+     *         by that ID is found
+     * @since 2.8.0
+     */
+    Optional<DocumentEntity> getByNoteId(String entityName, String noteId);
+    
+    /**
+     * Retrieves a document by its UNID.
+     * 
+     * @param entityName the entity type to find
+     * @param id the document UNID
+     * @return an {@link Optional} describing the entity, or an empty one if no document
+     *         by that ID is found
+     * @since 2.8.0
+     */
+    Optional<DocumentEntity> getById(String entityName, String id);
 }

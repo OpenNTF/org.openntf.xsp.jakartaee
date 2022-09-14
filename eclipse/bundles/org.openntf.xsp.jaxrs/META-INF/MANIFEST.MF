@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages JAX-RS Support
 Bundle-SymbolicName: org.openntf.xsp.jaxrs;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jaxrs
-Bundle-Version: 2.7.0.qualifier
+Bundle-Version: 2.8.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: jakarta.annotation-api;bundle-version="2.0.0";visibility:=reexport,
@@ -15,6 +15,7 @@ Require-Bundle: jakarta.annotation-api;bundle-version="2.0.0";visibility:=reexpo
  org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.org.jboss.resteasy.core;bundle-version="6.0.0"
 Import-Package: com.ibm.commons.util,
+ com.ibm.designer.domino.napi,
  com.ibm.designer.runtime.domino.adapter,
  com.ibm.designer.runtime.domino.adapter.util,
  com.ibm.domino.xsp.module.nsf,
@@ -42,7 +43,7 @@ Import-Package: com.ibm.commons.util,
  org.jboss.resteasy.spi,
  org.openntf.xsp.jakarta.concurrency;version="2.7.0",
  org.osgi.framework;version="1.8.0"
-Export-Package: org.openntf.xsp.jaxrs;version="2.7.0",
- org.openntf.xsp.jaxrs.exceptions;version="2.7.0",
- org.openntf.xsp.jaxrs.security;version="2.7.0"
+Export-Package: org.openntf.xsp.jaxrs;version="2.8.0",
+ org.openntf.xsp.jaxrs.exceptions;version="2.8.0",
+ org.openntf.xsp.jaxrs.security;version="2.8.0"
 Eclipse-ExtensibleAPI: true

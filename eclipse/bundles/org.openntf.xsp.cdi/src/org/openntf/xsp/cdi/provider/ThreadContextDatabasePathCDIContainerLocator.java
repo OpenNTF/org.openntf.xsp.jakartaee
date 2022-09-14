@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.nosql.mapping.extension;
+package org.openntf.xsp.cdi.provider;
 
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import org.openntf.xsp.cdi.ext.CDIContainerLocator;
+import org.openntf.xsp.cdi.ext.CDIContainerUtility;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import jakarta.annotation.Priority;
 
 /**
- * This annotation can be added to a method parameter in a {@link DominoRepository}
- * interface to indicate that it should be used as a category to restrict view
- * navigation to.
+ * This {@link CDIContainerLocator} looks for a thread-context database path,
+ * which may be specified as an overried by user applications.
  * 
  * @author Jesse Gallagher
- * @since 2.6.0
+ * @since 2.8.0
  */
-@Documented
-@Retention(RUNTIME)
-@Target(PARAMETER)
-public @interface ViewCategory {
+@Priority(3)
+public class ThreadContextDatabasePathCDIContainerLocator implements CDIContainerLocator {
+
+	@Override
+	public String getNsfPath() {
+		CDIContainerUtility util = LibraryUtil.findRequiredExtension(CDIContainerUtility.class);
+		return util.getThreadContextDatabasePath();
+	}
+
 }

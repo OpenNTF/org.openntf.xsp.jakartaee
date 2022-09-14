@@ -22,8 +22,6 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.testcontainers.containers.BrowserWebDriverContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 
@@ -38,7 +36,6 @@ public enum JakartaTestContainers {
 		.driver("bridge") //$NON-NLS-1$
 		.build();
 	public GenericContainer<?> domino;
-	public BrowserWebDriverContainer<?> firefox;
 	
 	@SuppressWarnings("resource")
 	private JakartaTestContainers() {
@@ -68,10 +65,6 @@ public enum JakartaTestContainers {
 					}
 				});
 			
-			firefox = new BrowserWebDriverContainer<>()
-					.withCapabilities(new FirefoxOptions())
-					.withNetwork(network);
-			
 			domino.start();
 			// The above waits for "Adding sign bit" from AdminP, but we have no
 			//   solid indication when it's done. For now, wait a couple seconds
@@ -80,15 +73,10 @@ public enum JakartaTestContainers {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
-			firefox.start();
 		} finally {
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				if(domino != null) {
 					domino.close();
-				}
-				if(firefox != null) {
-					firefox.close();
 				}
 				network.close();
 				

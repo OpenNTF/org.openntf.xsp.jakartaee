@@ -34,7 +34,7 @@ public class TestXml extends AbstractWebClientTest {
 		WebTarget target = client.target(getRestUrl(null) + "/sample/xml");
 		Response response = target.request().get();
 		
-		String xml = response.readEntity(String.class);
+		String xml = String.valueOf(response.readEntity(String.class));
 		
 		assertTrue(
 			xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><application-guy>"),

@@ -27,6 +27,7 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.nosql.communication.driver.ByteArrayEntityAttachment;
+import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;
@@ -56,6 +58,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -449,6 +452,20 @@ public class NoSQLExample {
 		return update(id, firstName, lastName, birthday, favoriteTime, added);
 	}
 	
+	@Path("{id}")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person updateJson(
+			@PathParam("id") String id,
+			Person person
+	) {
+		personRepository.findById(id)
+			.orElseThrow(() -> new NotFoundException("Could not find Person for ID " + id));
+		person.setUnid(id);
+		return personRepository.save(person);
+	}
+	
 	@Path("{id}/putInFolder")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
@@ -467,6 +484,48 @@ public class NoSQLExample {
 			.orElseThrow(() -> new NotFoundException("Unable to find Person for ID " + id));
 		personRepository.removeFromFolder(person, PersonRepository.FOLDER_PERSONS);
 		return true;
+	}
+	
+	@Path("byViewKey/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByViewKey(@PathParam("lastName") String lastName) {
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.findByKey(query)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
+	}
+	
+	@Path("byViewKeyMulti/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getPersonByViewKeyMulti(@PathParam("lastName") String lastName) {
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.findByKeyMulti(query).collect(Collectors.toList());
+	}
+	
+	@Path("byViewTwoKeys/{lastName}/{firstName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByViewTwoKey(@PathParam("lastName") String lastName, @PathParam("firstName") String firstName) {
+		ViewQuery query = ViewQuery.query().key(Arrays.asList(lastName, firstName), true);
+		return personRepository.findByKey(query)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
+	}
+	
+	@Path("byNoteId/{noteId}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByNoteID(@PathParam("noteId") String noteId) {
+		return personRepository.findByNoteId(noteId)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for note ID: " + noteId));
+	}
+	
+	@Path("modifiedSince/{modified}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getPersonByModified(@PathParam("modified") String modified) {
+		Instant mod = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(modified));
+		return personRepository.findModifiedSince(mod).collect(Collectors.toList());
 	}
 	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {
