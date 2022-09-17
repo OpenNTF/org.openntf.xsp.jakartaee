@@ -290,6 +290,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			convertedEntry.add(Document.of(DominoConstants.FIELD_POSITION, entry.getPosition('.')));
 			convertedEntry.add(Document.of(DominoConstants.FIELD_READ, entry.getRead()));
 			
+			
 			EntryType type;
 			if(entry.isCategory()) {
 				type = EntryType.CATEGORY;
@@ -384,6 +385,15 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			}
 			if(fieldNames.contains(DominoConstants.FIELD_SERVER)) {
 				convertedEntry.add(Document.of(DominoConstants.FIELD_SERVER, context.getServer()));
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_SIBLINGCOUNT)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_SIBLINGCOUNT, entry.getSiblingCount()));
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_CHILDCOUNT)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_CHILDCOUNT, entry.getChildCount()));
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_DESCENDANTCOUNT)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_DESCENDANTCOUNT, entry.getDescendantCount()));
 			}
 			
 			return DocumentEntity.of(entityName, convertedEntry);

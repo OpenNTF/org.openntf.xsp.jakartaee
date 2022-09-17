@@ -61,6 +61,7 @@ import jakarta.nosql.document.Document;
 import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
+import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Sorts;
 import jakarta.transaction.RollbackException;
@@ -512,6 +513,23 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			} else {
 				nav = view.createViewNavFromCategory(category);
 			}
+			
+			// Check if the class requests count data and skip reading if not
+			boolean requestsCounts = mapping.getFields()
+				.stream()
+				.map(fm -> fm.getNativeField())
+				.map(f -> f.getAnnotation(Column.class))
+				.filter(Objects::nonNull)
+				.map(col -> col.value())
+				.anyMatch(name ->
+					DominoConstants.FIELD_CHILDCOUNT.equals(name)
+					|| DominoConstants.FIELD_SIBLINGCOUNT.equals(name)
+					|| DominoConstants.FIELD_DESCENDANTCOUNT.equals(name)
+				);
+			if(!requestsCounts) {
+				nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
+			}
+			
 			
 			if(maxLevel > -1) {
 				nav.setMaxLevel(maxLevel);
