@@ -86,23 +86,14 @@ public class Person {
 	@Column(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE)
 	private Instant modifiedInFile;
 	
-	@Column(DominoConstants.FIELD_SIBLINGCOUNT)
+	@Column("@siblingcount")
 	private int siblingCount;
 	
-	@Column(DominoConstants.FIELD_CHILDCOUNT)
+	@Column("@childcount")
 	private int childCount;
 	
-	@Column(DominoConstants.FIELD_DESCENDANTCOUNT)
+	@Column("@descendantcount")
 	private int descendantCount;
-	
-	@Column(DominoConstants.FIELD_COLUMNINDENTLEVEL)
-	private int columnIndentLevel;
-	
-	@Column(DominoConstants.FIELD_INDENTLEVEL)
-	private int indentLevel;
-	
-	@Column(DominoConstants.FIELD_FTSEARCHSCORE)
-	private int ftSearchScore;
 
 	public String getUnid() {
 		return unid;
@@ -209,14 +200,5 @@ public class Person {
 	}
 	public int getDescendantCount() {
 		return descendantCount;
-	}
-	public int getColumnIndentLevel() {
-		return columnIndentLevel;
-	}
-	public int getFtSearchScore() {
-		return ftSearchScore;
-	}
-	public int getIndentLevel() {
-		return indentLevel;
 	}
 }

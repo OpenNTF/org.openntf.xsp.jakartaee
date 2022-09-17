@@ -404,15 +404,6 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			if(fieldNames.contains(DominoConstants.FIELD_NOTEID) && !columnFormulas.contains("@NoteID")) { //$NON-NLS-1$
 				convertedEntry.add(Document.of(DominoConstants.FIELD_NOTEID, entry.getNoteIDAsInt()));
 			}
-			if(fieldNames.contains(DominoConstants.FIELD_COLUMNINDENTLEVEL)) {
-				convertedEntry.add(Document.of(DominoConstants.FIELD_COLUMNINDENTLEVEL, entry.getColumnIndentLevel()));
-			}
-			if(fieldNames.contains(DominoConstants.FIELD_INDENTLEVEL)) {
-				convertedEntry.add(Document.of(DominoConstants.FIELD_INDENTLEVEL, entry.getIndentLevel()));
-			}
-			if(fieldNames.contains(DominoConstants.FIELD_FTSEARCHSCORE)) {
-				convertedEntry.add(Document.of(DominoConstants.FIELD_FTSEARCHSCORE, entry.getFTSearchScore()));
-			}
 			
 			return DocumentEntity.of(entityName, convertedEntry);
 		} finally {
@@ -591,9 +582,6 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_SERVER)) {
 					result.add(Document.of(DominoConstants.FIELD_SERVER, database.getServer()));
-				}
-				if(fieldNames.contains(DominoConstants.FIELD_FTSEARCHSCORE)) {
-					result.add(Document.of(DominoConstants.FIELD_FTSEARCHSCORE, doc.getFTSearchScore()));
 				}
 				
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
