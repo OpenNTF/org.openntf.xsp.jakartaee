@@ -23,6 +23,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Vector;
@@ -41,6 +42,7 @@ import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL;
+import org.openntf.xsp.nosql.communication.driver.impl.EntityUtil;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter.QueryConverterResult;
@@ -115,7 +117,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				entity.add(Document.of(DominoConstants.FIELD_ID, target.getUniversalID()));
 			}
 
-			ClassMapping mapping = getClassMapping(entity.getName());
+			ClassMapping mapping = EntityUtil.getClassMapping(entity.getName());
 			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
 			if(computeWithForm) {
 				target.computeWithForm(false, false);
@@ -149,7 +151,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			
 			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
 
-			ClassMapping mapping = getClassMapping(entity.getName());
+			ClassMapping mapping = EntityUtil.getClassMapping(entity.getName());
 			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
 			if(computeWithForm) {
 				target.computeWithForm(false, false);
@@ -190,7 +192,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	public Stream<DocumentEntity> select(DocumentQuery query) {
 		try {
 			String entityName = query.getDocumentCollection();
-			ClassMapping mapping = getClassMapping(entityName);
+			ClassMapping mapping = EntityUtil.getClassMapping(entityName);
 			
 			QueryConverterResult queryResult = QueryConverter.select(query);
 			
@@ -274,7 +276,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	@Override
 	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination,
 			Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
-		ClassMapping mapping = getClassMapping(entityName);
+		ClassMapping mapping = EntityUtil.getClassMapping(entityName);
 		
 		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
 			try {
@@ -316,7 +318,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	@Override
 	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination,
 			Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult) {
-		ClassMapping mapping = getClassMapping(entityName);
+		ClassMapping mapping = EntityUtil.getClassMapping(entityName);
 		
 		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
 			try {
@@ -336,7 +338,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				if(doc == null) {
 					return Stream.empty();
 				}
-				return Stream.of(DocumentEntity.of(entityName, entityConverter.convertDominoDocument(doc, mapping)));
+				Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(mapping);
+				return Stream.of(DocumentEntity.of(entityName, entityConverter.convertDominoDocument(doc, mapping, itemTypes)));
 			} catch(NotesException e) {
 				throw new RuntimeException(e);
 			}
@@ -433,7 +436,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			lotus.domino.Document doc = database.getDocumentByID(noteId);
 			if(doc != null) {
 				// TODO consider checking the form
-				List<Document> result = entityConverter.convertDominoDocument(doc, getClassMapping(entityName));
+				ClassMapping classMapping = EntityUtil.getClassMapping(entityName);
+				Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
+				List<Document> result = entityConverter.convertDominoDocument(doc, classMapping, itemTypes);
 				return Optional.of(DocumentEntity.of(entityName, result));
 			} else {
 				return Optional.empty();
@@ -462,7 +467,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				}
 				
 				// TODO consider checking the form
-				List<Document> result = entityConverter.convertDominoDocument(doc, getClassMapping(entityName));
+				ClassMapping classMapping = EntityUtil.getClassMapping(entityName);
+				Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
+				List<Document> result = entityConverter.convertDominoDocument(doc, classMapping, itemTypes);
 				return Optional.of(DocumentEntity.of(entityName, result));
 			} else {
 				return Optional.empty();
