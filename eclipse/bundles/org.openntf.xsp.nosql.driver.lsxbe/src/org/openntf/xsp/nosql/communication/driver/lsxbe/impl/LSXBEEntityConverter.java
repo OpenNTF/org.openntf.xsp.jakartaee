@@ -333,12 +333,6 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					break;
 				case "@NoteID": //$NON-NLS-1$
 					itemName = DominoConstants.FIELD_NOTEID;
-					// Translate the value here to an int
-					// It'll be in "formula" format like "NT00001234"
-					if(value instanceof String && ((String) value).startsWith("NT")) { //$NON-NLS-1$
-						String hexId = ((String)value).substring(2);
-						value = Integer.parseInt(hexId, 16);
-					}
 					break;
 				case "@AddedToThisFile": //$NON-NLS-1$
 					itemName = DominoConstants.FIELD_ADDED;
@@ -400,9 +394,6 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			}
 			if(fieldNames.contains(DominoConstants.FIELD_DESCENDANTCOUNT)) {
 				convertedEntry.add(Document.of(DominoConstants.FIELD_DESCENDANTCOUNT, entry.getDescendantCount()));
-			}
-			if(fieldNames.contains(DominoConstants.FIELD_NOTEID) && !columnFormulas.contains("@NoteID")) { //$NON-NLS-1$
-				convertedEntry.add(Document.of(DominoConstants.FIELD_NOTEID, entry.getNoteIDAsInt()));
 			}
 			
 			return DocumentEntity.of(entityName, convertedEntry);
@@ -560,8 +551,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					result.add(Document.of(DominoConstants.FIELD_ADATE, DominoNoSQLUtil.toTemporal(database, doc.getLastAccessed())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_NOTEID)) {
-					int noteId = Integer.parseInt(doc.getNoteID(), 16);
-					result.add(Document.of(DominoConstants.FIELD_NOTEID, noteId));
+					result.add(Document.of(DominoConstants.FIELD_NOTEID, doc.getNoteID()));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_ADDED)) {
 					DateTime added = (DateTime)session.evaluate(" @AddedToThisFile ", doc).get(0); //$NON-NLS-1$

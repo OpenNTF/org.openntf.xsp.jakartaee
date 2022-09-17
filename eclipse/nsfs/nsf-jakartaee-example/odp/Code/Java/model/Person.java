@@ -75,7 +75,7 @@ public class Person {
 	private int size;
 	
 	@Column(DominoConstants.FIELD_NOTEID)
-	private int noteId;
+	private String noteId;
 	
 	@Column(DominoConstants.FIELD_ADATE)
 	private Instant accessed;
@@ -181,7 +181,7 @@ public class Person {
 		return accessed;
 	}
 	
-	public int getNoteId() {
+	public String getNoteId() {
 		return noteId;
 	}
 	
@@ -195,10 +195,19 @@ public class Person {
 	public int getChildCount() {
 		return childCount;
 	}
+	public void setChildCount(int childCount) {
+		this.childCount = childCount;
+	}
 	public int getSiblingCount() {
 		return siblingCount;
 	}
+	public void setSiblingCount(int siblingCount) {
+		this.siblingCount = siblingCount;
+	}
 	public int getDescendantCount() {
 		return descendantCount;
+	}
+	public void setDescendantCount(int descendantCount) {
+		this.descendantCount = descendantCount;
 	}
 }
