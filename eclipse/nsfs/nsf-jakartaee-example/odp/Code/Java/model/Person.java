@@ -85,15 +85,6 @@ public class Person {
 	
 	@Column(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE)
 	private Instant modifiedInFile;
-	
-	@Column("@siblingcount")
-	private int siblingCount;
-	
-	@Column("@childcount")
-	private int childCount;
-	
-	@Column("@descendantcount")
-	private int descendantCount;
 
 	public String getUnid() {
 		return unid;
@@ -190,24 +181,5 @@ public class Person {
 	}
 	public Instant getModifiedInFile() {
 		return modifiedInFile;
-	}
-	
-	public int getChildCount() {
-		return childCount;
-	}
-	public void setChildCount(int childCount) {
-		this.childCount = childCount;
-	}
-	public int getSiblingCount() {
-		return siblingCount;
-	}
-	public void setSiblingCount(int siblingCount) {
-		this.siblingCount = siblingCount;
-	}
-	public int getDescendantCount() {
-		return descendantCount;
-	}
-	public void setDescendantCount(int descendantCount) {
-		this.descendantCount = descendantCount;
 	}
 }

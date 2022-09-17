@@ -139,24 +139,6 @@ public enum DominoConstants {
 	 * @since 2.8.0
 	 */
 	public static final String FIELD_REPLICAID = "@replicaid"; //$NON-NLS-1$
-	/**
-	 * The field used to request storage of sibling entry count when reading view entries,
-	 * currently {@value #FIELD_SIBLINGCOUNT}
-	 * @since 2.9.0
-	 */
-	public static final String FIELD_SIBLINGCOUNT = "@siblingcount"; //$NON-NLS-1$
-	/**
-	 * The field used to request storage of child entry count when reading view entries,
-	 * currently {@value #FIELD_CHILDCOUNT}
-	 * @since 2.9.0
-	 */
-	public static final String FIELD_CHILDCOUNT = "@childcount"; //$NON-NLS-1$
-	/**
-	 * The field used to request storage of descendant entry count when reading view entries,
-	 * currently {@value #FIELD_DESCENDANTCOUNT}
-	 * @since 2.9.0
-	 */
-	public static final String FIELD_DESCENDANTCOUNT = "@descendantcount"; //$NON-NLS-1$
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based
