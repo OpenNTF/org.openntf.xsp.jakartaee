@@ -128,10 +128,6 @@
 		<!-- Maven API version. This version should be supported by m2e -->
 		<maven.api.version>3.3.9</maven.api.version>
 	</properties>
-	
-	<prerequisites>
-		<maven>3.0.1</maven>
-	</prerequisites>
 
 	<repositories>
 		<repository>
@@ -253,7 +249,6 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
-
 					<pomDependencies>consider</pomDependencies>
 					<dependency-resolution>
 						<extraRequirements>
@@ -394,17 +389,6 @@
 						</execution>
 					</executions>
 				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.0.2</version>
-					<configuration>
-						<archive>
-							<manifestFile>${manifest-location}/MANIFEST.MF</manifestFile>
-						</archive>
-					</configuration>
-				</plugin>
-				<!-- This is to enable test execution only on supported platforms below -->
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-surefire-plugin</artifactId>
