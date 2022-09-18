@@ -4,6 +4,10 @@
 .settings/
 .factorypath
 
+# IntelliJ Stuff
+.idea/
+*.iml
+
 .vscode/
 
 target/
