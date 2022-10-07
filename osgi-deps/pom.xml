@@ -352,6 +352,7 @@
 										<Export-Package>*;version="4.5.13"</Export-Package>
 									</instructions>
 								</artifact>
+								<artifact><id>commons-io:commons-io:2.11.0</id><source>true</source></artifact>
 								
 								<!--
 									EL
