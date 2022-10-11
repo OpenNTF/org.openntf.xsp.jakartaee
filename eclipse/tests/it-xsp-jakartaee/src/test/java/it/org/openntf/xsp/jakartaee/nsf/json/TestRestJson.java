@@ -19,22 +19,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringReader;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+
+import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.AdminUserAuthenticator;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Test;
-
-import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-
 @SuppressWarnings("nls")
 public class TestRestJson extends AbstractWebClientTest {
-	@Test
-	public void testJsonp() {
-		Client client = getAnonymousClient();
+	
+	@ParameterizedTest
+	@ArgumentsSource(AnonymousClientProvider.class)
+	public void testJsonp(Client client) {
 		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonp");
 		Response response = target.request().get();
 		
@@ -43,9 +52,9 @@ public class TestRestJson extends AbstractWebClientTest {
 		assertEquals("baz", jsonObject.getString("bar"));
 	}
 	
-	@Test
-	public void testJsonb() {
-		Client client = getAnonymousClient();
+	@ParameterizedTest
+	@ArgumentsSource(AnonymousClientProvider.class)
+	public void testJsonb(Client client) {
 		WebTarget target = client.target(getRestUrl(null) + "/jsonExample");
 		Response response = target.request().get();
 		
@@ -54,9 +63,9 @@ public class TestRestJson extends AbstractWebClientTest {
 		assertEquals("bar", jsonObject.getString("foo"));
 	}
 	
-	@Test
-	public void testJsonbCdi() {
-		Client client = getAnonymousClient();
+	@ParameterizedTest
+	@ArgumentsSource(AnonymousClientProvider.class)
+	public void testJsonbCdi(Client client) {
 		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonb");
 		Response response = target.request().get();
 		
@@ -64,5 +73,42 @@ public class TestRestJson extends AbstractWebClientTest {
 		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 		String jsonMessage = jsonObject.getString("jsonMessage");
 		assertTrue(jsonMessage.startsWith("I'm application guy at "));
+	}
+	
+	@Test
+	public void testJsonMultithread() throws InterruptedException {
+		int runCount = 150;
+		ExecutorService exec = Executors.newFixedThreadPool(runCount);
+		try {
+			CountDownLatch latch = new CountDownLatch(runCount);
+			for(int i = 0; i < runCount; i++) {
+				exec.submit(() -> {
+					ThreadLocalRandom rand = ThreadLocalRandom.current();
+					ClientBuilder builder = ClientBuilder.newBuilder();
+					if(rand.nextBoolean()) {
+						System.out.println("registering user");
+						builder.register(AdminUserAuthenticator.class);
+					}
+					Client client = builder.build();
+					try {
+						testJsonp(client);
+						TimeUnit.MILLISECONDS.sleep(rand.nextInt(500));
+						testJsonb(client);
+						TimeUnit.MILLISECONDS.sleep(rand.nextInt(500));
+						testJsonbCdi(client);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} finally {
+						latch.countDown();
+						client.close();
+					}
+				});
+			}
+			latch.await();
+		} finally {
+			System.out.println("shutting down");
+			exec.shutdownNow();
+			exec.awaitTermination(1, TimeUnit.MINUTES);
+		}
 	}
 }

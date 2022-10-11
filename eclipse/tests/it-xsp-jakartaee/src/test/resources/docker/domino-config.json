@@ -106,6 +106,8 @@
 							"HTTP_NormalMode": "1",
 							"HTTP_SSLMode": "1",
 							"HTTP_SSLAnonymous": "0",
+							"HTTP_MaxActiveThreads": 550,
+							"HTTP_asynchronizeAgents": "1",
 							"NSDEnbld": "1",
 							"FREnbld": "1",
 							"FltRcvryNot": "LocalDomainAdmins",
