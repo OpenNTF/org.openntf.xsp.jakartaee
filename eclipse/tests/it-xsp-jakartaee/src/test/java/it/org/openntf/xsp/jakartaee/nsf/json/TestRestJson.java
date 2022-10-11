@@ -86,7 +86,6 @@ public class TestRestJson extends AbstractWebClientTest {
 					ThreadLocalRandom rand = ThreadLocalRandom.current();
 					ClientBuilder builder = ClientBuilder.newBuilder();
 					if(rand.nextBoolean()) {
-						System.out.println("registering user");
 						builder.register(AdminUserAuthenticator.class);
 					}
 					Client client = builder.build();
@@ -106,7 +105,6 @@ public class TestRestJson extends AbstractWebClientTest {
 			}
 			latch.await();
 		} finally {
-			System.out.println("shutting down");
 			exec.shutdownNow();
 			exec.awaitTermination(1, TimeUnit.MINUTES);
 		}
