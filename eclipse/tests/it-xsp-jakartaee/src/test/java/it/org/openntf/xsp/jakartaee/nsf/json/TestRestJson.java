@@ -16,9 +16,13 @@
 package it.org.openntf.xsp.jakartaee.nsf.json;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -81,6 +85,7 @@ public class TestRestJson extends AbstractWebClientTest {
 		ExecutorService exec = Executors.newFixedThreadPool(runCount);
 		try {
 			CountDownLatch latch = new CountDownLatch(runCount);
+			List<Throwable> failures = Collections.synchronizedList(new ArrayList<>());
 			for(int i = 0; i < runCount; i++) {
 				exec.submit(() -> {
 					ThreadLocalRandom rand = ThreadLocalRandom.current();
@@ -97,6 +102,8 @@ public class TestRestJson extends AbstractWebClientTest {
 						testJsonbCdi(client);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+					} catch(Throwable t) {
+						failures.add(t);
 					} finally {
 						latch.countDown();
 						client.close();
@@ -104,6 +111,8 @@ public class TestRestJson extends AbstractWebClientTest {
 				});
 			}
 			latch.await();
+			
+			assertIterableEquals(Collections.emptyList(), failures);
 		} finally {
 			exec.shutdownNow();
 			exec.awaitTermination(1, TimeUnit.MINUTES);
