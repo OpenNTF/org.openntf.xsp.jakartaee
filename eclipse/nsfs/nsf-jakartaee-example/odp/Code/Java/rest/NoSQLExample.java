@@ -520,6 +520,14 @@ public class NoSQLExample {
 			.orElseThrow(() -> new NotFoundException("Unable to find Person for note ID: " + noteId));
 	}
 	
+	@Path("byNoteIdInt/{noteId}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByNoteIDInt(@PathParam("noteId") int noteId) {
+		return personRepository.findByNoteId(noteId)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for note ID: " + noteId));
+	}
+	
 	@Path("modifiedSince/{modified}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

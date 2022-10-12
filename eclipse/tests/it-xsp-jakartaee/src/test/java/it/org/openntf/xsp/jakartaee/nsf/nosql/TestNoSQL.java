@@ -209,6 +209,64 @@ public class TestNoSQL extends AbstractWebClientTest {
 	}
 	
 	@Test
+	public void testQueryNoteIDInt() throws UnsupportedEncodingException {
+		Client client = getAdminClient();
+		
+		String lastName;
+		String unid;
+		{
+			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			
+			lastName = "Fooson" + System.nanoTime();
+			MultipartFormDataOutput payload = new MultipartFormDataOutput();
+			payload.addFormData("firstName", "Foo" + System.nanoTime(), MediaType.TEXT_PLAIN_TYPE);
+			payload.addFormData("lastName", lastName, MediaType.TEXT_PLAIN_TYPE);
+			
+			Response response = postTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.post(Entity.entity(payload, MediaType.MULTIPART_FORM_DATA_TYPE));
+			String json = response.readEntity(String.class);
+			assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+			JsonObject person = Json.createReader(new StringReader(json)).readObject();
+			unid = person.getString("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		int noteId;
+		// Fetch it again to get the note ID
+		{
+			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			
+			Response response = getTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.get();
+			assertEquals(200, response.getStatus());
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			String getUnid = jsonObject.getString("unid");
+			assertEquals(unid, getUnid);
+			noteId = jsonObject.getInt("noteId");
+			assertNotEquals(0, noteId);
+		}
+		
+		// Find by note ID
+		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byNoteIdInt/" + noteId);
+		
+		Response response = queryTarget.request()
+			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.get();
+		String json = response.readEntity(String.class);
+		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+		JsonObject result = Json.createReader(new StringReader(json)).readObject();
+		assertEquals(noteId, result.getInt("noteId"));
+		assertEquals(lastName, result.getString("lastName"));
+	}
+	
+	@Test
 	public void testQueryModTime() throws UnsupportedEncodingException, InterruptedException {
 		Client client = getAdminClient();
 		
