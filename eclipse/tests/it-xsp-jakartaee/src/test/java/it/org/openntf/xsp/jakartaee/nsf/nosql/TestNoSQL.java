@@ -176,7 +176,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertFalse(unid.isEmpty());
 		}
 		
-		String noteId;
+		int noteId;
 		// Fetch it again to get the note ID
 		{
 			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
@@ -190,13 +190,12 @@ public class TestNoSQL extends AbstractWebClientTest {
 			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			String getUnid = jsonObject.getString("unid");
 			assertEquals(unid, getUnid);
-			noteId = jsonObject.getString("noteId");
-			assertNotNull(noteId);
-			assertFalse(noteId.isEmpty());
+			noteId = jsonObject.getInt("noteId");
+			assertNotEquals(0, noteId);
 		}
 		
 		// Find by note ID
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byNoteId/" + URLEncoder.encode(noteId, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byNoteId/" + Integer.toHexString(noteId));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -205,7 +204,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
 		JsonObject result = Json.createReader(new StringReader(json)).readObject();
-		assertEquals(noteId, result.getString("noteId"));
+		assertEquals(noteId, result.getInt("noteId"));
 		assertEquals(lastName, result.getString("lastName"));
 	}
 	
@@ -362,9 +361,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertEquals(unid, getUnid);
 			assertEquals(lastName, jsonObject.getString("lastName"));
 			
-			String noteId = jsonObject.getString("noteId");
-			assertNotNull(noteId);
-			assertFalse(noteId.isEmpty());
+			int noteId = jsonObject.getInt("noteId");
+			assertNotEquals(0, noteId);
 			
 			// Make sure it has sensible date values
 			Instant.parse(jsonObject.getString("created"));
