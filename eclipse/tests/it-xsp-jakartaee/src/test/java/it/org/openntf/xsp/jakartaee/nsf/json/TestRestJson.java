@@ -79,6 +79,18 @@ public class TestRestJson extends AbstractWebClientTest {
 		assertTrue(jsonMessage.startsWith("I'm application guy at "));
 	}
 	
+	@ParameterizedTest
+	@ArgumentsSource(AnonymousClientProvider.class)
+	public void testJsonbSlashMap(Client client) {
+		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonbSlashMap");
+		Response response = target.request().get();
+		
+		String json = response.readEntity(String.class);
+		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+		String jsonMessage = jsonObject.getString("test\\pom.xml");
+		assertEquals("hello", jsonMessage);
+	}
+	
 	@Test
 	public void testJsonMultithread() throws InterruptedException {
 		int runCount = 150;

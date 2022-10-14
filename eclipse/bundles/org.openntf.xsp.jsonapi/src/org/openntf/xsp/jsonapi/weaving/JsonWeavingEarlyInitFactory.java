@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee.test.jsonp;
+package org.openntf.xsp.jsonapi.weaving;
 
-import static org.junit.Assert.assertEquals;
+import com.ibm.designer.runtime.domino.adapter.HttpService;
+import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
+import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 
-import org.junit.Ignore;
-
-import jakarta.json.Json;
-
-import org.junit.Test;
-
-@Ignore("Currently fails due to OSGi loading specifics with the WeavingHooks")
-@SuppressWarnings("nls")
-public class TestJsonp {
-	@Test
-	public void testJsonpBasics() {
-		String json = Json.createObjectBuilder()
-			.add("bar", "world")
-			.add("foo", "hello")
-			.build().toString();
-		assertEquals("json should match expected", "{\"bar\":\"world\",\"foo\":\"hello\"}", json);
+/**
+ * This stub {@link IServiceFactory} implementation exists solely to
+ * ensure that this bundle is activated early in HTTP initialization
+ * to get {@link UtilWeavingHook} in operation.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.2.0
+ */
+public class JsonWeavingEarlyInitFactory implements IServiceFactory {
+	@Override
+	public HttpService[] getServices(LCDEnvironment env) {
+		return new HttpService[0];
 	}
 }

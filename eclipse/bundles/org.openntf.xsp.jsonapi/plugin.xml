@@ -18,6 +18,11 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
+	<!-- Faux HTTP Service provider to ensure that the activator launches early -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakartaee.weaving.WeavingEarlyInitFactory"/>
+	</extension>
+
 	<!-- The Xsp Library -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.jsonapi.JSONLibrary" />
