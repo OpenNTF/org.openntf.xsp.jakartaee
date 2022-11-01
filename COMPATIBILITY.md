@@ -9,3 +9,7 @@ Versions of this project 2.8.0 and earlier contain a version of Apache Commons I
 ### XPages Toolbox
 
 Using the agent included in the [XPages Toolbox](https://xpages.info/main.nsf/project.xsp?r=project/XPages%20Toolbox) project will lead to a "Bean name is ambiguous" exception when loading the application. This is tracked as [Issue #342](https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/342).
+
+### XPiNC
+
+XPiNC (XPages in the Notes Client) may also exhibit the same trouble as running with the XPages Toolbox on a server.
