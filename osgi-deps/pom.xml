@@ -372,24 +372,14 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.apache.httpcomponents:httpcore:4.4.15</id>
+									<id>org.apache.httpcomponents:httpcore-osgi:4.4.15</id>
 									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.apache.httpcomponents.httpcore</Bundle-SymbolicName>
-										<Bundle-Version>4.4.13_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="4.4.13"</Export-Package>
-									</instructions>
+									<transitive>false</transitive>
 								</artifact>
 								<artifact>
-									<id>org.apache.httpcomponents:httpclient:4.5.13</id>
+									<id>org.apache.httpcomponents:httpclient-osgi:4.5.13</id>
 									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.apache.httpcomponents.httpclient</Bundle-SymbolicName>
-										<Bundle-Version>4.5.13_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="4.5.13"</Export-Package>
-									</instructions>
+									<transitive>false</transitive>
 								</artifact>
 								<artifact><id>commons-io:commons-io:2.11.0</id><source>true</source></artifact>
 								
