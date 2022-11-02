@@ -121,10 +121,7 @@ public class NSFJsfServlet extends HttpServlet {
 				// Re-wrap the ServletContext to provide the context path
 				javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
 				ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
-				ctx.addListener(StartupServletContextListener.class);
-				
-				ServletUtil.getListeners(ctx, ServletContextListener.class)
-					.forEach(l -> l.contextInitialized(new ServletContextEvent(ctx)));
+				ServletUtil.contextInitialized(ctx);
 			}
 
 			this.delegate = new FacesServlet();

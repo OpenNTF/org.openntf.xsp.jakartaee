@@ -20,7 +20,11 @@ import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
 
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+
 import jakarta.servlet.ServletContextAttributeListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.ServletRequestAttributeListener;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSessionAttributeListener;
@@ -333,6 +337,20 @@ public enum ServletUtil {
 			throw new IllegalArgumentException("context is not an instance of " + OldServletContextWrapper.class.getName());
 		}
 		return (List<T>)((OldServletContextWrapper)context).getListeners(listenerClass);
+	}
+	
+	private static final String ATTR_CONTEXTINITIALIZED = ServletUtil.class.getName() + "_contextInitialized"; //$NON-NLS-1$
+	
+	public static void contextInitialized(jakarta.servlet.ServletContext context) {
+		if(!Boolean.TRUE.equals(context.getAttribute(ATTR_CONTEXTINITIALIZED))) {
+			LibraryUtil.findExtensions(ServletContextListener.class)
+				.forEach(l -> context.addListener(l));
+			
+			getListeners(context, ServletContextListener.class)
+				.forEach(l -> l.contextInitialized(new ServletContextEvent(context)));
+			
+			context.setAttribute(ATTR_CONTEXTINITIALIZED, true);
+		}
 	}
 	
 	/**
