@@ -15,12 +15,14 @@
  */
 package org.openntf.xsp.jakartaee.servlet;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
 
 import jakarta.servlet.ServletContextAttributeListener;
 import jakarta.servlet.ServletRequestAttributeListener;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSessionAttributeListener;
 
 /**
@@ -331,5 +333,38 @@ public enum ServletUtil {
 			throw new IllegalArgumentException("context is not an instance of " + OldServletContextWrapper.class.getName());
 		}
 		return (List<T>)((OldServletContextWrapper)context).getListeners(listenerClass);
+	}
+	
+	/**
+	 * Attempts to close the writer or stream associated with this response.
+	 * 
+	 * <p>This is intended for use with Servlet delegates that may not reliably
+	 * themselves flush the buffer.</p>
+	 * 
+	 * @param resp the response to close
+	 * @since 2.9.0 
+	 */
+	public static void close(HttpServletResponse resp) {
+		// NB: resp.flushBuffer() is insufficient here
+		try {
+			resp.getWriter().flush();
+		} catch(IllegalStateException e) {
+			// Written using the stream instead
+			try {
+				resp.getOutputStream().flush();
+			} catch(IllegalStateException e2) {
+				// Well, fine.
+			} catch(IOException e2) {
+				// Is "ServletOutputStream is closed" when serving resources
+				// Either way, nothing to do with it here
+			}
+		} catch(IOException e) {
+			// No need to propagate this
+		}
+		try {
+			resp.flushBuffer();
+		} catch (IOException e) {
+			// No need to propagate this
+		}
 	}
 }

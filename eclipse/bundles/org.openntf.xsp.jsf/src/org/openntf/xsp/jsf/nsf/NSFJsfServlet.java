@@ -186,22 +186,7 @@ public class NSFJsfServlet extends HttpServlet {
 			}
 		} finally {
 			// In case it's not flushed on its own
-			// NB: resp.flushBuffer() is insufficient here
-			try {
-				resp.getWriter().flush();
-			} catch(IllegalStateException e) {
-				// Written using the stream instead
-				try {
-					resp.getOutputStream().flush();
-				} catch(IllegalStateException e2) {
-					// Well, fine.
-				} catch(IOException e2) {
-					// Is "ServletOutputStream is closed" when serving resources
-					// Either way, nothing to do with it here
-				}
-			} catch(IOException e) {
-				// No need to propagate this
-			}
+			ServletUtil.close(resp);
 		}
 	}
 	
