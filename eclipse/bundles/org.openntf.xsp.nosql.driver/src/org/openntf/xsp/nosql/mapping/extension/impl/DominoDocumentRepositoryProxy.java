@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -78,12 +79,15 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
         this.template = template;
         this.typeClass = (Class) ((ParameterizedType) repositoryType.getGenericInterfaces()[0])
                 .getActualTypeArguments()[0];
+        if(!typeClass.isAnnotationPresent(Entity.class)) {
+        	throw new IllegalStateException(MessageFormat.format("Target type \"{0}\" for repository class \"{1}\" is missing an @Entity annotation", typeClass.getName(), repositoryType.getName()));
+        }
         this.repository = repository;
     }
 
 	@Override
 	public Object invoke(Object o, Method method, Object[] args) throws Throwable {
-
+		
 		// View entries support
 		ViewEntries viewEntries = method.getAnnotation(ViewEntries.class);
 		if(viewEntries != null) {
