@@ -16,7 +16,6 @@
 package model;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.List;
 
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
