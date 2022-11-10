@@ -40,6 +40,7 @@ Import-Package: com.ibm.commons.util,
  javax.servlet.http;version="2.5.0",
  lotus.domino,
  org.glassfish.enterprise.concurrent.spi;version="2.0.0",
+ org.jboss.resteasy.plugins.validation;version="6.0.0",
  org.jboss.resteasy.spi,
  org.openntf.xsp.jakarta.concurrency;version="2.7.0",
  org.osgi.framework;version="1.8.0"

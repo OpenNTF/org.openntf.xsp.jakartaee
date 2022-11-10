@@ -55,7 +55,7 @@ public class ValidationResource {
 	
 	@GET
 	@Path("requestValidation")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Object getRequestParam(
 			@QueryParam("requiredField") @NotEmpty String requiredField
 		) {
