@@ -16,7 +16,6 @@
 package org.openntf.xsp.jakarta.transaction;
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
@@ -36,19 +35,13 @@ public class DominoXid implements Xid, Serializable {
 	private byte[] branchQualifier;
 	
 	public DominoXid() {
-		ByteBuffer buf = ByteBuffer.allocate(Long.BYTES);
 		Random rnd = new SecureRandom();
 		
-		buf.putLong(rnd.nextLong());
 		this.globalTransactionId = new byte[Long.BYTES];
-		buf.position(0);
-		buf.get(this.globalTransactionId);
+		rnd.nextBytes(this.globalTransactionId);
 		
-		buf.position(0);
-		buf.putLong(rnd.nextLong());
 		this.branchQualifier = new byte[Long.BYTES];
-		buf.position(0);
-		buf.get(this.branchQualifier);
+		rnd.nextBytes(this.branchQualifier);
 		
 	}
 

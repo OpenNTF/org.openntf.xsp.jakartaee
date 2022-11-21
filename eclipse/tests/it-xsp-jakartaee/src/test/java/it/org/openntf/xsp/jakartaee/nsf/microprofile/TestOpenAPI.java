@@ -19,9 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.List;
-import java.util.Map;
+import java.io.StringReader;
 
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
@@ -29,10 +31,6 @@ import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.nsf.docker.DominoContainer;
@@ -53,8 +51,7 @@ public class TestOpenAPI extends AbstractWebClientTest {
 	
 	@ParameterizedTest
 	@ValueSource(strings = { "openapi", "openapi.json" })
-	@SuppressWarnings("unchecked")
-	public void testOpenAPIJson(String path) throws JsonException {
+	public void testOpenAPIJson(String path) {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/" + path);
 		Response response = target.request()
@@ -62,32 +59,31 @@ public class TestOpenAPI extends AbstractWebClientTest {
 			.get();
 		
 		String json = response.readEntity(String.class);
-		Map<String, Object> obj = (Map<String, Object>) JsonParser.fromJson(JsonJavaFactory.instance, json);
+		JsonObject obj = Json.createReader(new StringReader(json)).readObject();
 		
 		// Check for a known resource
-		Map<String, Object> paths = (Map<String, Object>)obj.get("paths");
+		JsonObject paths = obj.getJsonObject("paths");
 		assertTrue(paths.containsKey("/adminrole"));
 
-		Map<String, Object> info = (Map<String, Object>)obj.get("info");
-		assertEquals("XPages JEE Example", info.get("title"));
+		JsonObject info = obj.getJsonObject("info");
+		assertEquals("XPages JEE Example", info.getString("title"));
 		
 		// Check for the presence of a version from $TemplateBuild
 		String mavenVersion = DominoContainer.getMavenVersion();
 		if(mavenVersion.endsWith("-SNAPSHOT")) {
 			mavenVersion = mavenVersion.substring(0, mavenVersion.length()-"-SNAPSHOT".length());
 		}
-		String version = (String)info.get("version");
+		String version = info.getString("version");
 		assertTrue(version.startsWith(mavenVersion), "Expected version '" + version + "' to start with '" + mavenVersion + "'");
 		
-		List<Map<String, Object>> servers = (List<Map<String, Object>>)obj.get("servers");
-		Map<String, Object> server0 = servers.get(0);
-		assertEquals(getRestUrl(null), server0.get("url"));
+		JsonArray servers = obj.getJsonArray("servers");
+		JsonObject server0 = servers.getJsonObject(0);
+		assertEquals(getRestUrl(null), server0.getString("url"));
 	}
 	
 	@ParameterizedTest
 	@ValueSource(strings = { "openapi", "openapi.json" })
-	@SuppressWarnings("unchecked")
-	public void testOpenAPIBundleDb(String path) throws JsonException {
+	public void testOpenAPIBundleDb(String path) {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getBundleNsfRestUrl(null) + "/" + path);
 		Response response = target.request()
@@ -95,19 +91,19 @@ public class TestOpenAPI extends AbstractWebClientTest {
 			.get();
 		
 		String json = response.readEntity(String.class);
-		Map<String, Object> obj = (Map<String, Object>) JsonParser.fromJson(JsonJavaFactory.instance, json);
+		JsonObject obj = Json.createReader(new StringReader(json)).readObject();
 		
 		// Check for the presence overridden versions
-		Map<String, Object> info = (Map<String, Object>)obj.get("info");
+		JsonObject info = obj.getJsonObject("info");
 		try {
-			assertEquals("OpenAPI Overridden Title", info.get("title"));
-			assertEquals("3.1.1.override", info.get("version"));
-			Map<String, Object> license = (Map<String, Object>)info.get("license");
-			assertEquals("http://some.license/url", license.get("url"));
+			assertEquals("OpenAPI Overridden Title", info.getString("title"));
+			assertEquals("3.1.1.override", info.getString("version"));
+			JsonObject license = info.getJsonObject("license");
+			assertEquals("http://some.license/url", license.getString("url"));
 			
-			List<Map<String, Object>> servers = (List<Map<String, Object>>)obj.get("servers");
-			Map<String, Object> server0 = servers.get(0);
-			assertEquals("http://override.server/path", server0.get("url"));
+			JsonArray servers = obj.getJsonArray("servers");
+			JsonObject server0 = servers.getJsonObject(0);
+			assertEquals("http://override.server/path", server0.getString("url"));
 		} catch(NullPointerException e) {
 			fail("Encountered NPE with JSON " + json, e);
 		}

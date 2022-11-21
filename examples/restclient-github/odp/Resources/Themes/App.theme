@@ -1,0 +1,9 @@
+<theme extends="Bootstrap3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="platform:/plugin/com.ibm.designer.domino.stylekits/schema/stylekit.xsd" >
+	<control>
+		<name>ViewRoot</name>
+		<property>
+			<name>pageTitle</name>
+			<value>#{database.title}</value>
+		</property>
+	</control>
+</theme>

@@ -108,8 +108,7 @@ public class NSFJspServlet extends AbstractXspLifecycleServlet {
 			throw t;
 		} finally {
 			// Looks like Jasper doesn't flush this on its own
-			response.getWriter().flush();
-			response.flushBuffer();
+			ServletUtil.close(response);
 		}
 	}
 	

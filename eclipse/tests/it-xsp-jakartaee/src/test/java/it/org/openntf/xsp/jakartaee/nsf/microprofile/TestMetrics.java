@@ -18,8 +18,10 @@ package it.org.openntf.xsp.jakartaee.nsf.microprofile;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Map;
+import java.io.StringReader;
 
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
@@ -27,10 +29,6 @@ import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
@@ -58,21 +56,19 @@ public class TestMetrics extends AbstractWebClientTest {
 	}
 	
 	@Test
-	public void testOptions() throws JsonException {
+	public void testOptions() {
 		Client client = getAnonymousClient();
 		
 		WebTarget target = client.target(getRestUrl(null) + "/metrics");
 		Response response = target.request().options();
 		
 		String metrics = response.readEntity(String.class);
-		@SuppressWarnings("unchecked")
-		Map<String, Object> json = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, metrics);
+		JsonObject json = Json.createReader(new StringReader(metrics)).readObject();
 		assertTrue(json.containsKey("base"));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testRequestJson() throws JsonException {
+	public void testRequestJson() {
 		Client client = getAnonymousClient();
 		
 		WebTarget target = client.target(getRestUrl(null) + "/metrics");
@@ -81,14 +77,13 @@ public class TestMetrics extends AbstractWebClientTest {
 			.get();
 		
 		String metrics = response.readEntity(String.class);
-		Map<String, Object> json = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, metrics);
+		JsonObject json = Json.createReader(new StringReader(metrics)).readObject();
 		assertFalse(json.isEmpty(), () -> metrics);
 		assertTrue(json.containsKey("application"));
-		Map<String, Object> application = (Map<String, Object>)json.get("application");
+		JsonObject application = json.getJsonObject("application");
 		assertTrue(application.containsKey("rest.Sample.hello"));
-		Map<String, Object> hello = (Map<String, Object>)application.get("rest.Sample.hello");
+		JsonObject hello = application.getJsonObject("rest.Sample.hello");
 		assertTrue(hello.containsKey("count"));
-		assertTrue(hello.get("count") instanceof Number);
-		assertTrue(((Number)hello.get("count")).intValue() >= 1);
+		assertTrue(hello.getInt("count") >= 1);
 	}
 }

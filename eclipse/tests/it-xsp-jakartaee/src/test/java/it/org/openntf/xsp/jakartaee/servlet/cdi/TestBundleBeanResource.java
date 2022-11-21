@@ -19,58 +19,55 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Map;
+import java.io.StringReader;
 
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
-
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
-@SuppressWarnings({ "unchecked", "nls" })
+@SuppressWarnings({ "nls" })
 public class TestBundleBeanResource extends AbstractWebClientTest {
 	
 	@Test
-	public void testBundleBean() throws JsonException {
+	public void testBundleBean() {
 		int expectedIdentity = 0;
 		// First NSF - uses .cdibundle
 		{
-			Map<String, Object> obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
-			assertEquals("Hello from bundleBean", obj.get("hello"));
-			expectedIdentity = ((Number)obj.get("identity")).intValue();
+			JsonObject obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
+			assertEquals("Hello from bundleBean", obj.getString("hello"));
+			expectedIdentity = obj.getInt("identity");
 			assertNotEquals(0, expectedIdentity);
 		}
 		// Call this again to ensure that it uses the same bean
 		{
-			Map<String, Object> obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
-			assertEquals("Hello from bundleBean", obj.get("hello"));
-			int identity = ((Number)obj.get("identity")).intValue();
+			JsonObject obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
+			assertEquals("Hello from bundleBean", obj.getString("hello"));
+			int identity = obj.getInt("identity");
 			assertEquals(expectedIdentity, identity);
 		}
 		// Second NSF - uses .cdibundlebase, so should be separate bean
 		{
-			Map<String, Object> obj = getBean(getBaseBudleNsfRootUrl(null) + "/exampleservlet");
-			assertEquals("Hello from bundleBean", obj.get("hello"));
-			int identity = ((Number)obj.get("identity")).intValue();
+			JsonObject obj = getBean(getBaseBudleNsfRootUrl(null) + "/exampleservlet");
+			assertEquals("Hello from bundleBean", obj.getString("hello"));
+			int identity = obj.getInt("identity");
 			assertNotEquals(expectedIdentity, identity);
 		}
 	}
 	
-	private Map<String, Object> getBean(String base) throws JsonException {
+	private JsonObject getBean(String base) {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(base + "/bean");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
 		try {
-			Map<String, Object> obj = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, output);
-			return obj;
+			return Json.createReader(new StringReader(output)).readObject();
 		} catch(Exception e) {
 			fail("Exception parsing JSON: " + output, e);
 			return null;

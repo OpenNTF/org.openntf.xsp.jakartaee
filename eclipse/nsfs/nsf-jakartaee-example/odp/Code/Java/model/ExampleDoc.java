@@ -96,6 +96,12 @@ public class ExampleDoc {
 	private String nonUpdatable;
 	@Column(DominoConstants.FIELD_ENTRY_TYPE)
 	private EntryType entryType;
+	@Column
+	@ItemStorage(precision=2)
+	private double numberGuy;
+	@Column
+	@ItemStorage(precision=2)
+	private List<Double> numbersGuy;
 	
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
@@ -176,5 +182,19 @@ public class ExampleDoc {
 	
 	public EntryType getEntryType() {
 		return entryType;
+	}
+	
+	public double getNumberGuy() {
+		return numberGuy;
+	}
+	public void setNumberGuy(double numberGuy) {
+		this.numberGuy = numberGuy;
+	}
+	
+	public List<Double> getNumbersGuy() {
+		return numbersGuy;
+	}
+	public void setNumbersGuy(List<Double> numbersGuy) {
+		this.numbersGuy = numbersGuy;
 	}
 }

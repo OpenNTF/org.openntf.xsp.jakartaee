@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xc="http://www.ibm.com/xsp/custom" xmlns:xe="http://www.ibm.com/xsp/coreex">
+	
+	<xc:layout>
+		<xe:formTable formTitle="Query GitHub Issues">
+			<xp:this.facets>
+				<xp:div xp:key="footer">
+					<xp:button id="refreshList" value="Load">
+						<xp:eventHandler event="onclick" submit="true" refreshMode="partial" refreshId="issueList"/>
+					</xp:button>
+				</xp:div>
+			</xp:this.facets>
+			<xe:formRow label="Owner"><xp:inputText value="#{viewScope.owner}" defaultValue="OpenNTF"/></xe:formRow>
+			<xe:formRow label="Repo"><xp:inputText value="#{viewScope.repo}" defaultValue="org.openntf.xsp.jakartaee"/></xe:formRow>
+		</xe:formTable>
+		
+		<xp:dataTable id="issueList" value="#{el:issuesBean.get(viewScope.owner, viewScope.repo)}" var="issue">
+			<xp:column>
+				<xp:this.facets><xp:text xp:key="header" value="ID"/></xp:this.facets>
+				<xp:text value="#{issue.id}"/>
+			</xp:column>
+			<xp:column>
+				<xp:this.facets><xp:text xp:key="header" value="Created"/></xp:this.facets>
+				<xp:text value="#{issue.created}">
+					<xp:this.converter>
+						<xp:convertDateTime type="date"></xp:convertDateTime>
+					</xp:this.converter>
+				</xp:text>
+			</xp:column>
+			<xp:column>
+				<xp:this.facets><xp:text xp:key="header" value="Title"/></xp:this.facets>
+				<xp:link value="#{issue.url}" text="#{issue.title}" target="_blank"/>
+			</xp:column>
+			<xp:column>
+				<xp:this.facets><xp:text xp:key="header" value="Status"/></xp:this.facets>
+				<xp:text value="#{issue.state}"/>
+			</xp:column>
+			<xp:column>
+				<xp:this.facets><xp:text xp:key="header" value="Milestone"/></xp:this.facets>
+				<xp:text value="#{empty issue.milestone ? '' : issue.milestone.title}"/>
+			</xp:column>
+		</xp:dataTable>
+	</xc:layout>
+</xp:view>

@@ -19,9 +19,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.enterprise.inject.spi.CDI;
-import jakarta.enterprise.inject.spi.CDIProvider;
-
 import org.openntf.xsp.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.cdi.ext.CDIContainerUtility;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -31,8 +28,9 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesSession;
-import com.ibm.domino.osgi.core.context.ContextInfo;
-import com.ibm.xsp.application.ApplicationEx;
+
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.CDIProvider;
 
 /**
  * Provides access to the current application's Weld context.
@@ -91,53 +89,7 @@ public class NSFCDIProvider implements CDIProvider {
 			}
 		} catch (NotesAPIException e) {
 			// Ignore
-		}
-		
-		String databasePath = util.getThreadContextDatabasePath();
-		if(StringUtil.isNotEmpty(databasePath)) {
-			try {
-				NotesSession session = new NotesSession();
-				try {
-					NotesDatabase database = session.getDatabase(databasePath);
-					if(database != null) {
-						database.open();
-						try {
-							result = (CDI<Object>)util.getContainer(database);
-						} finally {
-							database.recycle();
-						}
-					}
-				} finally {
-					session.recycle();
-				}
-			} catch(Throwable t) {
-				t.printStackTrace();
-			}
-		}
-		if(result != null) {
-			return result;
-		}
-			
-		
-		ApplicationEx application = ApplicationEx.getInstance();
-		if(application != null) {
-			result = (CDI<Object>)util.getContainer(application);
-		}
-		if(result != null) {
-			return result;
-		}
-		
-		try {
-			NotesDatabase database = ContextInfo.getServerDatabase();
-			if(database != null) {
-				result = (CDI<Object>)util.getContainer(database);
-			}
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-		if(result != null) {
-			return result;
-		}
+		}	
 		
 		return null;
 	}

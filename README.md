@@ -88,6 +88,9 @@ The contextual Domino objects - the `Database` and `Session`s - are available to
 
 ```java
 	@Inject
+	Database database;
+	
+	@Inject
 	@Named("dominoSession")
 	Session session;
 	
@@ -486,7 +489,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import lotus.domino.NotesException;
 
 @Path("mvc")
 @Controller
@@ -498,7 +500,7 @@ public class MvcExample {
 	
 	@GET
 	@Produces(MediaType.TEXT_HTML)
-	public String get(@QueryParam("foo") String foo) throws NotesException {
+	public String get(@QueryParam("foo") String foo) {
 		models.put("incomingFoo", foo);
 		return "mvc.jsp";
 	}
@@ -801,6 +803,8 @@ Additionally, set the `notes-platform` Maven property to a URI referencing an up
 If your Domino Java classpath has any invalid entries in it, the CDI portion of the tooling will complain and fail to load, which may cause XPages apps generally to throw an error 500.
 
 The workaround for this is to check your classpath (jvm/lib/ext and ndext, primarily) for any files that the Domino process user can't access (usually the local system on Windows, or `notes` on Linux). Additionally, look for a `JavaUserClassesExt` entry in the server's notes.ini and make sure that all of the files or directories it references exist and are readable.
+
+See [COMPATIBILITY.md](COMPATIBILITY.md) for details on known incompatibilities with specific projects.
 
 ## License
 

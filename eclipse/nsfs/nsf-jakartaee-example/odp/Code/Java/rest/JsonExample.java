@@ -16,17 +16,21 @@
 package rest;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.openntf.xsp.jsonapi.JSONBindUtil;
 
 import bean.ApplicationGuy;
 
@@ -58,5 +62,31 @@ public class JsonExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object getJsonb() {
 		return applicationGuy;
+	}
+	
+	public static class ExampleBean {
+		private String foo;
+		
+		public String getFoo() {
+			return foo;
+		}
+		public void setFoo(String foo) {
+			this.foo = foo;
+		}
+	}
+	
+	@GET
+	@Path("/jsonbSlashMap")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Object getJsonbSlashMap() throws Exception {
+		try(Jsonb jsonb = JsonbBuilder.create()) {
+			Map<String, String> x = new HashMap<>();
+			x.put("test\\pom.xml", "hello");
+			String json = JSONBindUtil.toJson(x, jsonb);
+			
+			@SuppressWarnings("unchecked")
+			Map<String, String> x2 = JSONBindUtil.fromJson(json, jsonb, Map.class);
+			return x2;
+		}
 	}
 }

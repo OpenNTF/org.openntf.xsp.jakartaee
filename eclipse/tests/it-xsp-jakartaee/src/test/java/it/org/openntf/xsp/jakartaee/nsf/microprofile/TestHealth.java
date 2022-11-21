@@ -18,85 +18,79 @@ package it.org.openntf.xsp.jakartaee.nsf.microprofile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
-import java.util.Map;
+import java.io.StringReader;
 
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
-
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
 @SuppressWarnings("nls")
 public class TestHealth extends AbstractWebClientTest {
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testAll() throws JsonException {
+	public void testAll() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/health");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
-		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, result);
-		assertEquals("DOWN", jsonObject.get("status"));
-		List<Map<String, Object>> checks = (List<Map<String, Object>>)jsonObject.get("checks");
+		JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
+		assertEquals("DOWN", jsonObject.getString("status"));
+		JsonArray checks = jsonObject.getJsonArray("checks");
 		assertEquals(3, checks.size());
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testReadiness() throws JsonException {
+	public void testReadiness() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/health/ready");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
-		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, result);
-		assertEquals("DOWN", jsonObject.get("status"));
-		List<Map<String, Object>> checks = (List<Map<String, Object>>)jsonObject.get("checks");
+		JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
+		assertEquals("DOWN", jsonObject.getString("status"));
+		JsonArray checks = jsonObject.getJsonArray("checks");
 		assertEquals(1, checks.size());
 		
-		assertEquals("I am a failing readiness check", checks.get(0).get("name"));
+		assertEquals("I am a failing readiness check", checks.getJsonObject(0).getString("name"));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testLiveness() throws JsonException {
+	public void testLiveness() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/health/live");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
-		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, result);
-		assertEquals("UP", jsonObject.get("status"));
-		List<Map<String, Object>> checks = (List<Map<String, Object>>)jsonObject.get("checks");
+		JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
+		assertEquals("UP", jsonObject.getString("status"));
+		JsonArray checks = jsonObject.getJsonArray("checks");
 		assertEquals(1, checks.size());
 		
-		assertEquals("I am the liveliness check", checks.get(0).get("name"));
-		Map<String, Object> data = (Map<String, Object>)checks.get(0).get("data");
-		assertTrue(((Number)data.get("noteCount")).intValue() > 0);
+		assertEquals("I am the liveliness check", checks.getJsonObject(0).getString("name"));
+		JsonObject data = checks.getJsonObject(0).getJsonObject("data");
+		assertTrue(data.getInt("noteCount") > 0);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testStarted() throws JsonException {
+	public void testStarted() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/health/started");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
-		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, result);
-		assertEquals("UP", jsonObject.get("status"));
-		List<Map<String, Object>> checks = (List<Map<String, Object>>)jsonObject.get("checks");
+		JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
+		assertEquals("UP", jsonObject.getString("status"));
+		JsonArray checks = jsonObject.getJsonArray("checks");
 		assertEquals(1, checks.size());
 		
-		assertEquals("started up fine", checks.get(0).get("name"));
+		assertEquals("started up fine", checks.getJsonObject(0).getString("name"));
 	}
 	
 }

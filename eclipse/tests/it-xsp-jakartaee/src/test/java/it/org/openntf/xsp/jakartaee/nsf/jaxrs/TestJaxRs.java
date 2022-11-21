@@ -33,9 +33,7 @@ import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
 @SuppressWarnings("nls")
 public class TestJaxRs extends AbstractWebClientTest {
-	/**
-	 * Tests test.AdminRoleExample, which uses requires admin login
-	 */
+	
 	@Test
 	public void testSample() {
 		Client client = getAnonymousClient();

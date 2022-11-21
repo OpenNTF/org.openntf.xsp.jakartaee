@@ -40,11 +40,11 @@
 		
 		<!-- Bring in the example NSF -->
 		<fileSet>
-			<directory>${project.basedir}/../../nsfs/nsf-jakartaee-example/odp</directory>
+			<directory>${project.basedir}/../../../examples</directory>
 			<includes>
 				<include>**/*</include>
 			</includes>
-			<outputDirectory>ExampleDatabase</outputDirectory>
+			<outputDirectory>examples</outputDirectory>
 		</fileSet>
 	</fileSets>
 	

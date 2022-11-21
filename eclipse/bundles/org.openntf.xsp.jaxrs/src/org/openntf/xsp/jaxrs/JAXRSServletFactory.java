@@ -128,7 +128,7 @@ public class JAXRSServletFactory implements IServletFactory {
 			Map<String, String> params = new HashMap<>();
 			params.put("jakarta.ws.rs.Application", NSFJAXRSApplication.class.getName()); //$NON-NLS-1$
 			// TODO move this to the fragment somehow
-			params.put("resteasy.injector.factory", "org.openntf.xsp.jaxrs.weld.NSFCdiInjectorFactory"); //$NON-NLS-1$ //$NON-NLS-2$
+			params.put("resteasy.injector.factory", "org.jboss.resteasy.cdi.CdiInjectorFactory"); //$NON-NLS-1$ //$NON-NLS-2$
 			params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, getServletPath(module));
 			params.put("resteasy.use.deployment.sensitive.factory", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			

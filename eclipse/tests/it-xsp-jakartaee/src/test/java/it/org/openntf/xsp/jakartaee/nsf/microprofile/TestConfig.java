@@ -19,34 +19,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Map;
+import java.io.StringReader;
 
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
-
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
 @SuppressWarnings("nls")
 public class TestConfig extends AbstractWebClientTest {
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testConfig() throws JsonException {
+	public void testConfig() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/config");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
-		Map<String, Object> jsonObject = (Map<String, Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
-		assertFalse(((String)jsonObject.get("java.version")).isEmpty(), () -> json);
-		assertTrue(((String)jsonObject.get("xsp.library.depends")).startsWith("org.openntf.xsp.el"), () -> json);
-		assertEquals("/local/notesdata", jsonObject.get("Directory"));
-		assertEquals("foo", jsonObject.get("mpconfig.example.setting"));
+		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+		assertFalse(jsonObject.getString("java.version").isEmpty(), () -> json);
+		assertTrue(jsonObject.getString("xsp.library.depends").startsWith("org.openntf.xsp.el"), () -> json);
+		assertEquals("/local/notesdata", jsonObject.getString("Directory"));
+		assertEquals("foo", jsonObject.getString("mpconfig.example.setting"));
 	}
 }

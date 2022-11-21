@@ -81,6 +81,9 @@ public class FacesJAXRSServletContainer extends AbstractXspLifecycleServlet {
     		for(ServiceParticipant participant : participants) {
 	    		participant.doAfterService(request, response);
 	    	}
+    		
+			// In case it's not flushed on its own
+			ServletUtil.close(response);
     	}
 	}
 	

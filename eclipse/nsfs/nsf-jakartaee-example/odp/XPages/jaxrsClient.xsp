@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<div id="container">
+		<xp:text id="output" value="#{restClientBean.jsonObjectViaClient}"/>
+	</div>
+</xp:view>

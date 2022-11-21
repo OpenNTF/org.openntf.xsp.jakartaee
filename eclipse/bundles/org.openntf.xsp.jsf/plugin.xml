@@ -36,4 +36,8 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.jsf.cdi.JsfCdiBeanContributor" />
 	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="jakarta.servlet.ServletContextListener" class="org.apache.myfaces.webapp.StartupServletContextListener" />
+	</extension>
 </plugin>

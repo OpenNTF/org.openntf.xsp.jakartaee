@@ -21,7 +21,6 @@ import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
@@ -57,10 +56,6 @@ public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 							return this;
 						}
 					};
-					
-					ModuleUtil.getClassNames(module)
-						.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-						.forEach(builder::addClass);
 					
 					return builder;
 				}

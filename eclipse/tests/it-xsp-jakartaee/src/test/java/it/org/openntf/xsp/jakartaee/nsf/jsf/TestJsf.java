@@ -57,6 +57,8 @@ public class TestJsf extends AbstractWebClientTest {
 				
 				WebElement input = form.findElement(By.xpath("input[1]"));
 				assertTrue(input.getAttribute("id").endsWith(":appGuyProperty"), () -> input.getAttribute("id"));
+				// May be set by previous test
+				input.clear();
 				input.click();
 				input.sendKeys(expected);
 				assertEquals(expected, input.getAttribute("value"));

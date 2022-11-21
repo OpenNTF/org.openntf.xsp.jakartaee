@@ -116,10 +116,7 @@ public class NSFJsfServlet extends HttpServlet {
 				// Re-wrap the ServletContext to provide the context path
 				javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
 				ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
-				ctx.addListener(StartupServletContextListener.class);
-				
-				ServletUtil.getListeners(ctx, ServletContextListener.class)
-					.forEach(l -> l.contextInitialized(new ServletContextEvent(ctx)));
+				ServletUtil.contextInitialized(ctx);
 			}
 
 			this.delegate = new FacesServlet();
@@ -181,22 +178,7 @@ public class NSFJsfServlet extends HttpServlet {
 			}
 		} finally {
 			// In case it's not flushed on its own
-			// NB: resp.flushBuffer() is insufficient here
-			try {
-				resp.getWriter().flush();
-			} catch(IllegalStateException e) {
-				// Written using the stream instead
-				try {
-					resp.getOutputStream().flush();
-				} catch(IllegalStateException e2) {
-					// Well, fine.
-				} catch(IOException e2) {
-					// Is "ServletOutputStream is closed" when serving resources
-					// Either way, nothing to do with it here
-				}
-			} catch(IOException e) {
-				// No need to propagate this
-			}
+			ServletUtil.close(resp);
 		}
 	}
 	

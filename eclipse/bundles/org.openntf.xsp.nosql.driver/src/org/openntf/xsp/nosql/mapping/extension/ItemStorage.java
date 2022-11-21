@@ -81,4 +81,12 @@ public @interface ItemStorage {
 	 * @since 2.7.0
 	 */
 	boolean updatable() default true;
+	
+	/**
+     * (Optional) The precision for a decimal (exact numeric) 
+     * column. (Applies only if a decimal column is used.)
+     * 
+     * @since 2.8.0
+     */
+    int precision() default 0;
 }

@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jaxrs.impl;
 
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -99,6 +100,12 @@ public class NSFJAXRSApplication extends Application {
 	}
 	
 	private boolean isJAXRSClass(Class<?> clazz) {
+		if(clazz.isInterface()) {
+			return false;
+		}
+		if(Modifier.isAbstract(clazz.getModifiers())) {
+			return false;
+		}
 		if(clazz.isAnnotationPresent(Path.class)) {
 			return true;
 		}

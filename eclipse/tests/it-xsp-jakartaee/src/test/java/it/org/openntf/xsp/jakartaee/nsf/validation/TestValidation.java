@@ -17,36 +17,32 @@ package it.org.openntf.xsp.jakartaee.nsf.validation;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
+import java.io.StringReader;
 
+import org.junit.jupiter.api.Test;
+
+import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Test;
-
-import com.ibm.commons.util.io.json.JsonException;
-import com.ibm.commons.util.io.json.JsonJavaFactory;
-import com.ibm.commons.util.io.json.JsonParser;
-
-import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-
 @SuppressWarnings("nls")
 public class TestValidation extends AbstractWebClientTest {
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testValid() throws JsonException {
+	public void testValid() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/validation/valid");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
-		List<Object> violations = (List<Object>)JsonParser.fromJson(JsonJavaFactory.instance, json);
+		JsonArray violations = Json.createReader(new StringReader(json)).readArray();
 		assertTrue(violations.isEmpty());
 	}
 	
 	@Test
-	public void testInvalid() throws JsonException {
+	public void testInvalid() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/validation/invalid");
 		Response response = target.request().get();
