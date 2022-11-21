@@ -29,7 +29,6 @@ import java.util.Set;
 
 import org.apache.myfaces.ee.MyFacesContainerInitializer;
 import org.apache.myfaces.shared.config.MyfacesConfig;
-import org.apache.myfaces.webapp.StartupServletContextListener;
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;

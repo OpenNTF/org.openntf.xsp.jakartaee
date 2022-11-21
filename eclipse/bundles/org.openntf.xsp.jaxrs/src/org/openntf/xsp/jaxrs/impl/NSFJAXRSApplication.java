@@ -53,10 +53,10 @@ public class NSFJAXRSApplication extends Application {
 		Set<Object> result = new HashSet<>();
 		result.addAll(super.getSingletons());
 		
-		List<Providers> providers = LibraryUtil.findExtensions(Providers.class);
+		List<Providers> providers = LibraryUtil.findExtensionsUncached(Providers.class);
 		result.addAll(providers);
 		
-		List<Feature> features = LibraryUtil.findExtensions(Feature.class);
+		List<Feature> features = LibraryUtil.findExtensionsUncached(Feature.class);
 		result.addAll(features);
 		
 		List<JAXRSClassContributor> contributors = LibraryUtil.findExtensions(JAXRSClassContributor.class);

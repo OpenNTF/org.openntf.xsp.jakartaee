@@ -343,13 +343,13 @@ public enum ServletUtil {
 	
 	public static void contextInitialized(jakarta.servlet.ServletContext context) {
 		if(!Boolean.TRUE.equals(context.getAttribute(ATTR_CONTEXTINITIALIZED))) {
-			LibraryUtil.findExtensions(ServletContextListener.class)
+			LibraryUtil.findExtensionsUncached(ServletContextListener.class)
 				.forEach(l -> context.addListener(l));
 			
 			getListeners(context, ServletContextListener.class)
 				.forEach(l -> l.contextInitialized(new ServletContextEvent(context)));
 			
-			context.setAttribute(ATTR_CONTEXTINITIALIZED, true);
+			context.setAttribute(ATTR_CONTEXTINITIALIZED, Boolean.TRUE);
 		}
 	}
 	
