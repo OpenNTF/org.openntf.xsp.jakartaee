@@ -44,14 +44,34 @@ public class TestRestValidation extends AbstractWebClientTest {
 		Response response = target.request("text/html","application/xhtml+xml","application/xml","*/*").get();
 		
 		String body = response.readEntity(String.class);
+		assertEquals("{\"classViolations\":[],\"parameterViolations\":[{\"constraintType\":\"PARAMETER\",\"message\":\"must not be empty\",\"path\":\"getRequestParam.requiredField\",\"value\":\"\"}],\"propertyViolations\":[],\"returnValueViolations\":[]}", body);
+	}
+	
+	@Test
+	public void testInvalidXml() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/validation/requestValidation");
+		Response response = target.request("application/xml").get();
+		
+		String body = response.readEntity(String.class);
 		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
 				+ "<violationReport>"
 				+ "<parameterViolations>"
 				+ "<constraintType>PARAMETER</constraintType>"
-				+ "<path>getRequestParam.requiredField</path>"
+				+ "<path>getRequestParamXml.requiredField</path>"
 				+ "<message>must not be empty</message>"
 				+ "<value></value>"
 				+ "</parameterViolations>"
 				+ "</violationReport>", body);
+	}
+	
+	@Test
+	public void testInvalidJson() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/validation/requestValidation");
+		Response response = target.request("application/json").get();
+		
+		String body = response.readEntity(String.class);
+		assertEquals("{\"classViolations\":[],\"parameterViolations\":[{\"constraintType\":\"PARAMETER\",\"message\":\"must not be empty\",\"path\":\"getRequestParam.requiredField\",\"value\":\"\"}],\"propertyViolations\":[],\"returnValueViolations\":[]}", body);
 	}
 }
