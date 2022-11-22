@@ -147,7 +147,7 @@ public enum ContainerUtil {
 				if(existingMapping != null && !existingMapping.equals(application.getApplicationId())) {
 					if(instance != null && instance.isRunning()) {
 						// Then it's outdated - invalidate
-						instance.shutdown();
+						instance.close();
 					}
 				}
 				REPLICAID_APPID_CACHE.put(id, application.getApplicationId());
