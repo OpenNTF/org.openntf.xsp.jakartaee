@@ -25,10 +25,15 @@ import org.openntf.xsp.jsonapi.JSONBindUtil;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;
+import jakarta.json.JsonObject;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @RequestScoped
 @Named("restClientBean")
@@ -51,12 +56,27 @@ public class RestClientBean {
 	}
 	
 	public Object getObjectViaRest() {
-		HttpServletRequest request = (HttpServletRequest)FacesContext.getCurrentInstance().getExternalContext().getRequest(); 
-		URI uri = URI.create(request.getRequestURL().toString());
-		URI serviceUri = uri.resolve("xsp/app/jsonExample");
+		URI serviceUri = getServiceUri();
 		JsonExampleService service = RestClientBuilder.newBuilder()
 			.baseUri(serviceUri)
 			.build(JsonExampleService.class);
 		return JSONBindUtil.toJson(service.get(), JsonbBuilder.create());
+	}
+	
+	public JsonObject getJsonObjectViaClient() {
+		URI serviceUri = getServiceUri();
+		Client client = ClientBuilder.newBuilder().build();
+		WebTarget target = client.target(serviceUri);
+		Response response = target.request().get();
+		
+		return response.readEntity(JsonObject.class);
+	}
+	
+	private URI getServiceUri() {
+		FacesContext facesContext = FacesContext.getCurrentInstance();
+		HttpServletRequest request = (HttpServletRequest)facesContext.getExternalContext().getRequest();
+		URI uri = URI.create(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/");
+		uri = uri.resolve(facesContext.getExternalContext().getRequestContextPath() + "/");
+		return uri.resolve("xsp/app/jsonExample");
 	}
 }

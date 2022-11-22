@@ -50,6 +50,7 @@ import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractEntityConverter;
+import org.openntf.xsp.nosql.communication.driver.impl.EntityUtil;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
@@ -113,6 +114,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	public Stream<DocumentEntity> convertQRPViewDocuments(Database database, View docs, ClassMapping classMapping) throws NotesException {
 		ViewNavigator nav = docs.createViewNav();
 		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, false, false);
+		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
 		return iter.stream()
 			.map(entry -> {
 				try {
@@ -122,7 +124,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						String noteId = (String)columnValues.get(columnValues.size()-1);
 						lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
 						if(DominoNoSQLUtil.isValid(doc)) {
-							List<Document> documents = convertDominoDocument(doc, classMapping);
+							List<Document> documents = convertDominoDocument(doc, classMapping, itemTypes);
 							String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
 							return DocumentEntity.of(name, documents);
 						} else {
@@ -206,11 +208,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOLUMNVALUES | ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
 		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, true, didSkip);
+		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
 					lotus.domino.Document doc = entry.getDocument();
-					List<Document> documents = convertDominoDocument(doc, classMapping);
+					List<Document> documents = convertDominoDocument(doc, classMapping, itemTypes);
 					return DocumentEntity.of(entityName, documents);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
@@ -232,11 +235,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 */
 	public Stream<DocumentEntity> convertDocuments(DocumentCollection docs, ClassMapping classMapping) throws NotesException {
 		DocumentCollectionIterator iter = new DocumentCollectionIterator(docs);
+		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
 		return iter.stream()
 			.filter(DominoNoSQLUtil::isValid)
 			.map(doc -> {
 				try {
-					List<Document> documents = convertDominoDocument(doc, classMapping);
+					List<Document> documents = convertDominoDocument(doc, classMapping, itemTypes);
 					String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
 					return DocumentEntity.of(name, documents);
 				} catch(NotesException e) {
@@ -270,12 +274,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		}
 		view.recycle(columns);
 		
-		Map<String, Class<?>> itemTypes = classMapping == null ? null : classMapping.getFields()
-			.stream()
-			.collect(Collectors.toMap(
-				f -> f.getName(),
-				f -> f.getNativeField().getType()
-			));
+		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
 		
 		return convertViewEntryInner(view.getParent(), viewEntry, columnNames, columnFormulas, entityName, itemTypes);
 	}
@@ -289,6 +288,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			convertedEntry.add(Document.of(DominoConstants.FIELD_ID, universalId));
 			convertedEntry.add(Document.of(DominoConstants.FIELD_POSITION, entry.getPosition('.')));
 			convertedEntry.add(Document.of(DominoConstants.FIELD_READ, entry.getRead()));
+			
 			
 			EntryType type;
 			if(entry.isCategory()) {
@@ -332,6 +332,15 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					break;
 				case "@NoteID": //$NON-NLS-1$
 					itemName = DominoConstants.FIELD_NOTEID;
+					// Translate the value here to an int
+					// It'll be in "formula" format like "NT00001234"
+					if(value instanceof String && ((String) value).startsWith("NT")) { //$NON-NLS-1$
+						String hexId = ((String)value).substring(2);
+						value = Integer.parseInt(hexId, 16);
+						if(String.class.isAssignableFrom(itemTypes.get(DominoConstants.FIELD_NOTEID))) {
+							value = Integer.toHexString((Integer)value);
+						}
+					}
 					break;
 				case "@AddedToThisFile": //$NON-NLS-1$
 					itemName = DominoConstants.FIELD_ADDED;
@@ -385,6 +394,31 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			if(fieldNames.contains(DominoConstants.FIELD_SERVER)) {
 				convertedEntry.add(Document.of(DominoConstants.FIELD_SERVER, context.getServer()));
 			}
+			if(fieldNames.contains(DominoConstants.FIELD_SIBLINGCOUNT)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_SIBLINGCOUNT, entry.getSiblingCount()));
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_CHILDCOUNT)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_CHILDCOUNT, entry.getChildCount()));
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_DESCENDANTCOUNT)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_DESCENDANTCOUNT, entry.getDescendantCount()));
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_NOTEID) && !columnFormulas.contains("@NoteID")) { //$NON-NLS-1$
+				if(String.class.isAssignableFrom(itemTypes.get(DominoConstants.FIELD_NOTEID))) {
+					convertedEntry.add(Document.of(DominoConstants.FIELD_NOTEID, entry.getNoteID()));	
+				} else {
+					convertedEntry.add(Document.of(DominoConstants.FIELD_NOTEID, entry.getNoteIDAsInt()));
+				}
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_COLUMNINDENTLEVEL)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_COLUMNINDENTLEVEL, entry.getColumnIndentLevel()));
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_INDENTLEVEL)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_INDENTLEVEL, entry.getIndentLevel()));
+			}
+			if(fieldNames.contains(DominoConstants.FIELD_FTSEARCHSCORE)) {
+				convertedEntry.add(Document.of(DominoConstants.FIELD_FTSEARCHSCORE, entry.getFTSearchScore()));
+			}
 			
 			return DocumentEntity.of(entityName, convertedEntry);
 		} finally {
@@ -393,7 +427,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Document> convertDominoDocument(lotus.domino.Document doc, ClassMapping classMapping) throws NotesException {
+	public List<Document> convertDominoDocument(lotus.domino.Document doc, ClassMapping classMapping, Map<String, Class<?>> itemTypes) throws NotesException {
 		Set<String> fieldNames = classMapping == null ? null : classMapping.getFieldsName()
 			.stream()
 			.filter(s -> !DominoConstants.FIELD_ID.equals(s))
@@ -541,7 +575,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					result.add(Document.of(DominoConstants.FIELD_ADATE, DominoNoSQLUtil.toTemporal(database, doc.getLastAccessed())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_NOTEID)) {
-					result.add(Document.of(DominoConstants.FIELD_NOTEID, doc.getNoteID()));
+					if(String.class.isAssignableFrom(itemTypes.get(DominoConstants.FIELD_NOTEID))) {
+						result.add(Document.of(DominoConstants.FIELD_NOTEID, doc.getNoteID()));
+					} else {
+						int noteId = Integer.parseInt(doc.getNoteID(), 16);
+						result.add(Document.of(DominoConstants.FIELD_NOTEID, noteId));
+					}
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_ADDED)) {
 					DateTime added = (DateTime)session.evaluate(" @AddedToThisFile ", doc).get(0); //$NON-NLS-1$
@@ -562,6 +601,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_SERVER)) {
 					result.add(Document.of(DominoConstants.FIELD_SERVER, database.getServer()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_FTSEARCHSCORE)) {
+					result.add(Document.of(DominoConstants.FIELD_FTSEARCHSCORE, doc.getFTSearchScore()));
 				}
 				
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {

@@ -20,12 +20,8 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.eclipse.jnosql.mapping.reflection.ClassInformationNotFoundException;
-import org.eclipse.jnosql.mapping.reflection.ClassMapping;
-import org.eclipse.jnosql.mapping.reflection.ClassMappings;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
 
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.document.DocumentEntity;
 
 /**
@@ -80,15 +76,4 @@ public abstract class AbstractDominoDocumentCollectionManager implements DominoD
 				.collect(Collectors.toList());
 		}
 	}
-
-	protected ClassMapping getClassMapping(String entityName) {
-		ClassMappings mappings = CDI.current().select(ClassMappings.class).get();
-		try {
-			return mappings.findByName(entityName);
-		} catch(ClassInformationNotFoundException e) {
-			// Shouldn't happen, but we should account for it
-			return null;
-		}
-	}
-
 }

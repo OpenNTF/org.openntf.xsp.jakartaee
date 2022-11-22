@@ -21,8 +21,13 @@ import jakarta.ws.rs.core.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -32,6 +37,13 @@ import com.ibm.commons.util.PathUtil;
 @SuppressWarnings("nls")
 @Testcontainers
 public abstract class AbstractWebClientTest {
+	
+	public static class AnonymousClientProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return Stream.of(Arguments.of(anonymousClient));
+		}
+	}
 	
 	private static Client anonymousClient;
 	private static Client adminClient;

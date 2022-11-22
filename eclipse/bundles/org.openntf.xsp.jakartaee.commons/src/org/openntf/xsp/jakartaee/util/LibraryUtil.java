@@ -275,7 +275,8 @@ public enum LibraryUtil {
 	}
 	
 	/**
-	 * Finds extensions for the given class using the IBM Commons extension mechanism.
+	 * Finds extensions for the given class using the IBM Commons extension mechanism, storing instances
+	 * in a global per-extension-class cache.
 	 * 
 	 * <p>This method assumes that the extension point name is the same as the qualified class name.</p>
 	 * 
@@ -285,10 +286,23 @@ public enum LibraryUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> findExtensions(Class<T> extensionClass) {
-		return (List<T>)EXTENSION_CACHE.computeIfAbsent(extensionClass, extClass ->
-			AccessController.doPrivileged((PrivilegedAction<List<T>>)() ->
-				ExtensionManager.findServices(null, extensionClass.getClassLoader(), extensionClass.getName(), extensionClass)
-			)
+		return (List<T>)EXTENSION_CACHE.computeIfAbsent(extensionClass, LibraryUtil::findExtensionsUncached);
+	}
+	
+	/**
+	 * Finds extensions for the given class using the IBM Commons extension mechanism, creating new instances
+	 * of each found class to return.
+	 * 
+	 * <p>This method assumes that the extension point name is the same as the qualified class name.</p>
+	 * 
+	 * @param <T> the class of extension to find
+	 * @param extensionClass the class object representing the extension point
+	 * @return a {@link List} of service objects for the class
+	 * @since 2.9.0
+	 */
+	public static <T> List<T> findExtensionsUncached(Class<T> extensionClass) {
+		return AccessController.doPrivileged((PrivilegedAction<List<T>>)() ->
+			ExtensionManager.findServices(null, extensionClass.getClassLoader(), extensionClass.getName(), extensionClass)
 		);
 	}
 	

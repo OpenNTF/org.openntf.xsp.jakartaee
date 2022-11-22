@@ -26,7 +26,6 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
@@ -34,11 +33,12 @@ import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 @SuppressWarnings("nls")
 public class TestRestClient extends AbstractWebClientTest {
 	@Test
-	@Disabled("Disabled pending figuring out local URLs in a container")
 	public void testRestClient() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/restClient");
-		Response response = target.request().get();
+		Response response = target.request()
+			.header("Host", "localhost:80")
+			.get();
 		
 		String json = response.readEntity(String.class);
 		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
@@ -47,11 +47,12 @@ public class TestRestClient extends AbstractWebClientTest {
 	}
 
 	@Test
-	@Disabled("Disabled pending figuring out local URLs in a container")
 	public void testRestClientAsync() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null) + "/restClient/async");
-		Response response = target.request().get();
+		Response response = target.request()
+			.header("Host", "localhost:80")
+			.get();
 		
 		String json = response.readEntity(String.class);
 		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();

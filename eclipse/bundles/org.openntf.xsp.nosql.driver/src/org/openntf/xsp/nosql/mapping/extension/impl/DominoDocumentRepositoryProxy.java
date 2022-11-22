@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -49,6 +50,25 @@ import jakarta.nosql.mapping.Sorts;
  * @param <T> the model-object type produced by the repository
  */
 public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
+	
+	// Known handled methods
+	private static final Method putInFolder;
+	private static final Method removeFromFolder;
+	private static final Method saveWithForm;
+	private static final Method getByNoteId;
+	private static final Method getByNoteIdInt;
+	
+	static {
+		try {
+			putInFolder = DominoRepository.class.getDeclaredMethod("putInFolder", Object.class, String.class); //$NON-NLS-1$
+			removeFromFolder = DominoRepository.class.getDeclaredMethod("removeFromFolder", Object.class, String.class); //$NON-NLS-1$
+			saveWithForm = DominoRepository.class.getDeclaredMethod("save", Object.class, boolean.class); //$NON-NLS-1$
+			getByNoteId = DominoRepository.class.getDeclaredMethod("findByNoteId", String.class); //$NON-NLS-1$
+			getByNoteIdInt = DominoRepository.class.getDeclaredMethod("findByNoteId", int.class); //$NON-NLS-1$
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	private final Class<T> typeClass;
 	private final DominoTemplate template;
@@ -59,12 +79,15 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
         this.template = template;
         this.typeClass = (Class) ((ParameterizedType) repositoryType.getGenericInterfaces()[0])
                 .getActualTypeArguments()[0];
+        if(!typeClass.isAnnotationPresent(Entity.class)) {
+        	throw new IllegalStateException(MessageFormat.format("Target type \"{0}\" for repository class \"{1}\" is missing an @Entity annotation", typeClass.getName(), repositoryType.getName()));
+        }
         this.repository = repository;
     }
 
 	@Override
 	public Object invoke(Object o, Method method, Object[] args) throws Throwable {
-
+		
 		// View entries support
 		ViewEntries viewEntries = method.getAnnotation(ViewEntries.class);
 		if(viewEntries != null) {
@@ -100,7 +123,6 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			return convert(result, method);
 		}
 		
-		Method putInFolder = DominoRepository.class.getDeclaredMethod("putInFolder", Object.class, String.class); //$NON-NLS-1$
 		if(method.equals(putInFolder)) {
 			String id = getId(args[0]);
 			String folderName = (String)args[1];
@@ -108,7 +130,7 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			template.putInFolder(id, folderName);
 			return null;
 		}
-		Method removeFromFolder = DominoRepository.class.getDeclaredMethod("removeFromFolder", Object.class, String.class); //$NON-NLS-1$
+		
 		if(method.equals(removeFromFolder)) {
 			String id = getId(args[0]);
 			String folderName = (String)args[1];
@@ -117,7 +139,6 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			return null;
 		}
 		
-		Method saveWithForm = DominoRepository.class.getDeclaredMethod("save", Object.class, boolean.class); //$NON-NLS-1$
 		if(method.equals(saveWithForm)) {
 			String id = getId(args[0]);
 			if(id !=null && !id.isEmpty() && template.existsById(id)) {
@@ -129,13 +150,21 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			}
 		}
 		
-		Method getByNoteId = DominoRepository.class.getDeclaredMethod("findByNoteId", String.class); //$NON-NLS-1$
 		if(method.equals(getByNoteId)) {
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
 				entityName = typeClass.getSimpleName();
 			}
 			Object result = template.getByNoteId(entityName, (String)args[0]);
+			return convert(result, method);
+		}
+		
+		if(method.equals(getByNoteIdInt)) {
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.getByNoteId(entityName, Integer.toHexString((int)args[0]));
 			return convert(result, method);
 		}
 		

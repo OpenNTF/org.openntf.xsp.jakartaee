@@ -75,7 +75,7 @@ public class Person {
 	private int size;
 	
 	@Column(DominoConstants.FIELD_NOTEID)
-	private String noteId;
+	private int noteId;
 	
 	@Column(DominoConstants.FIELD_ADATE)
 	private Instant accessed;
@@ -85,6 +85,24 @@ public class Person {
 	
 	@Column(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE)
 	private Instant modifiedInFile;
+	
+	@Column(DominoConstants.FIELD_SIBLINGCOUNT)
+	private int siblingCount;
+	
+	@Column(DominoConstants.FIELD_CHILDCOUNT)
+	private int childCount;
+	
+	@Column(DominoConstants.FIELD_DESCENDANTCOUNT)
+	private int descendantCount;
+	
+	@Column(DominoConstants.FIELD_COLUMNINDENTLEVEL)
+	private int columnIndentLevel;
+	
+	@Column(DominoConstants.FIELD_INDENTLEVEL)
+	private int indentLevel;
+	
+	@Column(DominoConstants.FIELD_FTSEARCHSCORE)
+	private int ftSearchScore;
 
 	public String getUnid() {
 		return unid;
@@ -172,7 +190,7 @@ public class Person {
 		return accessed;
 	}
 	
-	public String getNoteId() {
+	public int getNoteId() {
 		return noteId;
 	}
 	
@@ -181,5 +199,24 @@ public class Person {
 	}
 	public Instant getModifiedInFile() {
 		return modifiedInFile;
+	}
+	
+	public int getChildCount() {
+		return childCount;
+	}
+	public int getSiblingCount() {
+		return siblingCount;
+	}
+	public int getDescendantCount() {
+		return descendantCount;
+	}
+	public int getColumnIndentLevel() {
+		return columnIndentLevel;
+	}
+	public int getFtSearchScore() {
+		return ftSearchScore;
+	}
+	public int getIndentLevel() {
+		return indentLevel;
 	}
 }

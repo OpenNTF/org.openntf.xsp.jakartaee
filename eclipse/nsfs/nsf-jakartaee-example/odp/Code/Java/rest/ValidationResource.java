@@ -55,10 +55,19 @@ public class ValidationResource {
 	
 	@GET
 	@Path("requestValidation")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Object getRequestParam(
 			@QueryParam("requiredField") @NotEmpty String requiredField
 		) {
 		return "Required field is: " + requiredField;
+	}
+	
+	@GET
+	@Path("requestValidation")
+	@Produces({ MediaType.APPLICATION_XML, MediaType.TEXT_XML })
+	public Object getRequestParamXml(
+			@QueryParam("requiredField") @NotEmpty String requiredFieldParam
+		) {
+		return "Required field is: " + requiredFieldParam;
 	}
 }

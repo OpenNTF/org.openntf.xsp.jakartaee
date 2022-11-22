@@ -46,8 +46,7 @@ The binary distribution contains the following 3rd party code:
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
 - ClassMate, available from https://github.com/FasterXML/java-classmate and licensed under Apache 2.0
 - Hibernate Validator, available from http://hibernate.org/validator/ and licensed under Apache 2.0
-- Eclipse Yasson, available from https://github.com/eclipse-ee4j/yasson and licensed under the EPL 2.0
-- GlassFish JSON-P Provider, available from https://projects.eclipse.org/projects/ee4j.jsonp and licensed under the EPL 2.0
+- Apache Johnzon and its JSON-B provider, available from https://johnzon.apache.org/ and licensed under Apache 2.0
 - The Eclipse Implementation of JAXB, available from https://github.com/eclipse-ee4j/jaxb-ri and licensed under the EPL 2.0
 - The Eclipse Angus Activation implementation, available from https://github.com/eclipse-ee4j/angus-activation and licensed under the EPL 2.0
 - The Eclipse Angus Mail implementation, available from https://github.com/eclipse-ee4j/angus-mail and licensed under the Eclipse Public License 2.0. See "LICENSE-angus.md" and "LICENSE-angus.md" in the "legal" directory

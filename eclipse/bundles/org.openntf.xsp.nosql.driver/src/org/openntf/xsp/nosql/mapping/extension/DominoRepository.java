@@ -71,8 +71,18 @@ public interface DominoRepository<T, ID> extends Repository<T, ID> {
      * Finds an entity given its note ID
      *
      * @param noteId the note ID
-     * @return the entity given the K
+     * @return the entity given the note ID
      * @throws NullPointerException when noteId is null
+     * @since 2.8.0
      */
     Optional<T> findByNoteId(String noteId);
+    
+    /**
+     * Finds an entity given its note ID
+     * 
+     * @param noteId the note ID
+     * @return the entity given the note ID
+     * @since 2.9.0
+     */
+    Optional<T> findByNoteId(int noteId);
 }

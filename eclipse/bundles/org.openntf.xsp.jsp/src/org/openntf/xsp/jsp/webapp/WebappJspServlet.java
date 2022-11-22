@@ -124,6 +124,8 @@ public class WebappJspServlet extends javax.servlet.http.HttpServlet {
 					Thread.currentThread().setContextClassLoader(current);
 					context.removeAttribute("org.glassfish.jsp.beanManagerELResolver"); //$NON-NLS-1$
 					context.removeAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP);
+					
+					ServletUtil.close(response);
 				}
 				return null;
 			});
@@ -140,10 +142,6 @@ public class WebappJspServlet extends javax.servlet.http.HttpServlet {
 		} catch(Throwable t) {
 			t.printStackTrace();
 			throw t;
-		} finally {
-			// Looks like Jasper doesn't flush this on its own
-			oldResponse.getWriter().flush();
-			oldResponse.flushBuffer();
 		}
 	}
 	

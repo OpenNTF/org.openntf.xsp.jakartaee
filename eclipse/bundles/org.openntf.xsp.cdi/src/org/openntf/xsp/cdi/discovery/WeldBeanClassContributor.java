@@ -25,7 +25,9 @@ public interface WeldBeanClassContributor {
 	
 	Collection<Class<?>> getBeanClasses();
 	
-	Collection<Extension> getExtensions();
+	default Collection<Extension> getExtensions() {
+		return Collections.emptyList();
+	}
 	
 	/**
 	 * @since 2.5.0
