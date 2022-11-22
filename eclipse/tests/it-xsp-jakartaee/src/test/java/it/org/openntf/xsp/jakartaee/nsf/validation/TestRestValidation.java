@@ -44,7 +44,15 @@ public class TestRestValidation extends AbstractWebClientTest {
 		Response response = target.request("text/html","application/xhtml+xml","application/xml","*/*").get();
 		
 		String body = response.readEntity(String.class);
-		assertEquals("{\"classViolations\":[],\"parameterViolations\":[{\"constraintType\":\"PARAMETER\",\"message\":\"must not be empty\",\"path\":\"getRequestParam.requiredField\",\"value\":\"\"}],\"propertyViolations\":[],\"returnValueViolations\":[]}", body);
+		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+				+ "<violationReport>"
+				+ "<parameterViolations>"
+				+ "<constraintType>PARAMETER</constraintType>"
+				+ "<path>getRequestParamXml.requiredField</path>"
+				+ "<message>must not be empty</message>"
+				+ "<value></value>"
+				+ "</parameterViolations>"
+				+ "</violationReport>", body);
 	}
 	
 	@Test
