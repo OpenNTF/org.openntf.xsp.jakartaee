@@ -10,6 +10,7 @@ DynamicImport-Package: org.jboss.weld.*
 Import-Package: com.ibm.commons.util,
  com.ibm.designer.domino.napi,
  jakarta.activation;version="2.0.0",
+ jakarta.annotation;version="2.1.1",
  jakarta.enterprise.inject;version="3.0.0",
  jakarta.enterprise.inject.spi;version="3.0.0",
  jakarta.inject;version="2.0.0",
