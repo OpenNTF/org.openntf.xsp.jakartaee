@@ -368,7 +368,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					break;
 				}
 				
-				convertedEntry.add(Document.of(itemName, DominoNoSQLUtil.toJavaFriendly(context, value)));
+				if(value != null) {
+					convertedEntry.add(Document.of(itemName, DominoNoSQLUtil.toJavaFriendly(context, value)));
+				}
 			}
 			
 			// If the entity requested an ETag and we happened to include the modified date, we can do that here
