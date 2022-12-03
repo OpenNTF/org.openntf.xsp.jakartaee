@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta EE Commons
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.commons;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.commons
-Bundle-Version: 2.9.0.qualifier
+Bundle-Version: 2.10.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.ibm.pvc.servlet;bundle-version="2.5.0",
@@ -14,14 +14,14 @@ Require-Bundle: com.ibm.pvc.servlet;bundle-version="2.5.0",
  org.openntf.org.eclipse.angus.jakarta.mail;bundle-version="1.0.0";visibility:=reexport,
  jakarta.enterprise.concurrent-api;bundle-version="2.0.0";visibility:=reexport
 Bundle-ClassPath: .
-Export-Package: org.openntf.xsp.cdi.ext;version="2.9.0",
- org.openntf.xsp.jakartaee;version="2.9.0",
- org.openntf.xsp.jakartaee.discovery;version="2.9.0",
- org.openntf.xsp.jakartaee.discovery.impl;version="2.9.0",
- org.openntf.xsp.jakartaee.module;version="2.9.0",
- org.openntf.xsp.jakartaee.servlet;version="2.9.0",
- org.openntf.xsp.jakartaee.util;version="2.9.0",
- org.openntf.xsp.jakartaee.xml;version="2.9.0"
+Export-Package: org.openntf.xsp.cdi.ext;version="2.10.0",
+ org.openntf.xsp.jakartaee;version="2.10.0",
+ org.openntf.xsp.jakartaee.discovery;version="2.10.0",
+ org.openntf.xsp.jakartaee.discovery.impl;version="2.10.0",
+ org.openntf.xsp.jakartaee.module;version="2.10.0",
+ org.openntf.xsp.jakartaee.servlet;version="2.10.0",
+ org.openntf.xsp.jakartaee.util;version="2.10.0",
+ org.openntf.xsp.jakartaee.xml;version="2.10.0"
 Import-Package: com.ibm.commons.extension,
  com.ibm.commons.util,
  com.ibm.designer.domino.napi,

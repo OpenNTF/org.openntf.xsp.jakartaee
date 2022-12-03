@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta EE Compile-Time Integration Tests
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.test;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.test
-Bundle-Version: 2.9.0.qualifier
+Bundle-Version: 2.10.0.qualifier
 Require-Bundle: org.junit;bundle-version="4.0.0",
  org.openntf.xsp.jsonapi;bundle-version="2.0.0",
  org.openntf.xsp.beanvalidation;bundle-version="2.0.0",

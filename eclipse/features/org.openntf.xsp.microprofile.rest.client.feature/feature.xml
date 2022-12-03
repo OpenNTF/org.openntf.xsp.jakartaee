@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.microprofile.rest.client.feature"
       label="XPages MicroProfile REST Client 3.0 Support Feature"
-      version="2.9.0.qualifier">
+      version="2.10.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages JAX-RS CDI Integrator
 Bundle-SymbolicName: org.openntf.xsp.jaxrs.cdi;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jaxrs.weld
-Bundle-Version: 2.9.0.qualifier
+Bundle-Version: 2.10.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

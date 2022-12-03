@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages JAX-RS OSGi Service Bridge
 Bundle-SymbolicName: org.openntf.xsp.jaxrs.factory
 Automatic-Module-Name: org.openntf.xsp.jaxrs.factory
-Bundle-Version: 2.9.0.qualifier
+Bundle-Version: 2.10.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: jakarta.ws.rs-api;bundle-version="3.0.0"
