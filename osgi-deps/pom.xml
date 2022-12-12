@@ -37,11 +37,14 @@
 	</pluginRepositories>
 	
 	<properties>
+		<!-- Weld 5.0.0+ requires Java 11 -->
 		<weld-version>4.0.3.Final</weld-version>
 		<!-- RestEasy 6.1.0+ requires Java 11 -->
 		<resteasy-version>6.0.3.Final</resteasy-version>
+		<!-- RestEasy MP Client 2.0.0+ requires Java 11 -->
 		<resteasy-mp-version>2.0.0.Beta1</resteasy-mp-version>
-		<hibernate-version>7.0.4.Final</hibernate-version>
+		<!-- Hibernate 8.0.0+ requires Java 11 -->
+		<hibernate-version>7.0.5.Final</hibernate-version>
 		<!-- jakarta.* snapshot builds are on OpenNTF's server -->
 		<nosql-version>1.0.0-b4</nosql-version>
 		<nosql-version-osgi>1.0.0</nosql-version-osgi>
