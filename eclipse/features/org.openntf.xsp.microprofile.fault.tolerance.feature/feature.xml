@@ -246,6 +246,5 @@
    <plugin id="io.smallrye.fault-tolerance-api" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.fault-tolerance-core" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.fault-tolerance-autoconfig-core" version="0.0.0" unpack="false"/>
-   <plugin id="io.smallrye.reactive.smallrye-reactive-converter-api" version="0.0.0" unpack="false"/>
 
 </feature>

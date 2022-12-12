@@ -709,16 +709,18 @@
 								<!--
 									MicroProfile Config
 								-->
-								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.1</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-common:3.0.0-RC1</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-core:3.0.0-RC1</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-validator:3.0.0-RC1</id><source>true</source></artifact>
+								<!-- SmallRye Config 3.0.0+ requires Java 11 -->
+								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.2</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-common:3.0.0-RC4</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-core:3.0.0-RC4</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-validator:3.0.0-RC4</id><source>true</source></artifact>
 								
 								<!--
 									MicroProfile Fault Tolerance
 								-->
+								<!-- SmallRye Fault Tolerance 6.0.0+ requires Java 11 -->
 								<artifact>
-									<id>org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0</id>
+									<id>org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2</id>
 									<source>true</source>
 									<source>true</source>
 									<override>true</override>
@@ -734,7 +736,7 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-fault-tolerance:6.0.0-RC1</id>
+									<id>io.smallrye:smallrye-fault-tolerance:6.0.0-RC4</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>

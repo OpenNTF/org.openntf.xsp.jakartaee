@@ -92,7 +92,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 			assertNotEquals("I should have stopped.", result);
 
 			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-			assertEquals("org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException: CircuitBreaker[bean.FaultToleranceBean#getCircuitBreaker] circuit breaker is open", jsonObject.getString("message"));
+			assertEquals("org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException: bean.FaultToleranceBean#getCircuitBreaker circuit breaker is open", jsonObject.getString("message"));
 		}
 	}
 }
