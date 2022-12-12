@@ -452,6 +452,7 @@
 								</artifact>
 								
 								<!-- Repackage to avoid sun.misc import trouble on build -->
+								<!-- Note: 1.3.0 is weirdly missing the implementation on bundling -->
 								<artifact>
 									<id>org.jboss.classfilewriter:jboss-classfilewriter:1.2.5.Final</id>
 									<source>true</source>
