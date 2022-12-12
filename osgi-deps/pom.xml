@@ -752,9 +752,10 @@
 								<!--
 									MicroProfile Health
 								-->
-								<artifact><id>org.eclipse.microprofile.health:microprofile-health-api:4.0</id><source>true</source></artifact>
+								<!-- SmallRye Health 4.0.0+ requires Java 11 -->
+								<artifact><id>org.eclipse.microprofile.health:microprofile-health-api:4.0.1</id><source>true</source></artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-health:4.0.0-RC1</id>
+									<id>io.smallrye:smallrye-health:4.0.0-RC2</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
