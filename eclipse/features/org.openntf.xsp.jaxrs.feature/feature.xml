@@ -264,7 +264,7 @@
 	<plugin id="com.fasterxml.jackson.core.jackson-annotations" version="0.0.0" unpack="false"/>
 	<plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="0.0.0" unpack="false"/>
 	<plugin id="org.yaml.snakeyaml" version="0.0.0" unpack="false"/>
-	<plugin id="org.jboss.jandex" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.jandex" version="0.0.0" unpack="false"/>
 	<plugin id="com.ibm.async.util" version="0.0.0" unpack="false"/>
 	
 	<plugin id="org.eclipse.microprofile.metrics" version="0.0.0" unpack="false"/>

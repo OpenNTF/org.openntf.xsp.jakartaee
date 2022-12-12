@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -113,7 +114,7 @@ public abstract class AbstractOpenAPIResource {
 		}
 	
 		// Build a URI to the base of JAX-RS
-		Set<String> servers = config.servers();
+		Collection<String> servers = config.servers();
 		if(servers == null || servers.isEmpty()) {
 			Server server = new ServerImpl();
 			
