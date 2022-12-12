@@ -326,7 +326,7 @@
 								-->
 								<artifact><id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0.1</id><source>true</source></artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-metrics:4.0.0-RC1</id>
+									<id>io.smallrye:smallrye-metrics:4.0.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
