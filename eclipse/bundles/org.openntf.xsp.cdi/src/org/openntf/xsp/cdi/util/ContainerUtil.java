@@ -254,7 +254,6 @@ public enum ContainerUtil {
 		return withLock(id, () -> {
 			WeldContainer instance = WeldContainer.instance(id);
 			if(instance == null || !instance.isRunning()) {
-				long start = System.currentTimeMillis();
 				try {
 					// Register a new one
 					Weld weld = constructWeld(id)
@@ -298,9 +297,6 @@ public enum ContainerUtil {
 					}
 					e.printStackTrace();
 					return null;
-				} finally {
-					long end = System.currentTimeMillis();
-					System.out.println("OSGi CDI container init took " + (end - start) + "ms");
 				}
 			}
 			return instance;
