@@ -254,6 +254,7 @@ public enum ContainerUtil {
 		return withLock(id, () -> {
 			WeldContainer instance = WeldContainer.instance(id);
 			if(instance == null || !instance.isRunning()) {
+				long start = System.currentTimeMillis();
 				try {
 					// Register a new one
 					Weld weld = constructWeld(id)
@@ -297,6 +298,9 @@ public enum ContainerUtil {
 					}
 					e.printStackTrace();
 					return null;
+				} finally {
+					long end = System.currentTimeMillis();
+					System.out.println("OSGi CDI container init took " + (end - start) + "ms");
 				}
 			}
 			return instance;
@@ -323,17 +327,10 @@ public enum ContainerUtil {
 		}
 		bundleNames.add(symbolicName);
 		// Add classes from the bundle here
-		DiscoveryUtil.findExportedClassNames(bundle, false)
-			.filter(t -> !classNames.contains(t))
-			.peek(classNames::add)
+		DiscoveryUtil.findBeanClasses(bundle)
+			.filter(t -> !classNames.contains(t.getName()))
+			.peek(t -> classNames.add(t.getName()))
 			.distinct()
-			.map(t -> {
-				try {
-					return bundle.loadClass(t);
-				} catch (ClassNotFoundException e) {
-					return null;
-				}
-			})
 			.filter(Objects::nonNull)
 			.forEach(weld::addBeanClass);
 		

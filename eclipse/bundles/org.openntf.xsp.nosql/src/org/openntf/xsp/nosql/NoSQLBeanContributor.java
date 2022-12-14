@@ -53,14 +53,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 				.map(FrameworkUtil::getBundle)
 				.flatMap(t -> {
 					try {
-						return DiscoveryUtil.findExportedClassNames(t, true)
-							.map(className -> {
-								try {
-									return t.loadClass(className);
-								} catch (ClassNotFoundException e) {
-									throw new RuntimeException(e);
-								}
-							});
+						return DiscoveryUtil.findBeanClasses(t);
 					} catch (BundleException e) {
 						throw new RuntimeException(e);
 					}

@@ -306,6 +306,12 @@
 				<artifactId>nsfodp-maven-plugin</artifactId>
 				<extensions>true</extensions>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.jboss.jandex</groupId>
+				<artifactId>jandex-maven-plugin</artifactId>
+				<version>1.2.3</version>
+			</plugin>
 
 			<plugin>
 				<groupId>com.mycila</groupId>
