@@ -30,11 +30,12 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.testcontainers.images.builder.Transferable;
+import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
@@ -47,9 +48,79 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	};
 	
 	public static final Set<Path> tempFiles = new HashSet<>();
+
+	private static class DominoImage extends ImageFromDockerfile {
+		
+		public DominoImage() {
+			super("xsp-jakartaee-container:1.0.0", true); //$NON-NLS-1$
+			withFileFromClasspath("Dockerfile", "/docker/Dockerfile"); //$NON-NLS-1$ //$NON-NLS-2$
+			init();
+		}
+		
+		private void init() {
+			// Build temp files to use as volume binds
+			try {
+				String version = getMavenVersion();
+
+				Path updateSite = findLocalMavenArtifact("org.openntf.xsp", "org.openntf.xsp.jakartaee.updatesite", version, "zip"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				// Copy in the project update site
+				try(
+					InputStream is = Files.newInputStream(updateSite);
+					ZipInputStream zis = new ZipInputStream(is, StandardCharsets.UTF_8)
+				) {
+					for(ZipEntry entry = zis.getNextEntry(); entry != null; entry = zis.getNextEntry()) {
+						if(!entry.isDirectory()) {
+							String bundleName = entry.getName();
+							int slashIndex = bundleName.lastIndexOf('/');
+							if(slashIndex > -1) {
+								bundleName = bundleName.substring(slashIndex+1);
+							}
+							byte[] data = IOUtils.toByteArray(zis);
+							withFileFromTransferable("staging/plugins/" + bundleName, Transferable.of(data)); //$NON-NLS-1$
+						}
+					}
+				}
+				
+				// Copy in the test-support bundles
+				for(String bundleName : BUNDLE_DEPS) {
+					Path bundle = findLocalMavenArtifact("org.openntf.xsp", bundleName, version, "jar"); //$NON-NLS-1$ //$NON-NLS-2$
+					
+					withFileFromPath("staging/plugins/" + bundle.getFileName().toString(), bundle); //$NON-NLS-1$
+				}
+
+				
+				// Create an Equinox link to the above
+				withFileFromClasspath("staging/container.link", "/docker/container.link"); //$NON-NLS-1$ //$NON-NLS-2$
+				
+				// Next up, copy our Java policy to be the Notes home dir in the container
+				withFileFromClasspath("staging/.java.policy", "/docker/java.policy"); //$NON-NLS-1$ //$NON-NLS-2$
+				
+				// Finally, add our NTFs and Domino config to /local/runner
+				{
+					Path exampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					withFileFromPath("staging/ntf/jakartaee.ntf", exampleNtf); //$NON-NLS-1$
+				}
+				{
+					Path bundleExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-bundle-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					withFileFromPath("staging/ntf/jeebundle.ntf", bundleExampleNtf); //$NON-NLS-1$
+				}
+				{
+					Path baseBundleExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-bundlebase-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					withFileFromPath("staging/ntf/jeebasebundle.ntf", baseBundleExampleNtf); //$NON-NLS-1$
+				}
+				{
+					withFileFromClasspath("staging/domino-config.json", "/docker/domino-config.json"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		}
+		
+	}
 	
 	public DominoContainer() {
-		super(DockerImageName.parse("hclcom/domino:latest")); //$NON-NLS-1$
+		super(new DominoImage());
 		
 		addEnv("LANG", "en_US.UTF-8"); //$NON-NLS-1$ //$NON-NLS-2$
 		addEnv("SetupAutoConfigure", "1"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -74,88 +145,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 			.withStartupTimeout(Duration.ofMinutes(5))
 		);
 		
-		// Build temp files to use as volume binds
-		try {
-			String version = getMavenVersion();
-
-			// Compose an Eclipse directory for the data-dir installation path in the container
-			Path eclipse = Files.createTempDirectory(getClass().getName());
-			tempFiles.add(eclipse);
-			String pathSep = eclipse.getFileSystem().getSeparator();
-			
-			Path updateSite = findLocalMavenArtifact("org.openntf.xsp", "org.openntf.xsp.jakartaee.updatesite", version, "zip"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			// Copy in the project update site
-			try(
-				InputStream is = Files.newInputStream(updateSite);
-				ZipInputStream zis = new ZipInputStream(is, StandardCharsets.UTF_8)
-			) {
-				for(ZipEntry entry = zis.getNextEntry(); entry != null; entry = zis.getNextEntry()) {
-					if(!entry.isDirectory()) {
-						Path targetPath = eclipse.resolve(entry.getName().replace("/", pathSep)); //$NON-NLS-1$
-						Files.createDirectories(targetPath.getParent());
-						Files.copy(zis, targetPath);
-					}
-				}
-			}
-			
-			// Copy in the test-support bundles
-			for(String bundleName : BUNDLE_DEPS) {
-				Path bundle = findLocalMavenArtifact("org.openntf.xsp", bundleName, version, "jar"); //$NON-NLS-1$ //$NON-NLS-2$
-				
-				Path targetPath = eclipse.resolve("plugins").resolve(bundleName + ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
-				Files.createDirectories(targetPath.getParent());
-				Files.copy(bundle, targetPath);
-			}
-			
-			addFileSystemBind(eclipse.toString(), "/local/eclipse/eclipse", BindMode.READ_WRITE); //$NON-NLS-1$
-
-			
-			// Create an Equinox link to the above
-			Path links = Files.createTempDirectory(DominoContainer.class.getName());
-			tempFiles.add(links);
-			try(InputStream is = getClass().getResourceAsStream("/docker/container.link")) { //$NON-NLS-1$
-				Files.copy(is, links.resolve("container.link")); //$NON-NLS-1$
-			}
-			addFileSystemBind(links.toString(), "/opt/hcl/domino/notes/latest/linux/osgi/rcp/eclipse/links", BindMode.READ_ONLY); //$NON-NLS-1$
-			
-			
-			// Next up, copy our Java policy to be the Notes home dir in the container
-			Path notesHome = Files.createTempDirectory(DominoContainer.class.getName());
-			tempFiles.add(notesHome);
-			try(InputStream is = getClass().getResourceAsStream("/docker/java.policy")) { //$NON-NLS-1$
-				Files.copy(is, notesHome.resolve(".java.policy")); //$NON-NLS-1$
-			}
-			addFileSystemBind(notesHome.toString(), "/home/notes", BindMode.READ_WRITE); //$NON-NLS-1$
-			
-			// Finally, add our NTFs and Domino config to /local/runner
-			Path runner = Files.createTempDirectory(DominoContainer.class.getName());
-			tempFiles.add(runner);
-			{
-				Path exampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				Path exampleNtfDest = runner.resolve("jakartaee.ntf"); //$NON-NLS-1$
-				Files.copy(exampleNtf, exampleNtfDest);
-			}
-			{
-				Path bundleExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-bundle-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				Path bundleExampleNtfDest = runner.resolve("jeebundle.ntf"); //$NON-NLS-1$
-				Files.copy(bundleExampleNtf, bundleExampleNtfDest);
-			}
-			{
-				Path baseBundleExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-bundlebase-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				Path baseBundleExampleNtfDest = runner.resolve("jeebasebundle.ntf"); //$NON-NLS-1$
-				Files.copy(baseBundleExampleNtf, baseBundleExampleNtfDest);
-			}
-			{
-				Path configJson = runner.resolve("domino-config.json"); //$NON-NLS-1$
-				try(InputStream is = getClass().getResourceAsStream("/docker/domino-config.json")) { //$NON-NLS-1$
-					Files.copy(is, configJson);
-				}
-			}
-			addFileSystemBind(runner.toString(), "/local/runner", BindMode.READ_WRITE); //$NON-NLS-1$
-			
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
+		
 	}
 	
 	private static Path findLocalMavenArtifact(String groupId, String artifactId, String version, String type) {
