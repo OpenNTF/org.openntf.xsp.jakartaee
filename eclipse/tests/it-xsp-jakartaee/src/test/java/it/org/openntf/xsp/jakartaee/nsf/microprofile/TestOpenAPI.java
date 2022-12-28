@@ -73,6 +73,9 @@ public class TestOpenAPI extends AbstractWebClientTest {
 		if(mavenVersion.endsWith("-SNAPSHOT")) {
 			mavenVersion = mavenVersion.substring(0, mavenVersion.length()-"-SNAPSHOT".length());
 		}
+		if(!info.containsKey("version")) {
+			fail("Encountered unexpected JSON: " + json);
+		}
 		String version = info.getString("version");
 		assertTrue(version.startsWith(mavenVersion), "Expected version '" + version + "' to start with '" + mavenVersion + "'");
 		

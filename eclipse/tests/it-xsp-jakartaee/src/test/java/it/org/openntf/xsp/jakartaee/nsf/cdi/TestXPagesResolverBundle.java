@@ -16,10 +16,12 @@
 package it.org.openntf.xsp.jakartaee.nsf.cdi;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -32,8 +34,12 @@ public class TestXPagesResolverBundle extends AbstractWebClientTest {
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testBundleBeanResolution(WebDriver driver) {
 		driver.get(getBundleNsfRootUrl(driver) + "/home.xsp");
-		
-		WebElement dd = driver.findElement(By.xpath("//div[@id='container']/span"));
-		assertEquals("Bundle bean says: Hello from bundleBean", dd.getText());
+
+		try {
+			WebElement dd = driver.findElement(By.xpath("//div[@id='container']/span"));
+			assertEquals("Bundle bean says: Hello from bundleBean", dd.getText());
+		} catch(NoSuchElementException e) {
+			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
+		}
 	}
 }
