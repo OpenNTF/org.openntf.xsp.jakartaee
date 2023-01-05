@@ -247,10 +247,10 @@
 	<plugin id="jakarta.interceptor-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.inject.jakarta.inject-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.servlet-api" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.jakarta.json.bind-api" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.json.bind-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.websocket-client-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.websocket-api" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.jakarta.json-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.glassfish.jakarta.json" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.persistence-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.ejb-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.transaction-api" version="0.0.0" unpack="false"/>

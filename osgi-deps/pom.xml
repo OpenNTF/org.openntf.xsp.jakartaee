@@ -123,58 +123,19 @@
 								<!--
 									JSON-P and JSON-B
 								-->
-								<!-- Re-wrap the JSON-P API to avoid a dependency on the RI -->
+								<!-- NB: the move to Eclipse Parsson as the JSON-P implementation is incomplete -->
+								<artifact><id>jakarta.json:jakarta.json-api:2.0.1</id><source>true</source></artifact>
+								<artifact><id>org.glassfish:jakarta.json:2.0.1</id><source>true</source></artifact>
+								<artifact><id>jakarta.json.bind:jakarta.json.bind-api:2.0.0</id><source>true</source></artifact>
+								<!-- Oddly, the Yasson binaries don't end up in the repo if I don't override the bundle here -->
 								<artifact>
-									<id>jakarta.json:jakarta.json-api:2.0.1</id>
+									<id>org.eclipse:yasson:2.0.4</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
-										<Bundle-SymbolicName>org.openntf.jakarta.json-api</Bundle-SymbolicName>
-										<Bundle-Version>2.0.1.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="2.0.1"</Export-Package>
-										<DynamicImport-Package>*</DynamicImport-Package>
-									</instructions>
-								</artifact>
-								<!-- The Johnzon jakarta artifacts are not fully transformed -->
-								<artifact>
-									<id>org.apache.johnzon:johnzon-core:1.2.19</id>
-									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.apache.johnzon.core</Bundle-SymbolicName>
-										<Bundle-Version>1.2.19.${osgi.qualifier}</Bundle-Version>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>jakarta.json.bind:jakarta.json.bind-api:2.0.0</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.jakarta.json.bind-api</Bundle-SymbolicName>
-										<Bundle-Version>2.0.0.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="2.0.0"</Export-Package>
-										<DynamicImport-Package>*</DynamicImport-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.apache.johnzon:johnzon-jsonb:1.2.19</id>
-									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.apache.johnzon.jsonb</Bundle-SymbolicName>
-										<Bundle-Version>1.2.19.${osgi.qualifier}</Bundle-Version>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.apache.johnzon:johnzon-mapper:1.2.19</id>
-									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.apache.johnzon.mapper</Bundle-SymbolicName>
-										<Bundle-Version>1.2.19.${osgi.qualifier}</Bundle-Version>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.yasson</Bundle-SymbolicName>
+										<Bundle-Version>2.0.4.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="2.0.4"</Export-Package>
 									</instructions>
 								</artifact>
 								
