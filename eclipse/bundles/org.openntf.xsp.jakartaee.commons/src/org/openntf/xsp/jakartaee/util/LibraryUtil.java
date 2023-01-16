@@ -307,6 +307,26 @@ public enum LibraryUtil {
 	}
 	
 	/**
+	 * Finds extensions for the given class using the IBM Commons extension mechanism, creating new instances
+	 * of each found class to return. Unlike {@link #findExtensionsUncached(Class)}, this method allows the
+	 * use of an application-specific {@link ClassLoader}.
+	 * 
+	 * <p>This method assumes that the extension point name is the same as the qualified class name.</p>
+	 * 
+	 * @param <T> the class of extension to find
+	 * @param extensionClass the class object representing the extension point
+	 * @param cl the application-specific {@link ClassLoader} to query
+	 * @return a {@link List} of service objects for the class
+	 * @since 2.10.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> findApplicationExtensionsUncached(Class<T> extensionClass, ClassLoader cl) {
+		return AccessController.doPrivileged((PrivilegedAction<List<T>>)() ->
+			(List<T>)ExtensionManager.findApplicationServices(cl, extensionClass.getName())
+		);
+	}
+	
+	/**
 	 * Finds extension for the given class using the IBM Commons extension mechanism, sorted based
 	 * on the {@link Priority} annotation.
 	 * s the qualified class name.</p>

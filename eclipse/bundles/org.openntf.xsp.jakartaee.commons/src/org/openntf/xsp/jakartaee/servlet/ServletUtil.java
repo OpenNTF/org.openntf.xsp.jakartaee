@@ -340,6 +340,7 @@ public enum ServletUtil {
 	}
 	
 	private static final String ATTR_CONTEXTINITIALIZED = ServletUtil.class.getName() + "_contextInitialized"; //$NON-NLS-1$
+	private static final String ATTR_CONTEXTDESTROYED = ServletUtil.class.getName() + "_contextDestroyed"; //$NON-NLS-1$
 	
 	public static void contextInitialized(jakarta.servlet.ServletContext context) {
 		if(!Boolean.TRUE.equals(context.getAttribute(ATTR_CONTEXTINITIALIZED))) {
@@ -350,6 +351,23 @@ public enum ServletUtil {
 				.forEach(l -> l.contextInitialized(new ServletContextEvent(context)));
 			
 			context.setAttribute(ATTR_CONTEXTINITIALIZED, Boolean.TRUE);
+			context.setAttribute(ATTR_CONTEXTDESTROYED, Boolean.FALSE);
+		}
+	}
+	
+	/**
+	 * @since 2.10.0
+	 */
+	public static void contextDestroyed(jakarta.servlet.ServletContext context) {
+		if(!Boolean.TRUE.equals(context.getAttribute(ATTR_CONTEXTDESTROYED))) {
+			LibraryUtil.findExtensionsUncached(ServletContextListener.class)
+				.forEach(l -> context.addListener(l));
+			
+			getListeners(context, ServletContextListener.class)
+				.forEach(l -> l.contextDestroyed(new ServletContextEvent(context)));
+			
+			context.setAttribute(ATTR_CONTEXTINITIALIZED, Boolean.FALSE);
+			context.setAttribute(ATTR_CONTEXTDESTROYED, Boolean.TRUE);
 		}
 	}
 	

@@ -22,6 +22,11 @@
 		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.jakarta.servlet.ServletLibrary" />
 	</extension>
 	
+	<!-- Fire ServletContext events -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="com.ibm.xsp.core.events.ApplicationListener" class="org.openntf.xsp.jakarta.servlet.nsf.ServletApplicationListener" />
+	</extension>
+	
 	<!-- Handle in-NSF Servlets -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jakarta.servlet.nsf.ServletServletFactory" />
