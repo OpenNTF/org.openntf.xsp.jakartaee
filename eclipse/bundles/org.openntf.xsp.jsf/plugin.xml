@@ -38,6 +38,6 @@
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="jakarta.servlet.ServletContextListener" class="org.apache.myfaces.webapp.StartupServletContextListener" />
+		<service type="jakarta.servlet.ServletContextListener" class="org.openntf.xsp.jsf.JsfServletContextListener" />
 	</extension>
 </plugin>
