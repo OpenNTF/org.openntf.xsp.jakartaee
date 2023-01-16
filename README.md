@@ -430,11 +430,11 @@ In this case, neither document will actually be saved to their databases.
 
 This implementation does not currently support JNDI referencing or transaction suspension. Though transactions are propagated across Concurrency boundaries, note that Domino transactions are thread-specific and thus should be started and committed within a single thread.
 
-## Server Faces 4.0
+## Server Faces 3.0
 
-[Jakarta Server Faces](https://jakarta.ee/specifications/faces/4.0/) is the in-development next form of JSF, the spec XPages forked off from. Version 4.0 of the spec, used here, is in the final stages of development and focuses on removing legacy features and better integrating with other components (such as CDI).
+[Jakarta Server Faces](https://jakarta.ee/specifications/faces/4.0/) is the JEE 9 form of JSF, the spec XPages forked off from.
 
-JSF is implemented here by way of [Apache MyFaces](https://myfaces.apache.org/#/core40).
+JSF is implemented here by way of [Apache MyFaces](https://myfaces.apache.org/#/core30).
 
 A Faces page, like an XPage, is an XML document that is parsed and converted into components for rendering. For example:
 
@@ -442,25 +442,37 @@ A Faces page, like an XPage, is an XML document that is parsed and converted int
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <f:view xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:f="jakarta.faces.core"
-      xmlns:h="jakarta.faces.html">
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
 	
     <h:head>
-        <title>JSF 4.0 Hello World</title>
+        <title>JSF 3.0 Hello World</title>
     </h:head>
     <h:body>
-	    	<h2>JSF 4.0 Hello World Example - hello.xhtml</h2>
-	    	
-	    	<dl>
-	    		<dt>facesContext</dt>
-	    		<dd><h:outputText value="#{facesContext}"/></dd>
-	    		
-	    		<dt>requestGuy.message</dt>
-	    		<dd><h:outputText value="#{requestGuy.message}"/></dd>
-	    		
-	    		<dt>Project Stage</dt>
-	    		<dd><h:outputText value="#{facesContext.application.projectStage}"/></dd>
-	    	</dl>
+    	<h2>JSF 3.0 Hello World Example - hello.xhtml</h2>
+    	
+    	<dl>
+    		<dt>facesContext</dt>
+    		<dd><h:outputText value="#{facesContext}"/></dd>
+    		
+    		<dt>requestGuy.message</dt>
+    		<dd><h:outputText value="#{requestGuy.message}"/></dd>
+    		
+    		<dt>Project Stage</dt>
+    		<dd><h:outputText value="#{facesContext.application.projectStage}"/></dd>
+    	</dl>
+    	
+    	<fieldset>
+    		<legend>Example Form</legend>
+    		<h:form>
+    			<h:inputText id="appGuyProperty" value="#{applicationGuy.beanProperty}"/>
+    			<h:commandButton value="Refresh">
+    				<f:ajax execute="appGuyProperty" render="formOutput"/>
+    			</h:commandButton>
+    			
+    			<p><h:outputText id="formOutput" value="#{applicationGuy.beanProperty}"/></p>
+    		</h:form>
+    	</fieldset>
     </h:body>
 </f:view>
 ```
