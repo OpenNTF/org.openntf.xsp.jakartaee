@@ -56,10 +56,10 @@ public enum JaxbUtil {
      * </ol>
      * @see JAXBContext#newInstance(Class...)
 	 */
-	public static JAXBContext newInstance(Class<?>... classes) throws JAXBException {
+	public static JAXBContext newInstance(Class<?>... classesToBeBound) throws JAXBException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<JAXBContext>)() ->
-				JAXBContext.newInstance(classes)
+				JAXBContext.newInstance(classesToBeBound)
 			);
 		} catch (PrivilegedActionException e) {
 			Throwable cause = e.getCause();
