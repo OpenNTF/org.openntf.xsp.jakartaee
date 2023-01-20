@@ -20,17 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.StringReader;
-
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Response;
-
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestFaultTolerance extends AbstractWebClientTest {
@@ -52,9 +47,8 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 		
 		String result = response.readEntity(String.class);
 		assertFalse(result.contains("I should have stopped."));
-
-		JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-		assertTrue(jsonObject.containsKey("stackTrace"));
+		
+		assertTrue(result.startsWith("org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException: bean.FaultToleranceBean#getTimeout timed out"), () -> "Actual: " + result);
 	}
 	
 	@Test
@@ -69,8 +63,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 			String result = response.readEntity(String.class);
 			assertNotEquals("I should have stopped.", result);
 
-			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-			assertEquals("java.lang.RuntimeException: I am a circuit-breaking failure - I should stop after two attempts", jsonObject.getString("message"));
+			assertTrue(result.startsWith("java.lang.RuntimeException: I am a circuit-breaking failure - I should stop after two attempts"), () -> "Actual:" + result);
 		}
 		
 		// Second try - also "success"
@@ -80,8 +73,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 			String result = response.readEntity(String.class);
 			assertNotEquals("I should have stopped.", result);
 
-			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-			assertEquals("java.lang.RuntimeException: I am a circuit-breaking failure - I should stop after two attempts", jsonObject.getString("message"));
+			assertTrue(result.startsWith("java.lang.RuntimeException: I am a circuit-breaking failure - I should stop after two attempts"), () -> "Actual:" + result);
 		}
 		
 		// Third try - open breaker
@@ -91,8 +83,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 			String result = response.readEntity(String.class);
 			assertNotEquals("I should have stopped.", result);
 
-			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-			assertEquals("org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException: bean.FaultToleranceBean#getCircuitBreaker circuit breaker is open", jsonObject.getString("message"));
+			assertTrue(result.startsWith("org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException: bean.FaultToleranceBean#getCircuitBreaker circuit breaker is open"), () -> "Actual:" + result);
 		}
 	}
 }

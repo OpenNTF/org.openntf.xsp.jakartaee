@@ -127,6 +127,15 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 					}
 				})
 				.build();
+		} else if(MediaType.TEXT_PLAIN_TYPE.isCompatible(type) && !(type.isWildcardType() || type.isWildcardSubtype())) {
+			return Response.status(status)
+				.type(MediaType.TEXT_PLAIN)
+				.entity((StreamingOutput)out -> {
+					try(PrintWriter w = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
+						throwable.printStackTrace(w);
+					}
+				})
+				.build();
 		} else {
 			// Handle as JSON
 			return Response.status(status)

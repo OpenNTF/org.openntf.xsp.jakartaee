@@ -26,6 +26,7 @@ import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
@@ -73,6 +74,21 @@ public class TestRestExceptions extends AbstractWebClientTest {
 		
 		WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
 		assertEquals("this is expected to be rendered as HTML", span.getText());
+	}
+	
+	/**
+	 * Tests rest.ExceptionExample#html, which renders an exception as HTML using the stock
+	 * XPages error page
+	 */
+	@Test
+	public void testText() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/exceptionExample/text");
+		Response response = target.request().get();
+		
+		assertTrue(MediaType.TEXT_PLAIN_TYPE.isCompatible(response.getMediaType()));
+		String text = response.readEntity(String.class);
+		assertTrue(text.startsWith("java.lang.RuntimeException: this is expected to be rendered as text"), "Response should start with the expected stack trace. Received: " + text);
 	}
 	
 	/**

@@ -33,4 +33,11 @@ public class ExceptionExample {
 	public Object getHtml() {
 		throw new RuntimeException("this is expected to be rendered as HTML", new RuntimeException("this is a cause"));
 	}
+	
+	@Path("text")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public Object getText() {
+		throw new RuntimeException("this is expected to be rendered as text", new RuntimeException("this is a cause"));
+	}
 }
