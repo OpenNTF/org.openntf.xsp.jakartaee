@@ -33,6 +33,7 @@ import jakarta.ws.rs.core.Context;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.metrics.MetricID;
 import org.eclipse.microprofile.metrics.Tag;
+import org.openntf.xsp.jakartaee.metrics.MetricsIgnore;
 import org.openntf.xsp.microprofile.metrics.config.MetricsAppConfigSource;
 
 import io.smallrye.metrics.jaxrs.JaxRsMetricsFilter;
@@ -52,8 +53,12 @@ public class RestMetricsFilter implements ContainerRequestFilter, ContainerRespo
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
-        MetricID metricID = getMetricID(resourceInfo.getResourceClass(),
-                resourceInfo.getResourceMethod());
+    	Class<?> resourceClass = resourceInfo.getResourceClass();
+    	if(resourceClass.isAnnotationPresent(MetricsIgnore.class)) {
+    		return;
+    	}
+    	
+        MetricID metricID = getMetricID(resourceClass, resourceInfo.getResourceMethod());
         // store the MetricID so that the servlet filter can update the metric
         requestContext.setProperty("smallrye.metrics.jaxrs.metricID", metricID); //$NON-NLS-1$
     }

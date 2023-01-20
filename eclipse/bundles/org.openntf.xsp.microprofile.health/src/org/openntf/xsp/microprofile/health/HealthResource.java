@@ -28,8 +28,10 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.openntf.xsp.jakartaee.metrics.MetricsIgnore;
 
 @Path("health")
+@MetricsIgnore
 public class HealthResource {
 	
 	@GET

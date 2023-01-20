@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
+import org.openntf.xsp.jakartaee.metrics.MetricsIgnore;
 
 import io.smallrye.openapi.runtime.io.Format;
 import io.smallrye.openapi.runtime.io.OpenApiSerializer;
@@ -31,6 +32,7 @@ import jakarta.ws.rs.core.MediaType;
 import lotus.domino.NotesException;
 
 @Path("openapi.yaml")
+@MetricsIgnore
 public class OpenAPIYAMLResource extends AbstractOpenAPIResource {
 	@GET
 	@Operation(hidden=true)
