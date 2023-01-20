@@ -275,6 +275,8 @@ application_rest_Sample_hello_total 2.0
 application_rest_Sample_hello_elapsedTime_seconds 8.252E-4
 ```
 
+Note: the semantics and output of this component are likely to change in the future. MicroProfile Metrics 5.0 and above move to being based on Micrometer. As part of MicroProfile 6.0, however, this version requires Java 11 and will only be adopted here when Domino supports at least that Java version.
+
 #### CORS
 
 CORS can be enabled and customized for REST services by enabling the MicroProfile Config feature (described below) and setting some or all of the following properties in the app's Xsp Properties:
@@ -654,6 +656,8 @@ public class NoSQLExample {
 	}
 }
 ```
+
+Note: the semantics of this component are likely to change in the future. In beta versions after this one, the NoSQL spec reduced its purview in favor of working with the Jakarta Data API. The latter will expose `Repository` types like above, and this will be a breaking change. However, this version requires at least Java 11 and will only be adopted here when Domino supports at least that Java version.
 
 #### Document Sources
 
