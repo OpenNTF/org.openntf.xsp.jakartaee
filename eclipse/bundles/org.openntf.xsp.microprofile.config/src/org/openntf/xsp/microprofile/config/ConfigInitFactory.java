@@ -16,6 +16,7 @@
 package org.openntf.xsp.microprofile.config;
 
 import org.eclipse.microprofile.config.spi.ConfigProviderResolver;
+import org.openntf.xsp.microprofile.config.sources.ImplicitAppConfigSourceFactory;
 import org.openntf.xsp.microprofile.config.sources.NotesEnvironmentConfigSource;
 import org.openntf.xsp.microprofile.config.sources.XspPropertiesConfigSourceFactory;
 
@@ -44,7 +45,8 @@ public class ConfigInitFactory implements IServiceFactory {
 				);
 				builder = builder.withSources(
 					new PropertiesLocationConfigSourceFactory(),
-					new XspPropertiesConfigSourceFactory()
+					new XspPropertiesConfigSourceFactory(),
+					new ImplicitAppConfigSourceFactory()
 				);
 				
 				return builder;

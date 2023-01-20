@@ -15,12 +15,16 @@
  */
 package org.openntf.xsp.microprofile.metrics.jaxrs;
 
+import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.openntf.xsp.microprofile.metrics.config.MetricsAppConfigSource;
+import org.openntf.xsp.microprofile.metrics.exporter.FilteringJsonExporter;
+import org.openntf.xsp.microprofile.metrics.exporter.FilteringOpenMetricsExporter;
 
 import io.smallrye.metrics.exporters.Exporter;
-import io.smallrye.metrics.exporters.JsonExporter;
 import io.smallrye.metrics.exporters.JsonMetadataExporter;
-import io.smallrye.metrics.exporters.OpenMetricsExporter;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.json.spi.JsonProvider;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.OPTIONS;
 import jakarta.ws.rs.Path;
@@ -39,11 +43,16 @@ public class MetricsResource {
 		boolean hasJson = headers.getAcceptableMediaTypes()
 			.stream()
 			.anyMatch(type -> !type.isWildcardType() && !type.isWildcardSubtype() && type.isCompatible(MediaType.APPLICATION_JSON_TYPE));
+		
+		Config mpConfig = CDI.current().select(Config.class).get();
+		String appName = mpConfig.getOptionalValue(MetricsAppConfigSource.CONFIG_APPNAME, String.class)
+			.orElse(null);
+		
 		Exporter exporter;
 		if(hasJson) {
-			exporter = new JsonExporter();
+			exporter = new FilteringJsonExporter(JsonProvider.provider(), appName);
 		} else {
-			exporter = new OpenMetricsExporter();
+			exporter = new FilteringOpenMetricsExporter(appName);
 		}
 		// TODO limit scopes
 		return Response.ok()

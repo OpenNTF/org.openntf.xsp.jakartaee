@@ -27,4 +27,7 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jaxrs.ServiceParticipant" class="org.openntf.xsp.microprofile.metrics.jaxrs.MetricsServiceParticipant" />
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.microprofile.config.ext.ImplicitAppConfigProvider" class="org.openntf.xsp.microprofile.metrics.config.MetricsAppConfigSource" />
+	</extension>
 </plugin>

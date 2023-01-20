@@ -13,30 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.microprofile.metrics;
+package org.openntf.xsp.microprofile.config.sources;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 
-import org.openntf.xsp.cdi.CDILibrary;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jaxrs.JAXRSClassContributor;
-import org.openntf.xsp.microprofile.metrics.jaxrs.MetricsResource;
-import org.openntf.xsp.microprofile.metrics.jaxrs.RestMetricsFilter;
+import org.eclipse.microprofile.config.spi.ConfigSource;
 
-public class MetricsResourceContributor implements JAXRSClassContributor {
+import io.smallrye.config.ConfigSourceContext;
+import io.smallrye.config.ConfigSourceFactory;
+
+/**
+ * @author Jesse Gallagher
+ * @since 2.10.0
+ */
+public class ImplicitAppConfigSourceFactory implements ConfigSourceFactory {
 
 	@Override
-	public Collection<Class<?>> getClasses() {
-		if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID)) {
-			return Arrays.asList(
-				RestMetricsFilter.class,
-				MetricsResource.class
-			);
-		} else {
-			return Collections.emptySet();
-		}
+	public Iterable<ConfigSource> getConfigSources(ConfigSourceContext context) {
+		return Collections.singleton(new ImplicitAppConfigSource());
 	}
 
 }
