@@ -17,6 +17,7 @@ package org.openntf.xsp.microprofile.metrics.jaxrs;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.openntf.xsp.jakartaee.metrics.MetricsIgnore;
 import org.openntf.xsp.microprofile.metrics.config.MetricsAppConfigSource;
 import org.openntf.xsp.microprofile.metrics.exporter.FilteringJsonExporter;
 import org.openntf.xsp.microprofile.metrics.exporter.FilteringOpenMetricsExporter;
@@ -35,6 +36,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 @Path("metrics")
+@MetricsIgnore
 public class MetricsResource {
 	@GET
 	@Operation(hidden=true)
