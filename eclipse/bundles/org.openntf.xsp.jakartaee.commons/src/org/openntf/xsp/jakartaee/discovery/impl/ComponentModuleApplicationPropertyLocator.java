@@ -15,6 +15,9 @@
  */
 package org.openntf.xsp.jakartaee.discovery.impl;
 
+import java.util.Optional;
+import java.util.Properties;
+
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -36,14 +39,12 @@ public class ComponentModuleApplicationPropertyLocator implements ApplicationPro
 	public boolean isActive() {
 		return ComponentModuleLocator.getDefault().isPresent();
 	}
-
+	
 	@Override
-	public String getApplicationProperty(String prop, String defaultValue) {
+	public Optional<Properties> getApplicationProperties() {
 		return ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
-			.map(LibraryUtil::getXspProperties)
-			.map(props -> props.getProperty(prop, defaultValue))
-			.orElse(defaultValue);
+			.map(LibraryUtil::getXspProperties);
 	}
 
 }

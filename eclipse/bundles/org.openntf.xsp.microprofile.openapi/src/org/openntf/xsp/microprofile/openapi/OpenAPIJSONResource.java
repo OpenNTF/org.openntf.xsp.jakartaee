@@ -29,7 +29,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
-import lotus.domino.NotesException;
 
 @Path("openapi.json")
 @MetricsIgnore
@@ -37,7 +36,7 @@ public class OpenAPIJSONResource extends AbstractOpenAPIResource {
 	@GET
 	@Operation(hidden=true)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String get(@Context HttpHeaders headers) throws IOException, NotesException {
+	public String get(@Context HttpHeaders headers) throws IOException {
 		OpenAPI openapi = buildOpenAPI();
 		return OpenApiSerializer.serialize(openapi, Format.JSON);
 	}

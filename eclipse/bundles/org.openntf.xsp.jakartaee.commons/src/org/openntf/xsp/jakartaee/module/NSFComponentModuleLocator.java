@@ -18,16 +18,30 @@ package org.openntf.xsp.jakartaee.module;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.DateFormat;
+import java.text.MessageFormat;
+import java.util.Date;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.annotation.Priority;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import lotus.domino.Database;
+import lotus.domino.DateTime;
+import lotus.domino.Document;
+import lotus.domino.NoteCollection;
+import lotus.domino.NotesException;
+import lotus.domino.Session;
 
 /**
  * Locates an active {@link NSFComponentModule} when the current request
@@ -50,6 +64,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 			}
 		});
 	}
+	private static final Logger log = Logger.getLogger(NSFComponentModuleLocator.class.getPackage().getName());
 	
 	@Override
 	public boolean isActive() {
@@ -94,6 +109,72 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 			});
 	}
 	
+	@Override
+	public String getTitle() {
+		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
+		if(nsfContext != null) {
+			try {
+				return nsfContext.getCurrentDatabase().getTitle();
+			} catch (NotesException e) {
+				if(log.isLoggable(Level.SEVERE)) {
+					log.log(Level.SEVERE, "Encountered exception trying to read the database title", e);
+				}
+				return getActiveModule().getModuleName();
+			}
+		}
+		return getActiveModule().getModuleName();
+	}
 	
+	@Override
+	public Optional<String> getVersion() {
+		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
+		if(nsfContext != null) {
+			try {
+				Database database = nsfContext.getCurrentDatabase();
+				Session sessionAsSigner = nsfContext.getSessionAsSigner();
+				Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
+				
+				NoteCollection noteCollection = databaseAsSigner.createNoteCollection(true);
+				noteCollection.setSelectSharedFields(true);
+				noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\""); //$NON-NLS-1$
+				noteCollection.buildCollection();
+				String noteID = noteCollection.getFirstNoteID();
+				if(StringUtil.isNotEmpty(noteID)) {
+					Document designDoc = databaseAsSigner.getDocumentByID(noteID);
+					
+					if (null != designDoc) {
+						String buildVersion = designDoc.getItemValueString("$TemplateBuild"); //$NON-NLS-1$
+						Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate(); //$NON-NLS-1$
+						String buildDateFormatted = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT).format(buildDate);
+						return Optional.of(MessageFormat.format("{0} ({1})", buildVersion, buildDateFormatted)); //$NON-NLS-1$
+					}
+				}
+				
+				return Optional.empty();
+			} catch(NotesException e) {
+				if(log.isLoggable(Level.SEVERE)) {
+					log.log(Level.SEVERE, "Encountered exception trying to read the database template version", e);
+				}
+				return Optional.empty();
+			}
+		}
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<NotesDatabase> getNotesDatabase() {
+		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
+		if(nsfContext != null) {
+			try {
+				return Optional.of(nsfContext.getNotesDatabase());
+			} catch (NotesAPIException e) {
+				if(log.isLoggable(Level.SEVERE)) {
+					log.log(Level.SEVERE, "Encountered exception trying to open the context database", e);
+				}
+				return Optional.empty();
+			}
+		}
+		return Optional.empty();
+	}
 
 }

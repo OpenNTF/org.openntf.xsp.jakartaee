@@ -29,7 +29,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import lotus.domino.NotesException;
 
 @Path("openapi")
 @MetricsIgnore
@@ -37,7 +36,7 @@ public class OpenAPIResource extends AbstractOpenAPIResource {
 	
 	@GET
 	@Operation(hidden=true)
-	public Response get(@Context HttpHeaders headers) throws IOException, NotesException {
+	public Response get(@Context HttpHeaders headers) throws IOException {
 		OpenAPI openapi = buildOpenAPI();
 
 		// JSON wins if it's explicitly mentioned; otherwise it's YAML as text/plain

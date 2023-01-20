@@ -19,6 +19,8 @@ import java.util.Optional;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import jakarta.servlet.ServletContext;
@@ -77,4 +79,33 @@ public interface ComponentModuleLocator {
 	 *         locator does not apply
 	 */
 	Optional<HttpServletRequest> getServletRequest();
+	
+	/**
+	 * Attempts to provide a human-readable title for the module.
+	 * 
+	 * @return a title for the module, which may be an empty string
+	 * @since 2.10.0
+	 */
+	default String getTitle() {
+		return StringUtil.toString(getActiveModule().getModuleName());
+	}
+	
+	/**
+	 * Attempts to provide a version string for the active module.
+	 * 
+	 * @return an {@link Optional} describing a version string for the module,
+	 *         or an empty value
+	 * @since 2.10.0
+	 */
+	Optional<String> getVersion();
+	
+	/**
+	 * Attempts to provide the contextual {@link NotesDatabase} instance, if
+	 * available.
+	 * 
+	 * @return an {@link Optional} describing the active {@link NotesDatabase},
+	 *         or an empty one if that is not applicable or not available
+	 * @since 2.10.0
+	 */
+	Optional<NotesDatabase> getNotesDatabase();
 }

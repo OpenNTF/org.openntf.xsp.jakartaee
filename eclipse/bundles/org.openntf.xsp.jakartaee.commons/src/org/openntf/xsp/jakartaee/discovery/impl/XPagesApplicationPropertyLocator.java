@@ -15,6 +15,9 @@
  */
 package org.openntf.xsp.jakartaee.discovery.impl;
 
+import java.util.Optional;
+import java.util.Properties;
+
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 
 import com.ibm.xsp.application.ApplicationEx;
@@ -42,5 +45,10 @@ public class XPagesApplicationPropertyLocator implements ApplicationPropertyLoca
 			return app.getApplicationProperty(prop, defaultValue);
 		}
 		return defaultValue;
+	}
+	
+	@Override
+	public Optional<Properties> getApplicationProperties() {
+		return Optional.empty();
 	}
 }
