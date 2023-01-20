@@ -19,15 +19,21 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path("adminrole")
 public class AdminRoleExample {
+	
+	@Context
+	private SecurityContext securityContext;
+	
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@RolesAllowed("[Admin]")
 	public String get() {
-		return "I think you're an admin!";
+		return "I think you're an admin, " + securityContext.getUserPrincipal().getName();
 	}
 	
 	@Path("invaliduser")

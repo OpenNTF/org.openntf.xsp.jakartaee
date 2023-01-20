@@ -53,7 +53,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
-			assertEquals("I think you're an admin!", html);
+			assertEquals("I think you're an admin", html);
 		}
 	}
 	
