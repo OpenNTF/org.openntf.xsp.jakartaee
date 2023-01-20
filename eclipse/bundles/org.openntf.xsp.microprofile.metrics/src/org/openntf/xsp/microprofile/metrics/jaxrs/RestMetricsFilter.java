@@ -83,7 +83,7 @@ public class RestMetricsFilter implements ContainerRequestFilter, ContainerRespo
         // App-level tag when present
 		Config mpConfig = CDI.current().select(Config.class).get();
 		mpConfig.getOptionalValue(MetricsAppConfigSource.CONFIG_APPNAME, String.class)
-			.map(appName -> new Tag("_app", appName)) //$NON-NLS-1$
+			.map(appName -> new Tag(MetricsAppConfigSource.TAG_APP, appName))
 			.ifPresent(tags::add);
         
         return new MetricID("REST.request", tags.toArray(new Tag[tags.size()])); //$NON-NLS-1$

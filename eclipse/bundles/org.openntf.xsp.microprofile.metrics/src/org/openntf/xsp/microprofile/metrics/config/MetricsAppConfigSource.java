@@ -30,6 +30,7 @@ import org.openntf.xsp.microprofile.config.ext.ImplicitAppConfigProvider;
  */
 public class MetricsAppConfigSource implements ImplicitAppConfigProvider {
 	public static final String CONFIG_APPNAME = "mp.metrics.appName"; //$NON-NLS-1$
+	public static final String TAG_APP = "_app"; //$NON-NLS-1$
 
 	@Override
 	public Map<String, String> get() {
