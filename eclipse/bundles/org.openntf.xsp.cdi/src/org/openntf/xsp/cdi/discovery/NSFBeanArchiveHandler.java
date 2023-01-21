@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.cdi.discovery;
 
-import org.jboss.weld.bootstrap.spi.BeansXml;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveBuilder;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
 import org.openntf.xsp.cdi.CDILibrary;
@@ -44,20 +43,7 @@ public class NSFBeanArchiveHandler implements BeanArchiveHandler {
 						return null;
 					}
 					
-					// Slightly customize the builder to keep some extra metadata
-					BeanArchiveBuilder builder = new BeanArchiveBuilder() {
-						{
-							super.setBeansXml(BeansXml.EMPTY_BEANS_XML);
-							super.setId(module.getDatabasePath());
-						}
-						
-						@Override
-						public BeanArchiveBuilder setBeansXml(BeansXml beansXml) {
-							return this;
-						}
-					};
-					
-					return builder;
+					return new StaticBeanArchiveBuilder(module.getDatabasePath());
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
