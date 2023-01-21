@@ -17,7 +17,7 @@ package org.openntf.xsp.jakartaee.servlet;
 
 import jakarta.servlet.http.Cookie;
 
-class NewCookieWrapper extends javax.servlet.http.Cookie implements Cloneable {
+class NewCookieWrapper extends javax.servlet.http.Cookie {
 	final Cookie delegate;
 	
 	public NewCookieWrapper(Cookie delegate) {
