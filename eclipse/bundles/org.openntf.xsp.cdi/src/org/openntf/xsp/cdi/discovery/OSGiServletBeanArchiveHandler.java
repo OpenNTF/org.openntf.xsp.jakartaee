@@ -18,7 +18,6 @@ package org.openntf.xsp.cdi.discovery;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveBuilder;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
 import org.openntf.xsp.cdi.util.ContainerUtil;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 
 import com.ibm.commons.util.StringUtil;
@@ -41,23 +40,20 @@ public class OSGiServletBeanArchiveHandler implements BeanArchiveHandler {
 	public BeanArchiveBuilder handle(String beanArchiveReference) {
 		try {
 			Bundle bundle = PROCESSING_BUNDLE.get();
-			if(bundle == null) {
+			String symbolicName = null;
+			if(bundle != null) {
+				symbolicName = bundle.getSymbolicName();
+			} else {
 				NotesDatabase database = ContextInfo.getServerDatabase();
 				if(database != null) {
-					String bundleName = ContainerUtil.getApplicationCDIBundle(database);
-					if(StringUtil.isNotEmpty(bundleName)) {
-						bundle = LibraryUtil.getBundle(bundleName).orElse(null);
-					} else {
-						bundleName = ContainerUtil.getApplicationCDIBundleBase(database);
-						if(StringUtil.isNotEmpty(bundleName)) {
-							bundle = LibraryUtil.getBundle(bundleName).orElse(null);
-						}
+					symbolicName = ContainerUtil.getApplicationCDIBundle(database);
+					if(StringUtil.isEmpty(symbolicName)) {
+						symbolicName = ContainerUtil.getApplicationCDIBundleBase(database);
 					}
 				}
 			}
 			
-			if(bundle != null) {
-				String symbolicName = bundle.getSymbolicName();
+			if(symbolicName != null) {
 				return new StaticBeanArchiveBuilder(symbolicName);
 			}
 		} catch (Exception e) {
