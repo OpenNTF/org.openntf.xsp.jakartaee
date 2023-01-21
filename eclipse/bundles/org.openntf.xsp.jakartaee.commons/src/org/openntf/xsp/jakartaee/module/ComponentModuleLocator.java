@@ -25,6 +25,8 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import lotus.domino.Database;
+import lotus.domino.Session;
 
 /**
  * This extension interface can be used to define a service that
@@ -108,4 +110,46 @@ public interface ComponentModuleLocator {
 	 * @since 2.10.0
 	 */
 	Optional<NotesDatabase> getNotesDatabase();
+	
+	/**
+	 * Attempts to provide the contextual {@link Database} instance, if
+	 * available.
+	 * 
+	 * @return an {@link Optional} describing the active {@link Database},
+	 *         or an empty one if that is not applicable or not available
+	 * @since 2.10.0
+	 */
+	Optional<Database> getUserDatabase();
+	
+	/**
+	 * Attempts to provide the contextual {@link Session} instance, if
+	 * available.
+	 * 
+	 * @return an {@link Optional} describing the active {@link Session},
+	 *         or an empty one if that is not applicable or not available
+	 * @since 2.10.0
+	 */
+	Optional<Session> getUserSession();
+	
+	/**
+	 * Attempts to provide the contextual {@link Session} instance for the
+	 * application signer, if available.
+	 * 
+	 * @return an {@link Optional} describing the active {@link Session}
+	 *         as the application signer, or an empty one if that is not
+	 *         applicable or not available
+	 * @since 2.10.0
+	 */
+	Optional<Session> getSessionAsSigner();
+	
+	/**
+	 * Attempts to provide the contextual {@link Session} instance for the
+	 * application signer with full access, if available.
+	 * 
+	 * @return an {@link Optional} describing the active {@link Session}
+	 *         as the application signer with full access, or an empty one
+	 *         if that is not applicable or not available
+	 * @since 2.10.0
+	 */
+	Optional<Session> getSessionAsSignerWithFullAccess();
 }

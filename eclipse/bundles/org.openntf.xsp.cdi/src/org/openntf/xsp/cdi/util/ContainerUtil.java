@@ -49,6 +49,7 @@ import org.jboss.weld.util.ForwardingBeanManager;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.context.CDIScopesExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -58,7 +59,6 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
 import jakarta.el.ELResolver;
@@ -130,10 +130,11 @@ public enum ContainerUtil {
 				}
 			}
 			
+			ComponentModuleLocator module = ComponentModuleLocator.getDefault().get();
 			// Look for the database so we can share the replica ID
 			String id;
 			try {
-				id = NotesContext.getCurrent().getNotesDatabase().getReplicaID();
+				id = module.getNotesDatabase().get().getReplicaID();
 			} catch (NotesAPIException e) {
 				throw new RuntimeException(e);
 			}
@@ -162,7 +163,7 @@ public enum ContainerUtil {
 							weld.setResourceLoader(new BundleDependencyResourceLoader(bundle.get()));
 						}
 					} else {
-						weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
+						weld.setResourceLoader(new ModuleContextResourceLoader(module.getActiveModule()));
 					}
 					
 					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
@@ -190,7 +191,7 @@ public enum ContainerUtil {
 					
 					// Also set it in the ServletContext for other use
 					// NotesContext must be set if we're here
-					javax.servlet.ServletContext oldContext = NotesContext.getCurrent().getModule().getServletContext();
+					javax.servlet.ServletContext oldContext = module.getActiveModule().getServletContext();
 					oldContext.setAttribute(ATTR_CONTEXTCONTAINER, instance);
 				}
 				return instance;
@@ -218,10 +219,11 @@ public enum ContainerUtil {
 					return getContainer(bundle.get());
 				}
 				
+				ComponentModuleLocator module = ComponentModuleLocator.getDefault().get();
 				// Look for the database so we can share the replica ID
 				String id;
 				try {
-					id = NotesContext.getCurrent().getNotesDatabase().getReplicaID();
+					id = module.getNotesDatabase().get().getReplicaID();
 				} catch (NotesAPIException e) {
 					throw new RuntimeException(e);
 				}

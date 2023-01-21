@@ -18,6 +18,8 @@ package org.openntf.xsp.jakartaee.module;
 import jakarta.annotation.Priority;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import lotus.domino.Database;
+import lotus.domino.Session;
 
 import java.lang.reflect.Field;
 import java.security.AccessController;
@@ -147,6 +149,26 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 			}
 			return Optional.empty();
 		}
+	}
+	
+	@Override
+	public Optional<Database> getUserDatabase() {
+		return Optional.ofNullable(ContextInfo.getUserDatabase());
+	}
+	
+	@Override
+	public Optional<Session> getUserSession() {
+		return Optional.ofNullable(ContextInfo.getUserSession());
+	}
+	
+	@Override
+	public Optional<Session> getSessionAsSigner() {
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<Session> getSessionAsSignerWithFullAccess() {
+		return Optional.empty();
 	}
 
 }

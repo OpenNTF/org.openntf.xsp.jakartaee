@@ -176,5 +176,41 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 		}
 		return Optional.empty();
 	}
+	
+	@Override
+	public Optional<Database> getUserDatabase() {
+		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
+		if(nsfContext != null) {
+			return Optional.ofNullable(nsfContext.getCurrentDatabase());
+		}
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<Session> getUserSession() {
+		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
+		if(nsfContext != null) {
+			return Optional.ofNullable(nsfContext.getCurrentSession());
+		}
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<Session> getSessionAsSigner() {
+		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
+		if(nsfContext != null) {
+			return Optional.ofNullable(nsfContext.getSessionAsSigner());
+		}
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<Session> getSessionAsSignerWithFullAccess() {
+		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
+		if(nsfContext != null) {
+			return Optional.ofNullable(nsfContext.getSessionAsSignerFullAdmin());
+		}
+		return Optional.empty();
+	}
 
 }
