@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
@@ -112,6 +114,8 @@ public enum ContainerUtil {
 	private static final Map<String, Object> CONTAINER_INIT_LOCKS = Collections.synchronizedMap(new HashMap<>());
 	
 	private static final String ATTR_CONTEXTCONTAINER = CDILibrary.LIBRARY_ID + ".cdicontainer"; //$NON-NLS-1$
+	
+	private static final Logger log = Logger.getLogger(ContainerUtil.class.getPackage().getName());
 	
 	/**
 	 * Gets or creates a {@link WeldContainer} instance for the provided Application.
@@ -284,12 +288,14 @@ public enum ContainerUtil {
 					}
 					instance = weld.initialize();
 				} catch(IllegalStateException e) {
-					System.err.println(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
-					if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
-						String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path")); //$NON-NLS-1$
-						System.err.println(MessageFormat.format("Current class path: {0}", classpath));
+					if(log.isLoggable(Level.SEVERE)) {
+						log.severe(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
+						if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
+							String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path")); //$NON-NLS-1$
+							log.severe(MessageFormat.format("Current class path: {0}", classpath));
+						}
+						log.log(Level.SEVERE, "Original exception", e);
 					}
-					e.printStackTrace();
 					return null;
 				}
 			}
