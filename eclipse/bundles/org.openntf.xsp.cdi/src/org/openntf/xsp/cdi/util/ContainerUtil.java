@@ -48,7 +48,6 @@ import org.jboss.weld.resources.spi.ResourceLoader;
 import org.jboss.weld.util.ForwardingBeanManager;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.context.CDIScopesExtension;
-import org.openntf.xsp.cdi.discovery.OSGiServletBeanArchiveHandler;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
@@ -267,28 +266,21 @@ public enum ContainerUtil {
 						e.printStackTrace();
 					}
 					
-					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
-					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
-					try {
-						for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
-							Collection<Class<?>> beanClasses = service.getBeanClasses();
-							if(beanClasses != null) {
-								weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
-							}
-							Collection<Extension> extensions = service.getExtensions();
-							if(extensions != null) {
-								weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
-							}
-							Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
-							if(extensionClasses != null) {
-								extensionClasses.forEach(weld::addExtensions);
-							}
+					for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
+						Collection<Class<?>> beanClasses = service.getBeanClasses();
+						if(beanClasses != null) {
+							weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
 						}
-						instance = weld.initialize();
-					} finally {
-						OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
-						OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
+						Collection<Extension> extensions = service.getExtensions();
+						if(extensions != null) {
+							weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+						}
+						Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
+						if(extensionClasses != null) {
+							extensionClasses.forEach(weld::addExtensions);
+						}
 					}
+					instance = weld.initialize();
 				} catch(IllegalStateException e) {
 					System.err.println(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
 					if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
@@ -389,31 +381,24 @@ public enum ContainerUtil {
 					}
 	
 					Weld fweld = weld;
-					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
-					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
-					try {
-						instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
-							for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
-								Collection<Class<?>> beanClasses = service.getBeanClasses();
-								if(beanClasses != null) {
-									fweld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
-								}
-								Collection<Extension> extensions = service.getExtensions();
-								if(extensions != null) {
-									fweld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
-								}
-								Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
-								if(extensionClasses != null) {
-									extensionClasses.forEach(fweld::addExtensions);
-								}
+					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
+						for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
+							Collection<Class<?>> beanClasses = service.getBeanClasses();
+							if(beanClasses != null) {
+								fweld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
 							}
-							
-							return fweld.initialize();
-						});
-					} finally {
-						OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
-						OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
-					}
+							Collection<Extension> extensions = service.getExtensions();
+							if(extensions != null) {
+								fweld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+							}
+							Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
+							if(extensionClasses != null) {
+								extensionClasses.forEach(fweld::addExtensions);
+							}
+						}
+						
+						return fweld.initialize();
+					});
 				}
 				return instance;
 			});

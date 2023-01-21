@@ -15,41 +15,27 @@
  */
 package org.openntf.xsp.cdi.discovery;
 
+import java.util.UUID;
+
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveBuilder;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
-import org.openntf.xsp.cdi.CDILibrary;
-import org.openntf.xsp.cdi.util.ContainerUtil;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-
-import com.ibm.commons.util.StringUtil;
-import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.annotation.Priority;
 
+/**
+ * This implementation of {@link BeanArchiveHandler} just returns a
+ * basic {@link BeanArchiveBuilder} with a randomized ID, since actual
+ * class contribution happens elsewhere.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.10.0
+ */
 @Priority(Integer.MAX_VALUE)
-public class NSFBeanArchiveHandler implements BeanArchiveHandler {
+public class StaticBeanArchiveHandler implements BeanArchiveHandler {
 
 	@Override
 	public BeanArchiveBuilder handle(String beanArchiveReference) {
-		NotesContext context = NotesContext.getCurrentUnchecked();
-		if(context != null) {
-			NSFComponentModule module = context.getModule();
-			try {
-				if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, module)) {
-					// If it uses a CDI bundle ref, skip processing
-					String bundleId = ContainerUtil.getApplicationCDIBundle(context.getNotesDatabase());
-					if(StringUtil.isNotEmpty(bundleId)) {
-						return null;
-					}
-					
-					return new StaticBeanArchiveBuilder(module.getDatabasePath());
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return null;
+		return new StaticBeanArchiveBuilder(UUID.randomUUID().toString());
 	}
 
 }
