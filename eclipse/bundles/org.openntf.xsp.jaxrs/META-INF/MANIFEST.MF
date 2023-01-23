@@ -25,7 +25,6 @@ Import-Package: com.ibm.commons.util,
  jakarta.activation;version="2.0.0",
  jakarta.json;version="2.0.1",
  jakarta.json.stream;version="2.0.1",
- jakarta.mvc;version="2.0.0",
  jakarta.servlet;version="5.0.0",
  jakarta.servlet.annotation;version="5.0.0",
  jakarta.servlet.descriptor;version="5.0.0",
@@ -45,5 +44,6 @@ Import-Package: com.ibm.commons.util,
  org.osgi.framework;version="1.8.0"
 Export-Package: org.openntf.xsp.jaxrs;version="2.10.0",
  org.openntf.xsp.jaxrs.exceptions;version="2.10.0",
+ org.openntf.xsp.jaxrs.exceptions.handler;version="2.10.0",
  org.openntf.xsp.jaxrs.security;version="2.10.0"
 Eclipse-ExtensibleAPI: true

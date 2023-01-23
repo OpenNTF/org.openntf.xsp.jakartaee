@@ -41,4 +41,8 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="jakarta.servlet.ServletContainerInitializer" class="org.openntf.xsp.mvc.impl.MvcContainerInitializer" />
 	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.mvc.jaxrs.MvcExceptionHandler" />
+	</extension>
 </plugin>
