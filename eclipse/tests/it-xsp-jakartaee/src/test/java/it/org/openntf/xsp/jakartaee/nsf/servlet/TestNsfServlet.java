@@ -15,12 +15,15 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.servlet;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
 
 import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
@@ -29,6 +32,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
@@ -67,5 +71,31 @@ public class TestNsfServlet extends AbstractWebClientTest {
 		
 		String body = response.readEntity(String.class);
 		assertTrue(body.contains("java.lang.RuntimeException: I am the expected exception"), () -> "Body should contain stack trace, got: " + body);
+	}
+	
+	/**
+	 * Tests to ensure that a Servlet that uses the Reader from the request is able to
+	 * echo back the content of the incoming payload.
+	 * 
+	 * <p>The underlying trouble appears to be that the Faces context initialization sees
+	 * incoming form-type POST requests and reads the parameters - then, XspCmdHttpServletRequest
+	 * internally opens the InputStream to do so.</p>
+	 * 
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/364">Issue #364</a>
+	 */
+	@ParameterizedTest
+	@ValueSource(strings = {
+		MediaType.TEXT_PLAIN,
+		MediaType.TEXT_HTML,
+		MediaType.APPLICATION_FORM_URLENCODED,
+		MediaType.MULTIPART_FORM_DATA
+	})
+	public void testEchoServlet(String mediaType) {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRootUrl(null) + "/xsp/echoServlet");
+		Response response = target.request().post(Entity.entity("foo=bar", mediaType));
+		
+		String body = response.readEntity(String.class);
+		assertEquals("foo=bar", body);
 	}
 }

@@ -184,7 +184,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	
 	private FacesContext getFacesContext(HttpServletRequest request, HttpServletResponse response) {
 		try {
-			return (FacesContext)getFacesContextMethod.invoke(getFacesServlet(getServletConfig()), ServletUtil.newToOld(request), ServletUtil.newToOld(response));
+			return (FacesContext)getFacesContextMethod.invoke(getFacesServlet(getServletConfig()), ServletUtil.newToOld(request, true), ServletUtil.newToOld(response));
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
