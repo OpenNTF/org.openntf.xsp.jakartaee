@@ -305,6 +305,13 @@
 								<artifact>
 									<id>org.jboss.resteasy.microprofile:microprofile-rest-client-base:${resteasy-mp-version}</id>
 									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.microprofile.rest-client-base</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-mp-version}_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="${resteasy-mp-version}"</Export-Package>
+										<DynamicImport-Package>org.jboss.resteasy.client.jaxrs.*</DynamicImport-Package>
+									</instructions>
 								</artifact>
 								<!-- NB: the RESTEasy MP Rest Client implementation uses java.util.ServiceLoader directly -->
 								<artifact>
@@ -314,7 +321,7 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.microprofile.rest-client</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-mp-version}_${osgi.qualifier}</Bundle-Version>
-										<Fragment-Host>org.jboss.resteasy.microprofile.rest-client-base</Fragment-Host>
+										<Fragment-Host>org.openntf.org.jboss.resteasy.microprofile.rest-client-base</Fragment-Host>
 										<Export-Package>*;version="${resteasy-mp-version}"</Export-Package>
 									</instructions>
 								</artifact>

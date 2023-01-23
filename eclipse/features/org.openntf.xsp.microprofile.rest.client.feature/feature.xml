@@ -242,7 +242,7 @@
    <plugin id="org.openntf.xsp.microprofile.rest.client" version="0.0.0" unpack="false"/>
 	
    <plugin id="org.eclipse.microprofile.rest.client" version="0.0.0" unpack="false"/>
-   <plugin id="org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0" unpack="false"/>
    <plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client" version="0.0.0" fragment="true" unpack="false"/>
    <plugin id="org.apache.commons.codec" version="0.0.0" unpack="false"/>
    <plugin id="org.apache.commons.commons-io" version="0.0.0" unpack="false"/>
