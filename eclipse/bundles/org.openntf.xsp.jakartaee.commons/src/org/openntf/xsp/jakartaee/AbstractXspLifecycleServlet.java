@@ -35,7 +35,6 @@ import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
-import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem;
 import com.ibm.xsp.acl.NoAccessSignal;
@@ -235,37 +234,32 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	}
 
 	private Set<Class<?>> buildMatchingClasses(HandlesTypes types) {
-		if(module instanceof NSFComponentModule) {
-			// TODO consider whether we can handle other ComponentModules, were someone to make one
-			
-			@SuppressWarnings("unchecked")
-			Set<Class<?>> result = ModuleUtil.getClassNames((NSFComponentModule)module)
-				.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-				.map(className -> {
-					try {
-						return module.getModuleClassLoader().loadClass(className);
-					} catch (ClassNotFoundException e) {
-						throw new RuntimeException(e);
+		@SuppressWarnings("unchecked")
+		Set<Class<?>> result = ModuleUtil.getClassNames(module)
+			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
+			.map(className -> {
+				try {
+					return module.getModuleClassLoader().loadClass(className);
+				} catch (ClassNotFoundException e) {
+					throw new RuntimeException(e);
+				}
+			})
+			.filter(c -> {
+				for(Class<?> type : types.value()) {
+					if(type.isAnnotation()) {
+						return c.isAnnotationPresent((Class<? extends Annotation>)type);
+					} else {
+						return type.isAssignableFrom(c);
 					}
-				})
-				.filter(c -> {
-					for(Class<?> type : types.value()) {
-						if(type.isAnnotation()) {
-							return c.isAnnotationPresent((Class<? extends Annotation>)type);
-						} else {
-							return type.isAssignableFrom(c);
-						}
-					}
-					return true;
-				})
-				.collect(Collectors.toSet());
-			
-			if(!result.isEmpty()) {
-				return result;
-			} else {
-				return null;
-			}
+				}
+				return true;
+			})
+			.collect(Collectors.toSet());
+		
+		if(!result.isEmpty()) {
+			return result;
+		} else {
+			return null;
 		}
-		return null;
 	}
 }
