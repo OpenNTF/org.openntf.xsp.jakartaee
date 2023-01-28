@@ -75,6 +75,7 @@ public abstract class AbstractServletConcurrencyContainer {
 				RejectPolicy.ABORT
 			);
 			ctx.setAttribute(ConcurrencyRequestListener.ATTR_EXECUTORSERVICE, exec);
+			ExecutorHolder.INSTANCE.register(exec);
 			
 			ManagedScheduledExecutorService scheduledExec = new ManagedScheduledExecutorServiceImpl(
 				"scheduledExecutor-" + name, //$NON-NLS-1$
@@ -89,6 +90,7 @@ public abstract class AbstractServletConcurrencyContainer {
 				RejectPolicy.ABORT
 			);
 			ctx.setAttribute(ConcurrencyRequestListener.ATTR_SCHEDULEDEXECUTORSERVICE, scheduledExec);
+			ExecutorHolder.INSTANCE.register(scheduledExec);
 		});
 	}
 	
@@ -100,11 +102,11 @@ public abstract class AbstractServletConcurrencyContainer {
 					exec.shutdownNow();
 					exec.awaitTermination(5, TimeUnit.MINUTES);
 				} catch (Exception e) {
-					e.printStackTrace();
 					if(log.isLoggable(Level.SEVERE)) {
 						log.log(Level.SEVERE, "Encountered exception terminating executor service", e);
 					}
 				}
+				ExecutorHolder.INSTANCE.unregister(exec);
 			}
 			
 			ManagedScheduledExecutorService scheduledExec = (ManagedScheduledExecutorService)ctx.getAttribute(ConcurrencyRequestListener.ATTR_SCHEDULEDEXECUTORSERVICE);
@@ -113,11 +115,11 @@ public abstract class AbstractServletConcurrencyContainer {
 					scheduledExec.shutdownNow();
 					scheduledExec.awaitTermination(5, TimeUnit.MINUTES);
 				} catch (Exception e) {
-					e.printStackTrace();
 					if(log.isLoggable(Level.SEVERE)) {
 						log.log(Level.SEVERE, "Encountered exception terminating scheduled executor service", e);
 					}
 				}
+				ExecutorHolder.INSTANCE.unregister(scheduledExec);
 			}
 			
 			NotesManagedThreadFactory fac = (NotesManagedThreadFactory)ctx.getAttribute(ATTR_THREADFACTORY);

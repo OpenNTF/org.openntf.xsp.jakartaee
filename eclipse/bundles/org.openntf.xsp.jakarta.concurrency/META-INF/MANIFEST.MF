@@ -3,6 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta Concurrency Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.concurrency;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.concurrency
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.openntf.xsp.jakarta.concurrency.ConcurrencyActivator
 Bundle-Version: 2.10.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -15,7 +17,9 @@ Import-Package: com.ibm.designer.runtime.domino.adapter,
  jakarta.annotation;version="2.1.1",
  jakarta.servlet;version="5.0.0",
  jakarta.servlet.http;version="5.0.0",
- lotus.domino
+ lotus.domino,
+ lotus.notes.internal,
+ org.osgi.framework;version="1.8.0"
 Export-Package: org.openntf.xsp.jakarta.concurrency;version="2.10.0",
  org.openntf.xsp.jakarta.concurrency.nsf;version="2.10.0",
  org.openntf.xsp.jakarta.concurrency.servlet;version="2.10.0"
