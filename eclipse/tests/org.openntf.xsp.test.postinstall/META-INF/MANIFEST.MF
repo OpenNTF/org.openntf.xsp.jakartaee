@@ -6,4 +6,5 @@ Automatic-Module-Name: org.openntf.xsp.test.postinstall
 Bundle-Version: 2.10.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.designer.runtime.domino.adapter,
- lotus.domino
+ lotus.domino,
+ org.omg.CORBA;resolution:=optional
