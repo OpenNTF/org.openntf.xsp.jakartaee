@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
@@ -94,6 +95,14 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				
 				// Next up, copy our Java policy to be the Notes home dir in the container
 				withFileFromClasspath("staging/.java.policy", "/docker/java.policy"); //$NON-NLS-1$ //$NON-NLS-2$
+				
+				// Add a Java options file for Apple Silicon compatibility
+				String arch = DockerClientFactory.instance().getInfo().getArchitecture();
+				if(!"x86_64".equals(arch)) { //$NON-NLS-1$
+					withFileFromClasspath("staging/JavaOptionsFile.txt", "/docker/JavaOptionsFile_emulator.txt"); //$NON-NLS-1$ //$NON-NLS-2$
+				} else {
+					withFileFromClasspath("staging/JavaOptionsFile.txt", "/docker/JavaOptionsFile_x64.txt"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 				
 				// Finally, add our NTFs and Domino config to /local/runner
 				{

@@ -64,7 +64,6 @@ public enum JakartaTestContainers {
 						break;
 					}
 				});
-			
 			domino.start();
 			// The above waits for "Adding sign bit" from AdminP, but we have no
 			//   solid indication when it's done. For now, wait a couple seconds
@@ -76,7 +75,7 @@ public enum JakartaTestContainers {
 		} finally {
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				if(domino != null) {
-					domino.close();
+					//domino.close();
 				}
 				network.close();
 				
