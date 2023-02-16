@@ -99,9 +99,9 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				// Add a Java options file for Apple Silicon compatibility
 				String arch = DockerClientFactory.instance().getInfo().getArchitecture();
 				if(!"x86_64".equals(arch)) { //$NON-NLS-1$
-					withFileFromClasspath("staging/JavaOptionsFile.txt", "/docker/JavaOptionsFile_emulator.txt"); //$NON-NLS-1$ //$NON-NLS-2$
+					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of("-Djava.compiler=NONE")); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
-					withFileFromClasspath("staging/JavaOptionsFile.txt", "/docker/JavaOptionsFile_x64.txt"); //$NON-NLS-1$ //$NON-NLS-2$
+					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of("")); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				
 				// Finally, add our NTFs and Domino config to /local/runner
