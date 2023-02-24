@@ -91,7 +91,7 @@ public abstract class AbstractWebClientTest {
 			port = 80;
 		} else {
 			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
 		String context = getExampleContextPath();
@@ -111,7 +111,7 @@ public abstract class AbstractWebClientTest {
 			port = 80;
 		} else {
 			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
 		String context = "/exampleservlet";
@@ -141,7 +141,7 @@ public abstract class AbstractWebClientTest {
 			port = 80;
 		} else {
 			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
 		String context = getWebappContextPath();
@@ -156,7 +156,7 @@ public abstract class AbstractWebClientTest {
 			port = 80;
 		} else {
 			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
 		String context = PathUtil.concat(getExampleContextPath(), getWebappContextPath(), '/');
@@ -176,7 +176,7 @@ public abstract class AbstractWebClientTest {
 			port = 80;
 		} else {
 			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
 		String context = getBaseBundleExampleContextPath();
