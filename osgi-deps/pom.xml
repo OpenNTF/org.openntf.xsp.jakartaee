@@ -536,10 +536,8 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Import-Package>
-											jakarta.*,
-											org.glassfish.hk2.osgiresourcelocator
-										</Import-Package>
+										<Import-Package>jakarta.*</Import-Package>
+										<Require-Bundle>org.openntf.xsp.jakartaee.osgiresourcelocator</Require-Bundle>
 									</instructions>
 								</artifact>
 								<artifact>
