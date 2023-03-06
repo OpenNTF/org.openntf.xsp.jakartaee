@@ -659,13 +659,47 @@ public class NoSQLExample {
 
 Note: the semantics of this component are likely to change in the future. In beta versions after this one, the NoSQL spec reduced its purview in favor of working with the Jakarta Data API. The latter will expose `Repository` types like above, and this will be a breaking change. However, this version requires at least Java 11 and will only be adopted here when Domino supports at least that Java version.
 
+#### Accessing Views
+
+View and folder data can be accessed by writing repository methods annotated with the `org.openntf.xsp.nosql.mapping.extension.ViewEntries` and `org.openntf.xsp.nosql.mapping.extension.ViewDocuments` annotations. For example:
+
+```java
+public interface PersonRepository extends DominoRepository<Person, String> {
+	@ViewDocuments(FOLDER_PERSONS)
+	Stream<Person> findInPersonsFolder();
+	
+	@ViewEntries(VIEW_PERSONS)
+	Optional<Person> findByKey(ViewQuery viewQuery);
+}
+```
+
+The `@ViewDocuments` annotation will retrieve all the documents contained in the view or folder, in entry order, while `@ViewEntries` will read only the entry data. The latter is potentially much faster, but does not provide full access to the underlying documents. Rich-text items are not available, for example, though view columns are accessible by programmatic name (e.g. `$3`). The `org.openntf.xsp.nosql.mapping.extension.ViewQuery` type can be used programmatically to define a query on the view data. For example, in a REST service finding a person entry by the last-name key from the view:
+
+```java
+@Path("byViewKey/{lastName}")
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+public Person getPersonByViewKey(@PathParam("lastName") String lastName) {
+	ViewQuery query = ViewQuery.query().key(lastName, true); // "true" for an exact match
+	return personRepository.findByKey(query)
+		.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
+}
+```
+
 #### Document Sources
 
 By default, the driver assumes that documents are stored in the current database. This can be overridden by using the `org.openntf.xsp.nosql.mapping.extension.RepositoryProvider` annotation. For example:
 
 ```java
+package model;
+
+import java.util.stream.Stream;
+
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.nosql.mapping.extension.RepositoryProvider;
+
 @RepositoryProvider("names")
-public interface PersonRepository extends Repository<Person, String> {
+public interface PersonRepository extends DominoRepository<Person, String> {
 	Stream<Person> findAll();
 	Stream<Person> findByLastName(String lastName);
 }
@@ -674,6 +708,19 @@ public interface PersonRepository extends Repository<Person, String> {
 Then, create a CDI bean that can provide the desired database and a `sessionAsSigner` object (which is used for QueryResultsProcessor views), annotated with `jakarta.nosql.mapping.Database`. For example:
 
 ```java
+package bean;
+
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
+
+import com.ibm.domino.xsp.module.nsf.NotesContext;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.nosql.mapping.Database;
+import jakarta.nosql.mapping.DatabaseType;
+import lotus.domino.NotesException;
+
 @RequestScoped
 public class NamesRepositoryBean {
 	@Produces
