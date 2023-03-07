@@ -36,6 +36,12 @@ import jakarta.servlet.ServletContext;
 public class ConcurrencyApplicationListener extends AbstractServletConcurrencyContainer implements ApplicationListener2 {
 	@Override
 	public void applicationCreated(ApplicationEx app) {
+		getServletContext().ifPresent(ctx -> {
+			for(String prop : CONFIG_PROPS) {
+				ctx.setAttribute(prop, app.getProperty(prop, null));
+			}
+		});
+		
 		initializeConcurrencyContainer();
 	}
 

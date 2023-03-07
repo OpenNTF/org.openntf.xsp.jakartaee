@@ -462,14 +462,35 @@ As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and
 The [Concurrency API](https://jakarta.ee/specifications/concurrency/2.0/concurrency-spec-2.0.html) provides a mechanism for locating and using managed variants of `ExecutorService` and `ScheduledExecutorService` to use contextual application services from within a multithreaded context. These objects can be retrieved using JNDI:
 
 ```java
-ExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+ManagedExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+ManagedScheduledExecutorService scheduler = InitialContext.doLookup("java:comp/DefaultManagedScheduledExecutorService");
+```
 
-// ...
+...or using CDI:
 
-ScheduledExecutorService scheduler = InitialContext.doLookup("java:comp/DefaultManagedScheduledExecutorService");
+```java
+@Inject @Named("java:comp/DefaultManagedExecutorService")
+private ManagedExecutorService exec;
+
+@Inject @Named("java:comp/DefaultManagedScheduledExecutorService")
+private ManagedScheduledExecutorService scheduler;
 ```
 
 Tasks run from these executors will retain their NSF and requesting user context as well as the application's CDI container.
+
+The mechanics of the pool can be configured with several xsp.properties values, with these defaults:
+
+```properties
+concurrency.hungTaskThreshold=0
+concurrency.longRunningTasks=true
+concurrency.corePoolSize=5
+concurrency.maxPoolSize=10
+concurrency.keepAliveSeconds=1800
+concurrency.threadLifetimeSeconds=1800
+concurrency.queueCapacity=0
+```
+
+These values apply to both the normal and scheduled services.
 
 ## Transactions
 
