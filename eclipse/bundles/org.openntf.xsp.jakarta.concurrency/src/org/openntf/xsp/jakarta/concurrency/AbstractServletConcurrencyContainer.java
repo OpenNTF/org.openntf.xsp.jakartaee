@@ -15,19 +15,19 @@
  */
 package org.openntf.xsp.jakarta.concurrency;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.glassfish.enterprise.concurrent.AbstractManagedExecutorService.RejectPolicy;
 import org.glassfish.enterprise.concurrent.ContextServiceImpl;
 import org.glassfish.enterprise.concurrent.ManagedExecutorServiceImpl;
 import org.glassfish.enterprise.concurrent.ManagedScheduledExecutorServiceImpl;
-import org.glassfish.enterprise.concurrent.AbstractManagedExecutorService.RejectPolicy;
 import org.glassfish.enterprise.concurrent.spi.ContextSetupProvider;
 import org.openntf.xsp.jakarta.concurrency.servlet.ConcurrencyRequestListener;
 
@@ -71,26 +71,12 @@ public abstract class AbstractServletConcurrencyContainer {
 	protected abstract Optional<ServletContext> getServletContext();
 	
 	/**
-	 * Retrieves the named property for the context.
+	 * Initializes the concurrency container for the current context.
 	 * 
-	 * @param ctx the current {@link ServletContext} for checking
-	 * @param propName the name of the property to retrieve
-	 * @param defaultValue the value to return if the property is not set
-	 * @return the property value, or {@code defaultValue} if it is not set
-	 * @since 2.10.0
+	 * @param configFetcher a {@link BiFunction} that can take a property name
+	 *        and default value, and return a context-specific config value
 	 */
-	protected String getProperty(ServletContext ctx, String propName, String defaultValue) {
-		String result = (String)ctx.getAttribute(propName);
-		if(result == null) {
-			result = defaultValue;
-		}
-		if(log.isLoggable(Level.FINEST)) {
-			log.finest(MessageFormat.format("Looked up property \"{0}\": {1}", propName, result));
-		}
-		return result;
-	}
-	
-	public void initializeConcurrencyContainer() {
+	public void initializeConcurrencyContainer(BiFunction<String, String, String> configFetcher) {
 		getServletContext().ifPresent(ctx -> {
 			ctx.addListener(new ConcurrencyRequestListener());
 			
@@ -101,14 +87,14 @@ public abstract class AbstractServletConcurrencyContainer {
 				name = String.valueOf(System.identityHashCode(ctx));
 			}
 			
-			int hungTaskThreshold = Integer.parseInt(getProperty(ctx, PROP_HUNGTASKTHRESHOLD, "0")); //$NON-NLS-1$
-			boolean longRunningTasks = Boolean.parseBoolean(getProperty(ctx, PROP_LONGRUNNINGTASKS, "true")); //$NON-NLS-1$
-			int corePoolSize = Integer.parseInt(getProperty(ctx, PROP_COREPOOLSIZE, "5")); //$NON-NLS-1$
-			int maxPoolSize = Integer.parseInt(getProperty(ctx, PROP_MAXPOOLSIZE, "10")); //$NON-NLS-1$
-			int keepAliveTime = Integer.parseInt(getProperty(ctx, PROP_KEEPALIVESECONDS, "1800")); //$NON-NLS-1$
-			int threadLifeTime = Integer.parseInt(getProperty(ctx, PROP_THREADLIFETIMESECONDS, "1800")); //$NON-NLS-1$
-			int queueCapacity = Integer.parseInt(getProperty(ctx, PROP_QUEUECAPACITY, "0")); //$NON-NLS-1$
-			RejectPolicy rejectPolicy = RejectPolicy.valueOf(getProperty(ctx, PROP_REJECTPOLICY, RejectPolicy.ABORT.name()));
+			int hungTaskThreshold = Integer.parseInt(configFetcher.apply(PROP_HUNGTASKTHRESHOLD, "0")); //$NON-NLS-1$
+			boolean longRunningTasks = Boolean.parseBoolean(configFetcher.apply(PROP_LONGRUNNINGTASKS, "true")); //$NON-NLS-1$
+			int corePoolSize = Integer.parseInt(configFetcher.apply(PROP_COREPOOLSIZE, "5")); //$NON-NLS-1$
+			int maxPoolSize = Integer.parseInt(configFetcher.apply(PROP_MAXPOOLSIZE, "10")); //$NON-NLS-1$
+			int keepAliveTime = Integer.parseInt(configFetcher.apply(PROP_KEEPALIVESECONDS, "1800")); //$NON-NLS-1$
+			int threadLifeTime = Integer.parseInt(configFetcher.apply(PROP_THREADLIFETIMESECONDS, "1800")); //$NON-NLS-1$
+			int queueCapacity = Integer.parseInt(configFetcher.apply(PROP_QUEUECAPACITY, "0")); //$NON-NLS-1$
+			RejectPolicy rejectPolicy = RejectPolicy.valueOf(configFetcher.apply(PROP_REJECTPOLICY, RejectPolicy.ABORT.name()));
 			
 			ContextServiceImpl contextService = new ContextServiceImpl("contextService-" + name, provider); //$NON-NLS-1$
 			NotesManagedThreadFactory factory = new NotesManagedThreadFactory("threadFactory-" + name, contextService); //$NON-NLS-1$
