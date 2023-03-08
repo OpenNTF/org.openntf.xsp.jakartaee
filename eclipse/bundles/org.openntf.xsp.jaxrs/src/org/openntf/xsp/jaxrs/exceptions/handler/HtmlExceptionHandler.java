@@ -20,9 +20,16 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
+import javax.faces.FactoryFinder;
+import javax.faces.application.ViewHandler;
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
 import javax.servlet.ServletException;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
+import com.ibm.xsp.application.ApplicationEx;
+import com.ibm.xsp.renderkit.ReadOnlyRenderKitFactory;
 
 import jakarta.annotation.Priority;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +58,33 @@ public class HtmlExceptionHandler implements RestExceptionHandler {
 		return Response.status(status)
 			.type(MediaType.TEXT_HTML_TYPE)
 			.entity((StreamingOutput)out -> {
+				// Check for an error page in the DB
+				FacesContext facesContext = FacesContext.getCurrentInstance();
+				if(facesContext != null) {
+					ApplicationEx app = (ApplicationEx)facesContext.getApplication();
+					String defaultPage = app.getProperty("xsp.error.page.default", null); //$NON-NLS-1$
+					if(!"true".equals(defaultPage)) { //$NON-NLS-1$
+						// Then check for a customized page
+						String errorPage = app.getProperty("xsp.error.page", null); //$NON-NLS-1$
+						if(StringUtil.isNotEmpty(errorPage)) {
+							// Then push the error to the request and render the XPage
+							req.setAttribute("error", throwable); //$NON-NLS-1$
+							ViewHandler viewHandler = app.getViewHandler();
+							UIViewRoot viewRoot = viewHandler.createView(facesContext, errorPage);
+							facesContext.setViewRoot(viewRoot);
+							
+							// The renderkit factory will be null outside a true XPage request
+							if(FactoryFinder.getFactory(FactoryFinder.RENDER_KIT_FACTORY) == null) {
+								FactoryFinder.setFactory(FactoryFinder.RENDER_KIT_FACTORY, ReadOnlyRenderKitFactory.class.getName());
+							}
+							
+							app.getController().render(facesContext, viewRoot);
+							
+							return;
+						}
+					}
+				}
+				
 				try(PrintWriter w = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
 					XSPErrorPage.handleException(w, throwable, req.getRequestURL().toString(), false);
 				} catch (ServletException e) {
