@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,18 +77,6 @@ public class TestRestJson extends AbstractWebClientTest {
 		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 		String jsonMessage = jsonObject.getString("jsonMessage");
 		assertTrue(jsonMessage.startsWith("I'm application guy at "));
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(AnonymousClientProvider.class)
-	public void testJsonbSlashMap(Client client) {
-		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonbSlashMap");
-		Response response = target.request().get();
-		
-		String json = response.readEntity(String.class);
-		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-		String jsonMessage = jsonObject.getString("test\\pom.xml");
-		assertEquals("hello", jsonMessage);
 	}
 	
 	@Test

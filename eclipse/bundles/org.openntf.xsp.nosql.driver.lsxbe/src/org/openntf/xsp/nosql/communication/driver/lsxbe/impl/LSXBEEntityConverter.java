@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -368,7 +368,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					break;
 				}
 				
-				convertedEntry.add(Document.of(itemName, DominoNoSQLUtil.toJavaFriendly(context, value)));
+				if(value != null) {
+					convertedEntry.add(Document.of(itemName, DominoNoSQLUtil.toJavaFriendly(context, value)));
+				}
 			}
 			
 			// If the entity requested an ETag and we happened to include the modified date, we can do that here

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,38 +15,42 @@
  */
 package org.openntf.xsp.cdi.provider;
 
+import java.io.IOException;
+
 import org.openntf.xsp.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.cdi.ext.CDIContainerUtility;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-import com.ibm.designer.domino.napi.NotesDatabase;
-import com.ibm.domino.osgi.core.context.ContextInfo;
+import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import jakarta.annotation.Priority;
 
 /**
  * This {@link CDIContainerLocator} looks for a contextual database
- * in an OSGi Servlet request for a CDI container.
+ * in an active {@link ComponentModule} for a CDI container.
  * 
  * @author Jesse Gallagher
- * @since 2.8.0
+ * @since 2.10.0
  */
 @Priority(1)
-public class OSGiServletDatabaseCDIContainerLocator implements CDIContainerLocator {
+public class ComponentModuleDatabaseCDIContainerLocator implements CDIContainerLocator {
 
 	@Override
 	public Object getContainer() {
 		CDIContainerUtility util = LibraryUtil.findRequiredExtension(CDIContainerUtility.class);
 		
-		try {
-			NotesDatabase database = ContextInfo.getServerDatabase();
-			if(database != null) {
-				return util.getContainer(database);
-			}
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-		return null;
+		return ComponentModuleLocator.getDefault()
+			.flatMap(ComponentModuleLocator::getNotesDatabase)
+			.map(t -> {
+				try {
+					return util.getContainer(t);
+				} catch (NotesAPIException | IOException e) {
+					return null;
+				}
+			})
+			.orElse(null);
 	}
 
 }

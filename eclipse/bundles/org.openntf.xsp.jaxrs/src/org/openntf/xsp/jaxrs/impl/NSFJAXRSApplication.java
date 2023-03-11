@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,29 @@
 package org.openntf.xsp.jaxrs.impl;
 
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.util.DescendingPriorityComparator;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
+import org.openntf.xsp.jaxrs.JAXRSClassContributor;
+
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Feature;
 import jakarta.ws.rs.ext.Providers;
-
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jakartaee.util.ModuleUtil;
-import org.openntf.xsp.jaxrs.JAXRSClassContributor;
-
-import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 /**
  * An {@link Application} subclass that searches the current module for resource classes.
@@ -70,32 +73,45 @@ public class NSFJAXRSApplication extends Application {
 	
 	@Override
 	public Set<Class<?>> getClasses() {
-		NSFComponentModule module = NotesContext.getCurrent().getModule();
-		Set<Class<?>> result = new HashSet<>();
-		result.addAll(super.getClasses());
-		
-		List<JAXRSClassContributor> contributors = LibraryUtil.findExtensions(JAXRSClassContributor.class);
-		contributors.stream()
-			.map(JAXRSClassContributor::getClasses)
-			.filter(Objects::nonNull)
-			.forEach(result::addAll);
-		
-		ModuleUtil.getClassNames(module)
-			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-			.distinct()
-			.map(className -> loadClass(module, className))
-			.filter(this::isJAXRSClass)
-			.forEach(result::add);
-		return result;
+		return ComponentModuleLocator.getDefault()
+			.map(ComponentModuleLocator::getActiveModule)
+			.map(module -> {
+				Set<Class<?>> result = new HashSet<>();
+				result.addAll(super.getClasses());
+				
+				List<JAXRSClassContributor> contributors = LibraryUtil.findExtensions(JAXRSClassContributor.class);
+				contributors.stream()
+					.map(JAXRSClassContributor::getClasses)
+					.filter(Objects::nonNull)
+					.forEach(result::addAll);
+				
+				ModuleUtil.getClassNames(module)
+					.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
+					.distinct()
+					.map(className -> loadClass(module, className))
+					.filter(this::isJAXRSClass)
+					.forEach(result::add);
+				return result;
+			})
+			.orElseGet(Collections::emptySet);
 	}
 	
 	@Override
 	public Map<String, Object> getProperties() {
 		Map<String, Object> result = new LinkedHashMap<>();
+		
 		// Read in xsp.properties
-		NSFComponentModule module = NotesContext.getCurrent().getModule();
-		Properties xspProperties = LibraryUtil.getXspProperties(module);
-		xspProperties.forEach((key, value) -> result.put(key.toString(), value));
+		LibraryUtil.findExtensions(ApplicationPropertyLocator.class)
+			.stream()
+			.sorted(DescendingPriorityComparator.INSTANCE)
+			.filter(ApplicationPropertyLocator::isActive)
+			.map(ApplicationPropertyLocator::getApplicationProperties)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.forEach(properties -> {
+				properties.forEach((key, value) -> result.put(key.toString(), value));
+			});
+		
 		return result;
 	}
 	
@@ -117,7 +133,7 @@ public class NSFJAXRSApplication extends Application {
 		return false;
 	}
 	
-	private static Class<?> loadClass(NSFComponentModule module, String className) {
+	private static Class<?> loadClass(ComponentModule module, String className) {
 		try {
 			return module.getModuleClassLoader().loadClass(className);
 		} catch (ClassNotFoundException e) {

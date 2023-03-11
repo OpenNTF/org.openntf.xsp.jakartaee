@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,10 +56,10 @@ public enum JaxbUtil {
      * </ol>
      * @see JAXBContext#newInstance(Class...)
 	 */
-	public static JAXBContext newInstance(Class<?>... classes) throws JAXBException {
+	public static JAXBContext newInstance(Class<?>... classesToBeBound) throws JAXBException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<JAXBContext>)() ->
-				JAXBContext.newInstance(classes)
+				JAXBContext.newInstance(classesToBeBound)
 			);
 		} catch (PrivilegedActionException e) {
 			Throwable cause = e.getCause();

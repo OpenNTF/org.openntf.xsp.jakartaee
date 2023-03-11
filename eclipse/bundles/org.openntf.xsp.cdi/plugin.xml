@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@
 		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.ApplicationExCDIContainerLocator" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.OSGiServletDatabaseCDIContainerLocator" />
+		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.ComponentModuleDatabaseCDIContainerLocator" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.ThreadContextDatabasePathCDIContainerLocator" />

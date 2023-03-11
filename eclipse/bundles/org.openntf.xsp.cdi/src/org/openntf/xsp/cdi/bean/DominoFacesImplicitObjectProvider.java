@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 package org.openntf.xsp.cdi.bean;
 
 import org.openntf.xsp.cdi.concurrency.NSFSessionClonerSetupParticipant;
-
-import com.ibm.domino.xsp.module.nsf.NotesContext;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
@@ -39,24 +38,18 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("database")
 	public Database produceDatabase() {
-		NotesContext context = NotesContext.getCurrentUnchecked();
-		if(context != null) {
-			return context.getCurrentDatabase();
-		} else {
-			return null;
-		}
+		return ComponentModuleLocator.getDefault()
+			.flatMap(ComponentModuleLocator::getUserDatabase)
+			.orElse(null);
 	}
 
 	@Produces
 	@Dependent
 	@Named("dominoSession")
 	public Session produceSession() {
-		NotesContext context = NotesContext.getCurrentUnchecked();
-		if(context != null) {
-			return context.getCurrentSession();
-		} else {
-			return null;
-		}
+		return ComponentModuleLocator.getDefault()
+			.flatMap(ComponentModuleLocator::getUserSession)
+			.orElse(null);
 	}
 
 	@Produces
@@ -68,12 +61,9 @@ public class DominoFacesImplicitObjectProvider {
 			return threadSession;
 		}
 		
-		NotesContext context = NotesContext.getCurrentUnchecked();
-		if(context != null) {
-			return context.getSessionAsSigner();
-		} else {
-			return null;
-		}
+		return ComponentModuleLocator.getDefault()
+			.flatMap(ComponentModuleLocator::getSessionAsSigner)
+			.orElse(null);
 	}
 
 	@Produces
@@ -85,11 +75,8 @@ public class DominoFacesImplicitObjectProvider {
 			return threadSession;
 		}
 		
-		NotesContext context = NotesContext.getCurrentUnchecked();
-		if(context != null) {
-			return context.getSessionAsSignerFullAdmin();
-		} else {
-			return null;
-		}
+		return ComponentModuleLocator.getDefault()
+			.flatMap(ComponentModuleLocator::getSessionAsSignerWithFullAccess)
+			.orElse(null);
 	}
 }

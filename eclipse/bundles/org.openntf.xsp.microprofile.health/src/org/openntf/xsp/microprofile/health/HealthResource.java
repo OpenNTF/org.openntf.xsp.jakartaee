@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,10 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.openntf.xsp.jakartaee.metrics.MetricsIgnore;
 
 @Path("health")
+@MetricsIgnore
 public class HealthResource {
 	
 	@GET

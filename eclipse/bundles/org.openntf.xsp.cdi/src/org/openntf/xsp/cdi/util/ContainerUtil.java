@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
@@ -48,8 +50,8 @@ import org.jboss.weld.resources.spi.ResourceLoader;
 import org.jboss.weld.util.ForwardingBeanManager;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.context.CDIScopesExtension;
-import org.openntf.xsp.cdi.discovery.OSGiServletBeanArchiveHandler;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -59,7 +61,6 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.xsp.application.ApplicationEx;
 
 import jakarta.el.ELResolver;
@@ -114,6 +115,8 @@ public enum ContainerUtil {
 	
 	private static final String ATTR_CONTEXTCONTAINER = CDILibrary.LIBRARY_ID + ".cdicontainer"; //$NON-NLS-1$
 	
+	private static final Logger log = Logger.getLogger(ContainerUtil.class.getPackage().getName());
+	
 	/**
 	 * Gets or creates a {@link WeldContainer} instance for the provided Application.
 	 * 
@@ -131,10 +134,11 @@ public enum ContainerUtil {
 				}
 			}
 			
+			ComponentModuleLocator module = ComponentModuleLocator.getDefault().get();
 			// Look for the database so we can share the replica ID
 			String id;
 			try {
-				id = NotesContext.getCurrent().getNotesDatabase().getReplicaID();
+				id = module.getNotesDatabase().get().getReplicaID();
 			} catch (NotesAPIException e) {
 				throw new RuntimeException(e);
 			}
@@ -163,7 +167,7 @@ public enum ContainerUtil {
 							weld.setResourceLoader(new BundleDependencyResourceLoader(bundle.get()));
 						}
 					} else {
-						weld.setResourceLoader(new ModuleContextResourceLoader(NotesContext.getCurrent().getModule()));
+						weld.setResourceLoader(new ModuleContextResourceLoader(module.getActiveModule()));
 					}
 					
 					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
@@ -191,7 +195,7 @@ public enum ContainerUtil {
 					
 					// Also set it in the ServletContext for other use
 					// NotesContext must be set if we're here
-					javax.servlet.ServletContext oldContext = NotesContext.getCurrent().getModule().getServletContext();
+					javax.servlet.ServletContext oldContext = module.getActiveModule().getServletContext();
 					oldContext.setAttribute(ATTR_CONTEXTCONTAINER, instance);
 				}
 				return instance;
@@ -219,10 +223,11 @@ public enum ContainerUtil {
 					return getContainer(bundle.get());
 				}
 				
+				ComponentModuleLocator module = ComponentModuleLocator.getDefault().get();
 				// Look for the database so we can share the replica ID
 				String id;
 				try {
-					id = NotesContext.getCurrent().getNotesDatabase().getReplicaID();
+					id = module.getNotesDatabase().get().getReplicaID();
 				} catch (NotesAPIException e) {
 					throw new RuntimeException(e);
 				}
@@ -267,35 +272,30 @@ public enum ContainerUtil {
 						e.printStackTrace();
 					}
 					
-					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
-					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
-					try {
-						for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
-							Collection<Class<?>> beanClasses = service.getBeanClasses();
-							if(beanClasses != null) {
-								weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
-							}
-							Collection<Extension> extensions = service.getExtensions();
-							if(extensions != null) {
-								weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
-							}
-							Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
-							if(extensionClasses != null) {
-								extensionClasses.forEach(weld::addExtensions);
-							}
+					for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
+						Collection<Class<?>> beanClasses = service.getBeanClasses();
+						if(beanClasses != null) {
+							weld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
 						}
-						instance = weld.initialize();
-					} finally {
-						OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
-						OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
+						Collection<Extension> extensions = service.getExtensions();
+						if(extensions != null) {
+							weld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+						}
+						Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
+						if(extensionClasses != null) {
+							extensionClasses.forEach(weld::addExtensions);
+						}
 					}
+					instance = weld.initialize();
 				} catch(IllegalStateException e) {
-					System.err.println(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
-					if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
-						String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path")); //$NON-NLS-1$
-						System.err.println(MessageFormat.format("Current class path: {0}", classpath));
+					if(log.isLoggable(Level.SEVERE)) {
+						log.severe(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
+						if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
+							String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path")); //$NON-NLS-1$
+							log.severe(MessageFormat.format("Current class path: {0}", classpath));
+						}
+						log.log(Level.SEVERE, "Original exception", e);
 					}
-					e.printStackTrace();
 					return null;
 				}
 			}
@@ -323,17 +323,10 @@ public enum ContainerUtil {
 		}
 		bundleNames.add(symbolicName);
 		// Add classes from the bundle here
-		DiscoveryUtil.findExportedClassNames(bundle, false)
-			.filter(t -> !classNames.contains(t))
-			.peek(classNames::add)
+		DiscoveryUtil.findBeanClasses(bundle)
+			.filter(t -> !classNames.contains(t.getName()))
+			.peek(t -> classNames.add(t.getName()))
 			.distinct()
-			.map(t -> {
-				try {
-					return bundle.loadClass(t);
-				} catch (ClassNotFoundException e) {
-					return null;
-				}
-			})
 			.filter(Objects::nonNull)
 			.forEach(weld::addBeanClass);
 		
@@ -396,31 +389,24 @@ public enum ContainerUtil {
 					}
 	
 					Weld fweld = weld;
-					OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(bundle);
-					OSGiServletBeanArchiveHandler.PROCESSING_ID.set(id);
-					try {
-						instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
-							for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
-								Collection<Class<?>> beanClasses = service.getBeanClasses();
-								if(beanClasses != null) {
-									fweld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
-								}
-								Collection<Extension> extensions = service.getExtensions();
-								if(extensions != null) {
-									fweld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
-								}
-								Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
-								if(extensionClasses != null) {
-									extensionClasses.forEach(fweld::addExtensions);
-								}
+					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
+						for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
+							Collection<Class<?>> beanClasses = service.getBeanClasses();
+							if(beanClasses != null) {
+								fweld.addBeanClasses(beanClasses.toArray(new Class<?>[beanClasses.size()]));
 							}
-							
-							return fweld.initialize();
-						});
-					} finally {
-						OSGiServletBeanArchiveHandler.PROCESSING_BUNDLE.set(null);
-						OSGiServletBeanArchiveHandler.PROCESSING_ID.set(null);
-					}
+							Collection<Extension> extensions = service.getExtensions();
+							if(extensions != null) {
+								fweld.addExtensions(extensions.toArray(new Extension[extensions.size()]));
+							}
+							Collection<Class<? extends Extension>> extensionClasses = service.getExtensionClasses();
+							if(extensionClasses != null) {
+								extensionClasses.forEach(fweld::addExtensions);
+							}
+						}
+						
+						return fweld.initialize();
+					});
 				}
 				return instance;
 			});

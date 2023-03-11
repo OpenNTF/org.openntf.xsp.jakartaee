@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@
 <feature
       id="org.openntf.xsp.jakarta.servlet.feature"
       label="XPages Jakarta EE Servlet Feature"
-      version="2.9.0.qualifier">
+      version="2.10.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018-2022 Jesse Gallagher
+      Copyright 2018-2023 Jesse Gallagher
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
@@ -218,7 +218,7 @@
       same &quot;printed page&quot; as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2018-2022 Jesse Gallagher
+   Copyright 2018-2023 Jesse Gallagher
 
    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.

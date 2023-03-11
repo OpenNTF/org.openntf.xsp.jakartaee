@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -41,4 +41,15 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant" class="org.openntf.xsp.jaxrs.concurrency.JAXRSContextSetupParticipant" />
 	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jaxrs.exceptions.handler.HtmlExceptionHandler" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jaxrs.exceptions.handler.TextPlainExceptionHandler" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jaxrs.exceptions.handler.JsonExceptionHandler" />
+	</extension>
+	
 </plugin>

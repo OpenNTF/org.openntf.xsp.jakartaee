@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages JAX-RS Support
 Bundle-SymbolicName: org.openntf.xsp.jaxrs;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jaxrs
-Bundle-Version: 2.9.0.qualifier
+Bundle-Version: 2.10.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: jakarta.annotation-api;bundle-version="2.0.0";visibility:=reexport,
@@ -18,15 +18,13 @@ Import-Package: com.ibm.commons.util,
  com.ibm.designer.domino.napi,
  com.ibm.designer.runtime.domino.adapter,
  com.ibm.designer.runtime.domino.adapter.util,
- com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.acl,
  com.ibm.xsp.context,
  com.ibm.xsp.extlib.util,
  com.ibm.xsp.library,
  jakarta.activation;version="2.0.0",
- jakarta.json;version="2.0.0",
- jakarta.json.stream;version="2.0.0",
- jakarta.mvc;version="2.0.0",
+ jakarta.json;version="2.0.1",
+ jakarta.json.stream;version="2.0.1",
  jakarta.servlet;version="5.0.0",
  jakarta.servlet.annotation;version="5.0.0",
  jakarta.servlet.descriptor;version="5.0.0",
@@ -40,11 +38,13 @@ Import-Package: com.ibm.commons.util,
  javax.servlet.http;version="2.5.0",
  lotus.domino,
  org.glassfish.enterprise.concurrent.spi;version="2.0.0",
+ org.jboss.resteasy.api.validation,
  org.jboss.resteasy.plugins.validation;version="6.0.0",
  org.jboss.resteasy.spi,
  org.openntf.xsp.jakarta.concurrency;version="2.7.0",
  org.osgi.framework;version="1.8.0"
-Export-Package: org.openntf.xsp.jaxrs;version="2.9.0",
- org.openntf.xsp.jaxrs.exceptions;version="2.9.0",
- org.openntf.xsp.jaxrs.security;version="2.9.0"
+Export-Package: org.openntf.xsp.jaxrs;version="2.10.0",
+ org.openntf.xsp.jaxrs.exceptions;version="2.10.0",
+ org.openntf.xsp.jaxrs.exceptions.handler;version="2.10.0",
+ org.openntf.xsp.jaxrs.security;version="2.10.0"
 Eclipse-ExtensibleAPI: true

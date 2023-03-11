@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,6 @@ public enum JakartaTestContainers {
 						break;
 					}
 				});
-			
 			domino.start();
 			// The above waits for "Adding sign bit" from AdminP, but we have no
 			//   solid indication when it's done. For now, wait a couple seconds

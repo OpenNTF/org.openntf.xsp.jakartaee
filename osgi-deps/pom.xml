@@ -37,10 +37,14 @@
 	</pluginRepositories>
 	
 	<properties>
+		<!-- Weld 5.0.0+ requires Java 11 -->
 		<weld-version>4.0.3.Final</weld-version>
-		<resteasy-version>6.0.1.Final</resteasy-version>
+		<!-- RestEasy 6.1.0+ requires Java 11 -->
+		<resteasy-version>6.0.3.Final</resteasy-version>
+		<!-- RestEasy MP Client 2.0.0+ requires Java 11 -->
 		<resteasy-mp-version>2.0.0.Beta1</resteasy-mp-version>
-		<hibernate-version>7.0.4.Final</hibernate-version>
+		<!-- Hibernate 8.0.0+ requires Java 11 -->
+		<hibernate-version>7.0.5.Final</hibernate-version>
 		<!-- jakarta.* snapshot builds are on OpenNTF's server -->
 		<nosql-version>1.0.0-b4</nosql-version>
 		<nosql-version-osgi>1.0.0</nosql-version-osgi>
@@ -89,6 +93,8 @@
 								<artifact><id>jakarta.websocket:jakarta.websocket-api:2.1.0</id><source>true</source></artifact>
 								<!-- NB: XML WS 4.0.0 requires Java 11 -->
 								<artfiact><id>jakarta.xml.ws:jakarta.xml.ws-api:3.0.1</id><source>true</source></artfiact>
+								<!-- Useful for dev runtimes -->
+								<artifact><id>org.glassfish.corba:glassfish-corba-omgapi:4.2.4</id><source>true</source></artifact>
 								
 								<!-- Repackage to avoid trouble with a build finding a newer, beta-only version -->
 								<artifact>
@@ -119,58 +125,19 @@
 								<!--
 									JSON-P and JSON-B
 								-->
-								<!-- Re-wrap the JSON-P API to avoid a dependency on the RI -->
+								<!-- NB: the move to Eclipse Parsson as the JSON-P implementation is incomplete -->
+								<artifact><id>jakarta.json:jakarta.json-api:2.0.1</id><source>true</source></artifact>
+								<artifact><id>org.glassfish:jakarta.json:2.0.1</id><source>true</source></artifact>
+								<artifact><id>jakarta.json.bind:jakarta.json.bind-api:2.0.0</id><source>true</source></artifact>
+								<!-- Oddly, the Yasson binaries don't end up in the repo if I don't override the bundle here -->
 								<artifact>
-									<id>jakarta.json:jakarta.json-api:2.0.1</id>
+									<id>org.eclipse:yasson:2.0.4</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
-										<Bundle-SymbolicName>org.openntf.jakarta.json-api</Bundle-SymbolicName>
-										<Bundle-Version>2.0.1.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="2.0.1"</Export-Package>
-										<DynamicImport-Package>*</DynamicImport-Package>
-									</instructions>
-								</artifact>
-								<!-- The Johnzon jakarta artifacts are not fully transformed -->
-								<artifact>
-									<id>org.apache.johnzon:johnzon-core:1.2.19</id>
-									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.apache.johnzon.core</Bundle-SymbolicName>
-										<Bundle-Version>1.2.19.${osgi.qualifier}</Bundle-Version>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>jakarta.json.bind:jakarta.json.bind-api:2.0.0</id>
-									<source>true</source>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.jakarta.json.bind-api</Bundle-SymbolicName>
-										<Bundle-Version>2.0.0.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="2.0.0"</Export-Package>
-										<DynamicImport-Package>*</DynamicImport-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.apache.johnzon:johnzon-jsonb:1.2.19</id>
-									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.apache.johnzon.jsonb</Bundle-SymbolicName>
-										<Bundle-Version>1.2.19.${osgi.qualifier}</Bundle-Version>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.apache.johnzon:johnzon-mapper:1.2.19</id>
-									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.apache.johnzon.mapper</Bundle-SymbolicName>
-										<Bundle-Version>1.2.19.${osgi.qualifier}</Bundle-Version>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.yasson</Bundle-SymbolicName>
+										<Bundle-Version>2.0.4.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="2.0.4"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -294,26 +261,26 @@
 								<!--
 									MicroProfile OpenAPI
 								-->
-								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:3.0</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:3.1</id><source>true</source></artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-open-api-core:2.1.22</id>
+									<id>io.smallrye:smallrye-open-api-core:3.1.1</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-core</Bundle-SymbolicName>
-										<Bundle-Version>2.1.22_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="2.1.22"</Export-Package>
+										<Bundle-Version>3.1.1_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="3.1.1"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-open-api-jaxrs:2.1.22</id>
+									<id>io.smallrye:smallrye-open-api-jaxrs:3.1.1</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-jaxrs</Bundle-SymbolicName>
-										<Bundle-Version>2.1.22_${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>3.1.1_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.io.smallrye.open-api-core</Fragment-Host>
-										<Export-Package>*;version="2.1.22"</Export-Package>
+										<Export-Package>*;version="3.1.1"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -322,7 +289,7 @@
 								-->
 								<artifact><id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0.1</id><source>true</source></artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-metrics:4.0.0-RC1</id>
+									<id>io.smallrye:smallrye-metrics:4.0.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
@@ -340,6 +307,13 @@
 								<artifact>
 									<id>org.jboss.resteasy.microprofile:microprofile-rest-client-base:${resteasy-mp-version}</id>
 									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.microprofile.rest-client-base</Bundle-SymbolicName>
+										<Bundle-Version>${resteasy-mp-version}_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="${resteasy-mp-version}"</Export-Package>
+										<DynamicImport-Package>org.jboss.resteasy.client.jaxrs.*</DynamicImport-Package>
+									</instructions>
 								</artifact>
 								<!-- NB: the RESTEasy MP Rest Client implementation uses java.util.ServiceLoader directly -->
 								<artifact>
@@ -349,7 +323,7 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.microprofile.rest-client</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-mp-version}_${osgi.qualifier}</Bundle-Version>
-										<Fragment-Host>org.jboss.resteasy.microprofile.rest-client-base</Fragment-Host>
+										<Fragment-Host>org.openntf.org.jboss.resteasy.microprofile.rest-client-base</Fragment-Host>
 										<Export-Package>*;version="${resteasy-mp-version}"</Export-Package>
 									</instructions>
 								</artifact>
@@ -424,7 +398,7 @@
 								<artifact><id>org.jboss.weld:weld-api:4.0.SP1</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-spi:4.0.SP1</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.probe:weld-probe-core:${weld-version}</id><source>true</source></artifact>
-								<artifact><id>org.javassist:javassist:3.29.0-GA</id><source>true</source></artifact>
+								<artifact><id>org.javassist:javassist:3.29.2-GA</id><source>true</source></artifact>
 								
 								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to jvm/lib/ext on Domino -->
 								<artifact>
@@ -448,6 +422,7 @@
 								</artifact>
 								
 								<!-- Repackage to avoid sun.misc import trouble on build -->
+								<!-- Note: 1.3.0 is weirdly missing the implementation on bundling -->
 								<artifact>
 									<id>org.jboss.classfilewriter:jboss-classfilewriter:1.2.5.Final</id>
 									<source>true</source>
@@ -561,10 +536,8 @@
 										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Import-Package>
-											jakarta.*,
-											org.glassfish.hk2.osgiresourcelocator
-										</Import-Package>
+										<Import-Package>jakarta.*</Import-Package>
+										<Require-Bundle>org.openntf.xsp.jakartaee.osgiresourcelocator</Require-Bundle>
 									</instructions>
 								</artifact>
 								<artifact>
@@ -704,16 +677,18 @@
 								<!--
 									MicroProfile Config
 								-->
-								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.1</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-common:3.0.0-RC1</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-core:3.0.0-RC1</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-validator:3.0.0-RC1</id><source>true</source></artifact>
+								<!-- SmallRye Config 3.0.0+ requires Java 11 -->
+								<artifact><id>org.eclipse.microprofile.config:microprofile-config-api:3.0.2</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-common:3.0.0-RC4</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-core:3.0.0-RC4</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-validator:3.0.0-RC4</id><source>true</source></artifact>
 								
 								<!--
 									MicroProfile Fault Tolerance
 								-->
+								<!-- SmallRye Fault Tolerance 6.0.0+ requires Java 11 -->
 								<artifact>
-									<id>org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0</id>
+									<id>org.eclipse.microprofile.fault-tolerance:microprofile-fault-tolerance-api:4.0.2</id>
 									<source>true</source>
 									<source>true</source>
 									<override>true</override>
@@ -729,7 +704,7 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-fault-tolerance:6.0.0-RC1</id>
+									<id>io.smallrye:smallrye-fault-tolerance:6.0.0-RC4</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
@@ -745,9 +720,10 @@
 								<!--
 									MicroProfile Health
 								-->
-								<artifact><id>org.eclipse.microprofile.health:microprofile-health-api:4.0</id><source>true</source></artifact>
+								<!-- SmallRye Health 4.0.0+ requires Java 11 -->
+								<artifact><id>org.eclipse.microprofile.health:microprofile-health-api:4.0.1</id><source>true</source></artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-health:4.0.0-RC1</id>
+									<id>io.smallrye:smallrye-health:4.0.0-RC2</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>

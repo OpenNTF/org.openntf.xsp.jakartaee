@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.microprofile.fault.tolerance.feature"
       label="XPages MicroProfile Fault Tolerance 4.0 Support Feature"
-      version="2.9.0.qualifier">
+      version="2.10.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -246,6 +246,5 @@
    <plugin id="io.smallrye.fault-tolerance-api" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.fault-tolerance-core" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.fault-tolerance-autoconfig-core" version="0.0.0" unpack="false"/>
-   <plugin id="io.smallrye.reactive.smallrye-reactive-converter-api" version="0.0.0" unpack="false"/>
 
 </feature>

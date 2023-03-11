@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ public class NSFSessionClonerSetupParticipant implements ContextSetupParticipant
 	public static final ThreadLocal<Session> THREAD_SESSIONASSIGNER = new ThreadLocal<>();
 	
 	private static final String ATTR_CLONER = NSFSessionClonerSetupParticipant.class.getName() + "_cloner"; //$NON-NLS-1$
+	
+	private static final Object SECURITY_MANAGER_LOCK = new Object();
 
 	@Override
 	public void saveContext(ContextHandle contextHandle) {
@@ -64,18 +66,20 @@ public class NSFSessionClonerSetupParticipant implements ContextSetupParticipant
 				}
 				
 				Session sessionAsSigner = AccessController.doPrivileged((PrivilegedAction<Session>)() -> {
-					ClassLoader cl = Thread.currentThread().getContextClassLoader();
-					SecurityManager sm = System.getSecurityManager();
-					try {
-						Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-						System.setSecurityManager(null);
-						// TODO pull in session as signer name
-						return NotesFactory.createSession();
-					} catch (NotesException e) {
-						throw new RuntimeException(e);
-					} finally {
-						System.setSecurityManager(sm);
-						Thread.currentThread().setContextClassLoader(cl);
+					synchronized(SECURITY_MANAGER_LOCK) {
+						ClassLoader cl = Thread.currentThread().getContextClassLoader();
+						SecurityManager sm = System.getSecurityManager();
+						try {
+							Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+							System.setSecurityManager(null);
+							// TODO pull in session as signer name
+							return NotesFactory.createSession();
+						} catch (NotesException e) {
+							throw new RuntimeException(e);
+						} finally {
+							System.setSecurityManager(sm);
+							Thread.currentThread().setContextClassLoader(cl);
+						}
 					}
 				});
 				THREAD_SESSIONASSIGNER.set(sessionAsSigner);

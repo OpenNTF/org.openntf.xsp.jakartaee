@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -38,6 +38,6 @@
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="jakarta.servlet.ServletContextListener" class="org.apache.myfaces.webapp.StartupServletContextListener" />
+		<service type="jakarta.servlet.ServletContextListener" class="org.openntf.xsp.jsf.JsfServletContextListener" />
 	</extension>
 </plugin>

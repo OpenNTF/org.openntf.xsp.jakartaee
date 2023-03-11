@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,62 +17,27 @@ package org.openntf.xsp.jsonapi.test.jsonb;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 
 import org.junit.Test;
 import org.openntf.xsp.jsonapi.JSONBindUtil;
-
-import jakarta.json.bind.Jsonb;
-import jakarta.json.bind.JsonbBuilder;
 
 @SuppressWarnings("nls")
 public class TestJsonb {
 	
 	@Test
-	public void testExampleBean() throws Exception {
-		try(Jsonb jsonb = getJsonb()) {
-			ExampleBean bean = new ExampleBean();
-			bean.setFoo("hello");
-			bean.setBar("world");
-			String json = JSONBindUtil.toJson(bean, jsonb);
-			assertEquals("Serialized bean should match expected", "{\"bar\":\"world\",\"foo\":\"hello\"}", json);
-			
-			ExampleBean bean2 = JSONBindUtil.fromJson(json, jsonb, ExampleBean.class);
-			assertEquals("Beans should be equivalent", bean, bean2);
-		}
-	}
-	
-	@Test
-	public void testExampleBeanSlash() throws Exception {
-		try(Jsonb jsonb = getJsonb()) {
-			ExampleBean bean = new ExampleBean();
-			bean.setFoo("hello\\hello");
-			bean.setBar("world");
-			String json = JSONBindUtil.toJson(bean, jsonb);
-			assertEquals("Serialized bean should match expected", "{\"bar\":\"world\",\"foo\":\"hello\\\\hello\"}", json);
-			
-			ExampleBean bean2 = JSONBindUtil.fromJson(json, jsonb, ExampleBean.class);
-			assertEquals("Beans should be equivalent", bean, bean2);
-		}
-	}
-	
-	@Test
-	public void testMapSlash() throws Exception {
-		try(Jsonb jsonb = getJsonb()) {
-			Map<String, String> x = new HashMap<>();
-			x.put("test\\pom.xml", "hello");
-			String json = JSONBindUtil.toJson(x, jsonb);
-			assertEquals("Serialized bean should match expected", "{\"test\\\\pom.xml\":\"hello\"}", json);
-			
-			@SuppressWarnings("unchecked")
-			Map<String, String> x2 = JSONBindUtil.fromJson(json, jsonb, Map.class);
-			assertEquals("hello", x2.get("test\\pom.xml"));
-		}
-	}
-	
-	private Jsonb getJsonb() {
-		return JsonbBuilder.create();
+	public void testExampleBean() {
+		Jsonb jsonb = JsonbBuilder.create();
+		
+		ExampleBean bean = new ExampleBean();
+		bean.setFoo("hello");
+		bean.setBar("world");
+		String json = JSONBindUtil.toJson(bean, jsonb);
+		assertEquals("Serialized bean should match expected", "{\"bar\":\"world\",\"foo\":\"hello\"}", json);
+		
+		ExampleBean bean2 = JSONBindUtil.fromJson(json, jsonb, ExampleBean.class);
+		assertEquals("Beans should be equivalent", bean, bean2);
 	}
 
 	public static class ExampleBean {

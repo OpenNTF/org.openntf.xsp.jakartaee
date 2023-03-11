@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages CDI Support
 Bundle-SymbolicName: org.openntf.xsp.cdi;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.cdi
-Bundle-Version: 2.9.0.qualifier
+Bundle-Version: 2.10.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
@@ -20,10 +20,10 @@ Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0";visibility:=reexport
 Bundle-ClassPath: .
 Import-Package: com.ibm.commons.util,
+ com.ibm.commons.xml,
+ com.ibm.commons.xml.util,
  com.ibm.designer.domino.napi,
  com.ibm.designer.runtime.domino.adapter,
- com.ibm.domino.osgi.core.context,
- com.ibm.domino.xsp.adapter.osgi;resolution:=optional,
  com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.application,
  com.ibm.xsp.application.events,
@@ -39,18 +39,19 @@ Import-Package: com.ibm.commons.util,
  org.eclipse.core.runtime;version="3.5.0",
  org.eclipse.osgi.util;version="1.1.0",
  org.glassfish.enterprise.concurrent.spi;version="2.0.0",
+ org.jboss.jandex;version="3.0.0",
  org.jboss.weld.module.web.el,
  org.openntf.xsp.jakarta.concurrency,
  org.openntf.xsp.jakarta.concurrency.servlet,
  org.osgi.framework;version="1.8.0",
  org.osgi.framework.hooks.weaving;version="1.1.0",
  org.osgi.framework.wiring;version="1.2.0"
-Export-Package: org.openntf.xsp.cdi;version="2.9.0",
- org.openntf.xsp.cdi.bean;version="2.9.0",
- org.openntf.xsp.cdi.context;version="2.9.0",
- org.openntf.xsp.cdi.discovery;version="2.9.0",
- org.openntf.xsp.cdi.impl;version="2.9.0",
- org.openntf.xsp.cdi.provider;version="2.9.0",
- org.openntf.xsp.cdi.util;version="2.9.0"
+Export-Package: org.openntf.xsp.cdi;version="2.10.0",
+ org.openntf.xsp.cdi.bean;version="2.10.0",
+ org.openntf.xsp.cdi.context;version="2.10.0",
+ org.openntf.xsp.cdi.discovery;version="2.10.0",
+ org.openntf.xsp.cdi.impl;version="2.10.0",
+ org.openntf.xsp.cdi.provider;version="2.10.0",
+ org.openntf.xsp.cdi.util;version="2.10.0"
 Bundle-Activator: org.openntf.xsp.cdi.CDIActivator
 Bundle-ActivationPolicy: lazy

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,14 @@ import java.util.Optional;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import lotus.domino.Database;
+import lotus.domino.Session;
 
 /**
  * This extension interface can be used to define a service that
@@ -77,4 +81,75 @@ public interface ComponentModuleLocator {
 	 *         locator does not apply
 	 */
 	Optional<HttpServletRequest> getServletRequest();
+	
+	/**
+	 * Attempts to provide a human-readable title for the module.
+	 * 
+	 * @return a title for the module, which may be an empty string
+	 * @since 2.10.0
+	 */
+	default String getTitle() {
+		return StringUtil.toString(getActiveModule().getModuleName());
+	}
+	
+	/**
+	 * Attempts to provide a version string for the active module.
+	 * 
+	 * @return an {@link Optional} describing a version string for the module,
+	 *         or an empty value
+	 * @since 2.10.0
+	 */
+	Optional<String> getVersion();
+	
+	/**
+	 * Attempts to provide the contextual {@link NotesDatabase} instance, if
+	 * available.
+	 * 
+	 * @return an {@link Optional} describing the active {@link NotesDatabase},
+	 *         or an empty one if that is not applicable or not available
+	 * @since 2.10.0
+	 */
+	Optional<NotesDatabase> getNotesDatabase();
+	
+	/**
+	 * Attempts to provide the contextual {@link Database} instance, if
+	 * available.
+	 * 
+	 * @return an {@link Optional} describing the active {@link Database},
+	 *         or an empty one if that is not applicable or not available
+	 * @since 2.10.0
+	 */
+	Optional<Database> getUserDatabase();
+	
+	/**
+	 * Attempts to provide the contextual {@link Session} instance, if
+	 * available.
+	 * 
+	 * @return an {@link Optional} describing the active {@link Session},
+	 *         or an empty one if that is not applicable or not available
+	 * @since 2.10.0
+	 */
+	Optional<Session> getUserSession();
+	
+	/**
+	 * Attempts to provide the contextual {@link Session} instance for the
+	 * application signer, if available.
+	 * 
+	 * @return an {@link Optional} describing the active {@link Session}
+	 *         as the application signer, or an empty one if that is not
+	 *         applicable or not available
+	 * @since 2.10.0
+	 */
+	Optional<Session> getSessionAsSigner();
+	
+	/**
+	 * Attempts to provide the contextual {@link Session} instance for the
+	 * application signer with full access, if available.
+	 * 
+	 * @return an {@link Optional} describing the active {@link Session}
+	 *         as the application signer with full access, or an empty one
+	 *         if that is not applicable or not available
+	 * @since 2.10.0
+	 */
+	Optional<Session> getSessionAsSignerWithFullAccess();
 }

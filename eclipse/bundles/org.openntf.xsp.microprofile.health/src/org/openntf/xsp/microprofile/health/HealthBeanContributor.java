@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,14 +41,7 @@ public class HealthBeanContributor implements WeldBeanClassContributor {
 			// Look for annotated beans in io.smallrye.health
 			Bundle bundle = FrameworkUtil.getBundle(ResponseProvider.class);
 			try {
-				return DiscoveryUtil.findExportedClassNames(bundle, false)
-					.map(t -> {
-						try {
-							return bundle.loadClass(t);
-						} catch (ClassNotFoundException e) {
-							throw new RuntimeException(e);
-						}
-					})
+				return DiscoveryUtil.findBeanClasses(bundle)
 					// TODO filter to only annotated
 					.collect(Collectors.toList());
 			} catch (BundleException e) {

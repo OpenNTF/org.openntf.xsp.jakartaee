@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,8 +59,23 @@ public enum ServletUtil {
 	}
 	
 	public static javax.servlet.http.HttpServletRequest newToOld(jakarta.servlet.http.HttpServletRequest req) {
+		return newToOld(req, false);
+	}
+	/**
+	 * Variant of {@link #newToOld(jakarta.servlet.http.HttpServletRequest)} that allows for the creation
+	 * of a wrapper that hides the request's {@code InputStream} and {@code BufferedReader} in the wrapped
+	 * version.
+	 * 
+	 * @param req the Jakarta request to wrap
+	 * @param hideBody whether to hide the body content from the wrapper
+	 * @return a Java EE wrapper for the request
+	 * @since 2.10.0
+	 */
+	public static javax.servlet.http.HttpServletRequest newToOld(jakarta.servlet.http.HttpServletRequest req, boolean hideBody) {
 		if(req == null) {
 			return null;
+		} else if(hideBody) {
+			return new HiddenBodyHttpServletRequestWrapper(req);
 		} else if(req instanceof OldHttpServletRequestWrapper) {
 			return ((OldHttpServletRequestWrapper)req).delegate;
 		} else {

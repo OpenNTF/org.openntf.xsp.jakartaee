@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 package it.org.openntf.xsp.jakartaee.nsf.el;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -36,7 +38,11 @@ public class TestElBasics extends AbstractWebClientTest {
 	public void testBasicFunctionClass(WebDriver driver) {
 		driver.get(getRootUrl(driver) + "/el.xsp");
 		
-		WebElement dd = driver.findElement(By.xpath("//dt[text()=\"#{functionClass.foo}\"]/following-sibling::dd[1]"));
-		assertEquals("I am returned from getFoo()", dd.getText());
+		try {
+			WebElement dd = driver.findElement(By.xpath("//dt[text()=\"#{functionClass.foo}\"]/following-sibling::dd[1]"));
+			assertEquals("I am returned from getFoo()", dd.getText());
+		} catch(NoSuchElementException e) {
+			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
+		}
 	}
 }

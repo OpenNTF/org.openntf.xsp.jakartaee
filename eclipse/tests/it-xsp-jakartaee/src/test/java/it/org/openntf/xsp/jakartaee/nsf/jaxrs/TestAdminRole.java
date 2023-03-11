@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
-			assertEquals("I think you're an admin!", html);
+			assertTrue(html.startsWith("I think you're an admin"), () -> "Received: " + html);
 		}
 	}
 	

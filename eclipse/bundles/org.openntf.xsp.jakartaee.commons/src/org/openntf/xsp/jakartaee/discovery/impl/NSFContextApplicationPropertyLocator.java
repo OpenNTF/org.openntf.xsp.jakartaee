@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package org.openntf.xsp.jakartaee.discovery.impl;
+
+import java.util.Optional;
+import java.util.Properties;
 
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -50,19 +53,20 @@ public class NSFContextApplicationPropertyLocator implements ApplicationProperty
 		}
 		return false;
 	}
-
+	
 	@Override
-	public String getApplicationProperty(String prop, String defaultValue) {
+	public Optional<Properties> getApplicationProperties() {
 		NotesContext ctx = NotesContext.getCurrentUnchecked();
 		try {
 			NotesDatabase database = ctx.getNotesDatabase();
 			if(database != null) {
-				return LibraryUtil.getXspProperties(database).getProperty(prop, defaultValue);
+				return Optional.of(LibraryUtil.getXspProperties(database));
+			} else {
+				return Optional.empty();
 			}
 		} catch(NotesAPIException e) {
 			throw new RuntimeException(e);
 		}
-		return defaultValue;
 	}
 
 }

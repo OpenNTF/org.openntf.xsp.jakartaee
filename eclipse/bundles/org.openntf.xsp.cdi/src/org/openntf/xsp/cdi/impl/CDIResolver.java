@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.application.ApplicationEx;
 
 public class CDIResolver extends VariableResolver {
@@ -41,7 +42,7 @@ public class CDIResolver extends VariableResolver {
 
 	@Override
 	public Object resolveVariable(FacesContext facesContext, String name) throws EvaluationException {
-		if(name == null) {
+		if(StringUtil.isEmpty(name)) {
 			return null;
 		}
 		
