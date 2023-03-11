@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.microprofile.config.feature"
       label="XPages MicroProfile Config 3.0 Support Feature"
-      version="2.10.0.qualifier">
+      version="2.11.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
