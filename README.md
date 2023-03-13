@@ -254,6 +254,8 @@ public Response hello() {
 }
 ```
 
+This feature requires that MicroProfile Config is also enabled.
+
 #### Metrics
 
 Using [MicroProfile Metrics](https://github.com/eclipse/microprofile-metrics), it is possible to track invocations and timing from REST services. For example:
@@ -855,6 +857,8 @@ public class FaultToleranceBean {
 	}
 }
 ```
+
+This feature requires that MicroProfile Config is also enabled.
 
 ## MicroProfile Health
 
