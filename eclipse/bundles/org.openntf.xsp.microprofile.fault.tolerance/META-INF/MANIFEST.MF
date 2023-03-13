@@ -15,4 +15,5 @@ Import-Package: com.ibm.xsp.application,
  org.openntf.xsp.cdi.discovery;version="2.2.0",
  org.openntf.xsp.jakartaee;version="2.2.0",
  org.openntf.xsp.jakartaee.util;version="2.3.0",
+ org.openntf.xsp.microprofile.config;version="2.11.0",
  org.osgi.framework;version="1.8.0"

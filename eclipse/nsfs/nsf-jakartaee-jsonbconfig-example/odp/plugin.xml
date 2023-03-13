@@ -18,7 +18,6 @@
     <import optional="true" plugin="com.ibm.notes.java.api"/>
     <import optional="true" plugin="com.ibm.xsp.rcp"/>
     <import optional="true" plugin="org.openntf.xsp.beanvalidation"/>
-    <import optional="true" plugin="org.openntf.xsp.microprofile.config"/>
     <import optional="true" plugin="org.openntf.xsp.jakarta.servlet"/>
     <import optional="true" plugin="org.openntf.xsp.cdi"/>
     <import optional="true" plugin="org.openntf.xsp.microprofile.health"/>

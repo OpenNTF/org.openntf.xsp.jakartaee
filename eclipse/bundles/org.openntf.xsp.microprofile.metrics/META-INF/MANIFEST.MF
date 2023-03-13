@@ -32,4 +32,5 @@ Import-Package: io.smallrye.metrics,
  org.openntf.xsp.jakartaee.module;version="2.10.0",
  org.openntf.xsp.jakartaee.util;version="2.10.0",
  org.openntf.xsp.jaxrs;version="2.2.0",
+ org.openntf.xsp.microprofile.config;version="2.11.0",
  org.openntf.xsp.microprofile.config.ext;version="2.10.0"
