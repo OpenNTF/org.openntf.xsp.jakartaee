@@ -71,6 +71,7 @@
 		<!-- JSON-P 2.0 and JSON-B 2.0 -->
 		<module>bundles/org.openntf.xsp.jsonapi</module>
 		<module>bundles/org.openntf.xsp.jsonapi.jaxrs</module>
+		<module>bundles/org.openntf.xsp.jsonapi.cdi</module>
 		<module>features/org.openntf.xsp.jsonapi.feature</module>
 		<module>tests/org.openntf.xsp.jsonapi.test</module>
 		
@@ -492,6 +493,7 @@
 				<module>nsfs/nsf-jakartaee-example</module>
 				<module>nsfs/nsf-jakartaee-bundle-example</module>
 				<module>nsfs/nsf-jakartaee-bundlebase-example</module>
+				<module>nsfs/nsf-jakartaee-jsonbconfig-example</module>
 			</modules>
 		</profile>
 		<profile>

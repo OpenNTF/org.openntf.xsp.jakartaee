@@ -118,6 +118,14 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 					withFileFromPath("staging/ntf/jeebasebundle.ntf", baseBundleExampleNtf); //$NON-NLS-1$
 				}
 				{
+					Path baseBundleExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-bundlebase-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					withFileFromPath("staging/ntf/jeebasebundle.ntf", baseBundleExampleNtf); //$NON-NLS-1$
+				}
+				{
+					Path jsonbConfigExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-jsonbconfig-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					withFileFromPath("staging/ntf/jsonbconfig.ntf", jsonbConfigExampleNtf); //$NON-NLS-1$
+				}
+				{
 					withFileFromClasspath("staging/domino-config.json", "/docker/domino-config.json"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				

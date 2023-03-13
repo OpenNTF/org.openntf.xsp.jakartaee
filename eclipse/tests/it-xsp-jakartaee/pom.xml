@@ -20,6 +20,24 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaee-bundle-example</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaee-bundlebase-example</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaee-jsonbconfig-example</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>org.openntf.xsp.jakartaee.updatesite</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
