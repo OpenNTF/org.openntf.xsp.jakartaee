@@ -18,6 +18,7 @@ package it.org.openntf.xsp.jakartaee.nsf.json;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -74,9 +75,13 @@ public class TestRestJson extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
-		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-		String jsonMessage = jsonObject.getString("jsonMessage");
-		assertTrue(jsonMessage.startsWith("I'm application guy at "));
+		try {
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			String jsonMessage = jsonObject.getString("jsonMessage");
+			assertTrue(jsonMessage.startsWith("I'm application guy at "));
+		} catch(Exception e) {
+			fail("Encountered exception parsing " + json, e);
+		}
 	}
 	
 	@Test

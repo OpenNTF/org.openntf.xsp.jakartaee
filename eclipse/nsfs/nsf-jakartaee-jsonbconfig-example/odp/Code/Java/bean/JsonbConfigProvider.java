@@ -15,35 +15,34 @@
  */
 package bean;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.config.PropertyVisibilityStrategy;
 
 @ApplicationScoped
-public class SseChatBean {
-	private Collection<BlockingQueue<String>> queues;
-	
-	@PostConstruct
-	public void init() {
-		queues = Collections.synchronizedSet(new HashSet<>());
+public class JsonbConfigProvider {
+	public enum FieldVisibility implements PropertyVisibilityStrategy {
+		INSTANCE;
+
+		@Override
+		public boolean isVisible(Field field) {
+			return true;
+		}
+
+		@Override
+		public boolean isVisible(Method method) {
+			return false;
+		}
+		
 	}
 	
-	public BlockingQueue<String> listen() {
-		BlockingQueue<String> result = new LinkedBlockingDeque<>();
-		queues.add(result);
-		return result;
-	}
-	
-	public void unregister(BlockingQueue<String> queue) {
-		this.queues.remove(queue);
-	}
-	
-	public void publish(String message) {
-		queues.forEach(queue -> queue.offer(message));
+	@Produces
+	public JsonbConfig getConfig() {
+		return new JsonbConfig()
+			.withPropertyVisibilityStrategy(FieldVisibility.INSTANCE);
 	}
 }

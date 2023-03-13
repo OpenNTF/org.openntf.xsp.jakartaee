@@ -21,24 +21,36 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import org.jboss.weld.proxy.WeldClientProxy;
+import org.jboss.weld.proxy.WeldClientProxy.Metadata;
+import org.openntf.xsp.jsonapi.JSONBindUtil;
+
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.MessageBodyWriter;
-import org.jboss.weld.proxy.WeldClientProxy;
-import org.jboss.weld.proxy.WeldClientProxy.Metadata;
-import org.openntf.xsp.jsonapi.JSONBindUtil;
+import jakarta.ws.rs.ext.Providers;
 
 @Produces({"application/json", "application/*+json", "text/json", "*/*"})
 @Consumes({"application/json", "application/*+json", "text/json", "*/*"})
 public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBodyReader<Object> {
+	@Context
+	private Providers providers;
+	
 	protected Jsonb getJsonb(Class<?> type) {
-		return JsonbBuilder.create();
+		ContextResolver<Jsonb> resolver = providers.getContextResolver(Jsonb.class, MediaType.WILDCARD_TYPE);
+		if(resolver != null) {
+			return resolver.getContext(Jsonb.class);
+		} else {
+			return JsonbBuilder.create();
+		}
 	}
 
 	// *******************************************************************************

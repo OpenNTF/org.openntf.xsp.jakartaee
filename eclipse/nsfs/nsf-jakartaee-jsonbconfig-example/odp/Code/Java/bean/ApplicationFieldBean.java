@@ -15,35 +15,30 @@
  */
 package bean;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
-
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.xml.bind.annotation.XmlElement;
 
 @ApplicationScoped
-public class SseChatBean {
-	private Collection<BlockingQueue<String>> queues;
+@Named("applicationGuy")
+public class ApplicationFieldBean {
+	private final long time = System.currentTimeMillis();
+	@XmlElement(name="postConstructSet")
+	private String postConstructSet;
 	
-	@PostConstruct
-	public void init() {
-		queues = Collections.synchronizedSet(new HashSet<>());
+	private String beanProperty;
+	
+	public String getBeanProperty() {
+		return beanProperty;
 	}
 	
-	public BlockingQueue<String> listen() {
-		BlockingQueue<String> result = new LinkedBlockingDeque<>();
-		queues.add(result);
-		return result;
+	public void setBeanProperty(String beanProperty) {
+		this.beanProperty = beanProperty;
 	}
 	
-	public void unregister(BlockingQueue<String> queue) {
-		this.queues.remove(queue);
-	}
-	
-	public void publish(String message) {
-		queues.forEach(queue -> queue.offer(message));
+	@JsonbProperty(value="jsonMessage")
+	public String getMessage() {
+		return "I'm application guy at " + time;
 	}
 }
