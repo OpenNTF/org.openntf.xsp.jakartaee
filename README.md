@@ -340,6 +340,7 @@ The [Java API for JSON Binding](https://jakarta.ee/specifications/jsonb/2.0/) sp
 The "org.openntf.xsp.jsonapi" library provides both of these libraries to XPages, though they don't replace any standard behavior in the environment. To avoid permissions problems, it contains an `org.openntf.xsp.jsonapi.JSONBindUtil` class to serialize and deserialize objects in `AccessController` blocks:
 
 ```java
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
@@ -368,13 +369,15 @@ public class JsonTest {
 	}
 	
 	public Object getObject() {
-		Jsonb jsonb = JsonbBuilder.create();
+		// Also injectable via CDI
+		Jsonb jsonb = CDI.current().select(Jsonb.class).get();
 		String json = getJson();
 		return JSONBindUtil.fromJson(json, jsonb, TestBean.class);
 	}
 }
-
 ```
+
+By default, JSON-B will export object properties based on publicly-visible getters (e.g. `getFoo()`) and will ignore non-public fields (e.g. `private String foo`). This behavior can be customized with a `PropertyVisibilityStrategy` object, which in turn can be passed to a `JsonbConfig` class. This configuration can be supplied via CDI, in which case it will take effect for CDI-injected `Jsonb` instances as well as in REST requests. See [the `nsf-jakartaee-jsonbconfig-example` NSF](eclipse/nsfs/nsf-jakartaee-jsonbconfig-example/odp/Code/Java/bean/JsonbConfigProvider.java) for an example of this configuration.
 
 ## XML Binding
 
