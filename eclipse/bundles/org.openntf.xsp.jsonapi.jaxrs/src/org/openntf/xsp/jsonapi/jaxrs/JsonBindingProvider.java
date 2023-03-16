@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.jboss.weld.proxy.WeldClientProxy;
 import org.jboss.weld.proxy.WeldClientProxy.Metadata;
@@ -41,6 +43,8 @@ import jakarta.ws.rs.ext.Providers;
 @Produces({"application/json", "application/*+json", "text/json", "*/*"})
 @Consumes({"application/json", "application/*+json", "text/json", "*/*"})
 public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBodyReader<Object> {
+	private static final Logger log = Logger.getLogger(JsonBindingProvider.class.getPackage().getName());
+	
 	@Context
 	private Providers providers;
 	
@@ -66,8 +70,15 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 	public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
 			throws IOException, WebApplicationException {
-		Jsonb jsonb = getJsonb(type);
-		return JSONBindUtil.fromJson(entityStream, jsonb, genericType);
+		try {
+			Jsonb jsonb = getJsonb(type);
+			return JSONBindUtil.fromJson(entityStream, jsonb, genericType);
+		} catch(Exception e) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered exception reading JSON input", e);
+			}
+			throw e;
+		}
 	}
 	
 	// *******************************************************************************
@@ -88,17 +99,23 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 	public void writeTo(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
 			throws IOException, WebApplicationException {
-		
-		Object obj = t;
-		// It may be a CDI proxy - try to unwrap it if so
-		if(obj instanceof WeldClientProxy) {
-			Metadata meta = ((WeldClientProxy)obj).getMetadata();
-			obj = meta.getContextualInstance();
+		try {
+			Object obj = t;
+			// It may be a CDI proxy - try to unwrap it if so
+			if(obj instanceof WeldClientProxy) {
+				Metadata meta = ((WeldClientProxy)obj).getMetadata();
+				obj = meta.getContextualInstance();
+			}
+			
+			Jsonb jsonb = getJsonb(type);
+			JSONBindUtil.toJson(obj, jsonb, entityStream);
+			entityStream.flush();
+		} catch(Exception e) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered exception writing JSON output", e);
+			}
+			throw e;
 		}
-		
-		Jsonb jsonb = getJsonb(type);
-		JSONBindUtil.toJson(obj, jsonb, entityStream);
-		entityStream.flush();
 	}
 	
 	// *******************************************************************************
