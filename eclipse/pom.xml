@@ -125,9 +125,6 @@
 		<tycho-version>1.7.0</tycho-version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		
-		<!-- Maven API version. This version should be supported by m2e -->
-		<maven.api.version>3.3.9</maven.api.version>
 	</properties>
 
 	<repositories>
