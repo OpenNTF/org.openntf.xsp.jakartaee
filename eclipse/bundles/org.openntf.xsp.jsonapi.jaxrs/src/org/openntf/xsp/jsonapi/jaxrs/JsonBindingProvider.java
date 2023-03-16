@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import org.jboss.weld.proxy.WeldClientProxy;
 import org.jboss.weld.proxy.WeldClientProxy.Metadata;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jsonapi.JSONBindUtil;
 
 import jakarta.json.bind.Jsonb;
@@ -111,6 +112,11 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 			JSONBindUtil.toJson(obj, jsonb, entityStream);
 			entityStream.flush();
 		} catch(Exception e) {
+			if(ServletUtil.isClosedConnection(e)) {
+				// Ignore
+				return;
+			}
+			
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered exception writing JSON output", e);
 			}

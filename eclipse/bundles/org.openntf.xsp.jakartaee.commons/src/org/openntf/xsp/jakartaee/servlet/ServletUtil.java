@@ -400,4 +400,30 @@ public enum ServletUtil {
 			// No need to propagate this
 		}
 	}
+	
+	/**
+	 * Attempts to determine whether the provided {@link Throwable}'s root
+	 * cause is a closed connection from a browser, which usually manifests
+	 * as an {@code XspCmdException} with a blank internal error message.
+	 * 
+	 * @param t the throwable to check
+	 * @return {@code true} if the exception can be safely squelched as
+	 *         normal browser behavior; {@code false} otherwise
+	 * @since 2.11.0
+	 */
+	public static boolean isClosedConnection(Throwable t) {
+		Throwable cause = t;
+		while(cause.getCause() != null) {
+			cause = cause.getCause();
+		}
+		
+		// Avoid an explicit import on the jvm/lib/ext class
+		if("com.ibm.domino.xsp.bridge.http.exception.XspCmdException".equals(cause.getClass().getName())) { //$NON-NLS-1$
+			if("HTTP: Internal error:".equals(String.valueOf(cause.getMessage().trim()))) { //$NON-NLS-1$
+				return true;
+			}
+		}
+		
+		return false;
+	}
 }
