@@ -15,8 +15,13 @@
  */
 package org.openntf.xsp.jsonapi.cdi.jaxrs;
 
+import org.openntf.xsp.cdi.CDILibrary;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
 
@@ -33,7 +38,16 @@ public class JsonbProvider implements ContextResolver<Jsonb> {
 	@Override
 	public Jsonb getContext(Class<?> type) {
 		if(Jsonb.class.equals(type)) {
-			return CDI.current().select(Jsonb.class).get();
+			if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID)) {
+				Instance<Jsonb> bean = CDI.current().select(Jsonb.class);
+				if(bean.isResolvable()) {
+					return bean.get();
+				} else {
+					return JsonbBuilder.create();
+				}
+			} else {
+				return JsonbBuilder.create();
+			}
 		}
 		return null;
 	}
