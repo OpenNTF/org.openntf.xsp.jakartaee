@@ -92,6 +92,10 @@
 		<module>bundles/org.openntf.xsp.nosql.driver.lsxbe</module>
 		<module>bundles/org.openntf.xsp.nosql</module>
 		<module>features/org.openntf.xsp.nosql.feature</module>
+		 
+		<!-- MVC -->
+ 		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
+ 		<module>features/org.openntf.xsp.jakarta.persistence.feature</module>
 	
 		<!-- MicroProfile Config -->
 		<module>bundles/org.openntf.xsp.microprofile.config</module>
