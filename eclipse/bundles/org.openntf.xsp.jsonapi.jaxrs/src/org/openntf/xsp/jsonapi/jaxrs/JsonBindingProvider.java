@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +34,7 @@ import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -46,8 +48,13 @@ import jakarta.ws.rs.ext.Providers;
 public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBodyReader<Object> {
 	private static final Logger log = Logger.getLogger(JsonBindingProvider.class.getPackage().getName());
 	
+	public static final String PROP_STREAM = "rest.jsonb.stream"; //$NON-NLS-1$
+	
 	@Context
 	private Providers providers;
+	
+	@Context
+	private Application application;
 	
 	protected Jsonb getJsonb(Class<?> type) {
 		ContextResolver<Jsonb> resolver = providers.getContextResolver(Jsonb.class, MediaType.WILDCARD_TYPE);
@@ -109,7 +116,16 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 			}
 			
 			Jsonb jsonb = getJsonb(type);
-			JSONBindUtil.toJson(obj, jsonb, entityStream);
+			
+			Object streamProp = application.getProperties().get(PROP_STREAM);
+			boolean stream = !"false".equals(streamProp); //$NON-NLS-1$
+			
+			if(stream) {
+				JSONBindUtil.toJson(obj, jsonb, entityStream);
+			} else {
+				String json = JSONBindUtil.toJson(obj, jsonb);
+				entityStream.write(json.getBytes(StandardCharsets.UTF_8));
+			}
 			entityStream.flush();
 		} catch(Exception e) {
 			if(ServletUtil.isClosedConnection(e)) {
