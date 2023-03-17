@@ -21,6 +21,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - [Server Faces 3.0](#server-faces)
 - [MVC 2.0](#mvc)
 - [NoSQL 1.0b4](#nosql)
+- [Persistence 3.0](#persistence-jpa)
 
 It also provides components from [MicroProfile](https://microprofile.io/):
 
@@ -768,6 +769,98 @@ public class NamesRepositoryBean {
 			},
 			() -> NotesContext.getCurrent().getSessionAsSigner()
 		);
+	}
+}
+```
+
+## Persistence (JPA)
+
+The [Persistence](https://jakarta.ee/specifications/persistence/3.0/) API (formerly JPA) provides access and mapping to relational databases in a managed way. This feature builds on the existing [RDBMS support in XPages](https://help.hcltechsw.com/dom_designer/9.0.1/user/wpd_data_rdbms_support.html), using the same underlying configuration for the connection pools.
+
+Declaration of a Persistence class is done similarly to NoSQL:
+
+```java
+package model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name="companies", schema="public")
+public class Company {
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Long id;
+	
+	@Column(name="name", length=255)
+	private String name;
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+}
+```
+
+Once you've configured the JDBC connection for XPages, you can then map your class to the connection in a file named `META-INF/persistence.xml` in your NSF's classpath (e.g. added in Code/Java):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+	<persistence-unit name="JPATestProj" transaction-type="JTA">
+		<class>model.Company</class>
+		<jta-data-source>java:comp/env/jdbc/yourconnectionname</jta-data-source>
+		<properties>
+			<property name="jakarta.persistence.jdbc.url" value="java:comp/env/jdbc/yourconnectionname" />
+		</properties>
+	</persistence-unit>
+</persistence>
+```
+
+This will map a JDBC configuration defined in `WebContent/WEB-INF/jdbc/yourconnectionname.jdbc` to the `model.Company` class.
+
+This feature does not currently provide container-managed `EntityManager`s, but they can be built up and used explicitly. For example:
+
+```java
+package rest;
+
+import java.util.List;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import model.Company;
+
+@Path("companies")
+public class CompaniesResource {
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Company> get() {
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("JPATestProj");
+		EntityManager em = emf.createEntityManager();
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<Company> query = cb.createQuery(Company.class);
+			TypedQuery<Company> tq = em.createQuery(query);
+			return tq.getResultList();
+		} finally {
+			em.close();
+		}
 	}
 }
 ```
