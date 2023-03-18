@@ -36,6 +36,7 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta Transactions API, available from https://github.com/jakartaee/transactions and licensed under the EPL 2.0
 - The Jakarta MVC API, available from https://github.com/eclipse-ee4j/mvc-api and licensed under the EPL 2.0
 - The Jakarta NoSQL API, available from https://github.com/eclipse-ee4j/nosql and licensed under the EPL 2.0
+- The Jakarta Persistence API, available from https://github.com/jakartaee/persistence and licensed under the EPL 2.0
 - The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
 - The MicroProfile Config API, available from https://github.com/eclipse/microprofile-config and licensed under the EPL 2.0
 - The MicroProfile Metrics API, available from https://github.com/eclipse/microprofile-metrics and licensed under the EPL 2.0
@@ -59,6 +60,7 @@ The binary distribution contains the following 3rd party code:
 	- See legal/NOTICE-myfaces.txt for downstream third-party components, which are licensed under Apache 2.0 and the CDDL
 - Eclipse Krazo, available from https://github.com/eclipse-ee4j/krazo and licensed under the EPL 2.0
 - Eclipse JNoSQL, available from https://github.com/eclipse/jnosql and licensed under the EPL 1.0
+- EclipseLink, available from https://www.eclipse.org/eclipselink and licensed under the EPL 2.0
 - The GlassFish Concurrency implementation, available from https://github.com/eclipse-ee4j/concurrency-ri and licensed under the EPL 2.0
 - The SmallRye OpenAPI implementation, available from https://github.com/smallrye/smallrye-open-api and licensed under Apache 2.0
 - The SmallRye Metrics implementation, available from https://github.com/smallrye/smallrye-metrics and licensed under Apache 2.0
