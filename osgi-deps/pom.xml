@@ -43,8 +43,6 @@
 		<resteasy-version>6.0.3.Final</resteasy-version>
 		<!-- RestEasy MP Client 2.0.0+ requires Java 11 -->
 		<resteasy-mp-version>2.0.0.Beta1</resteasy-mp-version>
-		<!-- Hibernate 8.0.0+ requires Java 11 -->
-		<hibernate-version>7.0.5.Final</hibernate-version>
 		<!-- jakarta.* snapshot builds are on OpenNTF's server -->
 		<nosql-version>1.0.0-b4</nosql-version>
 		<nosql-version-osgi>1.0.0</nosql-version-osgi>
@@ -86,8 +84,6 @@
 								<artifact><id>jakarta.inject:jakarta.inject-api:2.0.1</id><source>true</source></artifact>
 								<artfiact><id>jakarta.servlet:jakarta.servlet-api:5.0.0</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.1</id><source>true</source></artfiact>
-								<!-- NB: Persistence 3.1.0 requires Java 11 -->
-								<artfiact><id>jakarta.persistence:jakarta.persistence-api:3.0.0</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.transaction:jakarta.transaction-api:2.0.1</id><source>true</source></artfiact>
 								<artifact><id>jakarta.websocket:jakarta.websocket-client-api:2.1.0</id><source>true</source></artifact>
 								<artifact><id>jakarta.websocket:jakarta.websocket-api:2.1.0</id><source>true</source></artifact>
@@ -370,7 +366,8 @@
 								-->
 								<!-- NB: 3.0.1 and above require Java > 8 -->
 								<artifact><id>jakarta.validation:jakarta.validation-api:3.0.0</id><source>true</source></artifact>
-								<artifact><id>org.hibernate.validator:hibernate-validator:${hibernate-version}</id><source>true</source></artifact>
+								<!-- Hibernate Validator 8.0.0+ requires Java 11 -->
+								<artifact><id>org.hibernate.validator:hibernate-validator:7.0.5.Final</id><source>true</source></artifact>
 
 								<!--
 									CDI 
@@ -673,6 +670,13 @@
 									</instructions>
 								</artifact>
 								
+								<!--
+									JPA
+								-->
+								<!-- NB: Persistence 3.1.0 requires Java 11 -->
+								<artfiact><id>jakarta.persistence:jakarta.persistence-api:3.0.0</id><source>true</source></artfiact>
+								<!-- EclipseLink 4.0+ requires Java 11 -->
+								<artfiact><id>org.eclipse.persistence:eclipselink:3.0.3</id><source>true</source></artfiact>
 								
 								<!--
 									MicroProfile Config
