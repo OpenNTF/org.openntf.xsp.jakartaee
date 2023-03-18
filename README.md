@@ -793,7 +793,7 @@ import jakarta.persistence.Table;
 @Table(name="companies", schema="public")
 public class Company {
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 	
 	@Column(name="name", length=255)
