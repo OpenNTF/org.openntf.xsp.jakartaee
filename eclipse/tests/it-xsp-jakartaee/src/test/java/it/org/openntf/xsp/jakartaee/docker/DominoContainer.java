@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.org.openntf.xsp.jakartaee.nsf.docker;
+package it.org.openntf.xsp.jakartaee.docker;
 
 import java.io.File;
 import java.io.IOException;

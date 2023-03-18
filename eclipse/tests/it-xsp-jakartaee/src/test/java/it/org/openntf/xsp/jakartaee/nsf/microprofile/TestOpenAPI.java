@@ -33,7 +33,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.nsf.docker.DominoContainer;
+import it.org.openntf.xsp.jakartaee.docker.DominoContainer;
 
 @SuppressWarnings("nls")
 public class TestOpenAPI extends AbstractWebClientTest {

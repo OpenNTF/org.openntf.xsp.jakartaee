@@ -26,7 +26,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import it.org.openntf.xsp.jakartaee.nsf.docker.DominoContainer;
+import it.org.openntf.xsp.jakartaee.docker.DominoContainer;
 
 public enum JakartaTestContainers {
 	instance;
