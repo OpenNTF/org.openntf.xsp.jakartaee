@@ -39,7 +39,8 @@ public class PostInstallFactory implements IServiceFactory {
 		"dev/jakartaee.nsf",
 		"dev/jeebundle.nsf",
 		"dev/jeebasebundle.nsf",
-		"dev/jsonbconfig.nsf"
+		"dev/jsonbconfig.nsf",
+		"dev/jpa.nsf"
 	};
 
 	@Override

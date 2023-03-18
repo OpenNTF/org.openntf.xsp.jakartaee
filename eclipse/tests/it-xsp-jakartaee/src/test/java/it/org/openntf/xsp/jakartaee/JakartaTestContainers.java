@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import it.org.openntf.xsp.jakartaee.nsf.docker.DominoContainer;
 
@@ -36,6 +37,7 @@ public enum JakartaTestContainers {
 		.driver("bridge") //$NON-NLS-1$
 		.build();
 	public GenericContainer<?> domino;
+	public PostgreSQLContainer<?> postgres;
 	
 	@SuppressWarnings("resource")
 	private JakartaTestContainers() {
@@ -64,7 +66,16 @@ public enum JakartaTestContainers {
 						break;
 					}
 				});
+			postgres = new PostgreSQLContainer<>("postgres:15.2") //$NON-NLS-1$
+				.withUsername("postgres") //$NON-NLS-1$
+				.withPassword("postgres") //$NON-NLS-1$
+				.withDatabaseName("jakarta") //$NON-NLS-1$
+				.withNetwork(network)
+				.withNetworkAliases("postgresql"); //$NON-NLS-1$
+			postgres.addExposedPort(5432);
+			
 			domino.start();
+			postgres.start();
 			// The above waits for "Adding sign bit" from AdminP, but we have no
 			//   solid indication when it's done. For now, wait a couple seconds
 			try {
@@ -76,6 +87,9 @@ public enum JakartaTestContainers {
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				if(domino != null) {
 					domino.close();
+				}
+				if(postgres != null) {
+					postgres.close();
 				}
 				network.close();
 				

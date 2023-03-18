@@ -104,6 +104,12 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of("")); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				
+				// Add the Postgres driver to jvm/lib/ext
+				{
+					Path postgresJar = findLocalMavenArtifact("org.postgresql", "postgresql", "42.5.4", "jar"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					withFileFromPath("staging/postgresql.jar", postgresJar); //$NON-NLS-1$
+				}
+				
 				// Finally, add our NTFs and Domino config to /local/runner
 				{
 					Path exampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -124,6 +130,10 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				{
 					Path jsonbConfigExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-jsonbconfig-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					withFileFromPath("staging/ntf/jsonbconfig.ntf", jsonbConfigExampleNtf); //$NON-NLS-1$
+				}
+				{
+					Path jpaExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-jpa-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					withFileFromPath("staging/ntf/jpa.ntf", jpaExampleNtf); //$NON-NLS-1$
 				}
 				{
 					withFileFromClasspath("staging/domino-config.json", "/docker/domino-config.json"); //$NON-NLS-1$ //$NON-NLS-2$

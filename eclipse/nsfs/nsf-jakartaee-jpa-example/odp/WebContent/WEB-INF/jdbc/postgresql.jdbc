@@ -1,0 +1,10 @@
+<jdbc type="simple">
+	<driver>org.postgresql.Driver</driver>
+	<url>jdbc:postgresql://postgresql:5432/jakarta</url>
+	<user>postgres</user>
+	<password>postgres</password>
+	<simple>
+		<maxPoolSize>10</maxPoolSize>
+		<maxConnectionSize>5</maxConnectionSize>
+	</simple>
+</jdbc>

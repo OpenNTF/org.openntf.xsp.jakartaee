@@ -775,7 +775,7 @@ public class NamesRepositoryBean {
 
 ## Persistence (JPA)
 
-The [Persistence](https://jakarta.ee/specifications/persistence/3.0/) API (formerly JPA) provides access and mapping to relational databases in a managed way. This feature builds on the existing [RDBMS support in XPages](https://help.hcltechsw.com/dom_designer/9.0.1/user/wpd_data_rdbms_support.html), using the same underlying configuration for the connection pools.
+The [Persistence](https://jakarta.ee/specifications/persistence/3.0/) API (JPA) provides access and mapping to relational databases in a managed way. This feature builds on the existing [RDBMS support in XPages](https://help.hcltechsw.com/dom_designer/9.0.1/user/wpd_data_rdbms_support.html), using the same underlying configuration for the connection pools.
 
 Declaration of a Persistence class is done similarly to NoSQL:
 
