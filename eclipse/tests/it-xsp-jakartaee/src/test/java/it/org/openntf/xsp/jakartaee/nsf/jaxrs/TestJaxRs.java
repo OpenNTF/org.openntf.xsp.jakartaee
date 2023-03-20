@@ -75,7 +75,7 @@ public class TestJaxRs extends AbstractWebClientTest {
 	}
 	
 	/**
-	 * Tests to ensure that a post-matching ContainerRequestFilter adds its custom
+	 * Tests to ensure that a post-matching ContainerResponseFilter adds its custom
 	 * header.
 	 * 
 	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/382">Issue #382</a>
