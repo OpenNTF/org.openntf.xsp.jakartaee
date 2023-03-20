@@ -73,4 +73,19 @@ public class TestJaxRs extends AbstractWebClientTest {
 		String output = response.readEntity(String.class);
 		assertEquals("I am the base resource.", output);
 	}
+	
+	/**
+	 * Tests to ensure that a post-matching ContainerRequestFilter adds its custom
+	 * header.
+	 * 
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/382">Issue #382</a>
+	 */
+	@Test
+	public void testRequestFilter() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null));
+		Response response = target.request().get();
+		
+		assertEquals("hello", response.getHeaderString("X-ExampleHeaderFilter"));
+	}
 }
