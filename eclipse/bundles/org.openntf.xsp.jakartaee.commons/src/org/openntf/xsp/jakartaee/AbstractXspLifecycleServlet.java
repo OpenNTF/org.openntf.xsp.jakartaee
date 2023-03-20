@@ -25,6 +25,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
@@ -62,6 +64,8 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	private static final Logger log = Logger.getLogger(AbstractXspLifecycleServlet.class.getName());
 	
 	private static Method getFacesContextMethod;
 	private static Method getContextFacesControllerMethod;
@@ -129,6 +133,10 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 		} catch(NoAccessSignal t) {
 			throw t;
 		} catch(Throwable t) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered unhandled exception in Servlet", t);
+			}
+			
 			try(PrintWriter w = response.getWriter()) {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				XSPErrorPage.handleException(w, t, request.getRequestURL().toString(), false);

@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.faces.FactoryFinder;
 import javax.faces.application.ViewHandler;
@@ -47,6 +49,7 @@ import jakarta.ws.rs.core.StreamingOutput;
  */
 @Priority(RestExceptionHandler.DEFAULT_PRIORITY)
 public class HtmlExceptionHandler implements RestExceptionHandler {
+	private static final Logger log = Logger.getLogger(HtmlExceptionHandler.class.getName());
 
 	@Override
 	public boolean canHandle(ResourceInfo resourceInfo, MediaType mediaType) {
@@ -58,37 +61,45 @@ public class HtmlExceptionHandler implements RestExceptionHandler {
 		return Response.status(status)
 			.type(MediaType.TEXT_HTML_TYPE)
 			.entity((StreamingOutput)out -> {
-				// Check for an error page in the DB
-				FacesContext facesContext = FacesContext.getCurrentInstance();
-				if(facesContext != null) {
-					ApplicationEx app = (ApplicationEx)facesContext.getApplication();
-					String defaultPage = app.getProperty("xsp.error.page.default", null); //$NON-NLS-1$
-					if(!"true".equals(defaultPage)) { //$NON-NLS-1$
-						// Then check for a customized page
-						String errorPage = app.getProperty("xsp.error.page", null); //$NON-NLS-1$
-						if(StringUtil.isNotEmpty(errorPage)) {
-							// Then push the error to the request and render the XPage
-							req.setAttribute("error", throwable); //$NON-NLS-1$
-							ViewHandler viewHandler = app.getViewHandler();
-							UIViewRoot viewRoot = viewHandler.createView(facesContext, errorPage);
-							facesContext.setViewRoot(viewRoot);
-							
-							// The renderkit factory will be null outside a true XPage request
-							if(FactoryFinder.getFactory(FactoryFinder.RENDER_KIT_FACTORY) == null) {
-								FactoryFinder.setFactory(FactoryFinder.RENDER_KIT_FACTORY, ReadOnlyRenderKitFactory.class.getName());
+				try {
+					// Check for an error page in the DB
+					FacesContext facesContext = FacesContext.getCurrentInstance();
+					if(facesContext != null) {
+						ApplicationEx app = (ApplicationEx)facesContext.getApplication();
+						String defaultPage = app.getProperty("xsp.error.page.default", null); //$NON-NLS-1$
+						if(!"true".equals(defaultPage)) { //$NON-NLS-1$
+							// Then check for a customized page
+							String errorPage = app.getProperty("xsp.error.page", null); //$NON-NLS-1$
+							if(StringUtil.isNotEmpty(errorPage)) {
+								// Then push the error to the request and render the XPage
+								req.setAttribute("error", throwable); //$NON-NLS-1$
+								ViewHandler viewHandler = app.getViewHandler();
+								UIViewRoot viewRoot = viewHandler.createView(facesContext, errorPage);
+								facesContext.setViewRoot(viewRoot);
+								
+								// The renderkit factory will be null outside a true XPage request
+								if(FactoryFinder.getFactory(FactoryFinder.RENDER_KIT_FACTORY) == null) {
+									FactoryFinder.setFactory(FactoryFinder.RENDER_KIT_FACTORY, ReadOnlyRenderKitFactory.class.getName());
+								}
+								
+								app.getController().render(facesContext, viewRoot);
+								
+								return;
 							}
-							
-							app.getController().render(facesContext, viewRoot);
-							
-							return;
 						}
 					}
-				}
-				
-				try(PrintWriter w = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
-					XSPErrorPage.handleException(w, throwable, req.getRequestURL().toString(), false);
-				} catch (ServletException e) {
-					throw new IOException(e);
+					
+					try(PrintWriter w = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
+						XSPErrorPage.handleException(w, throwable, req.getRequestURL().toString(), false);
+					} catch (ServletException e) {
+						throw new IOException(e);
+					}
+				} catch(Throwable t) {
+					if(log.isLoggable(Level.SEVERE)) {
+						log.log(Level.SEVERE, "Encountered exception writing HTML exception output", t);
+						log.log(Level.SEVERE, "Original exception", throwable);
+					}
+					throw t;
 				}
 			})
 			.build();
