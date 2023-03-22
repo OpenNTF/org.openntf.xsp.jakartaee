@@ -536,6 +536,14 @@ public class NoSQLExample {
 		return personRepository.findModifiedSince(mod).collect(Collectors.toList());
 	}
 	
+	@Path("findCategorized/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getCategorized(@PathParam("lastName") String lastName) {
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.findCategorized(query).collect(Collectors.toList());
+	}
+	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {
 		person.setFirstName(firstName);
 		person.setLastName(lastName);

@@ -152,4 +152,39 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		
 		return person;
 	}
+	
+	/**
+	 * Tests for Issue #391, where querying a categorized view by key
+	 * threw an exception.
+	 * 
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/391">Issue #391</a>
+	 */
+	@Test
+	public void testQueryDocumentsCategorized() throws UnsupportedEncodingException {
+		Client client = getAdminClient();
+		
+		JsonObject person = createTwoPersonDocuments(true);
+		
+		// Find by the last name of the second person
+		String lastName = person.getString("lastName");
+		assertNotNull(lastName);
+		String firstName = person.getString("firstName");
+		assertNotNull(firstName);
+		WebTarget queryTarget = client.target(
+			getRestUrl(null) + "/nosql/findCategorized"
+			+ "/" + URLEncoder.encode(lastName, "UTF-8")
+		);
+		
+		Response response = queryTarget.request()
+			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.get();
+		String json = response.readEntity(String.class);
+		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+		JsonArray array = Json.createReader(new StringReader(json)).readArray();
+		assertEquals(2, array.size());
+		JsonObject result = array.getJsonObject(1);
+		assertEquals(person.getString("unid"), result.getString("unid"));
+		assertEquals(person.getString("lastName"), result.getString("lastName"));
+	}
 }
