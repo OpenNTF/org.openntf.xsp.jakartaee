@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
@@ -29,6 +30,7 @@ import jakarta.nosql.mapping.Sorts;
 
 public interface PersonRepository extends DominoRepository<Person, String> {
 	String FOLDER_PERSONS = "Persons Folder";
+	String VIEW_PERSONS_CAT = "Persons Categorized";
 	String VIEW_PERSONS = "Persons";
 	
 	Stream<Person> findAll();
@@ -46,4 +48,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	
 	@Query("select * from Person where modified >= @modified")
 	Stream<Person> findModifiedSince(@Param("modified") Instant modified);
+	
+	@ViewDocuments(VIEW_PERSONS_CAT)
+	Stream<Person> findCategorized(ViewQuery viewQuery);
 }
