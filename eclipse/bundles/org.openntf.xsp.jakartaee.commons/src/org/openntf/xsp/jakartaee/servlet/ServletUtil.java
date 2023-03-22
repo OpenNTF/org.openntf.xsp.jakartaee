@@ -21,6 +21,9 @@ import java.util.EventListener;
 import java.util.List;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpServletResponse;
+import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
+import com.ibm.domino.xsp.bridge.http.servlet.XspCmdHttpServletResponse;
 
 import jakarta.servlet.ServletContextAttributeListener;
 import jakarta.servlet.ServletContextEvent;
@@ -378,6 +381,28 @@ public enum ServletUtil {
 	 * @since 2.9.0 
 	 */
 	public static void close(HttpServletResponse resp) {
+		// Special handling for wrapped XSP responses
+		if(resp instanceof OldHttpServletResponseWrapper) {
+			javax.servlet.http.HttpServletResponse old = newToOld(resp);
+			if(old instanceof LCDAdapterHttpServletResponse) {
+				HttpServletResponseAdapter delegate = ((LCDAdapterHttpServletResponse)old).getDelegate();
+				if(delegate instanceof XspCmdHttpServletResponse) {
+					XspCmdHttpServletResponse xspResp = (XspCmdHttpServletResponse)delegate;
+					try {
+						if(xspResp.writerInUse()) {
+							xspResp.getWriter().flush();
+						} else if(xspResp.outputStreamInUse()) {
+							xspResp.getOutputStream().flush();
+						}
+						xspResp.flushBuffer();
+					} catch(IOException e) {
+						// Ignore - nothing to do here
+					}
+					return;
+				}
+			}
+		}
+		
 		// NB: resp.flushBuffer() is insufficient here
 		try {
 			resp.getWriter().flush();
