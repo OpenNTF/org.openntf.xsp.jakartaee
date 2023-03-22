@@ -113,7 +113,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 */
 	public Stream<DocumentEntity> convertQRPViewDocuments(Database database, View docs, ClassMapping classMapping) throws NotesException {
 		ViewNavigator nav = docs.createViewNav();
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, false, false);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, false, false, false);
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
 		return iter.stream()
 			.map(entry -> {
@@ -147,13 +147,14 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @param entityName the name of the target entity
 	 * @param nav the {@link ViewNavigator} to traverse
 	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
+	 * @param didKey whether the navigator was created with {@link View#createViewNavFromKey(Vector, boolean)}
 	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
 	 * @param docsOnly whether to restrict processing to document entries only
 	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
 	 * @throws NotesException if there is a problem reading the view
 	 */
-	public Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, boolean didSkip, long limit, boolean docsOnly, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, boolean didSkip, boolean didKey, long limit, boolean docsOnly, ClassMapping classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
 		// Read in the column names
@@ -177,7 +178,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				f -> f.getNativeField().getType()
 			));
 		
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, docsOnly, didSkip);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, docsOnly, didSkip, didKey);
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
@@ -199,15 +200,16 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @param entityName the name of the target entity
 	 * @param nav the {@link ViewNavigator} to traverse
 	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
+	 * @param didKey whether the navigator was created with {@link View#createViewNavFromKey(Vector, boolean)}
 	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
 	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
 	 * @throws NotesException if there is a problem reading the view or documents
 	 */
-	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, boolean didSkip, long limit, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, boolean didSkip, boolean didKey, long limit, ClassMapping classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOLUMNVALUES | ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, true, didSkip);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, true, didSkip, didKey);
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {

@@ -33,13 +33,13 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 	private ViewEntry prev;
 	private ViewEntry onDeck;
 	private boolean done;
-	private final boolean categorized;
+	private final boolean manualDocumentScan;
 	
-	public ViewNavigatorIterator(ViewNavigator nav, boolean docsOnly, boolean didSkip) throws NotesException {
+	public ViewNavigatorIterator(ViewNavigator nav, boolean docsOnly, boolean didSkip, boolean didKey) throws NotesException {
 		this.nav = nav;
 		this.docsOnly = docsOnly;
 		this.didSkip = didSkip;
-		this.categorized = nav.getParentView().isCategorized();
+		this.manualDocumentScan = didKey && nav.getParentView().isCategorized();
 	}
 
 	@Override
@@ -90,12 +90,12 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 		ViewEntry next;
 		
 		// "getFirstDocument" throws "NotesException: Method is not available"
-		//   when the view is categorized and ViewQuery#key is used. In these
-		//   situations, we'll manually traverse for document entries
+		//   when the view is categorized and createViewNavFromKey is used.
+		//   In these situations, we'll manually traverse for document entries
 		
 		if(prev == null && !didSkip) {
 			if(docsOnly) {
-				if(categorized) {
+				if(manualDocumentScan) {
 					next = firstDocumentManual();
 				} else {
 					next = nav.getFirstDocument();
@@ -105,7 +105,7 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 			}
 		} else {
 			if(docsOnly) {
-				if(categorized) {
+				if(manualDocumentScan) {
 					next = nextDocumentManual();
 				} else {
 					next = nav.getNextDocument();

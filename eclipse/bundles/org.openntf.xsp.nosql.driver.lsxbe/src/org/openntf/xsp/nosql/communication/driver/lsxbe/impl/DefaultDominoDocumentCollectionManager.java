@@ -304,9 +304,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 		
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
-			(nav, limit, didSkip) -> {
+			(nav, limit, didSkip, didKey) -> {
 				try {
-					return entityConverter.convertViewEntries(entityName, nav, didSkip, limit, docsOnly, mapping);
+					return entityConverter.convertViewEntries(entityName, nav, didSkip, didKey, limit, docsOnly, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -346,9 +346,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 		
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
-			(nav, limit, didSkip) -> {
+			(nav, limit, didSkip, didKey) -> {
 				try {
-					return entityConverter.convertViewDocuments(entityName, nav, didSkip, limit, mapping);
+					return entityConverter.convertViewDocuments(entityName, nav, didSkip, didKey, limit, mapping);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -489,7 +489,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	// *******************************************************************************
 	
 	@SuppressWarnings("unchecked")
-	private <T> T buildNavigtor(String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, ClassMapping mapping, TriFunction<ViewNavigator, Long, Boolean, T> consumer) {
+	private <T> T buildNavigtor(String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, ClassMapping mapping, NavFunction<T> consumer) {
 		try {
 			if(StringUtil.isEmpty(viewName)) {
 				throw new IllegalArgumentException("viewName cannot be empty");
@@ -502,6 +502,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			view.setAutoUpdate(false);
 			applySorts(view, sorts, mapping);
 			
+			boolean didKey = false;
 			ViewNavigator nav;
 			String category = viewQuery == null ? null : viewQuery.getCategory();
 			if(category == null) {
@@ -514,6 +515,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 						vecKeys = new Vector<>(Arrays.asList(keys));
 					}
 					nav = view.createViewNavFromKey(vecKeys, viewQuery.isExact());
+					didKey = true;
 				} else {
 					nav = view.createViewNav();
 				}
@@ -570,7 +572,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				nav.setBufferMaxEntries(400);
 			}
 			
-			return consumer.apply(nav, limit, didSkip);
+			return consumer.apply(nav, limit, didSkip, didKey);
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
 		}
@@ -781,16 +783,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 	
 	@FunctionalInterface
-	public interface TriFunction<T, U, V, R> {
-
-	    /**
-	     * Applies this function to the given arguments.
-	     *
-	     * @param t the first function argument
-	     * @param u the second function argument
-	     * @param v the third function argument
-	     * @return the function result
-	     */
-	    R apply(T t, U u, V v);
+	public interface NavFunction<R> {
+	    R apply(ViewNavigator nav, long limit, boolean didSkip, boolean didKey);
 	}
 }
