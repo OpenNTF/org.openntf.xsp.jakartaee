@@ -304,11 +304,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				String itemName = columnNames.get(i);
 				Object value = columnValues.get(i);
 				
-				// Check to see if we have a matching time-based field and strip empty strings,
-				//   since JNoSQL will otherwise try to parse them and will throw an exception
+				// Check to see if we have a matching time-based or number-based field and strip
+				//   empty strings, since JNoSQL will otherwise try to parse them and will throw
+				//   an exception
 				if(itemTypes != null) {
 					Class<?> itemType = itemTypes.get(itemName);
-					if(itemType != null && TemporalAccessor.class.isAssignableFrom(itemType)) {
+					if(isParsedType(itemType)) {
 						if(value instanceof String && ((String)value).isEmpty()) {
 							// Then skip the field
 							continue;
@@ -894,5 +895,32 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Determines whether the provided NoSQL entity property type is likely
+	 * to be parsed when provided as a string. This allows reading code
+	 * to avoid emitting empty strings that will throw exceptions down the
+	 * line.
+	 * 
+	 * @param type the type to check
+	 * @return whether the type is likely to be parsed as a string, such as
+	 *         a temporal or numeric value
+	 * @since 2.11.0
+	 */
+	private boolean isParsedType(Class<?> type) {
+		if(type == null) {
+			return false;
+		}
+		if(TemporalAccessor.class.isAssignableFrom(type)) {
+			return true;
+		}
+		if(Number.class.isAssignableFrom(type)) {
+			return true;
+		}
+		if(type.isPrimitive()) {
+			return true;
+		}
+		return false;
 	}
 }

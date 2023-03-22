@@ -103,6 +103,9 @@ public class Person {
 	
 	@Column(DominoConstants.FIELD_FTSEARCHSCORE)
 	private int ftSearchScore;
+	
+	@Column("Age")
+	private Integer age;
 
 	public String getUnid() {
 		return unid;
@@ -218,5 +221,12 @@ public class Person {
 	}
 	public int getIndentLevel() {
 		return indentLevel;
+	}
+	
+	public Integer getAge() {
+		return age;
+	}
+	public void setAge(Integer age) {
+		this.age = age;
 	}
 }
