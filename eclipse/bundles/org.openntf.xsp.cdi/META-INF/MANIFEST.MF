@@ -5,13 +5,13 @@ Bundle-SymbolicName: org.openntf.xsp.cdi;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.cdi
 Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  jakarta.inject.jakarta.inject-api;bundle-version="2.0.0";visibility:=reexport,
  jakarta.annotation-api;bundle-version="2.0.0";visibility:=reexport,
  jakarta.interceptor-api;bundle-version="2.0.0";visibility:=reexport,
  jakarta.transaction-api;bundle-version="2.0.0";visibility:=reexport,
- org.openntf.jakarta.enterprise.cdi-api;bundle-version="3.0.0";visibility:=reexport,
+ jakarta.enterprise.cdi-api;bundle-version="4.0.0";visibility:=reexport,
  org.jboss.weld.api;bundle-version="4.0.0",
  org.jboss.weld.spi;bundle-version="4.0.0",
  org.jboss.weld.core-impl;bundle-version="4.0.2",

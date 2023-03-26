@@ -7,7 +7,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakarta.persistence.PersistenceActivator
 Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="2.7.0",
  jakarta.persistence-api;bundle-version="3.0.0";visibility:=reexport,
  org.eclipse.persistence.eclipselink;bundle-version="3.0.0"

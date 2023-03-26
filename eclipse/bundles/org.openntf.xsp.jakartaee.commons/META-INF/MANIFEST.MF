@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openntf.xsp.jakartaee.commons;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.commons
 Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.ibm.pvc.servlet;bundle-version="2.5.0",
  com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  com.ibm.xsp.designer;bundle-version="9.0.1",

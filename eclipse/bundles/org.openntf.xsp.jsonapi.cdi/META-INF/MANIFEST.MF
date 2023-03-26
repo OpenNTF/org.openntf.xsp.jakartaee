@@ -6,7 +6,7 @@ Automatic-Module-Name: org.openntf.xsp.jsonapi.cdi
 Bundle-Version: 2.10.0.qualifier
 Import-Package: jakarta.json.bind
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.openntf.xsp.cdi;bundle-version="2.10.0",
  org.openntf.xsp.jsonapi;bundle-version="2.10.0",
  org.openntf.xsp.jaxrs;bundle-version="2.11.0";resolution:=optional

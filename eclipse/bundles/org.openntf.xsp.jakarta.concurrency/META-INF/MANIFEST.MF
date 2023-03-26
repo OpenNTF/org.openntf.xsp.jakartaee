@@ -7,7 +7,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakarta.concurrency.ConcurrencyActivator
 Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: jakarta.enterprise.concurrent-api;bundle-version="2.0.0";visibility:=reexport,
  org.glassfish.jakarta.enterprise.concurrent;bundle-version="2.0.0",
  com.ibm.xsp.core;bundle-version="9.0.1",

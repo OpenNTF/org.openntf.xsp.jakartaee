@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openntf.xsp.nosql.driver.lsxbe;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.nosql.driver.lsxbe
 Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 DynamicImport-Package: org.jboss.weld.*
 Import-Package: com.ibm.commons.util,
  com.ibm.designer.domino.napi,

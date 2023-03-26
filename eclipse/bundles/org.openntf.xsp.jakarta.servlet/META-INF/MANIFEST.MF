@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openntf.xsp.jakarta.servlet;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.servlet
 Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="2.5.0"
 Import-Package: com.ibm.commons.util,
  com.ibm.designer.runtime.domino.adapter,

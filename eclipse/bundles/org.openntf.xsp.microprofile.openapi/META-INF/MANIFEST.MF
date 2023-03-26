@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openntf.xsp.microprofile.openapi;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.openapi
 Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Fragment-Host: org.openntf.xsp.jaxrs
 Import-Package: io.smallrye.openapi.api,
  io.smallrye.openapi.api.models,

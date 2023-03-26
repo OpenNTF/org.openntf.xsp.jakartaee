@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openntf.xsp.nosql;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.nosql
 Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  org.openntf.jakarta.nosql.communication.core;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.jakarta.nosql.communication.document;bundle-version="1.0.0";visibility:=reexport,
