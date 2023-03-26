@@ -18,6 +18,8 @@ package org.openntf.xsp.cdi.provider;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.openntf.xsp.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.cdi.ext.CDIContainerUtility;
@@ -39,6 +41,8 @@ import jakarta.enterprise.inject.spi.CDIProvider;
  * @since 1.0.0
  */
 public class NSFCDIProvider implements CDIProvider {
+	private static final Logger log = Logger.getLogger(NSFCDIProvider.class.getPackage().getName());
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized CDI<Object> getCDI() {
@@ -89,7 +93,12 @@ public class NSFCDIProvider implements CDIProvider {
 			}
 		} catch (NotesAPIException e) {
 			// Ignore
-		}	
+		} catch(Exception e) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered exception trying to load CDI container", e);
+			}
+			throw e;
+		}
 		
 		return null;
 	}
