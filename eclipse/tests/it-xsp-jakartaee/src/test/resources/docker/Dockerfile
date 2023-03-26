@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-FROM hclcom/domino:latest
+FROM hclcom/domino:12.0.2
 
 RUN mkdir -p /local/runner \
 	&& mkdir -p /local/eclipse/eclipse/plugins
