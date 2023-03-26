@@ -18,6 +18,8 @@ package org.openntf.xsp.cdi.bean;
 import org.openntf.xsp.cdi.concurrency.NSFSessionClonerSetupParticipant;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
+import com.ibm.domino.xsp.module.nsf.NotesContext;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
