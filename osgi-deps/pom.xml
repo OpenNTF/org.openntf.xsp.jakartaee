@@ -253,6 +253,16 @@
 										<Export-Package>*;version="${resteasy-version}"</Export-Package>
 									</instructions>
 								</artifact>
+								<artifact>
+									<id>com.ibm.async:asyncutil:0.1.0</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.com.ibm.async.util</Bundle-SymbolicName>
+										<Bundle-Version>0.1.0.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="0.1.0"</Export-Package>
+									</instructions>
+								</artifact>
 								
 								<!--
 									MicroProfile OpenAPI

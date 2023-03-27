@@ -16,8 +16,14 @@
 package org.openntf.xsp.jaxrs.impl;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
+import org.hibernate.validator.HibernateValidator;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.openntf.xsp.cdi.ext.CDIConstants;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
@@ -33,6 +39,8 @@ import jakarta.servlet.ServletRequestEvent;
 import jakarta.servlet.ServletRequestListener;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Validation;
+import jakarta.validation.ValidatorFactory;
 
 /**
  * An {@link ServletContainer} subclass that provides a Faces context to the
@@ -74,8 +82,24 @@ public class FacesJAXRSServletContainer extends AbstractXspLifecycleServlet {
 			.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), request)));
     	
     	try {
-    		delegate.service(request, response);
-    	} finally {
+            Context context = new InitialContext();
+            ValidatorFactory fac = Validation.byDefaultProvider()
+				.providerResolver(() -> Arrays.asList(new HibernateValidator()))
+				.configure()
+				.buildValidatorFactory();
+            context.rebind("java:comp/ValidatorFactory", fac); //$NON-NLS-1$
+            try {
+            	delegate.service(request, response);
+            } finally {
+            	try {
+            		context.unbind("java:comp/ValidatorFactory"); //$NON-NLS-1$
+            	} catch(NamingException e) {
+            		// Ignore unbind exceptions
+            	}
+            }
+    	} catch (NamingException e) {
+			throw new ServletException(e);
+		} finally {
     		ServletUtil.getListeners(request.getServletContext(), ServletRequestListener.class)
 				.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), request)));
     		for(ServiceParticipant participant : participants) {
