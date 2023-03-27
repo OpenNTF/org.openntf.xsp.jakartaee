@@ -47,6 +47,7 @@
 		
 		<!-- CDI 3.0 -->
 		<module>bundles/org.openntf.xsp.cdi</module>
+		<module>bundles/org.openntf.xsp.cdi.jigsaw</module>
 		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
 		<module>features/org.openntf.xsp.cdi.feature</module>
 		
@@ -363,7 +364,7 @@
 									<version>3.0.1</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
-									<version>1.8.0</version>
+									<version>11</version>
 								</requireJavaVersion>
 							</rules>
 						</configuration>

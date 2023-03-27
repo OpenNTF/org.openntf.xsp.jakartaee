@@ -63,4 +63,8 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.concurrency.ConcurrencyBeanClassContributor" />
 	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.jboss.weld.serialization.spi.ProxyServices" class="org.openntf.xsp.cdi.util.NSFProxyServices" />
+	</extension>
 </plugin>
