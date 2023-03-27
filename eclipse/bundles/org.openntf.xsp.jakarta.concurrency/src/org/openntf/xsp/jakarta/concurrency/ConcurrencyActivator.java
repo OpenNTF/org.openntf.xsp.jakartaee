@@ -16,6 +16,8 @@
 package org.openntf.xsp.jakarta.concurrency;
 
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -48,21 +50,27 @@ public class ConcurrencyActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
-		ClassLoader cl = ClassLoader.getSystemClassLoader();
-		while(cl.getParent() != null) {
-			cl = cl.getParent();
-		}
-		this.mqClass = Class.forName("lotus.notes.internal.MessageQueue", true, cl); //$NON-NLS-1$
-		this.mqOpen = this.mqClass.getMethod("open", String.class, int.class); //$NON-NLS-1$
-		this.isQuitPending = this.mqClass.getMethod("isQuitPending"); //$NON-NLS-1$
-		this.mqClose = this.mqClass.getMethod("close", int.class); //$NON-NLS-1$
+		String jvmVersion = AccessController.doPrivileged((PrivilegedAction<String>)() ->
+			System.getProperty("java.specification.version") //$NON-NLS-1$
+		);
 		
-		this.executor = Executors.newScheduledThreadPool(10, NotesThread::new);
-		this.executor.scheduleAtFixedRate(() -> {
-			if(isHttpQuitting()) {
-				ExecutorHolder.INSTANCE.termAll();
+		if("1.8".equals(jvmVersion)) { //$NON-NLS-1$
+			ClassLoader cl = ClassLoader.getSystemClassLoader();
+			while(cl.getParent() != null) {
+				cl = cl.getParent();
 			}
-		}, 0, 10, TimeUnit.SECONDS);
+			this.mqClass = Class.forName("lotus.notes.internal.MessageQueue", true, cl); //$NON-NLS-1$
+			this.mqOpen = this.mqClass.getMethod("open", String.class, int.class); //$NON-NLS-1$
+			this.isQuitPending = this.mqClass.getMethod("isQuitPending"); //$NON-NLS-1$
+			this.mqClose = this.mqClass.getMethod("close", int.class); //$NON-NLS-1$
+			
+			this.executor = Executors.newScheduledThreadPool(10, NotesThread::new);
+			this.executor.scheduleAtFixedRate(() -> {
+				if(isHttpQuitting()) {
+					ExecutorHolder.INSTANCE.termAll();
+				}
+			}, 0, 10, TimeUnit.SECONDS);
+		}
 	}
 
 	@Override
