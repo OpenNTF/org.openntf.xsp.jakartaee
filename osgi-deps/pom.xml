@@ -293,7 +293,17 @@
 								<!--
 									MicroProfile Metrics
 								-->
-								<artifact><id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0.1</id><source>true</source></artifact>
+								<artifact>
+									<id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0.1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.metrics</Bundle-SymbolicName>
+										<Bundle-Version>4.0.1_${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<Export-Package>*;version="4.0.1"</Export-Package>
+									</instructions>
+								</artifact>
 								<artifact>
 									<id>io.smallrye:smallrye-metrics:4.0.0</id>
 									<source>true</source>
