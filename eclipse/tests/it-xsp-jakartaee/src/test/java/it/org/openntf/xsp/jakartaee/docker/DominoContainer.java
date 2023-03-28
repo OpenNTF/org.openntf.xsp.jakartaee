@@ -38,6 +38,7 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 
@@ -206,5 +207,25 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 			throw new RuntimeException("Unable to determine artifact version from scm.properties");
 		}
 		return version;
+	}
+	
+	@SuppressWarnings("nls")
+	@Override
+	protected void containerIsStopping(InspectContainerResponse containerInfo) {
+		super.containerIsStopping(containerInfo);
+		
+		try {
+			// If we can see the target dir, copy log files
+			Path target = Paths.get(".").resolve("target"); //$NON-NLS-1$ //$NON-NLS-2$
+			if(Files.isDirectory(target)) {
+				this.execInContainer("tar", "-czvf", "/tmp/IBM_TECHNICAL_SUPPORT.tar.gz", "/local/notesdata/IBM_TECHNICAL_SUPPORT");
+				this.copyFileFromContainer("/tmp/IBM_TECHNICAL_SUPPORT.tar.gz", target.resolve("IBM_TECHNICAL_SUPPORT.tar.gz").toString());
+				
+				this.execInContainer("tar", "-czvf", "/tmp/workspace-logs.tar.gz", "/local/notesdata/domino/workspace/logs");
+				this.copyFileFromContainer("/tmp/workspace-logs.tar.gz", target.resolve("workspace-logs.tar.gz").toString());
+			}
+		} catch(IOException | UnsupportedOperationException | InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
