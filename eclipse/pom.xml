@@ -127,7 +127,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>1.7.0</tycho-version>
+		<tycho-version>2.7.5</tycho-version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
@@ -232,6 +232,7 @@
 						<plugin id="jakarta.servlet.jsp-api"/>
 						<plugin id="org.eclipse.jdt.core"/>
 						<plugin id="org.antlr.antlr4-runtime.jakarta"/>
+						<plugin id="org.openntf.xsp.jsonapi.cdi"/>
 					</excludes>
 				</configuration>
 			</plugin>

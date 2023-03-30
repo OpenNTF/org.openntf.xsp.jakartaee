@@ -78,6 +78,7 @@
 							<artifacts>
 								<!-- Testing Runtime -->
 								<artifact><id>org.eclipse.platform:org.eclipse.equinox.launcher:1.4.0</id><source>true</source></artifact>
+								<artifact><id>org.openntf.domino:org.openntf.domino.java.api.corba.patch:1.0.0</id></artifact>
 							
 								<!--
 									General Platform
