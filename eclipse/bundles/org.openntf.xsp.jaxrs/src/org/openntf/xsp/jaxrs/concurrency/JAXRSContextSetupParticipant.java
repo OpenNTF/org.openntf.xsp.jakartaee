@@ -30,6 +30,7 @@ import jakarta.ws.rs.ext.RuntimeDelegate;
  * @author Jesse Gallagher
  * @since 2.7.0
  */
+@SuppressWarnings("unused")
 public class JAXRSContextSetupParticipant implements ContextSetupParticipant {
 	public static final String ATTR_DELEGATE = JAXRSContextSetupParticipant.class.getName() + "_delegate"; //$NON-NLS-1$
 

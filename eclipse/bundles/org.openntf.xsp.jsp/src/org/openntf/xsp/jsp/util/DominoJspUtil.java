@@ -99,7 +99,6 @@ public enum DominoJspUtil {
 		return classpath;
 	}
 	
-	@SuppressWarnings("deprecation")
 	private static void toClasspathEntry(Bundle bundle, List<File> classpath) throws BundleException, IOException {
 		// These entries MUST be filesystem paths
 		classpath.add(FileLocator.getBundleFile(bundle));

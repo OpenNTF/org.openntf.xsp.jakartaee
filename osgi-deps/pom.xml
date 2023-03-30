@@ -37,6 +37,8 @@
 	</pluginRepositories>
 	
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
 		<!-- Weld 5.0.0+ requires Java 11 -->
 		<weld-version>4.0.3.Final</weld-version>
 		<!-- RestEasy 6.1.0+ requires Java 11 -->
