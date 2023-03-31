@@ -25,12 +25,17 @@ import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.json.JsonObject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("restClient")
 public class RestClientExample {
@@ -88,5 +93,21 @@ public class RestClientExample {
 			result.put("response", responseObj);
 			return result;
 		}).get();
+	}
+	
+	@Path("jaxRsClient")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Object getJaxRsClient() {
+		URI uri = URI.create(request.getRequestURL().toString());
+		URI serviceUri = uri.resolve("../jsonExample");
+		Client client = ClientBuilder.newBuilder().build();
+		WebTarget target = client.target(serviceUri);
+		Response response = target.request().get();
+		JsonObject responseObj = response.readEntity(JsonObject.class);
+		Map<String, Object> result = new LinkedHashMap<>();
+		result.put("called", serviceUri);
+		result.put("response", responseObj);
+		return result;
 	}
 }
