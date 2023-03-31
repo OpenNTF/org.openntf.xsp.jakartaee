@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter.QueryConve
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
+import org.openntf.xsp.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import com.ibm.commons.util.StringUtil;
@@ -84,6 +86,7 @@ import lotus.domino.QueryResultsProcessor;
 import lotus.domino.Session;
 import lotus.domino.View;
 import lotus.domino.ViewEntry;
+import lotus.domino.ViewEntryCollection;
 import lotus.domino.ViewNavigator;
 
 public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocumentCollectionManager {
@@ -306,7 +309,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
 			(nav, limit, didSkip, didKey) -> {
 				try {
-					return entityConverter.convertViewEntries(entityName, nav, didSkip, didKey, limit, docsOnly, mapping);
+					if(nav instanceof ViewNavigator) {
+						return entityConverter.convertViewEntries(entityName, (ViewNavigator)nav, didSkip, didKey, limit, docsOnly, mapping);
+					} else if(nav instanceof ViewEntryCollection) {
+						return entityConverter.convertViewEntries(entityName, (ViewEntryCollection)nav, didSkip, didKey, limit, docsOnly, mapping);
+					} else {
+						throw new IllegalStateException("Cannot process " + nav);
+					}
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -348,7 +357,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
 			(nav, limit, didSkip, didKey) -> {
 				try {
-					return entityConverter.convertViewDocuments(entityName, nav, didSkip, didKey, limit, mapping);
+					if(nav instanceof ViewNavigator) {
+						return entityConverter.convertViewDocuments(entityName, (ViewNavigator)nav, didSkip, didKey, limit, mapping);
+					} else if(nav instanceof ViewEntryCollection) {
+						return entityConverter.convertViewDocuments(entityName, (ViewEntryCollection)nav, didSkip, didKey, limit, mapping);
+					} else {
+						throw new IllegalStateException("Cannot process " + nav);
+					}
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -500,7 +515,41 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			View view = database.getView(viewName);
 			Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 			view.setAutoUpdate(false);
-			applySorts(view, sorts, mapping);
+			applySorts(view, sorts, mapping, viewQuery, pagination);
+			
+			long limit = 0;
+			boolean didSkip = false;
+			long skip = 0;
+			if(pagination != null) {
+				skip = pagination.getSkip();
+				limit = pagination.getLimit();
+				
+				if(skip > Integer.MAX_VALUE) {
+					throw new UnsupportedOperationException("Domino does not support skipping more than Integer.MAX_VALUE entries");
+				}
+				if(skip > 0) {
+					didSkip = true;
+				}
+			}
+
+			// If we did an FT search, then we can't use a view navigator
+			if(viewQuery != null && !viewQuery.getFtSearch().isEmpty()) {
+				ViewEntryCollection entries = view.getAllEntries();
+				if(skip > 0) {
+					int n = Math.min((int)skip, entries.getCount());
+					// Downstream code will call getNext, so position one before
+					// NB: not recycling is intentional, as doing so un-does the skip
+					entries.getNthEntry(n); 
+				}
+				return consumer.apply(entries, limit, didSkip, false);
+			}
+			
+			// Override anything above if we were told to get a single view entry
+			if(viewQuery != null && viewQuery.getKey() != null) {
+				if(singleResult) {
+					limit = 1;
+				}
+			}
 			
 			boolean didKey = false;
 			ViewNavigator nav;
@@ -544,19 +593,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				nav.setMaxLevel(maxLevel);
 			}
 			
-			long limit = 0;
-			boolean didSkip = false;
-			if(pagination != null) {
-				long skip = pagination.getSkip();
-				limit = pagination.getLimit();
-				
-				if(skip > Integer.MAX_VALUE) {
-					throw new UnsupportedOperationException("Domino does not support skipping more than Integer.MAX_VALUE entries");
-				}
-				if(skip > 0) {
-					nav.skip((int)skip-1);
-					didSkip = true;
-				}
+			if(skip > 0) {
+				nav.skip((int)skip-1);
 			}
 			
 			// Override anything above if we were told to get a single view entry
@@ -621,8 +659,25 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 	}
 	
-	private static void applySorts(View view, Sorts sorts, ClassMapping mapping) throws NotesException {
+	private static void applySorts(View view, Sorts sorts, ClassMapping mapping, ViewQuery query, Pagination pagination) throws NotesException {
+		Collection<String> ftSearch = query == null ? Collections.emptySet() : query.getFtSearch();
+		Collection<FTSearchOption> options = query == null ? Collections.emptySet() : query.getFtSearchOptions();
+		
 		if(sorts == null) {
+			if(ftSearch != null && !ftSearch.isEmpty()) {
+				if(options.contains(FTSearchOption.UPDATE_INDEX)) {
+					view.getParent().updateFTIndex(true);
+				}
+				boolean exact = options.contains(FTSearchOption.EXACT);
+				boolean variants = options.contains(FTSearchOption.VARIANTS);
+				boolean fuzzy = options.contains(FTSearchOption.FUZZY);
+				int maxDocs = 0;
+				if(pagination != null) {
+					maxDocs = (int)Math.min(pagination.getLimit() + pagination.getSkip(), Integer.MAX_VALUE);
+				}
+				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, View.VIEW_FTSS_RELEVANCE_ORDER, true, exact, variants, fuzzy);
+			}
+			
 			return;
 		} else {
 			List<Sort> sortObjs = sorts.getSorts();
@@ -635,7 +690,22 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 			Sort sort = sortObjs.get(0);
 			String itemName = DominoNoSQLUtil.findItemName(sort.getName(), mapping);
-			view.resortView(itemName, sort.getType() != SortType.DESC);
+			
+			if(ftSearch != null && !ftSearch.isEmpty()) {
+				if(options.contains(FTSearchOption.UPDATE_INDEX)) {
+					view.getParent().updateFTIndex(true);
+				}
+				boolean exact = options.contains(FTSearchOption.EXACT);
+				boolean variants = options.contains(FTSearchOption.VARIANTS);
+				boolean fuzzy = options.contains(FTSearchOption.FUZZY);
+				int maxDocs = 0;
+				if(pagination != null) {
+					maxDocs = (int)Math.min(pagination.getLimit() + pagination.getSkip(), Integer.MAX_VALUE);
+				}
+				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, itemName, sort.getType() != SortType.DESC, exact, variants, fuzzy);
+			} else {
+				view.resortView(itemName, sort.getType() != SortType.DESC);
+			}
 		}
 	}
 	
@@ -784,6 +854,6 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	
 	@FunctionalInterface
 	public interface NavFunction<R> {
-	    R apply(ViewNavigator nav, long limit, boolean didSkip, boolean didKey);
+	    R apply(Object nav, long limit, boolean didSkip, boolean didKey);
 	}
 }

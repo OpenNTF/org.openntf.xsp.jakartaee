@@ -24,6 +24,7 @@ import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
+import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Param;
 import jakarta.nosql.mapping.Query;
 import jakarta.nosql.mapping.Sorts;
@@ -44,7 +45,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	Optional<Person> findByKey(ViewQuery viewQuery);
 	
 	@ViewEntries(VIEW_PERSONS)
-	Stream<Person> findByKeyMulti(ViewQuery viewQuery);
+	Stream<Person> findByKeyMulti(ViewQuery viewQuery, Sorts sorts, Pagination pagination);
 	
 	@Query("select * from Person where modified >= @modified")
 	Stream<Person> findModifiedSince(@Param("modified") Instant modified);

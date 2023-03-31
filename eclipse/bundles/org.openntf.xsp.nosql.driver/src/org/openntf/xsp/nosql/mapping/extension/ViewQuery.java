@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.nosql.mapping.extension;
 
+import java.util.Collection;
 import java.util.function.Supplier;
 
 import jakarta.nosql.ServiceLoaderProvider;
@@ -87,6 +88,45 @@ public interface ViewQuery {
 	 * @return {@code true} if key querying should be exact; {@code false} otherwise
 	 */
 	boolean isExact();
+	
+	/**
+	 * Applies a full-text search to the view.
+	 * 
+	 * @param query the full-text search query
+	 * @param options a collection of {@link FTSearchOption} values to control the
+	 *        search
+	 * @return this query object
+	 * @since 2.11.0
+	 */
+	ViewQuery ftSearch(String query, Collection<FTSearchOption> options);
+	
+	/**
+	 * Applies one or more full-text search queries to the view.
+	 * 
+	 * @param queries the full-text search queries
+	 * @param options a collection of {@link FTSearchOption} values to control the
+	 *        search
+	 * @return this query object
+	 * @since 2.11.0
+	 */
+	ViewQuery ftSearch(Collection<String> queries, Collection<FTSearchOption> options);
+	
+	/**
+	 * Retrieves any applied full-text search queries for the view.
+	 * 
+	 * @return the FT search query, or {@code null} if none has been applied
+	 * @since 2.11.0
+	 */
+	Collection<String> getFtSearch();
+	
+	/**
+	 * Retrieves the options to apply when executing a full-text search.
+	 * 
+	 * @return a {@link Collection} of {@link FTSearchOption} values, never
+	 *         {@code null}
+	 * @since 2.11.0
+	 */
+	Collection<FTSearchOption> getFtSearchOptions();
 	
 	/**
      * A provider class of {@link ViewQuery}
