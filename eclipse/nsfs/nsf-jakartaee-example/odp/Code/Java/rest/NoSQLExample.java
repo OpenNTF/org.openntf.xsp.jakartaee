@@ -28,6 +28,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.nosql.communication.driver.ByteArrayEntityAttachment;
+import org.openntf.xsp.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import com.ibm.commons.util.StringUtil;
@@ -48,6 +50,7 @@ import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.internet.MimePart;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Sorts;
 import jakarta.transaction.UserTransaction;
 import jakarta.validation.constraints.NotEmpty;
@@ -339,6 +342,47 @@ public class NoSQLExample {
 		}
 	}
 	
+	@Path("ftSearch")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> ftSearchView(@QueryParam("search") String search, @QueryParam("search2") String search2) {
+		if(search2 == null || search2.isEmpty()) {
+			return personRepository.findByKeyMulti(
+				ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
+				null,
+				null
+			).collect(Collectors.toList());
+		} else {
+			return personRepository.findByKeyMulti(
+				ViewQuery.query().ftSearch(Arrays.asList(search, search2), EnumSet.of(FTSearchOption.UPDATE_INDEX)),
+				null,
+				null
+			).collect(Collectors.toList());
+		}
+	}
+	
+	@Path("ftSearchSorted")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> ftSearchViewSorted(@QueryParam("search") String search) {
+		return personRepository.findByKeyMulti(
+			ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
+			Sorts.sorts().desc("firstName"),
+			null
+		).collect(Collectors.toList());
+	}
+	
+	@Path("ftSearchPaginated")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> ftSearchViewPaginated(@QueryParam("search") String search, @QueryParam("page") int page, @QueryParam("size") int size) {
+		return personRepository.findByKeyMulti(
+			ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
+			null,
+			Pagination.page(page).size(size)
+		).collect(Collectors.toList());
+	}
+	
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -500,7 +544,7 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Person> getPersonByViewKeyMulti(@PathParam("lastName") String lastName) {
 		ViewQuery query = ViewQuery.query().key(lastName, true);
-		return personRepository.findByKeyMulti(query).collect(Collectors.toList());
+		return personRepository.findByKeyMulti(query, null, null).collect(Collectors.toList());
 	}
 	
 	@Path("byViewTwoKeys/{lastName}/{firstName}")
