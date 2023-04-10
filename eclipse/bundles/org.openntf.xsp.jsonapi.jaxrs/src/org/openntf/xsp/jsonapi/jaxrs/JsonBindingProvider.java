@@ -117,8 +117,12 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 			
 			Jsonb jsonb = getJsonb(type);
 			
-			Object streamProp = application.getProperties().get(PROP_STREAM);
-			boolean stream = !"false".equals(streamProp); //$NON-NLS-1$
+			boolean stream = false;
+			Application app = this.application;
+			if(app != null) {
+				Object streamProp = app.getProperties().get(PROP_STREAM);
+				stream = !"false".equals(streamProp); //$NON-NLS-1$
+			}
 			
 			if(stream) {
 				JSONBindUtil.toJson(obj, jsonb, entityStream);
