@@ -72,6 +72,15 @@ public class RestClientBean {
 		return response.readEntity(JsonObject.class);
 	}
 	
+	public JsonExampleObject getExampleObjectViaClient() {
+		URI serviceUri = getServiceUri();
+		Client client = ClientBuilder.newBuilder().build();
+		WebTarget target = client.target(serviceUri);
+		Response response = target.request().get();
+		
+		return response.readEntity(JsonExampleObject.class);
+	}
+	
 	private URI getServiceUri() {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		HttpServletRequest request = (HttpServletRequest)facesContext.getExternalContext().getRequest();

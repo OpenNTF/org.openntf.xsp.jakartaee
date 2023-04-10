@@ -21,7 +21,14 @@ import java.security.PrivilegedAction;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
+import org.openntf.xsp.jakarta.concurrency.jndi.DelegatingManagedExecutorService;
+import org.openntf.xsp.jakarta.concurrency.jndi.DelegatingManagedScheduledExecutorService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -41,6 +48,15 @@ import lotus.domino.NotesThread;
  * @since 2.10.0
  */
 public class ConcurrencyActivator implements BundleActivator {
+	private static final Logger log = Logger.getLogger(ConcurrencyActivator.class.getPackage().getName());
+
+	public static final String ATTR_SCHEDULEDEXECUTORSERVICE = ConcurrencyActivator.class.getPackage().getName() + "_scheduledExec"; //$NON-NLS-1$
+
+	public static final String ATTR_EXECUTORSERVICE = ConcurrencyActivator.class.getPackage().getName() + "_exec"; //$NON-NLS-1$
+
+	public static final String JNDI_SCHEDULEDEXECUTORSERVICE = "java:comp/DefaultManagedScheduledExecutorService"; //$NON-NLS-1$
+
+	public static final String JNDI_EXECUTORSERVICE = "java:comp/DefaultManagedExecutorService"; //$NON-NLS-1$
 	
 	private ScheduledExecutorService executor;
 	private Class<?> mqClass;
@@ -70,6 +86,22 @@ public class ConcurrencyActivator implements BundleActivator {
 					ExecutorHolder.INSTANCE.termAll();
 				}
 			}, 0, 10, TimeUnit.SECONDS);
+		}
+		
+		InitialContext jndi = new InitialContext();
+		try {
+			jndi.rebind(ConcurrencyActivator.JNDI_EXECUTORSERVICE, new DelegatingManagedExecutorService());
+		} catch(NamingException e) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered exception binding ManagedExecutorService in JNDI", e);
+			}
+		}
+		try {
+			jndi.rebind(ConcurrencyActivator.JNDI_SCHEDULEDEXECUTORSERVICE, new DelegatingManagedScheduledExecutorService());
+		} catch(NamingException e) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered exception binding ManagedScheduledExecutorService in JNDI", e);
+			}
 		}
 	}
 

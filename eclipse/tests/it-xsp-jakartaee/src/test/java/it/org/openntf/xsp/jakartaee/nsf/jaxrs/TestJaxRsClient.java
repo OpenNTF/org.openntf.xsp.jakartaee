@@ -27,8 +27,10 @@ import org.openqa.selenium.WebDriver;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
@@ -62,5 +64,73 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 		Document doc = Jsoup.parse(html);
 		Element dd = doc.selectXpath("//div[@id='container']/span").get(0);
 		assertEquals("{\"foo\":\"bar\"}", dd.text());
+	}
+	
+	@Test
+	public void testJaxRsClientImplicitJson() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient/exampleObject");
+		Response response = target.request()
+				.header("Host", "localhost:80")
+				.get();
+		
+		JsonObject output = response.readEntity(JsonObject.class);
+		
+		assertEquals("bar", output.getString("foo", null), () -> "Received incorrect JSON: " + output);
+	}
+	
+	@Test
+	public void testEchoObject() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient/echoExampleObject");
+		JsonObject obj = Json.createObjectBuilder()
+			.add("foo", "Echo me")
+			.build();
+		Response response = target.request()
+				.header("Host", "localhost:80")
+				.post(Entity.json(obj));
+		
+		JsonObject output = response.readEntity(JsonObject.class);
+		
+		assertEquals("Echo me - return value", output.getString("foo", null), () -> "Received incorrect JSON: " + output);
+	}
+	
+	@Test
+	public void testAsyncSelfEcho() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient/roundTripEcho");
+		Response response = target.request()
+				.header("Host", "localhost:80")
+				.get();
+		
+		JsonObject output = response.readEntity(JsonObject.class);
+		
+		assertEquals("sending from async - return value", output.getString("foo", null), () -> "Received incorrect JSON: " + output);
+	}
+	
+	@Test
+	public void testAsyncSelfEchoAsync() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient/roundTripEchoAsync");
+		Response response = target.request()
+				.header("Host", "localhost:80")
+				.get();
+		
+		JsonObject output = response.readEntity(JsonObject.class);
+		
+		assertEquals("sending from async - return value", output.getString("foo", null), () -> "Received incorrect JSON: " + output);
+	}
+	
+	@Test
+	public void testAsyncSelfEchoDoubleAsync() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient/roundTripEchoDoubleAsync");
+		Response response = target.request()
+				.header("Host", "localhost:80")
+				.get();
+		
+		JsonObject output = response.readEntity(JsonObject.class);
+		
+		assertEquals("sending from async - return value", output.getString("foo", null), () -> "Received incorrect JSON: " + output);
 	}
 }
