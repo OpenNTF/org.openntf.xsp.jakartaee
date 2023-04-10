@@ -21,5 +21,5 @@ Import-Package: com.ibm.designer.runtime.domino.adapter,
  lotus.notes.internal,
  org.osgi.framework;version="1.8.0"
 Export-Package: org.openntf.xsp.jakarta.concurrency;version="2.11.0",
- org.openntf.xsp.jakarta.concurrency.nsf;version="2.11.0",
- org.openntf.xsp.jakarta.concurrency.servlet;version="2.11.0"
+ org.openntf.xsp.jakarta.concurrency.jndi;version="2.11.0",
+ org.openntf.xsp.jakarta.concurrency.nsf;version="2.11.0"
