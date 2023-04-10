@@ -77,4 +77,28 @@ public class TestConcurrency extends AbstractWebClientTest {
 		
 		assertTrue(output.contains("bean says: Hello from executor"), () -> "Received unexpected output: " + output);
 	}
+	
+	@Test
+	public void testAsyncLookup() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/concurrency/asyncLookup");
+		Response response = target.request().get();
+		
+		String output = response.readEntity(String.class);
+		
+		assertTrue(output.startsWith("I looked up: "), () -> "Received unexpected output: " + output);
+		assertTrue(output.contains("ManagedExecutorService"), () -> "Received unexpected output: " + output);
+	}
+	
+	@Test
+	public void testDoubleAsyncLookup() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/concurrency/doubleAsyncLookup");
+		Response response = target.request().get();
+		
+		String output = response.readEntity(String.class);
+		
+		assertTrue(output.startsWith("I looked up: "), () -> "Received unexpected output: " + output);
+		assertTrue(output.contains("ManagedExecutorService"), () -> "Received unexpected output: " + output);
+	}
 }
