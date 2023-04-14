@@ -116,10 +116,11 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			if(entityName == null || entityName.isEmpty()) {
 				entityName = typeClass.getSimpleName();
 			}
+			boolean distinct = viewDocuments.distinct();
 			
 			Class<?> returnType = method.getReturnType();
 			boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
-			Object result = template.viewDocumentQuery(entityName, viewDocuments.value(), pagination, sorts, viewDocuments.maxLevel(), viewQuery, singleResult);
+			Object result = template.viewDocumentQuery(entityName, viewDocuments.value(), pagination, sorts, viewDocuments.maxLevel(), viewQuery, singleResult, distinct);
 			return convert(result, method);
 		}
 		

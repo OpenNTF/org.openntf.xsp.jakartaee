@@ -36,6 +36,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -257,25 +258,37 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
 	 * @param didKey whether the navigator was created with {@link View#createViewNavFromKey(Vector, boolean)}
 	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
+	 * @param distinct whether the returned {@link Stream} should only contain distinct documents
 	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
 	 * @throws NotesException if there is a problem reading the view or documents
 	 */
-	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, boolean didSkip, boolean didKey, long limit, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, boolean didSkip, boolean didKey, long limit, boolean distinct, ClassMapping classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOLUMNVALUES | ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
 		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, true, didSkip, didKey);
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
+		
+		Set<String> unids = new HashSet<>();
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
+					if(distinct) {
+						String unid = entry.getUniversalID();
+						if(unids.contains(unid)) {
+							return null;
+						}
+						unids.add(unid);
+					}
+					
 					lotus.domino.Document doc = entry.getDocument();
 					List<Document> documents = convertDominoDocument(doc, classMapping, itemTypes);
 					return DocumentEntity.of(entityName, documents);
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
-			});
+			})
+			.filter(Objects::nonNull);
 		if(limit > 0) {
 			result = result.limit(limit);
 		}
@@ -293,16 +306,27 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
 	 * @param didKey whether the navigator was created with {@link View#createViewNavFromKey(Vector, boolean)}
 	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
+	 * @param distinct whether the returned {@link Stream} should only contain distinct documents
 	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
 	 * @throws NotesException if there is a problem reading the view or documents
 	 */
-	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewEntryCollection entries, boolean didSkip, boolean didKey, long limit, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewEntryCollection entries, boolean didSkip, boolean didKey, long limit, boolean distinct, ClassMapping classMapping) throws NotesException {
 		ViewEntryCollectionIterator iter = new ViewEntryCollectionIterator(entries, didSkip);
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
+		
+		Set<String> unids = new HashSet<>();
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
+					if(distinct) {
+						String unid = entry.getUniversalID();
+						if(unids.contains(unid)) {
+							return null;
+						}
+						unids.add(unid);
+					}
+					
 					lotus.domino.Document doc = entry.getDocument();
 					List<Document> documents = convertDominoDocument(doc, classMapping, itemTypes);
 					return DocumentEntity.of(entityName, documents);

@@ -32,6 +32,7 @@ import jakarta.nosql.mapping.Sorts;
 public interface PersonRepository extends DominoRepository<Person, String> {
 	String FOLDER_PERSONS = "Persons Folder";
 	String VIEW_PERSONS_CAT = "Persons Categorized";
+	String VIEW_PERSONS_CAT_DUP = "Persons Categorized Duplicated";
 	String VIEW_PERSONS = "Persons";
 	
 	Stream<Person> findAll();
@@ -52,4 +53,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	
 	@ViewDocuments(VIEW_PERSONS_CAT)
 	Stream<Person> findCategorized(ViewQuery viewQuery);
+	
+	@ViewDocuments(value=VIEW_PERSONS_CAT_DUP, distinct=true)
+	Stream<Person> findCategorizedDistinct(ViewQuery viewQuery);
 }

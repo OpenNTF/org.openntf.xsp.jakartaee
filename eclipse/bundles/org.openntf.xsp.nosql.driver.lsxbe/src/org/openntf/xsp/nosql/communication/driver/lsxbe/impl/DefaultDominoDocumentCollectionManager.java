@@ -326,7 +326,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	@SuppressWarnings("unchecked")
 	@Override
 	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination,
-			Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult) {
+			Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct) {
 		ClassMapping mapping = EntityUtil.getClassMapping(entityName);
 		
 		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
@@ -358,9 +358,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			(nav, limit, didSkip, didKey) -> {
 				try {
 					if(nav instanceof ViewNavigator) {
-						return entityConverter.convertViewDocuments(entityName, (ViewNavigator)nav, didSkip, didKey, limit, mapping);
+						return entityConverter.convertViewDocuments(entityName, (ViewNavigator)nav, didSkip, didKey, limit, distinct, mapping);
 					} else if(nav instanceof ViewEntryCollection) {
-						return entityConverter.convertViewDocuments(entityName, (ViewEntryCollection)nav, didSkip, didKey, limit, mapping);
+						return entityConverter.convertViewDocuments(entityName, (ViewEntryCollection)nav, didSkip, didKey, limit, distinct, mapping);
 					} else {
 						throw new IllegalStateException("Cannot process " + nav);
 					}
