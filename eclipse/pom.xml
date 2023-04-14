@@ -341,6 +341,7 @@
 						<exclude>**/DQL.java</exclude>
 						<exclude>**/odp/WebContent/WEB-INF/faces-config.xml</exclude>
 						<exclude>**/odp/plugin.xml</exclude>
+						<exclude>**/WeldDefaultProxyServices.java</exclude>
 					</excludes>
 					<properties>
 						<owner>Contributors to the XPages Jakarta EE Support Project</owner>
