@@ -60,10 +60,11 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @param viewQuery a {@link ViewQuery} object defining the behavior of a key-based view lookup,
 	 *                 or {@code null} to not query by key
 	 * @param singleResult whether a query performed by {@link ViewQuery} should return a single value
+	 * @param distinct whether the returned {@link Stream} should only contain distinct documents
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult);
+	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct);
 
 	/**
 	 * Adds the entity to the named folder, creating the folder if it doesn't
