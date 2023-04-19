@@ -151,6 +151,8 @@ The EL 4 handler is currently stricter about null values than the default handle
 
 In standard XPages, this will result in an empty output. With the EL 4 resolver, however, this will cause an exception like `ELResolver cannot handle a null base Object with identifier 'beanThatDoesNotExist'`. I'm considering changing this behavior to match the XPages default, but there's also some value in the strictness, especially because the exception is helpful in referencing the object it's trying to resolve against, which could help track down subtle bugs.
 
+Additionally, if you use Server JavaScript bindings inside a theme (e.g. `rendered="${javascript:...}"`), the resolver will complain on the server console if there is whitespace immediately following `javascript:`.
+
 ## Servlets
 
 This project adds support for specifying Servlets in an NSF using the `@WebServlet` annotation. For example:
