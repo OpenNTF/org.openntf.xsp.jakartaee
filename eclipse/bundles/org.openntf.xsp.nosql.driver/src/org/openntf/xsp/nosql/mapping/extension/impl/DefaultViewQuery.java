@@ -15,6 +15,14 @@
  */
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.openntf.xsp.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 /**
@@ -27,6 +35,14 @@ public class DefaultViewQuery implements ViewQuery {
 	private String category;
 	private Object viewKey;
 	private boolean exact = false;
+	/**
+	 * @since 2.11.0
+	 */
+	private List<String> ftSearch;
+	/**
+	 * @since 2.11.0
+	 */
+	private Collection<FTSearchOption> ftSearchOptions;
 
 	@Override
 	public ViewQuery category(String category) {
@@ -54,6 +70,36 @@ public class DefaultViewQuery implements ViewQuery {
 	@Override
 	public boolean isExact() {
 		return exact;
+	}
+	
+	@Override
+	public ViewQuery ftSearch(String query, Collection<FTSearchOption> options) {
+		return ftSearch(query == null || query.isEmpty() ? null : Collections.singletonList(query), options);
+	}
+	
+	@Override
+	public ViewQuery ftSearch(Collection<String> queries, Collection<FTSearchOption> options) {
+		this.ftSearch = queries == null ? null : new ArrayList<>(queries);
+		this.ftSearchOptions = options == null ? null : EnumSet.copyOf(options);
+		return this;
+	}
+	
+	@Override
+	public List<String> getFtSearch() {
+		List<String> ftSearch = this.ftSearch;
+		if(ftSearch == null || ftSearch.isEmpty()) {
+			return Collections.emptyList();
+		} else {
+			return ftSearch.stream()
+				.filter(search -> search != null && !search.isEmpty())
+				.collect(Collectors.toList());
+		}
+	}
+	
+	@Override
+	public Collection<FTSearchOption> getFtSearchOptions() {
+		Collection<FTSearchOption> options = this.ftSearchOptions;
+		return options == null ? EnumSet.noneOf(FTSearchOption.class) : EnumSet.copyOf(this.ftSearchOptions);
 	}
 
 }

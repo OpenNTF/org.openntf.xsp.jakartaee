@@ -18,6 +18,8 @@ package org.openntf.xsp.jaxrs.exceptions.handler;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jakarta.annotation.Priority;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +37,7 @@ import jakarta.ws.rs.core.StreamingOutput;
  */
 @Priority(RestExceptionHandler.DEFAULT_PRIORITY)
 public class TextPlainExceptionHandler implements RestExceptionHandler {
+	private static final Logger log = Logger.getLogger(TextPlainExceptionHandler.class.getName());
 
 	@Override
 	public boolean canHandle(ResourceInfo resourceInfo, MediaType mediaType) {
@@ -48,6 +51,12 @@ public class TextPlainExceptionHandler implements RestExceptionHandler {
 			.entity((StreamingOutput)out -> {
 				try(PrintWriter w = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
 					throwable.printStackTrace(w);
+				} catch(Throwable t) {
+					if(log.isLoggable(Level.SEVERE)) {
+						log.log(Level.SEVERE, "Encountered exception writing text exception output", t);
+						log.log(Level.SEVERE, "Original exception", throwable);
+					}
+					throw t;
 				}
 			})
 			.build();

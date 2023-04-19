@@ -36,6 +36,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.LoaderObjectInputStream;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewEntryCollectionIterator;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
 import org.openntf.xsp.nosql.mapping.extension.EntryType;
@@ -113,7 +115,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 */
 	public Stream<DocumentEntity> convertQRPViewDocuments(Database database, View docs, ClassMapping classMapping) throws NotesException {
 		ViewNavigator nav = docs.createViewNav();
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, false, false);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, false, false, false);
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
 		return iter.stream()
 			.map(entry -> {
@@ -147,13 +149,14 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @param entityName the name of the target entity
 	 * @param nav the {@link ViewNavigator} to traverse
 	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
+	 * @param didKey whether the navigator was created with {@link View#createViewNavFromKey(Vector, boolean)}
 	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
 	 * @param docsOnly whether to restrict processing to document entries only
 	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
 	 * @throws NotesException if there is a problem reading the view
 	 */
-	public Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, boolean didSkip, long limit, boolean docsOnly, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convertViewEntries(String entityName, ViewNavigator nav, boolean didSkip, boolean didKey, long limit, boolean docsOnly, ClassMapping classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
 		// Read in the column names
@@ -177,7 +180,61 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				f -> f.getNativeField().getType()
 			));
 		
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, docsOnly, didSkip);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, docsOnly, didSkip, didKey);
+		Stream<DocumentEntity> result = iter.stream()
+			.map(entry -> {
+				try {
+					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes);
+				} catch(NotesException e) {
+					throw new RuntimeException(e);
+				}
+			});
+		if(limit > 0) {
+			result = result.limit(limit);
+		}
+		return result;
+	}
+	
+	/**
+	 * Converts the entries in the provided {@link ViewEntryCollection} into NoSQL document entities
+	 * based on their column values.
+	 * 
+	 * <p>This method is intended to be used when {@code view} has been FT-searched.</p>
+	 * 
+	 * @param entityName the name of the target entity
+	 * @param entries the {@link ViewEntryCollection} to traverse
+	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
+	 * @param didKey whether the navigator was created with {@link View#createViewNavFromKey(Vector, boolean)}
+	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
+	 * @param docsOnly whether to restrict processing to document entries only
+	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
+	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
+	 * @throws NotesException if there is a problem reading the view
+	 */
+	public Stream<DocumentEntity> convertViewEntries(String entityName, ViewEntryCollection entries, boolean didSkip, boolean didKey, long limit, boolean docsOnly, ClassMapping classMapping) throws NotesException {
+		View view = entries.getParent();
+		
+		// Read in the column names
+		@SuppressWarnings("unchecked")
+		Vector<ViewColumn> columns = view.getColumns();
+		List<String> columnNames = new ArrayList<>();
+		List<String> columnFormulas = new ArrayList<>();
+		for(ViewColumn col : columns) {
+			if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
+				columnNames.add(col.getItemName());
+				columnFormulas.add(col.getFormula());
+			}
+		}
+		view.recycle(columns);
+		
+		Map<String, Class<?>> itemTypes = classMapping == null ? null : classMapping.getFields()
+			.stream()
+			.collect(Collectors.toMap(
+				f -> f.getName(),
+				f -> f.getNativeField().getType()
+			));
+		
+		ViewEntryCollectionIterator iter = new ViewEntryCollectionIterator(entries, didSkip);
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
@@ -199,19 +256,77 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @param entityName the name of the target entity
 	 * @param nav the {@link ViewNavigator} to traverse
 	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
+	 * @param didKey whether the navigator was created with {@link View#createViewNavFromKey(Vector, boolean)}
 	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
+	 * @param distinct whether the returned {@link Stream} should only contain distinct documents
 	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
 	 * @throws NotesException if there is a problem reading the view or documents
 	 */
-	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, boolean didSkip, long limit, ClassMapping classMapping) throws NotesException {
+	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewNavigator nav, boolean didSkip, boolean didKey, long limit, boolean distinct, ClassMapping classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOLUMNVALUES | ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 		
-		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, true, didSkip);
+		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, true, didSkip, didKey);
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
+		
+		Set<String> unids = new HashSet<>();
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
+					if(distinct) {
+						String unid = entry.getUniversalID();
+						if(unids.contains(unid)) {
+							return null;
+						}
+						unids.add(unid);
+					}
+					
+					lotus.domino.Document doc = entry.getDocument();
+					List<Document> documents = convertDominoDocument(doc, classMapping, itemTypes);
+					return DocumentEntity.of(entityName, documents);
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
+				}
+			})
+			.filter(Objects::nonNull);
+		if(limit > 0) {
+			result = result.limit(limit);
+		}
+		return result;
+	}
+	
+	/**
+	 * Converts the document entries in the provided {@link ViewEntryCollection} to NoSQL documents
+	 * based on their backing {@link Document} objects.
+	 * 
+	 * <p>This method is intended to be used when {@code view} has been FT-searched.</p>
+	 * 
+	 * @param entityName the name of the target entity
+	 * @param entries the {@link ViewEntryCollection} to traverse
+	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
+	 * @param didKey whether the navigator was created with {@link View#createViewNavFromKey(Vector, boolean)}
+	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
+	 * @param distinct whether the returned {@link Stream} should only contain distinct documents
+	 * @param classMapping the {@link ClassMapping} instance for the target entity; may be {@code null}
+	 * @return a {@link Stream} of NoSQL {@link DocumentEntity} objects
+	 * @throws NotesException if there is a problem reading the view or documents
+	 */
+	public Stream<DocumentEntity> convertViewDocuments(String entityName, ViewEntryCollection entries, boolean didSkip, boolean didKey, long limit, boolean distinct, ClassMapping classMapping) throws NotesException {
+		ViewEntryCollectionIterator iter = new ViewEntryCollectionIterator(entries, didSkip);
+		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
+		
+		Set<String> unids = new HashSet<>();
+		Stream<DocumentEntity> result = iter.stream()
+			.map(entry -> {
+				try {
+					if(distinct) {
+						String unid = entry.getUniversalID();
+						if(unids.contains(unid)) {
+							return null;
+						}
+						unids.add(unid);
+					}
+					
 					lotus.domino.Document doc = entry.getDocument();
 					List<Document> documents = convertDominoDocument(doc, classMapping, itemTypes);
 					return DocumentEntity.of(entityName, documents);
@@ -304,11 +419,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				String itemName = columnNames.get(i);
 				Object value = columnValues.get(i);
 				
-				// Check to see if we have a matching time-based field and strip empty strings,
-				//   since JNoSQL will otherwise try to parse them and will throw an exception
+				// Check to see if we have a matching time-based or number-based field and strip
+				//   empty strings, since JNoSQL will otherwise try to parse them and will throw
+				//   an exception
 				if(itemTypes != null) {
 					Class<?> itemType = itemTypes.get(itemName);
-					if(itemType != null && TemporalAccessor.class.isAssignableFrom(itemType)) {
+					if(isParsedType(itemType)) {
 						if(value instanceof String && ((String)value).isEmpty()) {
 							// Then skip the field
 							continue;
@@ -894,5 +1010,32 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Determines whether the provided NoSQL entity property type is likely
+	 * to be parsed when provided as a string. This allows reading code
+	 * to avoid emitting empty strings that will throw exceptions down the
+	 * line.
+	 * 
+	 * @param type the type to check
+	 * @return whether the type is likely to be parsed as a string, such as
+	 *         a temporal or numeric value
+	 * @since 2.11.0
+	 */
+	private boolean isParsedType(Class<?> type) {
+		if(type == null) {
+			return false;
+		}
+		if(TemporalAccessor.class.isAssignableFrom(type)) {
+			return true;
+		}
+		if(Number.class.isAssignableFrom(type)) {
+			return true;
+		}
+		if(type.isPrimitive()) {
+			return true;
+		}
+		return false;
 	}
 }

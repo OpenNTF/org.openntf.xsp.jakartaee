@@ -29,7 +29,6 @@ import org.glassfish.enterprise.concurrent.ContextServiceImpl;
 import org.glassfish.enterprise.concurrent.ManagedExecutorServiceImpl;
 import org.glassfish.enterprise.concurrent.ManagedScheduledExecutorServiceImpl;
 import org.glassfish.enterprise.concurrent.spi.ContextSetupProvider;
-import org.openntf.xsp.jakarta.concurrency.servlet.ConcurrencyRequestListener;
 
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
@@ -77,9 +76,7 @@ public abstract class AbstractServletConcurrencyContainer {
 	 *        and default value, and return a context-specific config value
 	 */
 	public void initializeConcurrencyContainer(BiFunction<String, String, String> configFetcher) {
-		getServletContext().ifPresent(ctx -> {
-			ctx.addListener(new ConcurrencyRequestListener());
-			
+		getServletContext().ifPresent(ctx -> {			
 			ContextSetupProvider provider = new DominoContextSetupProvider();
 			
 			String name = ctx.getServletContextName();
@@ -114,7 +111,7 @@ public abstract class AbstractServletConcurrencyContainer {
 				contextService,
 				rejectPolicy
 			);
-			ctx.setAttribute(ConcurrencyRequestListener.ATTR_EXECUTORSERVICE, exec);
+			ctx.setAttribute(ConcurrencyActivator.ATTR_EXECUTORSERVICE, exec);
 			ExecutorHolder.INSTANCE.register(exec);
 			
 			ManagedScheduledExecutorService scheduledExec = new ManagedScheduledExecutorServiceImpl(
@@ -129,14 +126,14 @@ public abstract class AbstractServletConcurrencyContainer {
 				contextService,
 				rejectPolicy
 			);
-			ctx.setAttribute(ConcurrencyRequestListener.ATTR_SCHEDULEDEXECUTORSERVICE, scheduledExec);
+			ctx.setAttribute(ConcurrencyActivator.ATTR_SCHEDULEDEXECUTORSERVICE, scheduledExec);
 			ExecutorHolder.INSTANCE.register(scheduledExec);
 		});
 	}
 	
 	public void terminateConcurrencyContainer() {
 		getServletContext().ifPresent(ctx -> {
-			ManagedExecutorService exec = (ManagedExecutorService)ctx.getAttribute(ConcurrencyRequestListener.ATTR_EXECUTORSERVICE);
+			ManagedExecutorService exec = (ManagedExecutorService)ctx.getAttribute(ConcurrencyActivator.ATTR_EXECUTORSERVICE);
 			if(exec != null) {
 				try {
 					exec.shutdownNow();
@@ -149,7 +146,7 @@ public abstract class AbstractServletConcurrencyContainer {
 				ExecutorHolder.INSTANCE.unregister(exec);
 			}
 			
-			ManagedScheduledExecutorService scheduledExec = (ManagedScheduledExecutorService)ctx.getAttribute(ConcurrencyRequestListener.ATTR_SCHEDULEDEXECUTORSERVICE);
+			ManagedScheduledExecutorService scheduledExec = (ManagedScheduledExecutorService)ctx.getAttribute(ConcurrencyActivator.ATTR_SCHEDULEDEXECUTORSERVICE);
 			if(scheduledExec != null) {
 				try {
 					scheduledExec.shutdownNow();

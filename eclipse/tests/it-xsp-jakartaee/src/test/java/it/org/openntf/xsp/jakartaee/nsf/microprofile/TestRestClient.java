@@ -17,6 +17,7 @@ package it.org.openntf.xsp.jakartaee.nsf.microprofile;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringReader;
 
@@ -58,6 +59,22 @@ public class TestRestClient extends AbstractWebClientTest {
 		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 		JsonObject responseObj = jsonObject.getJsonObject("response");
 		assertNotNull(responseObj, () -> json);
+		assertEquals("bar", responseObj.getString("foo"), () -> json);
+	}
+	
+	@Test
+	public void testJaxRsRestClient() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/restClient/jaxRsClient");
+		Response response = target.request()
+			.header("Host", "localhost:80")
+			.get();
+		
+		String json = response.readEntity(String.class);
+		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+		assertTrue(jsonObject.containsKey("response"), () -> json);
+		JsonObject responseObj = jsonObject.getJsonObject("response");
+		assertTrue(responseObj.containsKey("foo"), () -> json);
 		assertEquals("bar", responseObj.getString("foo"), () -> json);
 	}
 }

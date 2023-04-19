@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.Platform;
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
@@ -109,6 +110,20 @@ public enum LibraryUtil {
 			.sorted(DescendingPriorityComparator.INSTANCE)
 			.filter(ComponentEnabledLocator::isActive)
 			.anyMatch(locator -> locator.isComponentEnabled(libraryId));
+	}
+	
+	/**
+	 * Attempts to determine whether all of the given XPages Libraries are
+	 * active for the current application.
+	 * 
+	 * @param libraryIds the library IDs to check
+	 * @return {@code true} if all libraries are active; {@code false} if any
+	 *         of them are not or if the context application cannot be
+	 *         identified
+	 * @since 2.11.0
+	 */
+	public static boolean isLibraryActive(String... libraryIds) {
+		return Stream.of(libraryIds).allMatch(LibraryUtil::isLibraryActive);
 	}
 	
 	/**

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.openntf.xsp</groupId>
 		<artifactId>xsp-jakartaee</artifactId>
-		<version>2.10.0</version>
+		<version>2.11.0</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>it-xsp-jakartaee</artifactId>
@@ -15,6 +15,30 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>nsf-jakartaee-example</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaee-bundle-example</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaee-bundlebase-example</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaee-jsonbconfig-example</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaee-jpa-example</artifactId>
 			<version>${project.version}</version>
 			<type>nsf</type>
 		</dependency>
@@ -73,13 +97,19 @@
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
-			<version>1.17.3</version>
+			<version>1.17.6</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>1.17.6</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>1.17.3</version>
+			<version>1.17.6</version>
 			<scope>test</scope>
 		</dependency>
 		
@@ -123,6 +153,12 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.11.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.5.4</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

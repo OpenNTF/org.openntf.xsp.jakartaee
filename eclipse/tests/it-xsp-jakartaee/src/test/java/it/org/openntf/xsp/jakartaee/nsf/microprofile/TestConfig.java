@@ -46,4 +46,16 @@ public class TestConfig extends AbstractWebClientTest {
 		assertEquals("/local/notesdata", jsonObject.getString("Directory"));
 		assertEquals("foo", jsonObject.getString("mpconfig.example.setting"));
 	}
+	
+	@Test
+	public void testConfigNsfSources() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null) + "/config");
+		Response response = target.request().get();
+		
+		String json = response.readEntity(String.class);
+		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+		assertEquals("I am the example value", jsonObject.getString("ExampleConfig"));
+		assertEquals("I am the example value from a provided source", jsonObject.getString("ExampleProvidedConfig"));
+	}
 }

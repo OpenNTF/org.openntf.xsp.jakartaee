@@ -45,4 +45,12 @@ public @interface ViewDocuments {
 	 * @return the maximum entry level to process
 	 */
 	int maxLevel() default -1;
+	
+	/**
+	 * @return whether only distinct documents should
+	 *         be returned, regardless of how often they
+	 *         appear in the view
+	 * @since 2.11.0
+	 */
+	boolean distinct() default false;
 }

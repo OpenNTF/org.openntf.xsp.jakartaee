@@ -17,18 +17,24 @@ package org.openntf.xsp.microprofile.openapi;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 
 public class OpenAPIResourceContributor implements JAXRSClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {
-		return Arrays.asList(
-			OpenAPIResource.class,
-			OpenAPIJSONResource.class,
-			OpenAPIYAMLResource.class
-		);
+		if(LibraryUtil.isLibraryActive("org.openntf.xsp.microprofile.config")) { //$NON-NLS-1$
+			return Arrays.asList(
+				OpenAPIResource.class,
+				OpenAPIJSONResource.class,
+				OpenAPIYAMLResource.class
+			);
+		} else {
+			return Collections.emptySet();
+		}
 	}
 
 }

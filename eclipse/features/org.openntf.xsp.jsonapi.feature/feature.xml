@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jsonapi.feature"
       label="XPages JSON-P 2.0 and JSON-B 2.0 Support Feature"
-      version="2.10.0.qualifier">
+      version="2.11.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -239,6 +239,7 @@
 
 	<plugin id="org.openntf.xsp.jsonapi" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jsonapi.jaxrs" version="0.0.0" fragment="true" unpack="false"/>
+	<plugin id="org.openntf.xsp.jsonapi.cdi" version="0.0.0" unpack="false"/>
 	
 	<plugin id="org.openntf.org.eclipse.yasson" version="0.0.0" unpack="false"/>
 	

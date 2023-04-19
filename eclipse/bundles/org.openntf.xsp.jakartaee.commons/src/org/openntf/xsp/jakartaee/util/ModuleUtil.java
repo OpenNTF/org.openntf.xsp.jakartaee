@@ -20,6 +20,7 @@ import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 
 import java.text.MessageFormat;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -79,10 +80,12 @@ public enum ModuleUtil {
 			.map(name -> {
 				try {
 					return cl.loadClass(name);
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException("Encountered exception loading class " + name, e);
+				} catch (Throwable e) {
+					log.log(Level.SEVERE, MessageFormat.format("Encountered exception loading class {0}", name), e);
+					return (Class<?>)null;
 				}
-			});
+			})
+			.filter(Objects::nonNull);
 	}
 
 }

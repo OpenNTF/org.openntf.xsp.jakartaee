@@ -79,6 +79,14 @@ public abstract class AbstractWebClientTest {
 		return "/dev/jeebasebundle.nsf";
 	}
 	
+	public String getJsonbExampleContextPath() {
+		return "/dev/jsonbconfig.nsf";
+	}
+	
+	public String getJpaExampleContextPath() {
+		return "/dev/jpa.nsf";
+	}
+	
 	public String getWebappContextPath() {
 		return "/jeeExample";
 	}
@@ -133,6 +141,36 @@ public abstract class AbstractWebClientTest {
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
+	public String getJsonbConfigRootUrl(WebDriver driver) {
+		String host;
+		int port;
+		if(driver instanceof RemoteWebDriver) {
+			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
+			port = 80;
+		} else {
+			host = JakartaTestContainers.instance.domino.getHost();
+			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+		}
+		
+		String context = getJsonbExampleContextPath();
+		return PathUtil.concat("http://" + host + ":" + port, context, '/');
+	}
+	
+	public String getJpaExampleRootUrl(WebDriver driver) {
+		String host;
+		int port;
+		if(driver instanceof RemoteWebDriver) {
+			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
+			port = 80;
+		} else {
+			host = JakartaTestContainers.instance.domino.getHost();
+			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+		}
+		
+		String context = getJpaExampleContextPath();
+		return PathUtil.concat("http://" + host + ":" + port, context, '/');
+	}
+	
 	public String getWebappRootUrl(WebDriver driver) {
 		String host;
 		int port;
@@ -165,6 +203,16 @@ public abstract class AbstractWebClientTest {
 	
 	public String getBundleNsfRestUrl(WebDriver driver) {
 		String root = getBundleNsfRootUrl(driver);
+		return PathUtil.concat(root, "xsp/app", '/');
+	}
+	
+	public String getJsonbConfigRestUrl(WebDriver driver) {
+		String root = getJsonbConfigRootUrl(null);
+		return PathUtil.concat(root, "xsp/app", '/');
+	}
+	
+	public String getJpaExampleRestUrl(WebDriver driver) {
+		String root = getJpaExampleRootUrl(null);
 		return PathUtil.concat(root, "xsp/app", '/');
 	}
 	

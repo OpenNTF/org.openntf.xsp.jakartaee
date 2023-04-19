@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.InvocationContext;
 import jakarta.transaction.SystemException;
 import jakarta.transaction.TransactionManager;

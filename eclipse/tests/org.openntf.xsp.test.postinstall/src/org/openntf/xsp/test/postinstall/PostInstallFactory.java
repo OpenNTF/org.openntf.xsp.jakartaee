@@ -38,7 +38,9 @@ public class PostInstallFactory implements IServiceFactory {
 	public static final String[] NSFS = {
 		"dev/jakartaee.nsf",
 		"dev/jeebundle.nsf",
-		"dev/jeebasebundle.nsf"
+		"dev/jeebasebundle.nsf",
+		"dev/jsonbconfig.nsf",
+		"dev/jpa.nsf"
 	};
 
 	@Override

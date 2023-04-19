@@ -21,6 +21,9 @@ import java.util.EventListener;
 import java.util.List;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpServletResponse;
+import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
+import com.ibm.domino.xsp.bridge.http.servlet.XspCmdHttpServletResponse;
 
 import jakarta.servlet.ServletContextAttributeListener;
 import jakarta.servlet.ServletContextEvent;
@@ -378,6 +381,28 @@ public enum ServletUtil {
 	 * @since 2.9.0 
 	 */
 	public static void close(HttpServletResponse resp) {
+		// Special handling for wrapped XSP responses
+		if(resp instanceof OldHttpServletResponseWrapper) {
+			javax.servlet.http.HttpServletResponse old = newToOld(resp);
+			if(old instanceof LCDAdapterHttpServletResponse) {
+				HttpServletResponseAdapter delegate = ((LCDAdapterHttpServletResponse)old).getDelegate();
+				if(delegate instanceof XspCmdHttpServletResponse) {
+					XspCmdHttpServletResponse xspResp = (XspCmdHttpServletResponse)delegate;
+					try {
+						if(xspResp.writerInUse()) {
+							xspResp.getWriter().flush();
+						} else if(xspResp.outputStreamInUse()) {
+							xspResp.getOutputStream().flush();
+						}
+						xspResp.flushBuffer();
+					} catch(IOException e) {
+						// Ignore - nothing to do here
+					}
+					return;
+				}
+			}
+		}
+		
 		// NB: resp.flushBuffer() is insufficient here
 		try {
 			resp.getWriter().flush();
@@ -399,5 +424,31 @@ public enum ServletUtil {
 		} catch (IOException e) {
 			// No need to propagate this
 		}
+	}
+	
+	/**
+	 * Attempts to determine whether the provided {@link Throwable}'s root
+	 * cause is a closed connection from a browser, which usually manifests
+	 * as an {@code XspCmdException} with a blank internal error message.
+	 * 
+	 * @param t the throwable to check
+	 * @return {@code true} if the exception can be safely squelched as
+	 *         normal browser behavior; {@code false} otherwise
+	 * @since 2.11.0
+	 */
+	public static boolean isClosedConnection(Throwable t) {
+		Throwable cause = t;
+		while(cause.getCause() != null) {
+			cause = cause.getCause();
+		}
+		
+		// Avoid an explicit import on the jvm/lib/ext class
+		if("com.ibm.domino.xsp.bridge.http.exception.XspCmdException".equals(cause.getClass().getName())) { //$NON-NLS-1$
+			if("HTTP: Internal error:".equals(String.valueOf(cause.getMessage().trim()))) { //$NON-NLS-1$
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

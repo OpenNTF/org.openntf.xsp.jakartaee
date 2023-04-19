@@ -216,6 +216,22 @@
 				"title": "XPages JEE Bundle Example",
 				"templatePath": "/local/runner/jeebasebundle.ntf",
 				"signUsingAdminp": true
+			},
+    
+			{
+				"action": "create",
+				"filePath": "dev/jsonbconfig.nsf",
+				"title": "XPages JEE JsonbConfig Example",
+				"templatePath": "/local/runner/jsonbconfig.ntf",
+				"signUsingAdminp": true
+			},
+    
+			{
+				"action": "create",
+				"filePath": "dev/jpa.nsf",
+				"title": "XPages JEE JPA Example",
+				"templatePath": "/local/runner/jpa.ntf",
+				"signUsingAdminp": true
 			}
 		]
 	}

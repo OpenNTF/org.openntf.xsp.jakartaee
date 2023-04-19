@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jakarta.annotation.Priority;
 import jakarta.json.Json;
@@ -48,6 +50,8 @@ import lotus.domino.NotesException;
 @Priority(RestExceptionHandler.DEFAULT_PRIORITY)
 public class JsonExceptionHandler implements RestExceptionHandler {
 	public static final JsonExceptionHandler DEFAULT = new JsonExceptionHandler();
+	
+	private static final Logger log = Logger.getLogger(JsonExceptionHandler.class.getName());
 
 	@Override
 	public boolean canHandle(ResourceInfo resourceInfo, MediaType mediaType) {
@@ -59,51 +63,59 @@ public class JsonExceptionHandler implements RestExceptionHandler {
 		return Response.status(status)
 			.type(MediaType.APPLICATION_JSON_TYPE)
 			.entity((StreamingOutput)out -> {
-				Objects.requireNonNull(out);
-				String message = ""; //$NON-NLS-1$
-				Throwable t = throwable;
-				while ((message == null || message.length() == 0) && t != null) {
-					if (t instanceof NotesException) {
-						message = ((NotesException) t).text;
-					} else if (t instanceof ConstraintViolationException) {
-						message = t.getMessage();
-
-						if (message == null || message.isEmpty()) {
-							List<String> cvMsgList = new ArrayList<>();
-							for (@SuppressWarnings("rawtypes")
-							ConstraintViolation cv : ((ConstraintViolationException) t).getConstraintViolations()) {
-								String cvMsg = cv.getPropertyPath() + ": " + cv.getMessage(); //$NON-NLS-1$
-								cvMsgList.add(cvMsg);
+				try {
+					Objects.requireNonNull(out);
+					String message = ""; //$NON-NLS-1$
+					Throwable t = throwable;
+					while ((message == null || message.length() == 0) && t != null) {
+						if (t instanceof NotesException) {
+							message = ((NotesException) t).text;
+						} else if (t instanceof ConstraintViolationException) {
+							message = t.getMessage();
+	
+							if (message == null || message.isEmpty()) {
+								List<String> cvMsgList = new ArrayList<>();
+								for (@SuppressWarnings("rawtypes")
+								ConstraintViolation cv : ((ConstraintViolationException) t).getConstraintViolations()) {
+									String cvMsg = cv.getPropertyPath() + ": " + cv.getMessage(); //$NON-NLS-1$
+									cvMsgList.add(cvMsg);
+								}
+								message = String.join(",", cvMsgList); //$NON-NLS-1$
 							}
-							message = String.join(",", cvMsgList); //$NON-NLS-1$
+						} else {
+							message = t.getMessage();
 						}
-					} else {
-						message = t.getMessage();
+	
+						t = t.getCause();
 					}
-
-					t = t.getCause();
-				}
-				
-				JsonGeneratorFactory jsonFac = Json.createGeneratorFactory(Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
-				try(JsonGenerator json = jsonFac.createGenerator(out)) {
-					json.writeStartObject();
 					
-					json.write("message", throwable.getClass().getName() + ": " + message); //$NON-NLS-1$ //$NON-NLS-2$
-					
-					json.writeKey("stackTrace"); //$NON-NLS-1$
-					json.writeStartArray();
-					for (Throwable cause = throwable; cause != null; cause = cause.getCause()) {
+					JsonGeneratorFactory jsonFac = Json.createGeneratorFactory(Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
+					try(JsonGenerator json = jsonFac.createGenerator(out)) {
+						json.writeStartObject();
+						
+						json.write("message", throwable.getClass().getName() + ": " + message); //$NON-NLS-1$ //$NON-NLS-2$
+						
+						json.writeKey("stackTrace"); //$NON-NLS-1$
 						json.writeStartArray();
-						json.write(cause.getClass().getName() + ": " + cause.getLocalizedMessage()); //$NON-NLS-1$
-						Arrays.stream(cause.getStackTrace())
-							.map(String::valueOf)
-							.map(line -> "  at " + line) //$NON-NLS-1$
-							.forEach(json::write);
+						for (Throwable cause = throwable; cause != null; cause = cause.getCause()) {
+							json.writeStartArray();
+							json.write(cause.getClass().getName() + ": " + cause.getLocalizedMessage()); //$NON-NLS-1$
+							Arrays.stream(cause.getStackTrace())
+								.map(String::valueOf)
+								.map(line -> "  at " + line) //$NON-NLS-1$
+								.forEach(json::write);
+							json.writeEnd();
+						}
+						json.writeEnd();
+						
 						json.writeEnd();
 					}
-					json.writeEnd();
-					
-					json.writeEnd();
+				} catch(Throwable t) {
+					if(log.isLoggable(Level.SEVERE)) {
+						log.log(Level.SEVERE, "Encountered exception writing JSON exception output", t);
+						log.log(Level.SEVERE, "Original exception", throwable);
+					}
+					throw t;
 				}
 			})
 			.build();

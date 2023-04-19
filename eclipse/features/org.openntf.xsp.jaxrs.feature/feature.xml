@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jaxrs.feature"
       label="XPages JAX-RS 3.0 Support Feature"
-      version="2.10.0.qualifier">
+      version="2.11.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -265,8 +265,8 @@
 	<plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="0.0.0" unpack="false"/>
 	<plugin id="org.yaml.snakeyaml" version="0.0.0" unpack="false"/>
 	<plugin id="io.smallrye.jandex" version="0.0.0" unpack="false"/>
-	<plugin id="com.ibm.async.util" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.com.ibm.async.util" version="0.0.0" unpack="false"/>
 	
-	<plugin id="org.eclipse.microprofile.metrics" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.microprofile.metrics" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.io.smallrye.metrics" version="0.0.0" unpack="false"/>
 </feature>

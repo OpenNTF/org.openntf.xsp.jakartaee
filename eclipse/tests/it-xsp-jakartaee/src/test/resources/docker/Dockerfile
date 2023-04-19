@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-FROM hclcom/domino:latest
+FROM hclcom/domino:12.0.2
 
 RUN mkdir -p /local/runner \
 	&& mkdir -p /local/eclipse/eclipse/plugins
@@ -23,6 +23,7 @@ COPY --chown=notes:notes staging/domino-config.json /local/runner/
 COPY --chown=notes:notes staging/JavaOptionsFile.txt /local/
 COPY --chown=notes:notes staging/container.link /opt/hcl/domino/notes/latest/linux/osgi/rcp/eclipse/links/container.link
 COPY --chown=notes:notes staging/.java.policy /home/notes/.java.policy
+COPY --chown=notes:notes staging/postgresql.jar /opt/hcl/domino/notes/latest/linux/ndext
 
 COPY --chown=notes:notes staging/ntf/* /local/runner/
 COPY --chown=notes:notes staging/plugins/* /local/eclipse/eclipse/plugins/

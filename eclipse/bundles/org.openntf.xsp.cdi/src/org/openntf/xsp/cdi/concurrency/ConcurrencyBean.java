@@ -17,7 +17,9 @@ package org.openntf.xsp.cdi.concurrency;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import org.openntf.xsp.jakarta.concurrency.servlet.ConcurrencyRequestListener;
+
+import org.openntf.xsp.jakarta.concurrency.ConcurrencyActivator;
+
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -34,19 +36,19 @@ import jakarta.inject.Named;
 @ApplicationScoped
 public class ConcurrencyBean {
 
-	@Produces @Named(ConcurrencyRequestListener.JNDI_EXECUTORSERVICE)
+	@Produces @Named(ConcurrencyActivator.JNDI_EXECUTORSERVICE)
 	public ManagedExecutorService produceExecutorService() {
 		try {
-			return InitialContext.doLookup(ConcurrencyRequestListener.JNDI_EXECUTORSERVICE);
+			return InitialContext.doLookup(ConcurrencyActivator.JNDI_EXECUTORSERVICE);
 		} catch (NamingException e) {
 			throw new RuntimeException("Encountered exception looking up ManagedExecutorService");
 		}
 	}
 	
-	@Produces @Named(ConcurrencyRequestListener.JNDI_SCHEDULEDEXECUTORSERVICE)
+	@Produces @Named(ConcurrencyActivator.JNDI_SCHEDULEDEXECUTORSERVICE)
 	public ManagedScheduledExecutorService produceScheduledExecutorService() {
 		try {
-			return InitialContext.doLookup(ConcurrencyRequestListener.JNDI_SCHEDULEDEXECUTORSERVICE);
+			return InitialContext.doLookup(ConcurrencyActivator.JNDI_SCHEDULEDEXECUTORSERVICE);
 		} catch (NamingException e) {
 			throw new RuntimeException("Encountered exception looking up ManagedExecutorService");
 		}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.0" replicaid="852589710056456E" version="12.0">
+<noteinfo noteid="176" sequence="11" unid="6532B94FECD70D07852589710059CB30">
+<created><datetime dst="true">20230313T122047,20-04</datetime></created>
+<modified><datetime dst="true">20230313T122131,83-04</datetime></modified>
+<revised><datetime dst="true">20230313T122131,82-04</datetime></revised>
+<lastaccessed><datetime dst="true">20230313T122131,82-04</datetime></lastaccessed>
+<addedtofile><datetime dst="true">20230313T122047,20-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$TITLE"><text>bean/ApplicationFieldBean.java</text></item>
+
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>bean/ApplicationFieldBean.java</text></item>
+
+</note>

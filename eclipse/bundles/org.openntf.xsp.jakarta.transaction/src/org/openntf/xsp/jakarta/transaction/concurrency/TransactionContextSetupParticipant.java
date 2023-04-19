@@ -60,9 +60,18 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 
 	@Override
 	public void reset(ContextHandle contextHandle) {
-		Instance<DominoTransactionProducer> producer = CDI.current().select(DominoTransactionProducer.class);
-		if(producer.isResolvable()) {
-			producer.get().clearTransaction();
+		try {
+			CDI<Object> cdi = CDI.current();
+			if(cdi != null) {
+				Instance<DominoTransactionProducer> producer = cdi.select(DominoTransactionProducer.class);
+				if(producer.isResolvable()) {
+					producer.get().clearTransaction();
+				}
+			}
+		} catch(IllegalStateException e) {
+			// Will almost definitely be "Invalid disposed application ClassLoader", which occurs
+			//   during active development of an NSF - ignore
+			// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/362
 		}
 	}
 

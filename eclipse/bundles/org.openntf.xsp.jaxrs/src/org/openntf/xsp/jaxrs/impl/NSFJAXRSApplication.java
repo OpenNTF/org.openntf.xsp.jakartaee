@@ -38,6 +38,7 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Feature;
+import jakarta.ws.rs.ext.Provider;
 import jakarta.ws.rs.ext.Providers;
 
 /**
@@ -127,6 +128,10 @@ public class NSFJAXRSApplication extends Application {
 		}
 		
 		if(Stream.of(clazz.getMethods()).anyMatch(m -> m.isAnnotationPresent(Path.class))) {
+			return true;
+		}
+		
+		if(clazz.isAnnotationPresent(Provider.class)) {
 			return true;
 		}
 		

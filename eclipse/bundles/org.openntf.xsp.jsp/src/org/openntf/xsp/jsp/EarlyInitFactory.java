@@ -110,7 +110,6 @@ public class EarlyInitFactory implements IServiceFactory {
 		Bundle jstl = LibraryUtil.getBundle("org.glassfish.web.jakarta.servlet.jsp.jstl").get(); //$NON-NLS-1$
 		Path jstlDest = destDir.resolve(jstl.getSymbolicName() + "_" + jstl.getVersion() + ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
 		if(!Files.exists(jstlDest)) {
-			@SuppressWarnings("deprecation")
 			Path jstlSource = FileLocator.getBundleFile(jstl).toPath();
 			Files.copy(jstlSource, jstlDest);
 		}

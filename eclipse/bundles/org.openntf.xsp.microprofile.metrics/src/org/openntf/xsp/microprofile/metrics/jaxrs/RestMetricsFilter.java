@@ -33,7 +33,10 @@ import jakarta.ws.rs.core.Context;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.metrics.MetricID;
 import org.eclipse.microprofile.metrics.Tag;
+import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.jakartaee.metrics.MetricsIgnore;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.microprofile.config.ConfigLibrary;
 import org.openntf.xsp.microprofile.metrics.config.MetricsAppConfigSource;
 
 import io.smallrye.metrics.jaxrs.JaxRsMetricsFilter;
@@ -86,10 +89,12 @@ public class RestMetricsFilter implements ContainerRequestFilter, ContainerRespo
         tags.add(methodTag);
         
         // App-level tag when present
-		Config mpConfig = CDI.current().select(Config.class).get();
-		mpConfig.getOptionalValue(MetricsAppConfigSource.CONFIG_APPNAME, String.class)
-			.map(appName -> new Tag(MetricsAppConfigSource.TAG_APP, appName))
-			.ifPresent(tags::add);
+        if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID, ConfigLibrary.LIBRARY_ID)) {
+			Config mpConfig = CDI.current().select(Config.class).get();
+			mpConfig.getOptionalValue(MetricsAppConfigSource.CONFIG_APPNAME, String.class)
+				.map(appName -> new Tag(MetricsAppConfigSource.TAG_APP, appName))
+				.ifPresent(tags::add);
+        }
         
         return new MetricID("REST.request", tags.toArray(new Tag[tags.size()])); //$NON-NLS-1$
     }

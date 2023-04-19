@@ -16,10 +16,12 @@
 package rest;
 
 import java.io.PrintWriter;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import bean.ApplicationGuy;
 import bean.RequestGuy;
@@ -109,5 +111,28 @@ public class ConcurrencyExample {
 				w.flush();
 			}
 		};
+	}
+	
+	@Path("asyncLookup")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getAsyncLookup() throws InterruptedException, ExecutionException, NamingException {
+		ExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+		return exec.submit(() -> {
+			return "I looked up: " + InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+		}).get();
+	}
+	
+	@Path("doubleAsyncLookup")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getDoubleAsyncLookup() throws InterruptedException, ExecutionException, NamingException {
+		ExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+		return exec.submit(() -> {
+			ExecutorService exec2 = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+			return exec2.submit(() -> 
+				"I looked up: " + InitialContext.doLookup("java:comp/DefaultManagedExecutorService")
+			).get();
+		}).get();
 	}
 }

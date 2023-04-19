@@ -115,8 +115,8 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult) {
-		return getManager().viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, singleResult)
+	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct) {
+		return getManager().viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, singleResult, distinct)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}

@@ -20,25 +20,49 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.jboss.weld.proxy.WeldClientProxy;
+import org.jboss.weld.proxy.WeldClientProxy.Metadata;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jsonapi.JSONBindUtil;
 
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.MessageBodyWriter;
-import org.jboss.weld.proxy.WeldClientProxy;
-import org.jboss.weld.proxy.WeldClientProxy.Metadata;
-import org.openntf.xsp.jsonapi.JSONBindUtil;
+import jakarta.ws.rs.ext.Providers;
 
 @Produces({"application/json", "application/*+json", "text/json", "*/*"})
 @Consumes({"application/json", "application/*+json", "text/json", "*/*"})
 public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBodyReader<Object> {
+	private static final Logger log = Logger.getLogger(JsonBindingProvider.class.getPackage().getName());
+	
+	public static final String PROP_STREAM = "rest.jsonb.stream"; //$NON-NLS-1$
+	
+	@Context
+	private Providers providers;
+	
+	@Context
+	private Application application;
+	
 	protected Jsonb getJsonb(Class<?> type) {
-		return JsonbBuilder.create();
+		ContextResolver<Jsonb> resolver = providers.getContextResolver(Jsonb.class, MediaType.WILDCARD_TYPE);
+		if(resolver != null) {
+			return resolver.getContext(Jsonb.class);
+		} else {
+			return JsonbBuilder.create();
+		}
 	}
 
 	// *******************************************************************************
@@ -54,8 +78,15 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 	public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
 			throws IOException, WebApplicationException {
-		Jsonb jsonb = getJsonb(type);
-		return JSONBindUtil.fromJson(entityStream, jsonb, genericType);
+		try {
+			Jsonb jsonb = getJsonb(type);
+			return JSONBindUtil.fromJson(entityStream, jsonb, genericType);
+		} catch(Exception e) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered exception reading JSON input", e);
+			}
+			throw e;
+		}
 	}
 	
 	// *******************************************************************************
@@ -76,17 +107,41 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 	public void writeTo(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
 			throws IOException, WebApplicationException {
-		
-		Object obj = t;
-		// It may be a CDI proxy - try to unwrap it if so
-		if(obj instanceof WeldClientProxy) {
-			Metadata meta = ((WeldClientProxy)obj).getMetadata();
-			obj = meta.getContextualInstance();
+		try {
+			Object obj = t;
+			// It may be a CDI proxy - try to unwrap it if so
+			if(obj instanceof WeldClientProxy) {
+				Metadata meta = ((WeldClientProxy)obj).getMetadata();
+				obj = meta.getContextualInstance();
+			}
+			
+			Jsonb jsonb = getJsonb(type);
+			
+			boolean stream = false;
+			Application app = this.application;
+			if(app != null) {
+				Object streamProp = app.getProperties().get(PROP_STREAM);
+				stream = !"false".equals(streamProp); //$NON-NLS-1$
+			}
+			
+			if(stream) {
+				JSONBindUtil.toJson(obj, jsonb, entityStream);
+			} else {
+				String json = JSONBindUtil.toJson(obj, jsonb);
+				entityStream.write(json.getBytes(StandardCharsets.UTF_8));
+			}
+			entityStream.flush();
+		} catch(Exception e) {
+			if(ServletUtil.isClosedConnection(e)) {
+				// Ignore
+				return;
+			}
+			
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered exception writing JSON output", e);
+			}
+			throw e;
 		}
-		
-		Jsonb jsonb = getJsonb(type);
-		JSONBindUtil.toJson(obj, jsonb, entityStream);
-		entityStream.flush();
 	}
 	
 	// *******************************************************************************

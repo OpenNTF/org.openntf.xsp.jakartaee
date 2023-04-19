@@ -21,6 +21,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - [Server Faces 3.0](#server-faces)
 - [MVC 2.0](#mvc)
 - [NoSQL 1.0b4](#nosql)
+- [Persistence 3.0](#persistence-jpa)
 
 It also provides components from [MicroProfile](https://microprofile.io/):
 
@@ -150,6 +151,8 @@ The EL 4 handler is currently stricter about null values than the default handle
 
 In standard XPages, this will result in an empty output. With the EL 4 resolver, however, this will cause an exception like `ELResolver cannot handle a null base Object with identifier 'beanThatDoesNotExist'`. I'm considering changing this behavior to match the XPages default, but there's also some value in the strictness, especially because the exception is helpful in referencing the object it's trying to resolve against, which could help track down subtle bugs.
 
+Additionally, if you use Server JavaScript bindings inside a theme (e.g. `rendered="${javascript:...}"`), the resolver will complain on the server console if there is whitespace immediately following `javascript:`.
+
 ## Servlets
 
 This project adds support for specifying Servlets in an NSF using the `@WebServlet` annotation. For example:
@@ -223,6 +226,12 @@ As intimated there, it has access to the CDI environment if enabled, though it d
 
 The path within the NSF can be modified by setting the `org.openntf.xsp.jaxrs.path` property in the NSF's "xsp.properties" file. The value there will be appended to `/xsp`. For example, setting it to `foo` will make the above example available at `/some.nsf/xsp/foo/sample`.
 
+When converting objects to JSON, this will use [JSON-B](#json-p-and-json-b) to stream the response to the client. This streaming can be disabled in favor of pre-buffering for troubleshooting purposes by setting this in xsp.properties:
+
+```properties
+rest.jsonb.stream=false
+```
+
 #### Security
 
 REST resources can be individually secured with the `@RolesAllowed` annotation. Values in this annotation are matched against the user's effective names list: their username, various permutations, their groups, and their DB-specific roles. For example:
@@ -253,6 +262,8 @@ public Response hello() {
 	// ...
 }
 ```
+
+This feature requires that MicroProfile Config is also enabled.
 
 #### Metrics
 
@@ -338,6 +349,7 @@ The [Java API for JSON Binding](https://jakarta.ee/specifications/jsonb/2.0/) sp
 The "org.openntf.xsp.jsonapi" library provides both of these libraries to XPages, though they don't replace any standard behavior in the environment. To avoid permissions problems, it contains an `org.openntf.xsp.jsonapi.JSONBindUtil` class to serialize and deserialize objects in `AccessController` blocks:
 
 ```java
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
@@ -366,13 +378,15 @@ public class JsonTest {
 	}
 	
 	public Object getObject() {
-		Jsonb jsonb = JsonbBuilder.create();
+		// Also injectable via CDI
+		Jsonb jsonb = CDI.current().select(Jsonb.class).get();
 		String json = getJson();
 		return JSONBindUtil.fromJson(json, jsonb, TestBean.class);
 	}
 }
-
 ```
+
+By default, JSON-B will export object properties based on publicly-visible getters (e.g. `getFoo()`) and will ignore non-public fields (e.g. `private String foo`). This behavior can be customized with a `PropertyVisibilityStrategy` object, which in turn can be passed to a `JsonbConfig` class. This configuration can be supplied via CDI, in which case it will take effect for CDI-injected `Jsonb` instances as well as in REST requests. See [the `nsf-jakartaee-jsonbconfig-example` NSF](eclipse/nsfs/nsf-jakartaee-jsonbconfig-example/odp/Code/Java/bean/JsonbConfigProvider.java) for an example of this configuration.
 
 ## XML Binding
 
@@ -761,6 +775,98 @@ public class NamesRepositoryBean {
 }
 ```
 
+## Persistence (JPA)
+
+The [Persistence](https://jakarta.ee/specifications/persistence/3.0/) API (JPA) provides access and mapping to relational databases in a managed way. This feature builds on the existing [RDBMS support in XPages](https://help.hcltechsw.com/dom_designer/9.0.1/user/wpd_data_rdbms_support.html), using the same underlying configuration for the connection pools.
+
+Declaration of a Persistence class is done similarly to NoSQL:
+
+```java
+package model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name="companies", schema="public")
+public class Company {
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Long id;
+	
+	@Column(name="name", length=255)
+	private String name;
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+}
+```
+
+Once you've configured the JDBC connection for XPages, you can then map your class to the connection in a file named `META-INF/persistence.xml` in your NSF's classpath (e.g. added in Code/Java):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+	<persistence-unit name="JPATestProj" transaction-type="JTA">
+		<class>model.Company</class>
+		<jta-data-source>java:comp/env/jdbc/yourconnectionname</jta-data-source>
+		<properties>
+			<property name="jakarta.persistence.jdbc.url" value="java:comp/env/jdbc/yourconnectionname" />
+		</properties>
+	</persistence-unit>
+</persistence>
+```
+
+This will map a JDBC configuration defined in `WebContent/WEB-INF/jdbc/yourconnectionname.jdbc` to the `model.Company` class.
+
+This feature does not currently provide container-managed `EntityManager`s, but they can be built up and used explicitly. For example:
+
+```java
+package rest;
+
+import java.util.List;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import model.Company;
+
+@Path("companies")
+public class CompaniesResource {
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Company> get() {
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("JPATestProj");
+		EntityManager em = emf.createEntityManager();
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<Company> query = cb.createQuery(Company.class);
+			TypedQuery<Company> tq = em.createQuery(query);
+			return tq.getResultList();
+		} finally {
+			em.close();
+		}
+	}
+}
+```
+
 ## MicroProfile Config
 
 The [MicroProfile Config](https://github.com/eclipse/microprofile-config) API allows injection of configuration parameters from externalized sources, separating configuration from code. These parameters can then be injected using CDI. For example:
@@ -856,6 +962,8 @@ public class FaultToleranceBean {
 }
 ```
 
+This feature requires that MicroProfile Config is also enabled.
+
 ## MicroProfile Health
 
 The [MicroProfile Health](https://github.com/eclipse/microprofile-health) API allows you to create CDI beans that provide health checks and statistics for your application, queryable at standard endpoints. For example:
@@ -944,6 +1052,8 @@ grant {
 If this is unset, problems with NoSQL will manifest with root exceptions like `jakarta.nosql.ProviderNotFoundException: Provider not found: interface jakarta.nosql.document.DocumentQueryParser`.
 
 ## Building
+
+Building requires that Maven run with Java 11 or above.
 
 To build this application, first `package` the `osgi-deps` Maven project, which will provide the target platform dependencies used by the `eclipse` Maven tree.
 

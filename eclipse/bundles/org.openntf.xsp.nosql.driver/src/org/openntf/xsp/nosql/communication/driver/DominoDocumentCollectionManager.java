@@ -28,7 +28,7 @@ import jakarta.nosql.mapping.Sorts;
 public interface DominoDocumentCollectionManager extends DocumentCollectionManager {
 	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
 	
-	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult);
+	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct);
 	
 	void putInFolder(String entityId, String folderName);
 	
