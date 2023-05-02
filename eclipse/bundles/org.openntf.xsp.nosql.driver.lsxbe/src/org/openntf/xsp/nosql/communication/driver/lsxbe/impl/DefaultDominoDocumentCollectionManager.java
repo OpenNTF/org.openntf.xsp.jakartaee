@@ -239,7 +239,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					try {
 						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
 						for(Sort sort : sorts) {
-							String itemName = DominoNoSQLUtil.findItemName(sort.getName(), mapping);
+							String itemName = EntityUtil.findItemName(sort.getName(), mapping);
 							
 							int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
 							qrp.addColumn(itemName, itemName, null, dir, false, false);
@@ -689,7 +689,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				throw new IllegalArgumentException("Views cannot be sorted by more than one resort column");
 			}
 			Sort sort = sortObjs.get(0);
-			String itemName = DominoNoSQLUtil.findItemName(sort.getName(), mapping);
+			String itemName = EntityUtil.findItemName(sort.getName(), mapping);
 			
 			if(ftSearch != null && !ftSearch.isEmpty()) {
 				if(options.contains(FTSearchOption.UPDATE_INDEX)) {

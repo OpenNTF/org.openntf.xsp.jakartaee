@@ -22,8 +22,10 @@ import java.util.stream.Collectors;
 import org.eclipse.jnosql.mapping.reflection.ClassInformationNotFoundException;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.eclipse.jnosql.mapping.reflection.ClassMappings;
+import org.eclipse.jnosql.mapping.reflection.FieldMapping;
 
 import jakarta.enterprise.inject.spi.CDI;
+import jakarta.nosql.mapping.Column;
 
 /**
  * Contains utility methods for working with NoSQL entities.
@@ -51,5 +53,28 @@ public enum EntityUtil {
 				f -> f.getName(),
 				f -> f.getNativeField().getType()
 			));
+	}
+	
+	/**
+	 * Determines the back-end item name for the given Java property.
+	 * 
+	 * @param propName the Java property to check
+	 * @param mapping the {@link ClassMapping} instance for the class in question
+	 * @return the effective item name based on the class properties
+	 */
+	public static String findItemName(String propName, ClassMapping mapping) {
+		if(mapping != null) {
+			Column annotation = mapping.getFieldMapping(propName)
+				.map(FieldMapping::getNativeField)
+				.map(f -> f.getAnnotation(Column.class))
+				.orElse(null);
+			if(annotation != null && !annotation.value().isEmpty()) {
+				return annotation.value();
+			} else {
+				return propName;
+			}
+		} else {
+			return propName;
+		}
 	}
 }
