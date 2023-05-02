@@ -311,6 +311,67 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertEquals(person1.getString("unid"), result.getJsonObject(1).getString("unid"));
 	}
 	
+	@Test
+	public void testListViews() {
+		Client client = getAdminClient();
+		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/listViews");
+		Response response = queryTarget.request()
+			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.get();
+		String json = response.readEntity(String.class);
+		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+		JsonArray result = Json.createReader(new StringReader(json)).readArray();
+		assertFalse(result.isEmpty());
+		{
+			JsonObject view = result.stream()
+				.map(JsonValue::asJsonObject)
+				.filter(obj -> "Persons".equals(obj.getString("title")))
+				.findFirst()
+				.orElse(null);
+			assertNotNull(view, "Coult not find Persons view");
+			assertEquals("VIEW", view.getString("type"));
+			assertTrue(view.getJsonArray("aliases").isEmpty());
+			assertEquals("SELECT Form=\"Person\"", view.getString("selectionFormula"));
+			
+			JsonArray columns = view.getJsonArray("columnInfo");
+			assertEquals(8, columns.size());
+			{
+				JsonObject lastName = columns.getJsonObject(0);
+				assertEquals("LastName", lastName.getString("title"));
+				assertEquals("LastName", lastName.getString("programmaticName"));
+				assertEquals("ASCENDING", lastName.getString("sortOrder"));
+				assertTrue(lastName.getJsonArray("resortOrders").isEmpty());
+			}
+			{
+				JsonObject firstName = columns.getJsonObject(1);
+				assertEquals("FirstName", firstName.getString("title"));
+				assertEquals("FirstName", firstName.getString("programmaticName"));
+				assertEquals("ASCENDING", firstName.getString("sortOrder"));
+				JsonArray resortOrders = firstName.getJsonArray("resortOrders");
+				assertEquals(2, resortOrders.size());
+				assertEquals("ASCENDING", resortOrders.getString(0));
+				assertEquals("DESCENDING", resortOrders.getString(1));
+			}
+			{
+				JsonObject favoriteTime = columns.getJsonObject(3);
+				assertEquals("Favorite Time", favoriteTime.getString("title"));
+			}
+		}
+		{
+			JsonObject folder = result.stream()
+				.map(JsonValue::asJsonObject)
+				.filter(obj -> "Persons Folder".equals(obj.getString("title")))
+				.findFirst()
+				.orElse(null);
+			assertNotNull(folder, "Coult not find Persons Folder");
+			assertEquals("FOLDER", folder.getString("type"));
+			JsonArray aliases = folder.getJsonArray("aliases");
+			assertEquals(1, aliases.size());
+			assertEquals("PersonsFolder", aliases.getString(0));
+		}
+	}
+	
 	/**
 	 * Creates two person documents, optionally using the same auto-generated last name
 	 * for both documents.

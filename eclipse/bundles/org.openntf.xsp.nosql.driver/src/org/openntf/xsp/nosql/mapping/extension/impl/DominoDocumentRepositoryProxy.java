@@ -59,6 +59,7 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 	private static final Method getByNoteIdInt;
 	private static final Method readViewEntries;
 	private static final Method readViewDocuments;
+	private static final Method getViewInfo;
 	
 	static {
 		try {
@@ -69,6 +70,7 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			getByNoteIdInt = DominoRepository.class.getDeclaredMethod("findByNoteId", int.class); //$NON-NLS-1$
 			readViewEntries = DominoRepository.class.getDeclaredMethod("readViewEntries", String.class, int.class, boolean.class, ViewQuery.class, Sorts.class, Pagination.class); //$NON-NLS-1$
 			readViewDocuments = DominoRepository.class.getDeclaredMethod("readViewDocuments", String.class, int.class, boolean.class, ViewQuery.class, Sorts.class, Pagination.class); //$NON-NLS-1$
+			getViewInfo = DominoRepository.class.getDeclaredMethod("getViewInfo"); //$NON-NLS-1$
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -201,6 +203,10 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			}
 			Object result = template.getByNoteId(entityName, Integer.toHexString((int)args[0]));
 			return convert(result, method);
+		}
+		
+		if(method.equals(getViewInfo)) {
+			return template.getViewInfo();
 		}
 		
 		return method.invoke(repository, args);

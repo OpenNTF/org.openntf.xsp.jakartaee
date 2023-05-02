@@ -23,6 +23,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,6 +41,8 @@ import javax.transaction.xa.Xid;
 
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.ViewColumnInfo;
+import org.openntf.xsp.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL;
@@ -47,6 +50,8 @@ import org.openntf.xsp.nosql.communication.driver.impl.EntityUtil;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter.QueryConverterResult;
+import org.openntf.xsp.nosql.communication.driver.impl.ViewColumnInfoImpl;
+import org.openntf.xsp.nosql.communication.driver.impl.ViewInfoImpl;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
@@ -85,6 +90,7 @@ import lotus.domino.NotesException;
 import lotus.domino.QueryResultsProcessor;
 import lotus.domino.Session;
 import lotus.domino.View;
+import lotus.domino.ViewColumn;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewEntryCollection;
 import lotus.domino.ViewNavigator;
@@ -492,6 +498,69 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		} catch(NotesException e) {
 			// Assume it doesn't exist
 			return Optional.empty();
+		}
+	}
+	
+	@Override
+	public Stream<ViewInfo> getViewInfo() {
+		try {
+			Database database = supplier.get();
+			@SuppressWarnings("unchecked")
+			List<View> views = database.getViews();
+			return views.stream()
+				.map(view -> {
+					try {
+						ViewInfo.Type type = view.isFolder() ? ViewInfo.Type.FOLDER : ViewInfo.Type.VIEW;
+						String title = view.getName();
+						@SuppressWarnings("unchecked")
+						List<String> aliases = view.getAliases();
+						String unid = view.getUniversalID();
+						String selectionFormula = view.getSelectionFormula();
+						
+						@SuppressWarnings("unchecked")
+						Vector<ViewColumn> columns = view.getColumns();
+						List<ViewColumnInfo> columnInfo = columns.stream()
+							.map(column -> {
+								try {
+									String columnTitle = column.getTitle();
+									String itemName = column.getItemName();
+									ViewColumnInfo.SortOrder sortOrder = column.isSorted() ?
+										(
+											column.isSortDescending() ? ViewColumnInfo.SortOrder.DESCENDING :
+											ViewColumnInfo.SortOrder.ASCENDING
+										) :
+										ViewColumnInfo.SortOrder.NONE;
+									Collection<ViewColumnInfo.SortOrder> resortOrders = EnumSet.noneOf(ViewColumnInfo.SortOrder.class);
+									if(column.isResortAscending()) {
+										resortOrders.add(ViewColumnInfo.SortOrder.ASCENDING);
+									}
+									if(column.isResortDescending()) {
+										resortOrders.add(ViewColumnInfo.SortOrder.DESCENDING);
+									}
+									boolean categorized = column.isCategory();
+									
+									return new ViewColumnInfoImpl(columnTitle, itemName, sortOrder, resortOrders, categorized);
+										
+								} catch(NotesException e) {
+									throw new RuntimeException(e);
+								}
+							})
+							.collect(Collectors.toList());
+						view.recycle(columns);
+						
+						return new ViewInfoImpl(type, title, aliases, unid, selectionFormula, columnInfo);
+					} catch(NotesException e) {
+						throw new RuntimeException(e);
+					} finally {
+						try {
+							view.recycle();
+						} catch(NotesException e) {
+							// ignore
+						}
+					}
+				});
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

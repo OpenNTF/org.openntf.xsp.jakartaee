@@ -18,6 +18,8 @@ package org.openntf.xsp.nosql.mapping.extension;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.openntf.xsp.nosql.communication.driver.ViewInfo;
+
 import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Sorts;
 import jakarta.nosql.mapping.document.DocumentTemplate;
@@ -133,4 +135,12 @@ public interface DominoTemplate extends DocumentTemplate {
      * @since 2.8.0
      */
     <T> Optional<T> getByNoteId(String entityName, String noteId);
+    
+    /**
+     * Retrieves a list of the views and folders in the underlying database.
+     * 
+     * @return a {@link Stream} of {@link ViewInfo} objects
+     * @since 2.12.0
+     */
+    Stream<ViewInfo> getViewInfo();
 }
