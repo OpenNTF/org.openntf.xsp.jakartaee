@@ -27,6 +27,8 @@ import java.net.URLEncoder;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import jakarta.json.Json;
@@ -121,10 +123,16 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 	 * Tests for Issue #391, where querying a categorized view by key
 	 * threw an exception.
 	 * 
+	 * <p>This also tests both the /findCategorized and /findCategorizedManual
+	 * endpoints, which will exercise both the {@code @ViewDocuments} annotation
+	 * and the {@code readViewDocuments} method on {@code Repository}.</p>
+	 * 
+	 * @param endpoint the endpoint tested in this run
 	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/391">Issue #391</a>
 	 */
-	@Test
-	public void testQueryDocumentsCategorized() throws UnsupportedEncodingException {
+	@ParameterizedTest
+	@ValueSource(strings = { "findCategorized", "findCategorizedManual" })
+	public void testQueryDocumentsCategorized(String endpoint) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		JsonObject person = createTwoPersonDocuments(true);
@@ -135,7 +143,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
 		WebTarget queryTarget = client.target(
-			getRestUrl(null) + "/nosql/findCategorized"
+			getRestUrl(null) + "/nosql/" + endpoint
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 		);
 		

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +44,8 @@ import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 
@@ -487,8 +490,16 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 	}
 	
-	@Test
-	public void testFolderOperations() {
+	/**
+	 * Tests both the /inFolder and /inFolderManual endpoints, which will
+	 * exercise both the {@code @ViewEntries} annotation and the
+	 * {@code readViewEntries} method on {@code Repository}.
+	 * 
+	 * @param endpoint the endpoint tested in this run
+	 */
+	@ParameterizedTest
+	@ValueSource(strings = { "inFolder", "inFolderManual" })
+	public void testFolderOperations(String endpoint) {
 		Client client = getAdminClient();
 		String unid;
 		String lastName = "Fooson" + System.nanoTime();
@@ -512,7 +523,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		Predicate<String> isInFolder = documentId -> {
-			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/inFolder"); //$NON-NLS-1$
+			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + endpoint); //$NON-NLS-1$
 			
 			Response response = getTarget.request().get();
 			String json = response.readEntity(String.class);

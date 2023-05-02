@@ -104,6 +104,14 @@ public class NoSQLExample {
 		return personRepository.findInPersonsFolder().collect(Collectors.toList());
 	}
 	
+	@Path("inFolderManual")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getInFolderManual() {
+		return personRepository.readViewEntries(PersonRepository.FOLDER_PERSONS, -1, false, null, null, null)
+			.collect(Collectors.toList());
+	}
+	
 	@Path("servers")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -586,6 +594,15 @@ public class NoSQLExample {
 	public List<Person> getCategorized(@PathParam("lastName") String lastName) {
 		ViewQuery query = ViewQuery.query().key(lastName, true);
 		return personRepository.findCategorized(query).collect(Collectors.toList());
+	}
+	
+	@Path("findCategorizedManual/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getCategorizedManual(@PathParam("lastName") String lastName) {
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.readViewDocuments(PersonRepository.VIEW_PERSONS_CAT, -1, false, query, null, null)
+			.collect(Collectors.toList());
 	}
 	
 	@Path("findCategorizedDistinct/{lastName}")
