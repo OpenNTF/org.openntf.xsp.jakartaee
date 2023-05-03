@@ -235,6 +235,7 @@
 
 	<plugin id="org.openntf.xsp.jakartaee.commons" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakartaee.osgiresourcelocator" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakartaee.bridge.jasapi" version="0.0.0" unpack="false"/>
 	
 	<!-- XML Binding -->
 	<plugin id="jakarta.xml.bind-api" version="0.0.0" unpack="false"/>
