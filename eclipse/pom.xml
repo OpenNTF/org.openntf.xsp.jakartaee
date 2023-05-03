@@ -38,6 +38,7 @@
 		<!-- General Jakarta EE platform -->
 		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
 		<module>bundles/org.openntf.xsp.jakartaee.osgiresourcelocator</module>
+		<module>bundles/org.openntf.xsp.jakartaee.bridge.jasapi</module>
 		<module>bundles/org.openntf.xsp.jakarta.concurrency</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
@@ -117,6 +118,7 @@
 		<!-- Integration test support and examples -->
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
 		<module>tests/org.openntf.xsp.test.beanbundle</module>
+		<module>tests/org.openntf.xsp.test.jasapi</module>
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Example JavaSapi Plugin
+Bundle-SymbolicName: org.openntf.xsp.test.jasapi;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.test.javasapi
+Bundle-Version: 2.12.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.openntf.xsp.jakartaee.bridge.jasapi,
+ com.ibm.domino.bridge.http.jasapi
