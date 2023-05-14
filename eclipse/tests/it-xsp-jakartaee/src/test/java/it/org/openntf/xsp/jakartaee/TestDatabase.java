@@ -13,6 +13,7 @@ public enum TestDatabase {
 	BUNDLEBASE("nsf-jakartaee-bundlebase-example", "jeebasebundle", "XPages JEE Bundle Base Example"),
 	JSONB_CONFIG("nsf-jakartaee-jsonbconfig-example", "jsonbconfig", "XPages JEE JsonbConfig Example"),
 	JPA("nsf-jakartaee-jpa-example", "jpa", "XPages JEE JPA Example"),
+	PRIMEFACES("nsf-jakartaee-primefaces-example", "primefaces", "XPages JEE PrimeFaces Example")
 	;
 	
 	private final String artifactId;

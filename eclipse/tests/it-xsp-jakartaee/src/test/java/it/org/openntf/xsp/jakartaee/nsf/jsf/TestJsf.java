@@ -19,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -67,6 +69,8 @@ public class TestJsf extends AbstractWebClientTest {
 				WebElement submit = form.findElement(By.xpath("input[@type='submit']"));
 				assertEquals("Refresh", submit.getAttribute("value"));
 				submit.click();
+				// Give it a bit to do the partial refresh
+				TimeUnit.MILLISECONDS.sleep(250);
 			}
 			{
 				
@@ -111,5 +115,28 @@ public class TestJsf extends AbstractWebClientTest {
 		String content = response.readEntity(String.class);
 		assertFalse(StringUtil.isEmpty(content));
 		
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@Order(4)
+	public void testPrimeFaces(WebDriver driver) {
+		driver.get(getRootUrl(driver, TestDatabase.PRIMEFACES) + "/pf.xhtml");
+
+		try {
+			WebElement spinner = driver.findElement(By.cssSelector("span.ui-spinner"));
+			
+			WebElement a = spinner.findElement(By.xpath("a[1]"));
+			a.click();
+			
+			WebElement input = spinner.findElement(By.xpath("input[1]"));
+			assertEquals("1", input.getAttribute("value"));
+			
+			a.click();
+			
+			assertEquals("2", input.getAttribute("value"));
+		} catch(Exception e) {
+			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+		}
 	}
 }

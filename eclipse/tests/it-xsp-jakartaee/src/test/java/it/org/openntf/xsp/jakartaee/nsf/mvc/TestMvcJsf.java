@@ -18,6 +18,8 @@ package it.org.openntf.xsp.jakartaee.nsf.mvc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -57,6 +59,8 @@ public class TestMvcJsf extends AbstractWebClientTest {
 				WebElement submit = form.findElement(By.xpath("input[@type='submit']"));
 				assertEquals("Refresh", submit.getAttribute("value"));
 				submit.click();
+				// Give it a bit to do the partial refresh
+				TimeUnit.MILLISECONDS.sleep(250);
 			}
 			{
 				
