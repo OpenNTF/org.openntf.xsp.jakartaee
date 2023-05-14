@@ -589,6 +589,8 @@ This is useful to alter internal behaviors and optimizations. For example, setti
 
 Because Faces classes and lifecycle registrations will often conflict with XPages elements, it's not possible to add extensions like [PrimeFaces](https://primefaces.org) as a normal JAR within the application. To work around this, you can put JARs in WebContent/WEB-INF/jakarta/lib - these will be loaded in the Faces class loader, but won't be present in the normal Java classpath of the NSF. Faces UI libraries placed here can be used inside XHTML files, though.
 
+Additionally, if you want to use XPages and Faces extension components in faces-config.xml within the same app, you can create a second file, WebContent/WEB-INF/jakarta/faces-config.xml, to house the Faces components. When present, it will be used in preference to the normal file for Faces requests.
+
 ## MVC
 
 The [Jakarta MVC](https://jakarta.ee/specifications/mvc/2.0/) specification allows for action-based MVC using JAX-RS as the controller layer and (by default) JSP as the view layer. With this, you can annotate a JAX-RS resource or method with `@Controller`, perform setup actions, and then return the name of a page to render. For example:
