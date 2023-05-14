@@ -79,6 +79,16 @@ public class TestJsf extends AbstractWebClientTest {
 				WebElement span = form.findElement(By.xpath("p/span[1]"));
 				assertEquals(expected, span.getText());
 			}
+			
+			// While here, test the phase listeners
+			{
+				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Faces Phase Listener Output\"]/following-sibling::dd[1]"));
+				assertTrue(dd.getText().equals("I was set by the Faces listener"));
+			}
+			{
+				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"XPages Phase Listener Output\"]/following-sibling::dd[1]"));
+				assertTrue(dd.getText().isEmpty());
+			}
 		} catch(Exception e) {
 			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}

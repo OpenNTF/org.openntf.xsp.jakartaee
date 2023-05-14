@@ -587,7 +587,7 @@ jakarta.faces.PROJECT_STAGE=Development
 
 This is useful to alter internal behaviors and optimizations. For example, setting Development there will cause the runtime to less-heavily cache page definitions.
 
-Because Faces classes and lifecycle registrations will often conflict with XPages elements, it's not possible to add extensions like [PrimeFaces](https://primefaces.org) as a normal JAR within the application. To work around this, you can put JARs in WebContent/WEB-INF/lib-jakarta - these will be loaded in the Faces class loader, but won't be present in the normal Java classpath of the NSF. Faces UI libraries placed here can be used inside XHTML files, though.
+Because Faces classes and lifecycle registrations will often conflict with XPages elements, it's not possible to add extensions like [PrimeFaces](https://primefaces.org) as a normal JAR within the application. To work around this, you can put JARs in WebContent/WEB-INF/jakarta/lib - these will be loaded in the Faces class loader, but won't be present in the normal Java classpath of the NSF. Faces UI libraries placed here can be used inside XHTML files, though.
 
 ## MVC
 

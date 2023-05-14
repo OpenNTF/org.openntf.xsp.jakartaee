@@ -236,7 +236,7 @@ public class NSFJsfServlet extends HttpServlet {
 			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(MyFacesContainerInitializer.class)).toURI().toURL());
 
 			// Look for JARs in WEB-INF/lib-jakarta
-			ModuleUtil.listFiles(module, "WEB-INF/lib-jakarta") //$NON-NLS-1$
+			ModuleUtil.listFiles(module, "WEB-INF/jakarta/lib") //$NON-NLS-1$
 				.filter(file -> file.toLowerCase().endsWith(".jar")) //$NON-NLS-1$
 				.map(jarName -> {
 					try (InputStream is = context.getResourceAsStream(jarName)) {

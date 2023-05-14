@@ -342,6 +342,7 @@
 						<exclude>**/xspdesign.properties</exclude>
 						<exclude>**/DQL.java</exclude>
 						<exclude>**/odp/WebContent/WEB-INF/faces-config.xml</exclude>
+						<exclude>**/odp/WebContent/WEB-INF/jakarta/faces-config.xml</exclude>
 						<exclude>**/odp/plugin.xml</exclude>
 						<exclude>**/WeldDefaultProxyServices.java</exclude>
 					</excludes>
