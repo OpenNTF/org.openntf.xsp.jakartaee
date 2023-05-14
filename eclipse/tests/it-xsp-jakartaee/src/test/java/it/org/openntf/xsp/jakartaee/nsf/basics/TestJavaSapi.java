@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -20,7 +21,7 @@ public class TestJavaSapi extends AbstractWebClientTest {
 	@Test
 	public void testAddHeader() {
 		Client client = getAdminClient();
-		WebTarget target = client.target(getRootUrl(null)); //$NON-NLS-1$
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN)); //$NON-NLS-1$
 		Response response = target.request().get();
 		assertEquals("Hello", response.getHeaderString("X-AddHeaderJavaSapiService"));
 	}

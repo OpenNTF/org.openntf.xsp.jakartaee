@@ -25,13 +25,14 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestXPagesResolver extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testApplicationScopeResolution(WebDriver driver) {
-		driver.get(getRootUrl(driver) + "/beans.xsp");
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/beans.xsp");
 		
 		WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Application Guy\"]/following-sibling::dd[1]"));
 		assertTrue(dd.getText().startsWith("I'm application guy at "));
@@ -40,7 +41,7 @@ public class TestXPagesResolver extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testSessionAsSigner(WebDriver driver) {
-		driver.get(getRootUrl(driver) + "/beans.xsp");
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/beans.xsp");
 		
 		WebElement dd = driver.findElement(By.xpath("//dt[text()=\"#{sessionAsSigner}\"]/following-sibling::dd[1]"));
 		assertTrue(dd.getText().startsWith("CN="));

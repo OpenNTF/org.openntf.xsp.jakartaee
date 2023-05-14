@@ -26,6 +26,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonValue.ValueType;
@@ -38,7 +39,7 @@ public class TestRestJsonConfig extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(AnonymousClientProvider.class)
 	public void testJsonb(Client client) {
-		WebTarget target = client.target(getJsonbConfigRestUrl(null) + "/json");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.JSONB_CONFIG) + "/json");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);

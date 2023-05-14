@@ -33,6 +33,7 @@ import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -45,7 +46,7 @@ public class TestJsf extends AbstractWebClientTest {
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	@Order(1)
 	public void testHelloPage(WebDriver driver) {
-		driver.get(getRootUrl(driver) + "/hello.xhtml");
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/hello.xhtml");
 
 		try {
 			String expected = "inputValue" + System.currentTimeMillis();
@@ -87,7 +88,7 @@ public class TestJsf extends AbstractWebClientTest {
 	@Order(2)
 	public void testNotFound() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/somefakepage.xhtml");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/somefakepage.xhtml");
 		Response response = target.request().get();
 		
 		assertEquals(404, response.getStatus());
@@ -103,7 +104,7 @@ public class TestJsf extends AbstractWebClientTest {
 	@Order(3)
 	public void testJsfJs() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/jakarta.faces.resource/jsf.js.xhtml?ln=jakarta.faces");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/jakarta.faces.resource/jsf.js.xhtml?ln=jakarta.faces");
 		Response response = target.request().get();
 		assertEquals(200, response.getStatus());
 

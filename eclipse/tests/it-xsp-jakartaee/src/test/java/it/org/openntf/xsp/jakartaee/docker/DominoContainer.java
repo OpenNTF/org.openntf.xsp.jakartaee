@@ -132,7 +132,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 						JsonObject dbConfig = Json.createObjectBuilder()
 							.add("action", "create") //$NON-NLS-1$ //$NON-NLS-2$
 							.add("filePath", "dev/" + db.getFileName() + ".nsf") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							.add("title", db.name()) //$NON-NLS-1$
+							.add("title", db.getTitle()) //$NON-NLS-1$
 							.add("templatePath", "/local/runner/" + db.getFileName() + ".ntf") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							.add("signUsingAdminp", true) //$NON-NLS-1$
 							.build();

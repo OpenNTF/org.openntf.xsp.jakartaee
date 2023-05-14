@@ -30,13 +30,14 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestConfig extends AbstractWebClientTest {
 	@Test
 	public void testConfig() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/config");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/config");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -50,7 +51,7 @@ public class TestConfig extends AbstractWebClientTest {
 	@Test
 	public void testConfigNsfSources() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/config");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/config");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);

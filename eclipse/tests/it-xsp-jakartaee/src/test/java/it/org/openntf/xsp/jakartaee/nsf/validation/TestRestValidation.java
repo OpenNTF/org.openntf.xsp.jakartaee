@@ -24,13 +24,14 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestRestValidation extends AbstractWebClientTest {
 	@Test
 	public void testValid() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/validation/requestValidation?requiredField=hello");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/requestValidation?requiredField=hello");
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);
@@ -40,7 +41,7 @@ public class TestRestValidation extends AbstractWebClientTest {
 	@Test
 	public void testInvalid() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/validation/requestValidation");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/requestValidation");
 		Response response = target.request("text/html","application/xhtml+xml","application/xml","*/*").get();
 		
 		String body = response.readEntity(String.class);
@@ -58,7 +59,7 @@ public class TestRestValidation extends AbstractWebClientTest {
 	@Test
 	public void testInvalidXml() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/validation/requestValidation");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/requestValidation");
 		Response response = target.request("application/xml").get();
 		
 		String body = response.readEntity(String.class);
@@ -76,7 +77,7 @@ public class TestRestValidation extends AbstractWebClientTest {
 	@Test
 	public void testInvalidJson() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/validation/requestValidation");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/requestValidation");
 		Response response = target.request("application/json").get();
 		
 		String body = response.readEntity(String.class);

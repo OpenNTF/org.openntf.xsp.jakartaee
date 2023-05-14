@@ -29,6 +29,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestRestDomino extends AbstractWebClientTest {
@@ -38,7 +39,7 @@ public class TestRestDomino extends AbstractWebClientTest {
 	@Test
 	public void testSample() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/dominoObjects");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/dominoObjects");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);

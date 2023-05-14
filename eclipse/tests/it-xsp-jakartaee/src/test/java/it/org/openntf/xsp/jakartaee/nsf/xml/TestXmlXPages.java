@@ -27,6 +27,7 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestXmlXPages extends AbstractWebClientTest {
@@ -36,7 +37,7 @@ public class TestXmlXPages extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testXmlXPage(WebDriver driver) {
-		driver.get(getRootUrl(driver) + "/jaxb.xsp");
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/jaxb.xsp");
 		
 		try {
 			WebElement span = driver.findElement(By.xpath("//span[@style=\"font-family: monospace; whitespace: pre-wrap\"]"));

@@ -30,6 +30,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.JakartaTestContainers;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -58,7 +59,7 @@ public class TestPersistenceCRUD extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(AnonymousClientProvider.class)
 	public void testPersistenceCrud(Client client) {
-		WebTarget target = client.target(getJpaExampleRestUrl(null) + "/companies");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.JPA) + "/companies");
 		
 		String expected = "Test Company" + System.currentTimeMillis();
 		// Create a new record

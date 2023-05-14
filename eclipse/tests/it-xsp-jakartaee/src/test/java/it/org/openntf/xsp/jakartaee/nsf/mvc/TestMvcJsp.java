@@ -26,6 +26,7 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestMvcJsp extends AbstractWebClientTest {
@@ -33,7 +34,7 @@ public class TestMvcJsp extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testHelloPage(WebDriver driver) {
-		driver.get(getRestUrl(driver) + "/mvc?foo=bar");
+		driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc?foo=bar");
 		
 		{
 			WebElement p = driver.findElement(By.xpath("//p[1]"));
