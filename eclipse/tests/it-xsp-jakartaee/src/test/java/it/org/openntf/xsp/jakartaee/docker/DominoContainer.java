@@ -42,6 +42,11 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 
+import it.org.openntf.xsp.jakartaee.TestDatabase;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonPatchBuilder;
+
 public class DominoContainer extends GenericContainer<DominoContainer> {
 	private static final String[] BUNDLE_DEPS = {
 		"org.openntf.xsp.test.postinstall", //$NON-NLS-1$
@@ -114,31 +119,28 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				
 				// Finally, add our NTFs and Domino config to /local/runner
 				{
-					Path exampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					withFileFromPath("staging/ntf/jakartaee.ntf", exampleNtf); //$NON-NLS-1$
-				}
-				{
-					Path bundleExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-bundle-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					withFileFromPath("staging/ntf/jeebundle.ntf", bundleExampleNtf); //$NON-NLS-1$
-				}
-				{
-					Path baseBundleExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-bundlebase-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					withFileFromPath("staging/ntf/jeebasebundle.ntf", baseBundleExampleNtf); //$NON-NLS-1$
-				}
-				{
-					Path baseBundleExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-bundlebase-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					withFileFromPath("staging/ntf/jeebasebundle.ntf", baseBundleExampleNtf); //$NON-NLS-1$
-				}
-				{
-					Path jsonbConfigExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-jsonbconfig-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					withFileFromPath("staging/ntf/jsonbconfig.ntf", jsonbConfigExampleNtf); //$NON-NLS-1$
-				}
-				{
-					Path jpaExampleNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaee-jpa-example", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					withFileFromPath("staging/ntf/jpa.ntf", jpaExampleNtf); //$NON-NLS-1$
-				}
-				{
-					withFileFromClasspath("staging/domino-config.json", "/docker/domino-config.json"); //$NON-NLS-1$ //$NON-NLS-2$
+					JsonObject json;
+					try(InputStream is = getClass().getResourceAsStream("/docker/domino-config.json")) { //$NON-NLS-1$
+						json = Json.createReader(is).readObject();
+					}
+					JsonPatchBuilder patch = Json.createPatchBuilder();
+					
+					for(TestDatabase db : TestDatabase.values()) {
+						Path ntf = findLocalMavenArtifact("org.openntf.xsp", db.getArtifactId(), version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$
+						withFileFromPath("staging/ntf/" + db.getFileName() + ".ntf", ntf); //$NON-NLS-1$ //$NON-NLS-2$
+						
+						JsonObject dbConfig = Json.createObjectBuilder()
+							.add("action", "create") //$NON-NLS-1$ //$NON-NLS-2$
+							.add("filePath", "dev/" + db.getFileName() + ".nsf") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							.add("title", db.name()) //$NON-NLS-1$
+							.add("templatePath", "/local/runner/" + db.getFileName() + ".ntf") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							.add("signUsingAdminp", true) //$NON-NLS-1$
+							.build();
+						patch.add("/appConfiguration/databases/-", dbConfig); //$NON-NLS-1$
+					}
+					
+					json = patch.build().apply(json);
+					withFileFromTransferable("staging/domino-config.json", Transferable.of(json.toString())); //$NON-NLS-1$
 				}
 				
 			} catch (IOException e) {
