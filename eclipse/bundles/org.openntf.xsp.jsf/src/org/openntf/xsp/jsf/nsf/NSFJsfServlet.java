@@ -15,12 +15,21 @@
  */
 package org.openntf.xsp.jsf.nsf;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -29,10 +38,10 @@ import java.util.Set;
 
 import org.apache.myfaces.ee.MyFacesContainerInitializer;
 import org.apache.myfaces.shared.config.MyfacesConfig;
+import org.eclipse.core.runtime.FileLocator;
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
-import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
@@ -73,19 +82,20 @@ import jakarta.servlet.http.HttpSessionListener;
  */
 public class NSFJsfServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final String PROP_SESSIONINIT = NSFJsfServlet.class.getName() + "_sessionInit"; //$NON-NLS-1$
 	private static final String PROP_CLASSLOADER = NSFJsfServlet.class.getName() + "_classLoader"; //$NON-NLS-1$
-	
+
 	private final ComponentModule module;
 	private FacesServlet delegate;
 	private boolean initialized;
-	
+	private final Collection<Path> tempFiles = new ArrayList<>();
+
 	public NSFJsfServlet(ComponentModule module) {
 		super();
 		this.module = module;
 	}
-	
+
 	public void doInit(HttpServletRequest req, ServletConfig config) throws ServletException {
 		try {
 			CDI<Object> cdi = ContainerUtil.getContainer(NotesContext.getCurrent().getNotesDatabase());
@@ -94,20 +104,20 @@ public class NSFJsfServlet extends HttpServlet {
 			context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_JSP_AND_FACES_EL, String.valueOf(false));
 			// TODO investigate why partial state saving doesn't work with a basic form
 			context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
-			
+
 			Properties props = LibraryUtil.getXspProperties(module);
 			String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
 			context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
-			
+
 			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
 			Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
 			{
 				ServletContainerInitializer initializer = new MyFacesContainerInitializer();
 				Set<Class<?>> classes = null;
 				HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
-				if(types != null) {
+				if (types != null) {
 					classes = buildMatchingClasses(types, b);
-					if(classes == null) {
+					if (classes == null) {
 						classes = buildMatchingClasses(types, b2);
 					} else {
 						classes.addAll(buildMatchingClasses(types, b2));
@@ -115,7 +125,7 @@ public class NSFJsfServlet extends HttpServlet {
 				}
 				initializer.onStartup(classes, getServletContext());
 			}
-			
+
 			{
 				// Re-wrap the ServletContext to provide the context path
 				javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
@@ -132,30 +142,30 @@ public class NSFJsfServlet extends HttpServlet {
 
 	@Override
 	// TODO see if synchronization can be handled better
-	public synchronized void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	public synchronized void service(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
 		ServletContext ctx = req.getServletContext();
-		
+
 		try {
-			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
+			AccessController.doPrivileged((PrivilegedExceptionAction<Void>) () -> {
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(buildJsfClassLoader(ctx, current));
 				try {
-					if(!initialized) {
+					if (!initialized) {
 						this.doInit(req, getServletConfig());
 						initialized = true;
 					}
-					
+
 					ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
 					AbstractProxyingContext.setThreadContextRequest(req);
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
-						.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), req)));
+							.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), req)));
 
-					
 					// Fire the session listener if needed
 					HttpSession session = req.getSession(true);
-					if(!"1".equals(session.getAttribute(PROP_SESSIONINIT))) { //$NON-NLS-1$
+					if (!"1".equals(session.getAttribute(PROP_SESSIONINIT))) { //$NON-NLS-1$
 						ServletUtil.getListeners(ctx, HttpSessionListener.class)
-							.forEach(l -> l.sessionCreated(new HttpSessionEvent(session)));
+								.forEach(l -> l.sessionCreated(new HttpSessionEvent(session)));
 						session.setAttribute(PROP_SESSIONINIT, "1"); //$NON-NLS-1$
 						// TODO add a hook for session expiration?
 					}
@@ -163,20 +173,20 @@ public class NSFJsfServlet extends HttpServlet {
 					delegate.service(req, resp);
 				} finally {
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
-						.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
+							.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
 					Thread.currentThread().setContextClassLoader(current);
 					ContainerUtil.setThreadContextDatabasePath(null);
 					AbstractProxyingContext.setThreadContextRequest(null);
 				}
 				return null;
 			});
-		} catch(Throwable t) {
-			try(PrintWriter w = resp.getWriter()) {
+		} catch (Throwable t) {
+			try (PrintWriter w = resp.getWriter()) {
 				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				XSPErrorPage.handleException(w, t, req.getRequestURL().toString(), false);
 			} catch (javax.servlet.ServletException e) {
 				throw new IOException(e);
-			} catch(IllegalStateException e) {
+			} catch (IllegalStateException e) {
 				// Happens when the writer or output has already been opened
 				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
@@ -185,93 +195,119 @@ public class NSFJsfServlet extends HttpServlet {
 			ServletUtil.close(resp);
 		}
 	}
-	
+
 	@Override
 	public void destroy() {
 		ServletContext ctx = getServletContext();
 		ServletUtil.getListeners(ctx, ServletContextListener.class)
-			.forEach(l -> l.contextDestroyed(new ServletContextEvent(ctx)));
+				.forEach(l -> l.contextDestroyed(new ServletContextEvent(ctx)));
+
+		tempFiles.forEach(path -> {
+			try {
+				Files.deleteIfExists(path);
+			} catch (IOException e) {
+				// Ignore
+			}
+		});
+		tempFiles.clear();
 		
+		ClassLoader cl = (ClassLoader)ctx.getAttribute(PROP_CLASSLOADER);
+		if(cl != null && cl instanceof Closeable) {
+			try {
+				((Closeable)cl).close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		super.destroy();
 	}
-	
+
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
 
-	private synchronized ClassLoader buildJsfClassLoader(ServletContext context, ClassLoader delegate) throws BundleException, IOException {
-		if(context.getAttribute(PROP_CLASSLOADER) == null) {
-			ClassLoader apiCl = FacesContext.class.getClassLoader();
-			ClassLoader implCl = MyFacesContainerInitializer.class.getClassLoader();
-			ClassLoader cl = new DelegatingClassLoader(apiCl, implCl, delegate) {
+	@SuppressWarnings("deprecation")
+	private synchronized ClassLoader buildJsfClassLoader(ServletContext context, ClassLoader delegate)
+			throws BundleException, IOException {
+		if (context.getAttribute(PROP_CLASSLOADER) == null) {
+			List<URL> urls = new ArrayList<>();
+			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(FacesContext.class)).toURI().toURL());
+			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(MyFacesContainerInitializer.class)).toURI().toURL());
+
+			// Look for JARs in WEB-INF/lib-jakarta
+			ModuleUtil.listFiles(module, "WEB-INF/jakarta/lib") //$NON-NLS-1$
+				.filter(file -> file.toLowerCase().endsWith(".jar")) //$NON-NLS-1$
+				.map(jarName -> {
+					try (InputStream is = context.getResourceAsStream(jarName)) {
+						Path tempPath = Files.createTempFile(getClass().getSimpleName(), ".jar"); //$NON-NLS-1$
+						tempFiles.add(tempPath);
+						Files.copy(is, tempPath, StandardCopyOption.REPLACE_EXISTING);
+						return tempPath.toUri().toURL();
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
+					}
+				})
+				.forEach(urls::add);
+
+			ClassLoader cl = new URLClassLoader(urls.toArray(new URL[urls.size()]), delegate) {
 				@Override
 				public Class<?> loadClass(String name) throws ClassNotFoundException {
-					if(name != null && name.startsWith("com.sun.faces.")) { //$NON-NLS-1$
+					if (name != null && name.startsWith("com.sun.faces.")) { //$NON-NLS-1$
 						throw new ClassNotFoundException();
 					}
 					return super.loadClass(name);
 				}
 			};
+			
 			context.setAttribute(PROP_CLASSLOADER, cl);
 		}
-		return (ClassLoader)context.getAttribute(PROP_CLASSLOADER);
+		return (ClassLoader) context.getAttribute(PROP_CLASSLOADER);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Set<Class<?>> buildMatchingClasses(HandlesTypes types, Bundle bundle) {
 		Set<Class<?>> result = new HashSet<>();
 		ModuleUtil.getClassNames(module)
-			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-			.map(className -> {
-				try {
-					return module.getModuleClassLoader().loadClass(className);
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException(e);
-				}
-			})
-			.filter(c -> {
-				for(Class<?> type : types.value()) {
-					if(type.isAnnotation()) {
-						return c.isAnnotationPresent((Class<? extends Annotation>)type);
-					} else {
-						return type.isAssignableFrom(c);
+				.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches()).map(className -> {
+					try {
+						return module.getModuleClassLoader().loadClass(className);
+					} catch (ClassNotFoundException e) {
+						throw new RuntimeException(e);
 					}
-				}
-				return true;
-			})
-			.forEach(result::add);
-		
+				}).filter(c -> {
+					for (Class<?> type : types.value()) {
+						if (type.isAnnotation()) {
+							return c.isAnnotationPresent((Class<? extends Annotation>) type);
+						} else {
+							return type.isAssignableFrom(c);
+						}
+					}
+					return true;
+				}).forEach(result::add);
+
 		// Find in the JSF bundle as well
 		String baseUrl = bundle.getEntry("/").toString(); //$NON-NLS-1$
 		List<URL> entries = Collections.list(bundle.findEntries("/", "*.class", true)); //$NON-NLS-1$ //$NON-NLS-2$
-		entries.stream()
-			.parallel()
-			.map(String::valueOf)
-			.map(url -> url.substring(baseUrl.length()))
-			.map(DiscoveryUtil::toClassName)
-			.filter(StringUtil::isNotEmpty)
-			.sequential()
-			.map(className -> {
-				try {
-					return bundle.loadClass(className);
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException(e);
-				}
-			})
-			.filter(c -> {
-				for(Class<?> type : types.value()) {
-					if(type.isAnnotation()) {
-						return c.isAnnotationPresent((Class<? extends Annotation>)type);
-					} else {
-						return type.isAssignableFrom(c);
+		entries.stream().parallel().map(String::valueOf).map(url -> url.substring(baseUrl.length()))
+				.map(DiscoveryUtil::toClassName).filter(StringUtil::isNotEmpty).sequential().map(className -> {
+					try {
+						return bundle.loadClass(className);
+					} catch (ClassNotFoundException e) {
+						throw new RuntimeException(e);
 					}
-				}
-				return true;
-			})
-			.forEach(result::add);
-		
+				}).filter(c -> {
+					for (Class<?> type : types.value()) {
+						if (type.isAnnotation()) {
+							return c.isAnnotationPresent((Class<? extends Annotation>) type);
+						} else {
+							return type.isAssignableFrom(c);
+						}
+					}
+					return true;
+				}).forEach(result::add);
 
-		if(!result.isEmpty()) {
+		if (!result.isEmpty()) {
 			return result;
 		} else {
 			return null;

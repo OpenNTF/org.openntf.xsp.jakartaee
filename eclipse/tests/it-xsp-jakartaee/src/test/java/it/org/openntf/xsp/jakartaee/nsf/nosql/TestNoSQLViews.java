@@ -31,6 +31,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -52,7 +53,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		// Find by the last name of the second person
 		String lastName = person.getString("lastName");
 		assertNotNull(lastName);
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byViewKey/" + URLEncoder.encode(lastName, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byViewKey/" + URLEncoder.encode(lastName, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -76,7 +77,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertNotNull(lastName);
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byViewTwoKeys"
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byViewTwoKeys"
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 			+ "/"
 			+ URLEncoder.encode(firstName, "UTF-8")
@@ -104,7 +105,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		// Find by the last name of the second person
 		String lastName = person.getString("lastName");
 		assertNotNull(lastName);
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byViewKeyMulti/" + URLEncoder.encode(lastName, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byViewKeyMulti/" + URLEncoder.encode(lastName, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -143,7 +144,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
 		WebTarget queryTarget = client.target(
-			getRestUrl(null) + "/nosql/" + endpoint
+			getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + endpoint
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 		);
 		
@@ -178,7 +179,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
 		WebTarget queryTarget = client.target(
-			getRestUrl(null) + "/nosql/findCategorizedDistinct"
+			getRestUrl(null, TestDatabase.MAIN) + "/nosql/findCategorizedDistinct"
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 		);
 		
@@ -206,7 +207,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		
 		String query = "[LastName]=" + prefix + "*";
 		{
-			WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/ftSearch?search=" + URLEncoder.encode(query, "UTF-8"));
+			WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearch?search=" + URLEncoder.encode(query, "UTF-8"));
 			
 			Response response = queryTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -223,7 +224,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		// Test basic pagination
 		String firstUnid;
 		{
-			WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/ftSearchPaginated?page=1&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
+			WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearchPaginated?page=1&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
 			
 			Response response = queryTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -240,7 +241,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 			firstUnid = result.getJsonObject(0).getString("unid");
 		}
 		{
-			WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/ftSearchPaginated?page=2&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
+			WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearchPaginated?page=2&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
 			
 			Response response = queryTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -271,7 +272,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String query = "[LastName]=" + prefix + "*";
 		String query2 = "[FirstName]=Fooness";
 		WebTarget queryTarget = client.target(
-			getRestUrl(null) + "/nosql/ftSearch?"
+			getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearch?"
 			+ "search=" + URLEncoder.encode(query, "UTF-8")
 			+ "&search2=" + URLEncoder.encode(query2, "UTF-8")
 		);
@@ -297,7 +298,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		JsonObject person2 = createPersonDoc("Zarg", prefix + "baz");
 		
 		String query = "[LastName]=" + prefix + "*";
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/ftSearchSorted?search=" + URLEncoder.encode(query, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearchSorted?search=" + URLEncoder.encode(query, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -314,7 +315,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 	@Test
 	public void testListViews() {
 		Client client = getAdminClient();
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/listViews");
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/listViews");
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
 			.get();
@@ -397,7 +398,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 	
 	private JsonObject createPersonDoc(String firstName, String lastName) {
 		Client client = getAdminClient();
-		WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+		WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 
 		MultipartFormDataOutput payload = new MultipartFormDataOutput();
 		payload.addFormData("firstName", firstName, MediaType.TEXT_PLAIN_TYPE);

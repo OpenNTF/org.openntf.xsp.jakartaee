@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -31,7 +32,7 @@ public class TestCors extends AbstractWebClientTest {
 		String expected = "http://someorigin." + System.nanoTime();
 		
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/sample");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample");
 		Response response = target.request()
 			.header("Origin", expected)
 			.get();

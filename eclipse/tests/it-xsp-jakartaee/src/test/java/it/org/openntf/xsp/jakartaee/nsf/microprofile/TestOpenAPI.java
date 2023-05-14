@@ -33,6 +33,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import it.org.openntf.xsp.jakartaee.docker.DominoContainer;
 
 @SuppressWarnings("nls")
@@ -41,7 +42,7 @@ public class TestOpenAPI extends AbstractWebClientTest {
 	@ValueSource(strings = { "openapi", "openapi.yaml" })
 	public void testOpenAPIYaml(String path) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/" + path);
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + path);
 		Response response = target.request().get();
 		
 		String yaml = response.readEntity(String.class);
@@ -53,7 +54,7 @@ public class TestOpenAPI extends AbstractWebClientTest {
 	@ValueSource(strings = { "openapi", "openapi.json" })
 	public void testOpenAPIJson(String path) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/" + path);
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + path);
 		Response response = target.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
 			.get();
@@ -81,14 +82,14 @@ public class TestOpenAPI extends AbstractWebClientTest {
 		
 		JsonArray servers = obj.getJsonArray("servers");
 		JsonObject server0 = servers.getJsonObject(0);
-		assertEquals(getRestUrl(null), server0.getString("url"));
+		assertEquals(getRestUrl(null, TestDatabase.MAIN), server0.getString("url"));
 	}
 	
 	@ParameterizedTest
 	@ValueSource(strings = { "openapi", "openapi.json" })
 	public void testOpenAPIBundleDb(String path) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getBundleNsfRestUrl(null) + "/" + path);
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.BUNDLE) + "/" + path);
 		Response response = target.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
 			.get();

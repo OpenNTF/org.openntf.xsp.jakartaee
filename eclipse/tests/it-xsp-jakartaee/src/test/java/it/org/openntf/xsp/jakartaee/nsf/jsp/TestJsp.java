@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -40,7 +41,7 @@ public class TestJsp extends AbstractWebClientTest {
 	@Test
 	public void testNotFound() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/somefakepage.jsp");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/somefakepage.jsp");
 		Response response = target.request().get();
 		
 		assertEquals(404, response.getStatus());

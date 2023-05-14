@@ -30,6 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestJaxRs extends AbstractWebClientTest {
@@ -37,7 +38,7 @@ public class TestJaxRs extends AbstractWebClientTest {
 	@Test
 	public void testSample() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/sample");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -51,7 +52,7 @@ public class TestJaxRs extends AbstractWebClientTest {
 	@Test
 	public void testSampleXml() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/sample/xml");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/xml");
 		Response response = target.request().get();
 		
 		Document xmlDoc = response.readEntity(Document.class);
@@ -67,7 +68,7 @@ public class TestJaxRs extends AbstractWebClientTest {
 	@ValueSource(strings = { "/", "" })
 	public void testBaseResource(String path) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + path);
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + path);
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -83,7 +84,7 @@ public class TestJaxRs extends AbstractWebClientTest {
 	@Test
 	public void testRequestFilter() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null));
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN));
 		Response response = target.request().get();
 		
 		assertEquals("hello", response.getHeaderString("X-ExampleHeaderFilter"));

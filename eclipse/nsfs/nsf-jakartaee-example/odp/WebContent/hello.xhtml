@@ -42,6 +42,12 @@
     		
     		<dt>Request Method</dt>
     		<dd><h:outputText value="#{facesContext.externalContext.request.method}"/></dd>
+    		
+    		<dt>Faces Phase Listener Output</dt>
+    		<dd><h:outputText value="#{requestScope.FacesPhaseListener}"/></dd>
+    		
+    		<dt>XPages Phase Listener Output</dt>
+    		<dd><h:outputText value="#{requestScope.XPagesPhaseListener}"/></dd>
     	</dl>
     	
     	<fieldset>

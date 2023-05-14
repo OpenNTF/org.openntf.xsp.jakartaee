@@ -342,6 +342,7 @@
 						<exclude>**/xspdesign.properties</exclude>
 						<exclude>**/DQL.java</exclude>
 						<exclude>**/odp/WebContent/WEB-INF/faces-config.xml</exclude>
+						<exclude>**/odp/WebContent/WEB-INF/jakarta/faces-config.xml</exclude>
 						<exclude>**/odp/plugin.xml</exclude>
 						<exclude>**/WeldDefaultProxyServices.java</exclude>
 					</excludes>
@@ -501,6 +502,7 @@
 				<module>nsfs/nsf-jakartaee-bundlebase-example</module>
 				<module>nsfs/nsf-jakartaee-jsonbconfig-example</module>
 				<module>nsfs/nsf-jakartaee-jpa-example</module>
+				<module>nsfs/nsf-jakartaee-primefaces-example</module>
 			</modules>
 		</profile>
 		<profile>

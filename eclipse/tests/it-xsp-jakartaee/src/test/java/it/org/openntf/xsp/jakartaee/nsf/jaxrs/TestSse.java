@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
@@ -51,7 +52,7 @@ public class TestSse extends AbstractWebClientTest {
 	public void testChat() throws InterruptedException, ExecutionException {
 		Client client = getAnonymousClient();
 
-		WebTarget target = client.target(getRestUrl(null) + "/sseChat");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sseChat");
 		// Do an initial request to make sure the app is initialized
 		target.request().post(Entity.entity("message=placeholder", MediaType.APPLICATION_FORM_URLENCODED));
 

@@ -15,8 +15,10 @@
  */
 package org.openntf.xsp.jakartaee.util;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
+import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem.NSFFile;
 
 import java.text.MessageFormat;
 import java.util.Map;
@@ -86,6 +88,38 @@ public enum ModuleUtil {
 				}
 			})
 			.filter(Objects::nonNull);
+	}
+	
+	/**
+	 * Lists files within the specified base path and subdirectories, returning
+	 * just files and not directories.
+	 * 
+	 * @param module the {@link ComponentModule} to search
+	 * @param basePath the base path to search, such as 
+	 * @return a {@link Stream} of file names beneath the provided base path
+	 * @since 2.12.0
+	 */
+	public static Stream<String> listFiles(ComponentModule module, String basePath) {
+		String path = basePath;
+		boolean listAll = StringUtil.isEmpty(basePath);
+		if(!listAll && !path.endsWith("/")) { //$NON-NLS-1$
+			path += "/"; //$NON-NLS-1$
+		}
+		
+		if(module instanceof NSFComponentModule) {
+			return ((NSFComponentModule)module).getRuntimeFileSystem().getAllResources().entrySet().stream()
+				.filter(entry -> entry.getValue() instanceof NSFFile)
+				.map(Map.Entry::getKey)
+				.filter(key -> listAll || key.startsWith(basePath));
+		} else if(module == null) {
+			return Stream.empty();
+		} else {
+			// TODO support other module types
+			if(log.isLoggable(Level.WARNING)) {
+				log.warning(MessageFormat.format("Unable to read file names from unsupported ComponentModule type {0}", module.getClass().getName()));
+			}
+			return Stream.empty();
+		}
 	}
 
 }

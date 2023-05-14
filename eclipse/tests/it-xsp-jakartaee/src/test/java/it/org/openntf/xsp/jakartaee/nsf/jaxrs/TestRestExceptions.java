@@ -38,6 +38,7 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestRestExceptions extends AbstractWebClientTest {
@@ -48,7 +49,7 @@ public class TestRestExceptions extends AbstractWebClientTest {
 	@Test
 	public void testJson() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/exceptionExample");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exceptionExample");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -70,7 +71,7 @@ public class TestRestExceptions extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testHtml(WebDriver driver) {
-		driver.get(getRestUrl(driver) + "/exceptionExample/html");
+		driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/exceptionExample/html");
 		
 		WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
 		assertEquals("this is expected to be rendered as HTML", span.getText());
@@ -83,7 +84,7 @@ public class TestRestExceptions extends AbstractWebClientTest {
 	@Test
 	public void testText() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/exceptionExample/text");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exceptionExample/text");
 		Response response = target.request().get();
 		
 		assertTrue(MediaType.TEXT_PLAIN_TYPE.isCompatible(response.getMediaType()));
@@ -98,14 +99,14 @@ public class TestRestExceptions extends AbstractWebClientTest {
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testNotFound(WebDriver driver) {
 		{
-			driver.get(getRestUrl(driver) + "/fakeendpoint");
+			driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/fakeendpoint");
 			
 			WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
 			assertTrue(span.getText().startsWith("RESTEASY003210: Could not find resource for full path"));
 		}
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null) + "/fakeendpoint");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/fakeendpoint");
 			Response response = target.request().get();
 			assertEquals(404, response.getStatus());
 		}

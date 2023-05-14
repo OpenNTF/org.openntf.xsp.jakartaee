@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -32,7 +33,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 	@Test
 	public void testRetry() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/faultTolerance/retry");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/faultTolerance/retry");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
@@ -42,7 +43,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 	@Test
 	public void testTimeout() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/faultTolerance/timeout");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/faultTolerance/timeout");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
@@ -54,7 +55,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 	@Test
 	public void testCircuitBreaker() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/faultTolerance/circuitBreaker");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/faultTolerance/circuitBreaker");
 		
 		// First try
 		{

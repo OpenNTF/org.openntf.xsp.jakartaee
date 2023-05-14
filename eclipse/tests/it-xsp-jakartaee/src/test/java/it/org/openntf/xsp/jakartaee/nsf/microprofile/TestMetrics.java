@@ -31,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestMetrics extends AbstractWebClientTest {
@@ -38,7 +39,7 @@ public class TestMetrics extends AbstractWebClientTest {
 	@BeforeEach
 	public void accessSample() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/sample");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample");
 		Response response = target.request().get();
 		response.readEntity(String.class);
 	}
@@ -47,7 +48,7 @@ public class TestMetrics extends AbstractWebClientTest {
 	public void testMetrics() {
 		Client client = getAnonymousClient();
 		
-		WebTarget target = client.target(getRestUrl(null) + "/metrics");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/metrics");
 		Response response = target.request().get();
 		
 		String metrics = response.readEntity(String.class);
@@ -59,7 +60,7 @@ public class TestMetrics extends AbstractWebClientTest {
 	public void testOptions() {
 		Client client = getAnonymousClient();
 		
-		WebTarget target = client.target(getRestUrl(null) + "/metrics");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/metrics");
 		Response response = target.request().options();
 		
 		String metrics = response.readEntity(String.class);
@@ -71,7 +72,7 @@ public class TestMetrics extends AbstractWebClientTest {
 	public void testRequestJson() {
 		Client client = getAnonymousClient();
 		
-		WebTarget target = client.target(getRestUrl(null) + "/metrics");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/metrics");
 		Response response = target.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
 			.get();

@@ -42,6 +42,12 @@
 				
 				<dt>IBM EL resolver</dt>
 				<dd><xp:text value="#{xspel:requestGuy.message}"/></dd>
+    		
+	    		<dt>Faces Phase Listener Output</dt>
+	    		<dd><xp:text value="#{requestScope.FacesPhaseListener}"/></dd>
+	    		
+	    		<dt>XPages Phase Listener Output</dt>
+	    		<dd><xp:text value="#{requestScope.XPagesPhaseListener}"/></dd>
 			</dl>
 		</fieldset>
 		

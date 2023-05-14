@@ -26,7 +26,7 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 
 public class BrowserArgumentsProvider implements ArgumentsProvider {
-	private final static ThreadLocal<WebDriver> HTMLUNIT_DRIVER = ThreadLocal.withInitial(() -> new HtmlUnitDriver(BrowserVersion.FIREFOX));
+	private final static ThreadLocal<WebDriver> HTMLUNIT_DRIVER = ThreadLocal.withInitial(() -> new HtmlUnitDriver(BrowserVersion.FIREFOX, true));
 
 	@Override
 	public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
