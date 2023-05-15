@@ -54,9 +54,18 @@ public class TestJsf extends AbstractWebClientTest {
 			String expected = "inputValue" + System.currentTimeMillis();
 			{
 				WebElement form = driver.findElement(By.xpath("//form[1]"));
-	
-				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Request Method\"]/following-sibling::dd[1]"));
-				assertEquals("GET", dd.getText());
+				
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Request Method\"]/following-sibling::dd[1]"));
+					assertEquals("GET", dd.getText());
+				}
+				
+				// Look for the composite component text
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Composite Component\"]/following-sibling::dd[1]"));
+					assertEquals("I am text sent to a composite component", dd.getText());
+				}
+				
 				
 				WebElement input = form.findElement(By.xpath("input[1]"));
 				assertTrue(input.getAttribute("id").endsWith(":appGuyProperty"), () -> input.getAttribute("id"));

@@ -19,7 +19,8 @@
 <!DOCTYPE html>
 <f:view xmlns="http://www.w3.org/1999/xhtml"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:comp="http://java.sun.com/jsf/composite/comps">
 	
     <h:head>
         <title>JSF 3.0 Hello World</title>
@@ -48,6 +49,9 @@
     		
     		<dt>XPages Phase Listener Output</dt>
     		<dd><h:outputText value="#{requestScope.XPagesPhaseListener}"/></dd>
+    		
+    		<dt>Composite Component</dt>
+    		<dd><comp:testComponent value="I am text sent to a composite component"/></dd>
     	</dl>
     	
     	<fieldset>
