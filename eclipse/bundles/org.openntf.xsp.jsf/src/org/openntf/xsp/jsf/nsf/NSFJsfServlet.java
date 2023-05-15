@@ -17,15 +17,13 @@ package org.openntf.xsp.jsf.nsf;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -45,6 +43,7 @@ import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
+import org.openntf.xsp.jsf.util.FacesBlockingClassLoader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
@@ -57,7 +56,6 @@ import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.faces.application.ProjectStage;
-import jakarta.faces.context.FacesContext;
 import jakarta.faces.webapp.FacesServlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContainerInitializer;
@@ -232,33 +230,21 @@ public class NSFJsfServlet extends HttpServlet {
 			throws BundleException, IOException {
 		if (context.getAttribute(PROP_CLASSLOADER) == null) {
 			List<URL> urls = new ArrayList<>();
-			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(FacesContext.class)).toURI().toURL());
 			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(MyFacesContainerInitializer.class)).toURI().toURL());
 
 			// Look for JARs in WEB-INF/lib-jakarta
 			ModuleUtil.listFiles(module, "WEB-INF/jakarta/lib") //$NON-NLS-1$
 				.filter(file -> file.toLowerCase().endsWith(".jar")) //$NON-NLS-1$
 				.map(jarName -> {
-					try (InputStream is = context.getResourceAsStream(jarName)) {
-						Path tempPath = Files.createTempFile(getClass().getSimpleName(), ".jar"); //$NON-NLS-1$
-						tempFiles.add(tempPath);
-						Files.copy(is, tempPath, StandardCopyOption.REPLACE_EXISTING);
-						return tempPath.toUri().toURL();
-					} catch (IOException e) {
+					try {
+						return module.getResource("/" + jarName); //$NON-NLS-1$
+					} catch (MalformedURLException e) {
 						throw new UncheckedIOException(e);
 					}
 				})
 				.forEach(urls::add);
 
-			ClassLoader cl = new URLClassLoader(urls.toArray(new URL[urls.size()]), delegate) {
-				@Override
-				public Class<?> loadClass(String name) throws ClassNotFoundException {
-					if (name != null && name.startsWith("com.sun.faces.")) { //$NON-NLS-1$
-						throw new ClassNotFoundException();
-					}
-					return super.loadClass(name);
-				}
-			};
+			ClassLoader cl = new FacesBlockingClassLoader(urls.toArray(new URL[urls.size()]), delegate);
 			
 			context.setAttribute(PROP_CLASSLOADER, cl);
 		}
