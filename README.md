@@ -591,7 +591,7 @@ This is useful to alter internal behaviors and optimizations. For example, setti
 
 ### CDI Beans
 
-In order to resolve CDI beans reliably, it is important to [have a class annotated with @FacesConfig in your app](https://jakarta.ee/specifications/faces/3.0/jakarta-faces-3.0.html#cdi-for-expression-language-resolution). For exaple:
+In order to resolve CDI beans reliably, it is important to [have a class annotated with @FacesConfig in your app](https://jakarta.ee/specifications/faces/3.0/jakarta-faces-3.0.html#cdi-for-expression-language-resolution). For example:
 
 ```java
 package config;
