@@ -2,11 +2,15 @@ package org.openntf.xsp.jsf.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.faces.context.FacesContext;
 
@@ -20,11 +24,11 @@ import jakarta.faces.context.FacesContext;
  * @since 2.12.0
  */
 public class FacesBlockingClassLoader extends URLClassLoader {
-	private final ClassLoader facesCl;
+	private final Collection<ClassLoader> facesCl;
 
 	public FacesBlockingClassLoader(URL[] urls, ClassLoader parent) {
 		super(urls, parent);
-		this.facesCl = FacesContext.class.getClassLoader();
+		this.facesCl = Arrays.asList(FacesContext.class.getClassLoader(), getClass().getClassLoader());
 	}
 	
 	@Override
@@ -44,7 +48,11 @@ public class FacesBlockingClassLoader extends URLClassLoader {
 		if(parent != null) {
 			return parent;
 		}
-		return facesCl.getResource(name);
+		return facesCl.stream()
+			.map(cl -> cl.getResource(name))
+			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
 	}
 	
 	@Override
@@ -53,13 +61,26 @@ public class FacesBlockingClassLoader extends URLClassLoader {
 		if(parent != null) {
 			return parent;
 		}
-		return facesCl.getResourceAsStream(name);
+		return facesCl.stream()
+			.map(cl -> cl.getResourceAsStream(name))
+			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
 	}
 	
 	@Override
 	public Enumeration<URL> getResources(String name) throws IOException {
 		List<URL> parent = Collections.list(super.getResources(name));
-		parent.addAll(Collections.list(facesCl.getResources(name)));
+		facesCl.stream()
+			.map(cl -> {
+				try {
+					return cl.getResources(name);
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
+			})
+			.map(Collections::list)
+			.forEach(parent::addAll);
 		return Collections.enumeration(parent);
 	}
 

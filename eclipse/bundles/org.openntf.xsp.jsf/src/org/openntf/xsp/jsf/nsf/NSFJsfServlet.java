@@ -100,6 +100,7 @@ public class NSFJsfServlet extends HttpServlet {
 			ServletContext context = config.getServletContext();
 			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
 			context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_JSP_AND_FACES_EL, String.valueOf(false));
+			context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_MANAGED_BEANS, String.valueOf(false));
 			// TODO investigate why partial state saving doesn't work with a basic form
 			context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 
