@@ -1,0 +1,67 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:p="http://primefaces.org/ui">
+<body>
+<ui:composition>
+	<h:outputStylesheet>
+		body .ui-menu {
+			border: none !important;
+		}
+	</h:outputStylesheet>
+	<h:form>
+		<p:growl id="messages"/>
+
+		<p:menubar>
+			<p:menuitem value="Home" icon="pi pi-home" outcome="/index">
+			</p:menuitem>
+
+			<p:menuitem value="Customers" icon="pi pi-users"
+						outcome="/customers">
+			</p:menuitem>
+
+			<p:menuitem value="Create Order" icon="pi pi-shopping-cart"
+						outcome="/createOrder">
+			</p:menuitem>
+
+			<p:menuitem value="Visit my blog" icon="pi pi-external-link"
+						url="https://rieckpil.de">
+			</p:menuitem>
+
+			<p:menuitem value="(right side are just dummy buttons)">
+				</p:menuitem>
+				<p:submenu label="File" icon="pi pi-file">
+					<p:submenu label="New" icon="pi pi-briefcase">
+						<p:menuitem value="Project" url="#" />
+						<p:menuitem value="Other" url="#" />
+					</p:submenu>
+					<p:menuitem value="Open" url="#" />
+					<p:separator />
+					<p:menuitem value="Quit" url="#" />
+				</p:submenu>
+
+				<p:submenu label="Edit" icon="pi pi-pencil">
+					<p:menuitem value="Undo" url="#" icon="pi pi-angle-double-left" />
+					<p:menuitem value="Redo" url="#" icon="pi pi-angle-double-right" />
+				</p:submenu>
+
+				<p:submenu label="Help" icon="pi pi-question">
+					<p:menuitem value="Contents" url="#" />
+					<p:submenu label="Search" icon="pi pi-search">
+						<p:submenu label="Text">
+							<p:menuitem value="Workspace" url="#" />
+						</p:submenu>
+						<p:menuitem value="File" url="#" />
+					</p:submenu>
+				</p:submenu>
+
+				<f:facet name="options">
+					<p:inputText style="margin:1px 10px 1px 1px;" placeholder="Search" />
+					<p:commandButton type="button" value="Logout" icon="pi pi-home" />
+				</f:facet>
+			</p:menubar>
+		</h:form>
+	</ui:composition>
+</body>
+</html>
