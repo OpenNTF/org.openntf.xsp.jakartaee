@@ -18,9 +18,8 @@ package org.openntf.xsp.cdi.discovery;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
-
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 /**
  * This class is responsible for locating and loading bean classes from the
@@ -36,12 +35,11 @@ public class NSFComponentModuleClassContributor implements WeldBeanClassContribu
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		NotesContext notesContext = NotesContext.getCurrentUnchecked();
-		if(notesContext != null) {
-			return ModuleUtil.getClasses(notesContext.getModule())
-				.collect(Collectors.toSet());
-		}
-		return null;
+		return ComponentModuleLocator.getDefault()
+			.map(ComponentModuleLocator::getActiveModule)
+			.map(ModuleUtil::getClasses)
+			.map(c -> c.collect(Collectors.toSet()))
+			.orElse(null);
 	}
 
 }
