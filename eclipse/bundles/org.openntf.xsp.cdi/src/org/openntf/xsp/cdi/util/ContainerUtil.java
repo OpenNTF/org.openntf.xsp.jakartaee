@@ -364,6 +364,7 @@ public enum ContainerUtil {
 				}
 			}
 			
+			ComponentModuleLocator module = ComponentModuleLocator.getDefault().get();
 			String id = database.getReplicaID();
 
 			return withLock(id, () -> {
@@ -387,10 +388,16 @@ public enum ContainerUtil {
 								e.printStackTrace();
 							}
 						}
+					} else {
+						weld.setResourceLoader(new ModuleContextResourceLoader(module.getActiveModule()));
 					}
 	
 					Weld fweld = weld;
 					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
+						for(Extension extension : LibraryUtil.findExtensions(Extension.class)) {
+							fweld.addExtension(extension);
+						}
+						
 						for(WeldBeanClassContributor service : LibraryUtil.findExtensions(WeldBeanClassContributor.class)) {
 							Collection<Class<?>> beanClasses = service.getBeanClasses();
 							if(beanClasses != null) {
@@ -408,6 +415,11 @@ public enum ContainerUtil {
 						
 						return fweld.initialize();
 					});
+
+					// Also set it in the ServletContext for other use
+					// NotesContext must be set if we're here
+					javax.servlet.ServletContext oldContext = module.getActiveModule().getServletContext();
+					oldContext.setAttribute(ATTR_CONTEXTCONTAINER, instance);
 				}
 				return instance;
 			});
