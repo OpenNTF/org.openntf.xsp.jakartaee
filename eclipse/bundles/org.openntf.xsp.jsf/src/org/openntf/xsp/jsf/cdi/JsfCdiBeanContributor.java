@@ -17,6 +17,7 @@ package org.openntf.xsp.jsf.cdi;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -31,6 +32,9 @@ import jakarta.enterprise.inject.spi.Extension;
 public class JsfCdiBeanContributor implements WeldBeanClassContributor {
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
+		if(LibraryUtil.isLibraryActive(JsfLibrary.LIBRARY_ID)) {
+			return Collections.singleton(FacesConfigBean.class);
+		}
 		return null;
 	}
 
