@@ -589,22 +589,6 @@ jakarta.faces.PROJECT_STAGE=Development
 
 This is useful to alter internal behaviors and optimizations. For example, setting Development there will cause the runtime to less-heavily cache page definitions.
 
-### CDI Beans
-
-In order to resolve CDI beans reliably, it is important to [have a class annotated with @FacesConfig in your app](https://jakarta.ee/specifications/faces/3.0/jakarta-faces-3.0.html#cdi-for-expression-language-resolution). For example:
-
-```java
-package config;
-
-import jakarta.faces.annotation.FacesConfig;
-
-@FacesConfig
-public class FacesConfigBean {
-}
-```
-
-The class doesn't have to do anything else - its mere presence will trigger CDI resolution.m
-
 #### ClassLoaders
 
 Because Faces classes and lifecycle registrations will often conflict with XPages elements, it's not possible to add extensions like [PrimeFaces](https://primefaces.org) as a normal JAR within the application. To work around this, you can put JARs in WebContent/WEB-INF/jakarta/lib - these will be loaded in the Faces class loader, but won't be present in the normal Java classpath of the NSF. Faces UI libraries placed here can be used inside XHTML files, though
