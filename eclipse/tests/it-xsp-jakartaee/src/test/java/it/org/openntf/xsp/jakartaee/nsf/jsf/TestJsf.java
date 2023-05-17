@@ -60,6 +60,12 @@ public class TestJsf extends AbstractWebClientTest {
 					assertEquals("GET", dd.getText());
 				}
 				
+				// Look for requestGuy.message, as resolved via CDI
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"requestGuy.message\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().startsWith("I'm request guy at "));
+				}
+				
 				// Look for the composite component text
 				{
 					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Composite Component\"]/following-sibling::dd[1]"));
