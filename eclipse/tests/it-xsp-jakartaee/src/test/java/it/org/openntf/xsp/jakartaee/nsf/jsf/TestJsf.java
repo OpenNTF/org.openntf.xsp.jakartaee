@@ -158,6 +158,7 @@ public class TestJsf extends AbstractWebClientTest {
 			assertEquals("1", input.getAttribute("value"));
 			
 			a.click();
+			TimeUnit.MILLISECONDS.sleep(100);
 			
 			assertEquals("2", input.getAttribute("value"));
 		} catch(Exception e) {
