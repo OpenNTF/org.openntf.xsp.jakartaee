@@ -44,6 +44,14 @@
 			<includes>
 				<include>**/*</include>
 			</includes>
+			<excludes>
+				<exclude>*/build.properties</exclude>
+				<exclude>*/.project</exclude>
+				<exclude>*/.classpath</exclude>
+				<exclude>*/.settings/**</exclude>
+				<exclude>*/META-INF/**</exclude>
+				<exclude>*/target/**</exclude>
+			</excludes>
 			<outputDirectory>examples</outputDirectory>
 		</fileSet>
 	</fileSets>
