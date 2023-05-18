@@ -7,6 +7,14 @@ Bundle-Version: 2.13.0.qualifier
 Export-Package: org.openntf.xsp.jakartaee.bridge.jasapi
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.ibm.designer.runtime.domino.adapter,
+Import-Package: com.ibm.commons.util,
+ com.ibm.designer.runtime.domino.adapter,
  com.ibm.domino.bridge.http.jasapi,
+ com.ibm.domino.xsp.module.nsf,
+ jakarta.servlet;version="5.0.0",
+ jakarta.servlet.http;version="5.0.0",
+ javax.servlet;version="2.5.0",
+ javax.servlet.http;version="2.5.0",
+ org.openntf.xsp.jakartaee.jasapi;version="2.13.0",
+ org.openntf.xsp.jakartaee.servlet;version="2.13.0",
  org.openntf.xsp.jakartaee.util;version="2.12.0"
