@@ -18,6 +18,7 @@ package it.org.openntf.xsp.jakartaee.nsf.mvc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
@@ -26,6 +27,14 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestMvcJsp extends AbstractWebClientTest {
@@ -33,7 +42,7 @@ public class TestMvcJsp extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testHelloPage(WebDriver driver) {
-		driver.get(getRestUrl(driver) + "/mvc?foo=bar");
+		driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc?foo=bar");
 		
 		{
 			WebElement p = driver.findElement(By.xpath("//p[1]"));
@@ -50,5 +59,24 @@ public class TestMvcJsp extends AbstractWebClientTest {
 		
 		WebElement dd = driver.findElement(By.xpath("//fieldset/p"));
 		assertEquals("I was sent: Value sent into the tag", dd.getText());
+	}
+	
+	@Test
+	public void testBeanParam() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mvc/beanParam"); //$NON-NLS-1$
+		
+		String firstName = "Foo" + System.currentTimeMillis();
+		String lastName = "CreatedUnitTest" + System.currentTimeMillis();
+		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+		payload.putSingle("firstName", firstName);
+		payload.putSingle("lastName", lastName);
+		Response response = target.request()
+			.accept(MediaType.TEXT_HTML_TYPE) // Ensure that it routes to MVC
+			.post(Entity.form(payload));
+		String html = response.readEntity(String.class);
+		assertEquals(200, response.getStatus(), () -> "Invalid response code with HTML: " + html);
+		assertTrue(html.contains("Last name: " + lastName), () -> "Unexpected HTML: " + html);
+		
 	}
 }

@@ -27,6 +27,7 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestElBasics extends AbstractWebClientTest {
@@ -36,7 +37,7 @@ public class TestElBasics extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testBasicFunctionClass(WebDriver driver) {
-		driver.get(getRootUrl(driver) + "/el.xsp");
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/el.xsp");
 		
 		try {
 			WebElement dd = driver.findElement(By.xpath("//dt[text()=\"#{functionClass.foo}\"]/following-sibling::dd[1]"));

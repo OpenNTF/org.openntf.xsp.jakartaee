@@ -43,15 +43,18 @@ import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestNoSQL extends AbstractWebClientTest {
 	@Test
 	public void testNoSql() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/nosql?lastName=CreatedUnitTest"); //$NON-NLS-1$
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql?lastName=CreatedUnitTest"); //$NON-NLS-1$
 		
 		{
 			Response response = target.request().get();
@@ -69,7 +72,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 			payload.putSingle("firstName", "foo"); //$NON-NLS-1$ //$NON-NLS-2$
 			payload.putSingle("lastName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
 			payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
-			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 			Response response = postTarget.request()
 				.accept(MediaType.TEXT_HTML_TYPE) // Ensure that it routes to MVC
 				.post(Entity.form(payload));
@@ -109,9 +112,10 @@ public class TestNoSQL extends AbstractWebClientTest {
 		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
 		payload.putSingle("lastName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
 		payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
-		WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+		WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 		Response response = postTarget.request().post(Entity.form(payload));
-		assertEquals(400, response.getStatus());
+		String html = response.readEntity(String.class);
+		assertEquals(400, response.getStatus(), () -> "Unexpected response code with content: " + html);
 	}
 	
 	/**
@@ -124,7 +128,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
 		payload.putSingle("firstName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
 		payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
-		WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+		WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 		Response response = postTarget.request().post(Entity.form(payload));
 		// NB: this currently throws a 500 due to the exception being UndeclaredThrowableException (Issue #211)
 		assertTrue(response.getStatus() >= 400, () -> "Response code should be an error; got " + response.getStatus()); //$NON-NLS-1$
@@ -134,7 +138,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 	@Disabled("QRP#executeToView is currently broken on Linux (12.0.1IF2)")
 	public void testNoSqlNames() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/nosql/servers"); //$NON-NLS-1$
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/servers"); //$NON-NLS-1$
 		
 		Response response = target.request().get();
 		
@@ -157,7 +161,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		String lastName;
 		String unid;
 		{
-			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 			
 			lastName = "Fooson" + System.nanoTime();
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
@@ -179,7 +183,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		int noteId;
 		// Fetch it again to get the note ID
 		{
-			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
 			
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -195,7 +199,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		// Find by note ID
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byNoteId/" + Integer.toHexString(noteId));
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byNoteId/" + Integer.toHexString(noteId));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -215,7 +219,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		String lastName;
 		String unid;
 		{
-			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 			
 			lastName = "Fooson" + System.nanoTime();
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
@@ -237,7 +241,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		int noteId;
 		// Fetch it again to get the note ID
 		{
-			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
 			
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -253,7 +257,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		// Find by note ID
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byNoteIdInt/" + noteId);
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byNoteIdInt/" + noteId);
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -274,7 +278,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		String firstName;
 		String unid;
 		{
-			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 			
 			lastName = "Fooson" + System.nanoTime();
 			firstName = "Foo" + System.nanoTime();
@@ -298,7 +302,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		{
 			TimeUnit.SECONDS.sleep(1);
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
 			
 			JsonObject payload = Json.createObjectBuilder()
 					.add("firstName", firstName)
@@ -318,7 +322,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		String modified;
 		// Fetch it again to get the mod time
 		{
-			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
 			
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -351,7 +355,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		// Find by modified
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/modifiedSince/" + URLEncoder.encode(modified, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/modifiedSince/" + URLEncoder.encode(modified, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -372,7 +376,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 	@Test
 	public void testQueryByNoteIdNotFound() {
 		Client client = getAdminClient();
-		WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/byNoteId/doesNotExist");
+		WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byNoteId/doesNotExist");
 		
 		Response response = getTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -386,7 +390,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		String unid;
 		String lastName = "Fooson" + System.nanoTime();
 		{
-			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 			
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
 			payload.addFormData("firstName", "Foo", MediaType.TEXT_PLAIN_TYPE);
@@ -406,7 +410,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Fetch the doc by UNID
 		{
-			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
 			
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -435,7 +439,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		String unid;
 		String lastName = "Fooson" + System.nanoTime();
 		{
-			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 			
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
 			payload.addFormData("firstName", "Foo", MediaType.TEXT_PLAIN_TYPE);
@@ -456,7 +460,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Fetch the doc by UNID
 		{
-			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid);
+			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
 			
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -477,7 +481,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Fetch the attachment
 		{
-			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/" + unid + "/attachment/foo.html");
+			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid + "/attachment/foo.html");
 
 			Response response = getTarget.request().get();
 			assertEquals(200, response.getStatus());
@@ -487,13 +491,21 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 	}
 	
-	@Test
-	public void testFolderOperations() {
+	/**
+	 * Tests both the /inFolder and /inFolderManual endpoints, which will
+	 * exercise both the {@code @ViewEntries} annotation and the
+	 * {@code readViewEntries} method on {@code Repository}.
+	 * 
+	 * @param endpoint the endpoint tested in this run
+	 */
+	@ParameterizedTest
+	@ValueSource(strings = { "inFolder", "inFolderManual" })
+	public void testFolderOperations(String endpoint) {
 		Client client = getAdminClient();
 		String unid;
 		String lastName = "Fooson" + System.nanoTime();
 		{
-			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 			
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
 			payload.addFormData("firstName", "Foo", MediaType.TEXT_PLAIN_TYPE);
@@ -512,7 +524,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		Predicate<String> isInFolder = documentId -> {
-			WebTarget getTarget = client.target(getRestUrl(null) + "/nosql/inFolder"); //$NON-NLS-1$
+			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + endpoint); //$NON-NLS-1$
 			
 			Response response = getTarget.request().get();
 			String json = response.readEntity(String.class);
@@ -528,7 +540,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Add it to the folder
 		{
-			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/" + unid + "/putInFolder");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid + "/putInFolder");
 
 			Response response = postTarget.request().post(Entity.form(new MultivaluedHashMap<>()));
 			String json = response.readEntity(String.class);
@@ -540,7 +552,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Remove it from the folder
 		{
-			WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/" + unid + "/removeFromFolder");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid + "/removeFromFolder");
 
 			Response response = postTarget.request().post(Entity.form(new MultivaluedHashMap<>()));
 			String json = response.readEntity(String.class);

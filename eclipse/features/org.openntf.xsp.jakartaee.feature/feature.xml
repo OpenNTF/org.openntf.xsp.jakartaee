@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jakartaee.feature"
       label="XPages Jakarta EE Platform Feature"
-      version="2.11.0.qualifier">
+      version="2.12.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -235,6 +235,7 @@
 
 	<plugin id="org.openntf.xsp.jakartaee.commons" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakartaee.osgiresourcelocator" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakartaee.bridge.jasapi" version="0.0.0" unpack="false"/>
 	
 	<!-- XML Binding -->
 	<plugin id="jakarta.xml.bind-api" version="0.0.0" unpack="false"/>

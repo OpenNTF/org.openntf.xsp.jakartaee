@@ -13,11 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package faces;
+package org.openntf.xsp.jakartaee.bridge.jasapi;
 
-import jakarta.faces.annotation.FacesConfig;
+import java.util.Collection;
 
-@FacesConfig(version=FacesConfig.Version.JSF_2_3)
-public class FacesConfigBean {
+import com.ibm.domino.bridge.http.jasapi.IJavaSapiEnvironment;
+import com.ibm.domino.bridge.http.jasapi.JavaSapiService;
+
+/**
+ * This extention point interface allows for plugins to register JavaSapi
+ * services that will be loaded at HTTP init.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.12.0
+ */
+public interface JasapiServiceFactory {
+	public static final String EXTENSION_ID = JasapiServiceFactory.class.getName();
+
+	Collection<JavaSapiService> getServices(IJavaSapiEnvironment env);
 
 }

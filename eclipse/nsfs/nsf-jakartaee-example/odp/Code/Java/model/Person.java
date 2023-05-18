@@ -25,10 +25,12 @@ import org.openntf.xsp.nosql.mapping.extension.EntryType;
 
 import java.time.Instant;
 
+import jakarta.mvc.binding.MvcBinding;
 import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Id;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.ws.rs.FormParam;
 
 @Entity("Person")
 public class Person {
@@ -36,9 +38,11 @@ public class Person {
 	private String unid;
 	
 	@Column("FirstName") @NotEmpty
+	@MvcBinding @FormParam("firstName")
 	private String firstName;
 	
 	@Column("LastName") @NotEmpty
+	@MvcBinding @FormParam("lastName")
 	private String lastName;
 	
 	@Column("birthday")

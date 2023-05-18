@@ -18,6 +18,8 @@ package it.org.openntf.xsp.jakartaee.nsf.mvc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -27,6 +29,7 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestMvcJsf extends AbstractWebClientTest {
@@ -35,7 +38,7 @@ public class TestMvcJsf extends AbstractWebClientTest {
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	@Order(1)
 	public void testHelloPage(WebDriver driver) {
-		driver.get(getRestUrl(driver) + "/mvcjsf");
+		driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvcjsf");
 
 		try {
 			String expected = "inputValue" + System.currentTimeMillis();
@@ -56,6 +59,8 @@ public class TestMvcJsf extends AbstractWebClientTest {
 				WebElement submit = form.findElement(By.xpath("input[@type='submit']"));
 				assertEquals("Refresh", submit.getAttribute("value"));
 				submit.click();
+				// Give it a bit to do the partial refresh
+				TimeUnit.MILLISECONDS.sleep(250);
 			}
 			{
 				

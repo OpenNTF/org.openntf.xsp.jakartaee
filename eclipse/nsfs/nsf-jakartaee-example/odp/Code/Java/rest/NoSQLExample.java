@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.nosql.communication.driver.ByteArrayEntityAttachment;
+import org.openntf.xsp.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
@@ -102,6 +103,14 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Person> getInFolder() {
 		return personRepository.findInPersonsFolder().collect(Collectors.toList());
+	}
+	
+	@Path("inFolderManual")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getInFolderManual() {
+		return personRepository.readViewEntries(PersonRepository.FOLDER_PERSONS, -1, false, null, null, null)
+			.collect(Collectors.toList());
 	}
 	
 	@Path("servers")
@@ -588,12 +597,28 @@ public class NoSQLExample {
 		return personRepository.findCategorized(query).collect(Collectors.toList());
 	}
 	
+	@Path("findCategorizedManual/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getCategorizedManual(@PathParam("lastName") String lastName) {
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.readViewDocuments(PersonRepository.VIEW_PERSONS_CAT, -1, false, query, null, null)
+			.collect(Collectors.toList());
+	}
+	
 	@Path("findCategorizedDistinct/{lastName}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Person> getCategorizedDistinct(@PathParam("lastName") String lastName) {
 		ViewQuery query = ViewQuery.query().key(lastName, true);
 		return personRepository.findCategorizedDistinct(query).collect(Collectors.toList());
+	}
+	
+	@Path("listViews")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ViewInfo> listViews() {
+		return personRepository.getViewInfo().collect(Collectors.toList());
 	}
 	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {

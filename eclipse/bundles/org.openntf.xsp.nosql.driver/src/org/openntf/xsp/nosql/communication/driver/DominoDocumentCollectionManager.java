@@ -86,4 +86,12 @@ public interface DominoDocumentCollectionManager extends DocumentCollectionManag
      * @since 2.8.0
      */
     Optional<DocumentEntity> getById(String entityName, String id);
+    
+    /**
+     * Retrieves a list of the views and folders in the underlying database.
+     * 
+     * @return a {@link Stream} of {@link ViewInfo} objects
+     * @since 2.12.0
+     */
+    Stream<ViewInfo> getViewInfo();
 }

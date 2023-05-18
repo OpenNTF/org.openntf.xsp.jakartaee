@@ -30,13 +30,14 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestHealth extends AbstractWebClientTest {
 	@Test
 	public void testAll() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/health");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/health");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
@@ -49,7 +50,7 @@ public class TestHealth extends AbstractWebClientTest {
 	@Test
 	public void testReadiness() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/health/ready");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/health/ready");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
@@ -64,7 +65,7 @@ public class TestHealth extends AbstractWebClientTest {
 	@Test
 	public void testLiveness() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/health/live");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/health/live");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
@@ -81,7 +82,7 @@ public class TestHealth extends AbstractWebClientTest {
 	@Test
 	public void testStarted() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/health/started");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/health/started");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);

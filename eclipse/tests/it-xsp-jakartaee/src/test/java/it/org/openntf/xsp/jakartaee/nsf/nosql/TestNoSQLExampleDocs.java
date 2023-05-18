@@ -30,6 +30,7 @@ import com.ibm.commons.xml.DOMUtil;
 import com.ibm.commons.xml.XMLException;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -54,7 +55,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.putSingle("title", "foo");
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -67,7 +68,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -99,7 +100,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			payload.put("authors", Arrays.asList("CN=foo fooson/O=Bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -112,7 +113,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -144,7 +145,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.putSingle("title", "foo");
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -157,7 +158,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -199,7 +200,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("body", "<p>I am body HTML</p>")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -212,7 +213,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -248,7 +249,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("computedValue", "I am written by the test")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -261,7 +262,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -281,14 +282,14 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("computedValue", "I am written by the test again")
 				.build();
 			
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().put(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 		}
 		
 		// Fetch it again
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -314,7 +315,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("nonUpdatable", "I should be written during insert")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -327,7 +328,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -349,14 +350,14 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("nonUpdatable", "I should not be written during update")
 				.build();
 			
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().put(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 		}
 		
 		// Fetch it again
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -382,7 +383,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.putSingle("title", "foo");
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -395,7 +396,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it shows up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/inView");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -420,7 +421,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.putSingle("title", "foo");
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -433,7 +434,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it shows up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/inView?docsOnly=true");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView?docsOnly=true");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -458,7 +459,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.putSingle("title", "foo");
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -471,7 +472,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it shows up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/viewCategories");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/viewCategories");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -498,7 +499,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			payload.putSingle("intentionallyRollBack", "true");
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(500, response);
 			
@@ -508,7 +509,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it doesn't show up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/inView");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -527,7 +528,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		String unid;
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/exampleDocAndPersonTransaction");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocAndPersonTransaction");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -545,7 +546,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it shows up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/inView?docsOnly=true");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView?docsOnly=true");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -571,7 +572,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("numbersGuy", Json.createArrayBuilder(Arrays.asList(4.111, 5.111)))
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -584,7 +585,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);

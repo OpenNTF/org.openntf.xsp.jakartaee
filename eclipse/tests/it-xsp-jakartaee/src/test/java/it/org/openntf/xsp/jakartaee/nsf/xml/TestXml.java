@@ -24,6 +24,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestXml extends AbstractWebClientTest {
@@ -31,7 +32,7 @@ public class TestXml extends AbstractWebClientTest {
 	@Test
 	public void testXml() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/sample/xml");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/xml");
 		Response response = target.request().get();
 		
 		String xml = String.valueOf(response.readEntity(String.class));

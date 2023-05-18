@@ -26,6 +26,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestAdminRole extends AbstractWebClientTest {
@@ -38,7 +39,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 		// Anonymous should get a login form
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null) + "/adminrole");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);
@@ -48,7 +49,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 		// Admin should get basic text
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null) + "/adminrole");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);
@@ -66,7 +67,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 		// Anonymous should get a login form
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null) + "/adminrole/invaliduser");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/invaliduser");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);
@@ -76,7 +77,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 		// Admin should also get a login form
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null) + "/adminrole/invaliduser");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/invaliduser");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);
@@ -94,7 +95,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 		// Anonymous should get a login form
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null) + "/adminrole/login");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/login");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);
@@ -104,7 +105,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 		// Admin should get basic text
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null) + "/adminrole/login");
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/login");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);

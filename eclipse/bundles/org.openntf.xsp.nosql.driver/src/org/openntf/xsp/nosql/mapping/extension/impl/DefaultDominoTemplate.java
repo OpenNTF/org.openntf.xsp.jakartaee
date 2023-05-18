@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
 import org.eclipse.jnosql.mapping.reflection.ClassMappings;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
@@ -160,6 +161,11 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 		}
 		
 		return getManager().getById(entityName, String.valueOf(id)).map(getConverter()::toEntity);
+	}
+	
+	@Override
+	public Stream<ViewInfo> getViewInfo() {
+		return getManager().getViewInfo();
 	}
 
 }

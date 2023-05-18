@@ -93,11 +93,10 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 				try {
 					Map<String, String> params = new HashMap<>();
 					
-					@SuppressWarnings("deprecation")
 					URL[] urls = buildBundleClassPath().stream()
 						.map(t -> {
 							try {
-								return t.toURL();
+								return t.toURI().toURL();
 							} catch (MalformedURLException e) {
 								throw new UncheckedIOException(e);
 							}

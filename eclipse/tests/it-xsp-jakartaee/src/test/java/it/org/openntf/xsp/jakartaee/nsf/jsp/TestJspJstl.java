@@ -26,6 +26,7 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestJspJstl extends AbstractWebClientTest {
@@ -33,7 +34,7 @@ public class TestJspJstl extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testHelloPage(WebDriver driver) {
-		driver.get(getRootUrl(driver) + "/hello.jsp");
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/hello.jsp");
 		
 		WebElement p = driver.findElement(By.xpath("//p[1]"));
 		assertTrue(p.getText().startsWith("My CDI Bean is: I'm request guy"), () -> p.getText());

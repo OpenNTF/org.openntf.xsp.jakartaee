@@ -198,27 +198,4 @@ public enum DominoNoSQLUtil {
 			return false;
 		}
 	}
-	
-	/**
-	 * Determines the back-end item name for the given Java property.
-	 * 
-	 * @param propName the Java property to check
-	 * @param mapping the {@link ClassMapping} instance for the class in question
-	 * @return the effective item name based on the class properties
-	 */
-	public static String findItemName(String propName, ClassMapping mapping) {
-		if(mapping != null) {
-			Column annotation = mapping.getFieldMapping(propName)
-				.map(FieldMapping::getNativeField)
-				.map(f -> f.getAnnotation(Column.class))
-				.orElse(null);
-			if(annotation != null && !annotation.value().isEmpty()) {
-				return annotation.value();
-			} else {
-				return propName;
-			}
-		} else {
-			return propName;
-		}
-	}
 }

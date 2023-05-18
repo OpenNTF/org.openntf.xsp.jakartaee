@@ -67,31 +67,11 @@ public abstract class AbstractWebClientTest {
 		return adminClient;
 	}
 	
-	public String getExampleContextPath() {
-		return "/dev/jakartaee.nsf";
-	}
-	
-	public String getBundleExampleContextPath() {
-		return "/dev/jeebundle.nsf";
-	}
-	
-	public String getBaseBundleExampleContextPath() {
-		return "/dev/jeebasebundle.nsf";
-	}
-	
-	public String getJsonbExampleContextPath() {
-		return "/dev/jsonbconfig.nsf";
-	}
-	
-	public String getJpaExampleContextPath() {
-		return "/dev/jpa.nsf";
-	}
-	
 	public String getWebappContextPath() {
 		return "/jeeExample";
 	}
 	
-	public String getRootUrl(WebDriver driver) {
+	public String getRootUrl(WebDriver driver, TestDatabase db) {
 		String host;
 		int port;
 		if(driver instanceof RemoteWebDriver) {
@@ -102,12 +82,12 @@ public abstract class AbstractWebClientTest {
 			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
-		String context = getExampleContextPath();
+		String context = db.getContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
-	public String getRestUrl(WebDriver driver) {
-		String root = getRootUrl(driver);
+	public String getRestUrl(WebDriver driver, TestDatabase db) {
+		String root = getRootUrl(driver, db);
 		return PathUtil.concat(root, "xsp/app", '/');
 	}
 
@@ -123,51 +103,6 @@ public abstract class AbstractWebClientTest {
 		}
 		
 		String context = "/exampleservlet";
-		return PathUtil.concat("http://" + host + ":" + port, context, '/');
-	}
-	
-	public String getBundleNsfRootUrl(WebDriver driver) {
-		String host;
-		int port;
-		if(driver instanceof RemoteWebDriver) {
-			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
-			port = 80;
-		} else {
-			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
-		}
-		
-		String context = getBundleExampleContextPath();
-		return PathUtil.concat("http://" + host + ":" + port, context, '/');
-	}
-	
-	public String getJsonbConfigRootUrl(WebDriver driver) {
-		String host;
-		int port;
-		if(driver instanceof RemoteWebDriver) {
-			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
-			port = 80;
-		} else {
-			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
-		}
-		
-		String context = getJsonbExampleContextPath();
-		return PathUtil.concat("http://" + host + ":" + port, context, '/');
-	}
-	
-	public String getJpaExampleRootUrl(WebDriver driver) {
-		String host;
-		int port;
-		if(driver instanceof RemoteWebDriver) {
-			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
-			port = 80;
-		} else {
-			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
-		}
-		
-		String context = getJpaExampleContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
@@ -197,23 +132,8 @@ public abstract class AbstractWebClientTest {
 			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
-		String context = PathUtil.concat(getExampleContextPath(), getWebappContextPath(), '/');
+		String context = PathUtil.concat(TestDatabase.MAIN.getContextPath(), getWebappContextPath(), '/');
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
-	}
-	
-	public String getBundleNsfRestUrl(WebDriver driver) {
-		String root = getBundleNsfRootUrl(driver);
-		return PathUtil.concat(root, "xsp/app", '/');
-	}
-	
-	public String getJsonbConfigRestUrl(WebDriver driver) {
-		String root = getJsonbConfigRootUrl(null);
-		return PathUtil.concat(root, "xsp/app", '/');
-	}
-	
-	public String getJpaExampleRestUrl(WebDriver driver) {
-		String root = getJpaExampleRootUrl(null);
-		return PathUtil.concat(root, "xsp/app", '/');
 	}
 	
 	public String getBaseBudleNsfRootUrl(WebDriver driver) {
@@ -227,7 +147,7 @@ public abstract class AbstractWebClientTest {
 			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
-		String context = getBaseBundleExampleContextPath();
+		String context = TestDatabase.BUNDLEBASE.getContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 

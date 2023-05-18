@@ -36,6 +36,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.AdminUserAuthenticator;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
@@ -49,7 +50,7 @@ public class TestRestJson extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(AnonymousClientProvider.class)
 	public void testJsonp(Client client) {
-		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonp");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jsonExample/jsonp");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -60,7 +61,7 @@ public class TestRestJson extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(AnonymousClientProvider.class)
 	public void testJsonb(Client client) {
-		WebTarget target = client.target(getRestUrl(null) + "/jsonExample");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jsonExample");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -71,7 +72,7 @@ public class TestRestJson extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(AnonymousClientProvider.class)
 	public void testJsonbCdi(Client client) {
-		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonb");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jsonExample/jsonb");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);

@@ -27,6 +27,7 @@ import org.openqa.selenium.WebDriver;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
@@ -40,7 +41,7 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 	@Test
 	public void testJaxRsClient() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();
@@ -54,7 +55,7 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testJaxRsClientXPages(WebDriver driver) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/jaxrsClient.xsp");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/jaxrsClient.xsp");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();
@@ -69,7 +70,7 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 	@Test
 	public void testJaxRsClientImplicitJson() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient/exampleObject");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient/exampleObject");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();
@@ -82,7 +83,7 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 	@Test
 	public void testEchoObject() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient/echoExampleObject");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient/echoExampleObject");
 		JsonObject obj = Json.createObjectBuilder()
 			.add("foo", "Echo me")
 			.build();
@@ -98,7 +99,7 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 	@Test
 	public void testAsyncSelfEcho() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient/roundTripEcho");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient/roundTripEcho");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();
@@ -111,7 +112,7 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 	@Test
 	public void testAsyncSelfEchoAsync() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient/roundTripEchoAsync");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient/roundTripEchoAsync");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();
@@ -124,7 +125,7 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 	@Test
 	public void testAsyncSelfEchoDoubleAsync() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/jaxrsClient/roundTripEchoDoubleAsync");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient/roundTripEchoDoubleAsync");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();

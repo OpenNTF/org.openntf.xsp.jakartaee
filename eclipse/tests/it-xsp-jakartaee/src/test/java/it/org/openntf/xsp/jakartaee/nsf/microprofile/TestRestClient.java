@@ -30,13 +30,14 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestRestClient extends AbstractWebClientTest {
 	@Test
 	public void testRestClient() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/restClient");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient");
 		Response response = target.request()
 			.header("Host", "localhost:80")
 			.get();
@@ -50,7 +51,7 @@ public class TestRestClient extends AbstractWebClientTest {
 	@Test
 	public void testRestClientAsync() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/restClient/async");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient/async");
 		Response response = target.request()
 			.header("Host", "localhost:80")
 			.get();
@@ -65,7 +66,7 @@ public class TestRestClient extends AbstractWebClientTest {
 	@Test
 	public void testJaxRsRestClient() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/restClient/jaxRsClient");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient/jaxRsClient");
 		Response response = target.request()
 			.header("Host", "localhost:80")
 			.get();

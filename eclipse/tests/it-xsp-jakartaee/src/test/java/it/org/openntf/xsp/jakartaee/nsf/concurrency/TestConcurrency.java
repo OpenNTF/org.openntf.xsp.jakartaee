@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -29,7 +30,7 @@ public class TestConcurrency extends AbstractWebClientTest {
 	@Test
 	public void testBasics() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/concurrency");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -44,7 +45,7 @@ public class TestConcurrency extends AbstractWebClientTest {
 	@Test
 	public void testBasicsAuthenticated() {
 		Client client = getAdminClient();
-		WebTarget target = client.target(getRestUrl(null) + "/concurrency");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -59,7 +60,7 @@ public class TestConcurrency extends AbstractWebClientTest {
 	@Test
 	public void testScheduled() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/concurrency/scheduled");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency/scheduled");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -70,7 +71,7 @@ public class TestConcurrency extends AbstractWebClientTest {
 	@Test
 	public void testXPages() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/concurrency.xsp");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/concurrency.xsp");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -81,7 +82,7 @@ public class TestConcurrency extends AbstractWebClientTest {
 	@Test
 	public void testAsyncLookup() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/concurrency/asyncLookup");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency/asyncLookup");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -93,7 +94,7 @@ public class TestConcurrency extends AbstractWebClientTest {
 	@Test
 	public void testDoubleAsyncLookup() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/concurrency/doubleAsyncLookup");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency/doubleAsyncLookup");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);

@@ -16,8 +16,13 @@
 package org.openntf.xsp.nosql.mapping.extension;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import org.openntf.xsp.nosql.communication.driver.ViewInfo;
+
+import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Repository;
+import jakarta.nosql.mapping.Sorts;
 
 /**
  * This sub-interface of {@link Repository} allows for the specification
@@ -85,4 +90,62 @@ public interface DominoRepository<T, ID> extends Repository<T, ID> {
      * @since 2.9.0
      */
     Optional<T> findByNoteId(int noteId);
+    
+    /**
+     * Enumerates all views and folders in the database referenced
+     * by this repository.
+     * 
+     * @return a {@link Stream} of view/folder information
+     * @since 2.12.0
+     */
+    Stream<Object> listViews();
+    
+    /**
+     * Retrieves view entries from a named view or folder. This is similar
+     * to using the {@link ViewEntries} annotation but allows for the use
+     * of arbitrary view names.
+     * 
+     * @param viewName the name of the view to read
+     * @param maxLevel the maximum entry level to process
+     * @param documentsOnly sets whether view reading should only process document-type entries
+	 * @param viewQuery {@link ViewQuery} options to apply to reading the view;
+	 *        may be {@code null}
+	 * @param sorts {@link Sorts} values to apply to reading the view; may be
+	 *        {@code null}
+	 * @param pagination {@link Pagination} rules to apply to reading the view;
+	 *        may be {@code null}
+     * @return a {@link Stream} of {@code <T>} entities
+     * @since 2.12.0
+     */
+    Stream<T> readViewEntries(String viewName, int maxLevel, boolean documentsOnly, ViewQuery viewQuery, Sorts sorts, Pagination pagination);
+    
+    /**
+     * Retrieves documents from a named view or folder. This is similar
+     * to using the {@link ViewDocuments} annotation but allows for the use
+     * of arbitrary view names.
+     * 
+     * @param viewName the name of the view to read
+     * @param maxLevel the maximum entry level to process, or {@code -1} to read
+     *        all levels
+     * @param documentsOnly sets whether view reading should only process document-type entries
+     * @param distinct whether only distinct documents should
+	 *        be returned, regardless of how often they appear in the view
+	 * @param viewQuery {@link ViewQuery} options to apply to reading the view;
+	 *        may be {@code null}
+	 * @param sorts {@link Sorts} values to apply to reading the view; may be
+	 *        {@code null}
+	 * @param pagination {@link Pagination} rules to apply to reading the view;
+	 *        may be {@code null}
+     * @return a {@link Stream} of {@code <T>} entities
+     * @since 2.12.0
+     */
+    Stream<T> readViewDocuments(String viewName, int maxLevel, boolean distinct, ViewQuery viewQuery, Sorts sorts, Pagination pagination);
+    
+    /**
+     * Retrieves a list of the views and folders in the underlying database.
+     * 
+     * @return a {@link Stream} of {@link ViewInfo} objects
+     * @since 2.12.0
+     */
+    Stream<ViewInfo> getViewInfo();
 }

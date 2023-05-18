@@ -27,13 +27,14 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestXPagesResolverBundle extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testBundleBeanResolution(WebDriver driver) {
-		driver.get(getBundleNsfRootUrl(driver) + "/home.xsp");
+		driver.get(getRootUrl(driver, TestDatabase.BUNDLE) + "/home.xsp");
 
 		try {
 			WebElement dd = driver.findElement(By.xpath("//div[@id='container']/span"));

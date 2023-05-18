@@ -1,0 +1,89 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<title>JSF and PrimeFaces</title>
+	<h:outputStylesheet>
+		.jqplot-series-canvas {
+			background: white;
+		}
+
+		.ui-datatable td {
+			font-size: 10px;
+		}
+
+		body .ui-datatable thead th .ui-column-title {
+			font-size: 10px;
+		}
+	</h:outputStylesheet>
+</h:head>
+
+<h:body>
+	<p:outputPanel>
+		<ui:insert name="header">
+			<ui:include src="/WEB-INF/common/header.xhtml" />
+		</ui:insert>
+		<div class="ui-g">
+			<div class="ui-g-2"></div>
+			<div class="ui-g-8">
+				<h1 style="text-align: center">Nice-looking applications with JSF
+					3.0 and PrimeFaces</h1>
+				<p:panel id="tryit" header="Try it" style="margin-bottom:20px">
+					<h:panelGrid columns="2" cellpadding="10">
+						<p:button outcome="customers" value="See all customers"
+							icon="pi pi-users" style="margin-right:20px;">
+						</p:button>
+						<p:button outcome="createOrder" value="Create a new order"
+							icon="pi pi-shopping-cart" style="margin-right:20px;">
+						</p:button>
+					</h:panelGrid>
+				</p:panel>
+
+				<p:panel id="reporting" header="Reporting"
+					style="margin-bottom:20px">
+					<p:chart type="bar" model="#{indexBean.customerBarModel}"
+						style="height:300px" />
+				</p:panel>
+
+				<p:panel id="orders" header="Latest orders"
+					style="margin-bottom:20px">
+					<p:dataTable var="order" value="#{indexBean.orders}">
+						<p:column headerText="Order ID">
+							<h:outputText value="#{order.orderId}" />
+						</p:column>
+
+						<p:column headerText="Customer ID">
+							<h:outputText value="#{order.customerId}" />
+						</p:column>
+
+						<p:column headerText="Tax ID">
+							<h:outputText value="#{order.taxId}" />
+						</p:column>
+						<p:column headerText="Prodcut">
+							<h:outputText value="#{order.product}" />
+						</p:column>
+
+						<p:column headerText="Amount">
+							<h:outputText value="#{order.amount}" />
+						</p:column>
+
+						<p:column headerText="Express delivery">
+							<h:outputText value="#{order.expressDelivery}" />
+						</p:column>
+
+						<p:column headerText="Order date">
+							<h:outputText value="#{order.orderDate}" />
+						</p:column>
+					</p:dataTable>
+				</p:panel>
+			</div>
+			<div class="ui-g-2" />
+		</div>
+		<ui:insert name="footer">
+			<ui:include src="/WEB-INF/common/footer.xhtml" />
+		</ui:insert>
+	</p:outputPanel>
+</h:body>
+</html>

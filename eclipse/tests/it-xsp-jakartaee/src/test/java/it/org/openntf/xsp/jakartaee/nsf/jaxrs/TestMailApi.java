@@ -24,6 +24,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestMailApi extends AbstractWebClientTest {
@@ -33,7 +34,7 @@ public class TestMailApi extends AbstractWebClientTest {
 	@Test
 	public void testDirect() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/mail/multipart");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mail/multipart");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);

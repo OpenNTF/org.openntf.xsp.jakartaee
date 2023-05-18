@@ -30,6 +30,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings({ "nls" })
 public class TestBundleBeanResource extends AbstractWebClientTest {
@@ -39,14 +40,14 @@ public class TestBundleBeanResource extends AbstractWebClientTest {
 		int expectedIdentity = 0;
 		// First NSF - uses .cdibundle
 		{
-			JsonObject obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
+			JsonObject obj = getBean(getRootUrl(null, TestDatabase.BUNDLE) + "/exampleservlet");
 			assertEquals("Hello from bundleBean", obj.getString("hello"));
 			expectedIdentity = obj.getInt("identity");
 			assertNotEquals(0, expectedIdentity);
 		}
 		// Call this again to ensure that it uses the same bean
 		{
-			JsonObject obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
+			JsonObject obj = getBean(getRootUrl(null, TestDatabase.BUNDLE) + "/exampleservlet");
 			assertEquals("Hello from bundleBean", obj.getString("hello"));
 			int identity = obj.getInt("identity");
 			assertEquals(expectedIdentity, identity);

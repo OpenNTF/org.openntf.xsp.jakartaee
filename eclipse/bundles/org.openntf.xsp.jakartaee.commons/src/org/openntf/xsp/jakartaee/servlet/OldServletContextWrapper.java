@@ -349,17 +349,29 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public URL getResource(String path) throws MalformedURLException {
+		if("/WEB-INF/faces-config.xml".equals(path)) { //$NON-NLS-1$
+			URL alternative = delegate.getResource("/WEB-INF/jakarta/faces-config.xml"); //$NON-NLS-1$
+			if(alternative != null) {
+				return alternative;
+			}
+		}
 		return delegate.getResource(path);
 	}
 
 	@Override
-	public InputStream getResourceAsStream(String arg0) {
-		return delegate.getResourceAsStream(arg0);
+	public InputStream getResourceAsStream(String path) {
+		if("/WEB-INF/faces-config.xml".equals(path)) { //$NON-NLS-1$
+			InputStream alternative = delegate.getResourceAsStream("/WEB-INF/jakarta/faces-config.xml"); //$NON-NLS-1$
+			if(alternative != null) {
+				return alternative;
+			}
+		}
+		return delegate.getResourceAsStream(path);
 	}
 
 	@Override
-	public Set<String> getResourcePaths(String arg0) {
-		return delegate.getResourcePaths(arg0);
+	public Set<String> getResourcePaths(String path) {
+		return delegate.getResourcePaths(path);
 	}
 
 	@Override

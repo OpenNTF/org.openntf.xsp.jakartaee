@@ -35,6 +35,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestNsfServlet extends AbstractWebClientTest {
@@ -56,7 +57,7 @@ public class TestNsfServlet extends AbstractWebClientTest {
 		String expected = expectedPrefix + "ApplicationGuy: I'm application guy at ";
 		
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + path);
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + path);
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);
@@ -66,7 +67,7 @@ public class TestNsfServlet extends AbstractWebClientTest {
 	@Test
 	public void testExceptionServlet() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/xsp/exceptionservlet");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/xsp/exceptionservlet");
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);
@@ -92,7 +93,7 @@ public class TestNsfServlet extends AbstractWebClientTest {
 	})
 	public void testEchoServlet(String mediaType) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/xsp/echoServlet");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/xsp/echoServlet");
 		Response response = target.request().post(Entity.entity("foo=bar", mediaType));
 		
 		String body = response.readEntity(String.class);

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Jakarta JASAPI Bridge
+Bundle-SymbolicName: org.openntf.xsp.jakartaee.bridge.jasapi;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.jakarta.servlet
+Bundle-Version: 2.12.0.qualifier
+Export-Package: org.openntf.xsp.jakartaee.bridge.jasapi
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.ibm.designer.runtime.domino.adapter,
+ com.ibm.domino.bridge.http.jasapi,
+ org.openntf.xsp.jakartaee.util;version="2.12.0"

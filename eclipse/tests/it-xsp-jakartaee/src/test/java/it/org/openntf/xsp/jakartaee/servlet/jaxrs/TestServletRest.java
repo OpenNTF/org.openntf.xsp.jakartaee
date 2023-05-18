@@ -24,6 +24,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 public class TestServletRest extends AbstractWebClientTest {
 	@Test
@@ -40,7 +41,7 @@ public class TestServletRest extends AbstractWebClientTest {
 	@Test
 	public void testNsfPathSample() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getBundleNsfRootUrl(null) + "/exampleservlet"); //$NON-NLS-1$
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.BUNDLE) + "/exampleservlet"); //$NON-NLS-1$
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);

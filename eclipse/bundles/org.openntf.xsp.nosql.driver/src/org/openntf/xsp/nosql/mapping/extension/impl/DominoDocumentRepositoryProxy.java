@@ -57,6 +57,9 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 	private static final Method saveWithForm;
 	private static final Method getByNoteId;
 	private static final Method getByNoteIdInt;
+	private static final Method readViewEntries;
+	private static final Method readViewDocuments;
+	private static final Method getViewInfo;
 	
 	static {
 		try {
@@ -65,6 +68,9 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			saveWithForm = DominoRepository.class.getDeclaredMethod("save", Object.class, boolean.class); //$NON-NLS-1$
 			getByNoteId = DominoRepository.class.getDeclaredMethod("findByNoteId", String.class); //$NON-NLS-1$
 			getByNoteIdInt = DominoRepository.class.getDeclaredMethod("findByNoteId", int.class); //$NON-NLS-1$
+			readViewEntries = DominoRepository.class.getDeclaredMethod("readViewEntries", String.class, int.class, boolean.class, ViewQuery.class, Sorts.class, Pagination.class); //$NON-NLS-1$
+			readViewDocuments = DominoRepository.class.getDeclaredMethod("readViewDocuments", String.class, int.class, boolean.class, ViewQuery.class, Sorts.class, Pagination.class); //$NON-NLS-1$
+			getViewInfo = DominoRepository.class.getDeclaredMethod("getViewInfo"); //$NON-NLS-1$
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -105,6 +111,21 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			Object result = template.viewEntryQuery(entityName, viewEntries.value(), pagination, sorts, viewEntries.maxLevel(), viewEntries.documentsOnly(), viewQuery, singleResult);
 			return convert(result, method);
 		}
+		if(method.equals(readViewEntries)) {
+			String viewName = (String)args[0];
+			int maxLevel = (int)args[1];
+			boolean documentsOnly = (boolean)args[2];
+			ViewQuery viewQuery = (ViewQuery)args[3];
+			Sorts sorts = (Sorts)args[4];
+			Pagination pagination = (Pagination)args[5];
+			
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, documentsOnly, viewQuery, false);
+			return convert(result, method);
+		}
 		
 		// View documents support
 		ViewDocuments viewDocuments = method.getAnnotation(ViewDocuments.class);
@@ -121,6 +142,21 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			Class<?> returnType = method.getReturnType();
 			boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
 			Object result = template.viewDocumentQuery(entityName, viewDocuments.value(), pagination, sorts, viewDocuments.maxLevel(), viewQuery, singleResult, distinct);
+			return convert(result, method);
+		}
+		if(method.equals(readViewDocuments)) {
+			String viewName = (String)args[0];
+			int maxLevel = (int)args[1];
+			boolean distinct = (boolean)args[2];
+			ViewQuery viewQuery = (ViewQuery)args[3];
+			Sorts sorts = (Sorts)args[4];
+			Pagination pagination = (Pagination)args[5];
+			
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, false, distinct);
 			return convert(result, method);
 		}
 		
@@ -167,6 +203,10 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			}
 			Object result = template.getByNoteId(entityName, Integer.toHexString((int)args[0]));
 			return convert(result, method);
+		}
+		
+		if(method.equals(getViewInfo)) {
+			return template.getViewInfo();
 		}
 		
 		return method.invoke(repository, args);

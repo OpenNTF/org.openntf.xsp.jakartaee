@@ -19,9 +19,12 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
@@ -29,6 +32,7 @@ import jakarta.ws.rs.core.MediaType;
 import lotus.domino.Database;
 import lotus.domino.NotesException;
 import lotus.domino.Session;
+import model.Person;
 
 @Path("mvc")
 @Controller
@@ -80,5 +84,13 @@ public class MvcExample {
 	@Produces(MediaType.TEXT_HTML)
 	public String getXPage() {
 		return "el.xsp";
+	}
+	
+	@POST
+	@Path("beanParam")
+	@Produces(MediaType.TEXT_HTML)
+	public String getBeanParam(@Valid @BeanParam Person person) {
+		models.put("person", person);
+		return "personBean.jsp";
 	}
 }

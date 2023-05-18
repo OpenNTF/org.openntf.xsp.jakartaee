@@ -27,8 +27,11 @@ import java.net.URLEncoder;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -50,7 +53,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		// Find by the last name of the second person
 		String lastName = person.getString("lastName");
 		assertNotNull(lastName);
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byViewKey/" + URLEncoder.encode(lastName, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byViewKey/" + URLEncoder.encode(lastName, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -74,7 +77,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertNotNull(lastName);
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byViewTwoKeys"
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byViewTwoKeys"
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 			+ "/"
 			+ URLEncoder.encode(firstName, "UTF-8")
@@ -102,7 +105,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		// Find by the last name of the second person
 		String lastName = person.getString("lastName");
 		assertNotNull(lastName);
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/byViewKeyMulti/" + URLEncoder.encode(lastName, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byViewKeyMulti/" + URLEncoder.encode(lastName, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -121,10 +124,16 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 	 * Tests for Issue #391, where querying a categorized view by key
 	 * threw an exception.
 	 * 
+	 * <p>This also tests both the /findCategorized and /findCategorizedManual
+	 * endpoints, which will exercise both the {@code @ViewDocuments} annotation
+	 * and the {@code readViewDocuments} method on {@code Repository}.</p>
+	 * 
+	 * @param endpoint the endpoint tested in this run
 	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/391">Issue #391</a>
 	 */
-	@Test
-	public void testQueryDocumentsCategorized() throws UnsupportedEncodingException {
+	@ParameterizedTest
+	@ValueSource(strings = { "findCategorized", "findCategorizedManual" })
+	public void testQueryDocumentsCategorized(String endpoint) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		JsonObject person = createTwoPersonDocuments(true);
@@ -135,7 +144,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
 		WebTarget queryTarget = client.target(
-			getRestUrl(null) + "/nosql/findCategorized"
+			getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + endpoint
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 		);
 		
@@ -170,7 +179,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
 		WebTarget queryTarget = client.target(
-			getRestUrl(null) + "/nosql/findCategorizedDistinct"
+			getRestUrl(null, TestDatabase.MAIN) + "/nosql/findCategorizedDistinct"
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 		);
 		
@@ -198,7 +207,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		
 		String query = "[LastName]=" + prefix + "*";
 		{
-			WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/ftSearch?search=" + URLEncoder.encode(query, "UTF-8"));
+			WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearch?search=" + URLEncoder.encode(query, "UTF-8"));
 			
 			Response response = queryTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -215,7 +224,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		// Test basic pagination
 		String firstUnid;
 		{
-			WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/ftSearchPaginated?page=1&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
+			WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearchPaginated?page=1&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
 			
 			Response response = queryTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -232,7 +241,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 			firstUnid = result.getJsonObject(0).getString("unid");
 		}
 		{
-			WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/ftSearchPaginated?page=2&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
+			WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearchPaginated?page=2&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
 			
 			Response response = queryTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -263,7 +272,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String query = "[LastName]=" + prefix + "*";
 		String query2 = "[FirstName]=Fooness";
 		WebTarget queryTarget = client.target(
-			getRestUrl(null) + "/nosql/ftSearch?"
+			getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearch?"
 			+ "search=" + URLEncoder.encode(query, "UTF-8")
 			+ "&search2=" + URLEncoder.encode(query2, "UTF-8")
 		);
@@ -289,7 +298,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		JsonObject person2 = createPersonDoc("Zarg", prefix + "baz");
 		
 		String query = "[LastName]=" + prefix + "*";
-		WebTarget queryTarget = client.target(getRestUrl(null) + "/nosql/ftSearchSorted?search=" + URLEncoder.encode(query, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearchSorted?search=" + URLEncoder.encode(query, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -301,6 +310,67 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertEquals(2, result.size());
 		assertEquals(person2.getString("unid"), result.getJsonObject(0).getString("unid"));
 		assertEquals(person1.getString("unid"), result.getJsonObject(1).getString("unid"));
+	}
+	
+	@Test
+	public void testListViews() {
+		Client client = getAdminClient();
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/listViews");
+		Response response = queryTarget.request()
+			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.get();
+		String json = response.readEntity(String.class);
+		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
+
+		JsonArray result = Json.createReader(new StringReader(json)).readArray();
+		assertFalse(result.isEmpty());
+		{
+			JsonObject view = result.stream()
+				.map(JsonValue::asJsonObject)
+				.filter(obj -> "Persons".equals(obj.getString("title")))
+				.findFirst()
+				.orElse(null);
+			assertNotNull(view, "Coult not find Persons view");
+			assertEquals("VIEW", view.getString("type"));
+			assertTrue(view.getJsonArray("aliases").isEmpty());
+			assertEquals("SELECT Form=\"Person\"", view.getString("selectionFormula"));
+			
+			JsonArray columns = view.getJsonArray("columnInfo");
+			assertEquals(8, columns.size());
+			{
+				JsonObject lastName = columns.getJsonObject(0);
+				assertEquals("LastName", lastName.getString("title"));
+				assertEquals("LastName", lastName.getString("programmaticName"));
+				assertEquals("ASCENDING", lastName.getString("sortOrder"));
+				assertTrue(lastName.getJsonArray("resortOrders").isEmpty());
+			}
+			{
+				JsonObject firstName = columns.getJsonObject(1);
+				assertEquals("FirstName", firstName.getString("title"));
+				assertEquals("FirstName", firstName.getString("programmaticName"));
+				assertEquals("ASCENDING", firstName.getString("sortOrder"));
+				JsonArray resortOrders = firstName.getJsonArray("resortOrders");
+				assertEquals(2, resortOrders.size());
+				assertEquals("ASCENDING", resortOrders.getString(0));
+				assertEquals("DESCENDING", resortOrders.getString(1));
+			}
+			{
+				JsonObject favoriteTime = columns.getJsonObject(3);
+				assertEquals("Favorite Time", favoriteTime.getString("title"));
+			}
+		}
+		{
+			JsonObject folder = result.stream()
+				.map(JsonValue::asJsonObject)
+				.filter(obj -> "Persons Folder".equals(obj.getString("title")))
+				.findFirst()
+				.orElse(null);
+			assertNotNull(folder, "Coult not find Persons Folder");
+			assertEquals("FOLDER", folder.getString("type"));
+			JsonArray aliases = folder.getJsonArray("aliases");
+			assertEquals(1, aliases.size());
+			assertEquals("PersonsFolder", aliases.getString(0));
+		}
 	}
 	
 	/**
@@ -328,7 +398,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 	
 	private JsonObject createPersonDoc(String firstName, String lastName) {
 		Client client = getAdminClient();
-		WebTarget postTarget = client.target(getRestUrl(null) + "/nosql/create"); //$NON-NLS-1$
+		WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 
 		MultipartFormDataOutput payload = new MultipartFormDataOutput();
 		payload.addFormData("firstName", firstName, MediaType.TEXT_PLAIN_TYPE);

@@ -3,9 +3,6 @@
   <item name="$FormulaClass" sign="true">
     <text>1</text>
   </item>
-  <item name="$TITLE" sign="true">
-    <text>Persons Folder</text>
-  </item>
   <item name="$Name" sign="true">
     <text>Persons Folder</text>
   </item>
@@ -83,5 +80,8 @@ AAAAAAAAAENvcHkgYXMgRG9jdW1lbnQgX0xpbmsPAN58vv8oAAAABQAAAJ0BAAAOAAAAAAAAAENv
 cHkgYXMgX1RhYmxlEADufL7/IAAAAAUAAACdAQAABgAAAAAAAABQX2FzdGURAP58vv8gAAAABQAA
 AJ0BAAAFAAAAAAAAAF9PcGVuABIADn2+/yIAAAAFAAAAnQEAAAgAAAAAAAAAQm9va21hcmsTAB59
 </rawitemdata>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>Persons Folder|PersonsFolder</text>
   </item>
 </note>
