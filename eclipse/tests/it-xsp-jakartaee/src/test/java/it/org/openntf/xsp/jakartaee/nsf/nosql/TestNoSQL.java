@@ -114,7 +114,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 		payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
 		WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 		Response response = postTarget.request().post(Entity.form(payload));
-		assertEquals(400, response.getStatus());
+		String html = response.readEntity(String.class);
+		assertEquals(400, response.getStatus(), () -> "Unexpected response code with content: " + html);
 	}
 	
 	/**
