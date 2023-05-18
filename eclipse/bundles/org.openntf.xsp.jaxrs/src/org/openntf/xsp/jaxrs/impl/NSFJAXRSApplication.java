@@ -28,9 +28,9 @@ import java.util.stream.Stream;
 
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
-import org.openntf.xsp.jakartaee.util.DescendingPriorityComparator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
+import org.openntf.xsp.jakartaee.util.PriorityComparator;
 import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -104,7 +104,7 @@ public class NSFJAXRSApplication extends Application {
 		// Read in xsp.properties
 		LibraryUtil.findExtensions(ApplicationPropertyLocator.class)
 			.stream()
-			.sorted(DescendingPriorityComparator.INSTANCE)
+			.sorted(PriorityComparator.DESCENDING)
 			.filter(ApplicationPropertyLocator::isActive)
 			.map(ApplicationPropertyLocator::getApplicationProperties)
 			.filter(Optional::isPresent)

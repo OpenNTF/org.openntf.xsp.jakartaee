@@ -107,7 +107,7 @@ public enum LibraryUtil {
 	public static boolean isLibraryActive(String libraryId) {
 		return findExtensions(ComponentEnabledLocator.class)
 			.stream()
-			.sorted(DescendingPriorityComparator.INSTANCE)
+			.sorted(PriorityComparator.DESCENDING)
 			.filter(ComponentEnabledLocator::isActive)
 			.anyMatch(locator -> locator.isComponentEnabled(libraryId));
 	}
@@ -139,7 +139,7 @@ public enum LibraryUtil {
 	public static String getApplicationProperty(String prop, String defaultValue) {
 		return findExtensions(ApplicationPropertyLocator.class)
 			.stream()
-			.sorted(DescendingPriorityComparator.INSTANCE)
+			.sorted(PriorityComparator.DESCENDING)
 			.filter(ApplicationPropertyLocator::isActive)
 			.findFirst()
 			.map(locator -> locator.getApplicationProperty(prop, defaultValue))
@@ -337,19 +337,7 @@ public enum LibraryUtil {
 		return findExtensions(extensionClass)
 			.stream()
 			.filter(Objects::nonNull)
-			.sorted((a, b) -> {
-				int priorityA = Optional.ofNullable(a.getClass().getAnnotation(Priority.class))
-					.map(Priority::value)
-					.orElse(ascending ? Integer.MAX_VALUE : 0);
-				int priorityB = Optional.ofNullable(b.getClass().getAnnotation(Priority.class))
-					.map(Priority::value)
-					.orElse(ascending ? Integer.MAX_VALUE : 0);
-				if(ascending) {
-					return Integer.compare(priorityA, priorityB);
-				} else {
-					return Integer.compare(priorityB, priorityA);
-				}
-			})
+			.sorted(ascending ? PriorityComparator.ASCENDING : PriorityComparator.DESCENDING)
 			.collect(Collectors.toList());
 	}
 	
