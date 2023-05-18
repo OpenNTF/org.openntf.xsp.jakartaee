@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages CDI Jigsaw Adapter
 Bundle-SymbolicName: org.openntf.xsp.cdi.jigsaw;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.cdi.jigsaw
-Bundle-Version: 2.12.0.qualifier
+Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Fragment-Host: org.openntf.xsp.cdi
