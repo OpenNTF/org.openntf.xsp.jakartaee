@@ -92,15 +92,6 @@ public interface DominoRepository<T, ID> extends Repository<T, ID> {
     Optional<T> findByNoteId(int noteId);
     
     /**
-     * Enumerates all views and folders in the database referenced
-     * by this repository.
-     * 
-     * @return a {@link Stream} of view/folder information
-     * @since 2.12.0
-     */
-    Stream<Object> listViews();
-    
-    /**
      * Retrieves view entries from a named view or folder. This is similar
      * to using the {@link ViewEntries} annotation but allows for the use
      * of arbitrary view names.
