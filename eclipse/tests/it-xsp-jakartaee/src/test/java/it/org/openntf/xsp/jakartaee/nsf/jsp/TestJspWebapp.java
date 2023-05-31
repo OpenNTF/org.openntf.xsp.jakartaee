@@ -16,6 +16,7 @@
 package it.org.openntf.xsp.jakartaee.nsf.jsp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -34,7 +35,11 @@ public class TestJspWebapp extends AbstractWebClientTest {
 	public void testHelloPage(WebDriver driver) {
 		driver.get(getWebappRootUrl(driver) + "/hello.jsp");
 		
-		WebElement dd = driver.findElement(By.xpath("//fieldset/p"));
-		assertEquals("I was sent: Value sent into the tag", dd.getText());
+		try {
+			WebElement dd = driver.findElement(By.xpath("//fieldset/p"));
+			assertEquals("I was sent: Value sent into the tag", dd.getText());
+		} catch(Exception e) {
+			fail("Unexpected HTML: " + driver.getPageSource(), e);
+		}
 	}
 }
