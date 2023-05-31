@@ -567,6 +567,8 @@ public enum ContainerUtil {
 			// Disable concurrent deployment to avoid Notes thread init trouble
 			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
 			.property(ConfigurationKey.EXECUTOR_THREAD_POOL_TYPE.get(), "SINGLE_THREAD") //$NON-NLS-1$
+			// Disable Jandex, as it causes problems in D14
+			.property(Jandex.DISABLE_JANDEX_DISCOVERY_STRATEGY, true)
 			.addExtension(new CDIScopesExtension())
 			.addServices(new ExpressionLanguageSupport() {
 				@Override
