@@ -85,7 +85,7 @@ public class TestJsf extends AbstractWebClientTest {
 				assertEquals("Refresh", submit.getAttribute("value"));
 				submit.click();
 				// Give it a bit to do the partial refresh
-				TimeUnit.MILLISECONDS.sleep(250);
+				TimeUnit.MILLISECONDS.sleep(500);
 			}
 			{
 				
@@ -158,7 +158,7 @@ public class TestJsf extends AbstractWebClientTest {
 			assertEquals("1", input.getAttribute("value"));
 			
 			a.click();
-			TimeUnit.MILLISECONDS.sleep(100);
+			TimeUnit.MILLISECONDS.sleep(500);
 			
 			assertEquals("2", input.getAttribute("value"));
 		} catch(Exception e) {

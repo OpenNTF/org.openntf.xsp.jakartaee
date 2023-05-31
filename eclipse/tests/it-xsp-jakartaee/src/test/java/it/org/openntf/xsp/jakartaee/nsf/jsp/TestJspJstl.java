@@ -37,9 +37,9 @@ public class TestJspJstl extends AbstractWebClientTest {
 		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/hello.jsp");
 		
 		WebElement p = driver.findElement(By.xpath("//p[1]"));
-		assertTrue(p.getText().startsWith("My CDI Bean is: I'm request guy"), () -> p.getText());
+		assertTrue(p.getText().startsWith("My CDI Bean is: I'm request guy"), () -> "Unexpected HTML: " + driver.getPageSource());
 		
 		WebElement dd = driver.findElement(By.xpath("//fieldset/p"));
-		assertEquals("I was sent: Value sent into the tag", dd.getText());
+		assertEquals("I was sent: Value sent into the tag", dd.getText(), () -> "Unexpected HTML: " + driver.getPageSource());
 	}
 }
