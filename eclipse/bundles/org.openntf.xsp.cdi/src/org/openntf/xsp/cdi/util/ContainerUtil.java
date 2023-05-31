@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
 import org.jboss.weld.config.ConfigurationKey;
+import org.jboss.weld.environment.deployment.discovery.jandex.Jandex;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.manager.BeanManagerImpl;
@@ -47,6 +48,7 @@ import org.jboss.weld.module.web.el.WeldELResolver;
 import org.jboss.weld.module.web.el.WeldExpressionFactory;
 import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoader;
+import org.jboss.weld.resources.spi.ResourceLoadingException;
 import org.jboss.weld.serialization.spi.ProxyServices;
 import org.jboss.weld.util.ForwardingBeanManager;
 import org.openntf.xsp.cdi.CDILibrary;
@@ -622,13 +624,13 @@ public enum ContainerUtil {
 		public Class<?> classForName(String name) {
 			try {
 				return Thread.currentThread().getContextClassLoader().loadClass(name);
-			} catch (ClassNotFoundException e) {
+			} catch (ClassNotFoundException | LinkageError e) {
 				// Couldn't find it here
 			}
 			try {
 				return bundle.adapt(BundleWiring.class).getClassLoader().loadClass(name);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
+			} catch (ClassNotFoundException | LinkageError e) {
+				throw new ResourceLoadingException("Error loading class " + name, e);
 			}
 		}
 
