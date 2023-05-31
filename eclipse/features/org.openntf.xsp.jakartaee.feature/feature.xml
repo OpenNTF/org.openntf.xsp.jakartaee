@@ -244,7 +244,7 @@
 
 	<plugin id="jakarta.annotation-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.el-api" version="0.0.0" unpack="false"/>
-	<plugin id="org.glassfish.jakarta.el" version="0.0.0" unpack="false"/>
+	<plugin id="org.glassfish.expressly" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.interceptor-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.inject.jakarta.inject-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.servlet-api" version="0.0.0" unpack="false"/>

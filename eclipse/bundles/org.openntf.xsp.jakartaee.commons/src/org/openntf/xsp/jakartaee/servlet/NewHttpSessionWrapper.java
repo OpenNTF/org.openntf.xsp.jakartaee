@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jakartaee.servlet;
 
+import java.util.Collections;
 import java.util.Enumeration;
 
 import jakarta.servlet.http.HttpSession;
@@ -59,7 +60,8 @@ class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 
 	@Override
 	public javax.servlet.http.HttpSessionContext getSessionContext() {
-		return ServletUtil.newToOld(delegate.getSessionContext());
+		// Removed in Servlet 6
+		return null;
 	}
 
 	@Override
@@ -69,7 +71,8 @@ class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 
 	@Override
 	public Object getValue(String paramString) {
-		return delegate.getValue(paramString);
+		// Removed in Servlet 6
+		return delegate.getAttribute(paramString);
 	}
 
 	@Override
@@ -79,7 +82,8 @@ class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 
 	@Override
 	public String[] getValueNames() {
-		return delegate.getValueNames();
+		// Removed in Servlet 6
+		return Collections.list(delegate.getAttributeNames()).toArray(new String[0]);
 	}
 
 	@Override
@@ -89,7 +93,8 @@ class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 
 	@Override
 	public void putValue(String paramString, Object paramObject) {
-		delegate.putValue(paramString, paramObject);
+		// Removed in Servlet 6
+		delegate.setAttribute(paramString, paramObject);
 	}
 
 	@Override
@@ -99,7 +104,8 @@ class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 
 	@Override
 	public void removeValue(String paramString) {
-		delegate.removeValue(paramString);
+		// Removed in Servlet 6
+		delegate.removeAttribute(paramString);
 	}
 
 	@Override

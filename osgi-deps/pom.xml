@@ -85,7 +85,7 @@
 								-->
 								<artifact><id>jakarta.annotation:jakarta.annotation-api:2.1.1</id><source>true</source></artifact>
 								<artifact><id>jakarta.inject:jakarta.inject-api:2.0.1</id><source>true</source></artifact>
-								<artfiact><id>jakarta.servlet:jakarta.servlet-api:5.0.0</id><source>true</source></artfiact>
+								<artfiact><id>jakarta.servlet:jakarta.servlet-api:6.0.0</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.1</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.transaction:jakarta.transaction-api:2.0.1</id><source>true</source></artfiact>
 								<artifact><id>jakarta.websocket:jakarta.websocket-client-api:2.1.0</id><source>true</source></artifact>
@@ -382,16 +382,15 @@
 								<!--
 									EL
 								-->
-								<artifact><id>jakarta.el:jakarta.el-api:4.0.0</id><source>true</source></artifact>
-								<artifact><id>org.glassfish:jakarta.el:4.0.2</id><source>true</source></artifact>
+								<artifact><id>jakarta.el:jakarta.el-api:5.0.1</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.expressly:expressly:5.0.0</id><source>true</source></artifact>
 								
 								<!--
 									Bean Validation
 								-->
-								<!-- NB: 3.0.1 and above require Java > 8 -->
-								<artifact><id>jakarta.validation:jakarta.validation-api:3.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.validation:jakarta.validation-api:3.0.2</id><source>true</source></artifact>
 								<!-- Hibernate Validator 8.0.0+ requires Java 11 -->
-								<artifact><id>org.hibernate.validator:hibernate-validator:7.0.5.Final</id><source>true</source></artifact>
+								<artifact><id>org.hibernate.validator:hibernate-validator:8.0.0.Final</id><source>true</source></artifact>
 
 								<!--
 									CDI 
@@ -402,7 +401,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.jakarta.enterprise.cdi-api</Bundle-SymbolicName>
-										<Export-Package>*;version="3.0"</Export-Package>
+										<Export-Package>*;version="3.0.1"</Export-Package>
 										<Import-Package>jakarta.ejb;version="4.0.0";resolution:=optional</Import-Package>
 										<Require-Bundle>
 											jakarta.inject.jakarta.inject-api;bundle-version="2.0.0",
@@ -480,10 +479,10 @@
 								<!--
 									JSP 
 								-->
-								<artifact><id>jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.0.0</id><source>true</source></artifact>
-								<artifact><id>jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.web:jakarta.servlet.jsp:3.0.0</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1</id><source>true</source></artifact>
+								<artifact><id>jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.wasp:wasp:3.2.0</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1</id><source>true</source></artifact>
 								
 								<!--
 									JSF

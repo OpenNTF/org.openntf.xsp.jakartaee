@@ -26,9 +26,9 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.stream.Collectors;
 
-import org.apache.jasper.Constants;
-import org.apache.jasper.servlet.JspServlet;
-import org.apache.jasper.xmlparser.ParserUtils;
+import org.glassfish.wasp.Constants;
+import org.glassfish.wasp.servlet.JspServlet;
+import org.glassfish.wasp.xmlparser.ParserUtils;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jsp.EarlyInitFactory;

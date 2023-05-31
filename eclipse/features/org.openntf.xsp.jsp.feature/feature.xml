@@ -242,7 +242,7 @@
    <plugin id="jakarta.servlet.jsp-api" version="0.0.0" unpack="false"/>
    <plugin id="jakarta.servlet.jsp.jstl-api" version="0.0.0" unpack="false"/>
 
-   <plugin id="org.glassfish.web.jakarta.servlet.jsp" version="0.0.0" unpack="false"/>
+   <plugin id="org.glassfish.wasp.wasp" version="0.0.0" unpack="false"/>
    <plugin id="org.glassfish.web.jakarta.servlet.jsp.jstl" version="0.0.0" unpack="false"/>
 
 </feature>

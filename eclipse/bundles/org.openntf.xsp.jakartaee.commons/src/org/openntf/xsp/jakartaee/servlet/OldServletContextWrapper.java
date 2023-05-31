@@ -385,24 +385,8 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public Servlet getServlet(String arg0) throws ServletException {
-		javax.servlet.Servlet result;
-		try {
-			result = delegate.getServlet(arg0);
-		} catch (javax.servlet.ServletException e) {
-			throw new ServletException(e);
-		}
-		return ServletUtil.oldToNew(result);
-	}
-
-	@Override
 	public String getServletContextName() {
 		return delegate.getServletContextName();
-	}
-
-	@Override
-	public Enumeration<String> getServletNames() {
-		return delegate.getServletNames();
 	}
 
 	@Override
@@ -478,21 +462,6 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public Enumeration<Servlet> getServlets() {
-		Enumeration<javax.servlet.Servlet> result = delegate.getServlets();
-		if(result == null) {
-			return null;
-		} else {
-			return Collections.enumeration(
-				Collections.list(result)
-					.stream()
-					.map(ServletUtil::oldToNew)
-					.collect(Collectors.toList())
-			);
-		}
-	}
-
-	@Override
 	public SessionCookieConfig getSessionCookieConfig() {
 		// Soft unavailable
 		// TODO see if this can be gleaned from the server config
@@ -514,11 +483,6 @@ class OldServletContextWrapper implements ServletContext {
 	@Override
 	public void log(String arg0) {
 		delegate.log(arg0);
-	}
-
-	@Override
-	public void log(Exception arg0, String arg1) {
-		delegate.log(arg0, arg1);
 	}
 
 	@Override

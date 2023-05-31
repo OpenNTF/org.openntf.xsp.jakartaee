@@ -114,27 +114,6 @@ public enum ServletUtil {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
-	public static javax.servlet.http.HttpSessionContext newToOld(jakarta.servlet.http.HttpSessionContext context) {
-		if(context == null) {
-			return null;
-		} else if(context instanceof OldHttpSessionContextWrapper) {
-			return ((OldHttpSessionContextWrapper)context).delegate;
-		} else {
-			return new NewHttpSessionContextWrapper(context);
-		}
-	}
-	@SuppressWarnings("deprecation")
-	public static jakarta.servlet.http.HttpSessionContext oldToNew(javax.servlet.http.HttpSessionContext context) {
-		if(context == null) {
-			return null;
-		} else if(context instanceof NewHttpSessionContextWrapper) {
-			return ((NewHttpSessionContextWrapper)context).delegate;
-		} else {
-			return new OldHttpSessionContextWrapper(context);
-		}
-	}
-	
 	public static javax.servlet.http.HttpSession newToOld(jakarta.servlet.http.HttpSession session) {
 		if(session == null) {
 			return null;

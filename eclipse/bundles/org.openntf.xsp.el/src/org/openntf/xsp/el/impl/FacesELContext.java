@@ -56,7 +56,7 @@ public class FacesELContext extends StandardELContext {
 	}
 	
 	@Override
-	public Object convertToType(Object obj, Class<?> targetType) {
-		return AccessController.doPrivileged((PrivilegedAction<Object>)() -> super.convertToType(obj, targetType));
+	public <T> T convertToType(Object obj, Class<T> targetType) {
+		return AccessController.doPrivileged((PrivilegedAction<T>)() -> super.convertToType(obj, targetType));
 	}
 }

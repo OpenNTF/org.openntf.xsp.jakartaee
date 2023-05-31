@@ -8,7 +8,7 @@ Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  jakarta.el-api;bundle-version="4.0.0";visibility:=reexport,
- org.glassfish.jakarta.el;bundle-version="4.0.1",
+ org.glassfish.expressly;bundle-version="5.0.0",
  org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0";visibility:=reexport
 Import-Package: com.ibm.commons.util,
  com.ibm.commons.util.io.json,
