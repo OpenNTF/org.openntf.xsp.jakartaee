@@ -90,8 +90,7 @@
 								<artfiact><id>jakarta.transaction:jakarta.transaction-api:2.0.1</id><source>true</source></artfiact>
 								<artifact><id>jakarta.websocket:jakarta.websocket-client-api:2.1.0</id><source>true</source></artifact>
 								<artifact><id>jakarta.websocket:jakarta.websocket-api:2.1.0</id><source>true</source></artifact>
-								<!-- NB: XML WS 4.0.0 requires Java 11 -->
-								<artfiact><id>jakarta.xml.ws:jakarta.xml.ws-api:3.0.1</id><source>true</source></artfiact>
+								<artfiact><id>jakarta.xml.ws:jakarta.xml.ws-api:4.0.0</id><source>true</source></artfiact>
 								<!-- Useful for dev runtimes -->
 								<artifact><id>org.glassfish.corba:glassfish-corba-omgapi:4.2.4</id><source>true</source></artifact>
 								<artfiact><id>io.smallrye:jandex:3.1.1</id><source>true</source></artfiact>
@@ -118,9 +117,9 @@
 									JAX-B 
 								-->
 								<!-- NB: XML Binding 4.0.0 requires Java 11 -->
-								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:3.0.1</id><source>true</source></artifact>
-								<artifact><id>com.sun.xml.bind:jaxb-core:3.0.2</id><source>true</source></artifact>
-								<artifact><id>com.sun.xml.bind:jaxb-impl:3.0.2</id><source>true</source></artifact>
+								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.0</id><source>true</source></artifact>
+								<artifact><id>com.sun.xml.bind:jaxb-core:4.0.2</id><source>true</source></artifact>
+								<artifact><id>com.sun.xml.bind:jaxb-impl:4.0.2</id><source>true</source></artifact>
 								
 								<!--
 									JSON-P and JSON-B
