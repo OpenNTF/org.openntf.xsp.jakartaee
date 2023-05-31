@@ -124,19 +124,18 @@
 								<!--
 									JSON-P and JSON-B
 								-->
-								<!-- NB: the move to Eclipse Parsson as the JSON-P implementation is incomplete -->
-								<artifact><id>jakarta.json:jakarta.json-api:2.0.1</id><source>true</source></artifact>
-								<artifact><id>org.glassfish:jakarta.json:2.0.1</id><source>true</source></artifact>
-								<artifact><id>jakarta.json.bind:jakarta.json.bind-api:2.0.0</id><source>true</source></artifact>
+								<!-- NB: use the bundled API + impl for OSGi ease -->
+								<artifact><id>org.eclipse.parsson:jakarta.json:1.1.2</id><source>true</source></artifact>
+								<artifact><id>jakarta.json.bind:jakarta.json.bind-api:3.0.0</id><source>true</source></artifact>
 								<!-- Oddly, the Yasson binaries don't end up in the repo if I don't override the bundle here -->
 								<artifact>
-									<id>org.eclipse:yasson:2.0.4</id>
+									<id>org.eclipse:yasson:3.0.3</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.yasson</Bundle-SymbolicName>
-										<Bundle-Version>2.0.4.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="2.0.4"</Export-Package>
+										<Bundle-Version>3.0.3.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="3.0.3"</Export-Package>
 									</instructions>
 								</artifact>
 								

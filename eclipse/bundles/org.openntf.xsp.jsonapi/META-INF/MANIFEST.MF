@@ -8,7 +8,7 @@ Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0";visibility:=reexport,
- org.glassfish.jakarta.json;bundle-version="2.0.0";visibility:=reexport,
+ org.eclipse.parsson.jakarta.json;bundle-version="1.0.0";visibility:=reexport,
  jakarta.json.bind-api;bundle-version="2.0.0";visibility:=reexport,
  org.openntf.org.eclipse.yasson;bundle-version="2.0.0";visibility:=reexport
 Export-Package: org.openntf.xsp.jsonapi;version="2.13.0"

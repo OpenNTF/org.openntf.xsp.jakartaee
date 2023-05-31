@@ -251,7 +251,7 @@
 	<plugin id="jakarta.json.bind-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.websocket-client-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.websocket-api" version="0.0.0" unpack="false"/>
-	<plugin id="org.glassfish.jakarta.json" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.parsson.jakarta.json" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.persistence-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.ejb-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.transaction-api" version="0.0.0" unpack="false"/>
