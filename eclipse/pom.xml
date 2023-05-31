@@ -235,6 +235,8 @@
 						<plugin id="org.eclipse.jdt.core"/>
 						<plugin id="org.antlr.antlr4-runtime.jakarta"/>
 						<plugin id="org.openntf.xsp.jsonapi.cdi"/>
+						<plugin id="org.apache.commons.codec"/>
+						<plugin id="org.apache.commons.logging"/>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -417,6 +419,7 @@
 					<configuration>
 						<providerHint>junit4</providerHint>
 						<trimStackTrace>false</trimStackTrace>
+						<useJDK>BREE</useJDK>
 					</configuration>
 				</plugin>
 				<plugin>
