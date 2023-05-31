@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -71,7 +73,8 @@ public enum JakartaTestContainers {
 				.withPassword("postgres") //$NON-NLS-1$
 				.withDatabaseName("jakarta") //$NON-NLS-1$
 				.withNetwork(network)
-				.withNetworkAliases("postgresql"); //$NON-NLS-1$
+				.withNetworkAliases("postgresql") //$NON-NLS-1$
+				.withStartupTimeout(Duration.of(2, ChronoUnit.MINUTES));
 			postgres.addExposedPort(5432);
 			
 			domino.start();
