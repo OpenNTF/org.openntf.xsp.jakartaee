@@ -58,7 +58,7 @@
 			<plugin>
 			    <groupId>org.openntf.maven</groupId>
 				<artifactId>p2-maven-plugin</artifactId>
-				<version>2.3.0</version>
+				<version>3.0.0-SNAPSHOT</version>
 				<extensions>true</extensions>
 				
 				<executions>
@@ -763,6 +763,29 @@
 								</artifact>
 								
 							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>3.0.0-M1</version>
+				<executions>
+					<execution>
+						<id>enforce-maven-and-java</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>3.0.1</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>17</version>
+								</requireJavaVersion>
+							</rules>
 						</configuration>
 					</execution>
 				</executions>

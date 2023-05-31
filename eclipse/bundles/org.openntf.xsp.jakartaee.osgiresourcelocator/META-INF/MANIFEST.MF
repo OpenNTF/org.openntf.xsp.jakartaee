@@ -12,3 +12,4 @@ Import-Package: com.ibm.designer.runtime.domino.adapter,
  org.osgi.framework;version="1.8.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.glassfish.hk2.osgiresourcelocator.Activator
+Provide-Capability: osgi.extender;osgi.extender="osgi.serviceloader.processor";version:Version="1.0"
