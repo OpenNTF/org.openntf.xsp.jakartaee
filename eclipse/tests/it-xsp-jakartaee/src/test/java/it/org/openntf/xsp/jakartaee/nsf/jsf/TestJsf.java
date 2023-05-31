@@ -155,12 +155,20 @@ public class TestJsf extends AbstractWebClientTest {
 			a.click();
 			
 			WebElement input = spinner.findElement(By.xpath("input[1]"));
-			assertEquals("1", input.getAttribute("value"));
+			String value = input.getAttribute("value");
+			assertEquals("1", value);
 			
 			a.click();
-			TimeUnit.MILLISECONDS.sleep(500);
+			// Wait up to 500 ms
+			for(int i = 0; i < 10; i++) {
+				value = input.getAttribute("value");
+				if("2".equals(value)) {
+					break;
+				}
+				TimeUnit.MILLISECONDS.sleep(10);
+			}
 			
-			assertEquals("2", input.getAttribute("value"));
+			assertEquals("2", value);
 		} catch(Exception e) {
 			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
