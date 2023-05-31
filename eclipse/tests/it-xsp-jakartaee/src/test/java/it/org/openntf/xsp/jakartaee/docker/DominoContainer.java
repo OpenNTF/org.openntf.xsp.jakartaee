@@ -62,6 +62,12 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		public DominoImage() {
 			super("xsp-jakartaee-container:1.0.0", true); //$NON-NLS-1$
 			withFileFromClasspath("Dockerfile", "/docker/Dockerfile"); //$NON-NLS-1$ //$NON-NLS-2$
+			
+			String baseImage = System.getProperty("jakarta.baseImage"); //$NON-NLS-1$
+			if(StringUtil.isNotEmpty(baseImage)) {
+				withBuildArg("BASEIMAGE", baseImage); //$NON-NLS-1$
+			}
+			
 			init();
 		}
 		
