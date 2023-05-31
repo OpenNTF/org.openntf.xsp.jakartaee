@@ -33,6 +33,7 @@
 				<include>README.md</include>
 				<include>LICENSE</include>
 				<include>NOTICE.md</include>
+				<include>COMPATIBILITY.md</include>
 				<include>legal/**</include>
 			</includes>
 			<outputDirectory>.</outputDirectory>
