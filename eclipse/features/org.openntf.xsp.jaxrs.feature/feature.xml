@@ -251,9 +251,9 @@
 	<plugin id="org.openntf.org.jboss.resteasy.multipart-provider" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.jaxb-provider" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.validator-provider" version="0.0.0" unpack="false"/>
-	<plugin id="org.reactivestreams.reactive-streams" version="0.0.0" unpack="false"/>
 	<plugin id="org.jboss.resteasy.client-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.client" version="0.0.0" unpack="false"/>
+	<plugin id="reactive-streams" version="0.0.0" unpack="false"/>
 	
 	<plugin id="org.eclipse.microprofile.openapi" version="0.0.0" unpack="false"/>
 	<plugin id="org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>

@@ -34,8 +34,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.myfaces.ee.MyFacesContainerInitializer;
-import org.apache.myfaces.shared.config.MyfacesConfig;
+import org.apache.myfaces.webapp.MyFacesContainerInitializer;
 import org.eclipse.core.runtime.FileLocator;
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
@@ -99,8 +98,6 @@ public class NSFJsfServlet extends HttpServlet {
 			CDI<Object> cdi = ContainerUtil.getContainer(NotesContext.getCurrent().getNotesDatabase());
 			ServletContext context = config.getServletContext();
 			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
-			context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_JSP_AND_FACES_EL, String.valueOf(false));
-			context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_MANAGED_BEANS, String.valueOf(false));
 			// TODO investigate why partial state saving doesn't work with a basic form
 			context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 

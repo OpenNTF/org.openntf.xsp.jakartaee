@@ -73,11 +73,6 @@ public class DominoTemplateBean implements Bean<DominoTemplate>, PassivationCapa
     }
 
     @Override
-    public boolean isNullable() {
-        return false;
-    }
-
-    @Override
     public DominoTemplate create(CreationalContext<DominoTemplate> creationalContext) {
 
         DominoTemplateProducer producer = getInstance(DominoTemplateProducer.class);

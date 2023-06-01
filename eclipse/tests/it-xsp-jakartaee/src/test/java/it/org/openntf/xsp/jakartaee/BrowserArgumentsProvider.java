@@ -32,7 +32,7 @@ public class BrowserArgumentsProvider implements ArgumentsProvider {
 	public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
 		// Just HtmlUnit for now
 		return Stream.of(
-			HTMLUNIT_DRIVER.get()
+			JakartaTestContainers.instance.firefox.getWebDriver()
 		)
 		.map(Arguments::of);
 	}

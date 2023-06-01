@@ -241,7 +241,7 @@
 
    <plugin id="org.openntf.xsp.microprofile.health" version="0.0.0" unpack="false"/>
 	
-   <plugin id="org.eclipse.microprofile.health" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.microprofile.health" version="0.0.0" unpack="false"/>
    <plugin id="org.openntf.io.smallrye.health" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.health-api" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.reactive.mutiny" version="0.0.0" unpack="false"/>

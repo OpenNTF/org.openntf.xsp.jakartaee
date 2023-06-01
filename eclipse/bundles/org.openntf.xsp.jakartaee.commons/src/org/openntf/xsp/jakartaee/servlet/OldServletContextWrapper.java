@@ -463,9 +463,7 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public SessionCookieConfig getSessionCookieConfig() {
-		// Soft unavailable
-		// TODO see if this can be gleaned from the server config
-		return null;
+		return new DummySessionCookieConfig();
 	}
 
 	@Override

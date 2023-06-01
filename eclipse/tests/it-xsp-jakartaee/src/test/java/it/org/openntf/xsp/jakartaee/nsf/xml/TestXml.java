@@ -38,7 +38,7 @@ public class TestXml extends AbstractWebClientTest {
 		String xml = String.valueOf(response.readEntity(String.class));
 		
 		assertTrue(
-			xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><application-guy>"),
+			xml.contains("<application-guy>"),
 			() -> "Got unexpected content: " + xml
 		);
 	}

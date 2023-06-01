@@ -163,9 +163,4 @@ public class DominoRepositoryBean implements Bean<DominoRepository<?, ?>>, Passi
 		return Collections.emptySet();
 	}
 
-	@Override
-	public boolean isNullable() {
-		return false;
-	}
-
 }

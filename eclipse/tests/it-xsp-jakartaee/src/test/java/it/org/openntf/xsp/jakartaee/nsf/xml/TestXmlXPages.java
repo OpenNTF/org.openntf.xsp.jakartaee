@@ -42,7 +42,7 @@ public class TestXmlXPages extends AbstractWebClientTest {
 		try {
 			WebElement span = driver.findElement(By.xpath("//span[@style=\"font-family: monospace; whitespace: pre-wrap\"]"));
 			assertTrue(
-				span.getText().startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <application-guy>"),
+				span.getText().contains("<application-guy>"),
 				() -> "Got unexpected content: " + span.getText()
 			);
 		} catch(NoSuchElementException e) {

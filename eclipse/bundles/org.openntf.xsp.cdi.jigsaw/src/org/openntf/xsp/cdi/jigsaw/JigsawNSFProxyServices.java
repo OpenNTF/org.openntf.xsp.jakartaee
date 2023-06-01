@@ -66,11 +66,6 @@ public class JigsawNSFProxyServices extends WeldDefaultProxyServices {
 		}
 		return super.loadClass(originalClass, classBinaryName);
 	}
-	
-	@Override
-	public boolean supportsClassDefining() {
-		return true;
-	}
 
 	public ClassLoader getClassLoader(final Class<?> proxiedBeanType) {
         throw new UnsupportedOperationException("WeldDefaultProxyServices.getClassLoader(Class<?>) is not implemented.");

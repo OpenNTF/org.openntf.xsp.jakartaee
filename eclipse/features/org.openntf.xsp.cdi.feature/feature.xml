@@ -249,5 +249,7 @@
 	<plugin id="org.jboss.weld.se.weld-se-core" version="0.0.0" unpack="false"/>
 	<plugin id="org.jboss.weld.probe.weld-probe-core" version="0.0.0" unpack="false"/>
 	<plugin id="org.jboss.weld.module.weld-web" version="0.0.0" unpack="false"/>
+	<plugin id="org.jboss.weld.lite-extension-translator" version="0.0.0" unpack="false"/>
+	
 	
 </feature>

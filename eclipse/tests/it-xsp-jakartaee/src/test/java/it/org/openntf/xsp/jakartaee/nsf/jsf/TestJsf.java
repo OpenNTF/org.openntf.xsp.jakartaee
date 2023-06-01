@@ -49,7 +49,7 @@ public class TestJsf extends AbstractWebClientTest {
 	@Order(1)
 	public void testHelloPage(WebDriver driver) {
 		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/hello.xhtml");
-
+		
 		try {
 			String expected = "inputValue" + System.currentTimeMillis();
 			{
@@ -133,7 +133,7 @@ public class TestJsf extends AbstractWebClientTest {
 	@Order(3)
 	public void testJsfJs() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/jakarta.faces.resource/jsf.js.xhtml?ln=jakarta.faces");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/jakarta.faces.resource/faces.js.xhtml?ln=jakarta.faces");
 		Response response = target.request().get();
 		assertEquals(200, response.getStatus());
 

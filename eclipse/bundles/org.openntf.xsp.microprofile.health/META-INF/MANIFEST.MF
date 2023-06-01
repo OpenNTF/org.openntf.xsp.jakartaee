@@ -7,7 +7,7 @@ Bundle-Version: 2.13.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
- org.eclipse.microprofile.health;bundle-version="4.0.0";visibility:=reexport
+ org.openntf.org.eclipse.microprofile.health;bundle-version="4.0.0";visibility:=reexport
 Import-Package: com.ibm.xsp.application,
  com.ibm.xsp.library,
  io.smallrye.health;version="4.0.0",
