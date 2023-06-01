@@ -154,6 +154,7 @@
 											jakarta.ws.rs-api;visibility:=reexport
 										</Require-Bundle>
 										<Export-Package>*;version="${resteasy-version}"</Export-Package>
+										<DynamicImport-Package>org.eclipse.persistence.*</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>
