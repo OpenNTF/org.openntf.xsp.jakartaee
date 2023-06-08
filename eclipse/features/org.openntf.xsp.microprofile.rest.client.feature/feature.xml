@@ -244,9 +244,7 @@
    <plugin id="org.eclipse.microprofile.rest.client" version="0.0.0" unpack="false"/>
    <plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0" unpack="false"/>
    <plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client" version="0.0.0" fragment="true" unpack="false"/>
-   <plugin id="org.apache.commons.codec" version="0.0.0" unpack="false"/>
    <plugin id="org.apache.commons.commons-io" version="0.0.0" unpack="false"/>
-   <plugin id="org.apache.commons.logging" version="0.0.0" unpack="false"/>
    <plugin id="org.openntf.org.apache.httpcomponents.httpclient" version="0.0.0" unpack="false"/>
    <plugin id="org.openntf.org.apache.httpcomponents.httpcore" version="0.0.0" unpack="false"/>
 
