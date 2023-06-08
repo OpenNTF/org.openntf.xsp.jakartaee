@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: JSON-P and JSON-B Compile-Time Tests
 Bundle-SymbolicName: org.openntf.xsp.jsonapi.test
 Automatic-Module-Name: org.openntf.xsp.jsonapi.test
-Bundle-Version: 2.13.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Fragment-Host: org.openntf.xsp.jsonapi
 Require-Bundle: org.junit;bundle-version="4.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

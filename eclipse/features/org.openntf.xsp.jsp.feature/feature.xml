@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jsp.feature"
       label="XPages JSP 3.0 Support Feature"
-      version="2.13.0.qualifier">
+      version="3.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]

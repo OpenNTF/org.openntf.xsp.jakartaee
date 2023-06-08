@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openntf.xsp.jakarta.persistence;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.transaction
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakarta.persistence.PersistenceActivator
-Bundle-Version: 2.13.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="2.7.0",

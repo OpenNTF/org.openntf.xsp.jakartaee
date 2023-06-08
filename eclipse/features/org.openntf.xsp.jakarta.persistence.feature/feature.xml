@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jakarta.persistence.feature"
       label="XPages Jakarta EE Persistence (JPA) Feature"
-      version="2.13.0.qualifier">
+      version="3.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
