@@ -270,5 +270,6 @@
 	<plugin id="org.openntf.jboss-classfilewriter" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.logging.jboss-logging" version="0.0.0" unpack="false"/>
 	<plugin id="javassist" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.aries.spifly.dynamic.framework.extension" version="0.0.0" fragment="true" unpack="false"/>
 
 </feature>
