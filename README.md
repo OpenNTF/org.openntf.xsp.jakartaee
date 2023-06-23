@@ -286,6 +286,8 @@ application_rest_Sample_hello_total 2.0
 application_rest_Sample_hello_elapsedTime_seconds 8.252E-4
 ```
 
+This capability can be disabled by setting `rest.mpmetrics.enable=false` in your Xsp Properties. Note that Fault Tolerance has an implicit dependency on this, and so will also be unavailable if you set this flag.
+
 Note: the semantics and output of this component are likely to change in the future. MicroProfile Metrics 5.0 and above move to being based on Micrometer. As part of MicroProfile 6.0, however, this version requires Java 11 and will only be adopted here when Domino supports at least that Java version.
 
 #### CORS
