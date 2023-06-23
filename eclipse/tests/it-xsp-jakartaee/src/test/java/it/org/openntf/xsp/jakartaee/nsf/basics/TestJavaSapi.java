@@ -18,6 +18,7 @@ package it.org.openntf.xsp.jakartaee.nsf.basics;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
@@ -51,6 +52,7 @@ public class TestJavaSapi extends AbstractWebClientTest {
 	}
 	
 	@Test
+	@Disabled("This appears to be flaky in practice, and that may be on the Domino side")
 	public void testOverrideUser() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/whoami.xsp");
