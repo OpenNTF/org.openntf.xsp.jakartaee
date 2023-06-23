@@ -15,11 +15,14 @@
  */
 package org.openntf.xsp.microprofile.metrics.config;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.microprofile.config.ext.ImplicitAppConfigProvider;
+import org.openntf.xsp.microprofile.metrics.MetricsResourceContributor;
 
 /**
  * This MP Config provider produces the current app's context path as a prefix
@@ -34,13 +37,17 @@ public class MetricsAppConfigSource implements ImplicitAppConfigProvider {
 
 	@Override
 	public Map<String, String> get() {
-		Map<String, String> result = new HashMap<>();
-		ComponentModuleLocator.getDefault()
-			.flatMap(ComponentModuleLocator::getServletContext)
-			.ifPresent(ctx -> {
-				result.put(CONFIG_APPNAME, '/' + ctx.getContextPath());
-			});
-		return result;
+		if(!"false".equals(LibraryUtil.getApplicationProperty(MetricsResourceContributor.PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			Map<String, String> result = new HashMap<>();
+			ComponentModuleLocator.getDefault()
+				.flatMap(ComponentModuleLocator::getServletContext)
+				.ifPresent(ctx -> {
+					result.put(CONFIG_APPNAME, '/' + ctx.getContextPath());
+				});
+			return result;
+		} else {
+			return Collections.emptyMap();
+		}
 	}
 
 }

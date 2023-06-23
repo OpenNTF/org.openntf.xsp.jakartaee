@@ -26,14 +26,19 @@ import org.openntf.xsp.microprofile.metrics.jaxrs.MetricsResource;
 import org.openntf.xsp.microprofile.metrics.jaxrs.RestMetricsFilter;
 
 public class MetricsResourceContributor implements JAXRSClassContributor {
+	public static final String PROP_ENABLED = "rest.mpmetrics.enable"; //$NON-NLS-1$
 
 	@Override
 	public Collection<Class<?>> getClasses() {
 		if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID)) {
-			return Arrays.asList(
-				RestMetricsFilter.class,
-				MetricsResource.class
-			);
+			if(!"false".equals(LibraryUtil.getApplicationProperty(PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
+				return Arrays.asList(
+					RestMetricsFilter.class,
+					MetricsResource.class
+				);
+			} else {
+				return Collections.emptySet();
+			}
 		} else {
 			return Collections.emptySet();
 		}
