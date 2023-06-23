@@ -16,8 +16,8 @@
 package org.openntf.xsp.cdi.context;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.enterprise.context.spi.CreationalContext;
 
@@ -27,7 +27,7 @@ import jakarta.enterprise.context.spi.CreationalContext;
 public class BasicScopeContextHolder implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private final Map<String, BasicScopeInstance<?>> beans = new HashMap<>();
+	private final Map<String, BasicScopeInstance<?>> beans = new ConcurrentHashMap<>();
 
 	public Map<String, BasicScopeInstance<?>> getBeans() {
 		return beans;
