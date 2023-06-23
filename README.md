@@ -729,6 +729,46 @@ public Person getPersonByViewKey(@PathParam("lastName") String lastName) {
 }
 ```
 
+#### Named and Profile Documents
+
+Named and profile documents can be retrieved with the `findNamedDocument` and `findProfileDocument` methods on `DominoRepository` instances. While documents can be readily accessed this way, it is also important to include specific special fields in your model in order to create and update them. For example, for named documents:
+
+```java
+@Entity
+public class SomeNamedDoc {
+	@Id
+	private String documentId;
+	
+	@Column(DominoConstants.FIELD_NOTENAME)
+	private String noteName;
+	
+	// If using key parameters:
+	@Column(DominoConstants.FIELD_USERNAME)
+	private String noteUserName;
+	
+	/* ... */
+}
+```
+
+And for profile documents:
+
+```java
+@Entity
+public class SomeProfileDoc {
+	@Id
+	private String documentId;
+	
+	@Column(DominoConstants.FIELD_PROFILENAME)
+	private String profileName;
+	
+	// If using key parameters:
+	@Column(DominoConstants.FIELD_PROFILEKEY)
+	private String profileKey;
+	
+	/* ... */
+}
+```
+
 #### Document Sources
 
 By default, the driver assumes that documents are stored in the current database. This can be overridden by using the `org.openntf.xsp.nosql.mapping.extension.RepositoryProvider` annotation. For example:
