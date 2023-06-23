@@ -175,6 +175,30 @@ public enum DominoConstants {
 	 * @since 2.9.0
 	 */
 	public static final String FIELD_FTSEARCHSCORE = "@ftsearchscore"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of the name of the note, currently
+	 * {@value #FIELD_NOTENAME}
+	 * @since 2.13.0
+	 */
+	public static final String FIELD_NOTENAME = "@notename"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of the profile name of the note, currently
+	 * {@value #FIELD_PROFILENAME}
+	 * @since 2.13.0
+	 */
+	public static final String FIELD_PROFILENAME = "@profilename"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of the qualifying user name of a named or
+	 * document, currently {@value #FIELD_USERNAME}
+	 * @since 2.13.0
+	 */
+	public static final String FIELD_USERNAME = "@username"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of the qualifying user name of a profile
+	 * document, currently {@value #FIELD_USERNAME}
+	 * @since 2.13.0
+	 */
+	public static final String FIELD_PROFILEKEY = "@profilekey"; //$NON-NLS-1$
 	
 	/**
 	 * Options used when converting composite data to HTML. This list is based
