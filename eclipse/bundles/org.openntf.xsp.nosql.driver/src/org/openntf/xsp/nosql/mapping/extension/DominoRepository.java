@@ -139,4 +139,26 @@ public interface DominoRepository<T, ID> extends Repository<T, ID> {
      * @since 2.12.0
      */
     Stream<ViewInfo> getViewInfo();
+    
+    /**
+     * Finds an entity given its note name
+     * 
+     * @param name the document name
+     * @param userName the qualifying user name of the document; may be
+     *        {@code null}
+     * @return the entity given the document name
+     * @since 2.13.0
+     */
+    Optional<T> findNamedDocument(String name, String userName);
+
+    /**
+     * Finds an entity given its note name
+     * 
+     * @param profileName the profile document name
+     * @param userName the qualifying user name of the document; may be
+     *        {@code null}
+     * @return the entity given the profile name
+     * @since 2.13.0
+     */
+    Optional<T> findProfileDocument(String profileName, String userName);
 }

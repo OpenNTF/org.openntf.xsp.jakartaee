@@ -167,5 +167,15 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	public Stream<ViewInfo> getViewInfo() {
 		return getManager().getViewInfo();
 	}
+	
+	@Override
+	public <T> Optional<T> getByName(String entityName, String name, String userName) {
+		return getManager().getByName(entityName, name, userName).map(getConverter()::toEntity);
+	}
+	
+	@Override
+	public <T> Optional<T> getProfileDocument(String entityName, String profileName, String userName) {
+		return getManager().getProfileDocument(entityName, profileName, userName).map(getConverter()::toEntity);
+	}
 
 }

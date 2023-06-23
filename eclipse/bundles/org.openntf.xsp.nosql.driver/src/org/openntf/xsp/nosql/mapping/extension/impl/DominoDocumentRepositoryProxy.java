@@ -60,6 +60,8 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 	private static final Method readViewEntries;
 	private static final Method readViewDocuments;
 	private static final Method getViewInfo;
+	private static final Method findNamedDocument;
+	private static final Method findProfileDocument;
 	
 	static {
 		try {
@@ -71,6 +73,8 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			readViewEntries = DominoRepository.class.getDeclaredMethod("readViewEntries", String.class, int.class, boolean.class, ViewQuery.class, Sorts.class, Pagination.class); //$NON-NLS-1$
 			readViewDocuments = DominoRepository.class.getDeclaredMethod("readViewDocuments", String.class, int.class, boolean.class, ViewQuery.class, Sorts.class, Pagination.class); //$NON-NLS-1$
 			getViewInfo = DominoRepository.class.getDeclaredMethod("getViewInfo"); //$NON-NLS-1$
+			findNamedDocument = DominoRepository.class.getDeclaredMethod("findNamedDocument", String.class, String.class); //$NON-NLS-1$
+			findProfileDocument = DominoRepository.class.getDeclaredMethod("findProfileDocument", String.class, String.class); //$NON-NLS-1$
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -207,6 +211,24 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 		
 		if(method.equals(getViewInfo)) {
 			return template.getViewInfo();
+		}
+		
+		if(method.equals(findNamedDocument)) {
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.getByName(entityName, (String)args[0], (String)args[1]);
+			return convert(result, method);
+		}
+		
+		if(method.equals(findProfileDocument)) {
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.getProfileDocument(entityName, (String)args[0], (String)args[1]);
+			return convert(result, method);
 		}
 		
 		return method.invoke(repository, args);
