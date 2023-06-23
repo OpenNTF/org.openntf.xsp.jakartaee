@@ -21,4 +21,9 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakartaee.bridge.jasapi.init.JasapiEarlyInitFactory"/>
 	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.bridge.jasapi.JasapiServiceFactory" class="org.openntf.xsp.jakartaee.bridge.jasapi.module.ComponentModuleJasapiFactory"/>
+	</extension>
+	
 </plugin>
