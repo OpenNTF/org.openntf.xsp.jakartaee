@@ -18,12 +18,24 @@ package javasapi;
 import org.openntf.xsp.jakartaee.jasapi.JavaSapiContext;
 import org.openntf.xsp.jakartaee.jasapi.JavaSapiExtension;
 
+import com.ibm.commons.util.StringUtil;
+
 public class TestJavaSapiExtension implements JavaSapiExtension {
 
 	@Override
+	public Result rawRequest(JavaSapiContext context) {
+		context.getResponse().setHeader("X-InNSFCustomHeader", "Hello from NSF"); //$NON-NLS-1$ //$NON-NLS-2$
+		return Result.SUCCESS;
+	}
+	
+	@Override
 	public Result authenticate(JavaSapiContext context) {
-		context.getRequest().setAuthenticatedUserName("CN=Jesse Gallagher/O=IKSG", "Basic");
-		return Result.REQUEST_AUTHENTICATED;
+		String overrideName = context.getRequest().getHeader("X-OverrideName");
+		if(StringUtil.isNotEmpty(overrideName)) {
+			context.getRequest().setAuthenticatedUserName(overrideName, "Basic");
+			return Result.REQUEST_AUTHENTICATED;
+		}
+		return JavaSapiExtension.super.authenticate(context);
 	}
 
 }

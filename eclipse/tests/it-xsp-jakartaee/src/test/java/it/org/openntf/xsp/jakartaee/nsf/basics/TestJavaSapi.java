@@ -16,6 +16,7 @@
 package it.org.openntf.xsp.jakartaee.nsf.basics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -39,5 +40,26 @@ public class TestJavaSapi extends AbstractWebClientTest {
 		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN)); //$NON-NLS-1$
 		Response response = target.request().get();
 		assertEquals("Hello", response.getHeaderString("X-AddHeaderJavaSapiService"));
+	}
+	
+	@Test
+	public void testAddInNSFHeader() {
+		Client client = getAdminClient();
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN)); //$NON-NLS-1$
+		Response response = target.request().get();
+		assertEquals("Hello from NSF", response.getHeaderString("X-InNSFCustomHeader"));
+	}
+	
+	@Test
+	public void testOverrideUser() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/whoami.xsp");
+		Response response = target.request()
+			.header("X-OverrideName", "CN=Foo Fooson/O=IKSG")
+			.get();
+		checkResponse(200, response);
+		
+		String html = response.readEntity(String.class);
+		assertTrue(html.contains("I think you are:CN=Foo Fooson/O=IKSG"), () -> "Received unexpected HTML: " + html);
 	}
 }
