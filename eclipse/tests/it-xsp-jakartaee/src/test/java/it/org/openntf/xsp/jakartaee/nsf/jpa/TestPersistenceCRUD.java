@@ -16,16 +16,24 @@
 package it.org.openntf.xsp.jakartaee.nsf.jpa;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
@@ -34,6 +42,7 @@ import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
@@ -57,13 +66,14 @@ public class TestPersistenceCRUD extends AbstractWebClientTest {
 	}
 
 	@ParameterizedTest
-	@ArgumentsSource(AnonymousClientProvider.class)
-	public void testPersistenceCrud(Client client) {
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.JPA) + "/companies");
+	@ValueSource(strings = { "companies", "companies/transactional" })
+	public void testPersistenceCrud(String path) {
+		Client client = getAnonymousClient();
 		
-		String expected = "Test Company" + System.currentTimeMillis();
+		String expected = "Test Company" + System.nanoTime();
 		// Create a new record
 		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.JPA) + "/" + path);
 			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
 			payload.add("name", expected);
 			Response response = target.request().post(Entity.form(payload));
@@ -77,13 +87,51 @@ public class TestPersistenceCRUD extends AbstractWebClientTest {
 		}
 		
 		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.JPA) + "/companies");
 			Response response = target.request().get();
 			
 			String json = response.readEntity(String.class);
 			try {
 				JsonArray companies = Json.createReader(new StringReader(json)).readArray();
-				JsonObject jsonObject = companies.getJsonObject(0);
-				assertEquals(expected, jsonObject.getString("name"));
+				Optional<JsonObject> jsonObject = companies.stream()
+					.map(JsonValue::asJsonObject)
+					.filter(obj -> expected.equals(obj.getString("name", "")))
+					.findFirst();
+				assertTrue(jsonObject.isPresent(), "Should have found matching record");
+			} catch(Exception e) {
+				fail("Encountered exception parsing " + json, e);
+			}
+		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(AnonymousClientProvider.class)
+	public void testPersistenceTransactionFailure(Client client) {
+		
+		String expected = "Test Company" + System.nanoTime();
+		// Create a new record
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.JPA) + "/companies/failure");
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.add("name", expected);
+			Response response = target.request().post(Entity.form(payload));
+			assertEquals(500, response.getStatus());
+			String json = response.readEntity(String.class);
+			assertTrue(json.contains("Transaction was marked as rollback-only and rolled back"), () -> "Received unexpected JSON: " + json);
+		}
+		
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.JPA) + "/companies");
+			Response response = target.request().get();
+			
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray companies = Json.createReader(new StringReader(json)).readArray();
+				Optional<JsonObject> jsonObject = companies.stream()
+					.map(JsonValue::asJsonObject)
+					.filter(obj -> expected.equals(obj.getString("name", "")))
+					.findFirst();
+				assertFalse(jsonObject.isPresent(), "Should not have found matching record");
 			} catch(Exception e) {
 				fail("Encountered exception parsing " + json, e);
 			}

@@ -1,12 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<note xmlns="http://www.lotus.com/dxl" class="form">
-  <item name="$Flags">
-    <text>34567Cg~[</text>
-  </item>
-  <item name="$TITLE">
-    <text>META-INF/persistence.xml</text>
-  </item>
-  <item name="$FileNames" sign="true">
-    <text>META-INF/persistence.xml</text>
-  </item>
-</note>
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.0" replicaid="852589750056D54A" version="12.0">
+<noteinfo noteid="18a" sequence="12" unid="5008CFE8F08E16F585258975005ED688">
+<created><datetime dst="true">20230317T131553,04-04</datetime></created>
+<modified><datetime dst="true">20230624T132745,43-04</datetime></modified>
+<revised><datetime dst="true">20230624T132745,42-04</datetime></revised>
+<lastaccessed><datetime dst="true">20230624T132745,42-04</datetime></lastaccessed>
+<addedtofile><datetime dst="true">20230317T131553,04-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$TITLE"><text>META-INF/persistence.xml</text></item>
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>META-INF/persistence.xml</text></item></note>

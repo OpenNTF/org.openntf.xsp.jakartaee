@@ -18,6 +18,8 @@ package org.openntf.xsp.jakarta.persistence;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import org.eclipse.persistence.transaction.JTATransactionController;
+import org.openntf.xsp.jakarta.transaction.cdi.DominoTransactionManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -29,9 +31,11 @@ public class PersistenceActivator implements BundleActivator {
 	public void start(BundleContext bundleContext) throws Exception {
 		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
 			System.setProperty("eclipselink.logging.logger", "JavaLogger"); //$NON-NLS-1$ //$NON-NLS-2$
+			System.setProperty("eclipselink.target-server", "org.openntf.xsp.jakarta.persistence.server.DominoServerPlatform");
 			return null;
 		});
 		PersistenceProviderResolverHolder.setPersistenceProviderResolver(new EclipseLinkResolver());
+		JTATransactionController.setDefaultTransactionManager(new DominoTransactionManager());
 	}
 
 	@Override

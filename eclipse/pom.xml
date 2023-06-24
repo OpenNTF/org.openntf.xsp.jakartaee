@@ -97,6 +97,7 @@
 		 
 		<!-- MVC -->
  		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
+ 		<module>bundles/org.openntf.xsp.jakarta.persistence.server</module>
  		<module>features/org.openntf.xsp.jakarta.persistence.feature</module>
 	
 		<!-- MicroProfile Config -->

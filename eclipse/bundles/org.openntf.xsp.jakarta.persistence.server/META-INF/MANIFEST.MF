@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Jakarta Persistence (JPA) Domino Server Implementation
+Bundle-SymbolicName: org.openntf.xsp.jakarta.persistence.server
+Bundle-Version: 2.13.0.qualifier
+Bundle-Vendor: OpenNTF
+Fragment-Host: org.eclipse.persistence.eclipselink
+Automatic-Module-Name: org.openntf.xsp.jakarta.persistence.server
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

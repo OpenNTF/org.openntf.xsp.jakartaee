@@ -504,7 +504,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			checkResponse(500, response);
 			
 			String content = response.readEntity(String.class);
-			assertTrue(content.contains("I was asked to intentionally roll back"), () -> "Received unexpected content " + content);
+			assertTrue(content.contains("Transaction was marked as rollback-only and rolled back"), () -> "Received unexpected content " + content);
 		}
 		
 		// Make sure it doesn't show up in the view entries

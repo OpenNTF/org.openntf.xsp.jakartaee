@@ -15,5 +15,7 @@ Import-Package: com.ibm.designer.runtime.domino.adapter,
  com.ibm.xsp.context,
  com.ibm.xsp.event,
  com.ibm.xsp.library,
- org.osgi.framework;version="1.8.0"
+ org.openntf.xsp.jakarta.transaction.cdi,
+ org.osgi.framework;version="1.8.0",
+ jakarta.transaction
 DynamicImport-Package: org.jboss.weld.*

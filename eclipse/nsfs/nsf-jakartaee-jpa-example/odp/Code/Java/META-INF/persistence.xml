@@ -23,7 +23,8 @@
 		<class>model.Company</class>
 		<jta-data-source>java:comp/env/jdbc/postgresql</jta-data-source>
 		<properties>
-			<property name="jakarta.persistence.jdbc.url" value="java:comp/env/jdbc/postgresql" />
+			<property name="jakarta.persistence.jtaDataSource" value="java:comp/env/jdbc/postgresql" />
+			<property name="jakarta.persistence.transactionType" value="JTA"/>
 		</properties>
 	</persistence-unit>
 </persistence>

@@ -24,6 +24,7 @@ import jakarta.persistence.Persistence;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
@@ -63,6 +64,50 @@ public class CompaniesResource {
 			company.setName(name);
 			em.persist(company);
 			return company;
+		} finally {
+			t.commit();
+			em.close();
+		}
+	}
+	
+	@Path("transactional")
+	@POST
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
+	public Company postTransaction(@FormParam("name") String name) {
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("JPATestProj");
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction t = em.getTransaction();
+		t.begin();
+		try {
+			Company company = new Company();
+			company.setName(name);
+			em.persist(company);
+			
+			return company;
+		} finally {
+			t.commit();
+			em.close();
+		}
+	}
+	
+	@Path("failure")
+	@POST
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
+	public Company postFailure(@FormParam("name") String name) {
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("JPATestProj");
+		EntityManager em = emf.createEntityManager();
+		EntityTransaction t = em.getTransaction();
+		t.begin();
+		try {
+			Company company = new Company();
+			company.setName(name);
+			em.persist(company);
+			
+			throw new RuntimeException("This operation should fail after persisting");
 		} finally {
 			t.commit();
 			em.close();

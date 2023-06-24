@@ -234,6 +234,7 @@
    </license>
 
 	<plugin id="org.openntf.xsp.jakarta.persistence" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.persistence.server" version="0.0.0" fragment="true" unpack="false"/>
 	<plugin id="org.eclipse.persistence.eclipselink" version="0.0.0" unpack="false"/>
 
 </feature>
