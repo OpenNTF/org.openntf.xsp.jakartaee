@@ -33,6 +33,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.myfaces.ee.MyFacesContainerInitializer;
 import org.apache.myfaces.shared.config.MyfacesConfig;
@@ -80,6 +82,8 @@ import jakarta.servlet.http.HttpSessionListener;
  */
 public class NSFJsfServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	private static final Logger log = Logger.getLogger(NSFJsfServlet.class.getName());
 
 	private static final String PROP_SESSIONINIT = NSFJsfServlet.class.getName() + "_sessionInit"; //$NON-NLS-1$
 	private static final String PROP_CLASSLOADER = NSFJsfServlet.class.getName() + "_classLoader"; //$NON-NLS-1$
@@ -131,6 +135,8 @@ public class NSFJsfServlet extends HttpServlet {
 				ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
 				ServletUtil.contextInitialized(ctx);
 			}
+			
+			context.setAttribute("jakarta.servlet.context.tempdir", context.getAttribute("javax.servlet.context.tempdir"));
 
 			this.delegate = new FacesServlet();
 			delegate.init(config);
@@ -180,6 +186,10 @@ public class NSFJsfServlet extends HttpServlet {
 				return null;
 			});
 		} catch (Throwable t) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered unhandled exception in Servlet", t);
+			}
+			
 			try (PrintWriter w = resp.getWriter()) {
 				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				XSPErrorPage.handleException(w, t, req.getRequestURL().toString(), false);
