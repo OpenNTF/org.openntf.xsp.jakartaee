@@ -258,7 +258,7 @@ public class NSFJsfServlet extends HttpServlet {
 		ModuleUtil.getClassNames(module)
 				.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches()).map(className -> {
 					try {
-						return module.getModuleClassLoader().loadClass(className);
+						return Class.forName(className, true, module.getModuleClassLoader());
 					} catch (ClassNotFoundException e) {
 						throw new RuntimeException(e);
 					}

@@ -81,7 +81,7 @@ public enum ModuleUtil {
 			.filter(className -> !GENERATED_CLASSNAMES.matcher(className).matches())
 			.map(name -> {
 				try {
-					return cl.loadClass(name);
+					return Class.forName(name, true, cl);
 				} catch (Throwable e) {
 					log.log(Level.SEVERE, MessageFormat.format("Encountered exception loading class {0}", name), e);
 					return (Class<?>)null;
