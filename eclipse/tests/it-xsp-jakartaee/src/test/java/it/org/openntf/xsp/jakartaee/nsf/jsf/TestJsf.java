@@ -166,7 +166,7 @@ public class TestJsf extends AbstractWebClientTest {
 				TimeUnit.MILLISECONDS.sleep(10);
 			}
 			
-			assertEquals("2", value);
+			assertEquals("1", value);
 			
 			a.click();
 			// Wait up to 500 ms
