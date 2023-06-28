@@ -49,10 +49,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
-import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.faces.FactoryFinder;
@@ -98,43 +96,39 @@ public class NSFJsfServlet extends HttpServlet {
 	}
 
 	public void doInit(HttpServletRequest req, ServletConfig config) throws ServletException {
-		try {
-			CDI<Object> cdi = ContainerUtil.getContainer(NotesContext.getCurrent().getNotesDatabase());
-			ServletContext context = config.getServletContext();
-			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
-			context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_JSP_AND_FACES_EL, String.valueOf(false));
-			context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_MANAGED_BEANS, String.valueOf(false));
-			// TODO investigate why partial state saving doesn't work with a basic form
-			context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+		CDI<Object> cdi = CDI.current();
+		ServletContext context = config.getServletContext();
+		context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+		context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_JSP_AND_FACES_EL, String.valueOf(false));
+		context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_MANAGED_BEANS, String.valueOf(false));
+		// TODO investigate why partial state saving doesn't work with a basic form
+		context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 
-			Properties props = LibraryUtil.getXspProperties(module);
-			String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
-			context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
+		Properties props = LibraryUtil.getXspProperties(module);
+		String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
+		context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
 
-			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
-			Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
-			{
-				ServletContainerInitializer initializer = new MyFacesContainerInitializer();
-				Set<Class<?>> classes = null;
-				HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
-				if (types != null) {
-					classes = ModuleUtil.buildMatchingClasses(types, module, b, b2);
-				}
-				initializer.onStartup(classes, getServletContext());
+		Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
+		Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
+		{
+			ServletContainerInitializer initializer = new MyFacesContainerInitializer();
+			Set<Class<?>> classes = null;
+			HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
+			if (types != null) {
+				classes = ModuleUtil.buildMatchingClasses(types, module, b, b2);
 			}
-
-			{
-				// Re-wrap the ServletContext to provide the context path
-				javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
-				ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
-				ServletUtil.contextInitialized(ctx);
-			}
-			
-			this.delegate = new FacesServlet();
-			delegate.init(config);
-		} catch (NotesAPIException e) {
-			throw new ServletException(e);
+			initializer.onStartup(classes, getServletContext());
 		}
+
+		{
+			// Re-wrap the ServletContext to provide the context path
+			javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
+			ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
+			ServletUtil.contextInitialized(ctx);
+		}
+		
+		this.delegate = new FacesServlet();
+		delegate.init(config);
 	}
 
 	@Override

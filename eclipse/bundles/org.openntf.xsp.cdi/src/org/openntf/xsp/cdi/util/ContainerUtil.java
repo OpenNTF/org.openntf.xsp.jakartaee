@@ -491,24 +491,6 @@ public enum ContainerUtil {
 	}
 	
 	/**
-	 * Retrieves the active {@link BeanManagerImpl} instance for the provided {@link NotesDatabase}.
-	 * 
-	 * @param database the database to retrieve the bean manager for
-	 * @return the database's {@link BeanManagerImpl} instance, or {@code null} if CDI is not enabled
-	 *         for the database
-	 * @throws NotesAPIException if there is a Notes API problem accessing the database
-	 * @throws UncheckedIOException if there is a stream problem reading the database config
-	 * @since 2.3.0
-	 */
-	public static BeanManagerImpl getBeanManager(NotesDatabase database) throws NotesAPIException {
-		CDI<Object> container = getContainer(database);
-		if(container == null) {
-			return null;
-		}
-		return getBeanManager(container);
-	}
-	
-	/**
 	 * @since 1.2.0
 	 */
 	public static BeanManagerImpl getBeanManager(CDI<Object> container) {
