@@ -623,12 +623,12 @@ public enum ContainerUtil {
 		@Override
 		public Class<?> classForName(String name) {
 			try {
-				return Thread.currentThread().getContextClassLoader().loadClass(name);
+				return Class.forName(name, true, Thread.currentThread().getContextClassLoader());
 			} catch (ClassNotFoundException | LinkageError e) {
 				// Couldn't find it here
 			}
 			try {
-				return bundle.adapt(BundleWiring.class).getClassLoader().loadClass(name);
+				return Class.forName(name, true, bundle.adapt(BundleWiring.class).getClassLoader());
 			} catch (ClassNotFoundException | LinkageError e) {
 				throw new ResourceLoadingException("Error loading class " + name, e);
 			}

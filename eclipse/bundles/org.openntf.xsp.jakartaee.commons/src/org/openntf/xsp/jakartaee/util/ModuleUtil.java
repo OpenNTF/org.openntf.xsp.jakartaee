@@ -81,7 +81,7 @@ public enum ModuleUtil {
 			.filter(className -> !GENERATED_CLASSNAMES.matcher(className).matches())
 			.map(name -> {
 				try {
-					return cl.loadClass(name);
+					return Class.forName(name, true, cl);
 				} catch (Throwable e) {
 					log.log(Level.SEVERE, MessageFormat.format("Encountered exception loading class {0}", name), e);
 					return (Class<?>)null;
@@ -119,6 +119,24 @@ public enum ModuleUtil {
 				log.warning(MessageFormat.format("Unable to read file names from unsupported ComponentModule type {0}", module.getClass().getName()));
 			}
 			return Stream.empty();
+		}
+	}
+	
+	/**
+	 * Derives a useful ID for the provided module.
+	 * 
+	 * <p>In the case of an NSF, this will be the database path. Otherwise,
+	 * it will be the object ID of the module.</p>
+	 * 
+	 * @param module the module to derive an ID for
+	 * @return a useful ID value for the module
+	 * @since 1.13.0
+	 */
+	public static String getModuleId(ComponentModule module) {
+		if(module instanceof NSFComponentModule) {
+			return ((NSFComponentModule)module).getDatabasePath();
+		} else {
+			return Integer.toHexString(System.identityHashCode(module));
 		}
 	}
 
