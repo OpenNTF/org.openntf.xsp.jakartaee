@@ -121,5 +121,23 @@ public enum ModuleUtil {
 			return Stream.empty();
 		}
 	}
+	
+	/**
+	 * Derives a useful ID for the provided module.
+	 * 
+	 * <p>In the case of an NSF, this will be the database path. Otherwise,
+	 * it will be the object ID of the module.</p>
+	 * 
+	 * @param module the module to derive an ID for
+	 * @return a useful ID value for the module
+	 * @since 1.13.0
+	 */
+	public static String getModuleId(ComponentModule module) {
+		if(module instanceof NSFComponentModule) {
+			return ((NSFComponentModule)module).getDatabasePath();
+		} else {
+			return Integer.toHexString(System.identityHashCode(module));
+		}
+	}
 
 }
