@@ -67,10 +67,6 @@ public abstract class AbstractWebClientTest {
 		return adminClient;
 	}
 	
-	public String getWebappContextPath() {
-		return "/jeeExample";
-	}
-	
 	public String getRootUrl(WebDriver driver, TestDatabase db) {
 		String host;
 		int port;
@@ -106,21 +102,6 @@ public abstract class AbstractWebClientTest {
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
-	public String getWebappRootUrl(WebDriver driver) {
-		String host;
-		int port;
-		if(driver instanceof RemoteWebDriver) {
-			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
-			port = 80;
-		} else {
-			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getMappedPort(80);
-		}
-		
-		String context = getWebappContextPath();
-		return PathUtil.concat("http://" + host + ":" + port, context, '/');
-	}
-	
 	public String getWebappContextualRootUrl(WebDriver driver) {
 		String host;
 		int port;
@@ -132,7 +113,7 @@ public abstract class AbstractWebClientTest {
 			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
-		String context = PathUtil.concat(TestDatabase.MAIN.getContextPath(), getWebappContextPath(), '/');
+		String context = PathUtil.concat(TestDatabase.MAIN.getContextPath(), TestDatabase.OSGI_WEBAPP.getContextPath(), '/');
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
