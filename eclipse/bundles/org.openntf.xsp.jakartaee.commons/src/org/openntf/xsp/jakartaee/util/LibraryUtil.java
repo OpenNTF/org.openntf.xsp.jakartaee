@@ -50,6 +50,7 @@ import lotus.domino.Database;
 import lotus.domino.NotesException;
 import lotus.domino.Session;
 import com.ibm.commons.extension.ExtensionManager;
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesNote;
@@ -442,5 +443,29 @@ public enum LibraryUtil {
 			String tempDir = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
 			return Paths.get(tempDir);
 		}
+	}
+	
+	/**
+	 * Converts an in-bundle resource name to a class name.
+	 * 
+	 * @param resourceName the resource name to convert, e.g. "foo/bar.class"
+	 * @return the Java class name, or {@code null} if the entry is not
+	 *         a class file
+	 * @since 2.4.0
+	 */
+	public static String toClassName(String resourceName) {
+		if(StringUtil.isEmpty(resourceName)) {
+			return null;
+		} else if(resourceName.startsWith("target/classes")) { //$NON-NLS-1$
+			// Not a real class name
+			return null;
+		} else if(resourceName.startsWith("bin/")) { //$NON-NLS-1$
+			// Not a real class name
+			return null;
+		}
+		
+		return resourceName
+			.substring(0, resourceName.length()-".class".length()) //$NON-NLS-1$
+			.replace('/', '.');
 	}
 }

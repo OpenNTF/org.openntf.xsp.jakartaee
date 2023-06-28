@@ -20,13 +20,23 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem.NSFFile;
 
+import jakarta.servlet.annotation.HandlesTypes;
+
+import java.lang.annotation.Annotation;
+import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import org.osgi.framework.Bundle;
 
 /**
  * This class contains methods for working with {@link ComponentModule} instances.
@@ -137,6 +147,75 @@ public enum ModuleUtil {
 			return ((NSFComponentModule)module).getDatabasePath();
 		} else {
 			return Integer.toHexString(System.identityHashCode(module));
+		}
+	}
+	
+	/**
+	 * Builds a collection of classes based on the rules defined in the provided
+	 * {@code HandlesTypes} annotation, optionally reading classes from some
+	 * bundles.
+	 * 
+	 * @param types the {@link HandlesTypes} annotation to consult
+	 * @param module the {@link ComponentModule} to scan
+	 * @param bundles any {@link Bundle}s to scan to add to the collection
+	 * @return a {@link Set} of matching {@link Class} instances, or {@code null}
+	 *         if none are found
+	 * @since 2.13.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static Set<Class<?>> buildMatchingClasses(HandlesTypes types, ComponentModule module, Bundle... bundles) {
+		Set<Class<?>> result = new HashSet<>();
+		ModuleUtil.getClassNames(module)
+			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
+			.map(className -> {
+				try {
+					return Class.forName(className, true, module.getModuleClassLoader());
+				} catch (ClassNotFoundException e) {
+					throw new RuntimeException(e);
+				}
+			}).filter(c -> {
+				for (Class<?> type : types.value()) {
+					if (type.isAnnotation()) {
+						return c.isAnnotationPresent((Class<? extends Annotation>) type);
+					} else {
+						return type.isAssignableFrom(c);
+					}
+				}
+				return true;
+			}).forEach(result::add);
+
+		for(Bundle bundle : bundles) {
+			String baseUrl = bundle.getEntry("/").toString(); //$NON-NLS-1$
+			List<URL> entries = Collections.list(bundle.findEntries("/", "*.class", true)); //$NON-NLS-1$ //$NON-NLS-2$
+			entries.stream()
+				.parallel()
+				.map(String::valueOf)
+				.map(url -> url.substring(baseUrl.length()))
+				.map(LibraryUtil::toClassName)
+				.filter(StringUtil::isNotEmpty)
+				.sequential()
+				.map(className -> {
+					try {
+						return bundle.loadClass(className);
+					} catch (ClassNotFoundException e) {
+						throw new RuntimeException(e);
+					}
+				}).filter(c -> {
+					for (Class<?> type : types.value()) {
+						if (type.isAnnotation()) {
+							return c.isAnnotationPresent((Class<? extends Annotation>) type);
+						} else {
+							return type.isAssignableFrom(c);
+						}
+					}
+					return true;
+				}).forEach(result::add);
+		}
+		
+		if (!result.isEmpty()) {
+			return result;
+		} else {
+			return null;
 		}
 	}
 
