@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.cdi.provider;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -24,30 +23,26 @@ import java.util.logging.Logger;
 import org.openntf.xsp.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.cdi.ext.CDIContainerUtility;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
 
 import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.domino.napi.NotesAPIException;
-import com.ibm.designer.domino.napi.NotesDatabase;
-import com.ibm.designer.domino.napi.NotesSession;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.CDIProvider;
 
 /**
- * Provides access to the current application's Weld context.
+ * Provides access to the current application's CDI context.
  * 
  * @author Jesse Gallagher
  * @since 1.0.0
  */
-public class NSFCDIProvider implements CDIProvider {
-	private static final Logger log = Logger.getLogger(NSFCDIProvider.class.getPackage().getName());
+public class DominoCDIProvider implements CDIProvider {
+	private static final Logger log = Logger.getLogger(DominoCDIProvider.class.getPackage().getName());
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized CDI<Object> getCDI() {
-		CDI<Object> result = null;
-		
 		CDIContainerUtility util = LibraryUtil.findRequiredExtension(CDIContainerUtility.class);
 		
 		// Check in any available locator extensions
@@ -61,27 +56,14 @@ public class NSFCDIProvider implements CDIProvider {
 				
 				String nsfPath = locator.getNsfPath();
 				if(StringUtil.isNotEmpty(nsfPath)) {
-					NotesSession session = new NotesSession();
-					try {
-						NotesDatabase database = session.getDatabaseByPath(nsfPath);
-						try {
-							database.open();
-							result = (CDI<Object>)util.getContainer(database);
-							if(result != null) {
-								return result;
-							}
-						} finally {
-							if(database != null) {
-								database.recycle();
-							}
-						}
-					} catch (NotesAPIException | IOException e) {
-						// Log and move on
-						e.printStackTrace();
-					} finally {
-						session.recycle();
+					container = ModuleUtil.getNSFComponentModule(nsfPath)
+						.map(util::getContainer)
+						.orElse(null);
+					if(container != null) {
+						return (CDI<Object>)container;
 					}
 				}
+				
 				
 				String bundleId = locator.getBundleId();
 				if(StringUtil.isNotEmpty(bundleId)) {
@@ -91,8 +73,6 @@ public class NSFCDIProvider implements CDIProvider {
 					}
 				}
 			}
-		} catch (NotesAPIException e) {
-			// Ignore
 		} catch(IllegalStateException e) {
 			// Will almost definitely be "Invalid disposed application ClassLoader", which occurs
 			//   during active development of an NSF - ignore

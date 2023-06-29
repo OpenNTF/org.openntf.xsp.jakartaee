@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.cdi;
 
-import org.openntf.xsp.cdi.provider.NSFCDIProvider;
+import org.openntf.xsp.cdi.provider.DominoCDIProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -29,7 +29,7 @@ public class CDIActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		CDI.setCDIProvider(new NSFCDIProvider());
+		CDI.setCDIProvider(new DominoCDIProvider());
 	}
 
 	@Override

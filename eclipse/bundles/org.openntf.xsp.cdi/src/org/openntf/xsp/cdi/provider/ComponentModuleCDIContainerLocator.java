@@ -17,30 +17,31 @@ package org.openntf.xsp.cdi.provider;
 
 import org.openntf.xsp.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.cdi.ext.CDIContainerUtility;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-import com.ibm.xsp.application.ApplicationEx;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import jakarta.annotation.Priority;
 
 /**
- * This {@link CDIContainerUtility} implementation attempts to locate a CDI
- * container based on a contextual {@link ApplicationEx} instance.
+ * This {@link CDIContainerLocator} looks for a contextual database
+ * in an active {@link ComponentModule} for a CDI container.
  * 
  * @author Jesse Gallagher
- * @since 2.8.0
+ * @since 2.10.0
  */
-@Priority(2)
-public class ApplicationExCDIContainerLocator implements CDIContainerLocator {
+@Priority(1)
+public class ComponentModuleCDIContainerLocator implements CDIContainerLocator {
+
 	@Override
 	public Object getContainer() {
 		CDIContainerUtility util = LibraryUtil.findRequiredExtension(CDIContainerUtility.class);
 		
-		ApplicationEx application = ApplicationEx.getInstance();
-		if(application != null) {
-			return util.getContainer(application);
-		} else {
-			return null;
-		}
+		return ComponentModuleLocator.getDefault()
+			.map(ComponentModuleLocator::getActiveModule)
+			.map(util::getContainer)
+			.orElse(null);
 	}
+
 }

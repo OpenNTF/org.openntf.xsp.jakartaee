@@ -31,7 +31,7 @@ import org.openntf.xsp.jakartaee.util.ModuleUtil;
  * @author Jesse Gallagher
  * @since 2.9.0
  */
-public class NSFComponentModuleClassContributor implements WeldBeanClassContributor {
+public class ComponentModuleClassContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
