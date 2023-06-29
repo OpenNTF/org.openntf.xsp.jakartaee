@@ -36,7 +36,7 @@
 		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.bean.BuiltinBeanClassContributor" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.discovery.NSFComponentModuleClassContributor" />
+		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.discovery.ComponentModuleClassContributor" />
 	</extension>
 	
 	<!-- Default CDI container locators -->

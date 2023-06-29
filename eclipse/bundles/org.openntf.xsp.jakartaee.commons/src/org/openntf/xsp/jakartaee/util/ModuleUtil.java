@@ -92,17 +92,21 @@ public enum ModuleUtil {
 	 */
 	public static Stream<Class<?>> getClasses(ComponentModule module) {
 		ClassLoader cl = module.getModuleClassLoader();
-		return getClassNames(module)
-			.filter(className -> !GENERATED_CLASSNAMES.matcher(className).matches())
-			.map(name -> {
-				try {
-					return Class.forName(name, true, cl);
-				} catch (Throwable e) {
-					log.log(Level.SEVERE, MessageFormat.format("Encountered exception loading class {0}", name), e);
-					return (Class<?>)null;
-				}
-			})
-			.filter(Objects::nonNull);
+		if(cl != null) {
+			return getClassNames(module)
+				.filter(className -> !GENERATED_CLASSNAMES.matcher(className).matches())
+				.map(name -> {
+					try {
+						return Class.forName(name, true, cl);
+					} catch (Throwable e) {
+						log.log(Level.SEVERE, MessageFormat.format("Encountered exception loading class {0}", name), e);
+						return (Class<?>)null;
+					}
+				})
+				.filter(Objects::nonNull);
+		} else {
+			return Stream.empty();
+		}
 	}
 	
 	/**
