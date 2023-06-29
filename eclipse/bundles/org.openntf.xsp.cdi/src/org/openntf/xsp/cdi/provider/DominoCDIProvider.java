@@ -32,13 +32,13 @@ import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.CDIProvider;
 
 /**
- * Provides access to the current application's Weld context.
+ * Provides access to the current application's CDI context.
  * 
  * @author Jesse Gallagher
  * @since 1.0.0
  */
-public class NSFCDIProvider implements CDIProvider {
-	private static final Logger log = Logger.getLogger(NSFCDIProvider.class.getPackage().getName());
+public class DominoCDIProvider implements CDIProvider {
+	private static final Logger log = Logger.getLogger(DominoCDIProvider.class.getPackage().getName());
 	
 	@SuppressWarnings("unchecked")
 	@Override
