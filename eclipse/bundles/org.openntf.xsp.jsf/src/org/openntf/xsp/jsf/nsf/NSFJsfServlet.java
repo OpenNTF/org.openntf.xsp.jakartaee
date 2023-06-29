@@ -19,7 +19,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
-import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -29,7 +28,6 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -43,7 +41,6 @@ import org.apache.myfaces.shared.config.MyfacesConfig;
 import org.eclipse.core.runtime.FileLocator;
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
-import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
@@ -52,11 +49,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
-import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.faces.FactoryFinder;
@@ -102,48 +96,39 @@ public class NSFJsfServlet extends HttpServlet {
 	}
 
 	public void doInit(HttpServletRequest req, ServletConfig config) throws ServletException {
-		try {
-			CDI<Object> cdi = ContainerUtil.getContainer(NotesContext.getCurrent().getNotesDatabase());
-			ServletContext context = config.getServletContext();
-			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
-			context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_JSP_AND_FACES_EL, String.valueOf(false));
-			context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_MANAGED_BEANS, String.valueOf(false));
-			// TODO investigate why partial state saving doesn't work with a basic form
-			context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+		CDI<Object> cdi = CDI.current();
+		ServletContext context = config.getServletContext();
+		context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+		context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_JSP_AND_FACES_EL, String.valueOf(false));
+		context.setInitParameter(MyfacesConfig.INIT_PARAM_SUPPORT_MANAGED_BEANS, String.valueOf(false));
+		// TODO investigate why partial state saving doesn't work with a basic form
+		context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 
-			Properties props = LibraryUtil.getXspProperties(module);
-			String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
-			context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
+		Properties props = LibraryUtil.getXspProperties(module);
+		String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
+		context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
 
-			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
-			Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
-			{
-				ServletContainerInitializer initializer = new MyFacesContainerInitializer();
-				Set<Class<?>> classes = null;
-				HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
-				if (types != null) {
-					classes = buildMatchingClasses(types, b);
-					if (classes == null) {
-						classes = buildMatchingClasses(types, b2);
-					} else {
-						classes.addAll(buildMatchingClasses(types, b2));
-					}
-				}
-				initializer.onStartup(classes, getServletContext());
+		Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
+		Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
+		{
+			ServletContainerInitializer initializer = new MyFacesContainerInitializer();
+			Set<Class<?>> classes = null;
+			HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
+			if (types != null) {
+				classes = ModuleUtil.buildMatchingClasses(types, module, b, b2);
 			}
-
-			{
-				// Re-wrap the ServletContext to provide the context path
-				javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
-				ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
-				ServletUtil.contextInitialized(ctx);
-			}
-			
-			this.delegate = new FacesServlet();
-			delegate.init(config);
-		} catch (NotesAPIException e) {
-			throw new ServletException(e);
+			initializer.onStartup(classes, getServletContext());
 		}
+
+		{
+			// Re-wrap the ServletContext to provide the context path
+			javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
+			ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
+			ServletUtil.contextInitialized(ctx);
+		}
+		
+		this.delegate = new FacesServlet();
+		delegate.init(config);
 	}
 
 	@Override
@@ -163,7 +148,7 @@ public class NSFJsfServlet extends HttpServlet {
 						initialized = true;
 					}
 
-					ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
+					//ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
 					AbstractProxyingContext.setThreadContextRequest(req);
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
 							.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), req)));
@@ -183,7 +168,7 @@ public class NSFJsfServlet extends HttpServlet {
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
 							.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
 					Thread.currentThread().setContextClassLoader(current);
-					ContainerUtil.setThreadContextDatabasePath(null);
+					//ContainerUtil.setThreadContextDatabasePath(null);
 					AbstractProxyingContext.setThreadContextRequest(null);
 				}
 				return null;
@@ -195,7 +180,7 @@ public class NSFJsfServlet extends HttpServlet {
 			
 			try (PrintWriter w = resp.getWriter()) {
 				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				XSPErrorPage.handleException(w, t, req.getRequestURL().toString(), false);
+				XSPErrorPage.handleException(w, t, null, false);
 			} catch (javax.servlet.ServletException e) {
 				throw new IOException(e);
 			} catch (IllegalStateException e) {
@@ -278,62 +263,6 @@ public class NSFJsfServlet extends HttpServlet {
 			cached.put(id, cl);
 		}
 		return (ClassLoader) context.getAttribute(PROP_CLASSLOADER);
-	}
-
-	@SuppressWarnings("unchecked")
-	private Set<Class<?>> buildMatchingClasses(HandlesTypes types, Bundle bundle) {
-		Set<Class<?>> result = new HashSet<>();
-		ModuleUtil.getClassNames(module)
-			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-			.map(className -> {
-				try {
-					return Class.forName(className, true, module.getModuleClassLoader());
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException(e);
-				}
-			}).filter(c -> {
-				for (Class<?> type : types.value()) {
-					if (type.isAnnotation()) {
-						return c.isAnnotationPresent((Class<? extends Annotation>) type);
-					} else {
-						return type.isAssignableFrom(c);
-					}
-				}
-				return true;
-			}).forEach(result::add);
-
-		// Find in the JSF bundle as well
-		String baseUrl = bundle.getEntry("/").toString(); //$NON-NLS-1$
-		List<URL> entries = Collections.list(bundle.findEntries("/", "*.class", true)); //$NON-NLS-1$ //$NON-NLS-2$
-		entries.stream()
-			.parallel()
-			.map(String::valueOf)
-			.map(url -> url.substring(baseUrl.length()))
-			.map(DiscoveryUtil::toClassName)
-			.filter(StringUtil::isNotEmpty)
-			.sequential()
-			.map(className -> {
-				try {
-					return bundle.loadClass(className);
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException(e);
-				}
-			}).filter(c -> {
-				for (Class<?> type : types.value()) {
-					if (type.isAnnotation()) {
-						return c.isAnnotationPresent((Class<? extends Annotation>) type);
-					} else {
-						return type.isAssignableFrom(c);
-					}
-				}
-				return true;
-			}).forEach(result::add);
-
-		if (!result.isEmpty()) {
-			return result;
-		} else {
-			return null;
-		}
 	}
 	
 	private void destroyOldContext(FacesBlockingClassLoader old, HttpSession session) throws IOException {

@@ -25,6 +25,7 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,10 +48,8 @@ import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 import org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator;
 import org.osgi.framework.Bundle;
 
-import lotus.domino.Database;
-import lotus.domino.NotesException;
-import lotus.domino.Session;
 import com.ibm.commons.extension.ExtensionManager;
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesNote;
@@ -58,6 +58,9 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.xsp.application.ApplicationEx;
 
 import jakarta.annotation.Priority;
+import lotus.domino.Database;
+import lotus.domino.NotesException;
+import lotus.domino.Session;
 
 /**
  * Utility methods for working with XSP Libraries.
@@ -137,11 +140,7 @@ public enum LibraryUtil {
 	 * @since 2.3.0
 	 */
 	public static String getApplicationProperty(String prop, String defaultValue) {
-		return findExtensions(ApplicationPropertyLocator.class)
-			.stream()
-			.sorted(PriorityComparator.DESCENDING)
-			.filter(ApplicationPropertyLocator::isActive)
-			.findFirst()
+		return ApplicationPropertyLocator.getDefault()
 			.map(locator -> locator.getApplicationProperty(prop, defaultValue))
 			.orElse(defaultValue);
 	}
@@ -273,13 +272,15 @@ public enum LibraryUtil {
 			
 			if(needsRebuild) {
 				props = new Properties();
+				
 				try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
 					if(is != null) {
 						props.load(is);
 					}
-				} catch (IOException e) {
+				} catch(IOException e) {
 					throw new UncheckedIOException(e);
 				}
+				
 				attributes.put(PROP_XSPPROPS, props);
 				attributes.put(PROP_XSPPROPSREAD, lastMod);
 			}
@@ -302,6 +303,27 @@ public enum LibraryUtil {
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> findExtensions(Class<T> extensionClass) {
 		return (List<T>)EXTENSION_CACHE.computeIfAbsent(extensionClass, LibraryUtil::findExtensionsUncached);
+	}
+	
+	/**
+	 * Finds extensions for the given class using the IBM Commons extension mechanism as well as inside
+	 * the provided module using the ServiceLoader mechanism. Global instances are store in a
+	 * per-extension-class cache.
+	 * 
+	 * <p>This method assumes that the extension point name is the same as the qualified class name.</p>
+	 * 
+	 * @param <T> the class of extension to find
+	 * @param extensionClass the class object representing the extension point
+	 * @param module the {@link ComponentModule} to load from
+	 * @return a {@link List} of service objects for the class
+	 */
+	public static <T> List<T> findExtensions(Class<T> extensionClass, ComponentModule module) {
+		List<T> result = new ArrayList<>();
+		if(module != null && module.getModuleClassLoader() != null) {
+			ServiceLoader.load(extensionClass, module.getModuleClassLoader()).forEach(result::add);
+		}
+		result.addAll(findExtensions(extensionClass));
+		return result;
 	}
 	
 	/**
@@ -442,5 +464,29 @@ public enum LibraryUtil {
 			String tempDir = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
 			return Paths.get(tempDir);
 		}
+	}
+	
+	/**
+	 * Converts an in-bundle resource name to a class name.
+	 * 
+	 * @param resourceName the resource name to convert, e.g. "foo/bar.class"
+	 * @return the Java class name, or {@code null} if the entry is not
+	 *         a class file
+	 * @since 2.4.0
+	 */
+	public static String toClassName(String resourceName) {
+		if(StringUtil.isEmpty(resourceName)) {
+			return null;
+		} else if(resourceName.startsWith("target/classes")) { //$NON-NLS-1$
+			// Not a real class name
+			return null;
+		} else if(resourceName.startsWith("bin/")) { //$NON-NLS-1$
+			// Not a real class name
+			return null;
+		}
+		
+		return resourceName
+			.substring(0, resourceName.length()-".class".length()) //$NON-NLS-1$
+			.replace('/', '.');
 	}
 }

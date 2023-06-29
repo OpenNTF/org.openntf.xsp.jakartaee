@@ -15,12 +15,9 @@
  */
 package org.openntf.xsp.cdi.ext;
 
-import java.io.IOException;
-
 import org.osgi.framework.Bundle;
 
-import com.ibm.designer.domino.napi.NotesAPIException;
-import com.ibm.designer.domino.napi.NotesDatabase;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.xsp.application.ApplicationEx;
 
 /**
@@ -29,8 +26,8 @@ import com.ibm.xsp.application.ApplicationEx;
  * @since 1.2.0
  */
 public interface CDIContainerUtility {
-	Object getContainer(NotesDatabase database) throws NotesAPIException, IOException;
-	Object getContainer(ApplicationEx app);
+	/** @since 1.13.0 */
+	Object getContainer(ComponentModule module);
 	Object getContainer(Bundle bundle);
 	String getThreadContextDatabasePath();
 }

@@ -17,7 +17,6 @@ package org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.faces.context.FacesContext;
 
@@ -103,7 +101,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 		for(ServletContainerInitializer initializer : initializers) {
 			Set<Class<?>> classes = null;
 			if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
-				classes = buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class));
+				classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), module);
 			}
 			initializer.onStartup(classes, config.getServletContext());
 		}
@@ -139,7 +137,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 			
 			try(PrintWriter w = response.getWriter()) {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				XSPErrorPage.handleException(w, t, request.getRequestURL().toString(), false);
+				XSPErrorPage.handleException(w, t, null, false);
 			} catch (javax.servlet.ServletException e) {
 				throw new IOException(e);
 			} catch(IllegalStateException e) {
@@ -239,35 +237,5 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 				throw new RuntimeException(e);
 			}
 		});
-	}
-
-	private Set<Class<?>> buildMatchingClasses(HandlesTypes types) {
-		@SuppressWarnings("unchecked")
-		Set<Class<?>> result = ModuleUtil.getClassNames(module)
-			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-			.map(className -> {
-				try {
-					return Class.forName(className, true, module.getModuleClassLoader());
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException(e);
-				}
-			})
-			.filter(c -> {
-				for(Class<?> type : types.value()) {
-					if(type.isAnnotation()) {
-						return c.isAnnotationPresent((Class<? extends Annotation>)type);
-					} else {
-						return type.isAssignableFrom(c);
-					}
-				}
-				return true;
-			})
-			.collect(Collectors.toSet());
-		
-		if(!result.isEmpty()) {
-			return result;
-		} else {
-			return null;
-		}
 	}
 }

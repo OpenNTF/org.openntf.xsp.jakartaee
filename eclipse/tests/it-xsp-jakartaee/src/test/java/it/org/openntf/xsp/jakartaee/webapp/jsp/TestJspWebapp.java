@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.org.openntf.xsp.jakartaee.nsf.jsp;
+package it.org.openntf.xsp.jakartaee.webapp.jsp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -26,6 +26,7 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestJspWebapp extends AbstractWebClientTest {
@@ -33,7 +34,7 @@ public class TestJspWebapp extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testHelloPage(WebDriver driver) {
-		driver.get(getWebappRootUrl(driver) + "/hello.jsp");
+		driver.get(getRootUrl(driver, TestDatabase.OSGI_WEBAPP) + "/hello.jsp");
 		
 		try {
 			WebElement dd = driver.findElement(By.xpath("//fieldset/p"));

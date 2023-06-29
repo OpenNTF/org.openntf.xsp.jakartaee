@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 import org.eclipse.osgi.util.ManifestElement;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.IndexReader;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
@@ -113,7 +114,7 @@ public enum DiscoveryUtil {
 						.parallel()
 						.map(String::valueOf)
 						.map(url -> url.substring(baseUrl.length()))
-						.map(DiscoveryUtil::toClassName)
+						.map(LibraryUtil::toClassName)
 						.filter(StringUtil::isNotEmpty)
 						.filter(className -> packages.contains(className.substring(0, className.lastIndexOf('.'))))
 						.filter(className -> !classNames.contains(className))
@@ -159,30 +160,6 @@ public enum DiscoveryUtil {
 				}
 			})
 			.map(c -> (Class<?>)c);
-	}
-	
-	/**
-	 * Converts an in-bundle resource name to a class name.
-	 * 
-	 * @param resourceName the resource name to convert, e.g. "foo/bar.class"
-	 * @return the Java class name, or {@code null} if the entry is not
-	 *         a class file
-	 * @since 2.4.0
-	 */
-	public static String toClassName(String resourceName) {
-		if(StringUtil.isEmpty(resourceName)) {
-			return null;
-		} else if(resourceName.startsWith("target/classes")) { //$NON-NLS-1$
-			// Not a real class name
-			return null;
-		} else if(resourceName.startsWith("bin/")) { //$NON-NLS-1$
-			// Not a real class name
-			return null;
-		}
-		
-		return resourceName
-			.substring(0, resourceName.length()-".class".length()) //$NON-NLS-1$
-			.replace('/', '.');
 	}
 	
 	private static ScanType determineScanType(Bundle bundle) {
