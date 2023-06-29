@@ -137,7 +137,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 			
 			try(PrintWriter w = response.getWriter()) {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				XSPErrorPage.handleException(w, t, request.getRequestURL().toString(), false);
+				XSPErrorPage.handleException(w, t, null, false);
 			} catch (javax.servlet.ServletException e) {
 				throw new IOException(e);
 			} catch(IllegalStateException e) {

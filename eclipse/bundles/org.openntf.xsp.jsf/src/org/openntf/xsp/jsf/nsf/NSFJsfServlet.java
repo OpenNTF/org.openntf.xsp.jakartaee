@@ -148,7 +148,7 @@ public class NSFJsfServlet extends HttpServlet {
 						initialized = true;
 					}
 
-					ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
+					//ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
 					AbstractProxyingContext.setThreadContextRequest(req);
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
 							.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), req)));
@@ -168,7 +168,7 @@ public class NSFJsfServlet extends HttpServlet {
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
 							.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
 					Thread.currentThread().setContextClassLoader(current);
-					ContainerUtil.setThreadContextDatabasePath(null);
+					//ContainerUtil.setThreadContextDatabasePath(null);
 					AbstractProxyingContext.setThreadContextRequest(null);
 				}
 				return null;
@@ -180,7 +180,7 @@ public class NSFJsfServlet extends HttpServlet {
 			
 			try (PrintWriter w = resp.getWriter()) {
 				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				XSPErrorPage.handleException(w, t, req.getRequestURL().toString(), false);
+				XSPErrorPage.handleException(w, t, null, false);
 			} catch (javax.servlet.ServletException e) {
 				throw new IOException(e);
 			} catch (IllegalStateException e) {

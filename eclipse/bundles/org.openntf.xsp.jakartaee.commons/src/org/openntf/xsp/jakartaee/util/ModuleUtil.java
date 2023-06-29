@@ -15,13 +15,6 @@
  */
 package org.openntf.xsp.jakartaee.util;
 
-import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
-import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem.NSFFile;
-
-import jakarta.servlet.annotation.HandlesTypes;
-
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -30,13 +23,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import javax.servlet.ServletException;
+
 import org.osgi.framework.Bundle;
+
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
+import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
+import com.ibm.domino.xsp.module.nsf.NSFService;
+import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem.NSFFile;
+
+import jakarta.servlet.annotation.HandlesTypes;
 
 /**
  * This class contains methods for working with {@link ComponentModule} instances.
@@ -216,6 +221,29 @@ public enum ModuleUtil {
 			return result;
 		} else {
 			return null;
+		}
+	}
+	
+	/**
+	 * Attempts to find or load the {@link ComponentModule} for the given
+	 * NSF path.
+	 * 
+	 * @param nsfPath the NSF path to load, e.g. {@code "foo/bar.nsf"}
+	 * @return an {@link Optional} describing the {@link ComponentModule}
+	 *         if available, or an empty one if there is no such NSF
+	 * @since 2.13.0
+	 */
+	public static Optional<ComponentModule> getNSFComponentModule(String nsfPath) {
+		LCDEnvironment lcd = LCDEnvironment.getInstance();
+		NSFService nsfService = lcd.getServices().stream()
+			.filter(NSFService.class::isInstance)
+			.map(NSFService.class::cast)
+			.findFirst()
+			.orElseThrow(() -> new IllegalStateException("Unable to locate active NSFService"));
+		try {
+			return Optional.ofNullable(nsfService.loadModule(nsfPath));
+		} catch(ServletException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
