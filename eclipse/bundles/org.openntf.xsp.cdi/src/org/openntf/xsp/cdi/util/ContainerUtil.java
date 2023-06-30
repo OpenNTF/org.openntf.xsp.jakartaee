@@ -56,12 +56,11 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.BundleReference;
 import org.osgi.framework.wiring.BundleWiring;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.xsp.adapter.osgi.OSGIModule;
+import com.ibm.domino.xsp.adapter.osgi.AbstractOSGIModule;
 
 import jakarta.el.ELResolver;
 import jakarta.el.ExpressionFactory;
@@ -143,7 +142,7 @@ public enum ContainerUtil {
 					Set<String> bundleNames = new HashSet<>();
 					Set<String> classNames = new HashSet<>();
 					try {
-						addBundleBeans(bundle, weld, bundleNames, classNames);
+						addBundleBeans(bundle, weld, bundleNames, classNames, true);
 					} catch (BundleException e) {
 						if(log.isLoggable(Level.WARNING)) {
 							log.log(Level.WARNING, "Encountered exception loading bundle beans", e);
@@ -199,14 +198,14 @@ public enum ContainerUtil {
 		return (CDI<Object>)module.getAttributes().get(ATTR_CONTEXTCONTAINER);
 	}
 	
-	private static void addBundleBeans(Bundle bundle, Weld weld, Set<String> bundleNames, Set<String> classNames) throws BundleException {
+	private static void addBundleBeans(Bundle bundle, Weld weld, Set<String> bundleNames, Set<String> classNames, boolean nonExported) throws BundleException {
 		String symbolicName = bundle.getSymbolicName();
 		if(bundleNames.contains(symbolicName)) {
 			return;
 		}
 		bundleNames.add(symbolicName);
 		// Add classes from the bundle here
-		DiscoveryUtil.findBeanClasses(bundle)
+		DiscoveryUtil.findBeanClasses(bundle, nonExported)
 			.filter(t -> !classNames.contains(t.getName()))
 			.peek(t -> classNames.add(t.getName()))
 			.distinct()
@@ -221,7 +220,7 @@ public enum ContainerUtil {
 				if(StringUtil.isNotEmpty(bundleName)) {
 					Optional<Bundle> dependency = LibraryUtil.getBundle(bundleName);
 					if(dependency.isPresent()) {
-						addBundleBeans(dependency.get(), weld, bundleNames, classNames);
+						addBundleBeans(dependency.get(), weld, bundleNames, classNames, false);
 					}
 				}
 			}
@@ -238,10 +237,12 @@ public enum ContainerUtil {
 	public static CDI<Object> getContainer(ComponentModule module) {
 		// OSGi Servlets use their containing bundle, and we have to assume
 		//   that it's from the current thread
-		if(module instanceof OSGIModule) {
+		if(module instanceof AbstractOSGIModule) {
+
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();
-			if(cl instanceof BundleReference) {
-				return getContainer(((BundleReference) cl).getBundle());
+			Optional<Bundle> bundle = DiscoveryUtil.getBundleForClassLoader(cl);
+			if(bundle.isPresent()) {
+				return getContainer(bundle.get());
 			}
 		}
 		
@@ -255,7 +256,7 @@ public enum ContainerUtil {
 		
 		long refresh = module.getLastRefresh();
 		
-		if(module instanceof OSGIModule || LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, module)) {
+		if(module instanceof AbstractOSGIModule || LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, module)) {
 			String bundleId = getApplicationCDIBundle(module);
 			if(StringUtil.isNotEmpty(bundleId)) {
 				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
@@ -292,7 +293,7 @@ public enum ContainerUtil {
 							Set<String> bundleNames = new HashSet<>();
 							Set<String> classNames = new HashSet<>();
 							try {
-								addBundleBeans(bundle, weld, bundleNames, classNames);
+								addBundleBeans(bundle, weld, bundleNames, classNames, false);
 							} catch (BundleException e) {
 								if(log.isLoggable(Level.WARNING)) {
 									log.log(Level.WARNING, "Encountered exception loading bundle beans", e);

@@ -59,4 +59,18 @@
 		<servlet-name>LocatorTestServlet</servlet-name>
 		<url-pattern>/locatorTestServlet</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>CDIServlet</servlet-name>
+		<servlet-class>org.openntf.xsp.jakarta.servlet.webapp.JakartaServletFacade</servlet-class>
+		
+		<init-param>
+			<param-name>org.openntf.xsp.jakarta.servlet.class</param-name>
+			<param-value>org.openntf.xsp.jakarta.example.webapp.CDIServlet</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CDIServlet</servlet-name>
+		<url-pattern>/cdiServlet</url-pattern>
+	</servlet-mapping>
 </web-app>

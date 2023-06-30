@@ -37,7 +37,6 @@ public class ComponentModuleComponentEnabledLocator implements ComponentEnabledL
 
 	@Override
 	public boolean isComponentEnabled(String componentId) {
-		// TODO consider using an NSFComponentModule surrounding an OSGIModule
 		ComponentModule module = ComponentModuleLocator.getDefault().get().getActiveModule();
 		if(module != null) {
 			return LibraryUtil.usesLibrary(componentId, module);
