@@ -41,8 +41,7 @@ public class HealthBeanContributor implements WeldBeanClassContributor {
 			// Look for annotated beans in io.smallrye.health
 			Bundle bundle = FrameworkUtil.getBundle(ResponseProvider.class);
 			try {
-				return DiscoveryUtil.findBeanClasses(bundle)
-					// TODO filter to only annotated
+				return DiscoveryUtil.findBeanClasses(bundle, false)
 					.collect(Collectors.toList());
 			} catch (BundleException e) {
 				throw new RuntimeException(e);
