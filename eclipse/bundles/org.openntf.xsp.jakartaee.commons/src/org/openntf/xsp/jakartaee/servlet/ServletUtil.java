@@ -91,7 +91,14 @@ public enum ServletUtil {
 		} else if(request instanceof NewHttpServletRequestWrapper) {
 			return ((NewHttpServletRequestWrapper)request).delegate;
 		} else {
-			return new OldHttpServletRequestWrapper(context, request);
+			synchronized(request) {
+				OldHttpServletRequestWrapper wrapper = (OldHttpServletRequestWrapper)request.getAttribute(OldHttpServletRequestWrapper.class.getName());
+				if(wrapper == null) {
+					wrapper = new OldHttpServletRequestWrapper(context, request);
+					request.setAttribute(OldHttpServletRequestWrapper.class.getName(), wrapper);
+				}
+				return wrapper;
+			}
 		}
 	}
 	
@@ -150,7 +157,14 @@ public enum ServletUtil {
 		} else if(session instanceof NewHttpSessionWrapper) {
 			return ((NewHttpSessionWrapper)session).delegate;
 		} else {
-			return new OldHttpSessionWrapper(session);
+			synchronized(session) {
+				OldHttpSessionWrapper wrapper = (OldHttpSessionWrapper)session.getAttribute(OldHttpSessionWrapper.class.getName());
+				if(wrapper == null) {
+					wrapper = new OldHttpSessionWrapper(session);
+					session.setAttribute(OldHttpSessionWrapper.class.getName(), wrapper);
+				}
+				return wrapper;
+			}
 		}
 	}
 	
@@ -207,7 +221,15 @@ public enum ServletUtil {
 		} else if(context instanceof NewServletContextWrapper) {
 			return ((NewServletContextWrapper)context).delegate;
 		} else {
-			return new OldServletContextWrapper(contextPath, context);
+			synchronized(context) {
+				String key = OldServletContextWrapper.class.getName() + contextPath;
+				OldServletContextWrapper wrapper = (OldServletContextWrapper)context.getAttribute(key);
+				if(wrapper == null) {
+					wrapper = new OldServletContextWrapper(contextPath, context);
+					context.setAttribute(key, wrapper);
+				}
+				return wrapper;
+			}
 		}
 	}
 	/**
@@ -230,7 +252,15 @@ public enum ServletUtil {
 		} else if(context instanceof NewServletContextWrapper) {
 			return ((NewServletContextWrapper)context).delegate;
 		} else {
-			return new OldServletContextWrapper(contextPath, context, majorVersion, minorVersion);
+			synchronized(context) {
+				String key = OldServletContextWrapper.class.getName() + contextPath + majorVersion + minorVersion;
+				OldServletContextWrapper wrapper = (OldServletContextWrapper)context.getAttribute(key);
+				if(wrapper == null) {
+					wrapper = new OldServletContextWrapper(contextPath, context, majorVersion, minorVersion);
+					context.setAttribute(key, wrapper);
+				}
+				return wrapper;
+			}
 		}
 	}
 	
