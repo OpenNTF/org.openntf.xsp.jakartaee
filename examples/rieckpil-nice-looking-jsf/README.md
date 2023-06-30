@@ -11,3 +11,5 @@ There are a handful of changes, but the app is largely kept as-is:
 - The random name generation is less realistic, to avoid including another dependency
 - The use of `url="index.html"` et al for internal pages in header.xhtml was changed to `outcome="/index"` to work within the NSF URL path
 - This adds a `AppFacesConfig` class annotated with `@FacesConfig`, which acts as a hint to the JSF runtime to resolve CDI beans
+
+Note: this example requires loosening the Java security policy in a way similar to the "Requirements" section of the main project README.
