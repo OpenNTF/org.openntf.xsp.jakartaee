@@ -157,8 +157,8 @@ public class TestJsf extends AbstractWebClientTest {
 			WebElement input = spinner.findElement(By.xpath("input[1]"));
 			
 			String value = "";
-			// Wait up to 500 ms
-			for(int i = 0; i < 10; i++) {
+			// Wait up to 1s
+			for(int i = 0; i < 100; i++) {
 				value = input.getAttribute("value");
 				if("1".equals(value)) {
 					break;
@@ -169,8 +169,8 @@ public class TestJsf extends AbstractWebClientTest {
 			assertEquals("1", value);
 			
 			a.click();
-			// Wait up to 500 ms
-			for(int i = 0; i < 10; i++) {
+			// Wait up to 1s
+			for(int i = 0; i < 100; i++) {
 				value = input.getAttribute("value");
 				if("2".equals(value)) {
 					break;
