@@ -42,6 +42,22 @@ public class TestElBasics extends AbstractWebClientTest {
 		try {
 			WebElement dd = driver.findElement(By.xpath("//dt[text()=\"#{functionClass.foo}\"]/following-sibling::dd[1]"));
 			assertEquals("I am returned from getFoo()", dd.getText());
+			
+			dd = driver.findElement(By.xpath("//dt[text()=\"#{managedBeanGuy}\"]/following-sibling::dd[1]"));
+			assertEquals("I am ManagedBeanGuy#toString", dd.getText());
+		} catch(NoSuchElementException e) {
+			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
+		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(BrowserArgumentsProvider.class)
+	public void testLegacyBeanResolution(WebDriver driver) {
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/el.xsp");
+		
+		try {
+			WebElement dd = driver.findElement(By.xpath("//dt[text()=\"#{managedBeanGuy}\"]/following-sibling::dd[1]"));
+			assertEquals("I am ManagedBeanGuy#toString", dd.getText());
 		} catch(NoSuchElementException e) {
 			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
 		}

@@ -16,12 +16,16 @@
 package it.org.openntf.xsp.jakartaee.nsf.cdi;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+
+import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
@@ -57,5 +61,19 @@ public class TestXPagesResolver extends AbstractWebClientTest {
 		
 		WebElement dd = driver.findElement(By.xpath("//dt[text()=\"#{sessionAsSigner}\"]/following-sibling::dd[1]"));
 		assertTrue(dd.getText().startsWith("CN="));
+	}
+
+	
+	@ParameterizedTest
+	@ArgumentsSource(BrowserArgumentsProvider.class)
+	public void testXspContextResolution(WebDriver driver) {
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/beans.xsp");
+		
+		try {
+			WebElement dd = driver.findElement(By.xpath("//dt[text()=\"XSP URL\"]/following-sibling::dd[1]"));
+			assertTrue(StringUtil.toString(dd.getText()).contains("beans.xsp"), () -> "XSP URL should contain el.xsp; got: " + dd.getText());
+		} catch(NoSuchElementException e) {
+			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
+		}
 	}
 }
