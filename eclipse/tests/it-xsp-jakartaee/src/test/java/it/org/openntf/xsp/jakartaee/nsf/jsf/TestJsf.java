@@ -173,27 +173,12 @@ public class TestJsf extends AbstractWebClientTest {
 			
 			WebElement input = spinner.findElement(By.xpath("input[1]"));
 			
-			String value = "";
-			// Wait up to 1s
-			for(int i = 0; i < 100; i++) {
-				value = input.getAttribute("value");
-				if("1".equals(value)) {
-					break;
-				}
-				TimeUnit.MILLISECONDS.sleep(10);
-			}
-			
+			String value = waitFor(() -> input.getAttribute("value"), "1"::equals);
 			assertEquals("1", value);
 			
 			a.click();
-			// Wait up to 1s
-			for(int i = 0; i < 100; i++) {
-				value = input.getAttribute("value");
-				if("2".equals(value)) {
-					break;
-				}
-				TimeUnit.MILLISECONDS.sleep(10);
-			}
+			
+			value = waitFor(() -> input.getAttribute("value"), "2"::equals);
 			
 			assertEquals("2", value);
 		} catch(Exception e) {

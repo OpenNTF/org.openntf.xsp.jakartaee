@@ -21,6 +21,9 @@ import jakarta.ws.rs.core.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
@@ -134,5 +137,17 @@ public abstract class AbstractWebClientTest {
 
 	protected void checkResponse(int expectedCode, Response response) {
 		assertEquals(expectedCode, response.getStatus(), () -> "Received unexpected code " + response.getStatus() + ": " + response.readEntity(String.class));
+	}
+	
+	protected <T> T waitFor(Supplier<T> supplier, Predicate<T> condition) throws InterruptedException {
+		T result = null;
+		for(int i = 0; i < 500; i++) {
+			result = supplier.get();
+			if(condition.test(result)) {
+				return result;
+			}
+			TimeUnit.MILLISECONDS.sleep(10);
+		}
+		return result;
 	}
 }

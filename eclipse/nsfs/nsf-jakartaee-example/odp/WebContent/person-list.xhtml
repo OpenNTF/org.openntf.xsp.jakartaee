@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE html>
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:comp="http://java.sun.com/jsf/composite/comps">
+	
+    <h:head>
+        <title>Person Documents</title>
+    </h:head>
+    <h:body>
+    	<h2>Person Documents</h2>
+    	
+    	
+    	<h:form id="personForm">
+  			<h:dataTable id="personTable" var="person" value="#{peopleController.people}">
+  				<h:column>
+  					<f:facet name="header">Last Name</f:facet>
+  					<h:outputText value="#{person.lastName}"/>
+  				</h:column>
+  				<h:column>
+  					<f:facet name="header">First Name</f:facet>
+  					<h:outputText value="#{person.firstName}"/>
+  				</h:column>
+  				<h:column rendered="${peopleController.editable}">
+  					<h:commandButton value="Delete">
+    					<f:ajax execute="personTable" render="personTable" listener="#{peopleController.deletePerson(person)}"/>
+    				</h:commandButton>
+  					<h:commandButton value="Edit">
+    					<f:ajax execute="personTable" render="personTable" listener="#{peopleController.editPerson(person)}"/>
+    				</h:commandButton>
+    				
+    				<h:panelGroup rendered="#{peopleController.editable and peopleController.editingPerson ne null and peopleController.editingPerson.unid == person.unid}">	
+						<fieldset>
+							<dl>
+								<dt>First Name</dt>
+								<dd><h:inputText value="#{peopleController.editingPerson.firstName}"/></dd>
+								
+								<dt>Last Name</dt>
+								<dd><h:inputText value="#{peopleController.editingPerson.lastName}"/></dd>
+							</dl>
+							
+							<p>
+			  					<h:commandButton value="Save">
+			    					<f:ajax execute="personTable" render="personTable" listener="#{peopleController.saveEditingPerson}"/>
+			    				</h:commandButton>
+		    				</p>
+						</fieldset>
+					</h:panelGroup>
+  				</h:column>
+  			</h:dataTable>
+			
+			<h:panelGroup rendered="${peopleController.editable}">	
+				<hr />
+				
+				<fieldset>
+					<legend>Create New</legend>
+					
+					<dl>
+						<dt>First Name</dt>
+						<dd><h:inputText value="#{peopleController.newPerson.firstName}"/></dd>
+						
+						<dt>Last Name</dt>
+						<dd><h:inputText value="#{peopleController.newPerson.lastName}"/></dd>
+					</dl>
+					
+					<p>
+	  					<h:commandButton value="Create">
+	    					<f:ajax execute="personForm" render="personForm" listener="#{peopleController.createPerson}"/>
+	    				</h:commandButton>
+    				</p>
+				</fieldset>
+			</h:panelGroup>
+  		</h:form>
+    </h:body>
+</f:view>
