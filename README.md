@@ -286,6 +286,8 @@ application_rest_Sample_hello_total 2.0
 application_rest_Sample_hello_elapsedTime_seconds 8.252E-4
 ```
 
+This capability can be disabled by setting `rest.mpmetrics.enable=false` in your Xsp Properties. Note that Fault Tolerance has an implicit dependency on this, and so will also be unavailable if you set this flag.
+
 Note: the semantics and output of this component are likely to change in the future. MicroProfile Metrics 5.0 and above move to being based on Micrometer. As part of MicroProfile 6.0, however, this version requires Java 11 and will only be adopted here when Domino supports at least that Java version.
 
 #### CORS
@@ -726,6 +728,46 @@ public Person getPersonByViewKey(@PathParam("lastName") String lastName) {
 	ViewQuery query = ViewQuery.query().key(lastName, true); // "true" for an exact match
 	return personRepository.findByKey(query)
 		.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
+}
+```
+
+#### Named and Profile Documents
+
+Named and profile documents can be retrieved with the `findNamedDocument` and `findProfileDocument` methods on `DominoRepository` instances. While documents can be readily accessed this way, it is also important to include specific special fields in your model in order to create and update them. For example, for named documents:
+
+```java
+@Entity
+public class SomeNamedDoc {
+	@Id
+	private String documentId;
+	
+	@Column(DominoConstants.FIELD_NOTENAME)
+	private String noteName;
+	
+	// If using key parameters:
+	@Column(DominoConstants.FIELD_USERNAME)
+	private String noteUserName;
+	
+	/* ... */
+}
+```
+
+And for profile documents:
+
+```java
+@Entity
+public class SomeProfileDoc {
+	@Id
+	private String documentId;
+	
+	@Column(DominoConstants.FIELD_PROFILENAME)
+	private String profileName;
+	
+	// If using key parameters:
+	@Column(DominoConstants.FIELD_PROFILEKEY)
+	private String profileKey;
+	
+	/* ... */
 }
 ```
 

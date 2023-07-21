@@ -16,5 +16,8 @@
 package bean;
 
 public class ManagedBeanGuy {
-
+	@Override
+	public String toString() {
+		return "I am ManagedBeanGuy#toString";
+	}
 }

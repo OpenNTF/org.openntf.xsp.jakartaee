@@ -700,6 +700,18 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						result.add(Document.of(DominoConstants.FIELD_NOTEID, noteId));
 					}
 				}
+				if(fieldNames.contains(DominoConstants.FIELD_NOTENAME)) {
+					result.add(Document.of(DominoConstants.FIELD_NOTENAME, doc.getNameOfDoc()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_PROFILENAME)) {
+					result.add(Document.of(DominoConstants.FIELD_PROFILENAME, doc.getNameOfProfile()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_USERNAME)) {
+					result.add(Document.of(DominoConstants.FIELD_USERNAME, doc.getUserNameOfDoc()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_PROFILEKEY)) {
+					result.add(Document.of(DominoConstants.FIELD_PROFILEKEY, doc.getKey()));
+				}
 				if(fieldNames.contains(DominoConstants.FIELD_ADDED)) {
 					DateTime added = (DateTime)session.evaluate(" @AddedToThisFile ", doc).get(0); //$NON-NLS-1$
 					result.add(Document.of(DominoConstants.FIELD_ADDED, DominoNoSQLUtil.toTemporal(database, added)));

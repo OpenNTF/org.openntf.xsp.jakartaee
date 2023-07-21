@@ -60,10 +60,18 @@ public class TestJsf extends AbstractWebClientTest {
 					assertEquals("GET", dd.getText());
 				}
 				
-				// Look for requestGuy.message, as resolved via CDI
+				// Look for scoped beans, as resolved via CDI
 				{
 					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"requestGuy.message\"]/following-sibling::dd[1]"));
 					assertTrue(dd.getText().startsWith("I'm request guy at "));
+				}
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"sessionGuy.message\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().startsWith("I'm session guy at "));
+				}
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"applicationGuy.message\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().startsWith("I'm application guy at "));
 				}
 				
 				// Look for the composite component text
@@ -72,6 +80,15 @@ public class TestJsf extends AbstractWebClientTest {
 					assertEquals("I am text sent to a composite component", dd.getText());
 				}
 				
+				// Make sure Domino objects are available
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"dominoSession\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().startsWith("CN="));
+				}
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"database\"]/following-sibling::dd[1]"));
+					assertEquals("dev/jakartaee.nsf", dd.getText());
+				}
 				
 				WebElement input = form.findElement(By.xpath("input[1]"));
 				assertTrue(input.getAttribute("id").endsWith(":appGuyProperty"), () -> input.getAttribute("id"));
@@ -85,7 +102,7 @@ public class TestJsf extends AbstractWebClientTest {
 				assertEquals("Refresh", submit.getAttribute("value"));
 				submit.click();
 				// Give it a bit to do the partial refresh
-				TimeUnit.MILLISECONDS.sleep(250);
+				TimeUnit.MILLISECONDS.sleep(500);
 			}
 			{
 				
@@ -155,11 +172,15 @@ public class TestJsf extends AbstractWebClientTest {
 			a.click();
 			
 			WebElement input = spinner.findElement(By.xpath("input[1]"));
-			assertEquals("1", input.getAttribute("value"));
+			
+			String value = waitFor(() -> input.getAttribute("value"), "1"::equals);
+			assertEquals("1", value);
 			
 			a.click();
 			
-			assertEquals("2", input.getAttribute("value"));
+			value = waitFor(() -> input.getAttribute("value"), "2"::equals);
+			
+			assertEquals("2", value);
 		} catch(Exception e) {
 			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}

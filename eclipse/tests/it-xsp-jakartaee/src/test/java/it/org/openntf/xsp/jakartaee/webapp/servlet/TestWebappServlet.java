@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.org.openntf.xsp.jakartaee.nsf.servlet;
+package it.org.openntf.xsp.jakartaee.webapp.servlet;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -31,7 +32,7 @@ public class TestWebappServlet extends AbstractWebClientTest {
 	@Test
 	public void testExampleServlet() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getWebappRootUrl(null) + "/exampleServlet");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.OSGI_WEBAPP) + "/exampleServlet");
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);
@@ -43,7 +44,7 @@ public class TestWebappServlet extends AbstractWebClientTest {
 	@Test
 	public void testLocatorServlet() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getWebappRootUrl(null) + "/locatorTestServlet");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.OSGI_WEBAPP) + "/locatorTestServlet");
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);

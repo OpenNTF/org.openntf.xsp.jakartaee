@@ -52,13 +52,6 @@ public class TestBundleBeanResource extends AbstractWebClientTest {
 			int identity = obj.getInt("identity");
 			assertEquals(expectedIdentity, identity);
 		}
-		// Second NSF - uses .cdibundlebase, so should be separate bean
-		{
-			JsonObject obj = getBean(getBaseBudleNsfRootUrl(null) + "/exampleservlet");
-			assertEquals("Hello from bundleBean", obj.getString("hello"));
-			int identity = obj.getInt("identity");
-			assertNotEquals(expectedIdentity, identity);
-		}
 	}
 	
 	private JsonObject getBean(String base) {
@@ -66,6 +59,7 @@ public class TestBundleBeanResource extends AbstractWebClientTest {
 		WebTarget target = client.target(base + "/bean");
 		Response response = target.request().get();
 		
+		checkResponse(200, response);
 		String output = response.readEntity(String.class);
 		try {
 			return Json.createReader(new StringReader(output)).readObject();

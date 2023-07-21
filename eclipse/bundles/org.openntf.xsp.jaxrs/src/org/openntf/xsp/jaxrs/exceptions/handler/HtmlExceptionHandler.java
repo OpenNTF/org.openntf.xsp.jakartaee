@@ -90,7 +90,7 @@ public class HtmlExceptionHandler implements RestExceptionHandler {
 					}
 					
 					try(PrintWriter w = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
-						XSPErrorPage.handleException(w, throwable, req.getRequestURL().toString(), false);
+						XSPErrorPage.handleException(w, throwable, null, false);
 					} catch (ServletException e) {
 						throw new IOException(e);
 					}

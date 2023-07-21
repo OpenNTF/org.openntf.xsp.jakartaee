@@ -13,31 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee.util;
+package org.openntf.xsp.jakartaee.bridge.jasapi.module;
 
-import java.util.Comparator;
+import java.util.Collection;
+import java.util.Collections;
 
-import jakarta.annotation.Priority;
+import org.openntf.xsp.jakartaee.bridge.jasapi.JasapiServiceFactory;
+
+import com.ibm.domino.bridge.http.jasapi.IJavaSapiEnvironment;
+import com.ibm.domino.bridge.http.jasapi.JavaSapiService;
 
 /**
- * This {@link Comparator} will compare two arbitrary objects based
- * on their {@link Priority} annotation value, descending.
  * 
  * @author Jesse Gallagher
- * @since 2.7.0
+ * @since 2.13.0
  */
-public enum DescendingPriorityComparator implements Comparator<Object> {
-	INSTANCE;
-	
+public class ComponentModuleJasapiFactory implements JasapiServiceFactory {
+
 	@Override
-	public int compare(Object o1, Object o2) {
-		return Integer.compare(getPriority(o2), getPriority(o2));
-	}
-	
-	private int getPriority(Object o) {
-		return o == null ? -1
-			: !o.getClass().isAnnotationPresent(Priority.class) ? 0
-			: o.getClass().getAnnotation(Priority.class).value();
+	public Collection<JavaSapiService> getServices(IJavaSapiEnvironment env) {
+		return Collections.singleton(new NSFComponentModuleJavaSapiService(env));
 	}
 
 }

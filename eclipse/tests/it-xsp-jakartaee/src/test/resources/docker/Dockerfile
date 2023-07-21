@@ -14,7 +14,8 @@
 # limitations under the License.
 #
 
-FROM hclcom/domino:12.0.2
+ARG BASEIMAGE=domino-container:V1202_11032022prod
+FROM ${BASEIMAGE}
 
 RUN mkdir -p /local/runner \
 	&& mkdir -p /local/eclipse/eclipse/plugins
