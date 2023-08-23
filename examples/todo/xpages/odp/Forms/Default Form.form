@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" default="true" xmlns="http://www.lotus.com/dxl">
+  <item name="OriginalModTime">
+    <datetime dst="true">20070722T175045,51-04</datetime>
+  </item>
+  <item name="$HTMLCode" sign="true">
+    <rawitemdata type="1">
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata>
+  </item>
+  <item name="$TITLE">
+    <text>Default Form</text>
+  </item>
+  <item name="$Info" sign="true">
+    <rawitemdata type="1">
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata>
+  </item>
+  <item name="$WindowTitle" sign="true">
+    <formula>Form</formula>
+  </item>
+  <item name="$Flags">
+    <text>CDw</text>
+  </item>
+  <item name="$$FormScript" sign="true" summary="false">
+    <text>'++LotusScript Development Environment:2:5:(Options):0:66
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub Queryopen(Source As Notesuidocument, Mode As Integer, Isnewdoc As Variant, Continue As Variant)
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+
+'++LotusScript Development Environment:2:2:BindEvents:1:129
+Private Sub BindEvents(Byval Objectname_ As String)
+	Static Source As NOTESUIDOCUMENT
+	Set Source = Bind(Objectname_)
+	On Event Queryopen From Source Call Queryopen
+End Sub
+
+'++LotusScript Development Environment:2:2:Queryopen:1:12
+Sub Queryopen(Source As Notesuidocument, Mode As Integer, Isnewdoc As Variant, Continue As Variant)
+	Dim session As New NotesSession, rtitem As NotesRichTextItem
+	Set rtitem = New NotesRichTextItem(Source.Document, "FieldsBody")
+	
+	Dim black As NotesColorObject, white As NotesColorObject
+	Set black = session.CreateColorObject
+	black.NotesColor = COLOR_BLACK
+	Set white = session.CreateColorObject
+	white.NotesColor = COLOR_WHITE
+	
+	Dim whiteBold As NotesRichTextStyle, blackNormal As NotesRichTextStyle
+	Set whiteBold = session.CreateRichTextStyle
+	whiteBold.NotesColor = COLOR_WHITE
+	whiteBold.Bold = True
+	Set blackNormal = session.CreateRichTextStyle
+	blackNormal.NotesColor = COLOR_BLACK
+	blackNormal.Bold = False
+	
+	Dim columnStyles(1) As NotesRichTextParagraphStyle
+	Set columnStyles(0) = session.CreateRichTextParagraphStyle
+	columnStyles(0).FirstLineLeftMargin = 0
+	columnStyles(0).LeftMargin = 0
+	columnStyles(0).RightMargin = RULER_ONE_INCH * 1.5
+	Set columnStyles(1) = session.CreateRichTextParagraphStyle
+	columnStyles(1).FirstLineLeftMargin = 0
+	columnStyles(1).RightMargin = RULER_ONE_INCH * 6
+	columnStyles(1).LeftMargin = 0
+	
+	Dim rtnav As NotesRichTextNavigator, rttable As NotesRichTextTable
+	' Add one row per item, minus FieldsBody, plus the header
+	Call rtitem.AppendTable(Ubound(Source.Document.Items)+1, 2, , , columnStyles)
+	Set rtnav = rtitem.CreateNavigator
+	Set rttable = rtnav.GetFirstElement(RTELEM_TYPE_TABLE)
+	rttable.Style = TABLESTYLE_TOP
+	Call rttable.SetColor(black)
+	Call rttable.SetAlternateColor(white)
+	
+	Call rtnav.FindFirstElement(RTELEM_TYPE_TABLECELL)
+	Call rtitem.AppendStyle(whiteBold)
+	Call rtitem.BeginInsert(rtnav)
+	Call rtitem.AppendText("Field")
+	Call rtitem.EndInsert
+	
+	Call rtnav.FindNextElement(RTELEM_TYPE_TABLECELL)
+	Call rtitem.BeginInsert(rtnav)
+	Call rtitem.AppendText("Value")
+	Call rtitem.EndInsert
+	
+	Forall item In Source.Document.Items
+		If item.Name &lt;&gt; "FieldsBody" Then
+			Call rtnav.FindNextElement(RTELEM_TYPE_TABLECELL)
+			Call rtitem.AppendStyle(blackNormal)
+			Call rtitem.BeginInsert(rtnav)
+			Call rtitem.AppendText(item.Name)
+			Call rtitem.EndInsert
+			
+			
+			Call rtnav.FindNextElement(RTELEM_TYPE_TABLECELL)
+			Call rtitem.AppendStyle(blackNormal)
+			Call rtitem.BeginInsert(rtnav)
+			Call rtitem.AppendText(item.Text)
+			Call rtitem.EndInsert
+		End If
+	End Forall
+	
+End Sub<break/>
+    </text>
+  </item>
+  <item name="FieldsBody" placeholder="true">
+    <rawitemdata type="0"/>
+  </item>
+  <item name="$Fields">
+    <text>FieldsBody</text>
+  </item>
+  <item name="$Body" sign="true">
+    <rawitemdata type="1">
+gQKC/1oAAQAAAAAAAAAAAKAFAACgBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAACBAAAAAJWHAAAAAAAAAAAAAAAAAQAAAAYAAACDBAEAhf8IAAEAAArdBgAAiv/+/1AA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4AHgAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAIr/PgCAAQAFADACAAAAAAAAAgEAAAoOAAAAAAAAAAsAAAAAAA4A
+AAAMAAEAAQAwAAMAU2F2ZU9wdGlvbnMAYg4BAIQAAAAAAAAAAADeBgAAiv+F/wgAAQAACoECgv9a
+AAIAAAAAAAAAAACgBQAAoAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAQAAAACUhwAAAAAAAAAAAAAAAAEAAAAEAAAAgwQCAIX/CAABAAAKgQKDBAIAhf8IAAEBAArd
+BgAArf+p/xwAAQAYAAQAEAAQAAAADgAFAAQARm9ybQMAhf8IAAEBAAyqAt4GAACuAIX/CAABAQAK
+gQKDBAIAhf8IAAEBAAqBAoMEAgCF/wgAAQEACt0GAACK//7/UAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAHgAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+iv8+AIAAAQAAAAIAAAAAAAACAQEAChAAAAAAAAAACgAAAAAAEAAKAAQAAAAKAPsAMQEDAEZpZWxk
+c0JvZHliDgEAhAAAAAAAAQAAAN4GAACK/8z/CAAAAAAAhf8IAAEAAArN/wgAAAAAAA==
+</rawitemdata>
+  </item>
+</note>

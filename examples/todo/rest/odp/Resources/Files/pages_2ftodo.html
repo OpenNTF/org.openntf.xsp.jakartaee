@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Home</title>
+		<link href="../style/app.css" rel="stylesheet">
+		<script>
+			function openToDo() {
+				const documentId = new URLSearchParams(document.location.search.substring(1)).get("documentId");
+				if(!documentId) {
+					return
+				}
+				
+				fetch("../xsp/app/todos/" + documentId)
+					.then(res => res.json())
+					.then(todo => {
+						document.getElementById("created").innerText = todo.created;
+						document.forms[0].title.value = todo.title;
+						switch(todo.status) {
+						case "Complete":
+							document.forms[0].status[1].checked = true;
+							break;
+						case "Incomplete":
+						default:
+							document.forms[0].status[0].checked = true;
+							break;
+						}
+					})
+			}
+			
+			function saveToDo() {
+				const documentId = new URLSearchParams(document.location.search.substring(1)).get("documentId");
+				if(!documentId) {
+					return
+				}
+				
+				const title = document.forms[0].title.value;
+				if(!title) {
+					return;
+				}
+				
+				let todo = {
+					title: title
+				}
+				if(document.forms[0].status[1].checked) {
+					todo.status = "Complete";
+				} else {
+					todo.status = "Incomplete";
+				}
+				
+				fetch("../xsp/app/todos/" + documentId, {
+					method: "PATCH",
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(todo)
+				})
+				.then(json => {
+					document.location.href = "todos.html";
+				})
+				
+				return false;
+			}
+		
+			window.addEventListener("load", () => {
+				openToDo();
+			});
+		</script>
+	</head>
+	<body>
+		<div class='app-home'>
+			<form onsubmit="return false">
+				<dl>
+					<dt>Created</dt>
+					<dd><span id="created"></span></dd>
+					
+					<dt>Title</dt>
+					<dd><input name="title" type="text"/></dd>
+					
+					<dt>Status</dt>
+					<dd>
+						<input name="status" type="radio" value="Incomplete"> Incomplete
+						<input name="status" type="radio" value="Complete"> Complete
+					</dd>
+				</dl>
+				
+				<button onclick="saveToDo()">Save</button>
+			</form>
+		</div>
+	</body>
+</html>
