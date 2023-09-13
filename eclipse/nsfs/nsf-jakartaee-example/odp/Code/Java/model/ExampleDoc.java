@@ -16,6 +16,7 @@
 package model;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
@@ -102,6 +103,8 @@ public class ExampleDoc {
 	@Column
 	@ItemStorage(precision=2)
 	private List<Double> numbersGuy;
+	@Column
+	private LocalDate dateGuy;
 	
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
@@ -196,5 +199,12 @@ public class ExampleDoc {
 	}
 	public void setNumbersGuy(List<Double> numbersGuy) {
 		this.numbersGuy = numbersGuy;
+	}
+	
+	public LocalDate getDateGuy() {
+		return dateGuy;
+	}
+	public void setDateGuy(LocalDate dateGuy) {
+		this.dateGuy = dateGuy;
 	}
 }

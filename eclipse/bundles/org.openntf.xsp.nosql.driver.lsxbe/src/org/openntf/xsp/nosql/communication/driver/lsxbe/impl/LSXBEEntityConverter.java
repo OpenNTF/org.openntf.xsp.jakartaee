@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -812,8 +813,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			List<ValueWriter<Object, Object>> writers = ServiceLoaderProvider.getSupplierStream(ValueWriter.class)
 				.map(w -> (ValueWriter<Object, Object>)w)
 				.collect(Collectors.toList());
+			
+			Set<String> writtenItems = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	
 			for(Document doc : entity.getDocuments()) {
+				writtenItems.add(doc.getName());
+				
 				if(DominoConstants.FIELD_ATTACHMENTS.equals(doc.getName())) {
 					@SuppressWarnings("unchecked")
 					List<EntityAttachment> incoming = (List<EntityAttachment>)doc.get();
@@ -990,6 +995,18 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					}
 				}
 			}
+			
+			// Remove any items not present in the doc list - null values may be skipped
+			classMapping.getFieldsName().stream()
+				.filter(f -> !writtenItems.contains(f))
+				.filter(f -> !DominoConstants.SKIP_WRITING_FIELDS.contains(f))
+				.forEach(t -> {
+					try {
+						target.removeItem(t);
+					} catch (NotesException e) {
+						// Ignore
+					}
+				});
 			
 			target.replaceItemValue(DominoConstants.FIELD_NAME, entity.getName());
 			
