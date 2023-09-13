@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -561,5 +562,63 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Make sure it's not in the folder
 		assertFalse(isInFolder.test(unid));
+	}
+	
+	/**
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/463">Issue #463</a>
+	 */
+	@ParameterizedTest
+	@ValueSource(strings = { "queryByEmail", "queryByEmailEntries", "queryByEmailOneKey", "queryByEmailOneKey?resort=true" })
+	public void testListByKey(String endpoint) throws UnsupportedEncodingException {
+		Client client = getAnonymousClient();
+		String email = "Foo" + System.currentTimeMillis();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + endpoint + (endpoint.contains("?") ? "&" : "?") + "q=" + URLEncoder.encode(email, "UTF-8")); //$NON-NLS-1$
+		
+		{
+			Response response = target.request().get();
+			
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray result = Json.createReader(new StringReader(json)).readArray();
+				
+				assertTrue(result.isEmpty(), () -> "Unexpected JSON: " + json);
+			} catch(Exception e) {
+				fail("Unexpected JSON: " + json, e);
+			}
+		}
+		
+		// Now use the MVC endpoint to create one, which admittedly is outside this test
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.putSingle("firstName", "foo"); //$NON-NLS-1$ //$NON-NLS-2$
+			payload.putSingle("lastName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
+			payload.putSingle("email", email); //$NON-NLS-1$ //$NON-NLS-2$
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			Response response = postTarget.request()
+				.accept(MediaType.TEXT_HTML_TYPE) // Ensure that it routes to MVC
+				.post(Entity.form(payload));
+			assertEquals(303, response.getStatus(), () -> {
+				String res = response.readEntity(String.class);
+				return "Unexpected response: " + res;
+			});
+		}
+		
+		// There should be at least one now
+		{
+			Response response = target.request().get();
+			
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray result = Json.createReader(new StringReader(json)).readArray();
+				
+				assertFalse(result.isEmpty(), () -> "Unexpected JSON: " + json);
+				JsonObject entry = result.getJsonObject(0);
+				assertEquals("CreatedUnitTest", entry.getString("lastName")); //$NON-NLS-1$ //$NON-NLS-2$
+				assertEquals(email, entry.getString("email"));
+				assertFalse(entry.getString("unid").isEmpty()); //$NON-NLS-1$
+			} catch(Exception e) {
+				fail("Unexpected JSON: " + json, e);
+			}
+		}
 	}
 }

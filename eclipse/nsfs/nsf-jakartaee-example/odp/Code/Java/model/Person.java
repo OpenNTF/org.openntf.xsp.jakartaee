@@ -110,6 +110,10 @@ public class Person {
 	
 	@Column("Age")
 	private Integer age;
+	
+	@Column("Email")
+	@MvcBinding @FormParam("email")
+	private String email;
 
 	public String getUnid() {
 		return unid;
@@ -232,5 +236,12 @@ public class Person {
 	}
 	public void setAge(Integer age) {
 		this.age = age;
+	}
+	
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }
