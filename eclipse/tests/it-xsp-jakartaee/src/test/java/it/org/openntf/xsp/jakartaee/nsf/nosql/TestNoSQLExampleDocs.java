@@ -304,6 +304,125 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 	}
 	
 	@Test
+	public void testNullDate() throws XMLException {
+		Client client = getAdminClient();
+		// Create a new doc
+		String unid;
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am nullDate guy")
+				.add("dateGuy", "2023-09-13")
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(unid, jsonObject.getString("unid"));
+			
+			assertEquals("I am nullDate guy", jsonObject.getString("title"));
+			assertEquals("2023-09-13", jsonObject.getString("dateGuy"));
+		}
+		
+		// Update to set the date to something else
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am nullDate guy!")
+				.add("dateGuy", "2023-09-14")
+				.build();
+			
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			Response response = target.request().put(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+		}
+		
+		// Fetch it again
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(unid, jsonObject.getString("unid"));
+
+			assertEquals("I am nullDate guy!", jsonObject.getString("title"));
+			assertEquals("2023-09-14", jsonObject.getString("dateGuy"));
+		}
+		
+		// Update to set null for the date value
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am nullDate guy!!")
+				.addNull("dateGuy")
+				.build();
+			
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			Response response = target.request().put(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+		}
+
+		// Fetch it again
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(unid, jsonObject.getString("unid"));
+
+			assertEquals("I am nullDate guy!!", jsonObject.getString("title"));
+			assertFalse(jsonObject.containsKey("dateGuy"), () -> "Unexpected JSON: " + json);
+		}
+		
+		// Update to set non-null for the date value
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am nullDate guy!!!")
+				.add("dateGuy", "2023-09-15")
+				.build();
+			
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			Response response = target.request().put(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+		}
+
+		// Fetch it again
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(unid, jsonObject.getString("unid"));
+
+			assertEquals("I am nullDate guy!!!", jsonObject.getString("title"));
+			assertEquals("2023-09-15", jsonObject.getString("dateGuy"));
+		}
+	}
+	
+	@Test
 	public void testInsertableUpdatable() throws XMLException {
 		Client client = getAdminClient();
 		// Create a new doc
