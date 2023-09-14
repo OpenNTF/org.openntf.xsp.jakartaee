@@ -48,7 +48,8 @@
 			"FTG_USE_SYS_MEMORY": "1",
 			"ServerTasks": "Update,AdminP,AMgr,HTTP,Update",
 			"JavaUserOptionsFile": "/local/JavaOptionsFile.txt",
-			"HTTP_ENABLE_JAVASAPI": "1"
+			"HTTP_ENABLE_JAVASAPI": "1",
+			"DOMINO_FORCE401_WITH_HTML_LOGIN_PAGE": "1"
 		},
 		"security": {
 			"ACL": {

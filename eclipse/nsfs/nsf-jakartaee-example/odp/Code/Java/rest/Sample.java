@@ -24,6 +24,7 @@ import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
 import bean.ApplicationGuy;
 import bean.RequestGuy;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -80,5 +81,11 @@ public class Sample {
 				}
 			}
 		};
+	}
+	
+	@GET
+	@Path("forbidden")
+	public String getForbidden() {
+		throw new ForbiddenException();
 	}
 }

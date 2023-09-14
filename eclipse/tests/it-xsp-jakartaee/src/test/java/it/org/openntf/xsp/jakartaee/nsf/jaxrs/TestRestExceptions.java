@@ -111,4 +111,29 @@ public class TestRestExceptions extends AbstractWebClientTest {
 			assertEquals(404, response.getStatus());
 		}
 	}
+	
+	/**
+	 * Tests that a an endpoint throwing ForbiddenException gets an appropriate error
+	 */
+	@Test
+	public void testForbidden() {
+		{
+			Client client = getAnonymousClient();
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/forbidden");
+			Response response = target.request().get();
+			assertEquals(401, response.getStatus());
+			
+			String content = response.readEntity(String.class);
+			assertTrue(content.contains("<input name=\"Password\""), () -> "Unexpected content: " + content);
+		}
+		{
+			Client client = getAdminClient();
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/forbidden");
+			Response response = target.request().get();
+			assertEquals(401, response.getStatus());
+			
+			String content = response.readEntity(String.class);
+			assertTrue(content.contains("do not have access to this resource"), () -> "Unexpected content: " + content);
+		}
+	}
 }
