@@ -37,10 +37,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 
-import org.eclipse.jnosql.mapping.reflection.ClassMapping;
-import org.eclipse.jnosql.mapping.reflection.FieldMapping;
-
-import jakarta.nosql.mapping.Column;
 import lotus.domino.Database;
 import lotus.domino.DateRange;
 import lotus.domino.DateTime;
@@ -105,6 +101,8 @@ public enum DominoNoSQLUtil {
 			Instant inst = Instant.from((TemporalAccessor)value);
 			DateTime dt = session.createDateTime(Date.from(inst));
 			return dt;
+		} else if(value == null) {
+			return null;
 		} else {
 			// TODO support other types above
 			return value.toString();

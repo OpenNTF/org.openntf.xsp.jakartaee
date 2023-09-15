@@ -132,17 +132,19 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 					JsonPatchBuilder patch = Json.createPatchBuilder();
 					
 					for(TestDatabase db : TestDatabase.values()) {
-						Path ntf = findLocalMavenArtifact("org.openntf.xsp", db.getArtifactId(), version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$
-						withFileFromPath("staging/ntf/" + db.getFileName() + ".ntf", ntf); //$NON-NLS-1$ //$NON-NLS-2$
-						
-						JsonObject dbConfig = Json.createObjectBuilder()
-							.add("action", "create") //$NON-NLS-1$ //$NON-NLS-2$
-							.add("filePath", "dev/" + db.getFileName() + ".nsf") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							.add("title", db.getTitle()) //$NON-NLS-1$
-							.add("templatePath", "/local/runner/" + db.getFileName() + ".ntf") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-							.add("signUsingAdminp", true) //$NON-NLS-1$
-							.build();
-						patch.add("/appConfiguration/databases/-", dbConfig); //$NON-NLS-1$
+						if(db.isNsf()) {
+							Path ntf = findLocalMavenArtifact("org.openntf.xsp", db.getArtifactId(), version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$
+							withFileFromPath("staging/ntf/" + db.getFileName() + ".ntf", ntf); //$NON-NLS-1$ //$NON-NLS-2$
+							
+							JsonObject dbConfig = Json.createObjectBuilder()
+								.add("action", "create") //$NON-NLS-1$ //$NON-NLS-2$
+								.add("filePath", "dev/" + db.getFileName() + ".nsf") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+								.add("title", db.getTitle()) //$NON-NLS-1$
+								.add("templatePath", "/local/runner/" + db.getFileName() + ".ntf") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+								.add("signUsingAdminp", true) //$NON-NLS-1$
+								.build();
+							patch.add("/appConfiguration/databases/-", dbConfig); //$NON-NLS-1$
+						}
 					}
 					
 					json = patch.build().apply(json);

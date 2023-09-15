@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex">
+	<xe:applicationLayout id="applicationLayout1">
+		<xe:this.configuration>
+			<xe:oneuiApplication banner="false" legal="false"
+				placeBarName="#{database.title}">
+			</xe:oneuiApplication>
+		</xe:this.configuration>
+		
+		<xe:this.facets>
+			<xe:navigator xp:key="LeftColumn">
+				<xe:this.treeNodes>
+					<xe:pageTreeNode page="home" label="Home" />
+					<xe:basicLeafNode label="To-Dos" href="/todos.xsp" selected="${view.pageName == '/todos.xsp' and empty param.status}"/>
+					<xe:basicLeafNode label="Complete To-Dos" href="/todos.xsp?status=Complete" selected="${view.pageName == '/todos.xsp' and param.status == 'Complete'}"/>
+					<xe:basicLeafNode label="Incomplete To-Dos" href="/todos.xsp?status=Incomplete" selected="${view.pageName == '/todos.xsp' and param.status == 'Incomplete'}"/>
+				</xe:this.treeNodes>
+			</xe:navigator>
+		</xe:this.facets>
+		
+		<xp:callback/>
+	</xe:applicationLayout>
+</xp:view>

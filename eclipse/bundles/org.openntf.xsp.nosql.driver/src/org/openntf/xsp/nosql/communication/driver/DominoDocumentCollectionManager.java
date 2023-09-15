@@ -94,4 +94,30 @@ public interface DominoDocumentCollectionManager extends DocumentCollectionManag
      * @since 2.12.0
      */
     Stream<ViewInfo> getViewInfo();
+    
+    /**
+     * Finds a document given its note name
+     * 
+	 * @param entityName the effective entity name returned by this type
+     * @param name the note name
+     * @param userName the qualifying user name of the note; may be
+     *        {@code null}
+     * @return an {@link Optional} describing the document, or an empty one if
+     *         there is no document by that name
+     * @since 2.13.0
+     */
+    Optional<DocumentEntity> getByName(String entityName, String name, String userName);
+
+    /**
+     * Finds a document given its note name
+     * 
+	 * @param entityName the effective entity name returned by this type
+     * @param profileName the profile name
+     * @param userName the qualifying user name of the document; may be
+     *        {@code null}
+     * @return an {@link Optional} describing the document, or an empty one if
+     *         there is no document by that name
+     * @since 2.13.0
+     */
+    Optional<DocumentEntity> getProfileDocument(String entityName, String profileName, String userName);
 }

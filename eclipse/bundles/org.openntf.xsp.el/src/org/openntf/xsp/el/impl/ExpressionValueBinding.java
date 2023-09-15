@@ -29,6 +29,8 @@ import javax.faces.el.PropertyNotFoundException;
 import javax.faces.el.ValueBinding;
 
 import org.openntf.xsp.el.ELBindingFactory;
+import org.openntf.xsp.el.ext.ELValueConverter;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.xsp.util.ValueBindingUtil;
 
@@ -74,7 +76,15 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	@Override
 	public Object getValue(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
 		try {
-			return AccessController.doPrivileged((PrivilegedExceptionAction<Object>)() -> exp.getValue(elContext));
+			return AccessController.doPrivileged((PrivilegedExceptionAction<Object>)() -> {
+				Object v = exp.getValue(elContext);
+				
+				for(ELValueConverter conv : LibraryUtil.findExtensionsSorted(ELValueConverter.class, false)) {
+					v = conv.postGetValue(elContext, exp, v);
+				}
+				
+				return v;
+			});
 		} catch (Throwable e) {
 			Throwable t = e.getCause();
 			if(t instanceof PropertyNotFoundException) {
@@ -113,7 +123,12 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	public void setValue(FacesContext facesContext, Object value) throws EvaluationException, PropertyNotFoundException {
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
-				exp.setValue(elContext, value);
+				Object v = value;
+				for(ELValueConverter conv : LibraryUtil.findExtensionsSorted(ELValueConverter.class, false)) {
+					v = conv.preSetValue(elContext, exp, v);
+				}
+				
+				exp.setValue(elContext, v);
 				return null;
 			});
 		} catch (PrivilegedActionException e) {

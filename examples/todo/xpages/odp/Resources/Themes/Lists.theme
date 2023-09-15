@@ -1,0 +1,13 @@
+<theme extends="oneuiv2.1">
+	<control>
+		<name>ViewRoot</name>
+		<property>
+			<name>pageIcon</name>
+			<value>/$Icon</value>
+		</property>
+		<property>
+			<name>pageTitle</name>
+			<value>#{database.title}</value>
+		</property>
+	</control>
+</theme>

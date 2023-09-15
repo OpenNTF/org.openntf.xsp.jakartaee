@@ -36,15 +36,12 @@
 		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.bean.BuiltinBeanClassContributor" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.discovery.NSFComponentModuleClassContributor" />
+		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.discovery.ComponentModuleClassContributor" />
 	</extension>
 	
 	<!-- Default CDI container locators -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.ApplicationExCDIContainerLocator" />
-	</extension>
-	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.ComponentModuleDatabaseCDIContainerLocator" />
+		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.ComponentModuleCDIContainerLocator" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.ThreadContextDatabasePathCDIContainerLocator" />

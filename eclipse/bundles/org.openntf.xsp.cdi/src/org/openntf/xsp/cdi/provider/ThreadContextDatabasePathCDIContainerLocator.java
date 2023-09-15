@@ -23,12 +23,12 @@ import jakarta.annotation.Priority;
 
 /**
  * This {@link CDIContainerLocator} looks for a thread-context database path,
- * which may be specified as an overried by user applications.
+ * which may be specified as an override by user applications.
  * 
  * @author Jesse Gallagher
  * @since 2.8.0
  */
-@Priority(3)
+@Priority(100)
 public class ThreadContextDatabasePathCDIContainerLocator implements CDIContainerLocator {
 
 	@Override

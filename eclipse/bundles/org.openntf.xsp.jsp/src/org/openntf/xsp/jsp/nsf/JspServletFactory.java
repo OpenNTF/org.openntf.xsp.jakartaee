@@ -82,6 +82,8 @@ public class JspServletFactory extends MappingBasedServletFactory {
 					.collect(Collectors.joining(DominoJspUtil.PATH_SEP));
 				params.put("classpath", classpath); //$NON-NLS-1$
 				params.put("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
+				params.put("compilerSourceVM", "1.8"); //$NON-NLS-1$ //$NON-NLS-2$
+				params.put("compilerTargetVM", "1.8"); //$NON-NLS-1$ //$NON-NLS-2$
 
 				Path tempDir = LibraryUtil.getTempDirectory();
 				tempDir = tempDir.resolve(getClass().getName());

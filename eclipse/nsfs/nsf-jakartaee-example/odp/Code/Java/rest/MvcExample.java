@@ -22,6 +22,7 @@ import jakarta.mvc.Models;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
@@ -92,5 +93,11 @@ public class MvcExample {
 	public String getBeanParam(@Valid @BeanParam Person person) {
 		models.put("person", person);
 		return "personBean.jsp";
+	}
+	
+	@GET
+	@Path("forbidden")
+	public String getForbidden() {
+		throw new ForbiddenException();
 	}
 }

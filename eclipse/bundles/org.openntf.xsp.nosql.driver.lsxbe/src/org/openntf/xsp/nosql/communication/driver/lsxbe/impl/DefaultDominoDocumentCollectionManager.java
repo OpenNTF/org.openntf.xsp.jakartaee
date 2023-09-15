@@ -116,7 +116,24 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
-			lotus.domino.Document target = database.createDocument();
+			
+			// Special handling for named and profile notes
+			lotus.domino.Document target;
+			Optional<Document> maybeName = entity.find(DominoConstants.FIELD_NOTENAME);
+			Optional<Document> maybeProfileName = entity.find(DominoConstants.FIELD_PROFILENAME);
+			if(maybeName.isPresent() && StringUtil.isNotEmpty(maybeName.get().get(String.class))) {
+				Optional<Document> maybeUserName = entity.find(DominoConstants.FIELD_USERNAME);
+				if(maybeUserName.isPresent() && StringUtil.isNotEmpty(maybeUserName.get().get(String.class))) {
+					target = database.getNamedDocument(maybeName.get().get(String.class), maybeUserName.get().get(String.class));
+				} else {
+					target = database.getNamedDocument(maybeName.get().get(String.class));
+				}
+			} else if(maybeProfileName.isPresent() && StringUtil.isNotEmpty(maybeProfileName.get().get(String.class))) {
+				Optional<Document> maybeUserName = entity.find(DominoConstants.FIELD_PROFILEKEY);
+				target = database.getProfileDocument(maybeProfileName.get().get(String.class), maybeUserName.map(d -> d.get(String.class)).orElse(null));
+			} else {
+				target = database.createDocument();
+			}
 			
 			Optional<Document> maybeId = entity.find(DominoConstants.FIELD_ID);
 			if(maybeId.isPresent()) {
@@ -224,7 +241,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					// Check to see if we need to "expire" it based on the data mod time of the DB
 					DateTime created = view.getCreated();
 					try {
-						long dataMod = NotesSession.getLastDataModificationDateByName(database.getServer(), database.getFilePath());
+						// Skip using the server name when it's local, as that can cause resolution trouble
+						//   if the server doesn't know it's itself (Issue #461)
+						String serverName = database.getServer();
+						if(StringUtil.equals(database.getParent().getUserName(), serverName)) {
+							serverName = ""; //$NON-NLS-1$
+						}
+						long dataMod = NotesSession.getLastDataModificationDateByName(serverName, database.getFilePath());
 						if(dataMod > (created.toJavaDate().getTime() / 1000)) {
 							view.remove();
 							view.recycle();
@@ -455,15 +478,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			beginTransaction(database);
 			lotus.domino.Document doc = database.getDocumentByID(noteId);
-			if(doc != null) {
-				// TODO consider checking the form
-				ClassMapping classMapping = EntityUtil.getClassMapping(entityName);
-				Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
-				List<Document> result = entityConverter.convertDominoDocument(doc, classMapping, itemTypes);
-				return Optional.of(DocumentEntity.of(entityName, result));
-			} else {
-				return Optional.empty();
-			}
+			return processDocument(entityName, doc);
 		} catch(NotesException e) {
 			// Assume it doesn't exist
 			return Optional.empty();
@@ -476,25 +491,38 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			beginTransaction(database);
 			lotus.domino.Document doc = database.getDocumentByUNID(id);
-			if(doc != null) {
-				if(doc.isDeleted()) {
-					return Optional.empty();
-				} else if(!doc.isValid()) {
-					return Optional.empty();
-				}
-				String unid = doc.getUniversalID();
-				if(unid == null || unid.isEmpty()) {
-					return Optional.empty();
-				}
-				
-				// TODO consider checking the form
-				ClassMapping classMapping = EntityUtil.getClassMapping(entityName);
-				Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
-				List<Document> result = entityConverter.convertDominoDocument(doc, classMapping, itemTypes);
-				return Optional.of(DocumentEntity.of(entityName, result));
+			return processDocument(entityName, doc);
+		} catch(NotesException e) {
+			// Assume it doesn't exist
+			return Optional.empty();
+		}
+	}
+	
+	@Override
+	public Optional<DocumentEntity> getByName(String entityName, String name, String userName) {
+		try {
+			Database database = supplier.get();
+			beginTransaction(database);
+			lotus.domino.Document doc;
+			if(StringUtil.isEmpty(userName)) {
+				doc = database.getNamedDocument(name);
 			} else {
-				return Optional.empty();
+				doc = database.getNamedDocument(name, userName);
 			}
+			return processDocument(entityName, doc);
+		} catch(NotesException e) {
+			// Assume it doesn't exist
+			return Optional.empty();
+		}
+	}
+	
+	@Override
+	public Optional<DocumentEntity> getProfileDocument(String entityName, String profileName, String userName) {
+		try {
+			Database database = supplier.get();
+			beginTransaction(database);
+			lotus.domino.Document doc = database.getProfileDocument(profileName, userName);
+			return processDocument(entityName, doc);
 		} catch(NotesException e) {
 			// Assume it doesn't exist
 			return Optional.empty();
@@ -725,6 +753,28 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					// Ignore
 				}
 			}
+		}
+	}
+
+	private Optional<DocumentEntity> processDocument(String entityName, lotus.domino.Document doc) throws NotesException {
+		if(doc != null) {
+			if(doc.isDeleted()) {
+				return Optional.empty();
+			} else if(!doc.isValid()) {
+				return Optional.empty();
+			}
+			String unid = doc.getUniversalID();
+			if(unid == null || unid.isEmpty()) {
+				return Optional.empty();
+			}
+			
+			// TODO consider checking the form
+			ClassMapping classMapping = EntityUtil.getClassMapping(entityName);
+			Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
+			List<Document> result = entityConverter.convertDominoDocument(doc, classMapping, itemTypes);
+			return Optional.of(DocumentEntity.of(entityName, result));
+		} else {
+			return Optional.empty();
 		}
 	}
 	

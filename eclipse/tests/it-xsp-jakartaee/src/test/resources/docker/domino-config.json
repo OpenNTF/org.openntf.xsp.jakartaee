@@ -32,7 +32,7 @@
 			"LOG_SESSIONS": "0",
 			"HTTPPublicURLs": "/iwaredir.nsf/*:/.well-known*",
 			"ENABLE_SNI": "1",
-			"HTTPEnableMethods": "GET,POST,PUT,DELETE,HEAD",
+			"HTTPEnableMethods": "GET,POST,PUT,DELETE,HEAD,PATCH",
 			"ADMIN_CLIENT_SKIP_DOMINO": "1",
 			"COMPRESS_LZ1_CREATE": "1",
 			"CREATE_NIFNSF_DATABASES": "1",
@@ -48,7 +48,8 @@
 			"FTG_USE_SYS_MEMORY": "1",
 			"ServerTasks": "Update,AdminP,AMgr,HTTP,Update",
 			"JavaUserOptionsFile": "/local/JavaOptionsFile.txt",
-			"HTTP_ENABLE_JAVASAPI": "1"
+			"HTTP_ENABLE_JAVASAPI": "1",
+			"DOMINO_FORCE401_WITH_HTML_LOGIN_PAGE": "1"
 		},
 		"security": {
 			"ACL": {

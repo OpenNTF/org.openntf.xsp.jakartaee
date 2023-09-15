@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -700,6 +701,18 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						result.add(Document.of(DominoConstants.FIELD_NOTEID, noteId));
 					}
 				}
+				if(fieldNames.contains(DominoConstants.FIELD_NOTENAME)) {
+					result.add(Document.of(DominoConstants.FIELD_NOTENAME, doc.getNameOfDoc()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_PROFILENAME)) {
+					result.add(Document.of(DominoConstants.FIELD_PROFILENAME, doc.getNameOfProfile()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_USERNAME)) {
+					result.add(Document.of(DominoConstants.FIELD_USERNAME, doc.getUserNameOfDoc()));
+				}
+				if(fieldNames.contains(DominoConstants.FIELD_PROFILEKEY)) {
+					result.add(Document.of(DominoConstants.FIELD_PROFILEKEY, doc.getKey()));
+				}
 				if(fieldNames.contains(DominoConstants.FIELD_ADDED)) {
 					DateTime added = (DateTime)session.evaluate(" @AddedToThisFile ", doc).get(0); //$NON-NLS-1$
 					result.add(Document.of(DominoConstants.FIELD_ADDED, DominoNoSQLUtil.toTemporal(database, added)));
@@ -800,8 +813,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			List<ValueWriter<Object, Object>> writers = ServiceLoaderProvider.getSupplierStream(ValueWriter.class)
 				.map(w -> (ValueWriter<Object, Object>)w)
 				.collect(Collectors.toList());
+			
+			Set<String> writtenItems = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 	
 			for(Document doc : entity.getDocuments()) {
+				writtenItems.add(doc.getName());
+				
 				if(DominoConstants.FIELD_ATTACHMENTS.equals(doc.getName())) {
 					@SuppressWarnings("unchecked")
 					List<EntityAttachment> incoming = (List<EntityAttachment>)doc.get();
@@ -978,6 +995,18 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					}
 				}
 			}
+			
+			// Remove any items not present in the doc list - null values may be skipped
+			classMapping.getFieldsName().stream()
+				.filter(f -> !writtenItems.contains(f))
+				.filter(f -> !DominoConstants.SKIP_WRITING_FIELDS.contains(f))
+				.forEach(t -> {
+					try {
+						target.removeItem(t);
+					} catch (NotesException e) {
+						// Ignore
+					}
+				});
 			
 			target.replaceItemValue(DominoConstants.FIELD_NAME, entity.getName());
 			

@@ -141,12 +141,14 @@ public class NoSQLExample {
 			@FormParam("birthday") String birthday,
 			@FormParam("favoriteTime") String favoriteTime,
 			@FormParam("added") String added,
-			@FormParam("customProperty") String customProperty
+			@FormParam("customProperty") String customProperty,
+			@FormParam("email") String email
 	) throws Exception {
 		transaction.begin();
 		try {
 			Person person = new Person();
 			composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+			person.setEmail(email);
 			
 			personRepository.save(person);
 			transaction.commit();
@@ -619,6 +621,40 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ViewInfo> listViews() {
 		return personRepository.getViewInfo().collect(Collectors.toList());
+	}
+	
+	/**
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/463">Issue #463</a>
+	 */
+	@Path("queryByEmail")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> queryByEmail(@QueryParam("q") @NotEmpty String searchValue) {
+		ViewQuery query = ViewQuery.query().key(searchValue, true);
+		return personRepository.readViewDocuments("PersonEmail", -1, false, query, null, null).collect(Collectors.toList());
+	}
+	
+	/**
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/463">Issue #463</a>
+	 */
+	@Path("queryByEmailOneKey")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> queryByEmailOneKey(@QueryParam("q") @NotEmpty String searchValue, @QueryParam("resort") boolean resort) {
+		ViewQuery query = ViewQuery.query().key(searchValue, true);
+		Sorts sorts = resort ? Sorts.sorts().asc("email") : null;
+		return personRepository.readViewDocuments("PersonEmailOneKey", -1, false, query, sorts, null).collect(Collectors.toList());
+	}
+	
+	/**
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/463">Issue #463</a>
+	 */
+	@Path("queryByEmailEntries")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> queryByEmailEntries(@QueryParam("q") @NotEmpty String searchValue) {
+		ViewQuery query = ViewQuery.query().key(searchValue, true);
+		return personRepository.readViewEntries("PersonEmail", -1, false, query, null, null).collect(Collectors.toList());
 	}
 	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {

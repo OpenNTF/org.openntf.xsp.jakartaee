@@ -21,6 +21,9 @@ import jakarta.ws.rs.core.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
@@ -67,10 +70,6 @@ public abstract class AbstractWebClientTest {
 		return adminClient;
 	}
 	
-	public String getWebappContextPath() {
-		return "/jeeExample";
-	}
-	
 	public String getRootUrl(WebDriver driver, TestDatabase db) {
 		String host;
 		int port;
@@ -106,21 +105,6 @@ public abstract class AbstractWebClientTest {
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
-	public String getWebappRootUrl(WebDriver driver) {
-		String host;
-		int port;
-		if(driver instanceof RemoteWebDriver) {
-			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
-			port = 80;
-		} else {
-			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getMappedPort(80);
-		}
-		
-		String context = getWebappContextPath();
-		return PathUtil.concat("http://" + host + ":" + port, context, '/');
-	}
-	
 	public String getWebappContextualRootUrl(WebDriver driver) {
 		String host;
 		int port;
@@ -132,7 +116,7 @@ public abstract class AbstractWebClientTest {
 			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
-		String context = PathUtil.concat(TestDatabase.MAIN.getContextPath(), getWebappContextPath(), '/');
+		String context = PathUtil.concat(TestDatabase.MAIN.getContextPath(), TestDatabase.OSGI_WEBAPP.getContextPath(), '/');
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
@@ -153,5 +137,17 @@ public abstract class AbstractWebClientTest {
 
 	protected void checkResponse(int expectedCode, Response response) {
 		assertEquals(expectedCode, response.getStatus(), () -> "Received unexpected code " + response.getStatus() + ": " + response.readEntity(String.class));
+	}
+	
+	protected <T> T waitFor(Supplier<T> supplier, Predicate<T> condition) throws InterruptedException {
+		T result = null;
+		for(int i = 0; i < 500; i++) {
+			result = supplier.get();
+			if(condition.test(result)) {
+				return result;
+			}
+			TimeUnit.MILLISECONDS.sleep(10);
+		}
+		return result;
 	}
 }
