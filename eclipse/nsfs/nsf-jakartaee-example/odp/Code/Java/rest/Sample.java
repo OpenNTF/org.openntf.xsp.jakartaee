@@ -24,8 +24,14 @@ import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
 import bean.ApplicationGuy;
 import bean.RequestGuy;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAcceptableException;
+import jakarta.ws.rs.NotAllowedException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -87,5 +93,47 @@ public class Sample {
 	@Path("forbidden")
 	public String getForbidden() {
 		throw new ForbiddenException();
+	}
+	
+	@GET
+	@Path("exception/NotAcceptableException")
+	public String getNotAcceptableException() {
+		throw new NotAcceptableException();
+	}
+	
+	@GET
+	@Path("exception/BadRequestException")
+	public String getBadRequestException() {
+		throw new BadRequestException();
+	}
+	
+	@GET
+	@Path("exception/NotAllowedException")
+	public String getNotAllowedException() {
+		throw new NotAllowedException("Not allowed");
+	}
+	
+	@GET
+	@Path("exception/NotAuthorizedException")
+	public String getNotAuthorizedException() {
+		throw new NotAuthorizedException("Not authorized");
+	}
+	
+	@GET
+	@Path("exception/NotSupportedException")
+	public String getNotSupportedException() {
+		throw new NotSupportedException();
+	}
+	
+	@GET
+	@Path("exception/InternalServerErrorException")
+	public String getInternalServerErrorException() {
+		throw new InternalServerErrorException();
+	}
+	
+	@GET
+	@Path("exception/ServiceUnavailableException")
+	public String getServiceUnavailableException() {
+		throw new InternalServerErrorException();
 	}
 }

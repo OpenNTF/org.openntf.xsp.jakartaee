@@ -40,7 +40,7 @@ import jakarta.ws.rs.ext.ExceptionMapper;
  * @author Jesse Gallagher
  * @since 2.3.0
  */
-@Priority(Priorities.USER+2)
+@Priority(Priorities.ENTITY_CODER)
 public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 
 	@Context
@@ -64,8 +64,15 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 
 		if (t instanceof WebApplicationException) {
 			WebApplicationException e = (WebApplicationException) t;
-			if (e.getResponse() != null) {
-				return e.getResponse();
+			Response r = e.getResponse();
+			if (r != null) {
+				// The response will likely be empty
+				Object entity = r.getEntity();
+				if(entity == null || (entity instanceof CharSequence && ((CharSequence)entity).length() == 0)) {
+					return createResponseFromException(t, r.getStatus(), resourceInfo, req);
+				} else {
+					return e.getResponse();
+				}
 			} else {
 				return createResponseFromException(t, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resourceInfo, req);
 			}

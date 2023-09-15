@@ -31,7 +31,8 @@ public class ExceptionMapperContributor implements JAXRSClassContributor {
 		return Arrays.asList(
 			GenericThrowableMapper.class,
 			NotFoundMapper.class,
-			ForbiddenHandler.class
+			ForbiddenExceptionHandler.class,
+			NotAuthorizedExceptionHandler.class
 		);
 	}
 
