@@ -17,21 +17,32 @@ package it.org.openntf.xsp.jakartaee.nsf.jaxrs;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.StringReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotAcceptableException;
+import jakarta.ws.rs.NotAllowedException;
+import jakarta.ws.rs.NotSupportedException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.eclipse.jetty.util.StringUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -110,5 +121,68 @@ public class TestRestExceptions extends AbstractWebClientTest {
 			Response response = target.request().get();
 			assertEquals(404, response.getStatus());
 		}
+	}
+	
+	/**
+	 * Tests that a an endpoint throwing ForbiddenException gets an appropriate error
+	 */
+	@ParameterizedTest
+	@ValueSource(strings = { "forbidden", "exception/NotAuthorizedException" })
+	public void testForbidden(String endpoint) {
+		{
+			Client client = getAnonymousClient();
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/" + endpoint);
+			Response response = target.request().get();
+			assertEquals(401, response.getStatus());
+			
+			String content = response.readEntity(String.class);
+			assertTrue(content.contains("<input name=\"Password\""), () -> "Unexpected content: " + content);
+		}
+		{
+			Client client = getAdminClient();
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/" + endpoint);
+			Response response = target.request().get();
+			assertEquals(401, response.getStatus());
+			
+			String content = response.readEntity(String.class);
+			assertTrue(content.contains("do not have access to this resource"), () -> "Unexpected content: " + content);
+		}
+	}
+	
+	@ParameterizedTest
+	@ValueSource(classes = { BadRequestException.class, InternalServerErrorException.class, NotAcceptableException.class, NotAllowedException.class, NotSupportedException.class })
+	public <T extends WebApplicationException> void testWebExceptions(Class<T> exceptionClass) {
+		T e = null;
+		try {
+			Constructor<T> ctor = exceptionClass.getConstructor();
+			e = ctor.newInstance();
+		} catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e2) {
+			// Ignore
+		}
+		if(e == null) {
+			try {
+				Constructor<T> ctor = exceptionClass.getConstructor(String.class);
+				e = ctor.newInstance("");
+			} catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e2) {
+				// Ignore
+			}
+		}
+
+		if(e == null) {
+			try {
+				Constructor<T> ctor = exceptionClass.getConstructor(String.class, String[].class);
+				e = ctor.newInstance("", new String[0]);
+			} catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e2) {
+				// Ignore
+			}
+		}
+		
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/exception/" + exceptionClass.getSimpleName());
+		Response response = target.request().get();
+		assertEquals(e.getResponse().getStatus(), response.getStatus());
+		
+		String content = response.readEntity(String.class);
+		assertFalse(StringUtil.isEmpty(content));
 	}
 }
