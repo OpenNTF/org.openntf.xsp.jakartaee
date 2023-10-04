@@ -15,13 +15,13 @@
  */
 package org.openntf.xsp.jakarta.concurrency;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import org.glassfish.enterprise.concurrent.AbstractManagedThread;
 import org.glassfish.enterprise.concurrent.ContextServiceImpl;
 import org.glassfish.enterprise.concurrent.ManagedThreadFactoryImpl;
 import org.glassfish.enterprise.concurrent.spi.ContextHandle;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import lotus.domino.NotesThread;
 
@@ -44,13 +44,13 @@ public class NotesManagedThreadFactory extends ManagedThreadFactoryImpl {
         if (System.getSecurityManager() == null) {
             return new ManagedNotesThread(r, contextHandleForSetup);
         } else {
-            return (ManagedThread) AccessController.doPrivileged((PrivilegedAction) () -> new ManagedNotesThread(r, contextHandleForSetup));
+            return (ManagedThread) LibraryUtil.doPrivileged((PrivilegedAction) () -> new ManagedNotesThread(r, contextHandleForSetup));
         }
     }
 	
 	@Override
 	public void stop() {
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+		LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 			super.stop();
 			return null;
 		});

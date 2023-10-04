@@ -20,7 +20,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.List;
 import java.util.Set;
@@ -68,7 +67,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	private static Method getFacesContextMethod;
 	private static Method getContextFacesControllerMethod;
 	static {
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+		LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 			try {
 				getFacesContextMethod = FacesServlet.class.getDeclaredMethod("getFacesContext", javax.servlet.ServletRequest.class, javax.servlet.ServletResponse.class); //$NON-NLS-1$
 				getFacesContextMethod.setAccessible(true);
@@ -219,7 +218,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 		RuntimeFileSystem.NSFFile res = (RuntimeFileSystem.NSFFile)nc.getModule().getRuntimeFileSystem().getResource(str);
 		String signer = res.getUpdatedBy();
 		
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+		LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 			try {
 				Field checkedSignersField = NotesContext.class.getDeclaredField("checkedSigners"); //$NON-NLS-1$
 				checkedSignersField.setAccessible(true);

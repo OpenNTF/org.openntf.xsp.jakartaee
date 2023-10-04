@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -338,7 +337,7 @@ public enum LibraryUtil {
 	 * @since 2.9.0
 	 */
 	public static <T> List<T> findExtensionsUncached(Class<T> extensionClass) {
-		return AccessController.doPrivileged((PrivilegedAction<List<T>>)() ->
+		return doPrivileged((PrivilegedAction<List<T>>)() ->
 			ExtensionManager.findServices(null, extensionClass.getClassLoader(), extensionClass.getName(), extensionClass)
 		);
 	}
@@ -394,7 +393,7 @@ public enum LibraryUtil {
 	 */
 	public static <T> T withClassLoader(ClassLoader cl, Callable<T> c) {
 		try {
-			return AccessController.doPrivileged((PrivilegedExceptionAction<T>)() -> {
+			return doPrivileged((PrivilegedExceptionAction<T>)() -> {
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(cl);
 				try {
@@ -457,11 +456,11 @@ public enum LibraryUtil {
 	 * @since 2.4.0
 	 */
 	public static Path getTempDirectory() {
-		String osName = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("os.name")); //$NON-NLS-1$
+		String osName = doPrivileged((PrivilegedAction<String>)() -> System.getProperty("os.name")); //$NON-NLS-1$
 		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
 			return Paths.get("/tmp"); //$NON-NLS-1$
 		} else {
-			String tempDir = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+			String tempDir = doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
 			return Paths.get(tempDir);
 		}
 	}
@@ -488,5 +487,34 @@ public enum LibraryUtil {
 		return resourceName
 			.substring(0, resourceName.length()-".class".length()) //$NON-NLS-1$
 			.replace('/', '.');
+	}
+	
+	/**
+	 * Wraps a call to {@link AccessController} for easier migration when
+	 * that class is removed from the JRE.
+	 * 
+	 * @param <T> the type returned by the action
+	 * @param c the {@link PrivilegedExceptionAction} to execute
+	 * @return the return value of {@code c}
+	 * @throws PrivilegedActionException when the underlying call throws an exception
+	 * @since 2.14.0
+	 */
+	@SuppressWarnings({ "deprecation", "removal" })
+	public static <T> T doPrivileged(PrivilegedExceptionAction<T> c) throws PrivilegedActionException {
+		return java.security.AccessController.doPrivileged(c);
+	}
+	
+	/**
+	 * Wraps a call to {@link AccessController} for easier migration when
+	 * that class is removed from the JRE.
+	 * 
+	 * @param <T> the type returned by the action
+	 * @param c the {@link PrivilegedExceptionAction} to execute
+	 * @return the return value of {@code c}
+	 * @since 2.14.0
+	 */
+	@SuppressWarnings({ "deprecation", "removal" })
+	public static <T> T doPrivileged(PrivilegedAction<T> c) {
+		return java.security.AccessController.doPrivileged(c);
 	}
 }

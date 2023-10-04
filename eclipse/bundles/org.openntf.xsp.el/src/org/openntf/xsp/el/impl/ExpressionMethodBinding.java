@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.el.impl;
 
-import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
@@ -28,6 +27,7 @@ import javax.faces.el.MethodBinding;
 import javax.faces.el.MethodNotFoundException;
 
 import org.openntf.xsp.el.ELBindingFactory;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.xsp.util.ValueBindingUtil;
 
@@ -51,7 +51,7 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	@Override
 	public Class<?> getType(FacesContext facesContext) throws MethodNotFoundException {
 		try {
-			return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)() -> exp.getMethodInfo(elContext).getReturnType());
+			return LibraryUtil.doPrivileged((PrivilegedExceptionAction<Class<?>>)() -> exp.getMethodInfo(elContext).getReturnType());
 		} catch (PrivilegedActionException e) {
 			Throwable t = e.getCause();
 			if(t instanceof MethodNotFoundException) {
@@ -71,7 +71,7 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	@Override
 	public Object invoke(FacesContext facesContext, Object[] params) throws EvaluationException, MethodNotFoundException {
 		try {
-			return AccessController.doPrivileged((PrivilegedExceptionAction<Object>)() -> exp.invoke(elContext, params));
+			return LibraryUtil.doPrivileged((PrivilegedExceptionAction<Object>)() -> exp.invoke(elContext, params));
 		} catch (PrivilegedActionException e) {
 			Throwable t = e.getCause();
 			if(t instanceof MethodNotFoundException) {

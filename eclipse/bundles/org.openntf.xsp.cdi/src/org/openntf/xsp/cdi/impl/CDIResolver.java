@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.cdi.impl;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import jakarta.enterprise.inject.Instance;
@@ -59,7 +58,7 @@ public class CDIResolver extends VariableResolver {
 			CDI<Object> container = CDI.current();
 			if(container != null) {
 				CDI<Object> cdi = container;
-				return AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
+				return LibraryUtil.doPrivileged((PrivilegedAction<Object>)() -> {
 					Instance<Object> instance = cdi.select(NamedLiteral.of(name));
 					if(instance.isResolvable()) {
 						return instance.get();

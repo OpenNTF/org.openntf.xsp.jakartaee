@@ -21,7 +21,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.stream.Collectors;
@@ -106,7 +105,7 @@ public class WebappJspServlet extends javax.servlet.http.HttpServlet {
 			HttpServletRequest request = ServletUtil.oldToNew(ServletUtil.newToOld(this.context), (javax.servlet.http.HttpServletRequest)oldRequest);
 			HttpServletResponse response = ServletUtil.oldToNew((javax.servlet.http.HttpServletResponse)oldResponse);
 			
-			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
+			LibraryUtil.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 				
 				//context.setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$
 				context.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, DominoJspUtil.buildJstlDtdMap());

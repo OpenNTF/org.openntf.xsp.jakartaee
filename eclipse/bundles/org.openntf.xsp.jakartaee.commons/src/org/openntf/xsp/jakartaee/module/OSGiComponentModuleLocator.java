@@ -22,13 +22,13 @@ import lotus.domino.Database;
 import lotus.domino.Session;
 
 import java.lang.reflect.Field;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
@@ -51,7 +51,7 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 	static {
 		Field[] request = new Field[1];
 		Field[] module = new Field[1];
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+		LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 			Class<?> osgiContextClass = null;
 			try {
 				osgiContextClass = Class.forName("com.ibm.domino.xsp.adapter.osgi.NotesContext"); //$NON-NLS-1$

@@ -15,9 +15,9 @@
  */
 package org.openntf.xsp.jakarta.persistence;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -27,7 +27,7 @@ public class PersistenceActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+		LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 			System.setProperty("eclipselink.logging.logger", "JavaLogger"); //$NON-NLS-1$ //$NON-NLS-2$
 			return null;
 		});

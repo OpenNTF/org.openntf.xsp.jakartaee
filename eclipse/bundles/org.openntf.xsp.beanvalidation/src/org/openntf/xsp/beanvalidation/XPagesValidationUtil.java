@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.beanvalidation;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Locale;
@@ -30,6 +29,7 @@ import jakarta.validation.ValidatorFactory;
 
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.xsp.designer.context.XSPContext;
 
@@ -44,7 +44,7 @@ public enum XPagesValidationUtil {
 	 * @since 2.3.0
 	 */
 	public static ValidatorFactory constructXPagesValidatorFactory() {
-		return AccessController.doPrivileged((PrivilegedAction<ValidatorFactory>)() ->
+		return LibraryUtil.doPrivileged((PrivilegedAction<ValidatorFactory>)() ->
 			Validation.byDefaultProvider()
 				.providerResolver(() -> Arrays.asList(new HibernateValidator()))
 				.configure()
@@ -60,7 +60,7 @@ public enum XPagesValidationUtil {
 	 * @return a new {@link Validator} instance for XPages use
 	 */
 	public static Validator constructXPagesValidator() {
-		return AccessController.doPrivileged((PrivilegedAction<Validator>)() ->
+		return LibraryUtil.doPrivileged((PrivilegedAction<Validator>)() ->
 			constructXPagesValidatorFactory().getValidator()
 		);
 	}
@@ -72,7 +72,7 @@ public enum XPagesValidationUtil {
 	 * @since 1.2.0
 	 */
 	public static Validator constructGenericValidator() {
-		return AccessController.doPrivileged((PrivilegedAction<Validator>)() ->
+		return LibraryUtil.doPrivileged((PrivilegedAction<Validator>)() ->
 			Validation.byDefaultProvider()
 				.providerResolver(() -> Arrays.asList(new HibernateValidator()))
 				.configure()
@@ -101,7 +101,7 @@ public enum XPagesValidationUtil {
 	 * @return a {@link Set} of {@link ConstraintViolation} objects for any validation failures
 	 */
 	public static <T> Set<ConstraintViolation<T>> validateBean(T bean, Validator validator) {
-		return AccessController.doPrivileged((PrivilegedAction<Set<ConstraintViolation<T>>>) () -> {
+		return LibraryUtil.doPrivileged((PrivilegedAction<Set<ConstraintViolation<T>>>) () -> {
 			// Juggling the ClassLoader avoids a problem where the XPages ClassLoader can't
 			// find the com.sun.el classes privately in this plugin
 			ClassLoader loader = Thread.currentThread().getContextClassLoader();

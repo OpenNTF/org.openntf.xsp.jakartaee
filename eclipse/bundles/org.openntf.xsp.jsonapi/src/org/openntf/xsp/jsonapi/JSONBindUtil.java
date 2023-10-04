@@ -20,8 +20,9 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
+
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.json.bind.Jsonb;
 
@@ -45,7 +46,7 @@ public enum JSONBindUtil {
 	 * @return the object's JSON form
 	 */
 	public static String toJson(Object obj, Jsonb jsonb) {
-		return AccessController.doPrivileged((PrivilegedAction<String>)() -> {
+		return LibraryUtil.doPrivileged((PrivilegedAction<String>)() -> {
 			return jsonb.toJson(obj);
 		});
 	}
@@ -62,7 +63,7 @@ public enum JSONBindUtil {
 	 * @since 1.1.0
 	 */
 	public static void toJson(Object obj, Jsonb jsonb, OutputStream os) {
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+		LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 			jsonb.toJson(obj, os);
 			return null;
 		});
@@ -80,7 +81,7 @@ public enum JSONBindUtil {
 	 * @since 1.1.0
 	 */
 	public static void toJson(Object obj, Jsonb jsonb, Writer writer) {
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+		LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 			jsonb.toJson(obj, writer);
 			return null;
 		});
@@ -99,7 +100,7 @@ public enum JSONBindUtil {
 	 * @return a deserialized object
 	 */
 	public static <T> T fromJson(String json, Jsonb jsonb, Class<T> type) {
-		return AccessController.doPrivileged((PrivilegedAction<T>)() -> {
+		return LibraryUtil.doPrivileged((PrivilegedAction<T>)() -> {
 			return jsonb.fromJson(json, type);
 		});
 	}
@@ -118,7 +119,7 @@ public enum JSONBindUtil {
 	 * @since 1.1.0
 	 */
 	public static <T> T fromJson(InputStream json, Jsonb jsonb, Class<T> type) {
-		return AccessController.doPrivileged((PrivilegedAction<T>)() -> {
+		return LibraryUtil.doPrivileged((PrivilegedAction<T>)() -> {
 			return jsonb.fromJson(json, type);
 		});
 	}
@@ -136,7 +137,7 @@ public enum JSONBindUtil {
 	 * @since 1.2.0
 	 */
 	public static Object fromJson(InputStream json, Jsonb jsonb, Type type) {
-		return AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
+		return LibraryUtil.doPrivileged((PrivilegedAction<Object>)() -> {
 			return jsonb.fromJson(json, type);
 		});
 	}
@@ -155,7 +156,7 @@ public enum JSONBindUtil {
 	 * @since 1.1.0
 	 */
 	public static <T> T fromJson(Reader json, Jsonb jsonb, Class<T> type) {
-		return AccessController.doPrivileged((PrivilegedAction<T>)() -> {
+		return LibraryUtil.doPrivileged((PrivilegedAction<T>)() -> {
 			return jsonb.fromJson(json, type);
 		});
 	}

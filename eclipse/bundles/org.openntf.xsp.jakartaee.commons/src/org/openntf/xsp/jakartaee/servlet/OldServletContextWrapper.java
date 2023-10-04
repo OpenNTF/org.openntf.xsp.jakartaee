@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +37,7 @@ import java.util.stream.Stream;
 
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
@@ -590,7 +590,7 @@ class OldServletContextWrapper implements ServletContext {
 	private List<IServletFactory> getServletFactories() {
 		return ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
-			.map(module -> AccessController.doPrivileged((PrivilegedAction<List<IServletFactory>>)() -> {
+			.map(module -> LibraryUtil.doPrivileged((PrivilegedAction<List<IServletFactory>>)() -> {
 				try {
 					Field servletFactoriesField = ComponentModule.class.getDeclaredField("servletFactories"); //$NON-NLS-1$
 					servletFactoriesField.setAccessible(true);

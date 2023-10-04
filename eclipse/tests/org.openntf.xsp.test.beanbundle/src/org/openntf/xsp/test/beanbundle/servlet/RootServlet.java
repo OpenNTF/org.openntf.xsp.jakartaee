@@ -17,7 +17,6 @@ package org.openntf.xsp.test.beanbundle.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import javax.servlet.ServletConfig;
@@ -29,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
@@ -54,7 +54,7 @@ public class RootServlet extends HttpServlet {
 	
 	private void initDelegate() throws ServletException {
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+		LibraryUtil.doPrivileged((PrivilegedAction<Void>) () -> {
 			Thread.currentThread().setContextClassLoader(RootServlet.class.getClassLoader());
 			return null;
 		});
@@ -63,7 +63,7 @@ public class RootServlet extends HttpServlet {
 		} catch (jakarta.servlet.ServletException e) {
 			throw new ServletException(e);
 		} finally {
-			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+			LibraryUtil.doPrivileged((PrivilegedAction<Void>) () -> {
 				Thread.currentThread().setContextClassLoader(cl);
 				return null;
 			});
@@ -85,7 +85,7 @@ public class RootServlet extends HttpServlet {
 			}
 			
 			
-			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+			LibraryUtil.doPrivileged((PrivilegedAction<Void>) () -> {
 				Thread.currentThread().setContextClassLoader(RootServlet.class.getClassLoader());
 
 				return null;
@@ -103,7 +103,7 @@ public class RootServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 		} finally {
-			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+			LibraryUtil.doPrivileged((PrivilegedAction<Void>) () -> {
 				Thread.currentThread().setContextClassLoader(cl);
 				return null;
 			});

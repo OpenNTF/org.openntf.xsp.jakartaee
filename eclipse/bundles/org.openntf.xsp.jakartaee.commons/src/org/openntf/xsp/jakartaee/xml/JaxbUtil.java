@@ -17,10 +17,11 @@ package org.openntf.xsp.jakartaee.xml;
 
 import java.security.PrivilegedExceptionAction;
 
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 
-import java.security.AccessController;
 import java.security.PrivilegedActionException;
 
 /**
@@ -58,7 +59,7 @@ public enum JaxbUtil {
 	 */
 	public static JAXBContext newInstance(Class<?>... classesToBeBound) throws JAXBException {
 		try {
-			return AccessController.doPrivileged((PrivilegedExceptionAction<JAXBContext>)() ->
+			return LibraryUtil.doPrivileged((PrivilegedExceptionAction<JAXBContext>)() ->
 				JAXBContext.newInstance(classesToBeBound)
 			);
 		} catch (PrivilegedActionException e) {

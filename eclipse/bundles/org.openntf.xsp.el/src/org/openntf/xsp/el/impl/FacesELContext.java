@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.el.impl;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.List;
@@ -57,6 +56,6 @@ public class FacesELContext extends StandardELContext {
 	
 	@Override
 	public Object convertToType(Object obj, Class<?> targetType) {
-		return AccessController.doPrivileged((PrivilegedAction<Object>)() -> super.convertToType(obj, targetType));
+		return LibraryUtil.doPrivileged((PrivilegedAction<Object>)() -> super.convertToType(obj, targetType));
 	}
 }

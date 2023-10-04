@@ -15,12 +15,12 @@
  */
 package org.openntf.xsp.cdi.concurrency;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import org.glassfish.enterprise.concurrent.spi.ContextHandle;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.domino.xsp.module.nsf.SessionCloner;
@@ -65,7 +65,7 @@ public class NSFSessionClonerSetupParticipant implements ContextSetupParticipant
 					throw new RuntimeException(e);
 				}
 				
-				Session sessionAsSigner = AccessController.doPrivileged((PrivilegedAction<Session>)() -> {
+				Session sessionAsSigner = LibraryUtil.doPrivileged((PrivilegedAction<Session>)() -> {
 					synchronized(SECURITY_MANAGER_LOCK) {
 						ClassLoader cl = Thread.currentThread().getContextClassLoader();
 						SecurityManager sm = System.getSecurityManager();

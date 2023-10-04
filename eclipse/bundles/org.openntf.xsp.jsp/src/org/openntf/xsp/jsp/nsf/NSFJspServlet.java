@@ -18,7 +18,6 @@ package org.openntf.xsp.jsp.nsf;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
@@ -27,6 +26,7 @@ import org.apache.jasper.servlet.JspServlet;
 import org.apache.jasper.xmlparser.ParserUtils;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jsp.EarlyInitFactory;
 import org.openntf.xsp.jsp.el.NSFELResolver;
 import org.openntf.xsp.jsp.util.DominoJspUtil;
@@ -72,7 +72,7 @@ public class NSFJspServlet extends AbstractXspLifecycleServlet {
 	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application)
 			throws ServletException, IOException {
 		try {
-			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
+			LibraryUtil.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 				
 				ServletContext context = request.getServletContext();
 				context.setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$

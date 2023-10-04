@@ -16,7 +16,6 @@
 package org.openntf.xsp.jakartaee.module;
 
 import java.lang.reflect.Field;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.DateFormat;
 import java.text.MessageFormat;
@@ -26,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -54,7 +54,7 @@ import lotus.domino.Session;
 public class NSFComponentModuleLocator implements ComponentModuleLocator {
 	private static final Field notesContextRequestField;
 	static {
-		notesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
+		notesContextRequestField = LibraryUtil.doPrivileged((PrivilegedAction<Field>)() -> {
 			try {
 				Field field = NotesContext.class.getDeclaredField("httpRequest"); //$NON-NLS-1$
 				field.setAccessible(true);

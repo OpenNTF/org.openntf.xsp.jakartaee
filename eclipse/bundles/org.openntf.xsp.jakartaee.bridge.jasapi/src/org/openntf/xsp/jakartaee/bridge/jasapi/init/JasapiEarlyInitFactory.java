@@ -16,7 +16,6 @@
 package org.openntf.xsp.jakartaee.bridge.jasapi.init;
 
 import java.lang.reflect.Field;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +47,7 @@ public class JasapiEarlyInitFactory implements IServiceFactory {
 
 	@Override
 	public HttpService[] getServices(LCDEnvironment arg0) {
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+		LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 			try {
 				JavaSapiEnvironment env = findEnvironment();
 				env.registerServices();

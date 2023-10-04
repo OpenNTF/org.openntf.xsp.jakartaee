@@ -21,7 +21,6 @@ import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -88,7 +87,7 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 	@Override
 	public Servlet createExecutorServlet(ComponentModule module) throws ServletException {
 		try {
-			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
+			return LibraryUtil.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				try {
 					Map<String, String> params = new HashMap<>();

@@ -23,7 +23,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -139,7 +138,7 @@ public class NSFJsfServlet extends HttpServlet {
 		HttpSession session = req.getSession(true);
 
 		try {
-			AccessController.doPrivileged((PrivilegedExceptionAction<Void>) () -> {
+			LibraryUtil.doPrivileged((PrivilegedExceptionAction<Void>) () -> {
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(buildJsfClassLoader(ctx, session, current));
 				try {

@@ -18,7 +18,6 @@ package org.openntf.xsp.jsp.nsf;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
@@ -74,7 +73,7 @@ public class JspServletFactory extends MappingBasedServletFactory {
 	@Override
 	public Servlet createExecutorServlet(ComponentModule module) throws ServletException {
 		try {
-			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
+			return LibraryUtil.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
 				Map<String, String> params = new HashMap<>();
 				String classpath = DominoJspUtil.buildBundleClassPath()
 					.stream()

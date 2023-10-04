@@ -21,7 +21,6 @@ import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -188,7 +187,7 @@ public enum DiscoveryUtil {
 		
 		// Bundle webapps
 		if("com.ibm.pvc.internal.webcontainer.webapp.BundleWebAppClassLoader".equals(cl.getClass().getName())) { //$NON-NLS-1$
-			return AccessController.doPrivileged((PrivilegedAction<Optional<Bundle>>)() -> {
+			return LibraryUtil.doPrivileged((PrivilegedAction<Optional<Bundle>>)() -> {
 				try {
 					if(WEBAPP_BUNDLE_FIELD == null) {
 						WEBAPP_BUNDLE_FIELD = cl.getClass().getDeclaredField("bundle"); //$NON-NLS-1$

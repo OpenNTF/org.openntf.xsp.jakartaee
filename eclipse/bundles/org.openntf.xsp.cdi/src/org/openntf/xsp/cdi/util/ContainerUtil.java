@@ -18,7 +18,6 @@ package org.openntf.xsp.cdi.util;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -168,7 +167,7 @@ public enum ContainerUtil {
 					if(log.isLoggable(Level.SEVERE)) {
 						log.severe(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
 						if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
-							String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path")); //$NON-NLS-1$
+							String classpath = LibraryUtil.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path")); //$NON-NLS-1$
 							log.severe(MessageFormat.format("Current class path: {0}", classpath));
 						}
 						log.log(Level.SEVERE, "Original exception", e);
@@ -310,7 +309,7 @@ public enum ContainerUtil {
 					}
 	
 					Weld fweld = weld;
-					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
+					instance = LibraryUtil.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
 						// Special case for using an NSFComponentModule when there's no available NotesContext,
 						//   such as when the first request in is a service
 						

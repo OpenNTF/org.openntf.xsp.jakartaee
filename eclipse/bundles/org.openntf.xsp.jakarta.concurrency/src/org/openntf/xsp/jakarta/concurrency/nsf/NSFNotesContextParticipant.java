@@ -16,7 +16,6 @@
 package org.openntf.xsp.jakarta.concurrency.nsf;
 
 import java.lang.reflect.Field;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Map;
@@ -29,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.glassfish.enterprise.concurrent.spi.ContextHandle;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
@@ -51,7 +51,7 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 	
 	private static final Field notesContextRequestField;
 	static {
-		notesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
+		notesContextRequestField = LibraryUtil.doPrivileged((PrivilegedAction<Field>)() -> {
 			try {
 				Field field = NotesContext.class.getDeclaredField("httpRequest"); //$NON-NLS-1$
 				field.setAccessible(true);
@@ -104,7 +104,7 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 				
 				NotesContext.initThread(notesContext);
 				
-				ClassLoader cl = AccessController.doPrivileged((PrivilegedAction<ClassLoader>)() -> {
+				ClassLoader cl = LibraryUtil.doPrivileged((PrivilegedAction<ClassLoader>)() -> {
 					ClassLoader tccc = Thread.currentThread().getContextClassLoader();
 					Thread.currentThread().setContextClassLoader(mod.getModuleClassLoader());
 					return tccc;
@@ -121,7 +121,7 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 			if(mod instanceof NSFComponentModule) {
 				ClassLoader tccc = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_CLASSLOADER);
 				if(tccc != null) {
-					AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+					LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 						Thread.currentThread().setContextClassLoader(tccc);
 						return null;
 					});
@@ -141,7 +141,7 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 	}
 	
 	protected Optional<HttpServletRequest> getHttpServletRequest(NotesContext context) {
-		return AccessController.doPrivileged((PrivilegedAction<Optional<HttpServletRequest>>)() -> {
+		return LibraryUtil.doPrivileged((PrivilegedAction<Optional<HttpServletRequest>>)() -> {
 			try {
 				return Optional.ofNullable((HttpServletRequest)notesContextRequestField.get(context));
 			} catch (IllegalArgumentException | IllegalAccessException e) {

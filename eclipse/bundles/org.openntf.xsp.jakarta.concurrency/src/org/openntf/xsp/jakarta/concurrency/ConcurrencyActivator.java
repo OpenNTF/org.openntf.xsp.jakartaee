@@ -16,7 +16,6 @@
 package org.openntf.xsp.jakarta.concurrency;
 
 import java.lang.reflect.Method;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,6 +28,7 @@ import javax.naming.NamingException;
 
 import org.openntf.xsp.jakarta.concurrency.jndi.DelegatingManagedExecutorService;
 import org.openntf.xsp.jakarta.concurrency.jndi.DelegatingManagedScheduledExecutorService;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -66,7 +66,7 @@ public class ConcurrencyActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
-		String jvmVersion = AccessController.doPrivileged((PrivilegedAction<String>)() ->
+		String jvmVersion = LibraryUtil.doPrivileged((PrivilegedAction<String>)() ->
 			System.getProperty("java.specification.version") //$NON-NLS-1$
 		);
 		

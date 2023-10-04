@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -76,7 +75,7 @@ public class EarlyInitFactory implements IServiceFactory {
 		NSFService.addHandledExtensions(".jsp"); //$NON-NLS-1$
 		
 		// This property is used by Jasper to see if it should use AccessController blocks
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+		LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 			System.setProperty("package.definition", "org.apache.jsp"); //$NON-NLS-1$ //$NON-NLS-2$
 			return null;
 		});

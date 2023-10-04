@@ -15,11 +15,11 @@
  */
 package org.openntf.xsp.microprofile.config;
 
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import org.eclipse.microprofile.config.spi.ConfigProviderResolver;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.microprofile.config.sources.ImplicitAppConfigSourceFactory;
 import org.openntf.xsp.microprofile.config.sources.NotesEnvironmentConfigSource;
 import org.openntf.xsp.microprofile.config.sources.XspPropertiesConfigSourceFactory;
@@ -54,7 +54,7 @@ public class ConfigInitFactory implements IServiceFactory {
 					new ImplicitAppConfigSourceFactory()
 				);
 				
-				AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+				LibraryUtil.doPrivileged((PrivilegedAction<Void>)() -> {
 					ComponentModuleLocator.getDefault()
 						.flatMap(ComponentModuleLocator::getServletContext)
 						.map(ServletContext::getClassLoader)
