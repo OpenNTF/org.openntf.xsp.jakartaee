@@ -17,6 +17,7 @@ package it.org.openntf.xsp.jakartaee.nsf.microprofile;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
 
@@ -41,10 +42,14 @@ public class TestHealth extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
-		JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-		assertEquals("DOWN", jsonObject.getString("status"));
-		JsonArray checks = jsonObject.getJsonArray("checks");
-		assertEquals(3, checks.size());
+		try {
+			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
+			assertEquals("DOWN", jsonObject.getString("status"));
+			JsonArray checks = jsonObject.getJsonArray("checks");
+			assertEquals(3, checks.size());
+		} catch(Exception e) {
+			fail("Unexpected response: " + result, e);
+		}
 	}
 	
 	@Test
@@ -54,12 +59,16 @@ public class TestHealth extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
-		JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-		assertEquals("DOWN", jsonObject.getString("status"));
-		JsonArray checks = jsonObject.getJsonArray("checks");
-		assertEquals(1, checks.size());
-		
-		assertEquals("I am a failing readiness check", checks.getJsonObject(0).getString("name"));
+		try {
+			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
+			assertEquals("DOWN", jsonObject.getString("status"));
+			JsonArray checks = jsonObject.getJsonArray("checks");
+			assertEquals(1, checks.size());
+			
+			assertEquals("I am a failing readiness check", checks.getJsonObject(0).getString("name"));
+		} catch(Exception e) {
+			fail("Unexpected response: " + result, e);
+		}
 	}
 	
 	@Test
@@ -69,14 +78,18 @@ public class TestHealth extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
-		JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-		assertEquals("UP", jsonObject.getString("status"));
-		JsonArray checks = jsonObject.getJsonArray("checks");
-		assertEquals(1, checks.size());
-		
-		assertEquals("I am the liveliness check", checks.getJsonObject(0).getString("name"));
-		JsonObject data = checks.getJsonObject(0).getJsonObject("data");
-		assertTrue(data.getInt("noteCount") > 0);
+		try {
+			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
+			assertEquals("UP", jsonObject.getString("status"));
+			JsonArray checks = jsonObject.getJsonArray("checks");
+			assertEquals(1, checks.size());
+			
+			assertEquals("I am the liveliness check", checks.getJsonObject(0).getString("name"));
+			JsonObject data = checks.getJsonObject(0).getJsonObject("data");
+			assertTrue(data.getInt("noteCount") > 0);
+		} catch(Exception e) {
+			fail("Unexpected response: " + result, e);
+		}
 	}
 	
 	@Test
@@ -86,12 +99,16 @@ public class TestHealth extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
-		JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-		assertEquals("UP", jsonObject.getString("status"));
-		JsonArray checks = jsonObject.getJsonArray("checks");
-		assertEquals(1, checks.size());
-		
-		assertEquals("started up fine", checks.getJsonObject(0).getString("name"));
+		try {
+			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
+			assertEquals("UP", jsonObject.getString("status"));
+			JsonArray checks = jsonObject.getJsonArray("checks");
+			assertEquals(1, checks.size());
+			
+			assertEquals("started up fine", checks.getJsonObject(0).getString("name"));
+		} catch(Exception e) {
+			fail("Unexpected response: " + result, e);
+		}
 	}
 	
 }
