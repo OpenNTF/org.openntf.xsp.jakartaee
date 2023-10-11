@@ -256,7 +256,7 @@
 	<plugin id="org.openntf.org.jboss.resteasy.client" version="0.0.0" unpack="false"/>
 	
 	<plugin id="org.eclipse.microprofile.openapi" version="0.0.0" unpack="false"/>
-	<plugin id="org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
+    <plugin id="org.openntf.org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.io.smallrye.open-api-core" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.io.smallrye.open-api-jaxrs" version="0.0.0" fragment="true" unpack="false"/>
 	<plugin id="com.fasterxml.jackson.core.jackson-core" version="0.0.0" unpack="false"/>
