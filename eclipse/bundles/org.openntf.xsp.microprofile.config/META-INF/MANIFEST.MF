@@ -7,7 +7,7 @@ Bundle-Version: 2.14.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
- org.eclipse.microprofile.config;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.org.eclipse.microprofile.config;bundle-version="3.0.0";visibility:=reexport,
  io.smallrye.config.smallrye-config;bundle-version="3.0.0",
  io.smallrye.config.smallrye-config-common;bundle-version="3.0.0",
  io.smallrye.config.smallrye-config-core;bundle-version="3.0.0",
