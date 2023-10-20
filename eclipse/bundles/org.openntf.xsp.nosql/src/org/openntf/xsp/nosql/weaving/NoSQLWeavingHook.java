@@ -23,6 +23,7 @@ import java.io.UncheckedIOException;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
 
+import jakarta.nosql.TypeReferenceReader;
 import jakarta.nosql.ValueReader;
 import jakarta.nosql.ValueWriter;
 import javassist.CannotCompileException;
@@ -50,6 +51,8 @@ public class NoSQLWeavingHook implements WeavingHook {
 			processValueReader(c);
 		} else if("org.eclipse.jnosql.communication.writer.ValueWriterDecorator".equals(c.getClassName())) { //$NON-NLS-1$
 			processValueWriter(c);
+		} else if("jakarta.nosql.TypeReferenceReaderDecorator".equals(c.getClassName())) { //$NON-NLS-1$
+			processTypeReferenceReader(c);
 		}
 	}
 
@@ -99,6 +102,64 @@ public class NoSQLWeavingHook implements WeavingHook {
 						+ "        throw new UnsupportedOperationException(\"The type \" + $1 + \" is not supported yet\");\n"
 						+ "    }";
 				CtMethod m = cc.getDeclaredMethod("read"); //$NON-NLS-1$
+				m.setBody(body);
+			}
+		
+			c.setBytes(cc.toBytecode());
+		} catch(NotFoundException e) {
+			// Then the method has been removed - that's fine
+			e.printStackTrace();
+		} catch(CannotCompileException | IOException e) {
+			e.printStackTrace();
+			new RuntimeException("Encountered exception when weaving jakarta.nosql.ServiceLoaderProvider replacement", e).printStackTrace();
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("nls")
+	private void processTypeReferenceReader(WovenClass c) {
+		ClassPool pool = new ClassPool();
+		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
+		pool.appendClassPath(new ClassClassPath(TypeReferenceReader.class));
+		CtClass cc;
+		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
+			cc = pool.makeClass(is);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		cc.defrost();
+
+		try {
+			// boolean test(Class clazz)
+			{
+				String body = "{\n"
+						+ "		java.util.List readers = jakarta.nosql.ServiceLoaderProvider.getSupplierStream(jakarta.nosql.TypeReferenceReader.class).collect(java.util.stream.Collectors.toList());\n"
+						+ "		for(int i = 0; i < readers.size(); i++) {\n"
+						+ "			jakarta.nosql.TypeReferenceReader r = (jakarta.nosql.TypeReferenceReader)readers.get(i);\n"
+						+ "			if(r.test($1)) {\n"
+						+ "				return true;\n"
+						+ "			}\n"
+						+ "		}\n"
+						+ "		return false;\n"
+						+ "    }";
+				CtMethod m = cc.getDeclaredMethod("test"); //$NON-NLS-1$
+				m.setBody(body);
+			}
+			
+			// <T> T convert(TypeSupplier, Object value)
+			{
+				String body = "{\n"
+						+ "        java.util.List readers = jakarta.nosql.ServiceLoaderProvider.getSupplierStream(jakarta.nosql.TypeReferenceReader.class).collect(java.util.stream.Collectors.toList());\n"
+						+ "        for(int i = 0; i < readers.size(); i++) {\n"
+						+ "			jakarta.nosql.TypeReferenceReader r = (jakarta.nosql.TypeReferenceReader)readers.get(i);\n"
+						+ "			if(r.test($1)) {\n"
+						+ "				return r.convert($1, $2);\n"
+						+ "			}\n"
+						+ "		}\n"
+						+ "        throw new UnsupportedOperationException(\"The type \" + $1 + \" is not supported yet\");\n"
+						+ "    }";
+				CtMethod m = cc.getDeclaredMethod("convert"); //$NON-NLS-1$
 				m.setBody(body);
 			}
 		
