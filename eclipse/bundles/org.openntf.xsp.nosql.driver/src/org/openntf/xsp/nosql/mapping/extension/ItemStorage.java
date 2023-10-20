@@ -53,6 +53,10 @@ public @interface ItemStorage {
 		MIMEBean,
 		/**
 		 * Stores the value as a JSON string serialized using JSON-B.
+		 * 
+		 * <p>Note: When using this type, the value is currently stored as a text
+		 * item with summary set to {@code false}. The summary flag can be
+		 * re-enabled by using the {@link ItemFlags} annotation.</p>
 		 */
 		JSON
 	}

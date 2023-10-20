@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
@@ -235,6 +236,59 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			String dxl = jsonObject.getString("dxl");
 			assertNotNull(dxl);
 			assertFalse(dxl.isEmpty());
+		}
+	}
+	
+	@Test
+	public void testJsonStorageReadViewEntries() throws XMLException {
+		Client client = getAnonymousClient();
+		// Create a new doc
+		String unid;
+		JsonObject jsonGuy = Json.createObjectBuilder()
+			.add("firstName", "Foo")
+			.add("lastName", "Fooson")
+			.build();
+		{
+			JsonObject mimeGuy = Json.createObjectBuilder()
+				.add("title", "I am the title")
+				.add("address", "123 Road St.")
+				.build();
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am outer title")
+				.add("jsonGuy", jsonGuy)
+				.add("mimeGuy", mimeGuy)
+				.add("body", "<p>I am body HTML</p>")
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Make sure it shows up in the view entries
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView");
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			String json = response.readEntity(String.class);
+			JsonArray jsonObjects = Json.createReader(new StringReader(json)).readArray();
+			assertNotNull(jsonObjects);
+			assertFalse(jsonObjects.isEmpty());
+			
+			Optional<JsonObject> entry = jsonObjects.stream()
+				.map(JsonValue::asJsonObject)
+				.filter(obj -> unid.equals(obj.getString("unid")) && "DOCUMENT".equals(obj.getString("entryType")))
+				.findFirst();
+			assertTrue(entry.isPresent());
+			JsonObject entryJsonGuy = entry.get().getJsonObject("jsonGuy");
+			assertEquals(jsonGuy, entryJsonGuy);
 		}
 	}
 	

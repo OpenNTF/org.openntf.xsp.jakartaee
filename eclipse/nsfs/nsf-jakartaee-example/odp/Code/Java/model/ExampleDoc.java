@@ -82,6 +82,7 @@ public class ExampleDoc {
 	private String body;
 	@Column("JSONGuy")
 	@ItemStorage(type=ItemStorage.Type.JSON)
+	@ItemFlags(summary=true)
 	private JsonStorage jsonGuy;
 	@Column("MIMEGuy")
 	@ItemStorage(type=ItemStorage.Type.MIMEBean)
