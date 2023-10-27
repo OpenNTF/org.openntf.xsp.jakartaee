@@ -107,6 +107,9 @@ public class NSFJsfServlet extends HttpServlet {
 		Properties props = LibraryUtil.getXspProperties(module);
 		String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
 		context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
+		
+		// Look for a web.xml file and populate init params
+		ServletUtil.populateWebXmlParams(module, config.getServletContext());
 
 		Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
 		Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);

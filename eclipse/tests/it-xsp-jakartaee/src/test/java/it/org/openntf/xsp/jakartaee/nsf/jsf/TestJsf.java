@@ -90,6 +90,12 @@ public class TestJsf extends AbstractWebClientTest {
 					assertEquals("dev/jakartaee.nsf", dd.getText());
 				}
 				
+				// Make sure the init param from web.xml made it
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"initParam\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().contains("org.openntf.example.param=I am the param value"), () -> "initParam value should have contained the example param: " + dd.getText());
+				}
+				
 				WebElement input = form.findElement(By.xpath("input[1]"));
 				assertTrue(input.getAttribute("id").endsWith(":appGuyProperty"), () -> input.getAttribute("id"));
 				// May be set by previous test
