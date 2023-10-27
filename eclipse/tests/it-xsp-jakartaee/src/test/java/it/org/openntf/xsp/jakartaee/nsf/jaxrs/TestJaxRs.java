@@ -15,10 +15,16 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.jaxrs;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.StringReader;
+
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -88,5 +94,27 @@ public class TestJaxRs extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		assertEquals("hello", response.getHeaderString("X-ExampleHeaderFilter"));
+	}
+
+	/**
+	 * Tests that an in-NSF service class can contribute a configuration property
+	 * programmatically.
+	 * 
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/168">Issue #168</a>
+	 */
+	@Test
+	public void testContributedProperty() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsConfig");
+		Response response = target.request().get();
+		
+		String json = response.readEntity(String.class);
+		try {
+			JsonObject config = Json.createReader(new StringReader(json)).readObject();
+			assertNotNull(config);
+			assertEquals("EXPLICIT", config.getString("jakarta.mvc.security.CsrfProtection", null));
+		} catch(Exception e) {
+			fail("Received unexpected JSON: " + json, e);
+		}
 	}
 }

@@ -65,7 +65,10 @@ public class NSFJAXRSApplication extends Application {
 		List<Feature> features = LibraryUtil.findExtensionsUncached(Feature.class);
 		result.addAll(features);
 		
-		List<JAXRSClassContributor> contributors = LibraryUtil.findExtensions(JAXRSClassContributor.class);
+		List<JAXRSClassContributor> contributors = ComponentModuleLocator.getDefault()
+			.map(ComponentModuleLocator::getActiveModule)
+			.map(module -> LibraryUtil.findExtensions(JAXRSClassContributor.class, module))
+			.orElseGet(() -> LibraryUtil.findExtensions(JAXRSClassContributor.class));
 		contributors.stream()
 			.map(JAXRSClassContributor::getSingletons)
 			.filter(Objects::nonNull)
@@ -82,7 +85,7 @@ public class NSFJAXRSApplication extends Application {
 				Set<Class<?>> result = new HashSet<>();
 				result.addAll(super.getClasses());
 				
-				List<JAXRSClassContributor> contributors = LibraryUtil.findExtensions(JAXRSClassContributor.class);
+				List<JAXRSClassContributor> contributors = LibraryUtil.findExtensions(JAXRSClassContributor.class, module);
 				contributors.stream()
 					.map(JAXRSClassContributor::getClasses)
 					.filter(Objects::nonNull)
@@ -111,6 +114,16 @@ public class NSFJAXRSApplication extends Application {
 			.forEach(properties -> {
 				properties.forEach((key, value) -> result.put(key.toString(), value));
 			});
+		
+		// Read in any contributors
+		List<JAXRSClassContributor> contributors = ComponentModuleLocator.getDefault()
+			.map(ComponentModuleLocator::getActiveModule)
+			.map(module -> LibraryUtil.findExtensions(JAXRSClassContributor.class, module))
+			.orElseGet(() -> LibraryUtil.findExtensions(JAXRSClassContributor.class));
+		contributors.stream()
+			.map(JAXRSClassContributor::getProperties)
+			.filter(Objects::nonNull)
+			.forEach(result::putAll);
 		
 		return result;
 	}
