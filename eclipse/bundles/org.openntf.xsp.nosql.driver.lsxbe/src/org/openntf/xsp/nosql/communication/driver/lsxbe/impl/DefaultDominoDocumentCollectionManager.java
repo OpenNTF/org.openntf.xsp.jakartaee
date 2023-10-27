@@ -241,7 +241,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					// Check to see if we need to "expire" it based on the data mod time of the DB
 					DateTime created = view.getCreated();
 					try {
-						long dataMod = NotesSession.getLastDataModificationDateByName(database.getServer(), database.getFilePath());
+						// Skip using the server name when it's local, as that can cause resolution trouble
+						//   if the server doesn't know it's itself (Issue #461)
+						String serverName = database.getServer();
+						if(StringUtil.equals(database.getParent().getUserName(), serverName)) {
+							serverName = ""; //$NON-NLS-1$
+						}
+						long dataMod = NotesSession.getLastDataModificationDateByName(serverName, database.getFilePath());
 						if(dataMod > (created.toJavaDate().getTime() / 1000)) {
 							view.remove();
 							view.recycle();

@@ -16,6 +16,7 @@
 package model;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
@@ -24,6 +25,7 @@ import org.openntf.xsp.nosql.mapping.extension.EntryType;
 import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
 import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
 
+import jakarta.json.JsonObject;
 import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Id;
@@ -81,6 +83,7 @@ public class ExampleDoc {
 	private String body;
 	@Column("JSONGuy")
 	@ItemStorage(type=ItemStorage.Type.JSON)
+	@ItemFlags(summary=true)
 	private JsonStorage jsonGuy;
 	@Column("MIMEGuy")
 	@ItemStorage(type=ItemStorage.Type.MIMEBean)
@@ -102,6 +105,12 @@ public class ExampleDoc {
 	@Column
 	@ItemStorage(precision=2)
 	private List<Double> numbersGuy;
+	@Column
+	private LocalDate dateGuy;
+	@Column("JSONPGuy")
+	@ItemStorage(type=ItemStorage.Type.JSON)
+	@ItemFlags(summary=true)
+	private JsonObject jsonpGuy;
 	
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
@@ -196,5 +205,19 @@ public class ExampleDoc {
 	}
 	public void setNumbersGuy(List<Double> numbersGuy) {
 		this.numbersGuy = numbersGuy;
+	}
+	
+	public LocalDate getDateGuy() {
+		return dateGuy;
+	}
+	public void setDateGuy(LocalDate dateGuy) {
+		this.dateGuy = dateGuy;
+	}
+	
+	public JsonObject getJsonpGuy() {
+		return jsonpGuy;
+	}
+	public void setJsonpGuy(JsonObject jsonpGuy) {
+		this.jsonpGuy = jsonpGuy;
 	}
 }

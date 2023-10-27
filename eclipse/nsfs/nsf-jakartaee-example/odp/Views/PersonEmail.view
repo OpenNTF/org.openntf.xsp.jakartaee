@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="view" xmlns="http://www.lotus.com/dxl">
+  <item name="$FormulaClass" sign="true">
+    <text>1</text>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>PersonEmail</text>
+  </item>
+  <item name="$Index" sign="true">
+    <text/>
+  </item>
+  <item name="$Formula" sign="true" summary="true">
+    <formula compiled="true">
+ZAAFADYAMQAFAAUACQAIAAkABABFbWFpbEZpcnN0TmFtZUxhc3ROYW1lJENvbmZsaWN0JFJFRgAE
+AAQAAAAaAAUABABGb3JtAQAGAFBlcnNvbgoCAwAHAA4ACAAJTDFTMlMzUw==
+</formula>
+  </item>
+  <item name="$Collation" summary="true">
+    <rawitemdata type="2">
+MQADAABEAGYAAAAFAABmAAUACQAAZgAOAAgARW1haWxGaXJzdE5hbWVMYXN0TmFtZQ==
+</rawitemdata>
+  </item>
+  <item name="$ViewFormat" sign="true" summary="true">
+    <rawitemdata type="5">
+AQADAAAACAAAAFZDAQAFAAUAAAAAAFAAAQEACgAAAAAAAAAAAAICAAAAVkMBAAkACQAAAAAAUAAB
+AAAKAAAAAAAAAAAAAgIAAABWQwEACAAIAAAAAABQAAEAAAoAAAAAAAAAAAACAgAAAEVtYWlsRW1h
+aWxGaXJzdE5hbWVGaXJzdE5hbWVMYXN0TmFtZUxhc3ROYW1lJgABAAAAAQEACQEAAAoBAQAKAAAB
+AK0rAQABAAEAAAAAAAAAAABXQwEBAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAAAAAAAAAA
+AAAAAAAAV0MBAQAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAAAAAAAAAAAAAAAAAFdDAQEA
+CQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAAAABCAAAAAAABAP///wAFAP//
+/wABAAAAAAAAAAAAAAAAAAEA////AAEA////AAAAAQAAAAAAAQAAAAAAAQAAAAAAAAAIAAAAAAAB
+AA==
+</rawitemdata>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$Flags">
+    <text>PY</text>
+  </item>
+</note>

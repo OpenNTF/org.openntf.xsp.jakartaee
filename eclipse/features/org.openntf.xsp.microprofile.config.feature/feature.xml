@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.microprofile.config.feature"
       label="XPages MicroProfile Config 3.0 Support Feature"
-      version="2.13.0.qualifier">
+      version="2.14.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -239,7 +239,7 @@
    </requires>
 
    <plugin id="org.openntf.xsp.microprofile.config" version="0.0.0" unpack="false"/>
-   <plugin id="org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.config.smallrye-config" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.config.smallrye-config-common" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.config.smallrye-config-core" version="0.0.0" unpack="false"/>

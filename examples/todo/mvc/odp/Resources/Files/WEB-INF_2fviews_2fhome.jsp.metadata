@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$TITLE">
+    <text>WEB-INF/views/home.jsp</text>
+  </item>
+  <item name="$Flags">
+    <text>345Cg&lt;Q</text>
+  </item>
+  <item name="$MimeCharSet">
+    <text>UTF-8</text>
+  </item>
+  <item name="$FileNames" sign="true">
+    <text>WEB-INF_2fviews_2fhome.jsp</text>
+  </item>
+</note>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$TITLE" sign="true">
+    <text>Outer Frame</text>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$FrameSet" sign="true">
+    <rawitemdata type="1">
+7/8YAAIAAwAAAAAAAAAAAAAAAAAAAAAA8P8+AEUAAAABAAAAAAACAAIAAAAAAAUAAAAAAAUAAAAA
+AAEAAgAAAAAAAQAvLy8AAAADAAEAAQC+AAIAUADx/0AAAQAAAABAAQADAAEAAQAAAAAAAwAAAAkA
+AQAvLy8AAABOYXZOb3Rlc1ZpZXcBAP///ywBAAAKAQAAAAAs9v8yAAAAAAADAAYAEAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAE5hdmlnYXRpb24gRnJhbWXx/z0AAQEAAABAAAADAAEAAQAAAAAACQAAAAAA
+AQAvLy8AAABOb3Rlc1ZpZXcBAP///ywBAAAKAQAAAAAsP/b/OwAAAAAAAwACAAMACAAOAAAAAAAA
+AAAASGVyYy9NVENpdFxkYXRhYXBwLm50ZgAAAAAAAAAAQWxsPw==
+</rawitemdata>
+  </item>
+  <item name="$Flags">
+    <text>#34CQ</text>
+  </item>
+</note>

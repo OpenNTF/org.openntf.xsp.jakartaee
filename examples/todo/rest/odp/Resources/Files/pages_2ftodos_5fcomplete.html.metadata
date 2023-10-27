@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.0" replicaid="85258A14005073B7" version="12.0">
+<noteinfo noteid="1fa" sequence="6" unid="D65F34D4C8FF0C1885258A1400584D99">
+<created><datetime dst="true">20230823T120430,33-04</datetime></created>
+<modified><datetime dst="true">20230823T132936,60-04</datetime></modified>
+<revised><datetime dst="true">20230823T132936,59-04</datetime></revised>
+<lastaccessed><datetime dst="true">20230823T132936,59-04</datetime></lastaccessed>
+<addedtofile><datetime dst="true">20230823T120430,33-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$MimeType" sign="true"><text>text/html</text></item>
+<item name="$Flags"><text>345Cg&gt;Q</text></item>
+<item name="$MimeCharSet" sign="true"><text>UTF-8</text></item>
+<item name="$TITLE" sign="true"><text>pages/todos_complete.html</text></item>
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>pages_2ftodos_5fcomplete.html</text></item></note>

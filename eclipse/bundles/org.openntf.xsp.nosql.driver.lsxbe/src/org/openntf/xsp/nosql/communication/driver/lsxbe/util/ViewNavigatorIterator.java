@@ -39,7 +39,12 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 		this.nav = nav;
 		this.docsOnly = docsOnly;
 		this.didSkip = didSkip;
-		this.manualDocumentScan = didKey && nav.getParentView().isCategorized();
+		
+		// Initially, it seemed like manual scanning was only necessary when looking
+		//   for documents when having searched by key in a categorized view. However,
+		//   it turns out that this is also sometimes needed when looking up by key
+		//   with even a single sorted column, so always do a manual scan when keying.
+		this.manualDocumentScan = didKey;
 	}
 
 	@Override
