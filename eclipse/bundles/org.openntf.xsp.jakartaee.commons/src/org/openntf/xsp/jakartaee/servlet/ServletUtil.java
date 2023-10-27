@@ -16,11 +16,25 @@
 package org.openntf.xsp.jakartaee.servlet;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import com.ibm.commons.xml.DOMUtil;
+import com.ibm.commons.xml.XMLException;
+import com.ibm.commons.xml.XResult;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpServletResponse;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.domino.xsp.bridge.http.servlet.XspCmdHttpServletResponse;
@@ -41,6 +55,8 @@ import jakarta.servlet.http.HttpSessionAttributeListener;
  */
 public enum ServletUtil {
 	;
+	
+	private static final Logger log = Logger.getLogger(ServletUtil.class.getName());
 	
 	public static javax.servlet.Servlet newToOld(jakarta.servlet.Servlet servlet) {
 		if(servlet == null) {
@@ -480,5 +496,75 @@ public enum ServletUtil {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Processes init-param values from any WEB-INF/web.xml and META-INF/web-fragment.xml files
+	 * inside the module.
+	 * 
+	 * @param module the module to load resources from
+	 * @param context the context to populate with init parameters
+	 * @since 2.15.0
+	 */
+	public static void populateWebXmlParams(ComponentModule module, jakarta.servlet.ServletContext context) {
+		try {
+			if(module != null) {
+				InputStream is = module.getResourceAsStream("/WEB-INF/web.xml"); //$NON-NLS-1$
+				if(is != null) {
+					if(log.isLoggable(Level.FINE)) {
+						log.fine(MessageFormat.format("Processing web.xml in {0}", module.getModuleName()));
+					}
+					processWebXmlPart(module, context, is);
+				}
+				
+				// Look for META-INF/web-fragment.xml files
+				ClassLoader cl = module.getModuleClassLoader();
+				if(cl != null) {
+					Enumeration<URL> fragments = cl.getResources("META-INF/web-fragment.xml"); //$NON-NLS-1$
+					for(URL url : Collections.list(fragments)) {
+						if(log.isLoggable(Level.FINE)) {
+							log.fine(MessageFormat.format("Processing web-fragment.xml {0} in {1}", url, module.getModuleName()));
+						}
+						InputStream fis = url.openStream();
+						if(fis != null) {
+							processWebXmlPart(module, context, fis);
+						}
+					}
+				}
+			}
+		} catch(Exception e) {
+			if(log.isLoggable(Level.WARNING)) {
+				log.log(Level.WARNING, MessageFormat.format("Encountered exception processing web.xml in {0}", module.getModuleName()), e);
+			}
+		}
+	}
+	
+	private static void processWebXmlPart(ComponentModule module, jakarta.servlet.ServletContext context, InputStream is) throws XMLException {
+		Document webXml = DOMUtil.createDocument(is);
+		
+		// Process context-param values
+		NodeList contextParams = webXml.getDocumentElement().getElementsByTagName("context-param"); //$NON-NLS-1$
+		for(int i = 0; i < contextParams.getLength(); i++) {
+			Element contextParam = (Element)contextParams.item(i);
+			NodeList nameNodes = contextParam.getElementsByTagName("param-name"); //$NON-NLS-1$
+			if(nameNodes.getLength() < 1) {
+				if(log.isLoggable(Level.FINE)) {
+					log.fine(MessageFormat.format("Encountered context-param with missing param-name in {0}", module.getModuleName()));
+				}
+				continue;
+			}
+			NodeList valueNodes = contextParam.getElementsByTagName("param-value"); //$NON-NLS-1$
+			if(valueNodes.getLength() < 1) {
+				if(log.isLoggable(Level.FINE)) {
+					log.fine(MessageFormat.format("Encountered context-param with missing param-value in {0}", module.getModuleName()));
+				}
+				continue;
+			}
+			
+			String name = nameNodes.item(0).getTextContent();
+			String value = valueNodes.item(0).getTextContent();
+			
+			context.setInitParameter(name, value);
+		}
 	}
 }

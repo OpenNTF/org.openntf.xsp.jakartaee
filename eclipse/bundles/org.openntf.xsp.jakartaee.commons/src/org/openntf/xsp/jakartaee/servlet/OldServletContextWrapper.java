@@ -29,6 +29,7 @@ import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -233,7 +234,11 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public Enumeration<String> getInitParameterNames() {
-		return delegate.getInitParameterNames();
+		Map<String, String> params = getExtraInitParameters();
+		Set<String> paramNames = new HashSet<>();
+		paramNames.addAll(Collections.list(delegate.getInitParameterNames()));
+		paramNames.addAll(params.keySet());
+		return Collections.enumeration(paramNames);
 	}
 
 	@Override

@@ -187,6 +187,26 @@ These Servlets participate in the XPages lifecycle and have programmatic access 
 
 Note, however, that other Servlet artifacts such as `@WebFilter` and `@WebListener` are not yet supported.
 
+#### web.xml
+
+It also adds preliminary support for web.xml, currently in the form of only supporting context parameters. For example, this file can be stored in the NSF in WebContext/WEB-INF/web.xml:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+	  version="5.0" metadata-complete="false">
+	
+	<context-param>
+		<param-name>org.openntf.example.param</param-name>
+		<param-value>I am the param value</param-value>
+	</context-param>
+</web-app>
+```
+
+When present, this will cause the "org.openntf.example.param" parameter to be set and available for all Jakarta users of `ServletContext`, such as Servlets, REST, Pages, and Faces.
+
 ## RESTful Web Services
 
 The [RESTful Web Services](https://jakarta.ee/specifications/restful-ws/3.0/) specification is the standard way to provide web services in Java EE applications. A version of it has been included for a long time in Domino by way of the Extension Library. However, this version is also out of date, with Apache Wink implementing JAX-RS 1.1.1.
