@@ -33,7 +33,6 @@ import org.w3c.dom.NodeList;
 
 import com.ibm.commons.xml.DOMUtil;
 import com.ibm.commons.xml.XMLException;
-import com.ibm.commons.xml.XResult;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpServletResponse;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
