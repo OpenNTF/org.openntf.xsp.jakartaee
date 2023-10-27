@@ -207,6 +207,8 @@ It also adds preliminary support for web.xml, currently in the form of only supp
 
 When present, this will cause the "org.openntf.example.param" parameter to be set and available for all Jakarta users of `ServletContext`, such as Servlets, REST, Pages, and Faces.
 
+Such parameters can also be defined in META-INF/web-fragment.xml files inside JARs in the NSF. Note, though, that ordering of these files relative to web.xml is not yet supported: they will currently all take priority over web.xml, and will be sorted in the arbitrary order the runtime returns the files.
+
 ## RESTful Web Services
 
 The [RESTful Web Services](https://jakarta.ee/specifications/restful-ws/3.0/) specification is the standard way to provide web services in Java EE applications. A version of it has been included for a long time in Domino by way of the Extension Library. However, this version is also out of date, with Apache Wink implementing JAX-RS 1.1.1.
