@@ -149,7 +149,8 @@ public class NSFJAXRSApplication extends Application {
 			}
 			
 			return false;
-		} catch(Exception e) {
+		} catch(Throwable e) {
+			// Catch Throwable because this may come through as an Error
 			log.log(Level.WARNING, MessageFormat.format("Encounterd exception processing class {0}", clazz.getName()), e);
 			return false;
 		}
