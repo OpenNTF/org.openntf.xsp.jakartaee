@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.microprofile.health.feature"
       label="XPages MicroProfile Health 4.0 Support Feature"
-      version="2.14.0.qualifier">
+      version="2.15.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
