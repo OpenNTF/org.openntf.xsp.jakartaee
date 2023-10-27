@@ -8,4 +8,9 @@
     	<param-name>org.openntf.example.param</param-name>
     	<param-value>I am the param value</param-value>
     </context-param>
+    
+	<context-param>
+    	<param-name>jakarta.faces.FACELETS_LIBRARIES</param-name>
+    	<param-value>/WEB-INF/exampleFacelets.taglib.xml</param-value>
+    </context-param>
 </web-app>

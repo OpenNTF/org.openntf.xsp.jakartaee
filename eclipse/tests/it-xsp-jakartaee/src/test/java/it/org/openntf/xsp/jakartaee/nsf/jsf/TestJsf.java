@@ -94,6 +94,9 @@ public class TestJsf extends AbstractWebClientTest {
 				{
 					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"initParam\"]/following-sibling::dd[1]"));
 					assertTrue(dd.getText().contains("org.openntf.example.param=I am the param value"), () -> "initParam value should have contained the example param: " + dd.getText());
+					
+					// And the one from the web-fragment.xml
+					assertTrue(dd.getText().contains("org.openntf.example.fragment.param=I am the param value from a fragment in a JAR"), () -> "initParam value should have contained the example param: " + dd.getText());
 				}
 				
 				WebElement input = form.findElement(By.xpath("input[1]"));
@@ -116,6 +119,12 @@ public class TestJsf extends AbstractWebClientTest {
 				
 				WebElement span = form.findElement(By.xpath("p/span[1]"));
 				assertEquals(expected, span.getText());
+			}
+			
+			// Check for the NSF-defined Facelet library
+			{
+				WebElement div = driver.findElement(By.cssSelector("div.example-facelet"));
+				assertEquals("I am the example facelet", div.getText());
 			}
 			
 			// While here, test the phase listeners
