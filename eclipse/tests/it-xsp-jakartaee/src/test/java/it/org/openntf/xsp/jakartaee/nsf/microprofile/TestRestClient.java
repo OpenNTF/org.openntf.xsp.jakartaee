@@ -18,6 +18,7 @@ package it.org.openntf.xsp.jakartaee.nsf.microprofile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
 
@@ -77,5 +78,88 @@ public class TestRestClient extends AbstractWebClientTest {
 		JsonObject responseObj = jsonObject.getJsonObject("response");
 		assertTrue(responseObj.containsKey("foo"), () -> json);
 		assertEquals("bar", responseObj.getString("foo"), () -> json);
+	}
+	
+	/**
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/492">Issue #492</a>
+	 */
+	@Test
+	public void testConflictingNsfs() {
+		Client client = getAnonymousClient();
+		for(int i = 0; i < 5; i++) {
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.JSONB_CONFIG) + "/restClient");
+			Response response = target.request()
+				.header("Host", "localhost:80")
+				.get();
+			
+			String json = response.readEntity(String.class);
+			try {
+				JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+				JsonObject payload = jsonObject.getJsonObject("response");
+				assertEquals("foo", payload.getString("setInJsonNsf", null), () -> json);
+				assertEquals(null, payload.getString("setInNormalNsf", null), () -> json);
+				assertEquals(null, payload.getString("shouldNeverBeSet", null), () -> json);
+				assertEquals(null, payload.getString("shouldBeSetInNormal", null), () -> json);
+			} catch(Exception e) {
+				fail("Encountered exception parsing " + json, e);
+			}
+		}
+		// Now test in the main NSF
+		for(int i = 0; i < 5; i++) {
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient/fetchEcho");
+			Response response = target.request()
+				.header("Host", "localhost:80")
+				.get();
+			
+			String json = response.readEntity(String.class);
+			try {
+				JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+				JsonObject payload = jsonObject.getJsonObject("response");
+				assertEquals(null, payload.getString("setInJsonNsf", null), () -> json);
+				assertEquals("foo", payload.getString("setInNormalNsf", null), () -> json);
+				assertEquals(null, payload.getString("shouldNeverBeSet", null), () -> json);
+				assertEquals("set", payload.getString("shouldBeSetInNormal", null), () -> json);
+			} catch(Exception e) {
+				fail("Encountered exception parsing " + json, e);
+			}
+		}
+		// Try the JSON one again
+		for(int i = 0; i < 5; i++) {
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.JSONB_CONFIG) + "/restClient");
+			Response response = target.request()
+				.header("Host", "localhost:80")
+				.get();
+			
+			String json = response.readEntity(String.class);
+			try {
+				JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+				JsonObject payload = jsonObject.getJsonObject("response");
+				assertEquals("foo", payload.getString("setInJsonNsf", null), () -> json);
+				assertEquals(null, payload.getString("setInNormalNsf", null), () -> json);
+				assertEquals(null, payload.getString("shouldNeverBeSet", null), () -> json);
+				assertEquals(null, payload.getString("shouldBeSetInNormal", null), () -> json);
+			} catch(Exception e) {
+				fail("Encountered exception parsing " + json, e);
+			}
+		}
+		// Test the second call in the main NSF, which should NOT apply setInNormalNsf
+		for(int i = 0; i < 5; i++) {
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient/fetchEcho2");
+			Response response = target.request()
+				.header("Host", "localhost:80")
+				.get();
+			
+			String json = response.readEntity(String.class);
+			try {
+				JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+				JsonObject payload = jsonObject.getJsonObject("response");
+				assertEquals(null, payload.getString("setInJsonNsf", null), () -> json);
+				assertEquals(null, payload.getString("setInNormalNsf", null), () -> json);
+				assertEquals(null, payload.getString("shouldNeverBeSet", null), () -> json);
+				assertEquals("set", payload.getString("shouldBeSetInNormal", null), () -> json);
+			} catch(Exception e) {
+				fail("Encountered exception parsing " + json, e);
+			}
+		}
 	}
 }
