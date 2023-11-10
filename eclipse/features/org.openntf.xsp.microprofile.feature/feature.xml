@@ -17,8 +17,8 @@
 
 -->
 <feature
-      id="org.openntf.xsp.microprofile.rest.client.feature"
-      label="XPages MicroProfile REST Client 3.0 Support Feature"
+      id="org.openntf.xsp.microprofile.feature"
+      label="XPages MicroProfile Support Feature"
       version="3.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -235,17 +235,43 @@
 
    <requires>
       <import feature="org.openntf.xsp.jakartaee.feature"/>
-      <import feature="org.openntf.xsp.jaxrs.feature"/>
-      <import feature="org.openntf.xsp.cdi.feature"/>
    </requires>
 
-   <plugin id="org.openntf.xsp.microprofile.rest.client" version="0.0.0" unpack="false"/>
+	<!-- Config -->
+	<plugin id="org.openntf.xsp.microprofile.config" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.config.smallrye-config" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.config.smallrye-config-common" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.config.smallrye-config-core" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.config.smallrye-config-validator" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.common.smallrye-common-annotation" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.common.smallrye-common-classloader" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.common.smallrye-common-constraint" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.common.smallrye-common-expression" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.common.smallrye-common-function" version="0.0.0" unpack="false"/>
 	
-   <plugin id="org.eclipse.microprofile.rest.client" version="0.0.0" unpack="false"/>
-   <plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0" unpack="false"/>
-   <plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client" version="0.0.0" fragment="true" unpack="false"/>
-   <plugin id="org.apache.commons.commons-io" version="0.0.0" unpack="false"/>
-   <plugin id="org.openntf.org.apache.httpcomponents.httpclient" version="0.0.0" unpack="false"/>
-   <plugin id="org.openntf.org.apache.httpcomponents.httpcore" version="0.0.0" unpack="false"/>
+	<!-- Fault Tolerance -->
+	<plugin id="org.openntf.xsp.microprofile.fault.tolerance" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.microprofile.fault.tolerance" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.smallrye.fault-tolerance" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.fault-tolerance-api" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.fault-tolerance-core" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.fault-tolerance-autoconfig-core" version="0.0.0" unpack="false"/>
+	
+	<!-- Health -->
+	<plugin id="org.openntf.xsp.microprofile.health" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.microprofile.health" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.smallrye.health" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.health-api" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.reactive.mutiny" version="0.0.0" unpack="false"/>
+	
+	<!-- Rest Client -->
+	<plugin id="org.openntf.xsp.microprofile.rest.client" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.microprofile.rest.client" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client" version="0.0.0" fragment="true" unpack="false"/>
+	<plugin id="org.apache.commons.commons-io" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.apache.httpcomponents.httpclient" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.apache.httpcomponents.httpcore" version="0.0.0" unpack="false"/>
 
 </feature>

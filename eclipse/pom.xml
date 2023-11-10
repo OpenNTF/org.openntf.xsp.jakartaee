@@ -44,39 +44,28 @@
 		<!-- Servlet -->
 		<module>bundles/org.openntf.xsp.jakarta.servlet</module>
 		
-		<!-- CDI 3.0 -->
+		<!-- CDI-->
 		<module>bundles/org.openntf.xsp.cdi</module>
 		<module>bundles/org.openntf.xsp.cdi.extlib</module>
 		<module>bundles/org.openntf.xsp.cdi.jigsaw</module>
 		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
 		
-		<!-- Expression Language 4.0 -->
+		<!-- Expression Language -->
 		<module>bundles/org.openntf.xsp.el</module>
 		
-		<!-- JAX-RS 3.0, MicroProfile OpenAPI, and MicroProfile Metrics -->
+		<!-- RESTful Web Services -->
 		<module>bundles/org.openntf.xsp.jaxrs</module>
 		<module>bundles/org.openntf.xsp.jaxrs.cdi</module>
 		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
 		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
-		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
-		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
 		
 		<!-- Bean Validation 3.0 -->
 		<module>bundles/org.openntf.xsp.beanvalidation</module>
 		
-		<!-- JSON-P 2.0 and JSON-B 2.0 -->
+		<!-- JSON Processing and Binding -->
 		<module>bundles/org.openntf.xsp.jsonapi</module>
 		<module>bundles/org.openntf.xsp.jsonapi.jaxrs</module>
 		<module>bundles/org.openntf.xsp.jsonapi.cdi</module>
-		
-		<!-- JSP -->
- 		<module>bundles/org.openntf.xsp.jsp</module>
-		
-		<!-- JSF -->
- 		<module>bundles/org.openntf.xsp.jsf</module>
-		 
-		<!-- MVC -->
- 		<module>bundles/org.openntf.xsp.mvc</module>
 	
 		<!-- NoSQL -->
 		<module>bundles/org.openntf.xsp.nosql.driver</module>
@@ -85,22 +74,19 @@
 		 
 		<!-- Persistence -->
  		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
+ 		
+		<!-- UI -->
+ 		<module>bundles/org.openntf.xsp.jsp</module>
+ 		<module>bundles/org.openntf.xsp.jsf</module>
+ 		<module>bundles/org.openntf.xsp.mvc</module>
 	
-		<!-- MicroProfile Config -->
+		<!-- MicroProfile -->
 		<module>bundles/org.openntf.xsp.microprofile.config</module>
-		<module>features/org.openntf.xsp.microprofile.config.feature</module>
-	
-		<!-- MicroProfile REST Client -->
 		<module>bundles/org.openntf.xsp.microprofile.rest.client</module>
-		<module>features/org.openntf.xsp.microprofile.rest.client.feature</module>
-	
-		<!-- MicroProfile Fault Tolerance -->
 		<module>bundles/org.openntf.xsp.microprofile.fault.tolerance</module>
-		<module>features/org.openntf.xsp.microprofile.fault.tolerance.feature</module>
-	
-		<!-- MicroProfile Health -->
 		<module>bundles/org.openntf.xsp.microprofile.health</module>
-		<module>features/org.openntf.xsp.microprofile.health.feature</module>
+		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
+		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
 		
 		<!-- Integration test support and examples -->
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
@@ -109,6 +95,9 @@
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
+		<module>features/org.openntf.xsp.jakartaee.ui.feature</module>
+		<module>features/org.openntf.xsp.microprofile.feature</module>
+		
 		<module>tests/org.openntf.xsp.beanvalidation.test</module>
 		<module>tests/org.openntf.xsp.jsonapi.test</module>
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
