@@ -39,10 +39,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<weld-version>5.1.0.Final</weld-version>
+		<weld-version>5.1.2.Final</weld-version>
 		<!-- RestEasy 6.1.0+ requires Java 11 -->
-		<resteasy-version>6.2.4.Final</resteasy-version>
-		<resteasy-mp-version>2.1.1.Final</resteasy-mp-version>
+		<resteasy-version>6.2.6.Final</resteasy-version>
+		<resteasy-mp-version>2.1.4.Final</resteasy-mp-version>
 		<!-- jakarta.* snapshot builds are on OpenNTF's server -->
 		<nosql-version>1.0.0-b4</nosql-version>
 		<nosql-version-osgi>1.0.0</nosql-version-osgi>
@@ -86,9 +86,9 @@
 								<artfiact><id>jakarta.servlet:jakarta.servlet-api:6.0.0</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.1</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.transaction:jakarta.transaction-api:2.0.1</id><source>true</source></artfiact>
-								<artifact><id>jakarta.websocket:jakarta.websocket-client-api:2.1.0</id><source>true</source></artifact>
-								<artifact><id>jakarta.websocket:jakarta.websocket-api:2.1.0</id><source>true</source></artifact>
-								<artfiact><id>jakarta.xml.ws:jakarta.xml.ws-api:4.0.0</id><source>true</source></artfiact>
+								<artifact><id>jakarta.websocket:jakarta.websocket-client-api:2.1.1</id><source>true</source></artifact>
+								<artifact><id>jakarta.websocket:jakarta.websocket-api:2.1.1</id><source>true</source></artifact>
+								<artfiact><id>jakarta.xml.ws:jakarta.xml.ws-api:4.0.1</id><source>true</source></artfiact>
 								<!-- Useful for dev runtimes -->
 								<artifact><id>org.glassfish.corba:glassfish-corba-omgapi:4.2.4</id><source>true</source></artifact>
 								<artfiact><id>io.smallrye:jandex:3.1.1</id><source>true</source></artfiact>
@@ -117,16 +117,15 @@
 								<!--
 									JAX-B 
 								-->
-								<!-- NB: XML Binding 4.0.0 requires Java 11 -->
-								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.0</id><source>true</source></artifact>
-								<artifact><id>com.sun.xml.bind:jaxb-core:4.0.2</id><source>true</source></artifact>
-								<artifact><id>com.sun.xml.bind:jaxb-impl:4.0.2</id><source>true</source></artifact>
+								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.1</id><source>true</source></artifact>
+								<artifact><id>com.sun.xml.bind:jaxb-core:4.0.4</id><source>true</source></artifact>
+								<artifact><id>com.sun.xml.bind:jaxb-impl:4.0.4</id><source>true</source></artifact>
 								
 								<!--
 									JSON-P and JSON-B
 								-->
 								<!-- NB: use the bundled API + impl for OSGi ease -->
-								<artifact><id>org.eclipse.parsson:jakarta.json:1.1.2</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.parsson:jakarta.json:1.1.5</id><source>true</source></artifact>
 								<artifact><id>jakarta.json.bind:jakarta.json.bind-api:3.0.0</id><source>true</source></artifact>
 								<!-- Oddly, the Yasson binaries don't end up in the repo if I don't override the bundle here -->
 								<artifact>
@@ -270,26 +269,26 @@
 								<!--
 									MicroProfile OpenAPI
 								-->
-								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:3.1</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:3.1.1</id><source>true</source></artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-open-api-core:3.3.4</id>
+									<id>io.smallrye:smallrye-open-api-core:3.7.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-core</Bundle-SymbolicName>
-										<Bundle-Version>3.3.4_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="3.3.4"</Export-Package>
+										<Bundle-Version>3.7.0_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="3.7.0"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-open-api-jaxrs:3.3.4</id>
+									<id>io.smallrye:smallrye-open-api-jaxrs:3.7.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-jaxrs</Bundle-SymbolicName>
-										<Bundle-Version>3.3.4_${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>3.7.0_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.io.smallrye.open-api-core</Fragment-Host>
-										<Export-Package>*;version="3.3.4"</Export-Package>
+										<Export-Package>*;version="3.7.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -366,37 +365,37 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.apache.httpcomponents:httpcore:4.4.15</id>
+									<id>org.apache.httpcomponents:httpcore:4.4.16</id>
 									<source>true</source>
 									<transitive>false</transitive>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.apache.httpcomponents.httpcore</Bundle-SymbolicName>
-										<Bundle-Version>4.4.15.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.4.16.${osgi.qualifier}</Bundle-Version>
 										<Import-Package>
 											!org.apache.http.*,
 											*
 										</Import-Package>
-										<Export-Package>*;version="4.4.15"</Export-Package>
+										<Export-Package>*;version="4.4.16"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.apache.httpcomponents:httpclient:4.5.13</id>
+									<id>org.apache.httpcomponents:httpclient:4.5.14</id>
 									<source>true</source>
 									<transitive>false</transitive>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.apache.httpcomponents.httpclient</Bundle-SymbolicName>
-										<Bundle-Version>4.4.15.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.5.14.${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>org.openntf.org.apache.httpcomponents.httpcore</Require-Bundle>
 										<Import-Package>
 											!org.apache.http.*,
 											*
 										</Import-Package>
-										<Export-Package>*;version="4.4.15"</Export-Package>
+										<Export-Package>*;version="4.5.14"</Export-Package>
 									</instructions>
 								</artifact>
-								<artifact><id>commons-io:commons-io:2.11.0</id><source>true</source></artifact>
+								<artifact><id>commons-io:commons-io:2.15.0</id><source>true</source></artifact>
 								<!-- Explicitly use 1.11 (with its old Symbolic Name) to match Domino Leap 1.0.5.15 -->
 								<artifact><id>commons-codec:commons-codec:1.11</id><source>true</source></artifact>
 								
@@ -411,7 +410,7 @@
 								-->
 								<artifact><id>jakarta.validation:jakarta.validation-api:3.0.2</id><source>true</source></artifact>
 								<!-- Hibernate Validator 8.0.0+ requires Java 11 -->
-								<artifact><id>org.hibernate.validator:hibernate-validator:8.0.0.Final</id><source>true</source></artifact>
+								<artifact><id>org.hibernate.validator:hibernate-validator:8.0.1.Final</id><source>true</source></artifact>
 
 								<!--
 									CDI 
@@ -436,21 +435,21 @@
 								<artifact><id>org.jboss.weld.environment:weld-environment-common:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-core-impl:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.module:weld-web:${weld-version}</id><source>true</source></artifact>
-								<artifact><id>org.jboss.weld:weld-api:4.0.SP1</id><source>true</source></artifact>
-								<artifact><id>org.jboss.weld:weld-spi:4.0.SP1</id><source>true</source></artifact>
+								<artifact><id>org.jboss.weld:weld-api:5.0.SP3</id><source>true</source></artifact>
+								<artifact><id>org.jboss.weld:weld-spi:5.0.SP3</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.probe:weld-probe-core:5.0.1.Final</id><source>true</source></artifact>
-								<artifact><id>org.jboss.weld:weld-lite-extension-translator:5.1.0.Final</id><source>true</source></artifact>
+								<artifact><id>org.jboss.weld:weld-lite-extension-translator:5.1.2.Final</id><source>true</source></artifact>
 								<artifact><id>org.javassist:javassist:3.29.2-GA</id><source>true</source></artifact>
 								
 								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to jvm/lib/ext on Domino -->
 								<artifact>
-									<id>org.jboss.logging:jboss-logging:3.4.3.Final</id>
+									<id>org.jboss.logging:jboss-logging:3.5.3.Final</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.logging.jboss-logging</Bundle-SymbolicName>
-										<Bundle-Version>3.4.3.Final_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>org.jboss.logging;version="3.4.3.Final"</Export-Package>
+										<Bundle-Version>3.5.3.Final_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>org.jboss.logging;version="3.5.3.Final"</Export-Package>
 										<Import-Package>
 											org.apache.log4j;resolution:=optional,
 											org.apache.logging.log4j;version="[2.0,3)";resolution:=optional,
@@ -464,29 +463,28 @@
 								</artifact>
 								
 								<!-- Repackage to avoid sun.misc import trouble on build -->
-								<!-- Note: 1.3.0 is weirdly missing the implementation on bundling -->
 								<artifact>
-									<id>org.jboss.classfilewriter:jboss-classfilewriter:1.2.5.Final</id>
+									<id>org.jboss.classfilewriter:jboss-classfilewriter:1.3.0.Final</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.jboss-classfilewriter</Bundle-SymbolicName>
-										<Bundle-Version>1.2.5.Final_${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>1.3.0.Final_${osgi.qualifier}</Bundle-Version>
 										<Import-Package>
 											!sun.misc,
 											!java.*,
 											*
 										</Import-Package>
 										<DynamicImport-Package>sun.misc</DynamicImport-Package>
-										<Export-Package>*;version="1.2.5"</Export-Package>
+										<Export-Package>*;version="1.3.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
 								<!--
 									Mail
 								-->
-								<artifact><id>jakarta.activation:jakarta.activation-api:2.1.1</id><source>true</source></artifact>
-								<artifact><id>org.eclipse.angus:angus-activation:2.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.activation:jakarta.activation-api:2.1.2</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.angus:angus-activation:2.0.1</id><source>true</source></artifact>
 								<artifact>
 									<id>org.eclipse.angus:jakarta.mail:2.0.2</id>
 									<source>true</source>
@@ -504,7 +502,7 @@
 								-->
 								<artifact><id>jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1</id><source>true</source></artifact>
 								<artifact><id>jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.wasp:wasp:3.2.0</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.wasp:wasp:3.2.1</id><source>true</source></artifact>
 								<artifact><id>org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1</id><source>true</source></artifact>
 								
 								<!--
@@ -720,25 +718,25 @@
 									JPA
 								-->
 								<artfiact><id>jakarta.persistence:jakarta.persistence-api:3.1.0</id><source>true</source></artfiact>
-								<artfiact><id>org.eclipse.persistence:eclipselink:4.0.1</id><source>true</source></artfiact>
+								<artfiact><id>org.eclipse.persistence:eclipselink:4.0.2</id><source>true</source></artfiact>
 								
 								<!--
 									MicroProfile Config
 								-->
 								<artifact>
-									<id>org.eclipse.microprofile.config:microprofile-config-api:3.0.3</id>
+									<id>org.eclipse.microprofile.config:microprofile-config-api:3.1</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.config</Bundle-SymbolicName>
-										<Bundle-Version>3.0.3.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="3.0.3"</Export-Package>
+										<Bundle-Version>3.1.0.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="3.1.0"</Export-Package>
 										<Require-Capability></Require-Capability>
 									</instructions>
 								</artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-common:3.2.1</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-core:3.2.1</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-validator:3.2.1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-common:3.4.3</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-core:3.4.3</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-validator:3.4.3</id><source>true</source></artifact>
 								
 								<!--
 									MicroProfile Fault Tolerance
@@ -760,16 +758,16 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-fault-tolerance:6.2.3</id>
+									<id>io.smallrye:smallrye-fault-tolerance:6.2.6</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.fault-tolerance</Bundle-SymbolicName>
-										<Bundle-Version>6.2.3.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>6.2.6.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>
 											org.jboss.weld.*
 										</DynamicImport-Package>
-										<Export-Package>*;version="6.2.3"</Export-Package>
+										<Export-Package>*;version="6.2.6"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -792,16 +790,16 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-health:4.0.1</id>
+									<id>io.smallrye:smallrye-health:4.0.4</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.health</Bundle-SymbolicName>
-										<Bundle-Version>4.0.1.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.0.4.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>
 											org.jboss.weld.*
 										</DynamicImport-Package>
-										<Export-Package>*;version="4.0.1"</Export-Package>
+										<Export-Package>*;version="4.0.4"</Export-Package>
 									</instructions>
 								</artifact>
 								
