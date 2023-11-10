@@ -239,7 +239,7 @@
    </requires>
 
    <plugin id="org.openntf.xsp.microprofile.config" version="0.0.0" unpack="false"/>
-   <plugin id="org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.config.smallrye-config" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.config.smallrye-config-common" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.config.smallrye-config-core" version="0.0.0" unpack="false"/>

@@ -20,7 +20,8 @@
 <f:view xmlns="http://www.w3.org/1999/xhtml"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:comp="http://java.sun.com/jsf/composite/comps">
+      xmlns:comp="http://java.sun.com/jsf/composite/comps"
+      xmlns:openntf="http://openntf.org/facelets">
 	
     <h:head>
         <title>JSF 3.0 Hello World</title>
@@ -64,6 +65,9 @@
     		
     		<dt>database</dt>
     		<dd><h:outputText value="#{database}"/></dd>
+    		
+    		<dt>initParam</dt>
+    		<dd><h:outputText value="#{initParam}"/></dd>
     	</dl>
     	
     	<fieldset>
@@ -77,5 +81,7 @@
     			<p><h:outputText id="formOutput" value="#{applicationGuy.beanProperty}"/></p>
     		</h:form>
     	</fieldset>
+    	
+    	<openntf:exampleFacelet/>
     </h:body>
 </f:view>

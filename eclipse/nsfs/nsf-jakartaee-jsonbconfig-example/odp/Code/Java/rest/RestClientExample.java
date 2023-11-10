@@ -87,18 +87,9 @@ public class RestClientExample {
 			this.shouldBeSetInNormal = shouldBeSetInNormal;
 		}
 	}
-
+	
 	@RegisterProvider(AddHeaderProvider.class)
 	public interface JsonExampleService {
-		@GET
-		@Produces(MediaType.APPLICATION_JSON)
-		JsonExampleObject get();
-	}
-
-	/**
-	 * Exists to ensure that the AddHeaderProvider is not applied to this service
-	 */
-	public interface JsonExampleService2 {
 		@GET
 		@Produces(MediaType.APPLICATION_JSON)
 		JsonExampleObject get();
@@ -107,7 +98,7 @@ public class RestClientExample {
 	public static class AddHeaderProvider implements ClientRequestFilter {
 		@Override
 		public void filter(ClientRequestContext requestContext) throws IOException {
-			requestContext.getHeaders().add("X-SetInNormalNSF", "foo");
+			requestContext.getHeaders().add("X-SetInJsonNSF", "foo");
 		}
 	}
 	
@@ -129,7 +120,7 @@ public class RestClientExample {
 		Map<String, Object> result = new HashMap<>();
 		result.put("setInJsonNsf", setInJsonNsf);
 		result.put("setInNormalNsf", setInNormalNsf);
-		result.put("foo", "hi from normal NSF");
+		result.put("foo", "hi from JSON NSF");
 		result.put("shouldNeverBeSet", shouldNeverBeSet);
 		result.put("shouldBeSetInNormal", shouldBeSetInNormal);
 		return result;
@@ -139,42 +130,10 @@ public class RestClientExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object get() {
 		URI uri = URI.create(request.getRequestURL().toString());
-		URI serviceUri = uri.resolve("jsonExample");
+		URI serviceUri = uri.resolve("restClient/echo");
 		JsonExampleService service = RestClientBuilder.newBuilder()
 			.baseUri(serviceUri)
 			.build(JsonExampleService.class);
-		JsonExampleObject responseObj = service.get();
-		Map<String, Object> result = new LinkedHashMap<>();
-		result.put("called", serviceUri);
-		result.put("response", responseObj);
-		return result;
-	}
-	
-	@Path("fetchEcho")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Object getFetchEcho() {
-		URI uri = URI.create(request.getRequestURL().toString());
-		URI serviceUri = uri.resolve("echo");
-		JsonExampleService service = RestClientBuilder.newBuilder()
-			.baseUri(serviceUri)
-			.build(JsonExampleService.class);
-		JsonExampleObject responseObj = service.get();
-		Map<String, Object> result = new LinkedHashMap<>();
-		result.put("called", serviceUri);
-		result.put("response", responseObj);
-		return result;
-	}
-	
-	@Path("fetchEcho2")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Object getFetchEcho2() {
-		URI uri = URI.create(request.getRequestURL().toString());
-		URI serviceUri = uri.resolve("echo");
-		JsonExampleService2 service = RestClientBuilder.newBuilder()
-			.baseUri(serviceUri)
-			.build(JsonExampleService2.class);
 		JsonExampleObject responseObj = service.get();
 		Map<String, Object> result = new LinkedHashMap<>();
 		result.put("called", serviceUri);

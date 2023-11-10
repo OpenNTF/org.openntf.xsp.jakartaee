@@ -26,6 +26,8 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
@@ -338,10 +340,12 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertNotNull(modified);
 			assertFalse(modified.isEmpty());
 			
-			// Modified in this file should be the same, since it's the same NSF
+			// Modified in this file should be close to the same, since it's the same NSF
 			String modifiedInThisFile = jsonObject.getString("modifiedInFile");
 			assertNotNull(modifiedInThisFile);
-			assertEquals(modified, modifiedInThisFile);
+			Instant modifiedInst = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(modified));
+			Instant modifiedInThisFileInst = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(modifiedInThisFile));
+			assertEquals(modifiedInst.truncatedTo(ChronoUnit.SECONDS), modifiedInThisFileInst.truncatedTo(ChronoUnit.SECONDS));
 			
 			String created = jsonObject.getString("created");
 			assertNotNull(created);

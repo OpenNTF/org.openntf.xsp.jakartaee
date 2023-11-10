@@ -125,21 +125,22 @@ public class NSFComponentModuleJavaSapiService extends JavaSapiService {
 		if(nsfIndex > -1 && path.length() > 4) {
 			String moduleName = path.substring(1, nsfIndex+4);
 			NSFComponentModule mod = getNsfService().loadModule(moduleName);
-			
-			// TODO cache cache cache
-			// TODO invalidate that cache
-			
-			NotesContext.initThread(new NotesContext(mod));
-			try {
-				ServiceLoader<JavaSapiExtension> extensions = ServiceLoader.load(JavaSapiExtension.class, mod.getModuleClassLoader());
-				return StreamSupport.stream(extensions.spliterator(), false)
-					.sorted(PriorityComparator.DESCENDING)
-					.map(c::apply)
-					.filter(r -> r != null && r != JavaSapiExtension.Result.EVENT_DECLINED)
-					.findFirst()
-					.orElse(JavaSapiExtension.Result.EVENT_DECLINED);
-			} finally {
-				NotesContext.termThread();
+			if(mod != null) {
+				// TODO cache cache cache
+				// TODO invalidate that cache
+				
+				NotesContext.initThread(new NotesContext(mod));
+				try {
+					ServiceLoader<JavaSapiExtension> extensions = ServiceLoader.load(JavaSapiExtension.class, mod.getModuleClassLoader());
+					return StreamSupport.stream(extensions.spliterator(), false)
+						.sorted(PriorityComparator.DESCENDING)
+						.map(c::apply)
+						.filter(r -> r != null && r != JavaSapiExtension.Result.EVENT_DECLINED)
+						.findFirst()
+						.orElse(JavaSapiExtension.Result.EVENT_DECLINED);
+				} finally {
+					NotesContext.termThread();
+				}
 			}
 		}
 		return JavaSapiExtension.Result.EVENT_DECLINED;

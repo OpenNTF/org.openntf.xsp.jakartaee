@@ -17,6 +17,7 @@ package org.openntf.xsp.jakarta.persistence;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.persistence.spi.PersistenceProvider;
 import jakarta.persistence.spi.PersistenceProviderResolver;
@@ -36,7 +37,29 @@ public class EclipseLinkResolver implements PersistenceProviderResolver {
 
 	@Override
 	public void clearCachedProviders() {
-		this.providers = Collections.singletonList(new org.eclipse.persistence.jpa.PersistenceProvider());
+		this.providers = Collections.singletonList(new XSPPersistenceProvider());
+	}
+	
+	private static class XSPPersistenceProvider extends org.eclipse.persistence.jpa.PersistenceProvider {
+		@Override
+		public ClassLoader getClassLoader(String emName, @SuppressWarnings("rawtypes") Map properties) {
+			return new AvoidingClassLoader(Thread.currentThread().getContextClassLoader());
+		}
+	}
+	
+	private static class AvoidingClassLoader extends ClassLoader {
+		public AvoidingClassLoader(ClassLoader delegate) {
+			super(delegate);
+		}
+		
+		@Override
+		public Class<?> loadClass(String name) throws ClassNotFoundException {
+			if(name != null && name.startsWith("org.eclipse.persistence")) { //$NON-NLS-1$
+				return org.eclipse.persistence.jpa.PersistenceProvider.class.getClassLoader().loadClass(name);
+			} else {
+				return super.loadClass(name);
+			}
+		}
 	}
 
 }

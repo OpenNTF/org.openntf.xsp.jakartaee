@@ -185,7 +185,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
-					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes);
+					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes, classMapping);
 				} catch(NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -239,7 +239,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
 				try {
-					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes);
+					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes, classMapping);
 				} catch(NotesException e) {
 					throw new RuntimeException(e);
 				}
@@ -392,10 +392,10 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
 		
-		return convertViewEntryInner(view.getParent(), viewEntry, columnNames, columnFormulas, entityName, itemTypes);
+		return convertViewEntryInner(view.getParent(), viewEntry, columnNames, columnFormulas, entityName, itemTypes, classMapping);
 	}
 	
-	private DocumentEntity convertViewEntryInner(Database context, ViewEntry entry, List<String> columnNames, List<String> columnFormulas, String entityName, Map<String, Class<?>> itemTypes) throws NotesException {
+	private DocumentEntity convertViewEntryInner(Database context, ViewEntry entry, List<String> columnNames, List<String> columnFormulas, String entityName, Map<String, Class<?>> itemTypes, ClassMapping classMapping) throws NotesException {
 		Vector<?> columnValues = entry.getColumnValues();
 		try {
 			List<Document> convertedEntry = new ArrayList<>(columnValues.size());
@@ -423,6 +423,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				// Check to see if we have a matching time-based or number-based field and strip
 				//   empty strings, since JNoSQL will otherwise try to parse them and will throw
 				//   an exception
+				// Check if the item is expected to be stored specially, which may be handled down the line
+				Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, itemName, ItemStorage.class);
 				if(itemTypes != null) {
 					Class<?> itemType = itemTypes.get(itemName);
 					if(isParsedType(itemType)) {
@@ -485,7 +487,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					break;
 				}
 				
-				if(value != null) {
+				if(value != null && !"".equals(value)) { //$NON-NLS-1$
+					// Check if it's JSON storage, which is the only fancy storage that will show up in a view
+					Optional<Object> jsonConverted = maybeConvertJson(value, optStorage, itemName, classMapping);
+					if(jsonConverted.isPresent()) {
+						value = jsonConverted.get();
+					}
+					
 					convertedEntry.add(Document.of(itemName, DominoNoSQLUtil.toJavaFriendly(context, value)));
 				}
 			}
@@ -650,21 +658,11 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						// Skip
 					} else if(val.size() == 1) {
 						// It may be stored as JSON
-						if(val.get(0) != null) {
-							if(optStorage.isPresent() && optStorage.get().type() == ItemStorage.Type.JSON) {
-								Optional<Class<?>> targetType = getFieldType(classMapping, itemName);
-								if(targetType.isPresent()) {
-									if(String.class.equals(targetType.get())) {
-										// Ignore when the target is a string
-									} else {
-										// Then try to deserialize it as the target type
-										Object dest = AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
-											return jsonb.fromJson(val.get(0).toString(), targetType.get());
-										});
-										docMap.put(itemName, dest);
-										continue;
-									}
-								}
+						if(val.get(0) != null && !"".equals(val.get(0))) { //$NON-NLS-1$
+							Optional<Object> jsonConverted = maybeConvertJson(val.get(0), optStorage, itemName, classMapping);
+							if(jsonConverted.isPresent()) {
+								docMap.put(itemName,  jsonConverted.get());
+								continue;
 							}
 						}
 						
@@ -1066,5 +1064,26 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			return true;
 		}
 		return false;
+	}
+	
+	private Optional<Object> maybeConvertJson(Object value, Optional<ItemStorage> optStorage, String itemName, ClassMapping classMapping) {
+		if(optStorage.isPresent()) {
+			if(optStorage.get().type() == ItemStorage.Type.JSON) {
+				Optional<Class<?>> targetType = getFieldType(classMapping, itemName);
+				if(targetType.isPresent()) {
+					if(String.class.equals(targetType.get())) {
+						// Ignore when the target is a string
+						return Optional.empty();
+					} else {
+						// Then try to deserialize it as the target type
+						Object fValue = value;
+						return Optional.ofNullable(AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
+							return jsonb.fromJson(fValue.toString(), targetType.get());
+						}));
+					}
+				}
+			}
+		}
+		return Optional.empty();
 	}
 }
