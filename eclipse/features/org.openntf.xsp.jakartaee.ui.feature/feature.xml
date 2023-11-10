@@ -17,8 +17,8 @@
 
 -->
 <feature
-      id="org.openntf.xsp.jsp.feature"
-      label="XPages JSP 3.0 Support Feature"
+      id="org.openntf.xsp.jakartaee.ui.feature"
+      label="XPages Jakarta EE UI Support Feature"
       version="3.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -237,12 +237,22 @@
       <import feature="org.openntf.xsp.jakartaee.feature"/>
    </requires>
 
-   <plugin id="org.openntf.xsp.jsp" version="0.0.0" unpack="false"/>
+	<!-- Pages -->
+	<plugin id="org.openntf.xsp.jsp" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.servlet.jsp-api" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.servlet.jsp.jstl-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.glassfish.wasp.wasp" version="0.0.0" unpack="false"/>
+	<plugin id="org.glassfish.web.jakarta.servlet.jsp.jstl" version="0.0.0" unpack="false"/>
 
-   <plugin id="jakarta.servlet.jsp-api" version="0.0.0" unpack="false"/>
-   <plugin id="jakarta.servlet.jsp.jstl-api" version="0.0.0" unpack="false"/>
-
-   <plugin id="org.glassfish.wasp.wasp" version="0.0.0" unpack="false"/>
-   <plugin id="org.glassfish.web.jakarta.servlet.jsp.jstl" version="0.0.0" unpack="false"/>
+	<!-- Faces -->
+	<plugin id="org.openntf.xsp.jsf" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.apache.myfaces.core.api" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.apache.myfaces.core.impl" version="0.0.0" unpack="false"/>
+	
+	<!-- MVC -->
+	<plugin id="org.openntf.xsp.mvc" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.mvc-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.krazo.core" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.krazo.resteasy" version="0.0.0" fragment="true" unpack="false"/>
 
 </feature>
