@@ -20,49 +20,10 @@
 	<feature id="org.openntf.xsp.jakartaee.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.cdi.feature">
+	<feature id="org.openntf.xsp.jakartaee.ui.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.el.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jaxrs.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.beanvalidation.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jsonapi.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jsp.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jsf.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.mvc.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.nosql.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jakarta.persistence.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jakarta.servlet.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.microprofile.config.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.microprofile.rest.client.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.microprofile.fault.tolerance.feature">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.microprofile.health.feature">
+	<feature id="org.openntf.xsp.microprofile.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
    
