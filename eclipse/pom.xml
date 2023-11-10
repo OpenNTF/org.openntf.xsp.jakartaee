@@ -40,22 +40,18 @@
 		<module>bundles/org.openntf.xsp.jakartaee.osgiresourcelocator</module>
 		<module>bundles/org.openntf.xsp.jakartaee.bridge.jasapi</module>
 		<module>bundles/org.openntf.xsp.jakarta.concurrency</module>
-		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
 		<!-- Servlet -->
 		<module>bundles/org.openntf.xsp.jakarta.servlet</module>
-		<module>features/org.openntf.xsp.jakarta.servlet.feature</module>
 		
 		<!-- CDI 3.0 -->
 		<module>bundles/org.openntf.xsp.cdi</module>
 		<module>bundles/org.openntf.xsp.cdi.extlib</module>
 		<module>bundles/org.openntf.xsp.cdi.jigsaw</module>
 		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
-		<module>features/org.openntf.xsp.cdi.feature</module>
 		
 		<!-- Expression Language 4.0 -->
 		<module>bundles/org.openntf.xsp.el</module>
-		<module>features/org.openntf.xsp.el.feature</module>
 		
 		<!-- JAX-RS 3.0, MicroProfile OpenAPI, and MicroProfile Metrics -->
 		<module>bundles/org.openntf.xsp.jaxrs</module>
@@ -64,19 +60,14 @@
 		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
 		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
 		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
-		<module>features/org.openntf.xsp.jaxrs.feature</module>
 		
 		<!-- Bean Validation 3.0 -->
 		<module>bundles/org.openntf.xsp.beanvalidation</module>
-		<module>features/org.openntf.xsp.beanvalidation.feature</module>
-		<module>tests/org.openntf.xsp.beanvalidation.test</module>
 		
 		<!-- JSON-P 2.0 and JSON-B 2.0 -->
 		<module>bundles/org.openntf.xsp.jsonapi</module>
 		<module>bundles/org.openntf.xsp.jsonapi.jaxrs</module>
 		<module>bundles/org.openntf.xsp.jsonapi.cdi</module>
-		<module>features/org.openntf.xsp.jsonapi.feature</module>
-		<module>tests/org.openntf.xsp.jsonapi.test</module>
 		
 		<!-- JSP -->
  		<module>bundles/org.openntf.xsp.jsp</module>
@@ -94,7 +85,6 @@
 		<module>bundles/org.openntf.xsp.nosql.driver</module>
 		<module>bundles/org.openntf.xsp.nosql.driver.lsxbe</module>
 		<module>bundles/org.openntf.xsp.nosql</module>
-		<module>features/org.openntf.xsp.nosql.feature</module>
 		 
 		<!-- MVC -->
  		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
@@ -122,6 +112,9 @@
 		<module>tests/org.openntf.xsp.test.jasapi</module>
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		
+		<module>features/org.openntf.xsp.jakartaee.feature</module>
+		<module>tests/org.openntf.xsp.beanvalidation.test</module>
+		<module>tests/org.openntf.xsp.jsonapi.test</module>
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
 		<module>releng/org.openntf.xsp.jakartaee.source.updatesite</module>

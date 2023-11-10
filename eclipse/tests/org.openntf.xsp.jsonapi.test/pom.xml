@@ -46,17 +46,12 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-feature</type>
-								<id>org.openntf.xsp.jsonapi.feature</id>
+								<id>org.openntf.xsp.jakartaee.feature</id>
 								<versionRange>1.0.0</versionRange>
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
 								<id>org.openntf.domino.java.api.corba.patch</id>
-								<versionRange>0.0.0</versionRange>
-							</requirement>
-							<requirement>
-								<type>eclipse-plugin</type>
-								<id>javax.annotation</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
 						</extraRequirements>

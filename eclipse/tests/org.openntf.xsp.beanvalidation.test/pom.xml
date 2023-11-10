@@ -46,7 +46,7 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-feature</type>
-								<id>org.openntf.xsp.beanvalidation.feature</id>
+								<id>org.openntf.xsp.jakartaee.feature</id>
 								<versionRange>1.0.0</versionRange>
 							</requirement>
 							<requirement>
