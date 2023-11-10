@@ -111,8 +111,8 @@
 								<!--
 									Concurrency
 								-->
-								<artifact><id>jakarta.enterprise.concurrent:jakarta.enterprise.concurrent-api:2.0.0</id><source>true</source></artifact>
-								<artifact><id>org.glassfish:jakarta.enterprise.concurrent:2.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.enterprise.concurrent:jakarta.enterprise.concurrent-api:3.0.3</id><source>true</source></artifact>
+								<artifact><id>org.glassfish:jakarta.enterprise.concurrent:3.0.0</id><source>true</source></artifact>
 								
 								<!--
 									JAX-B 
@@ -330,7 +330,7 @@
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.microprofile.rest-client-base</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-mp-version}_${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${resteasy-mp-version}"</Export-Package>
-										<DynamicImport-Package>org.jboss.resteasy.client.jaxrs.*</DynamicImport-Package>
+										<DynamicImport-Package>org.jboss.*</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<!-- NB: the RESTEasy MP Rest Client implementation uses java.util.ServiceLoader directly -->
