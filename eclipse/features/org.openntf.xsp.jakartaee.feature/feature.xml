@@ -277,9 +277,7 @@
 	<plugin id="org.openntf.xsp.jsonapi" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jsonapi.jaxrs" version="0.0.0" fragment="true" unpack="false"/>
 	<plugin id="org.openntf.xsp.jsonapi.cdi" version="0.0.0" unpack="false"/>
-	
-	<plugin id="org.openntf.org.eclipse.yasson" version="0.0.0" unpack="false"/>
-	
+	<plugin id="yasson" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.json-p-provider" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.json-binding-provider" version="0.0.0" unpack="false"/>
 	
