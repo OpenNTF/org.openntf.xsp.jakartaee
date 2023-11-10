@@ -290,6 +290,8 @@
 	
 	<!-- Persistence -->
 	<plugin id="jakarta.persistence-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.persistence" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.persistence.eclipselink" version="0.0.0" unpack="false"/>
 	
 	<!-- EJB (API only) -->
 	<plugin id="jakarta.ejb-api" version="0.0.0" unpack="false"/>
