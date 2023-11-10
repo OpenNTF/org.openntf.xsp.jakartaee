@@ -399,7 +399,6 @@
 									Bean Validation
 								-->
 								<artifact><id>jakarta.validation:jakarta.validation-api:3.0.2</id><source>true</source></artifact>
-								<!-- Hibernate Validator 8.0.0+ requires Java 11 -->
 								<artifact><id>org.hibernate.validator:hibernate-validator:8.0.1.Final</id><source>true</source></artifact>
 
 								<!--
