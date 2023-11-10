@@ -130,7 +130,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>2.7.5</tycho-version>
+		<tycho-version>3.0.5</tycho-version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
@@ -211,35 +211,26 @@
 							<goal>plugin-source</goal>
 						</goals>
 					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-source-feature-plugin</artifactId>
-				<version>${tycho-version}</version>
-		
-				<executions>
 					<execution>
-						<id>source-feature</id>
-						<phase>package</phase>
+						<id>feature-source</id>
 						<goals>
-							<goal>source-feature</goal>
+							<goal>feature-source</goal>
 						</goals>
+						<configuration>
+							<includeBinaryFeature>false</includeBinaryFeature>
+							<excludes>
+								<plugin id="org.openntf.xsp.jaxrs.factory"/>
+								<plugin id="org.openntf.xsp.jaxrs.providers"/>
+								<plugin id="jakarta.servlet.jsp-api"/>
+								<plugin id="org.eclipse.jdt.core"/>
+								<plugin id="org.antlr.antlr4-runtime.jakarta"/>
+								<plugin id="org.openntf.xsp.jsonapi.cdi"/>
+								<plugin id="org.apache.commons.codec"/>
+								<plugin id="org.apache.commons.logging"/>
+							</excludes>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<includeBinaryFeature>false</includeBinaryFeature>
-					<excludes>
-						<plugin id="org.openntf.xsp.jaxrs.factory"/>
-						<plugin id="org.openntf.xsp.jaxrs.providers"/>
-						<plugin id="jakarta.servlet.jsp-api"/>
-						<plugin id="org.eclipse.jdt.core"/>
-						<plugin id="org.antlr.antlr4-runtime.jakarta"/>
-						<plugin id="org.openntf.xsp.jsonapi.cdi"/>
-						<plugin id="org.apache.commons.codec"/>
-						<plugin id="org.apache.commons.logging"/>
-					</excludes>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -258,6 +249,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
+					<executionEnvironment>JavaSE-17</executionEnvironment>
 					<pomDependencies>consider</pomDependencies>
 					<dependency-resolution>
 						<extraRequirements>
