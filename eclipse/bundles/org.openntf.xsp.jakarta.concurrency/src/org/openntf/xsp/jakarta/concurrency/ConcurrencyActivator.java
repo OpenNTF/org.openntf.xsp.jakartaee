@@ -108,11 +108,13 @@ public class ConcurrencyActivator implements BundleActivator {
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		ExecutorHolder.INSTANCE.termAll();
-		if(!(executor.isShutdown() || executor.isTerminated())) {
-			try {
-				executor.shutdownNow();
-				executor.awaitTermination(5, TimeUnit.MINUTES);
-			} catch (Exception e) {
+		if(executor != null) {
+			if(!(executor.isShutdown() || executor.isTerminated())) {
+				try {
+					executor.shutdownNow();
+					executor.awaitTermination(5, TimeUnit.MINUTES);
+				} catch (Exception e) {
+				}
 			}
 		}
 	}
