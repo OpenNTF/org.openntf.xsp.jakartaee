@@ -47,7 +47,6 @@
 		<!-- CDI-->
 		<module>bundles/org.openntf.xsp.cdi</module>
 		<module>bundles/org.openntf.xsp.cdi.extlib</module>
-		<module>bundles/org.openntf.xsp.cdi.jigsaw</module>
 		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
 		
 		<!-- Expression Language -->
