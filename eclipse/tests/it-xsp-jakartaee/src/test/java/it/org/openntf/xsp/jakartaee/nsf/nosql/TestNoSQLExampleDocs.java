@@ -27,6 +27,8 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.w3c.dom.Element;
 
 import com.ibm.commons.xml.DOMUtil;
@@ -946,6 +948,68 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			JsonArray numbersGuy = jsonObject.getJsonArray("numbersGuy");
 			assertEquals(4.11, numbersGuy.getJsonNumber(0).doubleValue());
 			assertEquals(5.11, numbersGuy.getJsonNumber(1).doubleValue());
+		}
+	}
+	
+	@ParameterizedTest
+	@ValueSource(booleans = { true, false })
+	public void testBooleanStorage(boolean expected) throws XMLException {
+		Client client = getAdminClient();
+		
+		// Create a new doc
+		String unid;
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am testBooleanStorage guy")
+				.add("booleanStorage", expected)
+				.add("stringBooleanStorage", expected)
+				.add("doubleBooleanStorage", expected)
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+			assertEquals(expected, jsonObject.getBoolean("booleanStorage"));
+			assertEquals(expected, jsonObject.getBoolean("stringBooleanStorage"));
+			assertEquals(expected, jsonObject.getBoolean("doubleBooleanStorage"));
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(unid, jsonObject.getString("unid"));
+			
+			assertEquals("I am testBooleanStorage guy", jsonObject.getString("title"));
+			
+			String dxl = jsonObject.getString("dxl");
+			org.w3c.dom.Document xmlDoc = DOMUtil.createDocument(dxl);
+			
+			// Default storage
+			assertEquals(expected, jsonObject.getBoolean("booleanStorage"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));
+			String stored = DOMUtil.evaluateXPath(xmlDoc, "//*[name()='item'][@name='BooleanStorage']/*/text()").getStringValue();
+			assertEquals(expected ? "Y" : "N", stored);
+			
+			// Stores as "true" and "false"
+			assertEquals(expected, jsonObject.getBoolean("stringBooleanStorage"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));
+			stored = DOMUtil.evaluateXPath(xmlDoc, "//*[name()='item'][@name='StringBooleanStorage']/*/text()").getStringValue();
+			assertEquals(expected ? "true" : "false", stored);
+			
+			// Stores as 0 and 1 (intentionally reversed)
+			assertEquals(expected, jsonObject.getBoolean("doubleBooleanStorage"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));
+			stored = DOMUtil.evaluateXPath(xmlDoc, "//*[name()='item'][@name='DoubleBooleanStorage']/*/text()").getStringValue();
+			assertEquals(expected ? "0" : "1", stored);
 		}
 	}
 }
