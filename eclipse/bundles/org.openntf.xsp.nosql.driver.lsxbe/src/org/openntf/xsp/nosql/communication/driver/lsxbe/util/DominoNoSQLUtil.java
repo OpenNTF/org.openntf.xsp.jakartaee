@@ -21,9 +21,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -177,6 +180,41 @@ public enum DominoNoSQLUtil {
 		} finally {
 			dt.recycle();
 		}
+	}
+	
+	public static DateTime fromTemporal(Session session, TemporalAccessor time) throws NotesException {
+		try {
+			Instant inst = Instant.from(time);
+			return session.createDateTime(Date.from(inst));
+		} catch(DateTimeException e) {	
+		}
+		try {
+			OffsetDateTime dt = OffsetDateTime.from(time);
+			return session.createDateTime(Date.from(dt.toInstant()));
+		} catch(DateTimeException e) {	
+		}
+		try {
+			ZonedDateTime dt = ZonedDateTime.from(time);
+			return session.createDateTime(Date.from(dt.toInstant()));
+		} catch(DateTimeException e) {	
+		}
+		try {
+			LocalDate localDate = LocalDate.from(time);
+			Date date = Date.from(ZonedDateTime.of(localDate, LocalTime.now(), ZoneId.systemDefault()).toInstant());
+			DateTime dt = session.createDateTime(date);
+			dt.setAnyTime();
+			return dt;
+		} catch(DateTimeException e) {
+		}
+		try {
+			LocalTime localTime = LocalTime.from(time);
+			Date date = Date.from(ZonedDateTime.of(LocalDate.now(), localTime, ZoneId.systemDefault()).toInstant());
+			DateTime dt = session.createDateTime(date);
+			dt.setAnyDate();
+			return dt;
+		} catch(DateTimeException e) {
+		}
+		throw new IllegalArgumentException(MessageFormat.format("Unsupported time: {0} (class {1})", time, time == null ? null : time.getClass().getName()));
 	}
 
 	public static InputStream wrapInputStream(InputStream is, String encoding) throws IOException {

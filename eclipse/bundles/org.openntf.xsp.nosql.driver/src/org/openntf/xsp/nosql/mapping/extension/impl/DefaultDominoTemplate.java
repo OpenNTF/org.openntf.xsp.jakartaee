@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
+import java.time.temporal.TemporalAccessor;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -23,6 +24,7 @@ import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
 import org.eclipse.jnosql.mapping.reflection.ClassMappings;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.ViewInfo;
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
@@ -176,6 +178,32 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	@Override
 	public <T> Optional<T> getProfileDocument(String entityName, String profileName, String userName) {
 		return getManager().getProfileDocument(entityName, profileName, userName).map(getConverter()::toEntity);
+	}
+
+	@Override
+	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pagination pagination) {
+		return getManager().readCalendarRange(start, end, pagination);
+	}
+	
+	@Override
+	public Optional<String> readCalendarEntry(String uid) {
+		return getManager().readCalendarEntry(uid);
+	}
+
+	@Override
+	public String createCalendarEntry(String icalData, boolean sendInvitations) {
+		return getManager().createCalendarEntry(icalData, sendInvitations);
+	}
+
+	@Override
+	public void updateCalendarEntry(String uid, String icalData, String comment, boolean sendInvitations,
+			boolean overwrite, String recurId) {
+		getManager().updateCalendarEntry(uid, icalData, comment, sendInvitations, overwrite, recurId);
+	}
+
+	@Override
+	public void removeCalendarEntry(String uid, CalendarModScope scope, String recurId) {
+		getManager().removeCalendarEntry(uid, scope, recurId);
 	}
 
 }
