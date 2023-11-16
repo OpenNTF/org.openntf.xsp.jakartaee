@@ -161,6 +161,12 @@
 			<version>42.5.4</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mnode.ical4j</groupId>
+			<artifactId>ical4j</artifactId>
+			<version>3.2.14</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

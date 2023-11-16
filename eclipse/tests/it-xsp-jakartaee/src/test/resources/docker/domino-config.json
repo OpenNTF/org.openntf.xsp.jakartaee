@@ -49,13 +49,25 @@
 			"ServerTasks": "Update,AdminP,AMgr,HTTP,Update",
 			"JavaUserOptionsFile": "/local/JavaOptionsFile.txt",
 			"HTTP_ENABLE_JAVASAPI": "1",
-			"DOMINO_FORCE401_WITH_HTML_LOGIN_PAGE": "1"
+			"DOMINO_FORCE401_WITH_HTML_LOGIN_PAGE": "1",
+			"CSDebugAPI": "1"
 		},
 		"security": {
 			"ACL": {
 				"prohibitAnonymousAccess": true,
 				"addLocalDomainAdmins": true
 			}
+		},
+		"registerUsers": {
+			"users": [
+				{
+					"firstName": "Foo",
+					"lastName": "Fooson",
+					"shortName": "foofooson",
+					"password": "supersecure",
+					"mailFilePath": "dev/jakartamail.nsf"
+				}
+			]
 		}
 	},
 	"autoConfigPreferences": {
