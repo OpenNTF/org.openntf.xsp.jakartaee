@@ -246,15 +246,21 @@ public enum ContainerUtil {
 			}
 		}
 		
+		long refresh = module.getLastRefresh();
+		
 		Map<String, Object> attributes = module.getAttributes();
 		if(attributes != null) {
-			WeldContainer existing = (WeldContainer)module.getAttributes().get(ATTR_CONTEXTCONTAINER);
+			WeldContainer existing = (WeldContainer)attributes.get(ATTR_CONTEXTCONTAINER);
 			if(existing != null && existing.isRunning()) {
-				return existing;
+				Long lastRefresh = ID_REFRESH_CACHE.get(existing.getId());
+				if((lastRefresh != null && lastRefresh < refresh) || module.isExpired(System.currentTimeMillis())) {
+					existing.close();
+				} else {
+					return existing;
+				}
 			}
 		}
 		
-		long refresh = module.getLastRefresh();
 		
 		if(module instanceof AbstractOSGIModule || LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, module)) {
 			String bundleId = getApplicationCDIBundle(module);
@@ -274,7 +280,7 @@ public enum ContainerUtil {
 				//   app refresh
 				if(instance != null && instance.isRunning()) {
 					Long lastRefresh = ID_REFRESH_CACHE.get(id);
-					if(lastRefresh != null && lastRefresh < refresh) {
+					if((lastRefresh != null && lastRefresh < refresh) || module.isExpired(System.currentTimeMillis())) {
 						instance.close();
 					}
 				}
