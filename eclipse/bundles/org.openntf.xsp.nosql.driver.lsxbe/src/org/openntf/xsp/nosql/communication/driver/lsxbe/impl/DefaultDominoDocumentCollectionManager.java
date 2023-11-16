@@ -57,6 +57,7 @@ import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
+import org.openntf.xsp.nosql.mapping.extension.BooleanStorage;
 import org.openntf.xsp.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
@@ -320,9 +321,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				beginTransaction(database);
 				View view = database.getView(viewName);
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
-				
-				
-				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+
+				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 				Vector<Object> vecKeys;
 				if(keys instanceof List) {
 					vecKeys = (Vector<Object>)keys;
@@ -369,7 +369,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				View view = database.getView(viewName);
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 				
-				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 				Vector<Object> vecKeys;
 				if(keys instanceof List) {
 					vecKeys = (Vector<Object>)keys;
@@ -768,7 +768,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			String category = viewQuery == null ? null : viewQuery.getCategory();
 			if(category == null) {
 				if(viewQuery != null && viewQuery.getKey() != null) {
-					Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+					Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 					Vector<Object> vecKeys;
 					if(keys instanceof List) {
 						vecKeys = (Vector<Object>)keys;

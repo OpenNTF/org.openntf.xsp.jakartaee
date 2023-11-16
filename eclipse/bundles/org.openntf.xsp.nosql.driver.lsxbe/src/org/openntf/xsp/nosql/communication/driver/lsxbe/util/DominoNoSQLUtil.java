@@ -35,10 +35,13 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
+
+import org.openntf.xsp.nosql.mapping.extension.BooleanStorage;
 
 import lotus.domino.Database;
 import lotus.domino.DateRange;
@@ -73,11 +76,11 @@ public enum DominoNoSQLUtil {
 		}
 	}
 
-	public static Object toDominoFriendly(Session session, Object value) throws NotesException {
+	public static Object toDominoFriendly(Session session, Object value, Optional<BooleanStorage> optBoolean) throws NotesException {
 		if(value instanceof Iterable) {
 			Vector<Object> result = new Vector<Object>();
 			for(Object val : (Iterable<?>)value) {
-				result.add(toDominoFriendly(session, val));
+				result.add(toDominoFriendly(session, val, optBoolean));
 			}
 			return result;
 		} else if(value instanceof Date) {
@@ -87,7 +90,16 @@ public enum DominoNoSQLUtil {
 		} else if(value instanceof Number) {
 			return ((Number)value).doubleValue();
 		} else if(value instanceof Boolean) {
-			// TODO figure out if this can be customized, perhaps from the Settings element
+			if(optBoolean.isPresent()) {
+				switch(optBoolean.get().type()) {
+					case DOUBLE:
+						return (Boolean)value ? optBoolean.get().doubleTrue() : optBoolean.get().doubleFalse();
+					case STRING:
+					default:
+						return (Boolean)value ? optBoolean.get().stringTrue() : optBoolean.get().stringFalse();
+					
+				}
+			}
 			return (Boolean)value ? "Y": "N"; //$NON-NLS-1$ //$NON-NLS-2$
 		} else if(value instanceof LocalDate) {
 			// TODO fix these Temporals when the API improves
@@ -129,10 +141,10 @@ public enum DominoNoSQLUtil {
 	 * @param value the value to convert
 	 * @return a stock-JDK object representing the value
 	 */
-	public static Object toJavaFriendly(lotus.domino.Database context, Object value) {
+	public static Object toJavaFriendly(lotus.domino.Database context, Object value, Optional<BooleanStorage> optBoolean) {
 		if(value instanceof Iterable) {
 			return StreamSupport.stream(((Iterable<?>)value).spliterator(), false)
-				.map(val -> toJavaFriendly(context, val))
+				.map(val -> toJavaFriendly(context, val, optBoolean))
 				.collect(Collectors.toList());
 		} else if(value instanceof DateTime) {
 			// TODO improve with a better API
@@ -145,15 +157,33 @@ public enum DominoNoSQLUtil {
 		} else if(value instanceof DateRange) {
 			try {
 				DateRange dr = (DateRange)value;
-				Temporal start = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getStartDateTime());
-				Temporal end = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getEndDateTime());
+				Temporal start = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getStartDateTime(), optBoolean);
+				Temporal end = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getEndDateTime(), optBoolean);
 				return Arrays.asList(start, end);
 			} catch (NotesException e) {
 				throw new RuntimeException(e);
 			}
+		} else if(value instanceof Number) {
+			if(optBoolean.isPresent()) {
+				if(optBoolean.get().type() == BooleanStorage.Type.DOUBLE) {
+					return ((Number)value).doubleValue() == optBoolean.get().doubleTrue();
+				} else {
+					return false;
+				}
+			} else {
+				return value;
+			}
 		} else {
-			// String, Double
-			return value;
+			// String
+			if(optBoolean.isPresent()) {
+				if(optBoolean.get().type() == BooleanStorage.Type.STRING) {
+					return optBoolean.get().stringTrue().equals(value);
+				} else {
+					return false;
+				}
+			} else {
+				return value;
+			}
 		}
 	}
 

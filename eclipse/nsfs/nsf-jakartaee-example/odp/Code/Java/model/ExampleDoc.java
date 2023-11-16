@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.mapping.extension.BooleanStorage;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
 import org.openntf.xsp.nosql.mapping.extension.EntryType;
 import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
@@ -111,6 +112,14 @@ public class ExampleDoc {
 	@ItemStorage(type=ItemStorage.Type.JSON)
 	@ItemFlags(summary=true)
 	private JsonObject jsonpGuy;
+	@Column("BooleanStorage")
+	private boolean booleanStorage;
+	@Column("StringBooleanStorage")
+	@BooleanStorage(type=BooleanStorage.Type.STRING, stringTrue="true", stringFalse="false")
+	private boolean stringBooleanStorage;
+	@Column("DoubleBooleanStorage")
+	@BooleanStorage(type=BooleanStorage.Type.DOUBLE, doubleTrue=0, doubleFalse=1)
+	private boolean doubleBooleanStorage;
 	
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
@@ -219,5 +228,26 @@ public class ExampleDoc {
 	}
 	public void setJsonpGuy(JsonObject jsonpGuy) {
 		this.jsonpGuy = jsonpGuy;
+	}
+	
+	public boolean isBooleanStorage() {
+		return booleanStorage;
+	}
+	public void setBooleanStorage(boolean booleanStorage) {
+		this.booleanStorage = booleanStorage;
+	}
+	
+	public boolean isDoubleBooleanStorage() {
+		return doubleBooleanStorage;
+	}
+	public void setDoubleBooleanStorage(boolean doubleBooleanStorage) {
+		this.doubleBooleanStorage = doubleBooleanStorage;
+	}
+	
+	public boolean isStringBooleanStorage() {
+		return stringBooleanStorage;
+	}
+	public void setStringBooleanStorage(boolean stringBooleanStorage) {
+		this.stringBooleanStorage = stringBooleanStorage;
 	}
 }
