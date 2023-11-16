@@ -57,7 +57,6 @@ import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
-import org.openntf.xsp.nosql.mapping.extension.BooleanStorage;
 import org.openntf.xsp.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
