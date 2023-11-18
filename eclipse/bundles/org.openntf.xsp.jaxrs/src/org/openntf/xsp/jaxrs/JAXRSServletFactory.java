@@ -24,7 +24,7 @@ import java.util.Properties;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-import org.jboss.resteasy.core.providerfactory.ResteasyProviderFactoryImpl;
+
 import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -36,8 +36,6 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
-
-import jakarta.ws.rs.ext.RuntimeDelegate;
 
 /**
  * An {@link IServletFactory} implementation that provides a Jersey servlet in the context
@@ -100,8 +98,6 @@ public class JAXRSServletFactory implements IServletFactory {
 	public void init(ComponentModule module) {
 		this.module = module;
 		this.lastUpdate = module.getLastRefresh();
-		
-		RuntimeDelegate.setInstance(new ResteasyProviderFactoryImpl());
 	}
 
 	@Override
