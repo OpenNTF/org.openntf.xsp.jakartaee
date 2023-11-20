@@ -59,6 +59,7 @@ import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.LoaderObjectInputStream;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewEntryCollectionIterator;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
+import org.openntf.xsp.nosql.mapping.extension.BooleanStorage;
 import org.openntf.xsp.nosql.mapping.extension.DXLExport;
 import org.openntf.xsp.nosql.mapping.extension.EntryType;
 import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
@@ -425,6 +426,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				//   an exception
 				// Check if the item is expected to be stored specially, which may be handled down the line
 				Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, itemName, ItemStorage.class);
+				Optional<BooleanStorage> optBoolean = getFieldAnnotation(classMapping, itemName, BooleanStorage.class);
+				
 				if(itemTypes != null) {
 					Class<?> itemType = itemTypes.get(itemName);
 					if(isParsedType(itemType)) {
@@ -494,7 +497,16 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						value = jsonConverted.get();
 					}
 					
-					convertedEntry.add(Document.of(itemName, DominoNoSQLUtil.toJavaFriendly(context, value)));
+					Object val = DominoNoSQLUtil.toJavaFriendly(context, value, optBoolean);
+					if(itemTypes != null) {
+						if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+							if(val instanceof String) {
+								// boolean value with defaut conversion
+								val = "Y".equals(val); //$NON-NLS-1$
+							}
+						}
+					}
+					convertedEntry.add(Document.of(itemName, val));
 				}
 			}
 			
@@ -593,6 +605,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				
 				// Check if the item is expected to be stored specially, which may be handled down the line
 				Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, itemName, ItemStorage.class);
+				Optional<BooleanStorage> optBoolean = getFieldAnnotation(classMapping, itemName, BooleanStorage.class);
 				
 				if(item instanceof RichTextItem) {
 					// Special handling here for RT -> HTML
@@ -666,9 +679,27 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							}
 						}
 						
-						docMap.put(itemName, DominoNoSQLUtil.toJavaFriendly(database, val.get(0)));
+						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val.get(0), optBoolean);
+						if(itemTypes != null) {
+							if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+								if(valObj instanceof String) {
+									// boolean value with defaut conversion
+									valObj = "Y".equals(valObj); //$NON-NLS-1$
+								}
+							}
+						}
+						docMap.put(itemName, valObj);
 					} else {
-						docMap.put(itemName, DominoNoSQLUtil.toJavaFriendly(database, val));
+						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val, optBoolean);
+						if(itemTypes != null) {
+							if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+								if(valObj instanceof String) {
+									// boolean value with defaut conversion
+									valObj = "Y".equals(valObj); //$NON-NLS-1$
+								}
+							}
+						}
+						docMap.put(itemName, valObj);
 					}
 				}
 			}
@@ -956,7 +987,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 								throw new UnsupportedOperationException(MessageFormat.format("Unable to handle storage type {0}", storage.type()));
 							}
 						} else {
-							Object dominoVal = DominoNoSQLUtil.toDominoFriendly(target.getParentDatabase().getParent(), val);
+							Optional<BooleanStorage> optBoolean = getFieldAnnotation(classMapping, doc.getName(), BooleanStorage.class);
+							Object dominoVal = DominoNoSQLUtil.toDominoFriendly(target.getParentDatabase().getParent(), val, optBoolean);
 							
 							// Set number precision if applicable
 							if(optStorage.isPresent()) {

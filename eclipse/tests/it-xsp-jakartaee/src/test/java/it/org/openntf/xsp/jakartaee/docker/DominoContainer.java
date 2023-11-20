@@ -165,6 +165,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		addEnv("SetupAutoConfigure", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 		addEnv("SetupAutoConfigureParams", "/local/runner/domino-config.json"); //$NON-NLS-1$ //$NON-NLS-2$
 		addEnv("DOMINO_DOCKER_STDOUT", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
+		addEnv("TZ", "Etc/UTC"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		withImagePullPolicy(imageName -> false);
 		withExposedPorts(80);

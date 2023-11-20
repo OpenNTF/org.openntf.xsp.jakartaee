@@ -118,7 +118,10 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public <T extends EventListener> void addListener(T listener) {
-		getOtherListeners().add(listener);
+		Collection<EventListener> listeners = getOtherListeners();
+		if(!listeners.contains(listener)) {
+			listeners.add(listener);
+		}
 	}
 
 	@Override
