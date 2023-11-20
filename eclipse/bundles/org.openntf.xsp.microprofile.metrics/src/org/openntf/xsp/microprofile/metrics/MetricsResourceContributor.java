@@ -23,7 +23,8 @@ import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 import org.openntf.xsp.microprofile.metrics.jaxrs.MetricsResource;
-import org.openntf.xsp.microprofile.metrics.jaxrs.RestMetricsFilter;
+
+import io.smallrye.metrics.jaxrs.JaxRsMetricsFilter;
 
 public class MetricsResourceContributor implements JAXRSClassContributor {
 	public static final String PROP_ENABLED = "rest.mpmetrics.enable"; //$NON-NLS-1$
@@ -33,7 +34,7 @@ public class MetricsResourceContributor implements JAXRSClassContributor {
 		if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID)) {
 			if(!"false".equals(LibraryUtil.getApplicationProperty(PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				return Arrays.asList(
-					RestMetricsFilter.class,
+					JaxRsMetricsFilter.class,
 					MetricsResource.class
 				);
 			} else {

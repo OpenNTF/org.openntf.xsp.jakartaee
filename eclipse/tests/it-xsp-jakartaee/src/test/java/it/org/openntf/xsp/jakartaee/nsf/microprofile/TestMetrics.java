@@ -46,7 +46,6 @@ public class TestMetrics extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String metrics = response.readEntity(String.class);
-		System.out.println("got metrics: " + metrics);
 		assertTrue(metrics.contains("class=\"rest.Sample\",method=\"hello\""), () -> metrics);
 		assertFalse(metrics.contains("m__app=\"/dev/jpa.nsf\""), () -> metrics);
 	}

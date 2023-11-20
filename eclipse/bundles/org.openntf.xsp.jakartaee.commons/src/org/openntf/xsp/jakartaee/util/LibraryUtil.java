@@ -28,7 +28,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -79,12 +78,12 @@ public enum LibraryUtil {
 	 * about dynamically loaded/unloaded bundles.
 	 * @since 2.4.0
 	 */
-	private static final Map<String, Bundle> BUNDLE_CACHE = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, Bundle> BUNDLE_CACHE = new ConcurrentHashMap<>();
 	/**
 	 * Store looked up extensions by class for the lifetime of the JVM.
 	 * @since 2.4.0
 	 */
-	private static final Map<Class<?>, List<?>> EXTENSION_CACHE = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Class<?>, List<?>> EXTENSION_CACHE = new ConcurrentHashMap<>();
 	
 	/**
 	 * Property used to house the time that the xsp.properties resource in a ComponentModule
