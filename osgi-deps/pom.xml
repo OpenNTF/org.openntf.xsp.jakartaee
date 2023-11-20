@@ -286,27 +286,52 @@
 									MicroProfile Metrics
 								-->
 								<artifact>
-									<id>org.eclipse.microprofile.metrics:microprofile-metrics-api:4.0.1</id>
+									<id>org.eclipse.microprofile.metrics:microprofile-metrics-api:5.1.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.metrics</Bundle-SymbolicName>
-										<Bundle-Version>4.0.1_${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>5.1.0_${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
-										<Export-Package>*;version="4.0.1"</Export-Package>
+										<Export-Package>*;version="5.1.0"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-metrics:4.0.0</id>
+									<id>io.smallrye:smallrye-metrics:5.1.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.metrics</Bundle-SymbolicName>
-										<Bundle-Version>4.0.0_${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>5.1.0_${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
-										<Export-Package>*;version="4.0.0"</Export-Package>
+										<Export-Package>*;version="5.1.0"</Export-Package>
 									</instructions>
 								</artifact>
+								<artifact>
+									<id>io.micrometer:micrometer-commons:1.12.0</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.micrometer-commons</Bundle-SymbolicName>
+										<Bundle-Version>1.12.0_${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<Export-Package>*;version="1.12.0"</Export-Package>
+										<Import-Package>!java.*,*;resolution:=optional</Import-Package>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>io.micrometer:micrometer-core:1.12.0</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.io.micrometer-core</Bundle-SymbolicName>
+										<Bundle-Version>1.12.0_${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
+										<Export-Package>*;version="1.12.0"</Export-Package>
+										<Import-Package>!java.*,*;resolution:=optional</Import-Package>
+									</instructions>
+								</artifact>
+								<artifact><id>io.micrometer:micrometer-registry-prometheus:1.12.0</id><source>true</source></artifact>
 								
 								<!--
 									MicroProfile REST Client

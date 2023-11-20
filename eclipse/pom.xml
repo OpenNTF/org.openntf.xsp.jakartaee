@@ -116,7 +116,7 @@
 		<repository>
 			<id>notes</id>
 			<layout>p2</layout>
-			<url>${notes-platform}</url>
+			<url>${notes-platform14}</url>
 		</repository>
 		<repository>
 			<id>osgi-deps</id>

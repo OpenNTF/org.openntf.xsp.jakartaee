@@ -273,5 +273,20 @@
 	<plugin id="org.apache.commons.commons-io" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.apache.httpcomponents.httpclient" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.apache.httpcomponents.httpcore" version="0.0.0" unpack="false"/>
+	
+	<!-- Metrics -->
+	<plugin id="org.openntf.xsp.microprofile.metrics" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.microprofile.metrics" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.smallrye.metrics" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.micrometer-commons" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.micrometer-core" version="0.0.0" unpack="false"/>
+	<plugin id="micrometer-observation" version="0.0.0" unpack="false"/>
+	<plugin id="micrometer-registry-prometheus" version="0.0.0" unpack="false"/>
+	<plugin id="io.prometheus.simpleclient" version="0.0.0" unpack="false"/>
+	<plugin id="io.prometheus.simpleclient_common" version="0.0.0" unpack="false"/>
+	<plugin id="io.prometheus.simpleclient_tracer_common" version="0.0.0" unpack="false"/>
+	<plugin id="io.prometheus.simpleclient_tracer_otel" version="0.0.0" unpack="false"/>
+	<plugin id="io.prometheus.simpleclient_tracer_otel_agent" version="0.0.0" unpack="false"/>
+	<plugin id="org.hdrhistogram.HdrHistogram" version="0.0.0" unpack="false"/>
 
 </feature>

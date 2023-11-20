@@ -322,7 +322,6 @@
 	<plugin id="org.openntf.xsp.jaxrs.factory" version="0.0.0" fragment="true" unpack="false"/>
 	<plugin id="org.openntf.xsp.jaxrs.providers" version="0.0.0" fragment="true" unpack="false"/>
 	<plugin id="org.openntf.xsp.microprofile.openapi" version="0.0.0" fragment="true" unpack="false"/>
-	<plugin id="org.openntf.xsp.microprofile.metrics" version="0.0.0" unpack="false"/>
 
 	<plugin id="jakarta.ws.rs-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.core" version="0.0.0" unpack="false"/>
@@ -346,9 +345,6 @@
 	<plugin id="org.yaml.snakeyaml" version="0.0.0" unpack="false"/>
 	<plugin id="io.smallrye.jandex" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.com.ibm.async.util" version="0.0.0" unpack="false"/>
-	
-	<plugin id="org.openntf.org.eclipse.microprofile.metrics" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.io.smallrye.metrics" version="0.0.0" unpack="false"/>
 	
 	<!-- NoSQL -->
 	<plugin id="org.openntf.xsp.nosql" version="0.0.0" unpack="false"/>

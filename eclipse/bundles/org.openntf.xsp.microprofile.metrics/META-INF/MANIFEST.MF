@@ -7,9 +7,15 @@ Bundle-Version: 3.0.0.qualifier
 Export-Package: org.openntf.xsp.microprofile.metrics;version="3.0.0"
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Import-Package: io.smallrye.metrics,
+Import-Package: io.micrometer.core.instrument;version="1.11.0",
+ io.micrometer.core.instrument.composite;version="1.12.0",
+ io.micrometer.core.instrument.search;version="1.12.0",
+ io.micrometer.prometheus;version="1.12.0",
+ io.prometheus.client.exporter.common;version="0.16.0",
+ io.smallrye.metrics,
  io.smallrye.metrics.exporters,
  io.smallrye.metrics.jaxrs,
+ io.smallrye.metrics.legacyapi;version="5.1.0",
  io.smallrye.metrics.setup,
  jakarta.enterprise.inject;version="3.0.0",
  jakarta.enterprise.inject.spi;version="3.0.0",
