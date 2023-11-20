@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLEncoder;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -43,7 +44,6 @@ import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.property.DtStart;
 import net.fortuna.ical4j.model.property.Uid;
 
 @SuppressWarnings("nls")
@@ -236,10 +236,17 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		
 		// Try to read it with a time-only range
 		{
+			LocalTime startTime = start1.atZoneSameInstant(ZoneOffset.UTC).toLocalTime();
+			LocalTime endTime = startTime.plus(2, ChronoUnit.HOURS);
+			if(startTime.isAfter(endTime)) {
+				// This will happen at midnight, so swap
+				LocalTime temp = startTime;
+				startTime = endTime;
+				endTime = temp;
+			}
 			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/readEntries") //$NON-NLS-1$
-				.queryParam("start", start1.atZoneSameInstant(ZoneOffset.UTC).toLocalTime())
-				.queryParam("end", start1.atZoneSameInstant(ZoneOffset.UTC).toLocalTime().plus(2, ChronoUnit.HOURS));
-			System.out.println("using time target: " + target.getUri());
+				.queryParam("start", startTime)
+				.queryParam("end", endTime);
 			String icsData = readString(target.request().get());
 			assertFalse(StringUtil.isEmpty(icsData));
 			
