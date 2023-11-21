@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
-import static jakarta.nosql.mapping.DatabaseType.DOCUMENT;
+import static org.eclipse.jnosql.mapping.DatabaseType.DOCUMENT;
 
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 
 import org.eclipse.jnosql.mapping.DatabaseMetadata;
 import org.eclipse.jnosql.mapping.Databases;
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
@@ -60,7 +60,7 @@ public class DominoExtension implements Extension {
 		}
 	}
 
-	<T, X extends DominoDocumentCollectionManager> void processProducer(@Observes final ProcessProducer<T, X> pp) {
+	<T, X extends DominoDocumentManager> void processProducer(@Observes final ProcessProducer<T, X> pp) {
 		Databases.addDatabase(pp, DOCUMENT, databases);
 	}
 

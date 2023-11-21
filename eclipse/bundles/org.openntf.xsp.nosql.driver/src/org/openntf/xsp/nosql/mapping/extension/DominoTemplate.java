@@ -19,12 +19,12 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.eclipse.jnosql.mapping.document.JNoSQLDocumentTemplate;
 import org.openntf.xsp.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
 
-import jakarta.nosql.mapping.Pagination;
-import jakarta.nosql.mapping.Sorts;
-import jakarta.nosql.mapping.document.DocumentTemplate;
+import jakarta.data.page.Pageable;
+import jakarta.data.repository.Sort;
 
 /**
  * {@link DocumentTemplate} sub-interface to provide access to
@@ -33,7 +33,7 @@ import jakarta.nosql.mapping.document.DocumentTemplate;
  * @author Jesse Gallagher
  * @since 2.5.0
  */
-public interface DominoTemplate extends DocumentTemplate {
+public interface DominoTemplate extends JNoSQLDocumentTemplate {
 	/**
 	 * Reads entries from the provided view, restricted to the named category.
 	 * 
@@ -50,7 +50,7 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewEntryQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
+	<T> Stream<T> viewEntryQuery(String entityName, String viewName, Pageable pagination, Sort sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
 
 	/**
 	 * Reads documents from the provided view, restricted to the named category.
@@ -68,7 +68,7 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct);
+	<T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pageable pagination, Sort sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct);
 
 	/**
 	 * Adds the entity to the named folder, creating the folder if it doesn't
@@ -190,7 +190,7 @@ public interface DominoTemplate extends DocumentTemplate {
      * @see <a href="https://help.hcltechsw.com/dom_designer/11.0.1/basic/H_NOTESCALENDAR_CLASS_JAVA.html">lotus.domino.NotesCalendar documentation</a>
      * @since 2.15.0
      */
-    String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pagination pagination);
+    String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pageable pagination);
 
     /**
      * Retrieves a calendar entry in iCalendar format.

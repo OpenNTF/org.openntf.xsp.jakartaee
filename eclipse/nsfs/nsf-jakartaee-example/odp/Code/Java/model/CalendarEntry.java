@@ -3,7 +3,7 @@ package model;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 import org.openntf.xsp.nosql.mapping.extension.RepositoryProvider;
 
-import jakarta.nosql.mapping.Entity;
+import jakarta.nosql.Entity;
 
 @Entity("CalendarEntry")
 public class CalendarEntry {

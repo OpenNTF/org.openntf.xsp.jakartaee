@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
+import org.eclipse.jnosql.mapping.document.query.DocumentRepositoryProducer;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.RepositoryProvider;
@@ -38,8 +39,8 @@ import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.enterprise.inject.spi.PassivationCapable;
 import jakarta.enterprise.util.AnnotationLiteral;
-import jakarta.nosql.mapping.Repository;
-import jakarta.nosql.mapping.document.DocumentRepositoryProducer;
+import jakarta.data.repository.PageableRepository;
+import jakarta.data.repository.Repository;
 
 /**
  * Bean for producing {@link DominoRepository} instances.
@@ -83,7 +84,7 @@ public class DominoRepositoryBean implements Bean<DominoRepository<?, ?>>, Passi
 		// The default DocumentRepositoryProducer uses Class#getClassLoader
 		return AccessController.doPrivileged((PrivilegedAction<DominoRepository<?, ?>>)() -> {
 			@SuppressWarnings("unchecked")
-			Repository<Object, String> repository = producer.get((Class<Repository<Object, String>>) type, template);
+			PageableRepository<Object, String> repository = producer.get((Class<PageableRepository<Object, String>>) type, template);
 
 			DominoDocumentRepositoryProxy<DominoRepository<?, String>> handler = new DominoDocumentRepositoryProxy<>(template,
 					type, repository);

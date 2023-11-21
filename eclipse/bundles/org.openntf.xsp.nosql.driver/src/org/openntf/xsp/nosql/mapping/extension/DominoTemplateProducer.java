@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.nosql.mapping.extension;
 
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
 
 /**
  * Producer for {@link DominoTemplate} instances.
@@ -24,5 +24,5 @@ import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManage
  * @since 2.5.0
  */
 public interface DominoTemplateProducer {
-	DominoTemplate get(DominoDocumentCollectionManager collectionManager);
+	DominoTemplate get(DominoDocumentManager collectionManager);
 }

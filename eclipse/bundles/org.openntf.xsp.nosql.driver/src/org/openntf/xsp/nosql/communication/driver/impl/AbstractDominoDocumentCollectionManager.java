@@ -20,18 +20,18 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
 
-import jakarta.nosql.document.DocumentEntity;
+import org.eclipse.jnosql.communication.document.DocumentEntity;
 
 /**
- * Contains common behavior used by distinct {@link DominoDocumentCollectionManager}
+ * Contains common behavior used by distinct {@link DominoDocumentManager}
  * implementations.
  * 
  * @author Jesse Gallagher
  * @since 2.8.0
  */
-public abstract class AbstractDominoDocumentCollectionManager implements DominoDocumentCollectionManager {
+public abstract class AbstractDominoDocumentCollectionManager implements DominoDocumentManager {
 	protected static final boolean transactionsAvailable;
 	static {
 		boolean found;

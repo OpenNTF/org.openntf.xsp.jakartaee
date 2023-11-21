@@ -21,9 +21,9 @@ import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.communication.driver.ViewInfo;
 
-import jakarta.nosql.mapping.Pagination;
-import jakarta.nosql.mapping.Repository;
-import jakarta.nosql.mapping.Sorts;
+import jakarta.data.page.Pageable;
+import jakarta.data.repository.PageableRepository;
+import jakarta.data.repository.Sort;
 
 /**
  * This sub-interface of {@link Repository} allows for the specification
@@ -37,7 +37,7 @@ import jakarta.nosql.mapping.Sorts;
  * 
  * @see {@link ViewEntries}
  */
-public interface DominoRepository<T, ID> extends Repository<T, ID> {
+public interface DominoRepository<T, ID> extends PageableRepository<T, ID> {
 	/**
 	 * Scope for removal of calendar entries. 
 	 * 
@@ -114,12 +114,12 @@ public interface DominoRepository<T, ID> extends Repository<T, ID> {
 	 *        may be {@code null}
 	 * @param sorts {@link Sorts} values to apply to reading the view; may be
 	 *        {@code null}
-	 * @param pagination {@link Pagination} rules to apply to reading the view;
+	 * @param pagination {@link Pageable} rules to apply to reading the view;
 	 *        may be {@code null}
      * @return a {@link Stream} of {@code <T>} entities
      * @since 2.12.0
      */
-    Stream<T> readViewEntries(String viewName, int maxLevel, boolean documentsOnly, ViewQuery viewQuery, Sorts sorts, Pagination pagination);
+    Stream<T> readViewEntries(String viewName, int maxLevel, boolean documentsOnly, ViewQuery viewQuery, Sort sorts, Pageable pagination);
     
     /**
      * Retrieves documents from a named view or folder. This is similar
@@ -136,12 +136,12 @@ public interface DominoRepository<T, ID> extends Repository<T, ID> {
 	 *        may be {@code null}
 	 * @param sorts {@link Sorts} values to apply to reading the view; may be
 	 *        {@code null}
-	 * @param pagination {@link Pagination} rules to apply to reading the view;
+	 * @param pagination {@link Pageable} rules to apply to reading the view;
 	 *        may be {@code null}
      * @return a {@link Stream} of {@code <T>} entities
      * @since 2.12.0
      */
-    Stream<T> readViewDocuments(String viewName, int maxLevel, boolean distinct, ViewQuery viewQuery, Sorts sorts, Pagination pagination);
+    Stream<T> readViewDocuments(String viewName, int maxLevel, boolean distinct, ViewQuery viewQuery, Sort sorts, Pageable pagination);
     
     /**
      * Retrieves a list of the views and folders in the underlying database.
@@ -191,7 +191,7 @@ public interface DominoRepository<T, ID> extends Repository<T, ID> {
      * @see <a href="https://help.hcltechsw.com/dom_designer/11.0.1/basic/H_NOTESCALENDAR_CLASS_JAVA.html">lotus.domino.NotesCalendar documentation</a>
      * @since 2.15.0
      */
-    String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pagination pagination);
+    String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pageable pagination);
     
     /**
      * Retrieves a calendar entry in iCalendar format.

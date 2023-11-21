@@ -18,11 +18,13 @@ package org.openntf.xsp.nosql.mapping.extension.impl;
 import java.time.temporal.TemporalAccessor;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
-import org.eclipse.jnosql.mapping.reflection.ClassMappings;
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
@@ -31,13 +33,14 @@ import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
-import jakarta.nosql.mapping.Converters;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Pagination;
-import jakarta.nosql.mapping.Sorts;
-import jakarta.nosql.mapping.document.DocumentEntityConverter;
-import jakarta.nosql.mapping.document.DocumentEventPersistManager;
-import jakarta.nosql.mapping.document.DocumentWorkflow;
+
+import org.eclipse.jnosql.communication.document.DocumentEntity;
+import org.eclipse.jnosql.mapping.Converters;
+import jakarta.nosql.Entity;
+import jakarta.data.page.Pageable;
+import jakarta.data.repository.Sort;
+import org.eclipse.jnosql.mapping.document.DocumentEntityConverter;
+import org.eclipse.jnosql.mapping.document.DocumentEventPersistManager;
 
 /**
  * Default implementation of {@link DominoTemplate}.
@@ -47,27 +50,24 @@ import jakarta.nosql.mapping.document.DocumentWorkflow;
  */
 public class DefaultDominoTemplate extends AbstractDocumentTemplate implements DominoTemplate {
 
-	private Instance<DominoDocumentCollectionManager> manager;
+	private Instance<DominoDocumentManager> manager;
 
     private DocumentEntityConverter converter;
 
-    private DocumentWorkflow flow;
-
     private DocumentEventPersistManager persistManager;
 
-    private ClassMappings mappings;
+    private EntitiesMetadata mappings;
 
     private Converters converters;
 
     @Inject
-    DefaultDominoTemplate(Instance<DominoDocumentCollectionManager> manager,
-                             DocumentEntityConverter converter, DocumentWorkflow flow,
+    DefaultDominoTemplate(Instance<DominoDocumentManager> manager,
+                             DocumentEntityConverter converter,
                              DocumentEventPersistManager persistManager,
-                             ClassMappings mappings,
+                             EntitiesMetadata mappings,
                              Converters converters) {
         this.manager = manager;
         this.converter = converter;
-        this.flow = flow;
         this.persistManager = persistManager;
         this.mappings = mappings;
         this.converters = converters;
@@ -84,22 +84,17 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
     }
 
     @Override
-    protected DominoDocumentCollectionManager getManager() {
+    protected DominoDocumentManager getManager() {
         return manager.get();
     }
 
     @Override
-    protected DocumentWorkflow getWorkflow() {
-        return flow;
+    protected DocumentEventPersistManager getEventManager() {
+    	return persistManager;
     }
 
     @Override
-    protected DocumentEventPersistManager getPersistManager() {
-        return persistManager;
-    }
-
-    @Override
-    protected ClassMappings getClassMappings() {
+    protected EntitiesMetadata getEntities() {
     	return mappings;
     }
 
@@ -110,7 +105,7 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
+	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, Pageable pagination, Sort sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
 		return getManager().viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, viewQuery, singleResult)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
@@ -118,7 +113,7 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct) {
+	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pageable pagination, Sort sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct) {
 		return getManager().viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, singleResult, distinct)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
@@ -132,16 +127,6 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	@Override
 	public void removeFromFolder(String entityId, String folderName) {
 		getManager().removeFromFolder(entityId, folderName);
-	}
-	
-	@Override
-	public <T> T insert(T entity, boolean computeWithForm) {
-		return getWorkflow().flow(entity, documentEntity -> getManager().insert(documentEntity, computeWithForm));
-	}
-	
-	@Override
-	public <T> T update(T entity, boolean computeWithForm) {
-		return getWorkflow().flow(entity, documentEntity -> getManager().update(documentEntity, computeWithForm));
 	}
 	
 	@Override
@@ -181,7 +166,7 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	}
 
 	@Override
-	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pagination pagination) {
+	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pageable pagination) {
 		return getManager().readCalendarRange(start, end, pagination);
 	}
 	
@@ -205,5 +190,33 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	public void removeCalendarEntry(String uid, CalendarModScope scope, String recurId) {
 		getManager().removeCalendarEntry(uid, scope, recurId);
 	}
+
+	@Override
+	public <T> T insert(T entity, boolean computeWithForm) {
+		return persist(entity, e -> getManager().insert(e, computeWithForm));
+	}
+
+	@Override
+	public <T> T update(T entity, boolean computeWithForm) {
+		return persist(entity, e -> getManager().update(e, computeWithForm));
+	}
+	
+    private <T> UnaryOperator<T> toUnary(Consumer<T> consumer) {
+        return t -> {
+            consumer.accept(t);
+            return t;
+        };
+    }
+	
+	protected <T> T persist(T entity, UnaryOperator<DocumentEntity> persistAction) {
+        return Stream.of(entity)
+                .map(toUnary(getEventManager()::firePreEntity))
+                .map(getConverter()::toDocument)
+                .map(persistAction)
+                .map(t -> getConverter().toEntity(entity, t))
+                .map(toUnary(getEventManager()::firePostEntity))
+                .findFirst()
+                .orElseThrow();
+    }
 
 }

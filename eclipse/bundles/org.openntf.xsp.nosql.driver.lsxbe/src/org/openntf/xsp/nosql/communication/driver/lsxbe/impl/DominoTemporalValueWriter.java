@@ -16,8 +16,10 @@
 package org.openntf.xsp.nosql.communication.driver.lsxbe.impl;
 
 import java.time.temporal.TemporalAccessor;
+
+import org.eclipse.jnosql.communication.ValueWriter;
+
 import jakarta.annotation.Priority;
-import jakarta.nosql.ValueWriter;
 
 /**
  * This no-op {@link ValueWriter} implementation handles the case of {@link TemporalAccessor}s

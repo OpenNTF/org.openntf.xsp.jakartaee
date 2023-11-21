@@ -15,13 +15,12 @@
  */
 package org.openntf.xsp.nosql.communication.driver.lsxbe.impl;
 
+import org.eclipse.jnosql.communication.document.DocumentManagerFactory;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 
-import jakarta.nosql.document.DocumentCollectionManagerFactory;
-
-public class DominoDocumentCollectionManagerFactory implements DocumentCollectionManagerFactory {
+public class DominoDocumentCollectionManagerFactory implements DocumentManagerFactory {
 	private final DatabaseSupplier databaseSupplier;
 	private final SessionSupplier sessionSupplier;
 	
@@ -30,9 +29,8 @@ public class DominoDocumentCollectionManagerFactory implements DocumentCollectio
 		this.sessionSupplier = sessionSupplier;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public AbstractDominoDocumentCollectionManager get(String type) {
+	public AbstractDominoDocumentCollectionManager apply(String type) {
 		return new DefaultDominoDocumentCollectionManager(databaseSupplier, sessionSupplier);
 	}
 

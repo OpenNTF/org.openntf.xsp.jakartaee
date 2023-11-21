@@ -2,10 +2,11 @@ package org.openntf.xsp.nosql.communication.driver.impl;
 
 import java.util.List;
 
+import org.eclipse.jnosql.communication.TypeReferenceReader;
+import org.eclipse.jnosql.communication.TypeSupplier;
+
 import jakarta.json.JsonArray;
 import jakarta.json.JsonStructure;
-import jakarta.nosql.TypeReferenceReader;
-import jakarta.nosql.TypeSupplier;
 
 /**
  * @since 2.14.0

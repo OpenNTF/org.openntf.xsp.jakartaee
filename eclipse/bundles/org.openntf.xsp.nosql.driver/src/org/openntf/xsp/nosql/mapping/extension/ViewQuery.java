@@ -16,9 +16,8 @@
 package org.openntf.xsp.nosql.mapping.extension;
 
 import java.util.Collection;
+import java.util.ServiceLoader;
 import java.util.function.Supplier;
-
-import jakarta.nosql.ServiceLoaderProvider;
 
 /**
  * Allows for the specification of Domino view queries in a repository
@@ -34,7 +33,7 @@ public interface ViewQuery {
 	 * @return a new query instance
 	 */
 	static ViewQuery query() {
-		return ServiceLoaderProvider.get(ViewQueryProvider.class).get();
+		return ServiceLoader.load(ViewQuery.class, ViewQuery.class.getClassLoader()).findFirst().get();
 	}
 	
 	

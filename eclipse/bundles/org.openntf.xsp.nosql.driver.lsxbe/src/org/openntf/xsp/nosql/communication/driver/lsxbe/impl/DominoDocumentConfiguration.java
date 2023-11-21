@@ -19,15 +19,13 @@ import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.nosql.Settings;
-import jakarta.nosql.document.DocumentConfiguration;
+import org.eclipse.jnosql.communication.Settings;
+import org.eclipse.jnosql.communication.document.DocumentConfiguration;
 
 public class DominoDocumentConfiguration implements DocumentConfiguration {
 	public static final String SETTING_SESSION_SUPPLIER = "sessionSupplier"; //$NON-NLS-1$
 	public static final String SETTING_SUPPLIER = "databaseSupplier"; //$NON-NLS-1$
 	
-	@SuppressWarnings("unchecked")
-	@Override
 	public DominoDocumentCollectionManagerFactory get() {
 		return new DominoDocumentCollectionManagerFactory(
 			CDI.current().select(DatabaseSupplier.class).get(),
@@ -35,9 +33,11 @@ public class DominoDocumentConfiguration implements DocumentConfiguration {
 		);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public DominoDocumentCollectionManagerFactory get(Settings settings) {
+	public DominoDocumentCollectionManagerFactory apply(Settings settings) {
+		if(settings == null) {
+			return get();
+		}
 		DatabaseSupplier supplier = settings.get(SETTING_SUPPLIER)
 			.map(DatabaseSupplier.class::cast)
 			.orElseGet(() -> CDI.current().select(DatabaseSupplier.class).get());

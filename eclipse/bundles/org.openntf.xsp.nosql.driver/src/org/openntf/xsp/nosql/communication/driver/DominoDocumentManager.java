@@ -22,15 +22,15 @@ import java.util.stream.Stream;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
 
-import jakarta.nosql.document.DocumentCollectionManager;
-import jakarta.nosql.document.DocumentEntity;
-import jakarta.nosql.mapping.Pagination;
-import jakarta.nosql.mapping.Sorts;
+import org.eclipse.jnosql.communication.document.DocumentManager;
+import org.eclipse.jnosql.communication.document.DocumentEntity;
+import jakarta.data.page.Pageable;
+import jakarta.data.repository.Sort;
 
-public interface DominoDocumentCollectionManager extends DocumentCollectionManager {
-	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
+public interface DominoDocumentManager extends DocumentManager {
+	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pageable pagination, Sort sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
 	
-	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct);
+	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pageable pagination, Sort sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct);
 	
 	void putInFolder(String entityId, String folderName);
 	
@@ -141,7 +141,7 @@ public interface DominoDocumentCollectionManager extends DocumentCollectionManag
      * @see <a href="https://help.hcltechsw.com/dom_designer/11.0.1/basic/H_NOTESCALENDAR_CLASS_JAVA.html">lotus.domino.NotesCalendar documentation</a>
      * @since 2.15.0
      */
-    String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pagination pagination);
+    String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pageable pagination);
 
     /**
      * Retrieves a calendar entry in iCalendar format.

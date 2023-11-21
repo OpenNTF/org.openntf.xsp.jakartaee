@@ -23,9 +23,9 @@ import java.io.UncheckedIOException;
 import org.osgi.framework.hooks.weaving.WeavingHook;
 import org.osgi.framework.hooks.weaving.WovenClass;
 
-import jakarta.nosql.TypeReferenceReader;
-import jakarta.nosql.ValueReader;
-import jakarta.nosql.ValueWriter;
+import org.eclipse.jnosql.communication.TypeReferenceReader;
+import org.eclipse.jnosql.communication.ValueReader;
+import org.eclipse.jnosql.communication.ValueWriter;
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
@@ -50,6 +50,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 		if("jakarta.nosql.ValueReaderDecorator".equals(c.getClassName())) { //$NON-NLS-1$
 			processValueReader(c);
 		} else if("org.eclipse.jnosql.communication.writer.ValueWriterDecorator".equals(c.getClassName())) { //$NON-NLS-1$
+			// TODO ValueWriter has static <T, S> Stream<ValueWriter<T, S>> getWriters()
 			processValueWriter(c);
 		} else if("jakarta.nosql.TypeReferenceReaderDecorator".equals(c.getClassName())) { //$NON-NLS-1$
 			processTypeReferenceReader(c);

@@ -21,7 +21,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.eclipse.jnosql.mapping.DatabaseType;
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplateProducer;
 
@@ -31,7 +32,6 @@ import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.enterprise.inject.spi.PassivationCapable;
-import jakarta.nosql.mapping.DatabaseType;
 
 /**
  * Bean for producing {@link DominoTemplate} instances.
@@ -76,16 +76,16 @@ public class DominoTemplateBean implements Bean<DominoTemplate>, PassivationCapa
     public DominoTemplate create(CreationalContext<DominoTemplate> creationalContext) {
 
         DominoTemplateProducer producer = getInstance(DominoTemplateProducer.class);
-        DominoDocumentCollectionManager manager = getManager();
+        DominoDocumentManager manager = getManager();
         return producer.get(manager);
     }
 
-    private DominoDocumentCollectionManager getManager() {
+    private DominoDocumentManager getManager() {
         @SuppressWarnings("unchecked")
-		Bean<DominoDocumentCollectionManager> bean = (Bean<DominoDocumentCollectionManager>) beanManager.getBeans(DominoDocumentCollectionManager.class,
+		Bean<DominoDocumentManager> bean = (Bean<DominoDocumentManager>) beanManager.getBeans(DominoDocumentManager.class,
                 DatabaseQualifier.ofDocument(provider) ).iterator().next();
-        CreationalContext<DominoDocumentCollectionManager> ctx = beanManager.createCreationalContext(bean);
-        return (DominoDocumentCollectionManager) beanManager.getReference(bean, DominoDocumentCollectionManager.class, ctx);
+        CreationalContext<DominoDocumentManager> ctx = beanManager.createCreationalContext(bean);
+        return (DominoDocumentManager) beanManager.getReference(bean, DominoDocumentManager.class, ctx);
     }
 
 

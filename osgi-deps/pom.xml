@@ -44,8 +44,8 @@
 		<resteasy-version>6.2.6.Final</resteasy-version>
 		<resteasy-mp-version>2.1.4.Final</resteasy-mp-version>
 		<!-- jakarta.* snapshot builds are on OpenNTF's server -->
-		<nosql-version>1.0.0-b4</nosql-version>
-		<nosql-version-osgi>1.0.0</nosql-version-osgi>
+		<nosql-version>1.0.2</nosql-version>
+		<nosql-version-osgi>1.0.2</nosql-version-osgi>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
@@ -576,77 +576,19 @@
 								</artifact>
 								
 								<!--
+									Data
+								-->
+								<artifact><id>jakarta.data:jakarta-data-api:1.0.0-M1</id><source>true</source></artifact>
+								
+								<!--
 									NoSQL
 								-->
-								<!--
-									These all use ServiceLoader to provide implementations, so bind children
-									to parents and also make the parents extensible for PDE needs.
-								-->
+								<artifact><id>jakarta.nosql:nosql-core:1.0.0-b7</id><source>true</source></artifact>
+								<artifact><id>jakarta.nosql:nosql-document:1.0.0-b7</id><source>true</source></artifact>
+								
 								<artifact>
-									<id>jakarta.nosql.communication:communication-core:${nosql-version}</id>
+									<id>org.eclipse.jnosql.communication:jnosql-communication-core:${nosql-version}</id>
 									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.core</Bundle-SymbolicName>
-										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<Import-Package>jakarta.*</Import-Package>
-										<Require-Bundle>org.openntf.xsp.jakartaee.osgiresourcelocator</Require-Bundle>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>jakarta.nosql.communication:communication-query:${nosql-version}</id>
-									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.query</Bundle-SymbolicName>
-										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>jakarta.nosql.communication:communication-document:${nosql-version}</id>
-									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.jakarta.nosql.communication.document</Bundle-SymbolicName>
-										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>jakarta.nosql.mapping:mapping-core:${nosql-version}</id>
-									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.core</Bundle-SymbolicName>
-										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>jakarta.nosql.mapping:mapping-document:${nosql-version}</id>
-									<source>true</source>
-									<transform>jakarta</transform>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.jakarta.nosql.mapping.document</Bundle-SymbolicName>
-										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.eclipse.jnosql.communication:communication-core:${nosql-version}</id>
-									<source>true</source>
-									<transform>jakarta</transform>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.core</Bundle-SymbolicName>
@@ -656,7 +598,7 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.eclipse.jnosql.communication:communication-query:${nosql-version}</id>
+									<id>org.eclipse.jnosql.communication:jnosql-communication-query:${nosql-version}</id>
 									<source>true</source>
 									<transform>jakarta</transform>
 									<override>true</override>
@@ -668,7 +610,7 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.eclipse.jnosql.communication:communication-document:${nosql-version}</id>
+									<id>org.eclipse.jnosql.communication:jnosql-communication-document:${nosql-version}</id>
 									<source>true</source>
 									<transform>jakarta</transform>
 									<override>true</override>
@@ -680,19 +622,23 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.eclipse.jnosql.communication:communication-driver-commons:${nosql-version}</id>
+									<id>org.eclipse.jnosql.mapping:jnosql-mapping-api-core:${nosql-version}</id>
 									<source>true</source>
 									<transform>jakarta</transform>
 									<override>true</override>
 									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.driver.commons</Bundle-SymbolicName>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.mapping.api.core</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
-										<DynamicImport-Package>jakarta.*</DynamicImport-Package>
+										<DynamicImport-Package>org.jboss.weld.*,jakarta.*</DynamicImport-Package>
+										<Export-Package>
+											org.eclipse.jnosql.mapping;version="${nosql-version-osgi}";split="api.core",
+											*;version="${nosql-version-osgi}"
+										</Export-Package>
+										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.eclipse.jnosql.mapping:mapping-core:${nosql-version}</id>
+									<id>org.eclipse.jnosql.mapping:jnosql-mapping-core:${nosql-version}</id>
 									<source>true</source>
 									<transform>jakarta</transform>
 									<override>true</override>
@@ -701,10 +647,11 @@
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*,jakarta.*</DynamicImport-Package>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+										<Fragment-Host>org.openntf.org.eclipse.jnosql.mapping.api.core</Fragment-Host>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.eclipse.jnosql.mapping:mapping-document:${nosql-version}</id>
+									<id>org.eclipse.jnosql.mapping:jnosql-mapping-document:${nosql-version}</id>
 									<source>true</source>
 									<transform>jakarta</transform>
 									<override>true</override>
@@ -716,7 +663,7 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.eclipse.jnosql.mapping:mapping-validation:${nosql-version}</id>
+									<id>org.eclipse.jnosql.mapping:jnosql-mapping-validation:${nosql-version}</id>
 									<source>true</source>
 									<transform>jakarta</transform>
 									<override>true</override>

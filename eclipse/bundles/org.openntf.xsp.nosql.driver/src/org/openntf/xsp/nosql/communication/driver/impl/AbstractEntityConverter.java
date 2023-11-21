@@ -26,8 +26,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Vector;
 
-import org.eclipse.jnosql.mapping.reflection.ClassMapping;
-import org.eclipse.jnosql.mapping.reflection.FieldMapping;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 
 /**
  * Contains methods common among multiple driver implementations when converting
@@ -37,27 +36,28 @@ import org.eclipse.jnosql.mapping.reflection.FieldMapping;
  * @since 2.8.0
  */
 public abstract class AbstractEntityConverter {
-	protected <T extends Annotation> Optional<T> getFieldAnnotation(ClassMapping classMapping, String fieldName, Class<T> annotation) {
+	
+	protected <T extends Annotation> Optional<T> getFieldAnnotation(EntityMetadata classMapping, String fieldName, Class<T> annotation) {
 		if(classMapping == null) {
 			return Optional.empty();
 		}
-		return classMapping.getFields()
+		return classMapping.fields()
 			.stream()
-			.filter(field -> fieldName.equals(field.getName()))
+			.filter(field -> fieldName.equals(field.name()))
 			.findFirst()
-			.map(FieldMapping::getNativeField)
+			.map(EntityUtil::getNativeField)
 			.map(field -> field.getAnnotation(annotation));
 	}
 	
-	protected Optional<Class<?>> getFieldType(ClassMapping classMapping, String fieldName) {
+	protected Optional<Class<?>> getFieldType(EntityMetadata classMapping, String fieldName) {
 		if(classMapping == null) {
 			return Optional.empty();
 		}
-		return classMapping.getFields()
+		return classMapping.fields()
 			.stream()
-			.filter(field -> fieldName.equals(field.getName()))
+			.filter(field -> fieldName.equals(field.name()))
 			.findFirst()
-			.map(FieldMapping::getNativeField)
+			.map(EntityUtil::getNativeField)
 			.map(field -> field.getType());
 	}
 	

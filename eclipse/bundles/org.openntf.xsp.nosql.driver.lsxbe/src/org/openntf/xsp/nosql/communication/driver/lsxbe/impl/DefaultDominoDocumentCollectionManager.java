@@ -40,7 +40,7 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import org.eclipse.jnosql.mapping.reflection.ClassMapping;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.ViewColumnInfo;
 import org.openntf.xsp.nosql.communication.driver.ViewInfo;
@@ -66,15 +66,13 @@ import com.ibm.designer.domino.napi.NotesSession;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.nosql.Sort;
-import jakarta.nosql.SortType;
-import jakarta.nosql.document.Document;
-import jakarta.nosql.document.DocumentDeleteQuery;
-import jakarta.nosql.document.DocumentEntity;
-import jakarta.nosql.document.DocumentQuery;
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Pagination;
-import jakarta.nosql.mapping.Sorts;
+import jakarta.data.repository.Sort;
+import org.eclipse.jnosql.communication.document.Document;
+import org.eclipse.jnosql.communication.document.DocumentDeleteQuery;
+import org.eclipse.jnosql.communication.document.DocumentEntity;
+import org.eclipse.jnosql.communication.document.DocumentQuery;
+import jakarta.nosql.Column;
+import jakarta.data.page.Pageable;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
 import jakarta.transaction.SystemException;
@@ -110,6 +108,11 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		this.supplier = supplier;
 		this.sessionSupplier = sessionSupplier;
 		this.entityConverter = new LSXBEEntityConverter(supplier);
+	}
+
+	@Override
+	public String name() {
+		return getClass().getName();
 	}
 	
 	/**
@@ -147,7 +150,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				entity.add(Document.of(DominoConstants.FIELD_ID, target.getUniversalID()));
 			}
 
-			ClassMapping mapping = EntityUtil.getClassMapping(entity.getName());
+			EntityMetadata mapping = EntityUtil.getClassMapping(entity.name());
 			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
 			if(computeWithForm) {
 				target.computeWithForm(false, false);
@@ -181,7 +184,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			
 			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
 
-			ClassMapping mapping = EntityUtil.getClassMapping(entity.getName());
+			EntityMetadata mapping = EntityUtil.getClassMapping(entity.name());
 			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
 			if(computeWithForm) {
 				target.computeWithForm(false, false);
@@ -198,7 +201,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
-			List<String> unids = query.getDocuments();
+			List<String> unids = query.documents();
 			if(unids != null && !unids.isEmpty()) {
 				for(String unid : unids) {
 					if(unid != null && !unid.isEmpty()) {
@@ -206,9 +209,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 						doc.remove(true);
 					}
 				}
-			} else if(query.getCondition().isPresent()) {
+			} else if(query.condition().isPresent()) {
 				// Then do it via DQL
-				DQLTerm dql = QueryConverter.getCondition(query.getCondition().get());
+				DQLTerm dql = QueryConverter.getCondition(query.condition().get());
 				DominoQuery dominoQuery = database.createDominoQuery();
 				DocumentCollection docs = dominoQuery.execute(dql.toString());
 				docs.removeAll(true);
@@ -221,14 +224,14 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	@Override
 	public Stream<DocumentEntity> select(DocumentQuery query) {
 		try {
-			String entityName = query.getDocumentCollection();
-			ClassMapping mapping = EntityUtil.getClassMapping(entityName);
+			String entityName = query.name();
+			EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
 			
 			QueryConverterResult queryResult = QueryConverter.select(query);
 			
 			long skip = queryResult.getSkip();
 			long limit = queryResult.getLimit();
-			List<Sort> sorts = query.getSorts();
+			List<Sort> sorts = query.sorts();
 			Stream<DocumentEntity> result;
 
 			Database database = supplier.get();
@@ -272,9 +275,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					try {
 						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
 						for(Sort sort : sorts) {
-							String itemName = EntityUtil.findItemName(sort.getName(), mapping);
+							String itemName = EntityUtil.findItemName(sort.property(), mapping);
 							
-							int dir = sort.getType() == SortType.DESC ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
+							int dir = sort.isDescending() ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
 							qrp.addColumn(itemName, itemName, null, dir, false, false);
 						}
 						
@@ -310,9 +313,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pagination pagination,
-			Sorts sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
-		ClassMapping mapping = EntityUtil.getClassMapping(entityName);
+	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pageable pagination,
+			Sort sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
+		EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
 		
 		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
 			try {
@@ -357,9 +360,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pagination pagination,
-			Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct) {
-		ClassMapping mapping = EntityUtil.getClassMapping(entityName);
+	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pageable pagination,
+			Sort sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct) {
+		EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
 		
 		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
 			try {
@@ -596,7 +599,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pagination pagination) {
+	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pageable pagination) {
 		try {
 			Database database = supplier.get();
 			Session session = database.getParent();
@@ -606,7 +609,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			DateTime endDt = DominoNoSQLUtil.fromTemporal(session, end);
 			
 			if(pagination != null) {
-				return cal.readRange(startDt, endDt, (int)pagination.getSkip(), (int)pagination.getLimit());
+				return cal.readRange(startDt, endDt, (int)(pagination.size() * (pagination.page()-1)), (int)pagination.size());
 			} else {
 				return cal.readRange(startDt, endDt);
 			}
@@ -715,7 +718,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	// *******************************************************************************
 	
 	@SuppressWarnings("unchecked")
-	private <T> T buildNavigtor(String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, ClassMapping mapping, NavFunction<T> consumer) {
+	private <T> T buildNavigtor(String viewName, Pageable pagination, Sort sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, EntityMetadata mapping, NavFunction<T> consumer) {
 		try {
 			if(StringUtil.isEmpty(viewName)) {
 				throw new IllegalArgumentException("viewName cannot be empty");
@@ -732,8 +735,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			boolean didSkip = false;
 			long skip = 0;
 			if(pagination != null) {
-				skip = pagination.getSkip();
-				limit = pagination.getLimit();
+				skip = (pagination.size() * (pagination.page()-1));
+				limit = pagination.size();
 				
 				if(skip > Integer.MAX_VALUE) {
 					throw new UnsupportedOperationException("Domino does not support skipping more than Integer.MAX_VALUE entries");
@@ -784,9 +787,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 			
 			// Check if the class requests count data and skip reading if not
-			boolean requestsCounts = mapping.getFields()
+			boolean requestsCounts = mapping.fields()
 				.stream()
-				.map(fm -> fm.getNativeField())
+				.map(EntityUtil::getNativeField)
 				.map(f -> f.getAnnotation(Column.class))
 				.filter(Objects::nonNull)
 				.map(col -> col.value())
@@ -883,16 +886,16 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 			
 			// TODO consider checking the form
-			ClassMapping classMapping = EntityUtil.getClassMapping(entityName);
-			Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
-			List<Document> result = entityConverter.convertDominoDocument(doc, classMapping, itemTypes);
+			EntityMetadata EntityMetadata = EntityUtil.getClassMapping(entityName);
+			Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(EntityMetadata);
+			List<Document> result = entityConverter.convertDominoDocument(doc, EntityMetadata, itemTypes);
 			return Optional.of(DocumentEntity.of(entityName, result));
 		} else {
 			return Optional.empty();
 		}
 	}
 	
-	private static void applySorts(View view, Sorts sorts, ClassMapping mapping, ViewQuery query, Pagination pagination) throws NotesException {
+	private static void applySorts(View view, Sort sorts, EntityMetadata mapping, ViewQuery query, Pageable pagination) throws NotesException {
 		Collection<String> ftSearch = query == null ? Collections.emptySet() : query.getFtSearch();
 		Collection<FTSearchOption> options = query == null ? Collections.emptySet() : query.getFtSearchOptions();
 		
@@ -906,23 +909,14 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				boolean fuzzy = options.contains(FTSearchOption.FUZZY);
 				int maxDocs = 0;
 				if(pagination != null) {
-					maxDocs = (int)Math.min(pagination.getLimit() + pagination.getSkip(), Integer.MAX_VALUE);
+					maxDocs = (int)Math.min(pagination.size() * pagination.page() + pagination.size(), Integer.MAX_VALUE);
 				}
 				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, View.VIEW_FTSS_RELEVANCE_ORDER, true, exact, variants, fuzzy);
 			}
 			
 			return;
 		} else {
-			List<Sort> sortObjs = sorts.getSorts();
-			if(sortObjs == null || sortObjs.isEmpty()) {
-				return;
-			}
-			
-			if(sortObjs.size() > 1) {
-				throw new IllegalArgumentException("Views cannot be sorted by more than one resort column");
-			}
-			Sort sort = sortObjs.get(0);
-			String itemName = EntityUtil.findItemName(sort.getName(), mapping);
+			String itemName = EntityUtil.findItemName(sorts.property(), mapping);
 			
 			if(ftSearch != null && !ftSearch.isEmpty()) {
 				if(options.contains(FTSearchOption.UPDATE_INDEX)) {
@@ -933,11 +927,11 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				boolean fuzzy = options.contains(FTSearchOption.FUZZY);
 				int maxDocs = 0;
 				if(pagination != null) {
-					maxDocs = (int)Math.min(pagination.getLimit() + pagination.getSkip(), Integer.MAX_VALUE);
+					maxDocs = (int)Math.min(pagination.size() * pagination.page() + pagination.size(), Integer.MAX_VALUE);
 				}
-				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, itemName, sort.getType() != SortType.DESC, exact, variants, fuzzy);
+				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, itemName, sorts.isAscending(), exact, variants, fuzzy);
 			} else {
-				view.resortView(itemName, sort.getType() != SortType.DESC);
+				view.resortView(itemName, sorts.isAscending());
 			}
 		}
 	}

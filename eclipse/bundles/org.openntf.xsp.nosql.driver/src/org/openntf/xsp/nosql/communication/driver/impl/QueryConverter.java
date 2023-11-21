@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.nosql.communication.driver.impl;
 
-import static jakarta.nosql.Condition.IN;
+import static org.eclipse.jnosql.communication.Condition.IN;
 
 import java.time.temporal.Temporal;
 import java.util.EnumSet;
@@ -25,11 +25,11 @@ import java.util.Set;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
 
-import jakarta.nosql.Condition;
-import jakarta.nosql.TypeReference;
-import jakarta.nosql.document.Document;
-import jakarta.nosql.document.DocumentCondition;
-import jakarta.nosql.document.DocumentQuery;
+import org.eclipse.jnosql.communication.Condition;
+import org.eclipse.jnosql.communication.TypeReference;
+import org.eclipse.jnosql.communication.document.Document;
+import org.eclipse.jnosql.communication.document.DocumentCondition;
+import org.eclipse.jnosql.communication.document.DocumentQuery;
 
 /**
  * Assistant class to convert queries from Diana internal structures to DQL queries
@@ -45,35 +45,35 @@ public enum QueryConverter {
 	private static final String[] ALL_SELECT = { "*" }; //$NON-NLS-1$
 
 	public static QueryConverterResult select(DocumentQuery query) {
-		String[] documents = query.getDocuments().toArray(new String[0]);
+		String[] documents = query.documents().toArray(new String[0]);
 		if (documents.length == 0) {
 			documents = ALL_SELECT;
 		}
 
 		DQLTerm statement;
-		long skip = query.getSkip();
-		long limit = query.getLimit();
+		long skip = query.skip();
+		long limit = query.limit();
 
-		if (query.getCondition().isPresent()) {
-			statement = getCondition(query.getCondition().get());
+		if (query.condition().isPresent()) {
+			statement = getCondition(query.condition().get());
 			// Add in the form property if needed
-			statement = applyFormName(statement, query.getDocumentCollection());
+			statement = applyFormName(statement, query.name());
 		} else {
-			statement = applyFormName(null, query.getDocumentCollection());
+			statement = applyFormName(null, query.name());
 		}
 		return new QueryConverterResult(documents, statement, skip, limit);
 	}
 
 	public static DQLTerm getCondition(DocumentCondition condition) {
-		Document document = condition.getDocument();
+		Document document = condition.document();
 
-		if (!NOT_APPENDABLE.contains(condition.getCondition())) {
+		if (!NOT_APPENDABLE.contains(condition.condition())) {
 			// TODO determine if this is relevant
 //			params = EntityConverter.add(params, document.getName(), document.get());
 		}
 
 		// Convert special names
-		String name = String.valueOf(document.getName());
+		String name = String.valueOf(document.name());
 		if (DominoConstants.FIELD_ID.equals(name)) {
 			name = "@DocumentUniqueID"; //$NON-NLS-1$
 		} else if(DominoConstants.FIELD_CDATE.equals(name)) {
@@ -98,7 +98,7 @@ public enum QueryConverter {
 		if(value != null && value.getClass().isEnum()) {
 			value = value.toString();
 		}
-		switch (condition.getCondition()) {
+		switch (condition.condition()) {
 			case EQUALS:
 				if(value instanceof Number) {
 					return DQL.item(name).isEqualTo(((Number)value).doubleValue());
@@ -170,7 +170,7 @@ public enum QueryConverter {
 				DocumentCondition dc = document.get(DocumentCondition.class);
 				return DQL.not(getCondition(dc));
 			default:
-				throw new IllegalStateException("This condition is not supported in Darwino: " + condition.getCondition()); //$NON-NLS-1$
+				throw new IllegalStateException("This condition is not supported in Domino: " + condition.condition()); //$NON-NLS-1$
 		}
 	}
 

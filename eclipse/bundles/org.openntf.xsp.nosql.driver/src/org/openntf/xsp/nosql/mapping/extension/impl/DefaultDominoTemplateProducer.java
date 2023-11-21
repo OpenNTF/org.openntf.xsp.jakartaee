@@ -17,18 +17,17 @@ package org.openntf.xsp.nosql.mapping.extension.impl;
 
 import java.util.Objects;
 
-import org.eclipse.jnosql.mapping.reflection.ClassMappings;
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplateProducer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Vetoed;
 import jakarta.inject.Inject;
-import jakarta.nosql.mapping.Converters;
-import jakarta.nosql.mapping.document.DocumentEntityConverter;
-import jakarta.nosql.mapping.document.DocumentEventPersistManager;
-import jakarta.nosql.mapping.document.DocumentWorkflow;
+import org.eclipse.jnosql.mapping.Converters;
+import org.eclipse.jnosql.mapping.document.DocumentEntityConverter;
+import org.eclipse.jnosql.mapping.document.DocumentEventPersistManager;
 
 /**
  * Default implementation bean for {@link DominoTemplateProducer}.
@@ -42,22 +41,19 @@ public class DefaultDominoTemplateProducer implements DominoTemplateProducer {
     private DocumentEntityConverter converter;
 
     @Inject
-    private DocumentWorkflow workflow;
-
-    @Inject
     private DocumentEventPersistManager persistManager;
 
     @Inject
-    private ClassMappings mappings;
+    private EntitiesMetadata mappings;
 
     @Inject
     private Converters converters;
 
 	@Override
-	public DominoTemplate get(DominoDocumentCollectionManager collectionManager) {
+	public DominoTemplate get(DominoDocumentManager collectionManager) {
 		Objects.requireNonNull(collectionManager, "collectionManager is required");
 		
-        return new ProducerDocumentTemplate(converter, collectionManager, workflow,
+        return new ProducerDocumentTemplate(converter, collectionManager,
                 persistManager, mappings, converters);
 	}
 
@@ -66,22 +62,18 @@ public class DefaultDominoTemplateProducer implements DominoTemplateProducer {
 
         private DocumentEntityConverter converter;
 
-        private DominoDocumentCollectionManager manager;
-
-        private DocumentWorkflow workflow;
+        private DominoDocumentManager manager;
 
         private DocumentEventPersistManager persistManager;
 
         private Converters converters;
 
-        private ClassMappings mappings;
-        ProducerDocumentTemplate(DocumentEntityConverter converter, DominoDocumentCollectionManager manager,
-                                 DocumentWorkflow workflow,
+        private EntitiesMetadata mappings;
+        ProducerDocumentTemplate(DocumentEntityConverter converter, DominoDocumentManager manager,
                                  DocumentEventPersistManager persistManager,
-                                 ClassMappings mappings, Converters converters) {
+                                 EntitiesMetadata mappings, Converters converters) {
             this.converter = converter;
             this.manager = manager;
-            this.workflow = workflow;
             this.persistManager = persistManager;
             this.mappings = mappings;
             this.converters = converters;
@@ -96,22 +88,17 @@ public class DefaultDominoTemplateProducer implements DominoTemplateProducer {
         }
 
         @Override
-        protected DominoDocumentCollectionManager getManager() {
+        protected DominoDocumentManager getManager() {
             return manager;
         }
 
         @Override
-        protected DocumentWorkflow getWorkflow() {
-            return workflow;
-        }
-
-        @Override
-        protected DocumentEventPersistManager getPersistManager() {
+        protected DocumentEventPersistManager getEventManager() {
             return persistManager;
         }
 
 		@Override
-		protected ClassMappings getClassMappings() {
+		protected EntitiesMetadata getEntities() {
 			return mappings;
 		}
 

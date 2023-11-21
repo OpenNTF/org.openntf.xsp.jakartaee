@@ -15,17 +15,21 @@
  */
 package org.openntf.xsp.nosql.communication.driver.impl;
 
+import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.eclipse.jnosql.mapping.reflection.ClassInformationNotFoundException;
-import org.eclipse.jnosql.mapping.reflection.ClassMapping;
-import org.eclipse.jnosql.mapping.reflection.ClassMappings;
-import org.eclipse.jnosql.mapping.reflection.FieldMapping;
+import org.eclipse.jnosql.mapping.metadata.ClassInformationNotFoundException;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
+import org.eclipse.jnosql.mapping.reflection.DefaultFieldMetadata;
 
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.nosql.mapping.Column;
+import jakarta.nosql.Column;
 
 /**
  * Contains utility methods for working with NoSQL entities.
@@ -33,11 +37,26 @@ import jakarta.nosql.mapping.Column;
  * @author Jesse Gallagher
  * @since 2.9.0
  */
+@SuppressWarnings({ "removal", "deprecation" })
 public enum EntityUtil {
 	;
 	
-	public static ClassMapping getClassMapping(String entityName) {
-		ClassMappings mappings = CDI.current().select(ClassMappings.class).get();
+	// For now, assumine that all implementations used AbstractFieldMetadata
+	private static final Field fieldField;
+	static {
+		fieldField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
+			try {
+				Field result = DefaultFieldMetadata.class.getSuperclass().getDeclaredField("field"); //$NON-NLS-1$
+				result.setAccessible(true);
+				return result;
+			} catch (NoSuchFieldException | SecurityException e) {
+				throw new RuntimeException(e);
+			}
+		});
+	}
+	
+	public static EntityMetadata getClassMapping(String entityName) {
+		EntitiesMetadata mappings = CDI.current().select(EntitiesMetadata.class).get();
 		try {
 			return mappings.findByName(entityName);
 		} catch(ClassInformationNotFoundException e) {
@@ -46,12 +65,12 @@ public enum EntityUtil {
 		}
 	}
 	
-	public static Map<String, Class<?>> getItemTypes(ClassMapping classMapping) {
-		return classMapping == null ? Collections.emptyMap() : classMapping.getFields()
+	public static Map<String, Class<?>> getItemTypes(EntityMetadata classMapping) {
+		return classMapping == null ? Collections.emptyMap() : classMapping.fields()
 			.stream()
 			.collect(Collectors.toMap(
-				f -> f.getName(),
-				f -> f.getNativeField().getType()
+				f -> f.name(),
+				f -> getNativeField(f).getType()
 			));
 	}
 	
@@ -62,10 +81,10 @@ public enum EntityUtil {
 	 * @param mapping the {@link ClassMapping} instance for the class in question
 	 * @return the effective item name based on the class properties
 	 */
-	public static String findItemName(String propName, ClassMapping mapping) {
+	public static String findItemName(String propName, EntityMetadata mapping) {
 		if(mapping != null) {
-			Column annotation = mapping.getFieldMapping(propName)
-				.map(FieldMapping::getNativeField)
+			Column annotation = mapping.fieldMapping(propName)
+				.map(EntityUtil::getNativeField)
 				.map(f -> f.getAnnotation(Column.class))
 				.orElse(null);
 			if(annotation != null && !annotation.value().isEmpty()) {
@@ -75,6 +94,14 @@ public enum EntityUtil {
 			}
 		} else {
 			return propName;
+		}
+	}
+	
+	public static Field getNativeField(FieldMetadata fieldMapping) {
+		try {
+			return (Field)fieldField.get(fieldMapping);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

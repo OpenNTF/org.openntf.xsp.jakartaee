@@ -15,7 +15,7 @@
  */
 package bean;
 
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
 
 import com.ibm.domino.xsp.module.nsf.NotesContext;
@@ -30,7 +30,7 @@ import lotus.domino.NotesException;
 public class NamesRepositoryBean {
 	@Produces
 	@Database(value = DatabaseType.DOCUMENT, provider = "names")
-	public DominoDocumentCollectionManager getNamesManager() {
+	public DominoDocumentManager getNamesManager() {
 		return new DefaultDominoDocumentCollectionManager(
 			() -> {
 				try {

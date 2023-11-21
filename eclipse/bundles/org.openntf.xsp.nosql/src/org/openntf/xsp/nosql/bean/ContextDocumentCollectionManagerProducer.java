@@ -15,38 +15,38 @@
  */
 package org.openntf.xsp.nosql.bean;
 
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.impl.DominoDocumentConfiguration;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
-import jakarta.nosql.document.DocumentCollectionManagerFactory;
-import jakarta.nosql.document.DocumentConfiguration;
-import jakarta.nosql.mapping.Database;
-import jakarta.nosql.mapping.DatabaseType;
+import org.eclipse.jnosql.communication.document.DocumentManagerFactory;
+import org.eclipse.jnosql.communication.document.DocumentConfiguration;
+import org.eclipse.jnosql.mapping.Database;
+import org.eclipse.jnosql.mapping.DatabaseType;
 
 @RequestScoped
 public class ContextDocumentCollectionManagerProducer {
 	private DocumentConfiguration configuration;
-	private DocumentCollectionManagerFactory managerFactory;
+	private DocumentManagerFactory managerFactory;
 
 	@PostConstruct
 	public void init() {
 		configuration = new DominoDocumentConfiguration();
-		managerFactory = configuration.get();
+		managerFactory = configuration.apply(null);
 	}
 	
 	@Produces
 	@Database(value = DatabaseType.DOCUMENT, provider = "")
-	public DominoDocumentCollectionManager getManager() {
-		return managerFactory.get(null);
+	public DominoDocumentManager getManager() {
+		return (DominoDocumentManager)managerFactory.apply(null);
 	}
 	
 	@Produces
 	@Default
-	public DominoDocumentCollectionManager getManagerDefault() {
-		return managerFactory.get(null);
+	public DominoDocumentManager getManagerDefault() {
+		return (DominoDocumentManager)managerFactory.apply(null);
 	}
 }

@@ -23,15 +23,16 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
-import org.eclipse.jnosql.mapping.document.DefaultDocumentQueryPaginationProvider;
+import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
 import org.eclipse.jnosql.mapping.document.spi.DocumentExtension;
-import org.eclipse.jnosql.mapping.reflection.ClassMappingExtension;
 import org.eclipse.jnosql.mapping.validation.MappingValidator;
+import org.eclipse.jnosql.mapping.spi.EntityMetadataExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.nosql.bean.ContextDatabaseSupplier;
 import org.openntf.xsp.nosql.bean.ContextDocumentCollectionManagerProducer;
+import org.openntf.xsp.nosql.mapping.extension.DominoReflections;
 import org.openntf.xsp.nosql.mapping.extension.impl.DefaultDominoTemplateProducer;
 import org.openntf.xsp.nosql.mapping.extension.impl.DominoExtension;
 import org.osgi.framework.BundleException;
@@ -49,7 +50,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 	public Collection<Class<?>> getBeanClasses() {
 		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
 			List<Class<?>> result = new ArrayList<>();
-			Stream.of(DatabaseQualifier.class, DefaultDocumentQueryPaginationProvider.class, MappingValidator.class)
+			Stream.of(DatabaseQualifier.class, AbstractDocumentTemplate.class, MappingValidator.class)
 				.map(FrameworkUtil::getBundle)
 				.flatMap(t -> {
 					try {
@@ -64,6 +65,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 			result.add(ContextDatabaseSupplier.class);
 			
 			result.add(DefaultDominoTemplateProducer.class);
+			result.add(DominoReflections.class);
 			
 			return result;
 		} else {
@@ -80,7 +82,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 	public Collection<Class<? extends Extension>> getExtensionClasses() {
 		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
 			return Arrays.asList(
-				ClassMappingExtension.class,
+				EntityMetadataExtension.class,
 				DocumentExtension.class,
 				
 				DominoExtension.class

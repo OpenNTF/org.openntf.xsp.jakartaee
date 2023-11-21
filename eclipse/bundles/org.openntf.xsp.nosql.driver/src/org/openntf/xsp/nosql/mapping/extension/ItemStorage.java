@@ -22,7 +22,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import jakarta.nosql.mapping.Column;
+import jakarta.nosql.Column;
 
 /**
  * This can be placed on a field annotated with {@link Column @Column} to
