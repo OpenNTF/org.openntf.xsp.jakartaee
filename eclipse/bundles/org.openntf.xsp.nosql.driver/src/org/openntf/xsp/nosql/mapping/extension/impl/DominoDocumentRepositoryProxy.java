@@ -24,6 +24,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.ServiceLoader.Provider;
 import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.repository.DynamicReturn;
@@ -109,7 +110,6 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object o, Method method, Object[] args) throws Throwable {
-		
 		// View entries support
 		ViewEntries viewEntries = method.getAnnotation(ViewEntries.class);
 		if(viewEntries != null) {
@@ -288,8 +288,7 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 
 		RepositoryReturn repoReturn = ServiceLoader.load(RepositoryReturn.class, RepositoryReturn.class.getClassLoader())
 				.stream()
-				.filter(RepositoryReturn.class::isInstance)
-				.map(RepositoryReturn.class::cast)
+				.map(Provider<RepositoryReturn>::get)
 				.filter(r -> r.isCompatible(typeClass, returnType))
 				.findFirst()
 				.orElse(null);

@@ -213,7 +213,6 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
             .map(toUnary(getEventManager()::firePreEntity))
             .map(getConverter()::toDocument)
             .map(persistAction)
-            .peek(t -> System.out.println("Processing " + t.documents()))
             .map(t -> getConverter().toEntity(entity, t))
             .map(toUnary(getEventManager()::firePostEntity))
             .findFirst()
