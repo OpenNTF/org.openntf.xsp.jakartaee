@@ -37,7 +37,7 @@ import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
-import jakarta.data.page.Pageable;
+import jakarta.data.repository.Pageable;
 import jakarta.data.repository.PageableRepository;
 import jakarta.data.repository.Sort;
 import jakarta.enterprise.inject.spi.CDI;

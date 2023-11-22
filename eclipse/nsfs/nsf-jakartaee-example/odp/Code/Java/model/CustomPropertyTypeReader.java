@@ -15,7 +15,7 @@
  */
 package model;
 
-import jakarta.nosql.ValueReader;
+import org.eclipse.jnosql.communication.ValueReader;
 
 public class CustomPropertyTypeReader implements ValueReader {
 

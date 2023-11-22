@@ -24,7 +24,7 @@ import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope
 
 import org.eclipse.jnosql.communication.document.DocumentManager;
 import org.eclipse.jnosql.communication.document.DocumentEntity;
-import jakarta.data.page.Pageable;
+import jakarta.data.repository.Pageable;
 import jakarta.data.repository.Sort;
 
 public interface DominoDocumentManager extends DocumentManager {

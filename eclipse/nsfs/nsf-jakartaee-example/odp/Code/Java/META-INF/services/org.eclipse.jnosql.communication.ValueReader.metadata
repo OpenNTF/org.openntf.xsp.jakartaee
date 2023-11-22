@@ -4,9 +4,9 @@
     <text>34567Cg~[</text>
   </item>
   <item name="$TITLE">
-    <text>META-INF/services/jakarta.nosql.ValueReader</text>
+    <text>META-INF/services/org.eclipse.jnosql.communication.ValueReader</text>
   </item>
   <item name="$FileNames" sign="true">
-    <text>META-INF/services/jakarta.nosql.ValueReader</text>
+    <text>META-INF/services/org.eclipse.jnosql.communication.ValueReader</text>
   </item>
 </note>

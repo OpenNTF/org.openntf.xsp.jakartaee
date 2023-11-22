@@ -23,7 +23,7 @@ import org.eclipse.jnosql.mapping.document.JNoSQLDocumentTemplate;
 import org.openntf.xsp.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
 
-import jakarta.data.page.Pageable;
+import jakarta.data.repository.Pageable;
 import jakarta.data.repository.Sort;
 
 /**

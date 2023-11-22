@@ -51,8 +51,8 @@ import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.internet.MimePart;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.nosql.mapping.Pagination;
-import jakarta.nosql.mapping.Sorts;
+import jakarta.data.repository.Pageable;
+import jakarta.data.repository.Sort;
 import jakarta.transaction.UserTransaction;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.Consumes;
@@ -118,7 +118,7 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object getServers() {
 		Map<String, Object> result = new LinkedHashMap<>();
-		result.put("all", serverRepository.findAll(Sorts.sorts().asc("serverName")).collect(Collectors.toList()));
+		result.put("all", serverRepository.findAll(Sort.asc("serverName")).collect(Collectors.toList()));
 		result.put("totalCount", serverRepository.count());
 		return result;
 	}
@@ -337,7 +337,7 @@ public class NoSQLExample {
 		if(sortCol == null || sortCol.isEmpty()) {
 			models.put("persons", personRepository.findAll().collect(Collectors.toList()));
 		} else {
-			models.put("persons", personRepository.findAll(Sorts.sorts().asc(sortCol)).collect(Collectors.toList()));
+			models.put("persons", personRepository.findAll(Sort.asc(sortCol)).collect(Collectors.toList()));
 		}
 		return "person-list.jsp";
 	}
@@ -349,7 +349,7 @@ public class NoSQLExample {
 		if(sortCol == null || sortCol.isEmpty()) {
 			return personRepository.findAll().collect(Collectors.toList());
 		} else {
-			return personRepository.findAll(Sorts.sorts().asc(sortCol)).collect(Collectors.toList());
+			return personRepository.findAll(Sort.asc(sortCol)).collect(Collectors.toList());
 		}
 	}
 	
@@ -378,7 +378,7 @@ public class NoSQLExample {
 	public List<Person> ftSearchViewSorted(@QueryParam("search") String search) {
 		return personRepository.findByKeyMulti(
 			ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
-			Sorts.sorts().desc("firstName"),
+			Sort.desc("firstName"),
 			null
 		).collect(Collectors.toList());
 	}
@@ -390,7 +390,7 @@ public class NoSQLExample {
 		return personRepository.findByKeyMulti(
 			ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
 			null,
-			Pagination.page(page).size(size)
+			Pageable.ofPage(page).size(size)
 		).collect(Collectors.toList());
 	}
 	
@@ -642,7 +642,7 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Person> queryByEmailOneKey(@QueryParam("q") @NotEmpty String searchValue, @QueryParam("resort") boolean resort) {
 		ViewQuery query = ViewQuery.query().key(searchValue, true);
-		Sorts sorts = resort ? Sorts.sorts().asc("email") : null;
+		Sort sorts = resort ? Sort.asc("email") : null;
 		return personRepository.readViewDocuments("PersonEmailOneKey", -1, false, query, sorts, null).collect(Collectors.toList());
 	}
 	

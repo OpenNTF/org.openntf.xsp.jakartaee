@@ -18,9 +18,9 @@ package model;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Id;
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
 
 @Entity("ExampleProfile")
 public class ProfileDoc {

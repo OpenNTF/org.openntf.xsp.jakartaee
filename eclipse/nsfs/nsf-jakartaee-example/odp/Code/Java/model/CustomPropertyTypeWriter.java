@@ -15,7 +15,7 @@
  */
 package model;
 
-import jakarta.nosql.ValueWriter;
+import org.eclipse.jnosql.communication.ValueWriter;
 
 public class CustomPropertyTypeWriter implements ValueWriter<CustomPropertyType, String> {
 

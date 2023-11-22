@@ -7,7 +7,6 @@ Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: jakarta.data,
- jakarta.data.page,
  jakarta.data.repository,
  jakarta.enterprise.context;version="3.0.0",
  jakarta.enterprise.context.spi;version="3.0.0",
@@ -22,11 +21,11 @@ Import-Package: jakarta.data,
  org.eclipse.jnosql.communication;version="1.0.2",
  org.eclipse.jnosql.communication.document;version="1.0.2",
  org.eclipse.jnosql.communication.driver.attachment;version="1.0.0",
- org.eclipse.jnosql.mapping;split="api.core";version="1.0.0",
+ org.eclipse.jnosql.mapping;version="1.0.0",
  org.eclipse.jnosql.mapping.document;version="1.0.0",
  org.eclipse.jnosql.mapping.document.query;version="1.0.2",
  org.eclipse.jnosql.mapping.metadata;version="1.0.0",
- org.eclipse.jnosql.mapping.reflection,
+ org.eclipse.jnosql.mapping.reflection;version="1.0.0",
  org.eclipse.jnosql.mapping.repository;version="1.0.0"
 Export-Package: org.eclipse.jnosql.communication.driver.attachment;version="1.0.2",
  org.openntf.xsp.nosql.communication.driver;version="3.0.0",

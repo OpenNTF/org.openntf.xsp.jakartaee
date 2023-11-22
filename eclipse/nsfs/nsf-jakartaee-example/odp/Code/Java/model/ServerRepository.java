@@ -20,9 +20,9 @@ import java.util.stream.Stream;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 import org.openntf.xsp.nosql.mapping.extension.RepositoryProvider;
 
-import jakarta.nosql.mapping.Sorts;
+import jakarta.data.repository.Sort;
 
 @RepositoryProvider("names")
 public interface ServerRepository extends DominoRepository<Server, String> {
-	Stream<Server> findAll(Sorts sorts);
+	Stream<Server> findAll(Sort sorts);
 }

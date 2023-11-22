@@ -72,7 +72,7 @@ import org.eclipse.jnosql.communication.document.DocumentDeleteQuery;
 import org.eclipse.jnosql.communication.document.DocumentEntity;
 import org.eclipse.jnosql.communication.document.DocumentQuery;
 import jakarta.nosql.Column;
-import jakarta.data.page.Pageable;
+import jakarta.data.repository.Pageable;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
 import jakarta.transaction.SystemException;

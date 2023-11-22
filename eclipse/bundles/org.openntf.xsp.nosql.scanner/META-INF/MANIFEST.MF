@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Jakarta NoSQL NSF Class Scanner
+Bundle-SymbolicName: org.openntf.xsp.nosql.scanner
+Automatic-Module-Name: org.openntf.xsp.nosql.scanner
+Bundle-Version: 3.0.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Fragment-Host: org.openntf.org.eclipse.jnosql.mapping.api.core
+Import-Package: com.ibm.designer.runtime.domino.adapter,
+ org.openntf.xsp.jakartaee.module;version="3.0.0",
+ org.openntf.xsp.jakartaee.util;version="3.0.0"
+DynamicImport-Package: org.jboss.weld.*

@@ -33,7 +33,10 @@ public interface ViewQuery {
 	 * @return a new query instance
 	 */
 	static ViewQuery query() {
-		return ServiceLoader.load(ViewQuery.class, ViewQuery.class.getClassLoader()).findFirst().get();
+		return ServiceLoader.load(ViewQueryProvider.class, ViewQuery.class.getClassLoader())
+			.findFirst()
+			.get()
+			.get();
 	}
 	
 	

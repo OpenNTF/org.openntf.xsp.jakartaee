@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.communication.driver.ViewInfo;
 
-import jakarta.data.page.Pageable;
+import jakarta.data.repository.Pageable;
 import jakarta.data.repository.PageableRepository;
 import jakarta.data.repository.Sort;
 

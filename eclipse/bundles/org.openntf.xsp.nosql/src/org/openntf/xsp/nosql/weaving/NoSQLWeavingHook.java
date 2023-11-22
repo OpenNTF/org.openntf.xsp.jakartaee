@@ -20,19 +20,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 
-import org.osgi.framework.hooks.weaving.WeavingHook;
-import org.osgi.framework.hooks.weaving.WovenClass;
-
 import org.eclipse.jnosql.communication.TypeReferenceReader;
 import org.eclipse.jnosql.communication.ValueReader;
 import org.eclipse.jnosql.communication.ValueWriter;
-import javassist.CannotCompileException;
+import org.osgi.framework.hooks.weaving.WeavingHook;
+import org.osgi.framework.hooks.weaving.WovenClass;
+
+import jakarta.data.repository.DataRepository;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.LoaderClassPath;
-import javassist.NotFoundException;
 
 /**
  * This {@link WeavingHook} implementation listens for attempts to load 
@@ -47,72 +46,79 @@ public class NoSQLWeavingHook implements WeavingHook {
 
 	@Override
 	public void weave(WovenClass c) {
-		if("jakarta.nosql.ValueReaderDecorator".equals(c.getClassName())) { //$NON-NLS-1$
-			processValueReader(c);
-		} else if("org.eclipse.jnosql.communication.writer.ValueWriterDecorator".equals(c.getClassName())) { //$NON-NLS-1$
-			// TODO ValueWriter has static <T, S> Stream<ValueWriter<T, S>> getWriters()
-			processValueWriter(c);
-		} else if("jakarta.nosql.TypeReferenceReaderDecorator".equals(c.getClassName())) { //$NON-NLS-1$
-			processTypeReferenceReader(c);
+		switch(c.getClassName()) {
+		case "org.eclipse.jnosql.mapping.metadata.ClassScanner" -> processClassScanner(c); //$NON-NLS-1$
+		case "org.eclipse.jnosql.mapping.metadata.ClassConverter" -> processClassConverter(c); //$NON-NLS-1$
+		case "org.eclipse.jnosql.communication.ValueReaderDecorator" -> processValueReader(c); //$NON-NLS-1$
+		case "org.eclipse.jnosql.communication.ValueWriter" -> processValueWriter(c); //$NON-NLS-1$
+		case "org.eclipse.jnosql.communication.ValueWriterDecorator" -> processValueWriterDecorator(c); //$NON-NLS-1$
+		case "org.eclipse.jnosql.communication.TypeReferenceReaderDecorator" -> processTypeReferenceReader(c); //$NON-NLS-1$
+		}
+	}
+	
+	private void processClassScanner(WovenClass c) {
+		CtClass cc = defrost(c, DataRepository.class);
+
+		try {
+			String body = """
+			{
+				java.util.ServiceLoader instances = java.util.ServiceLoader.load(org.eclipse.jnosql.mapping.metadata.ClassScanner.class, org.eclipse.jnosql.mapping.metadata.ClassScanner.class.getClassLoader());
+				return (org.eclipse.jnosql.mapping.metadata.ClassScanner)instances.findFirst().get();
+			}"""; //$NON-NLS-1$
+			CtMethod m = cc.getDeclaredMethod("load"); //$NON-NLS-1$
+			m.setBody(body);
+			
+			c.setBytes(cc.toBytecode());
+		} catch(Throwable t) {
+			t.printStackTrace();
 		}
 	}
 
 	@SuppressWarnings("nls")
 	private void processValueReader(WovenClass c) {
-		ClassPool pool = new ClassPool();
-		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
-		pool.appendClassPath(new ClassClassPath(ValueReader.class));
-		CtClass cc;
-		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
-			cc = pool.makeClass(is);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-		cc.defrost();
+		CtClass cc = defrost(c, ValueReader.class);
 
 		try {
 			// boolean test(Class clazz)
 			{
-				String body = "{\n"
-						+ "		java.util.List readers = jakarta.nosql.ServiceLoaderProvider.getSupplierStream(jakarta.nosql.ValueReader.class).collect(java.util.stream.Collectors.toList());\n"
-						+ "		for(int i = 0; i < readers.size(); i++) {\n"
-						+ "			jakarta.nosql.ValueReader r = (jakarta.nosql.ValueReader)readers.get(i);\n"
-						+ "			if(r.test($1)) {\n"
-						+ "				return true;\n"
-						+ "			}\n"
-						+ "		}\n"
-						+ "		return false;\n"
-						+ "    }";
+				String body = """
+				{
+					java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.communication.ValueReader.class);
+					java.util.List readers = java.util.stream.StreamSupport.stream(instances.spliterator(), false).toList();
+					for(int i = 0; i < readers.size(); i++) {
+						org.eclipse.jnosql.communication.ValueReader r = (org.eclipse.jnosql.communication.ValueReader)readers.get(i);
+						if(r.test($1)) {
+							return true;
+						}
+					}
+					return false;
+			    }""";
 				CtMethod m = cc.getDeclaredMethod("test"); //$NON-NLS-1$
 				m.setBody(body);
 			}
 			
 			// <T> T read(Class<T> clazz, Object value)
 			{
-				String body = "{\n"
-						+ "        if ($1.isInstance($2)) {\n"
-						+ "            return $1.cast($2);\n"
-						+ "        }\n"
-						+ "        java.util.List readers = jakarta.nosql.ServiceLoaderProvider.getSupplierStream(jakarta.nosql.ValueReader.class).collect(java.util.stream.Collectors.toList());\n"
-						+ "        for(int i = 0; i < readers.size(); i++) {\n"
-						+ "			jakarta.nosql.ValueReader r = (jakarta.nosql.ValueReader)readers.get(i);\n"
-						+ "			if(r.test($1)) {\n"
-						+ "				return r.read($1, $2);\n"
-						+ "			}\n"
-						+ "		}\n"
-						+ "        throw new UnsupportedOperationException(\"The type \" + $1 + \" is not supported yet\");\n"
-						+ "    }";
+				String body = """
+				{
+			        if ($1.isInstance($2)) {
+			            return $1.cast($2);
+			        }
+					java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.communication.ValueReader.class);
+					java.util.List readers = java.util.stream.StreamSupport.stream(instances.spliterator(), false).toList();
+			        for(int i = 0; i < readers.size(); i++) {
+						org.eclipse.jnosql.communication.ValueReader r = (org.eclipse.jnosql.communication.ValueReader)readers.get(i);
+						if(r.test($1)) {
+							return r.read($1, $2);
+						}
+					}
+			        throw new UnsupportedOperationException("The type " + $1 + " is not supported yet");
+			    }""";
 				CtMethod m = cc.getDeclaredMethod("read"); //$NON-NLS-1$
 				m.setBody(body);
 			}
 		
 			c.setBytes(cc.toBytecode());
-		} catch(NotFoundException e) {
-			// Then the method has been removed - that's fine
-			e.printStackTrace();
-		} catch(CannotCompileException | IOException e) {
-			e.printStackTrace();
-			new RuntimeException("Encountered exception when weaving jakarta.nosql.ServiceLoaderProvider replacement", e).printStackTrace();
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
@@ -120,67 +126,142 @@ public class NoSQLWeavingHook implements WeavingHook {
 	
 	@SuppressWarnings("nls")
 	private void processTypeReferenceReader(WovenClass c) {
-		ClassPool pool = new ClassPool();
-		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
-		pool.appendClassPath(new ClassClassPath(TypeReferenceReader.class));
-		CtClass cc;
-		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
-			cc = pool.makeClass(is);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-		cc.defrost();
+		CtClass cc = defrost(c, TypeReferenceReader.class);
 
 		try {
 			// boolean test(Class clazz)
 			{
-				String body = "{\n"
-						+ "		java.util.List readers = jakarta.nosql.ServiceLoaderProvider.getSupplierStream(jakarta.nosql.TypeReferenceReader.class).collect(java.util.stream.Collectors.toList());\n"
-						+ "		for(int i = 0; i < readers.size(); i++) {\n"
-						+ "			jakarta.nosql.TypeReferenceReader r = (jakarta.nosql.TypeReferenceReader)readers.get(i);\n"
-						+ "			if(r.test($1)) {\n"
-						+ "				return true;\n"
-						+ "			}\n"
-						+ "		}\n"
-						+ "		return false;\n"
-						+ "    }";
+				String body = """
+				{
+					java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.communication.TypeReferenceReader.class);
+					java.util.List readers = java.util.stream.StreamSupport.stream(instances.spliterator(), false).toList();
+					for(int i = 0; i < readers.size(); i++) {
+						org.eclipse.jnosql.communication.TypeReferenceReader r = (org.eclipse.jnosql.communication.TypeReferenceReader)readers.get(i);
+						if(r.test($1)) {
+							return true;
+						}
+					}
+					return false;
+			    }""";
 				CtMethod m = cc.getDeclaredMethod("test"); //$NON-NLS-1$
 				m.setBody(body);
 			}
 			
 			// <T> T convert(TypeSupplier, Object value)
 			{
-				String body = "{\n"
-						+ "        java.util.List readers = jakarta.nosql.ServiceLoaderProvider.getSupplierStream(jakarta.nosql.TypeReferenceReader.class).collect(java.util.stream.Collectors.toList());\n"
-						+ "        for(int i = 0; i < readers.size(); i++) {\n"
-						+ "			jakarta.nosql.TypeReferenceReader r = (jakarta.nosql.TypeReferenceReader)readers.get(i);\n"
-						+ "			if(r.test($1)) {\n"
-						+ "				return r.convert($1, $2);\n"
-						+ "			}\n"
-						+ "		}\n"
-						+ "        throw new UnsupportedOperationException(\"The type \" + $1 + \" is not supported yet\");\n"
-						+ "    }";
+				String body = """
+				{
+					java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.communication.TypeReferenceReader.class);
+					java.util.List readers = java.util.stream.StreamSupport.stream(instances.spliterator(), false).toList();
+			        for(int i = 0; i < readers.size(); i++) {
+						org.eclipse.jnosql.communication.TypeReferenceReader r = (org.eclipse.jnosql.communication.TypeReferenceReader)readers.get(i);
+						if(r.test($1)) {
+							return r.convert($1, $2);
+						}
+					}
+			        throw new UnsupportedOperationException("The type " + $1 + " is not supported yet");
+			    }""";
 				CtMethod m = cc.getDeclaredMethod("convert"); //$NON-NLS-1$
 				m.setBody(body);
 			}
 		
 			c.setBytes(cc.toBytecode());
-		} catch(NotFoundException e) {
-			// Then the method has been removed - that's fine
-			e.printStackTrace();
-		} catch(CannotCompileException | IOException e) {
-			e.printStackTrace();
-			new RuntimeException("Encountered exception when weaving jakarta.nosql.ServiceLoaderProvider replacement", e).printStackTrace();
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+	}
+
+	private void processValueWriter(WovenClass c) {
+		CtClass cc = defrost(c);
+		
+		try {
+			String body = """
+			{
+				java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.communication.ValueWriter.class);
+				return java.util.stream.StreamSupport.stream(instances.spliterator(), false);
+			}"""; //$NON-NLS-1$
+			CtMethod m = cc.getDeclaredMethod("getWriters"); //$NON-NLS-1$
+			m.setBody(body);
+			
+			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 	}
 	
 	@SuppressWarnings("nls")
-	private void processValueWriter(WovenClass c) {
+	private void processValueWriterDecorator(WovenClass c) {
+		CtClass cc = defrost(c, ValueWriter.class);
+
+		try {
+			// boolean test(Class clazz)
+			{
+				String body = """
+				{
+					java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.communication.ValueWriter.class);
+					java.util.List writers = java.util.stream.StreamSupport.stream(instances.spliterator(), false).toList();
+					for(int i = 0; i < writers.size(); i++) {
+						org.eclipse.jnosql.communication.ValueWriter w = (org.eclipse.jnosql.communication.ValueWriter)writers.get(i);
+						if(w.test($1)) {
+							return true;
+						}
+					}
+					return false;
+			    }""";
+				CtMethod m = cc.getDeclaredMethod("test"); //$NON-NLS-1$
+				m.setBody(body);
+			}
+			
+			// Object write(Object value)
+			{
+				String body = """
+				{
+			        Class clazz = $1.getClass();
+					java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.communication.ValueWriter.class);
+					java.util.List writers = java.util.stream.StreamSupport.stream(instances.spliterator(), false).toList();
+			        for(int i = 0; i < writers.size(); i++) {
+						org.eclipse.jnosql.communication.ValueWriter w = (org.eclipse.jnosql.communication.ValueWriter)writers.get(i);
+						if(w.test($1)) {
+							return w.write($1);
+						}
+					}
+			        throw new UnsupportedOperationException("The type " + clazz + " is not supported yet");
+			    }""";
+				CtMethod m = cc.getDeclaredMethod("read"); //$NON-NLS-1$
+				m.setBody(body);
+			}
+		
+			c.setBytes(cc.toBytecode());
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+	}
+	
+	private void processClassConverter(WovenClass c) {
+		CtClass cc = defrost(c, DataRepository.class);
+
+		try {
+			String body = """
+			{
+				java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.mapping.metadata.ClassConverter.class);
+				return java.util.Objects.requireNonNull((org.eclipse.jnosql.mapping.metadata.ClassConverter)instances.iterator().next());
+			}"""; //$NON-NLS-1$
+			CtMethod m = cc.getDeclaredMethod("load"); //$NON-NLS-1$
+			m.setBody(body);
+			
+			c.setBytes(cc.toBytecode());
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+	}
+	
+	private CtClass defrost(WovenClass c, Class<?>... contextClass) {
 		ClassPool pool = new ClassPool();
 		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
-		pool.appendClassPath(new ClassClassPath(ValueWriter.class));
+		pool.appendClassPath(new ClassClassPath(org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class));
+		for(Class<?> ctx : contextClass) {
+			pool.appendClassPath(new ClassClassPath(ctx));
+		}
 		CtClass cc;
 		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
 			cc = pool.makeClass(is);
@@ -188,50 +269,6 @@ public class NoSQLWeavingHook implements WeavingHook {
 			throw new UncheckedIOException(e);
 		}
 		cc.defrost();
-
-		try {
-			// boolean test(Class clazz)
-			{
-				String body = "{\n"
-						+ "		java.util.List writers = jakarta.nosql.ServiceLoaderProvider.getSupplierStream(jakarta.nosql.ValueWriter.class).collect(java.util.stream.Collectors.toList());\n"
-						+ "		for(int i = 0; i < writers.size(); i++) {\n"
-						+ "			jakarta.nosql.ValueWriter w = (jakarta.nosql.ValueWriter)writers.get(i);\n"
-						+ "			if(w.test($1)) {\n"
-						+ "				return true;\n"
-						+ "			}\n"
-						+ "		}\n"
-						+ "		return false;\n"
-						+ "    }";
-				CtMethod m = cc.getDeclaredMethod("test"); //$NON-NLS-1$
-				m.setBody(body);
-			}
-			
-			// Object write(Object value)
-			{
-				String body = "{\n"
-						+ "        Class clazz = $1.getClass();\n"
-						+ "        java.util.List writers = jakarta.nosql.ServiceLoaderProvider.getSupplierStream(jakarta.nosql.ValueWriter.class).collect(java.util.stream.Collectors.toList());\n"
-						+ "        for(int i = 0; i < writers.size(); i++) {\n"
-						+ "			jakarta.nosql.ValueWriter w = (jakarta.nosql.ValueWriter)writers.get(i);\n"
-						+ "			if(w.test($1)) {\n"
-						+ "				return w.write($1);\n"
-						+ "			}\n"
-						+ "		}\n"
-						+ "        throw new UnsupportedOperationException(\"The type \" + clazz + \" is not supported yet\");\n"
-						+ "    }";
-				CtMethod m = cc.getDeclaredMethod("read"); //$NON-NLS-1$
-				m.setBody(body);
-			}
-		
-			c.setBytes(cc.toBytecode());
-		} catch(NotFoundException e) {
-			// Then the method has been removed - that's fine
-			e.printStackTrace();
-		} catch(CannotCompileException | IOException e) {
-			e.printStackTrace();
-			new RuntimeException("Encountered exception when weaving jakarta.nosql.ServiceLoaderProvider replacement", e).printStackTrace();
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
+		return cc;
 	}
 }

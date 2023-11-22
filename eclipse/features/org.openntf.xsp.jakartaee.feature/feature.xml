@@ -348,29 +348,28 @@
 	
 	<!-- NoSQL -->
 	<plugin id="org.openntf.xsp.nosql" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.nosql.scanner" version="0.0.0" unpack="false" fragment="true"/>
 	<plugin id="org.openntf.xsp.nosql.driver" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.nosql.driver.lsxbe" version="0.0.0" unpack="false"/>
 	
-	<plugin id="org.openntf.jakarta.nosql.communication.core" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.jakarta.nosql.communication.document" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.jakarta.nosql.communication.query" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.jakarta.nosql.mapping.core" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.jakarta.nosql.mapping.document" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.data.jakarta-data-api" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.nosql.core" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.nosql.document" version="0.0.0" unpack="false"/>
    
 	<plugin id="org.openntf.org.eclipse.jnosql.communication.core" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.jnosql.communication.document" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.jnosql.communication.query" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.org.eclipse.jnosql.communication.driver.commons" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.org.eclipse.jnosql.mapping.core" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.api.core" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.core" version="0.0.0" unpack="false" fragment="true"/>
 	<plugin id="org.openntf.org.eclipse.jnosql.mapping.validation" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.reflection" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.jnosql.mapping.document" version="0.0.0" unpack="false"/>
    
-	<plugin id="org.antlr.antlr4-runtime.jakarta" version="0.0.0" unpack="false"/>
+	<plugin id="org.antlr.antlr4-runtime" version="0.0.0" unpack="false"/>
 	
 	<!-- Misc. Support -->
 	<plugin id="org.openntf.jboss-classfilewriter" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.logging.jboss-logging" version="0.0.0" unpack="false"/>
 	<plugin id="javassist" version="0.0.0" unpack="false"/>
-	<plugin id="org.apache.aries.spifly.dynamic.framework.extension" version="0.0.0" fragment="true" unpack="false"/>
 
 </feature>

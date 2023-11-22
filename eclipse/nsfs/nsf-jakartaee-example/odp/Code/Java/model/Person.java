@@ -26,9 +26,9 @@ import org.openntf.xsp.nosql.mapping.extension.EntryType;
 import java.time.Instant;
 
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Id;
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.FormParam;
 

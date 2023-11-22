@@ -7,8 +7,8 @@ import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.nosql.mapping.Database;
-import jakarta.nosql.mapping.DatabaseType;
+import org.eclipse.jnosql.mapping.Database;
+import org.eclipse.jnosql.mapping.DatabaseType;
 import lotus.domino.NotesException;
 
 @RequestScoped

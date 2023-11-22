@@ -37,7 +37,7 @@ import jakarta.inject.Inject;
 import org.eclipse.jnosql.communication.document.DocumentEntity;
 import org.eclipse.jnosql.mapping.Converters;
 import jakarta.nosql.Entity;
-import jakarta.data.page.Pageable;
+import jakarta.data.repository.Pageable;
 import jakarta.data.repository.Sort;
 import org.eclipse.jnosql.mapping.document.DocumentEntityConverter;
 import org.eclipse.jnosql.mapping.document.DocumentEventPersistManager;
@@ -210,13 +210,14 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 	
 	protected <T> T persist(T entity, UnaryOperator<DocumentEntity> persistAction) {
         return Stream.of(entity)
-                .map(toUnary(getEventManager()::firePreEntity))
-                .map(getConverter()::toDocument)
-                .map(persistAction)
-                .map(t -> getConverter().toEntity(entity, t))
-                .map(toUnary(getEventManager()::firePostEntity))
-                .findFirst()
-                .orElseThrow();
+            .map(toUnary(getEventManager()::firePreEntity))
+            .map(getConverter()::toDocument)
+            .map(persistAction)
+            .peek(t -> System.out.println("Processing " + t.documents()))
+            .map(t -> getConverter().toEntity(entity, t))
+            .map(toUnary(getEventManager()::firePostEntity))
+            .findFirst()
+            .orElseThrow();
     }
 
 }

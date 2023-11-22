@@ -22,11 +22,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.eclipse.jnosql.mapping.Converters;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
 import org.eclipse.jnosql.mapping.document.spi.DocumentExtension;
-import org.eclipse.jnosql.mapping.validation.MappingValidator;
+import org.eclipse.jnosql.mapping.reflection.ConstructorException;
 import org.eclipse.jnosql.mapping.spi.EntityMetadataExtension;
+import org.eclipse.jnosql.mapping.validation.MappingValidator;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -50,7 +52,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 	public Collection<Class<?>> getBeanClasses() {
 		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
 			List<Class<?>> result = new ArrayList<>();
-			Stream.of(DatabaseQualifier.class, AbstractDocumentTemplate.class, MappingValidator.class)
+			Stream.of(DatabaseQualifier.class, AbstractDocumentTemplate.class, MappingValidator.class, ConstructorException.class)
 				.map(FrameworkUtil::getBundle)
 				.flatMap(t -> {
 					try {
@@ -66,6 +68,9 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 			
 			result.add(DefaultDominoTemplateProducer.class);
 			result.add(DominoReflections.class);
+			
+			result.add(Converters.class);
+			result.add(EntityMetadataExtension.class);
 			
 			return result;
 		} else {
