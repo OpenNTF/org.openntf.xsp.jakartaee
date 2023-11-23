@@ -131,6 +131,7 @@ public class NSFJsfServlet extends HttpServlet {
 		delegate.init(config);
 	}
 
+	@SuppressWarnings({ "deprecation", "removal" })
 	@Override
 	// TODO see if synchronization can be handled better
 	public synchronized void service(HttpServletRequest req, HttpServletResponse resp)
