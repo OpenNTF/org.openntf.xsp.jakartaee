@@ -31,11 +31,13 @@ public class TestNoSQLJSF extends AbstractWebClientTest {
 			username.click();
 			username.sendKeys(AdminUserAuthenticator.USER);
 			WebElement password = form.findElement(By.cssSelector("input[name='Password']"));
-			password.clear();
+			password.click();
 			password.sendKeys(AdminUserAuthenticator.PASSWORD);
-			form.submit();
 			
-			assertFalse(driver.manage().getCookies().isEmpty());
+			WebElement submit = form.findElement(By.cssSelector("input[type='submit']"));
+			submit.click();
+			
+			assertFalse(driver.manage().getCookies().isEmpty(), () -> driver.getPageSource());
 		}
 		
 		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/person-list.xhtml");

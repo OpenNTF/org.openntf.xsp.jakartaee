@@ -34,6 +34,7 @@ public class BrowserArgumentsProvider implements ArgumentsProvider {
 		return Stream.of(
 			JakartaTestContainers.instance.firefox.getWebDriver()
 		)
+		.peek(driver -> driver.manage().deleteAllCookies())
 		.map(Arguments::of);
 	}
 
