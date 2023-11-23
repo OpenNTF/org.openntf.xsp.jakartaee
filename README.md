@@ -2,33 +2,33 @@
 
 This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](https://jakarta.ee/specifications/) included in the full Jakarta EE spec, this project currently provides:
 
-- [Servlet 5.0](#servlets) (partial)
-- [Expression Language 4.0](#expression-language)
-- [Contexts and Dependency Injection 3.0](#cdi)
-    - Annotations 2.0
-    - Interceptors 2.0
+- [Servlet 6.0](#servlets) (partial)
+- [Expression Language 5.0](#expression-language)
+- [Contexts and Dependency Injection 4.0](#cdi)
+    - Annotations 2.1
+    - Interceptors 2.1
     - Dependency Injection 2.0
-- [RESTful Web Services (JAX-RS) 3.0](#restful-web-services)
+- [RESTful Web Services (JAX-RS) 3.1](#restful-web-services)
 - [Bean Validation 3.0](#bean-validation)
-- [JSON Processing 2.0](#json-p-and-json-b)
-- [JSON Binding 2.0](#json-p-and-json-b)
-- [XML Binding 3.0](#xml-binding)
+- [JSON Processing 2.1](#json-p-and-json-b)
+- [JSON Binding 3.0](#json-p-and-json-b)
+- [XML Binding 4.0](#xml-binding)
 - [Mail 2.1](#mail)
     - Activation 2.1
-- [Concurrency 2.0](#concurrency)
+- [Concurrency 3.0](#concurrency)
 - [Transactions 2.0](#transactions) (partial)
-- [Server Pages 3.0](#server-pages-and-jstl)
-- [Server Faces 3.0](#server-faces)
-- [MVC 2.0](#mvc)
-- [NoSQL 1.0b4](#nosql)
-- [Persistence 3.0](#persistence-jpa)
+- [Server Pages 3.1](#server-pages-and-jstl)
+- [Server Faces 4.0](#server-faces)
+- [MVC 2.1](#mvc)
+- [Data 1.0b3 and NoSQL 1.0b7](#data-and-nosql)
+- [Persistence 3.1](#persistence-jpa)
 
 It also provides components from [MicroProfile](https://microprofile.io/):
 
-- [OpenAPI 3.0](#openapi)
+- [OpenAPI 3.1](#openapi)
 - [Rest Client 3.0](#microprofile-rest-client)
-- [Config 3.0](#microprofile-config)
-- [Metrics 4.0](#metrics)
+- [Config 3.1](#microprofile-config)
+- [Metrics 5.1](#metrics)
 - [Fault Tolerance 4.0](#microprofile-fault-tolerance)
 - [Health 4.0](#microprofile-health)
 
@@ -309,8 +309,6 @@ application_rest_Sample_hello_elapsedTime_seconds 8.252E-4
 ```
 
 This capability can be disabled by setting `rest.mpmetrics.enable=false` in your Xsp Properties. Note that Fault Tolerance has an implicit dependency on this, and so will also be unavailable if you set this flag.
-
-Note: the semantics and output of this component are likely to change in the future. MicroProfile Metrics 5.0 and above move to being based on Micrometer. As part of MicroProfile 6.0, however, this version requires Java 11 and will only be adopted here when Domino supports at least that Java version.
 
 #### CORS
 
@@ -655,16 +653,16 @@ public class MvcExample {
 
 This will load the JSP file stored as `WebContent/WEB-INF/views/mvc.jsp` in the NSF and evaluate it with the values from "models" and CDI beans available for use.
 
-## NoSQL
+## Data and NoSQL
 
-The [Jakarta NoSQL](https://github.com/eclipse-ee4j/nosql) API provides for semi-database-neutral object mapping for NoSQL databases in a manner similar to JPA for relational databases. Entities are defined with annotations again similar to JPA:
+The [Jakarta Data](https://github.com/jakartaee/data) API provides a high-level API for dealing with underlying databases as repositories, and the [Jakarta NoSQL](https://github.com/eclipse-ee4j/nosql) API provides for semi-database-neutral object mapping for NoSQL databases in a manner similar to JPA for relational databases. Entities are defined with annotations again similar to JPA:
 
 ```java
 package model;
 
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Id;
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
 
 @Entity
 public class Person {
@@ -695,9 +693,9 @@ package model;
 
 import java.util.stream.Stream;
 
-import jakarta.nosql.mapping.Repository;
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 
-public interface PersonRepository extends Repository<Person, String> {
+public interface PersonRepository extends DominoRepository<Person, String> {
 	Stream<Person> findAll();
 	Stream<Person> findByLastName(String lastName);
 }
@@ -824,8 +822,8 @@ import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.nosql.mapping.Database;
-import jakarta.nosql.mapping.DatabaseType;
+import org.eclipse.jnosql.mapping.Database;
+import org.eclipse.jnosql.mapping.DatabaseType;
 import lotus.domino.NotesException;
 
 @RequestScoped
