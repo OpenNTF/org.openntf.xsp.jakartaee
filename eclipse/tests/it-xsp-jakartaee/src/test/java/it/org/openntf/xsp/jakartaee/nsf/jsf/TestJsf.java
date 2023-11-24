@@ -189,13 +189,12 @@ public class TestJsf extends AbstractWebClientTest {
 			WebElement input = spinner.findElement(By.xpath("input[1]"));
 			
 			String value = waitFor(() -> input.getAttribute("value"), "1"::equals);
-			assertEquals("1", value);
+			assertEquals("1", value, () -> "Didn't received expected value with HTML: " + driver.getPageSource());
 			
 			a.click();
 			
 			value = waitFor(() -> input.getAttribute("value"), "2"::equals);
-			
-			assertEquals("2", value);
+			assertEquals("2", value, () -> "Didn't received expected value with HTML: " + driver.getPageSource());
 		} catch(Exception e) {
 			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}

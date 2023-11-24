@@ -20,6 +20,7 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -141,13 +142,14 @@ public abstract class AbstractWebClientTest {
 	
 	protected <T> T waitFor(Supplier<T> supplier, Predicate<T> condition) throws InterruptedException {
 		T result = null;
-		for(int i = 0; i < 500; i++) {
+		for(int i = 0; i < 1000; i++) {
 			result = supplier.get();
 			if(condition.test(result)) {
 				return result;
 			}
 			TimeUnit.MILLISECONDS.sleep(10);
 		}
-		return result;
+		fail("Timed out waiting on condition");
+		return null;
 	}
 }

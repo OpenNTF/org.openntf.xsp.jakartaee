@@ -319,6 +319,7 @@
 						<exclude>**/odp/plugin.xml</exclude>
 						<exclude>**/WeldDefaultProxyServices.java</exclude>
 						<exclude>**/org/eclipse/jnosql/**</exclude>
+						<exclude>**/nsfs/nsf-jakartaee-primefaces-showcase/**</exclude>
 					</excludes>
 					<properties>
 						<owner>Contributors to the XPages Jakarta EE Support Project</owner>
@@ -478,6 +479,7 @@
 				<module>nsfs/nsf-jakartaee-jsonbconfig-example</module>
 				<module>nsfs/nsf-jakartaee-jpa-example</module>
 				<module>nsfs/nsf-jakartaee-primefaces-example</module>
+				<module>nsfs/nsf-jakartaee-primefaces-showcase</module>
 			</modules>
 		</profile>
 		<profile>

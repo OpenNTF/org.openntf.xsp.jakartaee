@@ -34,7 +34,8 @@ public enum TestDatabase {
 		public String getContextPath() {
 			return "/jeeExample";
 		}
-	}
+	},
+	PRIMEFACES_SHOWCASE("nsf-jakartaee-primefaces-showcase", "primefaces-showcase", "XPages JEE PrimeFaces Showcase")
 	;
 	
 	private final String artifactId;
