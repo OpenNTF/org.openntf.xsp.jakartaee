@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.2" replicaid="85258A69006E85D1" version="12.0">
+<noteinfo noteid="f2a" sequence="10" unid="233DD3FA23F73EEC80258A5800794C2A">
+<created><datetime dst="true">20231030T230453,54+01</datetime></created>
+<modified><datetime>20231116T151056,91-05</datetime></modified>
+<revised><datetime>20231116T151056,90-05</datetime></revised>
+<lastaccessed><datetime>20231116T151056,90-05</datetime></lastaccessed>
+<addedtofile><datetime>20231116T150724,05-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Admin SPL14/O=SPL</name><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$TITLE"><text>org/primefaces/showcase/view/menu/MenuView.java</text></item>
+
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>org/primefaces/showcase/view/menu/MenuView.java</text></item>
+
+</note>
