@@ -24,6 +24,9 @@
 							<goal>generate-site-xml</goal>
 						</goals>
 						<phase>package</phase>
+						<configuration>
+							<category>XPages Jakarta EE</category>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
