@@ -629,7 +629,12 @@
 										<DynamicImport-Package>org.jboss.weld.*,jakarta.*</DynamicImport-Package>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 										<Eclipse-ExtensibleAPI>true</Eclipse-ExtensibleAPI>
-										<DynamicImport-Package>org.glassfish.hk2.osgiresourcelocator</DynamicImport-Package>
+										<DynamicImport-Package>
+											org.glassfish.hk2.osgiresourcelocator,
+											org.eclipse.core.runtime,
+											org.osgi.framework,
+											org.openntf.*
+										</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>

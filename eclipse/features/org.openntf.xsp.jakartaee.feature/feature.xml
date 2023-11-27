@@ -348,7 +348,6 @@
 	
 	<!-- NoSQL -->
 	<plugin id="org.openntf.xsp.nosql" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.nosql.scanner" version="0.0.0" unpack="false" fragment="true"/>
 	<plugin id="org.openntf.xsp.nosql.driver" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.nosql.driver.lsxbe" version="0.0.0" unpack="false"/>
 	

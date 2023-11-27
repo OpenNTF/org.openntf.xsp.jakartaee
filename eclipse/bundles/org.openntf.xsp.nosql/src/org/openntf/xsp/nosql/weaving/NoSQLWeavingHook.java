@@ -57,13 +57,13 @@ public class NoSQLWeavingHook implements WeavingHook {
 	}
 	
 	private void processClassScanner(WovenClass c) {
-		CtClass cc = defrost(c, DataRepository.class);
+		CtClass cc = defrost(c, DataRepository.class, org.eclipse.core.runtime.Platform.class, org.osgi.framework.Bundle.class);
 
 		try {
+			// Oddly, making a fragment bundle to use ServiceLoader fails when deployed in an NSF Update Site, so do it a horrible way
 			String body = """
 			{
-				java.util.ServiceLoader instances = java.util.ServiceLoader.load(org.eclipse.jnosql.mapping.metadata.ClassScanner.class, org.eclipse.jnosql.mapping.metadata.ClassScanner.class.getClassLoader());
-				return (org.eclipse.jnosql.mapping.metadata.ClassScanner)instances.findFirst().get();
+				return org.eclipse.core.runtime.Platform.getBundle("org.openntf.xsp.nosql").loadClass("org.openntf.xsp.nosql.scanner.ComponentModuleClassScanner").getConstructor(new Class[0]).newInstance(new Object[0]);
 			}"""; //$NON-NLS-1$
 			CtMethod m = cc.getDeclaredMethod("load"); //$NON-NLS-1$
 			m.setBody(body);
