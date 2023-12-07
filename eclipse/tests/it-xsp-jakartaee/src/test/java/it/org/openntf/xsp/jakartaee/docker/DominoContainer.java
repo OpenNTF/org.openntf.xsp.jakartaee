@@ -174,7 +174,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 			new WaitAllStrategy()
 				.withStrategy(new LogMessageWaitStrategy()
 					.withRegEx(".*Adding sign bit to.*") //$NON-NLS-1$
-					.withTimes(300)
+					.withTimes(4000)
 				)
 				.withStrategy(new LogMessageWaitStrategy()
 					.withRegEx(".*HTTP Server: Started.*") //$NON-NLS-1$
