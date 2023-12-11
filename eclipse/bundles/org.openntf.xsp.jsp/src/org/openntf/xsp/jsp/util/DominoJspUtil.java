@@ -21,8 +21,6 @@ import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -118,5 +116,5 @@ public enum DominoJspUtil {
 		}
 	}
 
-	public static final String PATH_SEP = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("path.separator")); //$NON-NLS-1$
+	public static final String PATH_SEP = LibraryUtil.getSystemProperty("path.separator"); //$NON-NLS-1$
 }

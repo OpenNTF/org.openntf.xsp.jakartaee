@@ -168,7 +168,7 @@ public enum ContainerUtil {
 					if(log.isLoggable(Level.SEVERE)) {
 						log.severe(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
 						if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
-							String classpath = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.class.path")); //$NON-NLS-1$
+							String classpath = LibraryUtil.getSystemProperty("java.class.path"); //$NON-NLS-1$
 							log.severe(MessageFormat.format("Current class path: {0}", classpath));
 						}
 						log.log(Level.SEVERE, "Original exception", e);
