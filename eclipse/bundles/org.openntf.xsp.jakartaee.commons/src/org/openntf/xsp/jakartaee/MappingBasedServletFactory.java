@@ -17,12 +17,15 @@ package org.openntf.xsp.jakartaee;
 
 import java.io.UncheckedIOException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -32,8 +35,8 @@ import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 import jakarta.servlet.ServletContext;
 
 public abstract class MappingBasedServletFactory implements IServletFactory {
+	private static final Map<String, Map<String, Servlet>> MODULE_SERVLETS = new ConcurrentHashMap<>();
 	private ComponentModule module;
-	private Servlet servlet;
 	private long lastUpdate;
 	
 	
@@ -120,10 +123,26 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 	}
 	
 	public final Servlet getExecutorServlet() throws ServletException {
+		Servlet servlet = getServlet();
 		if (servlet == null || lastUpdate < this.module.getLastRefresh()) {
-			this.servlet = createExecutorServlet(this.module);
+			if(servlet != null) {
+				servlet.destroy();
+			}
+			servlet = createExecutorServlet(this.module);
+			setServlet(servlet);
 			lastUpdate = this.module.getLastRefresh();
 		}
 		return servlet;
+	}
+	
+	protected Servlet getServlet() {
+		String id = ModuleUtil.getModuleId(this.module);
+		return MODULE_SERVLETS.computeIfAbsent(id, key -> new ConcurrentHashMap<>())
+			.get(getClass().getName());
+	}
+	protected void setServlet(Servlet servlet) {
+		String id = ModuleUtil.getModuleId(this.module);
+		MODULE_SERVLETS.computeIfAbsent(id, key -> new ConcurrentHashMap<>())
+			.put(getClass().getName(), servlet);
 	}
 }
