@@ -83,6 +83,7 @@ public class NSFJspServlet extends AbstractXspLifecycleServlet {
 				ServletUtil.getListeners(context, ServletRequestListener.class)
 					.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), request)));
 				try {
+					ParserUtils.setDtdResourcePrefix(EarlyInitFactory.getServletDtdPath().toUri().toString());
 					delegate.service(request, response);
 				} finally {
 					ServletUtil.getListeners(context, ServletRequestListener.class)
