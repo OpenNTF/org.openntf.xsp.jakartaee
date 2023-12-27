@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta OSGi Web Container Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.webcontainer.osgi;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.webcontainer.osgi
-Bundle-Version: 2.8.0.qualifier
+Bundle-Version: 2.15.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.commons.util,
