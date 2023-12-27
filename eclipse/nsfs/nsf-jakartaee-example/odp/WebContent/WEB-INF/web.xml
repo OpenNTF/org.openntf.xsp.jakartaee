@@ -13,4 +13,17 @@
     	<param-name>jakarta.faces.FACELETS_LIBRARIES</param-name>
     	<param-value>/WEB-INF/exampleFacelets.taglib.xml</param-value>
     </context-param>
+    
+    <servlet>
+    	<servlet-name>webxml-servlet</servlet-name>
+    	<servlet-class>servlet.WebXmlServlet</servlet-class>
+    	<init-param>
+    		<param-name>initGuy</param-name>
+    		<param-value>I was set by web.xml</param-value>
+    	</init-param>
+    </servlet>
+    <servlet-mapping>
+    	<servlet-name>webxml-servlet</servlet-name>
+    	<url-pattern>/webXmlServlet</url-pattern>
+    </servlet-mapping>
 </web-app>
