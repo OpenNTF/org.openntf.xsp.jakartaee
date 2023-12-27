@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -16,7 +17,7 @@ public class TestContainerResources extends AbstractWebClientTest {
 	@Test
 	public void testIndexHtml() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getContainerAppRootUrl(null) + "/index.html");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.OSGI_CONTAINER) + "/index.html");
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);
@@ -27,7 +28,7 @@ public class TestContainerResources extends AbstractWebClientTest {
 	@Test
 	public void testMetaInfResources() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getContainerAppRootUrl(null) + "/outertextfile.txt");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.OSGI_CONTAINER) + "/outertextfile.txt");
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);
@@ -38,7 +39,7 @@ public class TestContainerResources extends AbstractWebClientTest {
 	@Test
 	public void testMetaInfResourcesEmbeddedJar() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getContainerAppRootUrl(null) + "/innertextfile.txt");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.OSGI_CONTAINER) + "/innertextfile.txt");
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);

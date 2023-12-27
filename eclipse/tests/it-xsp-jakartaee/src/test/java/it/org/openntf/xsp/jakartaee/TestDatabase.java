@@ -35,7 +35,13 @@ public enum TestDatabase {
 			return "/jeeExample";
 		}
 	},
-	PRIMEFACES_SHOWCASE("nsf-jakartaee-primefaces-showcase", "primefaces-showcase", "XPages JEE PrimeFaces Showcase")
+	PRIMEFACES_SHOWCASE("nsf-jakartaee-primefaces-showcase", "primefaces-showcase", "XPages JEE PrimeFaces Showcase"),
+	OSGI_CONTAINER(null, null, "Example OSGi Jakarta Webapp") {
+		@Override
+		public String getContextPath() {
+			return "/jakartaContainerExample";
+		}
+	}
 	;
 	
 	private final String artifactId;
