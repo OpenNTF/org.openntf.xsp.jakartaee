@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,6 +55,8 @@ import jakarta.servlet.http.HttpSessionAttributeListener;
  */
 public enum ServletUtil {
 	;
+	
+	public static final String KEY_WEBXML = ServletUtil.class.getPackage().getName() + "_webXml"; //$NON-NLS-1$
 	
 	private static final Logger log = Logger.getLogger(ServletUtil.class.getName());
 	
@@ -507,48 +510,65 @@ public enum ServletUtil {
 	 */
 	public static void populateWebXmlParams(ComponentModule module, jakarta.servlet.ServletContext context) {
 		if(module != null) {
-			WebXml result = AccessController.doPrivileged((PrivilegedAction<WebXml>)() -> {
-				ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-				Thread.currentThread().setContextClassLoader(ServletUtil.class.getClassLoader());
-				WebXml webXml = new WebXml();
-				try {
-					WebXmlParser parser = new WebXmlParser(false, false, false);
-				
-					InputStream is = module.getResourceAsStream("/WEB-INF/web.xml"); //$NON-NLS-1$
-					if(is != null) {
-						if(log.isLoggable(Level.FINE)) {
-							log.fine(MessageFormat.format("Processing web.xml in {0}", module.getModuleName()));
-						}
-						InputSource source = new InputSource(is);
-						parser.parseWebXml(source, webXml, false);
-					}
-					
-					// Look for META-INF/web-fragment.xml files
-					ClassLoader cl = module.getModuleClassLoader();
-					if(cl != null) {
-						Enumeration<URL> fragments = cl.getResources("META-INF/web-fragment.xml"); //$NON-NLS-1$
-						for(URL url : Collections.list(fragments)) {
-							if(log.isLoggable(Level.FINE)) {
-								log.fine(MessageFormat.format("Processing web-fragment.xml {0} in {1}", url, module.getModuleName()));
-							}
-							InputStream fis = url.openStream();
-							if(fis != null) {
-								InputSource source = new InputSource(fis);
-								parser.parseWebXml(source, webXml, true);
-							}
-						}
-					}
-				} catch(Exception e) {
-					if(log.isLoggable(Level.WARNING)) {
-						log.log(Level.WARNING, MessageFormat.format("Encountered exception processing web.xml in {0}", module.getModuleName()), e);
-					}
-				} finally {
-					Thread.currentThread().setContextClassLoader(tccl);
-				}
-				return webXml;
-			});
+			WebXml result = getWebXml(module);
 			// Now populate resolved params
 			result.getContextParams().forEach(context::setInitParameter);
 		}
+	}
+	
+	/**
+	 * Process any WEB-INF/web.xml and META-INF/web-fragment.xml files in the module
+	 * into a deployment descriptor.
+	 * 
+	 * @param module the module to load resources from
+	 * @return a {@link WebXml} descriptor object for the module
+	 * @since 2.15.0
+	 */
+	public static WebXml getWebXml(ComponentModule module) {
+		if(module == null) {
+			return new WebXml();
+		}
+		
+		Map<String, Object> attrs = module.getAttributes();
+		return (WebXml)attrs.computeIfAbsent(KEY_WEBXML, key -> AccessController.doPrivileged((PrivilegedAction<WebXml>)() -> {
+			ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(ServletUtil.class.getClassLoader());
+			WebXml webXml = new WebXml();
+			try {
+				WebXmlParser parser = new WebXmlParser(false, false, false);
+			
+				InputStream is = module.getResourceAsStream("/WEB-INF/web.xml"); //$NON-NLS-1$
+				if(is != null) {
+					if(log.isLoggable(Level.FINE)) {
+						log.fine(MessageFormat.format("Processing web.xml in {0}", module.getModuleName()));
+					}
+					InputSource source = new InputSource(is);
+					parser.parseWebXml(source, webXml, false);
+				}
+				
+				// Look for META-INF/web-fragment.xml files
+				ClassLoader cl = module.getModuleClassLoader();
+				if(cl != null) {
+					Enumeration<URL> fragments = cl.getResources("META-INF/web-fragment.xml"); //$NON-NLS-1$
+					for(URL url : Collections.list(fragments)) {
+						if(log.isLoggable(Level.FINE)) {
+							log.fine(MessageFormat.format("Processing web-fragment.xml {0} in {1}", url, module.getModuleName()));
+						}
+						InputStream fis = url.openStream();
+						if(fis != null) {
+							InputSource source = new InputSource(fis);
+							parser.parseWebXml(source, webXml, true);
+						}
+					}
+				}
+			} catch(Exception e) {
+				if(log.isLoggable(Level.WARNING)) {
+					log.log(Level.WARNING, MessageFormat.format("Encountered exception processing web.xml in {0}", module.getModuleName()), e);
+				}
+			} finally {
+				Thread.currentThread().setContextClassLoader(tccl);
+			}
+			return webXml;
+		}));
 	}
 }

@@ -152,7 +152,7 @@ public class TestJsf extends AbstractWebClientTest {
 		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/somefakepage.xhtml");
 		Response response = target.request().get();
 		
-		assertEquals(404, response.getStatus());
+		checkResponse(404, response);
 		
 		String content = response.readEntity(String.class);
 		assertFalse(StringUtil.isEmpty(content));

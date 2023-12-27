@@ -99,4 +99,15 @@ public class TestNsfServlet extends AbstractWebClientTest {
 		String body = response.readEntity(String.class);
 		assertEquals("foo=bar", body);
 	}
+	
+	@Test
+	public void testWebXmlServlet() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/xsp/webXmlServlet");
+		Response response = target.request().get();
+		checkResponse(200, response);
+		
+		String body = response.readEntity(String.class);
+		assertEquals("I am the web.xml Servlet, and I was initialized with I was set by web.xml", body);
+	}
 }

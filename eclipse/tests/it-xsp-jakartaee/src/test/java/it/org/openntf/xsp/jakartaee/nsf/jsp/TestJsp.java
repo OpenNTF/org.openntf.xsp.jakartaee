@@ -15,7 +15,6 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.jsp;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.jupiter.api.Test;
@@ -44,7 +43,7 @@ public class TestJsp extends AbstractWebClientTest {
 		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/somefakepage.jsp");
 		Response response = target.request().get();
 		
-		assertEquals(404, response.getStatus());
+		checkResponse(404, response);
 		
 		String content = response.readEntity(String.class);
 		assertFalse(StringUtil.isEmpty(content));
