@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package it.org.openntf.xsp.jakartaee.nsf.json;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.AdminUserAuthenticator;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
@@ -48,7 +50,7 @@ public class TestRestJson extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(AnonymousClientProvider.class)
 	public void testJsonp(Client client) {
-		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonp");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jsonExample/jsonp");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -59,7 +61,7 @@ public class TestRestJson extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(AnonymousClientProvider.class)
 	public void testJsonb(Client client) {
-		WebTarget target = client.target(getRestUrl(null) + "/jsonExample");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jsonExample");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -70,25 +72,17 @@ public class TestRestJson extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(AnonymousClientProvider.class)
 	public void testJsonbCdi(Client client) {
-		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonb");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jsonExample/jsonb");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
-		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-		String jsonMessage = jsonObject.getString("jsonMessage");
-		assertTrue(jsonMessage.startsWith("I'm application guy at "));
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(AnonymousClientProvider.class)
-	public void testJsonbSlashMap(Client client) {
-		WebTarget target = client.target(getRestUrl(null) + "/jsonExample/jsonbSlashMap");
-		Response response = target.request().get();
-		
-		String json = response.readEntity(String.class);
-		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-		String jsonMessage = jsonObject.getString("test\\pom.xml");
-		assertEquals("hello", jsonMessage);
+		try {
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			String jsonMessage = jsonObject.getString("jsonMessage");
+			assertTrue(jsonMessage.startsWith("I'm application guy at "));
+		} catch(Exception e) {
+			fail("Encountered exception parsing " + json, e);
+		}
 	}
 	
 	@Test

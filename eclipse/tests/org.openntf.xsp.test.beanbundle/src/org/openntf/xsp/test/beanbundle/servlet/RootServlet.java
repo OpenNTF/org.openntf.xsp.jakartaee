@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ public class RootServlet extends HttpServlet {
 		} catch(Throwable t) {
 			try(PrintWriter w = response.getWriter()) {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				XSPErrorPage.handleException(w, t, request.getRequestURL().toString(), false);
+				XSPErrorPage.handleException(w, t, null, false);
 			} catch (javax.servlet.ServletException e) {
 				throw new IOException(e);
 			} catch(IllegalStateException e) {

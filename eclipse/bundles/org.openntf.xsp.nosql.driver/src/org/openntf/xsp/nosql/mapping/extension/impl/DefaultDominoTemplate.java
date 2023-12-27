@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
+import java.time.temporal.TemporalAccessor;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -22,6 +23,8 @@ import java.util.stream.Stream;
 import org.eclipse.jnosql.mapping.document.AbstractDocumentTemplate;
 import org.eclipse.jnosql.mapping.reflection.ClassMappings;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.ViewInfo;
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
@@ -115,8 +118,8 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult) {
-		return getManager().viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, singleResult)
+	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct) {
+		return getManager().viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, singleResult, distinct)
 			.map(getConverter()::toEntity)
 			.map(d -> (T)d);
 	}
@@ -160,6 +163,47 @@ public class DefaultDominoTemplate extends AbstractDocumentTemplate implements D
 		}
 		
 		return getManager().getById(entityName, String.valueOf(id)).map(getConverter()::toEntity);
+	}
+	
+	@Override
+	public Stream<ViewInfo> getViewInfo() {
+		return getManager().getViewInfo();
+	}
+	
+	@Override
+	public <T> Optional<T> getByName(String entityName, String name, String userName) {
+		return getManager().getByName(entityName, name, userName).map(getConverter()::toEntity);
+	}
+	
+	@Override
+	public <T> Optional<T> getProfileDocument(String entityName, String profileName, String userName) {
+		return getManager().getProfileDocument(entityName, profileName, userName).map(getConverter()::toEntity);
+	}
+
+	@Override
+	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pagination pagination) {
+		return getManager().readCalendarRange(start, end, pagination);
+	}
+	
+	@Override
+	public Optional<String> readCalendarEntry(String uid) {
+		return getManager().readCalendarEntry(uid);
+	}
+
+	@Override
+	public String createCalendarEntry(String icalData, boolean sendInvitations) {
+		return getManager().createCalendarEntry(icalData, sendInvitations);
+	}
+
+	@Override
+	public void updateCalendarEntry(String uid, String icalData, String comment, boolean sendInvitations,
+			boolean overwrite, String recurId) {
+		getManager().updateCalendarEntry(uid, icalData, comment, sendInvitations, overwrite, recurId);
+	}
+
+	@Override
+	public void removeCalendarEntry(String uid, CalendarModScope scope, String recurId) {
+		getManager().removeCalendarEntry(uid, scope, recurId);
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,12 @@ import org.openntf.xsp.nosql.mapping.extension.EntryType;
 
 import java.time.Instant;
 
+import jakarta.mvc.binding.MvcBinding;
 import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Entity;
 import jakarta.nosql.mapping.Id;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.ws.rs.FormParam;
 
 @Entity("Person")
 public class Person {
@@ -36,9 +38,11 @@ public class Person {
 	private String unid;
 	
 	@Column("FirstName") @NotEmpty
+	@MvcBinding @FormParam("firstName")
 	private String firstName;
 	
 	@Column("LastName") @NotEmpty
+	@MvcBinding @FormParam("lastName")
 	private String lastName;
 	
 	@Column("birthday")
@@ -103,6 +107,13 @@ public class Person {
 	
 	@Column(DominoConstants.FIELD_FTSEARCHSCORE)
 	private int ftSearchScore;
+	
+	@Column("Age")
+	private Integer age;
+	
+	@Column("Email")
+	@MvcBinding @FormParam("email")
+	private String email;
 
 	public String getUnid() {
 		return unid;
@@ -218,5 +229,19 @@ public class Person {
 	}
 	public int getIndentLevel() {
 		return indentLevel;
+	}
+	
+	public Integer getAge() {
+		return age;
+	}
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+	
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }

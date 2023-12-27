@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.openqa.selenium.WebDriver;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestBasics extends AbstractWebClientTest {
@@ -33,7 +34,7 @@ public class TestBasics extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testFrameset(WebDriver driver) {
-		driver.get(getRootUrl(driver));
+		driver.get(getRootUrl(driver, TestDatabase.MAIN));
 		
 		assertDoesNotThrow(() -> By.xpath("//frameset"));
 	}

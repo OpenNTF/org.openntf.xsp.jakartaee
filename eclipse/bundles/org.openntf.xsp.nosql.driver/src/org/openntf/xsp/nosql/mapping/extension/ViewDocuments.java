@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,4 +45,12 @@ public @interface ViewDocuments {
 	 * @return the maximum entry level to process
 	 */
 	int maxLevel() default -1;
+	
+	/**
+	 * @return whether only distinct documents should
+	 *         be returned, regardless of how often they
+	 *         appear in the view
+	 * @since 2.11.0
+	 */
+	boolean distinct() default false;
 }

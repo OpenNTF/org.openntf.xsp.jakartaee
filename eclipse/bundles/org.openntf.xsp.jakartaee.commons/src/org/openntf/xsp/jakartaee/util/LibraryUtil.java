@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.openntf.xsp.jakartaee.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
@@ -26,6 +25,7 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,15 +44,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.osgi.util.ManifestElement;
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 import org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
 
-import lotus.domino.Database;
-import lotus.domino.NotesException;
-import lotus.domino.Session;
 import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -61,9 +57,10 @@ import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.xsp.application.ApplicationEx;
 
-import jakarta.activation.MimetypesFileTypeMap;
-import jakarta.activation.spi.MailcapRegistryProvider;
 import jakarta.annotation.Priority;
+import lotus.domino.Database;
+import lotus.domino.NotesException;
+import lotus.domino.Session;
 
 /**
  * Utility methods for working with XSP Libraries.
@@ -73,20 +70,6 @@ import jakarta.annotation.Priority;
  */
 public enum LibraryUtil {
 	;
-	
-	private static final MimetypesFileTypeMap mimeTypeMap;
-	static {
-		// Switch the current ClassLoader in order to allow MimetypesFileMap to find its resources
-		ClassLoader activationCl = MailcapRegistryProvider.class.getClassLoader();
-		mimeTypeMap = withClassLoader(activationCl, () -> {
-			try {
-				return new MimetypesFileTypeMap();
-			} catch(Exception e) {
-				e.printStackTrace();
-				throw e;
-			}
-		});
-	}
 	
 	private static final Map<String, Long> NSF_MOD = new HashMap<>();
 	private static final Map<String, Properties> NSF_PROPS = new ConcurrentHashMap<>();
@@ -127,9 +110,23 @@ public enum LibraryUtil {
 	public static boolean isLibraryActive(String libraryId) {
 		return findExtensions(ComponentEnabledLocator.class)
 			.stream()
-			.sorted(DescendingPriorityComparator.INSTANCE)
+			.sorted(PriorityComparator.DESCENDING)
 			.filter(ComponentEnabledLocator::isActive)
 			.anyMatch(locator -> locator.isComponentEnabled(libraryId));
+	}
+	
+	/**
+	 * Attempts to determine whether all of the given XPages Libraries are
+	 * active for the current application.
+	 * 
+	 * @param libraryIds the library IDs to check
+	 * @return {@code true} if all libraries are active; {@code false} if any
+	 *         of them are not or if the context application cannot be
+	 *         identified
+	 * @since 2.11.0
+	 */
+	public static boolean isLibraryActive(String... libraryIds) {
+		return Stream.of(libraryIds).allMatch(LibraryUtil::isLibraryActive);
 	}
 	
 	/**
@@ -143,11 +140,7 @@ public enum LibraryUtil {
 	 * @since 2.3.0
 	 */
 	public static String getApplicationProperty(String prop, String defaultValue) {
-		return findExtensions(ApplicationPropertyLocator.class)
-			.stream()
-			.sorted(DescendingPriorityComparator.INSTANCE)
-			.filter(ApplicationPropertyLocator::isActive)
-			.findFirst()
+		return ApplicationPropertyLocator.getDefault()
 			.map(locator -> locator.getApplicationProperty(prop, defaultValue))
 			.orElse(defaultValue);
 	}
@@ -279,13 +272,15 @@ public enum LibraryUtil {
 			
 			if(needsRebuild) {
 				props = new Properties();
+				
 				try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
 					if(is != null) {
 						props.load(is);
 					}
-				} catch (IOException e) {
+				} catch(IOException e) {
 					throw new UncheckedIOException(e);
 				}
+				
 				attributes.put(PROP_XSPPROPS, props);
 				attributes.put(PROP_XSPPROPSREAD, lastMod);
 			}
@@ -308,6 +303,27 @@ public enum LibraryUtil {
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> findExtensions(Class<T> extensionClass) {
 		return (List<T>)EXTENSION_CACHE.computeIfAbsent(extensionClass, LibraryUtil::findExtensionsUncached);
+	}
+	
+	/**
+	 * Finds extensions for the given class using the IBM Commons extension mechanism as well as inside
+	 * the provided module using the ServiceLoader mechanism. Global instances are store in a
+	 * per-extension-class cache.
+	 * 
+	 * <p>This method assumes that the extension point name is the same as the qualified class name.</p>
+	 * 
+	 * @param <T> the class of extension to find
+	 * @param extensionClass the class object representing the extension point
+	 * @param module the {@link ComponentModule} to load from
+	 * @return a {@link List} of service objects for the class
+	 */
+	public static <T> List<T> findExtensions(Class<T> extensionClass, ComponentModule module) {
+		List<T> result = new ArrayList<>();
+		if(module != null && module.getModuleClassLoader() != null) {
+			ServiceLoader.load(extensionClass, module.getModuleClassLoader()).forEach(result::add);
+		}
+		result.addAll(findExtensions(extensionClass));
+		return result;
 	}
 	
 	/**
@@ -343,19 +359,7 @@ public enum LibraryUtil {
 		return findExtensions(extensionClass)
 			.stream()
 			.filter(Objects::nonNull)
-			.sorted((a, b) -> {
-				int priorityA = Optional.ofNullable(a.getClass().getAnnotation(Priority.class))
-					.map(Priority::value)
-					.orElse(ascending ? Integer.MAX_VALUE : 0);
-				int priorityB = Optional.ofNullable(b.getClass().getAnnotation(Priority.class))
-					.map(Priority::value)
-					.orElse(ascending ? Integer.MAX_VALUE : 0);
-				if(ascending) {
-					return Integer.compare(priorityA, priorityB);
-				} else {
-					return Integer.compare(priorityB, priorityA);
-				}
-			})
+			.sorted(ascending ? PriorityComparator.ASCENDING : PriorityComparator.DESCENDING)
 			.collect(Collectors.toList());
 	}
 	
@@ -453,70 +457,13 @@ public enum LibraryUtil {
 	 * @since 2.4.0
 	 */
 	public static Path getTempDirectory() {
-		String osName = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("os.name")); //$NON-NLS-1$
+		String osName = getSystemProperty("os.name"); //$NON-NLS-1$
 		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
 			return Paths.get("/tmp"); //$NON-NLS-1$
 		} else {
-			String tempDir = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+			String tempDir = getSystemProperty("java.io.tmpdir"); //$NON-NLS-1$
 			return Paths.get(tempDir);
 		}
-	}
-	
-	/**
-	 * Attempts to glean the MIME type for the given file based on its name.
-	 * 
-	 * @param fileName the file name to analyze
-	 * @return a MIME type for the file, or {@code application/octet-stream} if
-	 *         none can be determined
-	 * @since 2.8.0
-	 */
-	public static String detectMimeType(String fileName) {
-		return mimeTypeMap.getContentType(fileName);
-	}
-	
-	/**
-	 * Searches through the provided bundle to find all exported class names.
-	 * 
-	 * <p>This restricts querying to bundles with a beans.xml file and to classes within
-	 * the bundle's {@code Export-Package} listing.</p>
-	 * 
-	 * @param bundle a {@link Bundle} instance to query
-	 * @param onlyExported restrict searching to packages marked for export
-	 * @return a {@link Stream} of discovered exported classes
-	 * @throws RuntimeException if there is a problem parsing the bundle manifest
-	 * @since 2.8.0
-	 */
-	public static Stream<String> findBundleClassNames(Bundle bundle, boolean onlyExported) {
-		Collection<String> packages = null;
-		if(onlyExported) {
-			String exportPackages = bundle.getHeaders().get("Export-Package"); //$NON-NLS-1$
-			if(StringUtil.isNotEmpty(exportPackages)) {
-				try {
-					ManifestElement[] elements = ManifestElement.parseHeader("Export-Package", exportPackages); //$NON-NLS-1$
-					Arrays.stream(elements)
-						.map(ManifestElement::getValue)
-						.filter(StringUtil::isNotEmpty)
-						.collect(Collectors.toSet());
-				} catch(BundleException e) {
-					throw new RuntimeException(e);
-				}
-			} else {
-				return Stream.empty();
-			}
-		}
-		Set<String> classNames = new HashSet<>();
-		String baseUrl = bundle.getEntry("/").toString(); //$NON-NLS-1$
-		List<URL> entries = Collections.list(bundle.findEntries("/", "*.class", true)); //$NON-NLS-1$ //$NON-NLS-2$
-		return entries.stream()
-			.parallel()
-			.map(String::valueOf)
-			.map(url -> url.substring(baseUrl.length()))
-			.map(LibraryUtil::toClassName)
-			.filter(StringUtil::isNotEmpty)
-			.filter(className -> packages == null || packages.contains(className.substring(0, className.lastIndexOf('.'))))
-			.filter(className -> !classNames.contains(className))
-			.peek(classNames::add)
-			.sequential();
 	}
 	
 	/**
@@ -525,7 +472,7 @@ public enum LibraryUtil {
 	 * @param resourceName the resource name to convert, e.g. "foo/bar.class"
 	 * @return the Java class name, or {@code null} if the entry is not
 	 *         a class file
-	 * @since 2.8.0
+	 * @since 2.4.0
 	 */
 	public static String toClassName(String resourceName) {
 		if(StringUtil.isEmpty(resourceName)) {
@@ -541,5 +488,34 @@ public enum LibraryUtil {
 		return resourceName
 			.substring(0, resourceName.length()-".class".length()) //$NON-NLS-1$
 			.replace('/', '.');
+	}
+	
+	/**
+	 * Retrieves the provided system property, wrapping the call in an
+	 * {@code AccessController} block if applicable.
+	 * 
+	 * @param propName the name of the property to retrieve
+	 * @return the value of the property
+	 * @since 2.15.0
+	 */
+	@SuppressWarnings({ "deprecation", "removal" })
+	public static String getSystemProperty(String propName) {
+		return AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty(propName));
+	}
+	
+	/**
+	 * Sets the provided system property, wrapping the call in an
+	 * {@code AccessController} block if applicable.
+	 * 
+	 * @param propName the name of the property to set
+	 * @param value the new value to set
+	 * @since 2.15.0
+	 */
+	@SuppressWarnings({ "deprecation", "removal" })
+	public static void setSystemProperty(String propName, String value) {
+		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+			System.setProperty(propName, value);
+			return null;
+		});
 	}
 }

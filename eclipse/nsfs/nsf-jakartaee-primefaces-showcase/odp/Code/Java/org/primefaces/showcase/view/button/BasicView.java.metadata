@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.2" replicaid="85258A69006E85D1" version="12.0">
+<noteinfo noteid="d0a" sequence="9" unid="E7845FCD7CA78A0C80258A5800794999">
+<created><datetime dst="true">20231030T230446,97+01</datetime></created>
+<modified><datetime>20231116T151045,97-05</datetime></modified>
+<revised><datetime>20231116T151045,96-05</datetime></revised>
+<lastaccessed><datetime>20231116T151045,96-05</datetime></lastaccessed>
+<addedtofile><datetime>20231116T150722,69-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Admin SPL14/O=SPL</name><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$TITLE"><text>org/primefaces/showcase/view/button/BasicView.java</text></item>
+
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>org/primefaces/showcase/view/button/BasicView.java</text></item>
+
+</note>

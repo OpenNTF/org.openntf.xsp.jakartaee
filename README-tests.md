@@ -17,7 +17,9 @@ The `tests/it-xsp-jakartaee` module uses [Testcontainers](https://www.testcontai
 The requirements to run this test are:
 
 - An available local or remote Docker runtime (remote is untested, but _should_ work)
-- A built and installed Domino container image created via the [domino-docker project](https://github.com/IBM/domino-docker) of at least version 12, tagged as "hclcom/domino"
+- An installed version of the official Domino container image, or compatible
+
+The default container base image is `domino-container:V1202_11032022prod`, the 12.0.2 release. This can be overridden by setting the Java property `jakarta.baseImage` to a new image name when running tests
 
 #### Building For Tests
 

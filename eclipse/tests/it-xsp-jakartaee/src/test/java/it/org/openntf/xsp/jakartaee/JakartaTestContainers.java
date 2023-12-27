@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,16 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.PostgreSQLContainer;
 
-import it.org.openntf.xsp.jakartaee.nsf.docker.DominoContainer;
+import it.org.openntf.xsp.jakartaee.docker.DominoContainer;
 
 public enum JakartaTestContainers {
 	instance;
@@ -36,6 +39,7 @@ public enum JakartaTestContainers {
 		.driver("bridge") //$NON-NLS-1$
 		.build();
 	public GenericContainer<?> domino;
+	public PostgreSQLContainer<?> postgres;
 	
 	@SuppressWarnings("resource")
 	private JakartaTestContainers() {
@@ -64,8 +68,17 @@ public enum JakartaTestContainers {
 						break;
 					}
 				});
+			postgres = new PostgreSQLContainer<>("postgres:15.2") //$NON-NLS-1$
+				.withUsername("postgres") //$NON-NLS-1$
+				.withPassword("postgres") //$NON-NLS-1$
+				.withDatabaseName("jakarta") //$NON-NLS-1$
+				.withNetwork(network)
+				.withNetworkAliases("postgresql") //$NON-NLS-1$
+				.withStartupTimeout(Duration.of(2, ChronoUnit.MINUTES));
+			postgres.addExposedPort(5432);
 			
 			domino.start();
+			postgres.start();
 			// The above waits for "Adding sign bit" from AdminP, but we have no
 			//   solid indication when it's done. For now, wait a couple seconds
 			try {
@@ -77,6 +90,9 @@ public enum JakartaTestContainers {
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				if(domino != null) {
 					domino.close();
+				}
+				if(postgres != null) {
+					postgres.close();
 				}
 				network.close();
 				

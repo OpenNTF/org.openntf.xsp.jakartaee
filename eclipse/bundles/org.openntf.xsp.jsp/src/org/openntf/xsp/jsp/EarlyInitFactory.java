@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.Enumeration;
 
@@ -76,10 +74,7 @@ public class EarlyInitFactory implements IServiceFactory {
 		NSFService.addHandledExtensions(".jsp"); //$NON-NLS-1$
 		
 		// This property is used by Jasper to see if it should use AccessController blocks
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
-			System.setProperty("package.definition", "org.apache.jsp"); //$NON-NLS-1$ //$NON-NLS-2$
-			return null;
-		});
+		LibraryUtil.setSystemProperty("package.definition", "org.apache.jsp"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	private void deployServletDtds() throws URISyntaxException, IOException {
@@ -110,7 +105,6 @@ public class EarlyInitFactory implements IServiceFactory {
 		Bundle jstl = LibraryUtil.getBundle("org.glassfish.web.jakarta.servlet.jsp.jstl").get(); //$NON-NLS-1$
 		Path jstlDest = destDir.resolve(jstl.getSymbolicName() + "_" + jstl.getVersion() + ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
 		if(!Files.exists(jstlDest)) {
-			@SuppressWarnings("deprecation")
 			Path jstlSource = FileLocator.getBundleFile(jstl).toPath();
 			Files.copy(jstlSource, jstlDest);
 		}

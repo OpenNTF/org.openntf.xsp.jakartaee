@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,16 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.jaxrs;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.StringReader;
+
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -30,6 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestJaxRs extends AbstractWebClientTest {
@@ -37,7 +44,7 @@ public class TestJaxRs extends AbstractWebClientTest {
 	@Test
 	public void testSample() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/sample");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -51,7 +58,7 @@ public class TestJaxRs extends AbstractWebClientTest {
 	@Test
 	public void testSampleXml() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/sample/xml");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/xml");
 		Response response = target.request().get();
 		
 		Document xmlDoc = response.readEntity(Document.class);
@@ -67,10 +74,71 @@ public class TestJaxRs extends AbstractWebClientTest {
 	@ValueSource(strings = { "/", "" })
 	public void testBaseResource(String path) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + path);
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + path);
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
 		assertEquals("I am the base resource.", output);
+	}
+	
+	/**
+	 * Tests to ensure that a post-matching ContainerResponseFilter adds its custom
+	 * header.
+	 * 
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/382">Issue #382</a>
+	 */
+	@Test
+	public void testRequestFilter() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN));
+		Response response = target.request().get();
+		
+		assertEquals("hello", response.getHeaderString("X-ExampleHeaderFilter"));
+	}
+
+	/**
+	 * Tests that an in-NSF service class can contribute a configuration property
+	 * programmatically.
+	 * 
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/168">Issue #168</a>
+	 */
+	@Test
+	public void testContributedProperty() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsConfig");
+		Response response = target.request().get();
+		
+		String json = response.readEntity(String.class);
+		try {
+			JsonObject config = Json.createReader(new StringReader(json)).readObject();
+			assertNotNull(config);
+			assertEquals("EXPLICIT", config.getString("jakarta.mvc.security.CsrfProtection", null));
+		} catch(Exception e) {
+			fail("Received unexpected JSON: " + json, e);
+		}
+	}
+	
+	/**
+	 * Tests that an in-NSF web.xml file can contribute context parameters that will be picked up
+	 * by JAX-RS
+	 * 
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/469">Issue #469</a>
+	 */
+	@Test
+	public void testWebXmlProperty() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsConfig/servlet");
+		Response response = target.request().get();
+		
+		String json = response.readEntity(String.class);
+		try {
+			JsonObject config = Json.createReader(new StringReader(json)).readObject();
+			assertNotNull(config);
+			
+			assertEquals("I am the param value", config.getString("org.openntf.example.param", null), () ->  "Received unexpected JSON: " + json);
+			assertEquals("I am the param value from a fragment in a JAR", config.getString("org.openntf.example.fragment.param", null), () ->  "Received unexpected JSON: " + json);
+		} catch(Exception e) {
+			fail("Received unexpected JSON: " + json, e);
+		}
 	}
 }

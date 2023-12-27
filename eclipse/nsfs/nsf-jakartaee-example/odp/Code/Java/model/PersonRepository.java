@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,19 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
+import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Param;
 import jakarta.nosql.mapping.Query;
 import jakarta.nosql.mapping.Sorts;
 
 public interface PersonRepository extends DominoRepository<Person, String> {
 	String FOLDER_PERSONS = "Persons Folder";
+	String VIEW_PERSONS_CAT = "Persons Categorized";
+	String VIEW_PERSONS_CAT_DUP = "Persons Categorized Duplicated";
 	String VIEW_PERSONS = "Persons";
 	
 	Stream<Person> findAll();
@@ -42,8 +46,14 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	Optional<Person> findByKey(ViewQuery viewQuery);
 	
 	@ViewEntries(VIEW_PERSONS)
-	Stream<Person> findByKeyMulti(ViewQuery viewQuery);
+	Stream<Person> findByKeyMulti(ViewQuery viewQuery, Sorts sorts, Pagination pagination);
 	
 	@Query("select * from Person where modified >= @modified")
 	Stream<Person> findModifiedSince(@Param("modified") Instant modified);
+	
+	@ViewDocuments(VIEW_PERSONS_CAT)
+	Stream<Person> findCategorized(ViewQuery viewQuery);
+	
+	@ViewDocuments(value=VIEW_PERSONS_CAT_DUP, distinct=true)
+	Stream<Person> findCategorizedDistinct(ViewQuery viewQuery);
 }

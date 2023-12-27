@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
+import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -33,6 +34,7 @@ import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.ServiceLoaderProvider;
@@ -57,6 +59,16 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 	private static final Method saveWithForm;
 	private static final Method getByNoteId;
 	private static final Method getByNoteIdInt;
+	private static final Method readViewEntries;
+	private static final Method readViewDocuments;
+	private static final Method getViewInfo;
+	private static final Method findNamedDocument;
+	private static final Method findProfileDocument;
+	private static final Method readCalendarRange;
+	private static final Method readCalendarEntry;
+	private static final Method createCalendarEntry;
+	private static final Method updateCalendarEntry;
+	private static final Method removeCalendarEntry;
 	
 	static {
 		try {
@@ -65,6 +77,16 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			saveWithForm = DominoRepository.class.getDeclaredMethod("save", Object.class, boolean.class); //$NON-NLS-1$
 			getByNoteId = DominoRepository.class.getDeclaredMethod("findByNoteId", String.class); //$NON-NLS-1$
 			getByNoteIdInt = DominoRepository.class.getDeclaredMethod("findByNoteId", int.class); //$NON-NLS-1$
+			readViewEntries = DominoRepository.class.getDeclaredMethod("readViewEntries", String.class, int.class, boolean.class, ViewQuery.class, Sorts.class, Pagination.class); //$NON-NLS-1$
+			readViewDocuments = DominoRepository.class.getDeclaredMethod("readViewDocuments", String.class, int.class, boolean.class, ViewQuery.class, Sorts.class, Pagination.class); //$NON-NLS-1$
+			getViewInfo = DominoRepository.class.getDeclaredMethod("getViewInfo"); //$NON-NLS-1$
+			findNamedDocument = DominoRepository.class.getDeclaredMethod("findNamedDocument", String.class, String.class); //$NON-NLS-1$
+			findProfileDocument = DominoRepository.class.getDeclaredMethod("findProfileDocument", String.class, String.class); //$NON-NLS-1$
+			readCalendarRange = DominoRepository.class.getDeclaredMethod("readCalendarRange", TemporalAccessor.class, TemporalAccessor.class, Pagination.class); //$NON-NLS-1$
+			readCalendarEntry = DominoRepository.class.getDeclaredMethod("readCalendarEntry", String.class); //$NON-NLS-1$
+			createCalendarEntry = DominoRepository.class.getDeclaredMethod("createCalendarEntry", String.class, boolean.class); //$NON-NLS-1$
+			updateCalendarEntry = DominoRepository.class.getDeclaredMethod("updateCalendarEntry", String.class, String.class, String.class, boolean.class, boolean.class, String.class); //$NON-NLS-1$
+			removeCalendarEntry = DominoRepository.class.getDeclaredMethod("removeCalendarEntry", String.class, CalendarModScope.class, String.class); //$NON-NLS-1$
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -105,6 +127,21 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			Object result = template.viewEntryQuery(entityName, viewEntries.value(), pagination, sorts, viewEntries.maxLevel(), viewEntries.documentsOnly(), viewQuery, singleResult);
 			return convert(result, method);
 		}
+		if(method.equals(readViewEntries)) {
+			String viewName = (String)args[0];
+			int maxLevel = (int)args[1];
+			boolean documentsOnly = (boolean)args[2];
+			ViewQuery viewQuery = (ViewQuery)args[3];
+			Sorts sorts = (Sorts)args[4];
+			Pagination pagination = (Pagination)args[5];
+			
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, documentsOnly, viewQuery, false);
+			return convert(result, method);
+		}
 		
 		// View documents support
 		ViewDocuments viewDocuments = method.getAnnotation(ViewDocuments.class);
@@ -116,10 +153,26 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			if(entityName == null || entityName.isEmpty()) {
 				entityName = typeClass.getSimpleName();
 			}
+			boolean distinct = viewDocuments.distinct();
 			
 			Class<?> returnType = method.getReturnType();
 			boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
-			Object result = template.viewDocumentQuery(entityName, viewDocuments.value(), pagination, sorts, viewDocuments.maxLevel(), viewQuery, singleResult);
+			Object result = template.viewDocumentQuery(entityName, viewDocuments.value(), pagination, sorts, viewDocuments.maxLevel(), viewQuery, singleResult, distinct);
+			return convert(result, method);
+		}
+		if(method.equals(readViewDocuments)) {
+			String viewName = (String)args[0];
+			int maxLevel = (int)args[1];
+			boolean distinct = (boolean)args[2];
+			ViewQuery viewQuery = (ViewQuery)args[3];
+			Sorts sorts = (Sorts)args[4];
+			Pagination pagination = (Pagination)args[5];
+			
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, false, distinct);
 			return convert(result, method);
 		}
 		
@@ -166,6 +219,47 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			}
 			Object result = template.getByNoteId(entityName, Integer.toHexString((int)args[0]));
 			return convert(result, method);
+		}
+		
+		if(method.equals(getViewInfo)) {
+			return template.getViewInfo();
+		}
+		
+		if(method.equals(findNamedDocument)) {
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.getByName(entityName, (String)args[0], (String)args[1]);
+			return convert(result, method);
+		}
+		
+		if(method.equals(findProfileDocument)) {
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.getProfileDocument(entityName, (String)args[0], (String)args[1]);
+			return convert(result, method);
+		}
+		
+		// Calendar operations
+		if(method.equals(readCalendarRange)) {
+			return template.readCalendarRange((TemporalAccessor)args[0], (TemporalAccessor)args[1], (Pagination)args[2]);
+		}
+		if(method.equals(readCalendarEntry)) {
+			return template.readCalendarEntry((String)args[0]);
+		}
+		if(method.equals(createCalendarEntry)) {
+			return template.createCalendarEntry((String)args[0], (boolean)args[1]);
+		}
+		if(method.equals(updateCalendarEntry)) {
+			template.updateCalendarEntry((String)args[0], (String)args[1], (String)args[2], (boolean)args[3], (boolean)args[4], (String)args[5]);
+			return null;
+		}
+		if(method.equals(removeCalendarEntry)) {
+			template.removeCalendarEntry((String)args[0], (CalendarModScope)args[1], (String)args[2]);
+			return null;
 		}
 		
 		return method.invoke(repository, args);

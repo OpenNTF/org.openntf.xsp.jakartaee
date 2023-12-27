@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -117,7 +118,10 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public <T extends EventListener> void addListener(T listener) {
-		getOtherListeners().add(listener);
+		Collection<EventListener> listeners = getOtherListeners();
+		if(!listeners.contains(listener)) {
+			listeners.add(listener);
+		}
 	}
 
 	@Override
@@ -233,7 +237,11 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public Enumeration<String> getInitParameterNames() {
-		return delegate.getInitParameterNames();
+		Map<String, String> params = getExtraInitParameters();
+		Set<String> paramNames = new HashSet<>();
+		paramNames.addAll(Collections.list(delegate.getInitParameterNames()));
+		paramNames.addAll(params.keySet());
+		return Collections.enumeration(paramNames);
 	}
 
 	@Override
@@ -349,17 +357,29 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public URL getResource(String path) throws MalformedURLException {
+		if("/WEB-INF/faces-config.xml".equals(path)) { //$NON-NLS-1$
+			URL alternative = delegate.getResource("/WEB-INF/jakarta/faces-config.xml"); //$NON-NLS-1$
+			if(alternative != null) {
+				return alternative;
+			}
+		}
 		return delegate.getResource(path);
 	}
 
 	@Override
-	public InputStream getResourceAsStream(String arg0) {
-		return delegate.getResourceAsStream(arg0);
+	public InputStream getResourceAsStream(String path) {
+		if("/WEB-INF/faces-config.xml".equals(path)) { //$NON-NLS-1$
+			InputStream alternative = delegate.getResourceAsStream("/WEB-INF/jakarta/faces-config.xml"); //$NON-NLS-1$
+			if(alternative != null) {
+				return alternative;
+			}
+		}
+		return delegate.getResourceAsStream(path);
 	}
 
 	@Override
-	public Set<String> getResourcePaths(String arg0) {
-		return delegate.getResourcePaths(arg0);
+	public Set<String> getResourcePaths(String path) {
+		return delegate.getResourcePaths(path);
 	}
 
 	@Override

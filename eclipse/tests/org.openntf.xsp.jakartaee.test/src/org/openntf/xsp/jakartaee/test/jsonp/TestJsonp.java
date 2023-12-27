@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,10 @@ package org.openntf.xsp.jakartaee.test.jsonp;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
-
 import jakarta.json.Json;
 
 import org.junit.Test;
 
-@Ignore("Currently fails due to OSGi loading specifics with the WeavingHooks")
 @SuppressWarnings("nls")
 public class TestJsonp {
 	@Test

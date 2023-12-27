@@ -1,6 +1,6 @@
 <!--
 
-    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@
 				<include>README.md</include>
 				<include>LICENSE</include>
 				<include>NOTICE.md</include>
+				<include>COMPATIBILITY.md</include>
 				<include>legal/**</include>
 			</includes>
 			<outputDirectory>.</outputDirectory>
@@ -44,6 +45,14 @@
 			<includes>
 				<include>**/*</include>
 			</includes>
+			<excludes>
+				<exclude>*/build.properties</exclude>
+				<exclude>*/.project</exclude>
+				<exclude>*/.classpath</exclude>
+				<exclude>*/.settings/**</exclude>
+				<exclude>*/META-INF/**</exclude>
+				<exclude>*/target/**</exclude>
+			</excludes>
 			<outputDirectory>examples</outputDirectory>
 		</fileSet>
 	</fileSets>

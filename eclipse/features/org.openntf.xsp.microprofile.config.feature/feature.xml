@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.microprofile.config.feature"
       label="XPages MicroProfile Config 3.0 Support Feature"
-      version="2.9.0.qualifier">
+      version="2.15.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -239,7 +239,7 @@
    </requires>
 
    <plugin id="org.openntf.xsp.microprofile.config" version="0.0.0" unpack="false"/>
-   <plugin id="org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
+   <plugin id="org.openntf.org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.config.smallrye-config" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.config.smallrye-config-common" version="0.0.0" unpack="false"/>
    <plugin id="io.smallrye.config.smallrye-config-core" version="0.0.0" unpack="false"/>

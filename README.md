@@ -2,36 +2,37 @@
 
 This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](https://jakarta.ee/specifications/) included in the full Jakarta EE spec, this project currently provides:
 
-- Servlet 5.0 (partial)
-- Expression Language 4.0
-- Contexts and Dependency Injection 3.0
+- [Servlet 5.0](#servlets) (partial)
+- [Expression Language 4.0](#expression-language)
+- [Contexts and Dependency Injection 3.0](#cdi)
     - Annotations 2.0
     - Interceptors 2.0
     - Dependency Injection 2.0
-- RESTful Web Services (JAX-RS) 3.0
-- Bean Validation 3.0
-- JSON Processing 2.0
-- JSON Binding 2.0
-- XML Binding 3.0
-- Mail 2.1
+- [RESTful Web Services (JAX-RS) 3.0](#restful-web-services)
+- [Bean Validation 3.0](#bean-validation)
+- [JSON Processing 2.0](#json-p-and-json-b)
+- [JSON Binding 2.0](#json-p-and-json-b)
+- [XML Binding 3.0](#xml-binding)
+- [Mail 2.1](#mail)
     - Activation 2.1
-- Concurrency 2.0
-- Transactions 2.0 (partial)
-- Server Pages 3.0
-- Server Faces 3.0
-- MVC 2.0
-- NoSQL 1.0b4
+- [Concurrency 2.0](#concurrency)
+- [Transactions 2.0](#transactions) (partial)
+- [Server Pages 3.0](#server-pages-and-jstl)
+- [Server Faces 3.0](#server-faces)
+- [MVC 2.0](#mvc)
+- [NoSQL 1.0b4](#nosql)
+- [Persistence 3.0](#persistence-jpa)
 
 It also provides components from [MicroProfile](https://microprofile.io/):
 
-- OpenAPI 3.0
-- Rest Client 3.0
-- Config 3.0
-- Metrics 4.0
-- Fault Tolerance 4.0
-- Health 4.0
+- [OpenAPI 3.0](#openapi)
+- [Rest Client 3.0](#microprofile-rest-client)
+- [Config 3.0](#microprofile-config)
+- [Metrics 4.0](#metrics)
+- [Fault Tolerance 4.0](#microprofile-fault-tolerance)
+- [Health 4.0](#microprofile-health)
 
-## CDI 3.0
+## CDI
 
 The [Jakarta Contexts and Dependency Injection 3.0](https://jakarta.ee/specifications/cdi/3.0/) specification provides for managed beans and dependency injection. To use this feature, add the "org.openntf.xsp.cdi" library to your XPages app.
 
@@ -111,7 +112,7 @@ This implementation maps CDI `@ConversationScoped` beans to the XPages view scop
 
 Currently, the CDI environment for the application acts as if there is a `META-INF/beans.xml` file with `bean-discovery-mode="all"` set, but only resolves within the active NSF. So, while NSF beans and classes can reference each other, plugin and system classes are not available for CDI injection.
 
-## Expression Language 4.0
+## Expression Language
 
 The [Expression Language 4.0](https://jakarta.ee/specifications/expression-language/4.0/) spec is the evolved version of the original Expression Language as used in XPages. It contains numerous improvements over its predecessors, such as method parameters and [lambda expressions](http://www.baeldung.com/jsf-expression-language-el-3). To use this feature, add the "org.openntf.xsp.el" library to your XPages app.
 
@@ -150,6 +151,8 @@ The EL 4 handler is currently stricter about null values than the default handle
 
 In standard XPages, this will result in an empty output. With the EL 4 resolver, however, this will cause an exception like `ELResolver cannot handle a null base Object with identifier 'beanThatDoesNotExist'`. I'm considering changing this behavior to match the XPages default, but there's also some value in the strictness, especially because the exception is helpful in referencing the object it's trying to resolve against, which could help track down subtle bugs.
 
+Additionally, if you use Server JavaScript bindings inside a theme (e.g. `rendered="${javascript:...}"`), the resolver will complain on the server console if there is whitespace immediately following `javascript:`.
+
 ## Servlets
 
 This project adds support for specifying Servlets in an NSF using the `@WebServlet` annotation. For example:
@@ -184,11 +187,33 @@ These Servlets participate in the XPages lifecycle and have programmatic access 
 
 Note, however, that other Servlet artifacts such as `@WebFilter` and `@WebListener` are not yet supported.
 
+#### web.xml
+
+It also adds preliminary support for web.xml, currently in the form of only supporting context parameters. For example, this file can be stored in the NSF in WebContext/WEB-INF/web.xml:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+	  version="5.0" metadata-complete="false">
+	
+	<context-param>
+		<param-name>org.openntf.example.param</param-name>
+		<param-value>I am the param value</param-value>
+	</context-param>
+</web-app>
+```
+
+When present, this will cause the "org.openntf.example.param" parameter to be set and available for all Jakarta users of `ServletContext`, such as Servlets, REST, Pages, and Faces.
+
+Such parameters can also be defined in META-INF/web-fragment.xml files inside JARs in the NSF. Note, though, that ordering of these files relative to web.xml is not yet supported: they will currently all take priority over web.xml, and will be sorted in the arbitrary order the runtime returns the files.
+
 ## RESTful Web Services
 
 The [RESTful Web Services](https://jakarta.ee/specifications/restful-ws/3.0/) specification is the standard way to provide web services in Java EE applications. A version of it has been included for a long time in Domino by way of the Extension Library. However, this version is also out of date, with Apache Wink implementing JAX-RS 1.1.1.
 
-This library is based on [the work of Martin Pradny](https://www.pradny.com/2017/11/using-jax-rs-inside-nsf.html) and provides JAX-RS 3.0 support by way of [RESTEasy 6.0](https://resteasy.github.io) for classes inside the NSF. When a class is or has a method annotated with `@Path`, it is included as a service beneath `/xsp/app` inside the NSF. For example:
+This library is based on [the work of Martin Pradny](https://www.pradny.com/2017/11/using-jax-rs-inside-nsf.html) and provides JAX-RS support by way of [RESTEasy](https://resteasy.github.io) for classes inside the NSF. When a class is or has a method annotated with `@Path`, it is included as a service beneath `/xsp/app` inside the NSF. For example:
 
 ```java
 package servlet;
@@ -223,6 +248,12 @@ As intimated there, it has access to the CDI environment if enabled, though it d
 
 The path within the NSF can be modified by setting the `org.openntf.xsp.jaxrs.path` property in the NSF's "xsp.properties" file. The value there will be appended to `/xsp`. For example, setting it to `foo` will make the above example available at `/some.nsf/xsp/foo/sample`.
 
+When converting objects to JSON, this will use [JSON-B](#json-p-and-json-b) to stream the response to the client. This streaming can be disabled in favor of pre-buffering for troubleshooting purposes by setting this in xsp.properties:
+
+```properties
+rest.jsonb.stream=false
+```
+
 #### Security
 
 REST resources can be individually secured with the `@RolesAllowed` annotation. Values in this annotation are matched against the user's effective names list: their username, various permutations, their groups, and their DB-specific roles. For example:
@@ -254,6 +285,8 @@ public Response hello() {
 }
 ```
 
+This feature requires that MicroProfile Config is also enabled.
+
 #### Metrics
 
 Using [MicroProfile Metrics](https://github.com/eclipse/microprofile-metrics), it is possible to track invocations and timing from REST services. For example:
@@ -266,7 +299,18 @@ public Response hello() {
 }
 ```
 
-When such a service is executed, its performance is logged and becomes available via `/xsp/app/metrics` within the NSF.
+When such a service is executed, its performance is logged and becomes available via `/xsp/app/metrics` within the NSF:
+
+```
+# TYPE application_rest_Sample_hello_total counter
+application_rest_Sample_hello_total 2.0
+# TYPE application_rest_Sample_hello_elapsedTime_seconds gauge
+application_rest_Sample_hello_elapsedTime_seconds 8.252E-4
+```
+
+This capability can be disabled by setting `rest.mpmetrics.enable=false` in your Xsp Properties. Note that Fault Tolerance has an implicit dependency on this, and so will also be unavailable if you set this flag.
+
+Note: the semantics and output of this component are likely to change in the future. MicroProfile Metrics 5.0 and above move to being based on Micrometer. As part of MicroProfile 6.0, however, this version requires Java 11 and will only be adopted here when Domino supports at least that Java version.
 
 #### CORS
 
@@ -283,11 +327,11 @@ rest.cors.maxAge=600                    # optional
 rest.cors.allowedOrigins=http://foo.com,http://bar.com
 ```
 
-## Bean Validation 3.0
+## Bean Validation
 
 The [Bean Validation](https://jakarta.ee/specifications/bean-validation/3.0/) spec provides a standard mechanism for performing validation of arbitrary objects via annotations. XPages doesn't provide any type of bean validation mechanism - the closest things it provides are UI component validators, but those don't connect to the back-end objects at all.
 
-This library provides validation annotations and a processor via [Hibernate Validator 7.0.1.Final](http://hibernate.org/validator/). Since there is no existing structure to hook into in the XPages runtime, bean validation must be called explicitly by your code, such as in a common "save" method in model objects. This is done by constructing a `Validator` object using the builder and then running it against a given bean. Due to the intricacies of the XPages runtime, code performing validation should be run from an OSGi plugin.
+This library provides validation annotations and a processor via [Hibernate Validator](http://hibernate.org/validator/). Since there is no existing structure to hook into in the XPages runtime, bean validation must be called explicitly by your code, such as in a common "save" method in model objects. This is done by constructing a `Validator` object using the builder and then running it against a given bean. Due to the intricacies of the XPages runtime, code performing validation should be run from an OSGi plugin.
 
 For generic use, this library provides an `org.openntf.xsp.beanvalidation.XPagesValidationUtil` class with methods to construct a `Validator` object and to use that validator to validate a bean:
 
@@ -324,11 +368,12 @@ Using Bean Validation 3.0 requires also having Expression Language 4.0 installed
 
 The [Java API for JSON Processing](https://jakarta.ee/specifications/jsonp/2.0/) spec is the standardized JSON library for Jakarta EE. The lack of a standard API led to the proliferation of similar-but-incompatible libraries like the initial json.org implementation, Google Gson, and (mostly for XPages developers) the IBM Commons JSON implementation. JSON-P is intended to be a simple and functional unified implementation.
 
-The [Java API for JSON Binding](https://jakarta.ee/specifications/jsonb/2.0/) spec is a standardization of JSON serialization of Java objects, something that libraries like Gson specialize in. It allows for converting objects to and from a JSON representation, either with its default guesses or by customizing the processor or annotating the Java class.
+The [Java API for JSON Binding](https://jakarta.ee/specifications/jsonb/2.0/) spec is a standardization of JSON serialization of Java objects, something that libraries like Gson specialize in. It allows for converting objects to and from a JSON representation, either with its default guesses or by customizing the processor or annotating the Java class. This support is provided via [Eclipse Yasson](https://projects.eclipse.org/projects/ee4j.yasson).
 
 The "org.openntf.xsp.jsonapi" library provides both of these libraries to XPages, though they don't replace any standard behavior in the environment. To avoid permissions problems, it contains an `org.openntf.xsp.jsonapi.JSONBindUtil` class to serialize and deserialize objects in `AccessController` blocks:
 
 ```java
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
@@ -351,19 +396,79 @@ public class JsonTest {
 		foo.setFirstName("foo");
 		foo.setLastName("fooson");
 		Jsonb jsonb = JsonbBuilder.create();
+		
+		// {"firstName":"foo","lastName":"fooson"}
 		return JSONBindUtil.toJson(foo, jsonb);
 	}
 	
 	public Object getObject() {
-		Jsonb jsonb = JsonbBuilder.create();
+		// Also injectable via CDI
+		Jsonb jsonb = CDI.current().select(Jsonb.class).get();
 		String json = getJson();
 		return JSONBindUtil.fromJson(json, jsonb, TestBean.class);
 	}
 }
-
 ```
 
-## JSP and JSTL
+By default, JSON-B will export object properties based on publicly-visible getters (e.g. `getFoo()`) and will ignore non-public fields (e.g. `private String foo`). This behavior can be customized with a `PropertyVisibilityStrategy` object, which in turn can be passed to a `JsonbConfig` class. This configuration can be supplied via CDI, in which case it will take effect for CDI-injected `Jsonb` instances as well as in REST requests. See [the `nsf-jakartaee-jsonbconfig-example` NSF](eclipse/nsfs/nsf-jakartaee-jsonbconfig-example/odp/Code/Java/bean/JsonbConfigProvider.java) for an example of this configuration.
+
+## XML Binding
+
+The [XML Binding 3.0](https://jakarta.ee/specifications/xml-binding/3.0/) spec provides for translating objects to and from XML, similar to JSON-B for JSON. In addition to default translations for un-configured objects, this allows for annotating classes with information to specify their translation.
+
+For example:
+
+```java
+@XmlRootElement(name="application-guy")
+public class ApplicationGuy {
+	@XmlElement(name="time")
+	private final long time = System.currentTimeMillis();
+	
+	/* snip */
+}
+```
+
+The `JaxbUtil` class provides a convenience method for creating a `JAXBContext` object to manually marshal (serialize) and unmarshal (deserialize) objects to and from XML. Additionally, objects returned in JAX-RS methods marked as emitting XML will use this implicitly:
+
+```java
+@GET
+@Path("/xml")
+@Produces(MediaType.APPLICATION_XML)
+public Object xml() {
+	// <application-guy>
+	//   <time>1674221690372</time>
+	// </application-guy>
+	return applicationGuy;
+}
+```
+
+## Mail
+
+The [Mail 2.1](https://jakarta.ee/specifications/mail/2.1/) API provides classes for working with MIME and other email technologies. Though this does not integrate with Domino's mail capabilities, it can be useful for generating and processing MIME messages generally. For example:
+
+```java
+@GET
+public Object getMultipart() throws MessagingException {
+	MimeMultipart result = new MimeMultipart();
+	MimeBodyPart part = new MimeBodyPart();
+	part.setContent("i am content", "text/plain");
+	result.addBodyPart(part);
+	result.setPreamble("I am preamble");
+	return result;
+}
+```
+
+This will emit content like:
+
+```
+I am preamble
+------=_Part_0_9550202.1674222767917
+
+i am content
+------=_Part_0_9550202.1674222767917--
+```
+
+## Server Pages and JSTL
 
 [Jakarta Server Pages](https://jakarta.ee/specifications/pages/3.0/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/2.0/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
 
@@ -390,21 +495,42 @@ When this library is enabled, .jsp files in the "Files" or "WebContent" parts of
 
 As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and will allow the use of CDI beans.
 
-## Concurrency 2.0
+## Concurrency
 
 The [Concurrency API](https://jakarta.ee/specifications/concurrency/2.0/concurrency-spec-2.0.html) provides a mechanism for locating and using managed variants of `ExecutorService` and `ScheduledExecutorService` to use contextual application services from within a multithreaded context. These objects can be retrieved using JNDI:
 
 ```java
-ExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+ManagedExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
+ManagedScheduledExecutorService scheduler = InitialContext.doLookup("java:comp/DefaultManagedScheduledExecutorService");
+```
 
-// ...
+...or using CDI:
 
-ScheduledExecutorService scheduler = InitialContext.doLookup("java:comp/DefaultManagedScheduledExecutorService");
+```java
+@Inject @Named("java:comp/DefaultManagedExecutorService")
+private ManagedExecutorService exec;
+
+@Inject @Named("java:comp/DefaultManagedScheduledExecutorService")
+private ManagedScheduledExecutorService scheduler;
 ```
 
 Tasks run from these executors will retain their NSF and requesting user context as well as the application's CDI container.
 
-## Transactions 2.0
+The mechanics of the pool can be configured with several xsp.properties values, with these defaults:
+
+```properties
+concurrency.hungTaskThreshold=0
+concurrency.longRunningTasks=true
+concurrency.corePoolSize=5
+concurrency.maxPoolSize=10
+concurrency.keepAliveSeconds=1800
+concurrency.threadLifetimeSeconds=1800
+concurrency.queueCapacity=0
+```
+
+These values apply to both the normal and scheduled services.
+
+## Transactions
 
 The [Transactions API](https://jakarta.ee/specifications/transactions/2.0/jakarta-transactions-spec-2.0.html) provides a generic way to handle resource transactions. The implementation in this project is a partial one that aims to allow for transactions in the Domino NoSQL driver implementation (see below). For example:
 
@@ -430,40 +556,54 @@ In this case, neither document will actually be saved to their databases.
 
 This implementation does not currently support JNDI referencing or transaction suspension. Though transactions are propagated across Concurrency boundaries, note that Domino transactions are thread-specific and thus should be started and committed within a single thread.
 
-## Server Faces 4.0
+## Server Faces
 
-[Jakarta Server Faces](https://jakarta.ee/specifications/faces/4.0/) is the in-development next form of JSF, the spec XPages forked off from. Version 4.0 of the spec, used here, is in the final stages of development and focuses on removing legacy features and better integrating with other components (such as CDI).
+[Jakarta Server Faces](https://jakarta.ee/specifications/faces/3.0/) is the JEE 9 form of JSF, the spec XPages forked off from.
 
-JSF is implemented here by way of [Apache MyFaces](https://myfaces.apache.org/#/core40).
+JSF is implemented here by way of [Apache MyFaces](https://myfaces.apache.org/#/core30).
 
-A Faces page, like an XPage, is an XML document that is parsed and converted into components for rendering. For example:
+A Faces page, like an XPage, is an XML document that is parsed and converted into components for rendering. When this library is enabled, .jsf and .xhtml files in the "Files" or "WebContent" parts of the NSF will be interpreted as live pages. For example:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <f:view xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:f="jakarta.faces.core"
-      xmlns:h="jakarta.faces.html">
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
 	
     <h:head>
-        <title>JSF 4.0 Hello World</title>
+        <title>JSF 3.0 Hello World</title>
     </h:head>
     <h:body>
-	    	<h2>JSF 4.0 Hello World Example - hello.xhtml</h2>
-	    	
-	    	<dl>
-	    		<dt>facesContext</dt>
-	    		<dd><h:outputText value="#{facesContext}"/></dd>
-	    		
-	    		<dt>requestGuy.message</dt>
-	    		<dd><h:outputText value="#{requestGuy.message}"/></dd>
-	    		
-	    		<dt>Project Stage</dt>
-	    		<dd><h:outputText value="#{facesContext.application.projectStage}"/></dd>
-	    	</dl>
+    	<h2>JSF 3.0 Hello World Example - hello.xhtml</h2>
+    	
+    	<dl>
+    		<dt>facesContext</dt>
+    		<dd><h:outputText value="#{facesContext}"/></dd>
+    		
+    		<dt>requestGuy.message</dt>
+    		<dd><h:outputText value="#{requestGuy.message}"/></dd>
+    		
+    		<dt>Project Stage</dt>
+    		<dd><h:outputText value="#{facesContext.application.projectStage}"/></dd>
+    	</dl>
+    	
+    	<fieldset>
+    		<legend>Example Form</legend>
+    		<h:form>
+    			<h:inputText id="appGuyProperty" value="#{applicationGuy.beanProperty}"/>
+    			<h:commandButton value="Refresh">
+    				<f:ajax execute="appGuyProperty" render="formOutput"/>
+    			</h:commandButton>
+    			
+    			<p><h:outputText id="formOutput" value="#{applicationGuy.beanProperty}"/></p>
+    		</h:form>
+    	</fieldset>
     </h:body>
 </f:view>
 ```
+
+#### Development Mode
 
 The "Project Stage" value can be set in the Xsp Properties file to one of the values from `jakarta.faces.application.ProjectStage`. For example:
 
@@ -472,6 +612,12 @@ jakarta.faces.PROJECT_STAGE=Development
 ```
 
 This is useful to alter internal behaviors and optimizations. For example, setting Development there will cause the runtime to less-heavily cache page definitions.
+
+#### ClassLoaders
+
+Because Faces classes and lifecycle registrations will often conflict with XPages elements, it's not possible to add extensions like [PrimeFaces](https://primefaces.org) as a normal JAR within the application. To work around this, you can put JARs in WebContent/WEB-INF/jakarta/lib - these will be loaded in the Faces class loader, but won't be present in the normal Java classpath of the NSF. Faces UI libraries placed here can be used inside XHTML files, though
+
+Additionally, if you want to use XPages and Faces extension components in faces-config.xml within the same app, you can create a second file, WebContent/WEB-INF/jakarta/faces-config.xml, to house the Faces components. When present, it will be used in preference to the normal file for Faces requests.
 
 ## MVC
 
@@ -578,13 +724,89 @@ public class NoSQLExample {
 }
 ```
 
+Note: the semantics of this component are likely to change in the future. In beta versions after this one, the NoSQL spec reduced its purview in favor of working with the Jakarta Data API. The latter will expose `Repository` types like above, and this will be a breaking change. However, this version requires at least Java 11 and will only be adopted here when Domino supports at least that Java version.
+
+#### Accessing Views
+
+View and folder data can be accessed by writing repository methods annotated with the `org.openntf.xsp.nosql.mapping.extension.ViewEntries` and `org.openntf.xsp.nosql.mapping.extension.ViewDocuments` annotations. For example:
+
+```java
+public interface PersonRepository extends DominoRepository<Person, String> {
+	@ViewDocuments(FOLDER_PERSONS)
+	Stream<Person> findInPersonsFolder();
+	
+	@ViewEntries(VIEW_PERSONS)
+	Optional<Person> findByKey(ViewQuery viewQuery);
+}
+```
+
+The `@ViewDocuments` annotation will retrieve all the documents contained in the view or folder, in entry order, while `@ViewEntries` will read only the entry data. The latter is potentially much faster, but does not provide full access to the underlying documents. Rich-text items are not available, for example, though view columns are accessible by programmatic name (e.g. `$3`). The `org.openntf.xsp.nosql.mapping.extension.ViewQuery` type can be used programmatically to define a query on the view data. For example, in a REST service finding a person entry by the last-name key from the view:
+
+```java
+@Path("byViewKey/{lastName}")
+@GET
+@Produces(MediaType.APPLICATION_JSON)
+public Person getPersonByViewKey(@PathParam("lastName") String lastName) {
+	ViewQuery query = ViewQuery.query().key(lastName, true); // "true" for an exact match
+	return personRepository.findByKey(query)
+		.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
+}
+```
+
+#### Named and Profile Documents
+
+Named and profile documents can be retrieved with the `findNamedDocument` and `findProfileDocument` methods on `DominoRepository` instances. While documents can be readily accessed this way, it is also important to include specific special fields in your model in order to create and update them. For example, for named documents:
+
+```java
+@Entity
+public class SomeNamedDoc {
+	@Id
+	private String documentId;
+	
+	@Column(DominoConstants.FIELD_NOTENAME)
+	private String noteName;
+	
+	// If using key parameters:
+	@Column(DominoConstants.FIELD_USERNAME)
+	private String noteUserName;
+	
+	/* ... */
+}
+```
+
+And for profile documents:
+
+```java
+@Entity
+public class SomeProfileDoc {
+	@Id
+	private String documentId;
+	
+	@Column(DominoConstants.FIELD_PROFILENAME)
+	private String profileName;
+	
+	// If using key parameters:
+	@Column(DominoConstants.FIELD_PROFILEKEY)
+	private String profileKey;
+	
+	/* ... */
+}
+```
+
 #### Document Sources
 
 By default, the driver assumes that documents are stored in the current database. This can be overridden by using the `org.openntf.xsp.nosql.mapping.extension.RepositoryProvider` annotation. For example:
 
 ```java
+package model;
+
+import java.util.stream.Stream;
+
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.nosql.mapping.extension.RepositoryProvider;
+
 @RepositoryProvider("names")
-public interface PersonRepository extends Repository<Person, String> {
+public interface PersonRepository extends DominoRepository<Person, String> {
 	Stream<Person> findAll();
 	Stream<Person> findByLastName(String lastName);
 }
@@ -593,6 +815,19 @@ public interface PersonRepository extends Repository<Person, String> {
 Then, create a CDI bean that can provide the desired database and a `sessionAsSigner` object (which is used for QueryResultsProcessor views), annotated with `jakarta.nosql.mapping.Database`. For example:
 
 ```java
+package bean;
+
+import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
+import org.openntf.xsp.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
+
+import com.ibm.domino.xsp.module.nsf.NotesContext;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.nosql.mapping.Database;
+import jakarta.nosql.mapping.DatabaseType;
+import lotus.domino.NotesException;
+
 @RequestScoped
 public class NamesRepositoryBean {
 	@Produces
@@ -608,6 +843,98 @@ public class NamesRepositoryBean {
 			},
 			() -> NotesContext.getCurrent().getSessionAsSigner()
 		);
+	}
+}
+```
+
+## Persistence (JPA)
+
+The [Persistence](https://jakarta.ee/specifications/persistence/3.0/) API (JPA) provides access and mapping to relational databases in a managed way. This feature builds on the existing [RDBMS support in XPages](https://help.hcltechsw.com/dom_designer/9.0.1/user/wpd_data_rdbms_support.html), using the same underlying configuration for the connection pools.
+
+Declaration of a Persistence class is done similarly to NoSQL:
+
+```java
+package model;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name="companies", schema="public")
+public class Company {
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private Long id;
+	
+	@Column(name="name", length=255)
+	private String name;
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+}
+```
+
+Once you've configured the JDBC connection for XPages, you can then map your class to the connection in a file named `META-INF/persistence.xml` in your NSF's classpath (e.g. added in Code/Java):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+	<persistence-unit name="JPATestProj" transaction-type="JTA">
+		<class>model.Company</class>
+		<jta-data-source>java:comp/env/jdbc/yourconnectionname</jta-data-source>
+		<properties>
+			<property name="jakarta.persistence.jdbc.url" value="java:comp/env/jdbc/yourconnectionname" />
+		</properties>
+	</persistence-unit>
+</persistence>
+```
+
+This will map a JDBC configuration defined in `WebContent/WEB-INF/jdbc/yourconnectionname.jdbc` to the `model.Company` class.
+
+This feature does not currently provide container-managed `EntityManager`s, but they can be built up and used explicitly. For example:
+
+```java
+package rest;
+
+import java.util.List;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import model.Company;
+
+@Path("companies")
+public class CompaniesResource {
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Company> get() {
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("JPATestProj");
+		EntityManager em = emf.createEntityManager();
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<Company> query = cb.createQuery(Company.class);
+			TypedQuery<Company> tq = em.createQuery(query);
+			return tq.getResultList();
+		} finally {
+			em.close();
+		}
 	}
 }
 ```
@@ -707,6 +1034,8 @@ public class FaultToleranceBean {
 }
 ```
 
+This feature requires that MicroProfile Config is also enabled.
+
 ## MicroProfile Health
 
 The [MicroProfile Health](https://github.com/eclipse/microprofile-health) API allows you to create CDI beans that provide health checks and statistics for your application, queryable at standard endpoints. For example:
@@ -779,9 +1108,9 @@ The results of these checks will be available at `/xsp/app/health` (aggregating 
 
 ## Requirements
 
-- Domino FP10+
+- Domino 9.0.1FP10+
 	- NoSQL requires Domino 12.0.1+
-- Designer FP10+ (for compiling the NSF)
+- Designer 9.0.1FP10+ (for compiling the NSF)
 - Some of the APIs require setting the project Java compiler level to 1.8
 
 NoSQL and the MicroProfile Rest Client require loosening Domino's java.policy settings to include:
@@ -792,7 +1121,11 @@ grant {
 };
 ```
 
+If this is unset, problems with NoSQL will manifest with root exceptions like `jakarta.nosql.ProviderNotFoundException: Provider not found: interface jakarta.nosql.document.DocumentQueryParser`.
+
 ## Building
+
+Building requires that Maven run with Java 11 or above.
 
 To build this application, first `package` the `osgi-deps` Maven project, which will provide the target platform dependencies used by the `eclipse` Maven tree.
 

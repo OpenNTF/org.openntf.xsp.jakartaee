@@ -1,0 +1,85 @@
+/**
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package model;
+
+import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+
+import jakarta.nosql.mapping.Column;
+import jakarta.nosql.mapping.Entity;
+import jakarta.nosql.mapping.Id;
+
+@Entity("ExampleNamed")
+public class NamedDoc {
+	public interface Repository extends DominoRepository<NamedDoc, String> {
+		
+	}
+	
+	@Id
+	private String documentId;
+	
+	@Column(DominoConstants.FIELD_NOTENAME)
+	private String noteName;
+	
+	@Column(DominoConstants.FIELD_USERNAME)
+	private String noteUserName;
+	
+	@Column
+	private String subject;
+	
+	@Column
+	private String body;
+
+	public String getDocumentId() {
+		return documentId;
+	}
+
+	public void setDocumentId(String documentId) {
+		this.documentId = documentId;
+	}
+
+	public String getNoteName() {
+		return noteName;
+	}
+
+	public void setNoteName(String noteName) {
+		this.noteName = noteName;
+	}
+
+	public String getNoteUserName() {
+		return noteUserName;
+	}
+
+	public void setNoteUserName(String noteUserName) {
+		this.noteUserName = noteUserName;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+	
+	public String getBody() {
+		return body;
+	}
+	public void setBody(String body) {
+		this.body = body;
+	}
+	
+}

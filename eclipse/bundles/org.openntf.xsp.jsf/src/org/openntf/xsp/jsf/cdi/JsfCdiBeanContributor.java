@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.openntf.xsp.jsf.cdi;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -31,6 +32,9 @@ import jakarta.enterprise.inject.spi.Extension;
 public class JsfCdiBeanContributor implements WeldBeanClassContributor {
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
+		if(LibraryUtil.isLibraryActive(JsfLibrary.LIBRARY_ID)) {
+			return Collections.singleton(FacesConfigBean.class);
+		}
 		return null;
 	}
 

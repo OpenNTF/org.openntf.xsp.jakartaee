@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.io.StringReader;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.ws.rs.client.Client;
@@ -33,7 +34,7 @@ public class TestValidation extends AbstractWebClientTest {
 	@Test
 	public void testValid() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/validation/valid");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/valid");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -44,7 +45,7 @@ public class TestValidation extends AbstractWebClientTest {
 	@Test
 	public void testInvalid() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/validation/invalid");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/invalid");
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);

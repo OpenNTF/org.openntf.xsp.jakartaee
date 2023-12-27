@@ -1,0 +1,18 @@
+* {
+	box-sizing: border-box;
+}
+
+body, html {
+	margin: 0;
+	padding: 0;
+	
+	font-family: -apple-system, "San Francisco", "Segoe UI", serif;
+}
+
+table th, table td {
+	border-collapse: collapse;
+	padding: 0.2em 0.3em;
+}
+table tr:nth-child(odd) td {
+	background-color: #eee;
+}

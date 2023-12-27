@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.2" replicaid="85258A69006E85D1" version="12.0">
+<noteinfo noteid="102a" sequence="4" unid="0CD9E652656559CE85258A6A00020EC6">
+<created><datetime>20231116T192228,54-05</datetime></created>
+<modified><datetime>20231116T192428,55-05</datetime></modified>
+<revised><datetime>20231116T192428,54-05</datetime></revised>
+<lastaccessed><datetime>20231116T192428,54-05</datetime></lastaccessed>
+<addedtofile><datetime>20231116T192228,64-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>schedule-extender.properties</text></item>
+<item name="$TITLE"><text>schedule-extender-examples.properties</text></item></note>

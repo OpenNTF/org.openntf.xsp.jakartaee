@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,15 +35,14 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 
-import org.eclipse.jnosql.mapping.reflection.ClassMapping;
-import org.eclipse.jnosql.mapping.reflection.FieldMapping;
+import org.openntf.xsp.nosql.mapping.extension.BooleanStorage;
 
-import jakarta.nosql.mapping.Column;
 import lotus.domino.Database;
 import lotus.domino.DateRange;
 import lotus.domino.DateTime;
@@ -74,11 +76,11 @@ public enum DominoNoSQLUtil {
 		}
 	}
 
-	public static Object toDominoFriendly(Session session, Object value) throws NotesException {
+	public static Object toDominoFriendly(Session session, Object value, Optional<BooleanStorage> optBoolean) throws NotesException {
 		if(value instanceof Iterable) {
 			Vector<Object> result = new Vector<Object>();
 			for(Object val : (Iterable<?>)value) {
-				result.add(toDominoFriendly(session, val));
+				result.add(toDominoFriendly(session, val, optBoolean));
 			}
 			return result;
 		} else if(value instanceof Date) {
@@ -88,7 +90,16 @@ public enum DominoNoSQLUtil {
 		} else if(value instanceof Number) {
 			return ((Number)value).doubleValue();
 		} else if(value instanceof Boolean) {
-			// TODO figure out if this can be customized, perhaps from the Settings element
+			if(optBoolean.isPresent()) {
+				switch(optBoolean.get().type()) {
+					case DOUBLE:
+						return (Boolean)value ? optBoolean.get().doubleTrue() : optBoolean.get().doubleFalse();
+					case STRING:
+					default:
+						return (Boolean)value ? optBoolean.get().stringTrue() : optBoolean.get().stringFalse();
+					
+				}
+			}
 			return (Boolean)value ? "Y": "N"; //$NON-NLS-1$ //$NON-NLS-2$
 		} else if(value instanceof LocalDate) {
 			// TODO fix these Temporals when the API improves
@@ -105,6 +116,8 @@ public enum DominoNoSQLUtil {
 			Instant inst = Instant.from((TemporalAccessor)value);
 			DateTime dt = session.createDateTime(Date.from(inst));
 			return dt;
+		} else if(value == null) {
+			return null;
 		} else {
 			// TODO support other types above
 			return value.toString();
@@ -128,10 +141,10 @@ public enum DominoNoSQLUtil {
 	 * @param value the value to convert
 	 * @return a stock-JDK object representing the value
 	 */
-	public static Object toJavaFriendly(lotus.domino.Database context, Object value) {
+	public static Object toJavaFriendly(lotus.domino.Database context, Object value, Optional<BooleanStorage> optBoolean) {
 		if(value instanceof Iterable) {
 			return StreamSupport.stream(((Iterable<?>)value).spliterator(), false)
-				.map(val -> toJavaFriendly(context, val))
+				.map(val -> toJavaFriendly(context, val, optBoolean))
 				.collect(Collectors.toList());
 		} else if(value instanceof DateTime) {
 			// TODO improve with a better API
@@ -144,15 +157,33 @@ public enum DominoNoSQLUtil {
 		} else if(value instanceof DateRange) {
 			try {
 				DateRange dr = (DateRange)value;
-				Temporal start = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getStartDateTime());
-				Temporal end = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getEndDateTime());
+				Temporal start = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getStartDateTime(), optBoolean);
+				Temporal end = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getEndDateTime(), optBoolean);
 				return Arrays.asList(start, end);
 			} catch (NotesException e) {
 				throw new RuntimeException(e);
 			}
+		} else if(value instanceof Number) {
+			if(optBoolean.isPresent()) {
+				if(optBoolean.get().type() == BooleanStorage.Type.DOUBLE) {
+					return ((Number)value).doubleValue() == optBoolean.get().doubleTrue();
+				} else {
+					return false;
+				}
+			} else {
+				return value;
+			}
 		} else {
-			// String, Double
-			return value;
+			// String
+			if(optBoolean.isPresent()) {
+				if(optBoolean.get().type() == BooleanStorage.Type.STRING) {
+					return optBoolean.get().stringTrue().equals(value);
+				} else {
+					return false;
+				}
+			} else {
+				return value;
+			}
 		}
 	}
 
@@ -180,6 +211,41 @@ public enum DominoNoSQLUtil {
 			dt.recycle();
 		}
 	}
+	
+	public static DateTime fromTemporal(Session session, TemporalAccessor time) throws NotesException {
+		try {
+			Instant inst = Instant.from(time);
+			return session.createDateTime(Date.from(inst));
+		} catch(DateTimeException e) {	
+		}
+		try {
+			OffsetDateTime dt = OffsetDateTime.from(time);
+			return session.createDateTime(Date.from(dt.toInstant()));
+		} catch(DateTimeException e) {	
+		}
+		try {
+			ZonedDateTime dt = ZonedDateTime.from(time);
+			return session.createDateTime(Date.from(dt.toInstant()));
+		} catch(DateTimeException e) {	
+		}
+		try {
+			LocalDate localDate = LocalDate.from(time);
+			Date date = Date.from(ZonedDateTime.of(localDate, LocalTime.now(), ZoneId.systemDefault()).toInstant());
+			DateTime dt = session.createDateTime(date);
+			dt.setAnyTime();
+			return dt;
+		} catch(DateTimeException e) {
+		}
+		try {
+			LocalTime localTime = LocalTime.from(time);
+			Date date = Date.from(ZonedDateTime.of(LocalDate.now(), localTime, ZoneId.systemDefault()).toInstant());
+			DateTime dt = session.createDateTime(date);
+			dt.setAnyDate();
+			return dt;
+		} catch(DateTimeException e) {
+		}
+		throw new IllegalArgumentException(MessageFormat.format("Unsupported time: {0} (class {1})", time, time == null ? null : time.getClass().getName()));
+	}
 
 	public static InputStream wrapInputStream(InputStream is, String encoding) throws IOException {
 		if("gzip".equals(encoding)) { //$NON-NLS-1$
@@ -196,29 +262,6 @@ public enum DominoNoSQLUtil {
 			return doc != null && doc.isValid() && !doc.isDeleted() && doc.getCreated() != null;
 		} catch (NotesException e) {
 			return false;
-		}
-	}
-	
-	/**
-	 * Determines the back-end item name for the given Java property.
-	 * 
-	 * @param propName the Java property to check
-	 * @param mapping the {@link ClassMapping} instance for the class in question
-	 * @return the effective item name based on the class properties
-	 */
-	public static String findItemName(String propName, ClassMapping mapping) {
-		if(mapping != null) {
-			Column annotation = mapping.getFieldMapping(propName)
-				.map(FieldMapping::getNativeField)
-				.map(f -> f.getAnnotation(Column.class))
-				.orElse(null);
-			if(annotation != null && !annotation.value().isEmpty()) {
-				return annotation.value();
-			} else {
-				return propName;
-			}
-		} else {
-			return propName;
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,7 +97,6 @@ public enum DominoJspUtil {
 		return classpath;
 	}
 	
-	@SuppressWarnings("deprecation")
 	private static void toClasspathEntry(Bundle bundle, List<File> classpath) throws BundleException, IOException {
 		// These entries MUST be filesystem paths
 		classpath.add(FileLocator.getBundleFile(bundle));
@@ -119,5 +116,5 @@ public enum DominoJspUtil {
 		}
 	}
 
-	public static final String PATH_SEP = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("path.separator")); //$NON-NLS-1$
+	public static final String PATH_SEP = LibraryUtil.getSystemProperty("path.separator"); //$NON-NLS-1$
 }

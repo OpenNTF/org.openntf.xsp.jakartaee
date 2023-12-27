@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xe="http://www.ibm.com/xsp/coreex">
+	<h1>Hello there!</h1>
+	<xp:viewPanel rows="30" id="viewPanel1">
+		<xp:this.data>
+			<xe:jdbcRowSet var="jdbcRowSet1" sqlTable="companies"
+				connectionName="trantor">
+			</xe:jdbcRowSet>
+		</xp:this.data>
+		<xp:this.facets>
+			<xp:pager partialRefresh="true" layout="Previous Group Next"
+				xp:key="headerPager" id="pager1">
+			</xp:pager>
+		</xp:this.facets>
+		<xp:viewColumn columnName="id" id="viewColumn1">
+			<xp:viewColumnHeader value="ID" id="viewColumnHeader1"></xp:viewColumnHeader>
+		</xp:viewColumn>
+		<xp:viewColumn columnName="name" id="viewColumn2">
+			<xp:viewColumnHeader value="Name" id="viewColumnHeader2"></xp:viewColumnHeader>
+		</xp:viewColumn>
+	</xp:viewPanel>
+</xp:view>

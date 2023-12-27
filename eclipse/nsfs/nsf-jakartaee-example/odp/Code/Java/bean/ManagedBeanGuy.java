@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,5 +16,8 @@
 package bean;
 
 public class ManagedBeanGuy {
-
+	@Override
+	public String toString() {
+		return "I am ManagedBeanGuy#toString";
+	}
 }

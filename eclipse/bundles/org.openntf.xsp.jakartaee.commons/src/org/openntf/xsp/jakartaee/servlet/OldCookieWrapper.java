@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.openntf.xsp.jakartaee.servlet;
 
 import jakarta.servlet.http.Cookie;
 
-class OldCookieWrapper extends Cookie implements Cloneable {
+class OldCookieWrapper extends Cookie {
 	private static final long serialVersionUID = 1L;
 	
 	final javax.servlet.http.Cookie delegate;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -36,15 +36,12 @@
 		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.bean.BuiltinBeanClassContributor" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.discovery.NSFComponentModuleClassContributor" />
+		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.discovery.ComponentModuleClassContributor" />
 	</extension>
 	
 	<!-- Default CDI container locators -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.ApplicationExCDIContainerLocator" />
-	</extension>
-	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.OSGiServletDatabaseCDIContainerLocator" />
+		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.ComponentModuleCDIContainerLocator" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.cdi.provider.ThreadContextDatabasePathCDIContainerLocator" />
@@ -62,5 +59,9 @@
 	</extension>
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.cdi.concurrency.ConcurrencyBeanClassContributor" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.jboss.weld.serialization.spi.ProxyServices" class="org.openntf.xsp.cdi.util.NSFProxyServices" />
 	</extension>
 </plugin>

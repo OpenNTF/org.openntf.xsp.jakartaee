@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package org.openntf.xsp.jakartaee.discovery.impl;
+
+import java.util.Optional;
+import java.util.Properties;
 
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 
@@ -42,5 +45,10 @@ public class XPagesApplicationPropertyLocator implements ApplicationPropertyLoca
 			return app.getApplicationProperty(prop, defaultValue);
 		}
 		return defaultValue;
+	}
+	
+	@Override
+	public Optional<Properties> getApplicationProperties() {
+		return Optional.empty();
 	}
 }

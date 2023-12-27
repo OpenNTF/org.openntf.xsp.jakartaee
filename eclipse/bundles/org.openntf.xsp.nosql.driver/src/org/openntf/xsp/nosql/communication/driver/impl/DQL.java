@@ -908,9 +908,7 @@ public class DQL {
 	}
 	
 	private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_DATETIME = ThreadLocal.withInitial(() -> DateTimeFormatter.ISO_DATE_TIME);
-	private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_DATE = ThreadLocal.withInitial(() -> DateTimeFormatter.ISO_LOCAL_DATE);
-	private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_TIME = ThreadLocal.withInitial(() ->DateTimeFormatter.ISO_LOCAL_TIME);
-    
+	
 	private static String formatDateValue(final Date dateValue) {
 		//Domino can only store hundredth of a second
 		long dateValueMS = dateValue.getTime();

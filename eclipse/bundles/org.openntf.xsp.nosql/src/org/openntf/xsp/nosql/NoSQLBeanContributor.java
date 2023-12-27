@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.openntf.xsp.nosql.bean.ContextDatabaseSupplier;
 import org.openntf.xsp.nosql.bean.ContextDocumentCollectionManagerProducer;
 import org.openntf.xsp.nosql.mapping.extension.impl.DefaultDominoTemplateProducer;
 import org.openntf.xsp.nosql.mapping.extension.impl.DominoExtension;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
 import jakarta.enterprise.inject.spi.Extension;
@@ -51,14 +52,11 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 			Stream.of(DatabaseQualifier.class, DefaultDocumentQueryPaginationProvider.class, MappingValidator.class)
 				.map(FrameworkUtil::getBundle)
 				.flatMap(t -> {
-					return DiscoveryUtil.findExportedClassNames(t, true)
-						.map(className -> {
-							try {
-								return t.loadClass(className);
-							} catch (ClassNotFoundException e) {
-								throw new RuntimeException(e);
-							}
-						});
+					try {
+						return DiscoveryUtil.findBeanClasses(t, false);
+					} catch (BundleException e) {
+						throw new RuntimeException(e);
+					}
 				})
 				.forEach(result::add);
 			

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>To-Dos</title>
+		<link href="../style/app.css" rel="stylesheet">
+		<script>
+			function listToDos() {
+				const tbody = document.getElementById("todos").querySelector("tbody");
+				
+				fetch("../xsp/app/todos?status=Incomplete")
+					.then(res => res.json())
+					.then(todos => {
+						tbody.innerHTML = "";
+						todos.forEach(entry => {
+							const tr = tbody.appendChild(document.createElement("tr"));
+							
+							tr.appendChild(document.createElement("td")).innerText = entry.created;
+							const titleCell = tr.appendChild(document.createElement("td"));
+							const titleLink = titleCell.appendChild(document.createElement("a"));
+							titleLink.href = "todo.html?Open&documentId=" + entry.documentId;
+							titleLink.innerText = entry.title;
+							tr.appendChild(document.createElement("td")).innerText = entry.status;
+							
+							const actions = tr.appendChild(document.createElement("td"));
+							
+							const toggleButton = actions.appendChild(document.createElement("button"));
+							toggleButton.innerText = "Toggle";
+							toggleButton.addEventListener("click", () => {
+								entry.status = entry.status == "Complete" ? "Incomplete" : "Complete";
+								fetch("../xsp/app/todos/" + entry.documentId + "/toggle", {
+									method: "POST"
+								})
+								.then(res => {
+									listToDos()
+								})
+							});
+							
+							const deleteButton = actions.appendChild(document.createElement("button"));
+							deleteButton.innerText = "Delete";
+							deleteButton.addEventListener("click", () => {
+								if(confirm("Delete this To-Do?")) {
+									fetch("../xsp/app/todos/" + entry.documentId, {
+										method: "DELETE"
+									})
+									.then(res => {
+										listToDos()
+									})
+								}
+							});
+						});
+					})
+			}
+			
+			function saveNewToDo() {
+				const title = document.forms[0].title.value
+				if(!title) {
+					return;
+				}
+				
+				fetch("../xsp/app/todos", {
+					method: "POST",
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ title: title })
+				})
+				.then(json => {
+					listToDos()
+				})
+				
+				return false;
+			}
+		
+			window.addEventListener("load", () => {
+				listToDos();
+			});
+		</script>
+	</head>
+	<body>
+		<div class='app-home'>
+			<div id="todos">
+				<table>
+					<thead>
+						<tr>
+							<th>Created</th>
+							<th>Title</th>
+							<th>Status</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			
+			<fieldset>
+				<legend>New To-Do</legend>
+				
+				<form onsubmit="false">
+					<dl>
+						<dt>Title</dt>
+						<dd><input name="title" id="newToDoTitle" type="text"></dd>
+					</dl>
+					
+					<button onClick="return saveNewToDo()">Save</button>
+				</form>
+			</fieldset>
+		</div>
+	</body>
+</html>

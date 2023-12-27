@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	<xp:this.data>
+		<xe:objectData var="controller" createObject="#{javascript:new controller.ToDosController}"/>
+	</xp:this.data>
+	
+	<xc:layout>
+		<xp:div id="refresher">
+			<xp:dataTable value="#{el:controller.list(param.status)}" var="todo" rows="10000" id="todoList">
+				<xp:column>
+					<xp:this.facets><xp:text xp:key="header" value="Created"/></xp:this.facets>
+					<xp:text value="#{todo.createdDate}"/>
+				</xp:column>
+				<xp:column>
+					<xp:this.facets><xp:text xp:key="header" value="Title"/></xp:this.facets>
+					<xp:link text="#{todo.title}" value="/todo.xsp?documentId=#{todo.documentId}"/>
+				</xp:column>
+				<xp:column>
+					<xp:this.facets><xp:text xp:key="header" value="Status"/></xp:this.facets>
+					<xp:text value="#{todo.status}"/>
+				</xp:column>
+				<xp:column>
+					<xp:button id="toggleState" value="Toggle State">
+						<xp:eventHandler event="onclick" submit="true"
+							refreshMode="partial" refreshId="todoList"
+							action="#{controller.toggleState}"
+							disableValidators="true"/>
+					</xp:button>
+					
+					<xp:button id="deleteToDo" value="Delete">
+						<xp:eventHandler event="onclick" submit="true"
+							refreshMode="partial" refreshId="todoList"
+							action="#{controller.deleteToDo}"
+							disableValidators="true"
+							script="return confirm('Delete this To-Do?')"/>
+					</xp:button>
+				</xp:column>
+			</xp:dataTable>
+		
+			<xe:widgetContainer titleBarText="New To-Do" loaded="${param.status ne 'Complete'}">
+				<xe:formTable>
+					<xe:this.facets>
+						<xp:div xp:key="footer">
+							<xp:button id="saveNewToDo" value="Save">
+								<xp:eventHandler event="onclick" submit="true"
+									refreshMode="partial" refreshId="refresher"
+									action="#{controller.saveNewToDo}"/>
+							</xp:button>
+						</xp:div>
+					</xe:this.facets>
+				
+					<xe:formRow label="Title">
+						<xp:inputText value="#{controller.newToDo.title}"
+							required="true" />
+					</xe:formRow>
+				</xe:formTable>
+			</xe:widgetContainer>
+		</xp:div>
+	</xc:layout>
+
+</xp:view>

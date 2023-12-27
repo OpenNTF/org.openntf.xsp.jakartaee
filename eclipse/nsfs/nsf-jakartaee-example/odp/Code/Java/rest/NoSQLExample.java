@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.nosql.communication.driver.ByteArrayEntityAttachment;
+import org.openntf.xsp.nosql.communication.driver.ViewInfo;
+import org.openntf.xsp.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
 import com.ibm.commons.util.StringUtil;
@@ -48,6 +51,7 @@ import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.internet.MimePart;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
+import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Sorts;
 import jakarta.transaction.UserTransaction;
 import jakarta.validation.constraints.NotEmpty;
@@ -101,6 +105,14 @@ public class NoSQLExample {
 		return personRepository.findInPersonsFolder().collect(Collectors.toList());
 	}
 	
+	@Path("inFolderManual")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getInFolderManual() {
+		return personRepository.readViewEntries(PersonRepository.FOLDER_PERSONS, -1, false, null, null, null)
+			.collect(Collectors.toList());
+	}
+	
 	@Path("servers")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -129,12 +141,14 @@ public class NoSQLExample {
 			@FormParam("birthday") String birthday,
 			@FormParam("favoriteTime") String favoriteTime,
 			@FormParam("added") String added,
-			@FormParam("customProperty") String customProperty
+			@FormParam("customProperty") String customProperty,
+			@FormParam("email") String email
 	) throws Exception {
 		transaction.begin();
 		try {
 			Person person = new Person();
 			composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+			person.setEmail(email);
 			
 			personRepository.save(person);
 			transaction.commit();
@@ -339,6 +353,47 @@ public class NoSQLExample {
 		}
 	}
 	
+	@Path("ftSearch")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> ftSearchView(@QueryParam("search") String search, @QueryParam("search2") String search2) {
+		if(search2 == null || search2.isEmpty()) {
+			return personRepository.findByKeyMulti(
+				ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
+				null,
+				null
+			).collect(Collectors.toList());
+		} else {
+			return personRepository.findByKeyMulti(
+				ViewQuery.query().ftSearch(Arrays.asList(search, search2), EnumSet.of(FTSearchOption.UPDATE_INDEX)),
+				null,
+				null
+			).collect(Collectors.toList());
+		}
+	}
+	
+	@Path("ftSearchSorted")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> ftSearchViewSorted(@QueryParam("search") String search) {
+		return personRepository.findByKeyMulti(
+			ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
+			Sorts.sorts().desc("firstName"),
+			null
+		).collect(Collectors.toList());
+	}
+	
+	@Path("ftSearchPaginated")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> ftSearchViewPaginated(@QueryParam("search") String search, @QueryParam("page") int page, @QueryParam("size") int size) {
+		return personRepository.findByKeyMulti(
+			ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
+			null,
+			Pagination.page(page).size(size)
+		).collect(Collectors.toList());
+	}
+	
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -500,7 +555,7 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Person> getPersonByViewKeyMulti(@PathParam("lastName") String lastName) {
 		ViewQuery query = ViewQuery.query().key(lastName, true);
-		return personRepository.findByKeyMulti(query).collect(Collectors.toList());
+		return personRepository.findByKeyMulti(query, null, null).collect(Collectors.toList());
 	}
 	
 	@Path("byViewTwoKeys/{lastName}/{firstName}")
@@ -534,6 +589,72 @@ public class NoSQLExample {
 	public List<Person> getPersonByModified(@PathParam("modified") String modified) {
 		Instant mod = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(modified));
 		return personRepository.findModifiedSince(mod).collect(Collectors.toList());
+	}
+	
+	@Path("findCategorized/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getCategorized(@PathParam("lastName") String lastName) {
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.findCategorized(query).collect(Collectors.toList());
+	}
+	
+	@Path("findCategorizedManual/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getCategorizedManual(@PathParam("lastName") String lastName) {
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.readViewDocuments(PersonRepository.VIEW_PERSONS_CAT, -1, false, query, null, null)
+			.collect(Collectors.toList());
+	}
+	
+	@Path("findCategorizedDistinct/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> getCategorizedDistinct(@PathParam("lastName") String lastName) {
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.findCategorizedDistinct(query).collect(Collectors.toList());
+	}
+	
+	@Path("listViews")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ViewInfo> listViews() {
+		return personRepository.getViewInfo().collect(Collectors.toList());
+	}
+	
+	/**
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/463">Issue #463</a>
+	 */
+	@Path("queryByEmail")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> queryByEmail(@QueryParam("q") @NotEmpty String searchValue) {
+		ViewQuery query = ViewQuery.query().key(searchValue, true);
+		return personRepository.readViewDocuments("PersonEmail", -1, false, query, null, null).collect(Collectors.toList());
+	}
+	
+	/**
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/463">Issue #463</a>
+	 */
+	@Path("queryByEmailOneKey")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> queryByEmailOneKey(@QueryParam("q") @NotEmpty String searchValue, @QueryParam("resort") boolean resort) {
+		ViewQuery query = ViewQuery.query().key(searchValue, true);
+		Sorts sorts = resort ? Sorts.sorts().asc("email") : null;
+		return personRepository.readViewDocuments("PersonEmailOneKey", -1, false, query, sorts, null).collect(Collectors.toList());
+	}
+	
+	/**
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/463">Issue #463</a>
+	 */
+	@Path("queryByEmailEntries")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Person> queryByEmailEntries(@QueryParam("q") @NotEmpty String searchValue) {
+		ViewQuery query = ViewQuery.query().key(searchValue, true);
+		return personRepository.readViewEntries("PersonEmail", -1, false, query, null, null).collect(Collectors.toList());
 	}
 	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {

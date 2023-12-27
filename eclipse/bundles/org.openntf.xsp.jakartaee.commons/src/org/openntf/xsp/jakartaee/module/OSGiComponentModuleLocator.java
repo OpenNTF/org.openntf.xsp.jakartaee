@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,21 @@ package org.openntf.xsp.jakartaee.module;
 import jakarta.annotation.Priority;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import lotus.domino.Database;
+import lotus.domino.Session;
 
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
+import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesDatabase;
+import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.domino.xsp.adapter.osgi.AbstractOSGIModule;
 import com.ibm.domino.xsp.adapter.osgi.NotesContext;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
@@ -70,6 +77,7 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 		osgiNotesContextRequestField = request[0];
 		osgiNotesContextModuleField = module[0];
 	}
+	private static final Logger log = Logger.getLogger(OSGiComponentModuleLocator.class.getPackage().getName());
 	
 	private boolean isAvailable() {
 		return osgiNotesContextRequestField != null;
@@ -126,6 +134,41 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 		return Optional.empty();
 	}
 
+	@Override
+	public Optional<String> getVersion() {
+		return Optional.empty();
+	}
 	
+	@Override
+	public Optional<NotesDatabase> getNotesDatabase() {
+		try {
+			return Optional.ofNullable(ContextInfo.getServerDatabase());
+		} catch (NotesAPIException e) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered exception trying to open the context database", e);
+			}
+			return Optional.empty();
+		}
+	}
+	
+	@Override
+	public Optional<Database> getUserDatabase() {
+		return Optional.ofNullable(ContextInfo.getUserDatabase());
+	}
+	
+	@Override
+	public Optional<Session> getUserSession() {
+		return Optional.ofNullable(ContextInfo.getUserSession());
+	}
+	
+	@Override
+	public Optional<Session> getSessionAsSigner() {
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<Session> getSessionAsSignerWithFullAccess() {
+		return Optional.empty();
+	}
 
 }

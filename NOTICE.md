@@ -1,6 +1,6 @@
 XPages Jakarta EE Support
 
-Portions (c) Copyright 2018-2022 Jesse Gallagher
+Portions (c) Copyright 2018-2023 Jesse Gallagher
 Portions (c) Copyright 2018 Martin Pradny
 Portions (c) Copyright 2022 Per Lausten
 
@@ -14,6 +14,7 @@ The project contains the following third-party code:
 - pristo_rest by Martin Pradny, available from https://bitbucket.org/pradnik/pristo_rest/src/master/to.pris.rest.xsp/src/to/pris/rest/ and used with permission
 - Portions of Domino JNA, available from https://github.com/klehmann/domino-jna and licensed under Apache 2.0
 - Code derived from the Darwino JNoSQL driver, available from https://github.com/darwino/diana-driver and licensed under Apache 2.0
+- Code derived from the SmallRye Metrics implementation, available from https://github.com/smallrye/smallrye-metrics and licensed under Apache 2.0
 
 The binary distribution contains the following 3rd party code:
 
@@ -35,6 +36,7 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta Transactions API, available from https://github.com/jakartaee/transactions and licensed under the EPL 2.0
 - The Jakarta MVC API, available from https://github.com/eclipse-ee4j/mvc-api and licensed under the EPL 2.0
 - The Jakarta NoSQL API, available from https://github.com/eclipse-ee4j/nosql and licensed under the EPL 2.0
+- The Jakarta Persistence API, available from https://github.com/jakartaee/persistence and licensed under the EPL 2.0
 - The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
 - The MicroProfile Config API, available from https://github.com/eclipse/microprofile-config and licensed under the EPL 2.0
 - The MicroProfile Metrics API, available from https://github.com/eclipse/microprofile-metrics and licensed under the EPL 2.0
@@ -46,7 +48,8 @@ The binary distribution contains the following 3rd party code:
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
 - ClassMate, available from https://github.com/FasterXML/java-classmate and licensed under Apache 2.0
 - Hibernate Validator, available from http://hibernate.org/validator/ and licensed under Apache 2.0
-- Apache Johnzon and its JSON-B provider, available from https://johnzon.apache.org/ and licensed under Apache 2.0
+- Eclipse Yasson, available from https://github.com/eclipse-ee4j/yasson and licensed under the EPL 2.0
+- GlassFish JSON-P Provider, available from https://projects.eclipse.org/projects/ee4j.jsonp and licensed under the EPL 2.0
 - The Eclipse Implementation of JAXB, available from https://github.com/eclipse-ee4j/jaxb-ri and licensed under the EPL 2.0
 - The Eclipse Angus Activation implementation, available from https://github.com/eclipse-ee4j/angus-activation and licensed under the EPL 2.0
 - The Eclipse Angus Mail implementation, available from https://github.com/eclipse-ee4j/angus-mail and licensed under the Eclipse Public License 2.0. See "LICENSE-angus.md" and "LICENSE-angus.md" in the "legal" directory
@@ -57,6 +60,7 @@ The binary distribution contains the following 3rd party code:
 	- See legal/NOTICE-myfaces.txt for downstream third-party components, which are licensed under Apache 2.0 and the CDDL
 - Eclipse Krazo, available from https://github.com/eclipse-ee4j/krazo and licensed under the EPL 2.0
 - Eclipse JNoSQL, available from https://github.com/eclipse/jnosql and licensed under the EPL 1.0
+- EclipseLink, available from https://www.eclipse.org/eclipselink and licensed under the EPL 2.0
 - The GlassFish Concurrency implementation, available from https://github.com/eclipse-ee4j/concurrency-ri and licensed under the EPL 2.0
 - The SmallRye OpenAPI implementation, available from https://github.com/smallrye/smallrye-open-api and licensed under Apache 2.0
 - The SmallRye Metrics implementation, available from https://github.com/smallrye/smallrye-metrics and licensed under Apache 2.0

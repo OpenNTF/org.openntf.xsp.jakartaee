@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package org.openntf.xsp.cdi.context;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.enterprise.context.spi.CreationalContext;
 
@@ -27,7 +27,7 @@ import jakarta.enterprise.context.spi.CreationalContext;
 public class BasicScopeContextHolder implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private final Map<String, BasicScopeInstance<?>> beans = new HashMap<>();
+	private final Map<String, BasicScopeInstance<?>> beans = new ConcurrentHashMap<>();
 
 	public Map<String, BasicScopeInstance<?>> getBeans() {
 		return beans;

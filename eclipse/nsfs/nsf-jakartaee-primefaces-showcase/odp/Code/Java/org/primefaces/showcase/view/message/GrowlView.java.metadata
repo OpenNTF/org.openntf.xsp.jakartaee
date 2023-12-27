@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.2" replicaid="85258A69006E85D1" version="12.0">
+<noteinfo noteid="f2e" sequence="9" unid="D484DCE7D9DA55B980258A5800794C2E">
+<created><datetime dst="true">20231030T230453,58+01</datetime></created>
+<modified><datetime>20231116T151056,99-05</datetime></modified>
+<revised><datetime>20231116T151056,98-05</datetime></revised>
+<lastaccessed><datetime>20231116T151056,98-05</datetime></lastaccessed>
+<addedtofile><datetime>20231116T150724,06-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Admin SPL14/O=SPL</name><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$TITLE"><text>org/primefaces/showcase/view/message/GrowlView.java</text></item>
+
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>org/primefaces/showcase/view/message/GrowlView.java</text></item>
+
+</note>

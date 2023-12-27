@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,21 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path("adminrole")
 public class AdminRoleExample {
+	
+	@Context
+	private SecurityContext securityContext;
+	
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@RolesAllowed("[Admin]")
 	public String get() {
-		return "I think you're an admin!";
+		return "I think you're an admin, " + securityContext.getUserPrincipal().getName();
 	}
 	
 	@Path("invaliduser")

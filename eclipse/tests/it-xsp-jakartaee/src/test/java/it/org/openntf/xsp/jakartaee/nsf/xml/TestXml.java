@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestXml extends AbstractWebClientTest {
@@ -31,7 +32,7 @@ public class TestXml extends AbstractWebClientTest {
 	@Test
 	public void testXml() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/sample/xml");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/xml");
 		Response response = target.request().get();
 		
 		String xml = String.valueOf(response.readEntity(String.class));

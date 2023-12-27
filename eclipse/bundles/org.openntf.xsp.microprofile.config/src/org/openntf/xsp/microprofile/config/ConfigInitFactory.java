@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,12 @@
  */
 package org.openntf.xsp.microprofile.config;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import org.eclipse.microprofile.config.spi.ConfigProviderResolver;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.microprofile.config.sources.ImplicitAppConfigSourceFactory;
 import org.openntf.xsp.microprofile.config.sources.NotesEnvironmentConfigSource;
 import org.openntf.xsp.microprofile.config.sources.XspPropertiesConfigSourceFactory;
 
@@ -27,6 +32,7 @@ import io.smallrye.config.PropertiesLocationConfigSourceFactory;
 import io.smallrye.config.SmallRyeConfigBuilder;
 import io.smallrye.config.SmallRyeConfigProviderResolver;
 import io.smallrye.config.SysPropConfigSource;
+import jakarta.servlet.ServletContext;
 
 public class ConfigInitFactory implements IServiceFactory {
 
@@ -38,14 +44,23 @@ public class ConfigInitFactory implements IServiceFactory {
 				SmallRyeConfigBuilder builder = super.getBuilder();
 
 				// Manually add sources that would come from ServiceLoader
-				builder = builder.withSources(
+				builder.withSources(
 					new SysPropConfigSource(),
 					new NotesEnvironmentConfigSource()
 				);
-				builder = builder.withSources(
+				builder.withSources(
 					new PropertiesLocationConfigSourceFactory(),
-					new XspPropertiesConfigSourceFactory()
+					new XspPropertiesConfigSourceFactory(),
+					new ImplicitAppConfigSourceFactory()
 				);
+				
+				AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+					ComponentModuleLocator.getDefault()
+						.flatMap(ComponentModuleLocator::getServletContext)
+						.map(ServletContext::getClassLoader)
+						.ifPresent(builder::forClassLoader);
+					return null;
+				});
 				
 				return builder;
 			}

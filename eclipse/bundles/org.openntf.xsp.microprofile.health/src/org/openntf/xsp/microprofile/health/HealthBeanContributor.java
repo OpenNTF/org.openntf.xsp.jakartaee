@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
 import io.smallrye.health.ResponseProvider;
@@ -39,16 +40,12 @@ public class HealthBeanContributor implements WeldBeanClassContributor {
 		if(LibraryUtil.isLibraryActive(HealthLibrary.LIBRARY_ID)) {
 			// Look for annotated beans in io.smallrye.health
 			Bundle bundle = FrameworkUtil.getBundle(ResponseProvider.class);
-			return DiscoveryUtil.findExportedClassNames(bundle, false)
-				.map(t -> {
-					try {
-						return bundle.loadClass(t);
-					} catch (ClassNotFoundException e) {
-						throw new RuntimeException(e);
-					}
-				})
-				// TODO filter to only annotated
-				.collect(Collectors.toList());
+			try {
+				return DiscoveryUtil.findBeanClasses(bundle, false)
+					.collect(Collectors.toList());
+			} catch (BundleException e) {
+				throw new RuntimeException(e);
+			}
 		} else {
 			return null;
 		}

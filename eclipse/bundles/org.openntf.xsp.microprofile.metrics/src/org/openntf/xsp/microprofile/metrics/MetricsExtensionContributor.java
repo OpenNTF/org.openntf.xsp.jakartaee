@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import io.smallrye.metrics.setup.MetricCdiInjectionExtension;
 import jakarta.enterprise.inject.spi.Extension;
@@ -32,8 +33,11 @@ public class MetricsExtensionContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		// TODO add opt-in for NSFs
-		return Collections.singleton(new MetricCdiInjectionExtension());
+		if(!"false".equals(LibraryUtil.getApplicationProperty(MetricsResourceContributor.PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			return Collections.singleton(new MetricCdiInjectionExtension());
+		} else {
+			return Collections.emptySet();
+		}
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,18 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 	private ViewEntry prev;
 	private ViewEntry onDeck;
 	private boolean done;
+	private final boolean manualDocumentScan;
 	
-	public ViewNavigatorIterator(ViewNavigator nav, boolean docsOnly, boolean didSkip) throws NotesException {
+	public ViewNavigatorIterator(ViewNavigator nav, boolean docsOnly, boolean didSkip, boolean didKey) throws NotesException {
 		this.nav = nav;
 		this.docsOnly = docsOnly;
 		this.didSkip = didSkip;
+		
+		// Initially, it seemed like manual scanning was only necessary when looking
+		//   for documents when having searched by key in a categorized view. However,
+		//   it turns out that this is also sometimes needed when looking up by key
+		//   with even a single sorted column, so always do a manual scan when keying.
+		this.manualDocumentScan = didKey;
 	}
 
 	@Override
@@ -86,15 +93,28 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 	
 	private ViewEntry fetchNext() throws NotesException {
 		ViewEntry next;
+		
+		// "getFirstDocument" throws "NotesException: Method is not available"
+		//   when the view is categorized and createViewNavFromKey is used.
+		//   In these situations, we'll manually traverse for document entries
+		
 		if(prev == null && !didSkip) {
 			if(docsOnly) {
-				next = nav.getFirstDocument();
+				if(manualDocumentScan) {
+					next = firstDocumentManual();
+				} else {
+					next = nav.getFirstDocument();
+				}
 			} else {
 				next = nav.getFirst();
 			}
 		} else {
 			if(docsOnly) {
-				next = nav.getNextDocument();
+				if(manualDocumentScan) {
+					next = nextDocumentManual();
+				} else {
+					next = nav.getNextDocument();
+				}
 			} else {
 				next = nav.getNext();
 			}
@@ -104,5 +124,21 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 			nav.recycle();
 		}
 		return next;
+	}
+	
+	private ViewEntry firstDocumentManual() throws NotesException {
+		ViewEntry first = nav.getFirst();
+		while(first != null && !first.isDocument()) {
+			first = nav.getNext();
+		}
+		return first;
+	}
+	
+	private ViewEntry nextDocumentManual() throws NotesException {
+		ViewEntry first = nav.getNext();
+		while(first != null && !first.isDocument()) {
+			first = nav.getNext();
+		}
+		return first;
 	}
 }

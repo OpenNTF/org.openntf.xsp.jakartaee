@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<note default='true' class='icon' xmlns='http://www.lotus.com/dxl' version='12.0'
+ maintenanceversion='2.0' replicaid='85258A14005073B7'>
+<noteinfo noteid='116' unid='B83B02AEE0186948852577EF006863FB' sequence='6'>
+<created><datetime>20101204T140013,39-05</datetime></created>
+<modified><datetime dst='true'>20230823T144607,34-04</datetime></modified>
+<revised><datetime dst='true'>20230823T144607,33-04</datetime></revised>
+<lastaccessed><datetime dst='true'>20230823T144607,33-04</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20230823T103845,23-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=MTC</name><name>CN=Arcturus/O=Frost</name><name
+>CN=Ceres/O=Frost</name><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<item name='IconBitmap' summary='true'>
+<rawitemdata type='6'>
+AiAgAQAA///////wD///gAH//gAAf/wAAD/4AAAf8AAAD+AAAAfgAAAHwAAAA8AAAAPAAAADgAAA
+AYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAHAAAADwAAAA8AAAAPgAAAH4AAAB/AAAA/4AAAf
+/AAAP/4AAH//gAH///AP//////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAiIiIiAAAAAAAAAAAAAAI
+jPZmZm/IgAAAAAAAAAAIjGZmZmZmZsiAAAAAAAAAjGZmZmZmZmZmyAAAAAAACMZmZmZmZmZmZmyA
+AAAAAIxmZmZmZmZmZmZmyAAAAAjGZmZmZmZmZmZmZmyAAAAIZmbyL2byL2byL2ZmgAAAjGZmIiJm
+IiJmIiJmZsgAAIZmZiIiZiIiZiIiZmZoAADGZmYiImYiImYiImZmbAAI9mZmIiJmIiJmIiJmZm+A
+CGZmZiIiZiIiZiIiZmZmgAhmZmYiImYiImYiImZmZoAIZmZmIiJmIiJmIiJmZmaACGZvIiIiZiIi
+ZiIiIvZmgAhmYiIiImYiImYiIiImZoAIZm8iIi9m8i9m8iIi9maACPZmZmZmZmZmZmZmZmZvgADG
+ZmbyL2byL2byL2ZmbAAAj2ZmIiJmIiJmIiJmZvgAAIxmZiIiZiIiZiIiZmbIAAAI9mbyL2byL2by
+L2ZvgAAACMZmZmZmZmZmZmZmbIAAAACMZmZmZmZmZmZmZsgAAAAACMZmZmZmZmZmZmyAAAAAAACM
+9mZmZmZmZm/IAAAAAAAACIz2ZmZmZm/IgAAAAAAAAAAIiMZmZmyIgAAAAAAAAAAAAACIiIiIAAAA
+AAAAUEECICABAAD/////+A4DgA==
+</rawitemdata></item>
+<item name='$DefaultFrameset'><text>Outer Frame</text></item>
+<item name='$DBTheme'><text>Lists.theme</text></item>
+<item name='$DefaultXPage'><text>home.xsp</text></item>
+<item name='$LargeSummary'><text>0</text></item>
+<item name='$Daos'><text>1</text></item>
+<item name='$TITLE'><text>To-Do - REST</text></item>
+<item name='$Flags'><text>J7FKzNZ4qE</text></item>
+<item name='$LaunchXPageRunOnServer'><text>0</text></item>
+<item name='$FlagsNoRefresh'><text/></item>
+<item name='$AllowPost8HTML'><text>1</text></item>
+<item name='$DefaultWebLaunchPage'><text>Index</text></item></note>
+

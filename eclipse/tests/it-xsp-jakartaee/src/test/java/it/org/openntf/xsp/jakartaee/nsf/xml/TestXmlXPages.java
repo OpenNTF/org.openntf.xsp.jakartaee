@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,18 @@
 package it.org.openntf.xsp.jakartaee.nsf.xml;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestXmlXPages extends AbstractWebClientTest {
@@ -34,12 +37,16 @@ public class TestXmlXPages extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testXmlXPage(WebDriver driver) {
-		driver.get(getRootUrl(driver) + "/jaxb.xsp");
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/jaxb.xsp");
 		
-		WebElement span = driver.findElement(By.xpath("//span[@style=\"font-family: monospace; whitespace: pre-wrap\"]"));
-		assertTrue(
-			span.getText().startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <application-guy>"),
-			() -> "Got unexpected content: " + span.getText()
-		);
+		try {
+			WebElement span = driver.findElement(By.xpath("//span[@style=\"font-family: monospace; whitespace: pre-wrap\"]"));
+			assertTrue(
+				span.getText().startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <application-guy>"),
+				() -> "Got unexpected content: " + span.getText()
+			);
+		} catch(NoSuchElementException e) {
+			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
+		}
 	}
 }

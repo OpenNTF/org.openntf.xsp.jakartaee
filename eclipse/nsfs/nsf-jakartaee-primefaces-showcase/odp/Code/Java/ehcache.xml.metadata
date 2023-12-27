@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.2" replicaid="85258A69006E85D1" version="12.0">
+<noteinfo noteid="101e" sequence="3" unid="E0D0B477756F98C285258A69006F4F42">
+<created><datetime>20231116T151547,86-05</datetime></created>
+<modified><datetime>20231116T151553,24-05</datetime></modified>
+<revised><datetime>20231116T151553,23-05</datetime></revised>
+<lastaccessed><datetime>20231116T151553,23-05</datetime></lastaccessed>
+<addedtofile><datetime>20231116T151547,86-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$TITLE"><text>ehcache.xml</text></item>
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>ehcache.xml</text></item></note>

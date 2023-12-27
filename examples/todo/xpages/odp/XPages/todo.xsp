@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	<xp:this.data>
+		<xe:objectData var="todo" createObject="#{el:ToDos.getToDo(param.documentId)}"/>
+		<xe:objectData var="controller" createObject="#{javascript:new controller.ToDosController}"/>
+	</xp:this.data>
+	
+	<xp:this.navigationRules>
+		<xp:navigationRule outcome="xsp-success" viewId="/todos.xsp"></xp:navigationRule>
+	</xp:this.navigationRules>
+	
+	<xc:layout>
+		<xe:formTable formTitle="To-Do">
+			<xe:this.facets>
+				<xp:div xp:key="footer">
+					<xp:button id="saveNewToDo" value="Save">
+						<xp:eventHandler event="onclick" submit="true"
+							action="#{controller.saveExistingToDo}"/>
+					</xp:button>
+				</xp:div>
+			</xe:this.facets>
+		
+			<xe:formRow label="Created">
+				<xp:text value="#{todo.createdDate}" />
+			</xe:formRow>
+			<xe:formRow label="Title">
+				<xp:inputText value="#{todo.title}" required="true" />
+			</xe:formRow>
+			<xe:formRow label="Status">
+				<xp:radioGroup value="#{todo.status}" required="true">
+					<xp:this.converter>
+						<xp:customConverter
+							getAsObject="#{javascript:model.ToDo.State.valueOf(value)}"
+							getAsString="#{javascript:value == null ? 'Incomplete' : value.toString()}"/>
+					</xp:this.converter>
+					<xp:selectItem itemLabel="Incomplete"
+						itemValue="#{javascript:model.ToDo.State.Incomplete}" />
+					<xp:selectItem itemLabel="Complete"
+						itemValue="#{javascript:model.ToDo.State.Complete}" />
+				</xp:radioGroup>
+			</xe:formRow>
+		</xe:formTable>
+	</xc:layout>
+
+</xp:view>

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf.xsp</groupId>
 	<artifactId>xsp-jakartaee</artifactId>
-	<version>2.9.0</version>
+	<version>2.15.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>XPages Jakarta EE Support</name>
@@ -38,6 +38,7 @@
 		<!-- General Jakarta EE platform -->
 		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
 		<module>bundles/org.openntf.xsp.jakartaee.osgiresourcelocator</module>
+		<module>bundles/org.openntf.xsp.jakartaee.bridge.jasapi</module>
 		<module>bundles/org.openntf.xsp.jakarta.concurrency</module>
 		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
@@ -47,6 +48,8 @@
 		
 		<!-- CDI 3.0 -->
 		<module>bundles/org.openntf.xsp.cdi</module>
+		<module>bundles/org.openntf.xsp.cdi.extlib</module>
+		<module>bundles/org.openntf.xsp.cdi.jigsaw</module>
 		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
 		<module>features/org.openntf.xsp.cdi.feature</module>
 		
@@ -71,6 +74,7 @@
 		<!-- JSON-P 2.0 and JSON-B 2.0 -->
 		<module>bundles/org.openntf.xsp.jsonapi</module>
 		<module>bundles/org.openntf.xsp.jsonapi.jaxrs</module>
+		<module>bundles/org.openntf.xsp.jsonapi.cdi</module>
 		<module>features/org.openntf.xsp.jsonapi.feature</module>
 		<module>tests/org.openntf.xsp.jsonapi.test</module>
 		
@@ -91,6 +95,10 @@
 		<module>bundles/org.openntf.xsp.nosql.driver.lsxbe</module>
 		<module>bundles/org.openntf.xsp.nosql</module>
 		<module>features/org.openntf.xsp.nosql.feature</module>
+		 
+		<!-- MVC -->
+ 		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
+ 		<module>features/org.openntf.xsp.jakarta.persistence.feature</module>
 	
 		<!-- MicroProfile Config -->
 		<module>bundles/org.openntf.xsp.microprofile.config</module>
@@ -116,6 +124,7 @@
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
 		<module>tests/org.openntf.xsp.jakarta.webcontainer.osgi.test</module>
 		<module>tests/org.openntf.xsp.test.beanbundle</module>
+		<module>tests/org.openntf.xsp.test.jasapi</module>
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
@@ -126,12 +135,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>1.7.0</tycho-version>
+		<tycho-version>2.7.5</tycho-version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		
-		<!-- Maven API version. This version should be supported by m2e -->
-		<maven.api.version>3.3.9</maven.api.version>
 	</properties>
 
 	<repositories>
@@ -234,6 +240,7 @@
 						<plugin id="jakarta.servlet.jsp-api"/>
 						<plugin id="org.eclipse.jdt.core"/>
 						<plugin id="org.antlr.antlr4-runtime.jakarta"/>
+						<plugin id="org.openntf.xsp.jsonapi.cdi"/>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -311,6 +318,12 @@
 				<artifactId>nsfodp-maven-plugin</artifactId>
 				<extensions>true</extensions>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.jboss.jandex</groupId>
+				<artifactId>jandex-maven-plugin</artifactId>
+				<version>1.2.3</version>
+			</plugin>
 
 			<plugin>
 				<groupId>com.mycila</groupId>
@@ -335,11 +348,14 @@
 						<exclude>**/xspdesign.properties</exclude>
 						<exclude>**/DQL.java</exclude>
 						<exclude>**/odp/WebContent/WEB-INF/faces-config.xml</exclude>
+						<exclude>**/odp/WebContent/WEB-INF/jakarta/faces-config.xml</exclude>
 						<exclude>**/odp/plugin.xml</exclude>
+						<exclude>**/WeldDefaultProxyServices.java</exclude>
+						<exclude>**/nsfs/nsf-jakartaee-primefaces-showcase/**</exclude>
 					</excludes>
 					<properties>
 						<owner>Contributors to the XPages Jakarta EE Support Project</owner>
-						<copyrightYear>2022</copyrightYear>
+						<copyrightYear>2023</copyrightYear>
 					</properties>
 				</configuration>
 			</plugin>
@@ -360,7 +376,7 @@
 									<version>3.0.1</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
-									<version>1.8.0</version>
+									<version>11</version>
 								</requireJavaVersion>
 							</rules>
 						</configuration>
@@ -491,6 +507,10 @@
 				<module>nsfs/nsf-jakartaee-example</module>
 				<module>nsfs/nsf-jakartaee-bundle-example</module>
 				<module>nsfs/nsf-jakartaee-bundlebase-example</module>
+				<module>nsfs/nsf-jakartaee-jsonbconfig-example</module>
+				<module>nsfs/nsf-jakartaee-jpa-example</module>
+				<module>nsfs/nsf-jakartaee-primefaces-example</module>
+				<module>nsfs/nsf-jakartaee-primefaces-showcase</module>
 			</modules>
 		</profile>
 		<profile>

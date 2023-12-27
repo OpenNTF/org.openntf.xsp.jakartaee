@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,7 @@ import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -45,15 +48,56 @@ public class TestJsf extends AbstractWebClientTest {
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	@Order(1)
 	public void testHelloPage(WebDriver driver) {
-		driver.get(getRootUrl(driver) + "/hello.xhtml");
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/hello.xhtml");
 
 		try {
 			String expected = "inputValue" + System.currentTimeMillis();
 			{
 				WebElement form = driver.findElement(By.xpath("//form[1]"));
-	
-				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Request Method\"]/following-sibling::dd[1]"));
-				assertEquals("GET", dd.getText());
+				
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Request Method\"]/following-sibling::dd[1]"));
+					assertEquals("GET", dd.getText());
+				}
+				
+				// Look for scoped beans, as resolved via CDI
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"requestGuy.message\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().startsWith("I'm request guy at "));
+				}
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"sessionGuy.message\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().startsWith("I'm session guy at "));
+				}
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"applicationGuy.message\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().startsWith("I'm application guy at "));
+				}
+				
+				// Look for the composite component text
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Composite Component\"]/following-sibling::dd[1]"));
+					assertEquals("I am text sent to a composite component", dd.getText());
+				}
+				
+				// Make sure Domino objects are available
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"dominoSession\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().startsWith("CN="));
+				}
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"database\"]/following-sibling::dd[1]"));
+					assertEquals("dev/jakartaee.nsf", dd.getText());
+				}
+				
+				// Make sure the init param from web.xml made it
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"initParam\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().contains("org.openntf.example.param=I am the param value"), () -> "initParam value should have contained the example param: " + dd.getText());
+					
+					// And the one from the web-fragment.xml
+					assertTrue(dd.getText().contains("org.openntf.example.fragment.param=I am the param value from a fragment in a JAR"), () -> "initParam value should have contained the example param: " + dd.getText());
+				}
 				
 				WebElement input = form.findElement(By.xpath("input[1]"));
 				assertTrue(input.getAttribute("id").endsWith(":appGuyProperty"), () -> input.getAttribute("id"));
@@ -66,6 +110,8 @@ public class TestJsf extends AbstractWebClientTest {
 				WebElement submit = form.findElement(By.xpath("input[@type='submit']"));
 				assertEquals("Refresh", submit.getAttribute("value"));
 				submit.click();
+				// Give it a bit to do the partial refresh
+				TimeUnit.MILLISECONDS.sleep(500);
 			}
 			{
 				
@@ -73,6 +119,22 @@ public class TestJsf extends AbstractWebClientTest {
 				
 				WebElement span = form.findElement(By.xpath("p/span[1]"));
 				assertEquals(expected, span.getText());
+			}
+			
+			// Check for the NSF-defined Facelet library
+			{
+				WebElement div = driver.findElement(By.cssSelector("div.example-facelet"));
+				assertEquals("I am the example facelet", div.getText());
+			}
+			
+			// While here, test the phase listeners
+			{
+				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"Faces Phase Listener Output\"]/following-sibling::dd[1]"));
+				assertTrue(dd.getText().equals("I was set by the Faces listener"));
+			}
+			{
+				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"XPages Phase Listener Output\"]/following-sibling::dd[1]"));
+				assertTrue(dd.getText().isEmpty());
 			}
 		} catch(Exception e) {
 			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
@@ -87,7 +149,7 @@ public class TestJsf extends AbstractWebClientTest {
 	@Order(2)
 	public void testNotFound() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/somefakepage.xhtml");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/somefakepage.xhtml");
 		Response response = target.request().get();
 		
 		assertEquals(404, response.getStatus());
@@ -103,12 +165,38 @@ public class TestJsf extends AbstractWebClientTest {
 	@Order(3)
 	public void testJsfJs() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null) + "/jakarta.faces.resource/jsf.js.xhtml?ln=jakarta.faces");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/jakarta.faces.resource/jsf.js.xhtml?ln=jakarta.faces");
 		Response response = target.request().get();
 		assertEquals(200, response.getStatus());
 
 		String content = response.readEntity(String.class);
 		assertFalse(StringUtil.isEmpty(content));
 		
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@Order(4)
+	public void testPrimeFaces(WebDriver driver) {
+		driver.get(getRootUrl(driver, TestDatabase.PRIMEFACES) + "/pf.xhtml");
+
+		try {
+			WebElement spinner = driver.findElement(By.cssSelector("span.ui-spinner"));
+			
+			WebElement a = spinner.findElement(By.xpath("a[1]"));
+			a.click();
+			
+			WebElement input = spinner.findElement(By.xpath("input[1]"));
+			
+			String value = waitFor(() -> input.getAttribute("value"), "1"::equals);
+			assertEquals("1", value, () -> "Didn't received expected value with HTML: " + driver.getPageSource());
+			
+			a.click();
+			
+			value = waitFor(() -> input.getAttribute("value"), "2"::equals);
+			assertEquals("2", value, () -> "Didn't received expected value with HTML: " + driver.getPageSource());
+		} catch(Exception e) {
+			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+		}
 	}
 }

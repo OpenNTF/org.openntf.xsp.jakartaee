@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.jboss.weld.bean.proxy.util.WeldDefaultProxyServices;
 
 import com.ibm.domino.xsp.module.nsf.ModuleClassLoader;
 
+import jakarta.annotation.Priority;
+
 /**
  * This subclass of {@link WeldDefaultProxyServices} keeps an internal cache of generated
  * classes. This is to avoid {@code java.lang.LinkageError: A duplicate class definition for jakarta/enterprise/event/Event$WeldEvent$Proxy$_$$_Weld$Proxy$ is found}
@@ -31,6 +33,7 @@ import com.ibm.domino.xsp.module.nsf.ModuleClassLoader;
  * @author Jesse Gallagher
  * @since 2.0.0
  */
+@Priority(0)
 public class NSFProxyServices extends WeldDefaultProxyServices {
 	
 	private static Map<String, Class<?>> classCache = Collections.synchronizedMap(new HashMap<>());

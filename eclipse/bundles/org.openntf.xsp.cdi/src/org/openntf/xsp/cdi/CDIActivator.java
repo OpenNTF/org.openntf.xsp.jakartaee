@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.cdi;
 
-import org.openntf.xsp.cdi.provider.NSFCDIProvider;
+import org.openntf.xsp.cdi.provider.DominoCDIProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -29,7 +29,7 @@ public class CDIActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-		CDI.setCDIProvider(new NSFCDIProvider());
+		CDI.setCDIProvider(new DominoCDIProvider());
 	}
 
 	@Override

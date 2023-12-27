@@ -1,0 +1,7 @@
+<facelet-taglib>
+   <namespace>http://openntf.org/facelets</namespace>
+   <tag>
+      <tag-name>exampleFacelet</tag-name>
+      <source>facelets/exampleFacelet.xhtml</source>
+   </tag>
+</facelet-taglib>

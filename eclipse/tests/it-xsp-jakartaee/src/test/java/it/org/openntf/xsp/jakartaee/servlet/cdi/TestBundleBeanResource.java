@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings({ "nls" })
 public class TestBundleBeanResource extends AbstractWebClientTest {
@@ -39,24 +40,17 @@ public class TestBundleBeanResource extends AbstractWebClientTest {
 		int expectedIdentity = 0;
 		// First NSF - uses .cdibundle
 		{
-			JsonObject obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
+			JsonObject obj = getBean(getRootUrl(null, TestDatabase.BUNDLE) + "/exampleservlet");
 			assertEquals("Hello from bundleBean", obj.getString("hello"));
 			expectedIdentity = obj.getInt("identity");
 			assertNotEquals(0, expectedIdentity);
 		}
 		// Call this again to ensure that it uses the same bean
 		{
-			JsonObject obj = getBean(getBundleNsfRootUrl(null) + "/exampleservlet");
+			JsonObject obj = getBean(getRootUrl(null, TestDatabase.BUNDLE) + "/exampleservlet");
 			assertEquals("Hello from bundleBean", obj.getString("hello"));
 			int identity = obj.getInt("identity");
 			assertEquals(expectedIdentity, identity);
-		}
-		// Second NSF - uses .cdibundlebase, so should be separate bean
-		{
-			JsonObject obj = getBean(getBaseBudleNsfRootUrl(null) + "/exampleservlet");
-			assertEquals("Hello from bundleBean", obj.getString("hello"));
-			int identity = obj.getInt("identity");
-			assertNotEquals(expectedIdentity, identity);
 		}
 	}
 	
@@ -65,6 +59,7 @@ public class TestBundleBeanResource extends AbstractWebClientTest {
 		WebTarget target = client.target(base + "/bean");
 		Response response = target.request().get();
 		
+		checkResponse(200, response);
 		String output = response.readEntity(String.class);
 		try {
 			return Json.createReader(new StringReader(output)).readObject();

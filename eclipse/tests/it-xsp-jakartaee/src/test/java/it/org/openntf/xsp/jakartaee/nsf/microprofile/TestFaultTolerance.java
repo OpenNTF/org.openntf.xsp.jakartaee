@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,20 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.StringReader;
-
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Response;
-
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestFaultTolerance extends AbstractWebClientTest {
 	@Test
 	public void testRetry() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/faultTolerance/retry");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/faultTolerance/retry");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
@@ -47,20 +43,19 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 	@Test
 	public void testTimeout() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/faultTolerance/timeout");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/faultTolerance/timeout");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
 		assertFalse(result.contains("I should have stopped."));
-
-		JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-		assertTrue(jsonObject.containsKey("stackTrace"));
+		
+		assertTrue(result.startsWith("org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException: bean.FaultToleranceBean#getTimeout timed out"), () -> "Actual: " + result);
 	}
 	
 	@Test
 	public void testCircuitBreaker() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/faultTolerance/circuitBreaker");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/faultTolerance/circuitBreaker");
 		
 		// First try
 		{
@@ -69,8 +64,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 			String result = response.readEntity(String.class);
 			assertNotEquals("I should have stopped.", result);
 
-			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-			assertEquals("java.lang.RuntimeException: I am a circuit-breaking failure - I should stop after two attempts", jsonObject.getString("message"));
+			assertTrue(result.startsWith("java.lang.RuntimeException: I am a circuit-breaking failure - I should stop after two attempts"), () -> "Actual:" + result);
 		}
 		
 		// Second try - also "success"
@@ -80,8 +74,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 			String result = response.readEntity(String.class);
 			assertNotEquals("I should have stopped.", result);
 
-			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-			assertEquals("java.lang.RuntimeException: I am a circuit-breaking failure - I should stop after two attempts", jsonObject.getString("message"));
+			assertTrue(result.startsWith("java.lang.RuntimeException: I am a circuit-breaking failure - I should stop after two attempts"), () -> "Actual:" + result);
 		}
 		
 		// Third try - open breaker
@@ -91,8 +84,7 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 			String result = response.readEntity(String.class);
 			assertNotEquals("I should have stopped.", result);
 
-			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-			assertEquals("org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException: CircuitBreaker[bean.FaultToleranceBean#getCircuitBreaker] circuit breaker is open", jsonObject.getString("message"));
+			assertTrue(result.startsWith("org.eclipse.microprofile.faulttolerance.exceptions.CircuitBreakerOpenException: bean.FaultToleranceBean#getCircuitBreaker circuit breaker is open"), () -> "Actual:" + result);
 		}
 	}
 }

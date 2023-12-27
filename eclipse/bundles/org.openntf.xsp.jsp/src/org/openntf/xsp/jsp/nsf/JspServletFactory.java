@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,8 @@ public class JspServletFactory extends MappingBasedServletFactory {
 					.collect(Collectors.joining(DominoJspUtil.PATH_SEP));
 				params.put("classpath", classpath); //$NON-NLS-1$
 				params.put("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
+				params.put("compilerSourceVM", "1.8"); //$NON-NLS-1$ //$NON-NLS-2$
+				params.put("compilerTargetVM", "1.8"); //$NON-NLS-1$ //$NON-NLS-2$
 
 				Path tempDir = LibraryUtil.getTempDirectory();
 				tempDir = tempDir.resolve(getClass().getName());

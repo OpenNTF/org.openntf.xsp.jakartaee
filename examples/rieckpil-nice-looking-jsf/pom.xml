@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.openntf.xsp.examples</groupId>
+	<artifactId>nsf-riekpil-nice-looking-jsf</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>domino-nsf</packaging>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.openntf.maven</groupId>
+				<artifactId>nsfodp-maven-plugin</artifactId>
+				<configuration>
+					<updateSite>${project.baseDir}/../../xsp-jakartaee/releng/org.openntf.xsp.jakartaee.updatesite/target/repository</updateSite>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.openntf.maven</groupId>
+				<artifactId>nsfodp-maven-plugin</artifactId>
+				<version>3.7.1</version>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

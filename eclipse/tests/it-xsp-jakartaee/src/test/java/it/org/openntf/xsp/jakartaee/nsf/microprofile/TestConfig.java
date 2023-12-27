@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,14 @@ import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
 public class TestConfig extends AbstractWebClientTest {
 	@Test
 	public void testConfig() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null) + "/config");
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/config");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -45,5 +46,17 @@ public class TestConfig extends AbstractWebClientTest {
 		assertTrue(jsonObject.getString("xsp.library.depends").startsWith("org.openntf.xsp.el"), () -> json);
 		assertEquals("/local/notesdata", jsonObject.getString("Directory"));
 		assertEquals("foo", jsonObject.getString("mpconfig.example.setting"));
+	}
+	
+	@Test
+	public void testConfigNsfSources() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/config");
+		Response response = target.request().get();
+		
+		String json = response.readEntity(String.class);
+		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+		assertEquals("I am the example value", jsonObject.getString("ExampleConfig"));
+		assertEquals("I am the example value from a provided source", jsonObject.getString("ExampleProvidedConfig"));
 	}
 }

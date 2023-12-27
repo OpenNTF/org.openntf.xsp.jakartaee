@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.openntf.xsp.jaxrs;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 import jakarta.ws.rs.core.Application;
 
@@ -35,5 +36,12 @@ public interface JAXRSClassContributor {
 	 */
 	default Collection<Object> getSingletons() {
 		return Collections.emptySet();
+	}
+	
+	/**
+	 * @since 2.14.0
+	 */
+	default Map<String, Object> getProperties() {
+		return Collections.emptyMap();
 	}
 }

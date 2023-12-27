@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package org.openntf.xsp.jakartaee.discovery.impl;
+
+import java.util.Optional;
+import java.util.Properties;
 
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
@@ -36,14 +39,12 @@ public class ComponentModuleApplicationPropertyLocator implements ApplicationPro
 	public boolean isActive() {
 		return ComponentModuleLocator.getDefault().isPresent();
 	}
-
+	
 	@Override
-	public String getApplicationProperty(String prop, String defaultValue) {
+	public Optional<Properties> getApplicationProperties() {
 		return ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
-			.map(LibraryUtil::getXspProperties)
-			.map(props -> props.getProperty(prop, defaultValue))
-			.orElse(defaultValue);
+			.map(LibraryUtil::getXspProperties);
 	}
 
 }

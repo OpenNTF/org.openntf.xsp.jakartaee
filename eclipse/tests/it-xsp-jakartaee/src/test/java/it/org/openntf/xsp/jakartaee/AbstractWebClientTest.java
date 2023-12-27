@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,11 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
@@ -67,23 +71,7 @@ public abstract class AbstractWebClientTest {
 		return adminClient;
 	}
 	
-	public String getExampleContextPath() {
-		return "/dev/jakartaee.nsf";
-	}
-	
-	public String getBundleExampleContextPath() {
-		return "/dev/jeebundle.nsf";
-	}
-	
-	public String getBaseBundleExampleContextPath() {
-		return "/dev/jeebasebundle.nsf";
-	}
-	
-	public String getWebappContextPath() {
-		return "/jeeExample";
-	}
-	
-	public String getRootUrl(WebDriver driver) {
+	public String getRootUrl(WebDriver driver, TestDatabase db) {
 		String host;
 		int port;
 		if(driver instanceof RemoteWebDriver) {
@@ -91,15 +79,15 @@ public abstract class AbstractWebClientTest {
 			port = 80;
 		} else {
 			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
-		String context = getExampleContextPath();
+		String context = db.getContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
-	public String getRestUrl(WebDriver driver) {
-		String root = getRootUrl(driver);
+	public String getRestUrl(WebDriver driver, TestDatabase db) {
+		String root = getRootUrl(driver, db);
 		return PathUtil.concat(root, "xsp/app", '/');
 	}
 
@@ -111,40 +99,10 @@ public abstract class AbstractWebClientTest {
 			port = 80;
 		} else {
 			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
 		String context = "/exampleservlet";
-		return PathUtil.concat("http://" + host + ":" + port, context, '/');
-	}
-	
-	public String getBundleNsfRootUrl(WebDriver driver) {
-		String host;
-		int port;
-		if(driver instanceof RemoteWebDriver) {
-			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
-			port = 80;
-		} else {
-			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
-		}
-		
-		String context = getBundleExampleContextPath();
-		return PathUtil.concat("http://" + host + ":" + port, context, '/');
-	}
-	
-	public String getWebappRootUrl(WebDriver driver) {
-		String host;
-		int port;
-		if(driver instanceof RemoteWebDriver) {
-			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
-			port = 80;
-		} else {
-			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
-		}
-		
-		String context = getWebappContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	
@@ -156,31 +114,11 @@ public abstract class AbstractWebClientTest {
 			port = 80;
 		} else {
 			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
-		String context = PathUtil.concat(getExampleContextPath(), getWebappContextPath(), '/');
+		String context = PathUtil.concat(TestDatabase.MAIN.getContextPath(), TestDatabase.OSGI_WEBAPP.getContextPath(), '/');
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
-	}
-	
-	public String getContainerAppRootUrl(WebDriver driver) {
-		String host;
-		int port;
-		if(driver instanceof RemoteWebDriver) {
-			host = JakartaTestContainers.CONTAINER_NETWORK_NAME;
-			port = 80;
-		} else {
-			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
-		}
-		
-		String context = "jakartaContainerExample";
-		return PathUtil.concat("http://" + host + ":" + port, context, '/');
-	}
-	
-	public String getBundleNsfRestUrl(WebDriver driver) {
-		String root = getBundleNsfRootUrl(driver);
-		return PathUtil.concat(root, "xsp/app", '/');
 	}
 	
 	public String getBaseBudleNsfRootUrl(WebDriver driver) {
@@ -191,14 +129,27 @@ public abstract class AbstractWebClientTest {
 			port = 80;
 		} else {
 			host = JakartaTestContainers.instance.domino.getHost();
-			port = JakartaTestContainers.instance.domino.getFirstMappedPort();
+			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
-		String context = getBaseBundleExampleContextPath();
+		String context = TestDatabase.BUNDLEBASE.getContextPath();
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 
 	protected void checkResponse(int expectedCode, Response response) {
 		assertEquals(expectedCode, response.getStatus(), () -> "Received unexpected code " + response.getStatus() + ": " + response.readEntity(String.class));
+	}
+	
+	protected <T> T waitFor(Supplier<T> supplier, Predicate<T> condition) throws InterruptedException {
+		T result = null;
+		for(int i = 0; i < 1000; i++) {
+			result = supplier.get();
+			if(condition.test(result)) {
+				return result;
+			}
+			TimeUnit.MILLISECONDS.sleep(10);
+		}
+		fail("Timed out waiting on condition");
+		return null;
 	}
 }

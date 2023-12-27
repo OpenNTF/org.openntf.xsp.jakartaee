@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,10 @@ public @interface ItemStorage {
 		MIMEBean,
 		/**
 		 * Stores the value as a JSON string serialized using JSON-B.
+		 * 
+		 * <p>Note: When using this type, the value is currently stored as a text
+		 * item with summary set to {@code false}. The summary flag can be
+		 * re-enabled by using the {@link ItemFlags} annotation.</p>
 		 */
 		JSON
 	}

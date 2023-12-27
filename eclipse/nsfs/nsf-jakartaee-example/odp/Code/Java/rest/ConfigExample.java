@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,18 @@ public class ConfigExample {
 	private String exampleSetting;
 	
 	@Inject
+	@ConfigProperty(name="mp.metrics.appName")
+	private String appName;
+	
+	@Inject
+	@ConfigProperty(name="ExampleConfig")
+	private String exampleConfigProperty;
+	
+	@Inject
+	@ConfigProperty(name="ExampleProvidedConfig")
+	private String exampleProvidedConfigProperty;
+	
+	@Inject
 	private ServletContext context;
 	
 	@GET
@@ -58,6 +70,9 @@ public class ConfigExample {
 		result.put("xsp.library.depends", xspDepends);
 		result.put("Directory", directory);
 		result.put("mpconfig.example.setting", exampleSetting);
+		result.put("mp.metrics.appName", appName);
+		result.put("ExampleConfig", exampleConfigProperty);
+		result.put("ExampleProvidedConfig", exampleProvidedConfigProperty);
 		return result;
 	}
 	

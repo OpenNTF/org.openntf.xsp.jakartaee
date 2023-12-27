@@ -1,5 +1,5 @@
 /**
- * Copyright © 2018-2022 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,15 @@ public class RestClientBean {
 		Response response = target.request().get();
 		
 		return response.readEntity(JsonObject.class);
+	}
+	
+	public JsonExampleObject getExampleObjectViaClient() {
+		URI serviceUri = getServiceUri();
+		Client client = ClientBuilder.newBuilder().build();
+		WebTarget target = client.target(serviceUri);
+		Response response = target.request().get();
+		
+		return response.readEntity(JsonExampleObject.class);
 	}
 	
 	private URI getServiceUri() {

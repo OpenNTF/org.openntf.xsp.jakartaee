@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.2" replicaid="85258A69006E85D1" version="12.0">
+<noteinfo noteid="1026" sequence="2" unid="54D005E923BC3AFC85258A69006F62D3">
+<created><datetime>20231116T151637,95-05</datetime></created>
+<modified><datetime>20231116T151638,02-05</datetime></modified>
+<revised><datetime>20231116T151638,00-05</datetime></revised>
+<lastaccessed><datetime>20231116T151638,01-05</datetime></lastaccessed>
+<addedtofile><datetime>20231116T151637,95-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$TITLE"><text>slf4j-api-2.0.9.jar</text></item>
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+<item name="$Flags"><text>34567Cg~,</text></item>
+
+
+
+
+<item name="$FileNames" sign="true"><text>slf4j-api-2.0.9.jar</text></item></note>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$TITLE">
+    <text>chat.html</text>
+  </item>
+  <item name="$MimeType">
+    <text>text/html</text>
+  </item>
+  <item name="$Flags">
+    <text>345Cg&gt;Q</text>
+  </item>
+  <item name="$MimeCharSet">
+    <text>UTF-8</text>
+  </item>
+  <item name="$FileNames" sign="true">
+    <text>chat.html</text>
+  </item>
+</note>
