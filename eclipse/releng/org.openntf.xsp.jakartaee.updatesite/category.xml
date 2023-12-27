@@ -50,6 +50,9 @@
 	<feature id="org.openntf.xsp.jakarta.persistence.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
+	<feature id="org.openntf.xsp.jakarta.webcontainer.feature">
+		<category name="XPages Jakarta EE"/>
+	</feature>
 	<feature id="org.openntf.xsp.jakarta.servlet.feature">
 		<category name="XPages Jakarta EE"/>
 	</feature>
