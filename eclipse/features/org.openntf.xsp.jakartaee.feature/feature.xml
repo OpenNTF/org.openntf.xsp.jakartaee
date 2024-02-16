@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jakartaee.feature"
       label="XPages Jakarta EE Platform Feature"
-      version="2.14.0.qualifier">
+      version="2.15.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -257,6 +257,10 @@
 	<plugin id="jakarta.transaction-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.xml.ws-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.xml.soap-api" version="0.0.0" unpack="false"/>
+	
+	<plugin id="org.openntf.org.apache.tomcat.util" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.apache.tomcat.util.scan" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.apache.tomcat.juli" version="0.0.0" unpack="false"/>
 	
 	<plugin id="jakarta.enterprise.concurrent-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.glassfish.jakarta.enterprise.concurrent" version="0.0.0" unpack="false"/>

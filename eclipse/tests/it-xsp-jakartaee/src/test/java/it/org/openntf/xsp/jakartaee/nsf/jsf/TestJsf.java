@@ -90,6 +90,15 @@ public class TestJsf extends AbstractWebClientTest {
 					assertEquals("dev/jakartaee.nsf", dd.getText());
 				}
 				
+				// Make sure the init param from web.xml made it
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"initParam\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().contains("org.openntf.example.param=I am the param value"), () -> "initParam value should have contained the example param: " + dd.getText());
+					
+					// And the one from the web-fragment.xml
+					assertTrue(dd.getText().contains("org.openntf.example.fragment.param=I am the param value from a fragment in a JAR"), () -> "initParam value should have contained the example param: " + dd.getText());
+				}
+				
 				WebElement input = form.findElement(By.xpath("input[1]"));
 				assertTrue(input.getAttribute("id").endsWith(":appGuyProperty"), () -> input.getAttribute("id"));
 				// May be set by previous test
@@ -110,6 +119,12 @@ public class TestJsf extends AbstractWebClientTest {
 				
 				WebElement span = form.findElement(By.xpath("p/span[1]"));
 				assertEquals(expected, span.getText());
+			}
+			
+			// Check for the NSF-defined Facelet library
+			{
+				WebElement div = driver.findElement(By.cssSelector("div.example-facelet"));
+				assertEquals("I am the example facelet", div.getText());
 			}
 			
 			// While here, test the phase listeners
@@ -137,7 +152,7 @@ public class TestJsf extends AbstractWebClientTest {
 		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/somefakepage.xhtml");
 		Response response = target.request().get();
 		
-		assertEquals(404, response.getStatus());
+		checkResponse(404, response);
 		
 		String content = response.readEntity(String.class);
 		assertFalse(StringUtil.isEmpty(content));
@@ -174,13 +189,12 @@ public class TestJsf extends AbstractWebClientTest {
 			WebElement input = spinner.findElement(By.xpath("input[1]"));
 			
 			String value = waitFor(() -> input.getAttribute("value"), "1"::equals);
-			assertEquals("1", value);
+			assertEquals("1", value, () -> "Didn't received expected value with HTML: " + driver.getPageSource());
 			
 			a.click();
 			
 			value = waitFor(() -> input.getAttribute("value"), "2"::equals);
-			
-			assertEquals("2", value);
+			assertEquals("2", value, () -> "Didn't received expected value with HTML: " + driver.getPageSource());
 		} catch(Exception e) {
 			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}

@@ -15,10 +15,12 @@
  */
 package org.openntf.xsp.nosql.communication.driver;
 
+import java.time.temporal.TemporalAccessor;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
 
 import jakarta.nosql.document.DocumentCollectionManager;
 import jakarta.nosql.document.DocumentEntity;
@@ -120,4 +122,70 @@ public interface DominoDocumentCollectionManager extends DocumentCollectionManag
      * @since 2.13.0
      */
     Optional<DocumentEntity> getProfileDocument(String entityName, String profileName, String userName);
+    
+    /**
+     * Reads event information in iCalendar format from the backing database.
+     * 
+     * <p>The backing database must contain calendar data, expected to be entries
+     * in a view named {@code "($Calendar)"} in the same format as a normal mail
+     * database.</p>
+     * 
+     * @param start the start of the query range; must be convertible to
+     *        {@link java.time.LocalDate LocalDate}, {@link java.time.LocalTime},
+     *        or {@link java.time.Instant}
+     * @param end the end of the query range; must be convertible to
+     *        {@link java.time.LocalDate LocalDate}, {@link java.time.LocalTime},
+     *        or {@link java.time.Instant}
+     * @param pagination skip and result size; may be {@code null}
+     * @return the query result in iCalendar format
+     * @see <a href="https://help.hcltechsw.com/dom_designer/11.0.1/basic/H_NOTESCALENDAR_CLASS_JAVA.html">lotus.domino.NotesCalendar documentation</a>
+     * @since 2.15.0
+     */
+    String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pagination pagination);
+
+    /**
+     * Retrieves a calendar entry in iCalendar format.
+     * 
+     * @param uid the UID of the entry to retrieve
+     * @return an {@link Optional} describing the event data, or an
+     *         empty one if no event by that UID is found
+     * @since 2.15.0
+     */
+    Optional<String> readCalendarEntry(String uid);
+    
+    /**
+     * Creates a new calendar entry using the provided iCalendar-format data.
+     * 
+     * @param icalData the iCalendar data to import
+     * @param sendInvitations {@code true} to send invitations to participants;
+     *                        {@code false} otherwise
+     * @return the UID of the entry
+     * @since 2.15.0
+     */
+    String createCalendarEntry(String icalData, boolean sendInvitations);
+    
+    /**
+     * Updates an existing calendar entry by UID.
+     * 
+     * @param uid the UID of the entry to update
+     * @param icalData the new iCalendar data to write
+     * @param comment comments regarding the meeting change; may be {@code null}
+     * @param sendInvitations {@code true} to send notices to participants;
+     *                        {@code false} otherwise
+     * @param overwrite {@code true} to fully overwrite the original entry;
+     *                  {@code false} to preserve attachments and custom fields
+     * @param recurId the recurrence identifier for the entry; may be {@code null}
+     * @since 2.15.0
+     */
+    void updateCalendarEntry(String uid, String icalData, String comment, boolean sendInvitations, boolean overwrite, String recurId);
+    
+    /**
+     * Removes a calendar entry by UID.
+     * 
+     * @param uid the UID of the entry to delete
+     * @param scope the scope of entries to remove for repeating events
+     * @param recurId the recurrence identifier for the entry; may be {@code null}
+     * @since 2.15.0
+     */
+    void removeCalendarEntry(String uid, CalendarModScope scope, String recurId);
 }

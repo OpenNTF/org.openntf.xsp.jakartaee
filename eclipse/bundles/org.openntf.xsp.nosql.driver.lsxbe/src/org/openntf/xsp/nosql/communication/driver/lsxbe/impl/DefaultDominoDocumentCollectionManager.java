@@ -20,6 +20,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,6 +56,7 @@ import org.openntf.xsp.nosql.communication.driver.impl.ViewInfoImpl;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
+import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
 import org.openntf.xsp.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
@@ -86,6 +88,8 @@ import lotus.domino.DateTime;
 import lotus.domino.DbDirectory;
 import lotus.domino.DocumentCollection;
 import lotus.domino.DominoQuery;
+import lotus.domino.NotesCalendar;
+import lotus.domino.NotesCalendarEntry;
 import lotus.domino.NotesException;
 import lotus.domino.QueryResultsProcessor;
 import lotus.domino.Session;
@@ -316,9 +320,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				beginTransaction(database);
 				View view = database.getView(viewName);
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
-				
-				
-				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+
+				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 				Vector<Object> vecKeys;
 				if(keys instanceof List) {
 					vecKeys = (Vector<Object>)keys;
@@ -365,7 +368,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				View view = database.getView(viewName);
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 				
-				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 				Vector<Object> vecKeys;
 				if(keys instanceof List) {
 					vecKeys = (Vector<Object>)keys;
@@ -593,6 +596,117 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
+	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pagination pagination) {
+		try {
+			Database database = supplier.get();
+			Session session = database.getParent();
+			NotesCalendar cal = session.getCalendar(database);
+			
+			DateTime startDt = DominoNoSQLUtil.fromTemporal(session, start);
+			DateTime endDt = DominoNoSQLUtil.fromTemporal(session, end);
+			
+			if(pagination != null) {
+				return cal.readRange(startDt, endDt, (int)pagination.getSkip(), (int)pagination.getLimit());
+			} else {
+				return cal.readRange(startDt, endDt);
+			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public Optional<String> readCalendarEntry(String uid) {
+		try {
+			Database database = supplier.get();
+			Session session = database.getParent();
+			NotesCalendar cal = session.getCalendar(database);
+			
+			NotesCalendarEntry entry = cal.getEntry(uid);
+			try {
+				return Optional.of(entry.read());
+			} catch(NotesException e) {
+				// Accessor methods throw exceptions when the entry doesn't exist
+				return Optional.empty();
+			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public String createCalendarEntry(String icalData, boolean sendInvitations) {
+		try {
+			Database database = supplier.get();
+			Session session = database.getParent();
+			NotesCalendar cal = session.getCalendar(database);
+			
+			NotesCalendarEntry entry = cal.createEntry(icalData, sendInvitations ? 0 : NotesCalendar.CS_WRITE_DISABLE_IMPLICIT_SCHEDULING);
+			return entry.getUID();
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void updateCalendarEntry(String uid, String icalData, String comment, boolean sendInvitations,
+			boolean overwrite, String recurId) {
+		try {
+			Database database = supplier.get();
+			Session session = database.getParent();
+			NotesCalendar cal = session.getCalendar(database);
+			
+			NotesCalendarEntry entry = cal.getEntry(uid);
+			int flags = (sendInvitations ? 0 : NotesCalendar.CS_WRITE_DISABLE_IMPLICIT_SCHEDULING) | (overwrite ? NotesCalendar.CS_WRITE_MODIFY_LITERAL : 0);
+			if(StringUtil.isEmpty(recurId)) {
+				entry.update(icalData, comment, flags);
+			} else {
+				entry.update(icalData, comment, flags, recurId);
+			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void removeCalendarEntry(String uid, CalendarModScope scope, String recurId) {
+		try {
+			Database database = supplier.get();
+			Session session = database.getParent();
+			NotesCalendar cal = session.getCalendar(database);
+			
+			NotesCalendarEntry entry = cal.getEntry(uid);
+			if(StringUtil.isEmpty(recurId)) {
+				entry.remove();
+			} else {
+				int scopeVal;
+				if(scope == null) {
+					scopeVal = 0;
+				} else {
+					switch(scope) {
+						case ALL:
+							scopeVal = 1;
+							break;
+						case FUTURE:
+							scopeVal = 3;
+							break;
+						case PREV:
+							scopeVal = 2;
+							break;
+						case CURRENT:
+						default:
+							scopeVal = 0;
+							break;
+					}
+				}
+				entry.remove(scopeVal, recurId);
+			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
 	public void close() {
 	}
 	
@@ -653,7 +767,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			String category = viewQuery == null ? null : viewQuery.getCategory();
 			if(category == null) {
 				if(viewQuery != null && viewQuery.getKey() != null) {
-					Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey());
+					Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 					Vector<Object> vecKeys;
 					if(keys instanceof List) {
 						vecKeys = (Vector<Object>)keys;

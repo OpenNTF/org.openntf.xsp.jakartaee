@@ -165,6 +165,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		addEnv("SetupAutoConfigure", "1"); //$NON-NLS-1$ //$NON-NLS-2$
 		addEnv("SetupAutoConfigureParams", "/local/runner/domino-config.json"); //$NON-NLS-1$ //$NON-NLS-2$
 		addEnv("DOMINO_DOCKER_STDOUT", "yes"); //$NON-NLS-1$ //$NON-NLS-2$
+		addEnv("TZ", "Etc/UTC"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		withImagePullPolicy(imageName -> false);
 		withExposedPorts(80);
@@ -173,7 +174,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 			new WaitAllStrategy()
 				.withStrategy(new LogMessageWaitStrategy()
 					.withRegEx(".*Adding sign bit to.*") //$NON-NLS-1$
-					.withTimes(300)
+					.withTimes(4000)
 				)
 				.withStrategy(new LogMessageWaitStrategy()
 					.withRegEx(".*HTTP Server: Started.*") //$NON-NLS-1$

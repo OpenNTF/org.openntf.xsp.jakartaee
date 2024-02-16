@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.mvc.bean;
 
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.mvc.jaxrs.MvcJaxrsServiceParticipant;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -35,7 +36,13 @@ public class DominoHttpContextBean {
 	@Produces
 	@RequestScoped
 	public HttpServletRequest getServletRequest() {
-		return MvcJaxrsServiceParticipant.CURRENT_REQUEST.get();
+		HttpServletRequest req = MvcJaxrsServiceParticipant.CURRENT_REQUEST.get();
+		if(req == null) {
+			req = ComponentModuleLocator.getDefault()
+				.flatMap(ComponentModuleLocator::getServletRequest)
+				.orElse(null);
+		}
+		return req;
 	}
 	
 	@Produces

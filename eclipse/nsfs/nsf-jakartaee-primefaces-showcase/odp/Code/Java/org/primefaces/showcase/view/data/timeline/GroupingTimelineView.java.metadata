@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.2" replicaid="85258A69006E85D1" version="12.0">
+<noteinfo noteid="e26" sequence="14" unid="3554636D4FE8CFC080258A5800794ACA">
+<created><datetime dst="true">20231030T230450,02+01</datetime></created>
+<modified><datetime>20231116T151051,82-05</datetime></modified>
+<revised><datetime>20231116T151051,81-05</datetime></revised>
+<lastaccessed><datetime>20231116T151051,81-05</datetime></lastaccessed>
+<addedtofile><datetime>20231116T150723,40-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Admin SPL14/O=SPL</name><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name="$Flags"><text>34567Cg~[</text></item>
+<item name="$TITLE"><text>org/primefaces/showcase/view/data/timeline/GroupingTimelineView.java</text></item>
+
+<item name="$DesignerVersion"><text>8.5.3</text></item>
+
+
+<item name="$FileNames" sign="true"><text>org/primefaces/showcase/view/data/timeline/GroupingTimelineView.java</text></item>
+
+
+
+</note>

@@ -117,4 +117,28 @@ public class TestJaxRs extends AbstractWebClientTest {
 			fail("Received unexpected JSON: " + json, e);
 		}
 	}
+	
+	/**
+	 * Tests that an in-NSF web.xml file can contribute context parameters that will be picked up
+	 * by JAX-RS
+	 * 
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/469">Issue #469</a>
+	 */
+	@Test
+	public void testWebXmlProperty() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsConfig/servlet");
+		Response response = target.request().get();
+		
+		String json = response.readEntity(String.class);
+		try {
+			JsonObject config = Json.createReader(new StringReader(json)).readObject();
+			assertNotNull(config);
+			
+			assertEquals("I am the param value", config.getString("org.openntf.example.param", null), () ->  "Received unexpected JSON: " + json);
+			assertEquals("I am the param value from a fragment in a JAR", config.getString("org.openntf.example.fragment.param", null), () ->  "Received unexpected JSON: " + json);
+		} catch(Exception e) {
+			fail("Received unexpected JSON: " + json, e);
+		}
+	}
 }
