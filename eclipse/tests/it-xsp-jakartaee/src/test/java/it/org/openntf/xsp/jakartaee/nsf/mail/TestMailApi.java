@@ -20,8 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
