@@ -22,11 +22,13 @@ import java.net.URI;
 
 import com.ibm.commons.util.io.StreamUtil;
 
+import jakarta.mail.BodyPart;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
@@ -59,5 +61,19 @@ public class MailExample {
 		try(InputStream is = serviceUri.toURL().openStream()) {
 			return StreamUtil.readString(is);
 		}
+	}
+	
+	@Path("echoFileName")
+	@POST
+	@Produces(MediaType.TEXT_PLAIN)
+	public String readFilename(MimeMultipart body) throws MessagingException {
+		for(int i = 0; i < body.getCount(); i++) {
+			BodyPart part = body.getBodyPart(i);
+			String fileName = part.getFileName();
+			if(fileName != null && !fileName.isEmpty()) {
+				return fileName;
+			}
+		}
+		throw new IllegalArgumentException("Did not find attachment");
 	}
 }

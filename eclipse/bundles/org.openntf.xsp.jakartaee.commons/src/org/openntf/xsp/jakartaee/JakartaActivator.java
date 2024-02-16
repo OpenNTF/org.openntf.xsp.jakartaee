@@ -18,6 +18,7 @@ package org.openntf.xsp.jakartaee;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.weaving.MailWeavingHook;
 import org.openntf.xsp.jakartaee.weaving.UtilWeavingHook;
 import org.osgi.framework.BundleActivator;
@@ -32,6 +33,10 @@ public class JakartaActivator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		regs.add(context.registerService(WeavingHook.class.getName(), new UtilWeavingHook(), null));
 		regs.add(context.registerService(WeavingHook.class.getName(), new MailWeavingHook(), null));
+		
+		// Allow UTF-8-encoded filenames in MimeMultipart
+		// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/501
+		LibraryUtil.setSystemProperty("mail.mime.allowutf8", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
