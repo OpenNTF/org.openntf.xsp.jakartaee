@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages JAX-RS Standard Platform Providers
 Bundle-SymbolicName: org.openntf.xsp.jaxrs.providers
 Automatic-Module-Name: org.openntf.xsp.jaxrs.providers
-Bundle-Version: 2.15.0.qualifier
+Bundle-Version: 2.16.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Fragment-Host: org.openntf.xsp.jaxrs
