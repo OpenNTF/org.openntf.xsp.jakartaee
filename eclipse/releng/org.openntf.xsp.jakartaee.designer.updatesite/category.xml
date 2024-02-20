@@ -56,6 +56,12 @@
    <feature id="org.eclipse.wst.json_core.feature">
       <category name="Eclipse WST"/>
    </feature>
+   <feature id="org.eclipse.jst.web_js_support.feature">
+      <category name="Eclipse WST"/>
+   </feature>
+   <feature id="org.eclipse.wst.web_js_support.feature">
+      <category name="Eclipse WST"/>
+   </feature>
    <feature id="org.eclipse.wst.xml_core.feature">
       <category name="Eclipse WST"/>
    </feature>
@@ -92,10 +98,125 @@
    <feature id="org.eclipse.jsf.feature">
       <category name="Eclipse WST"/>
    </feature>
+   <feature id="org.eclipse.wst.xml.xpath2.processor.feature">
+      <category name="Eclipse WST"/>
+   </feature>
    <feature id="org.eclipse.jst.jsf.apache.trinidad.tagsupport.feature">
       <category name="Eclipse WST"/>
    </feature>
    <category-def name="Eclipse WST" label="Eclipse WST"/>
+   
+   <feature id="org.eclipse.mylyn.commons">
+      <category name="Eclipse Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.commons.identity">
+      <category name="Eclipse Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.commons.repositories">
+      <category name="Eclipse Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.commons.notifications">
+      <category name="Eclipse Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.wikitext_feature">
+      <category name="Eclipse Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.wikitext.editors_feature">
+      <category name="Eclipse Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn_feature">
+      <category name="Eclipse Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.discovery">
+      <category name="Eclipse Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.monitor">
+      <category name="Eclipse Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.context_feature">
+      <category name="Eclipse Mylyn"/>
+   </feature>
+   <category-def name="Eclipse Mylyn" label="Eclipse Mylyn"/>
+   
+   <feature id="org.eclipse.ecf.core.feature">
+      <category name="Eclipse ECF"/>
+   </feature>
+   <feature id="org.eclipse.ecf.core.ssl.feature">
+      <category name="Eclipse ECF"/>
+   </feature>
+   <feature id="org.eclipse.ecf.filetransfer.feature">
+      <category name="Eclipse ECF"/>
+   </feature>
+   <feature id="org.eclipse.ecf.filetransfer.ssl.feature">
+      <category name="Eclipse ECF"/>
+   </feature>
+   <feature id="org.eclipse.ecf.filetransfer.httpclient45.feature">
+      <category name="Eclipse ECF"/>
+   </feature>
+   <category-def name="Eclipse ECF" label="Eclipse ECF"/>
+   
+   <feature id="org.eclipse.datatools.connectivity.feature">
+      <category name="Eclipse Data Tools"/>
+   </feature>
+   <feature id="org.eclipse.datatools.connectivity.oda.feature">
+      <category name="Eclipse Data Tools"/>
+   </feature>
+   <feature id="org.eclipse.datatools.modelbase.feature">
+      <category name="Eclipse Data Tools"/>
+   </feature>
+   <category-def name="Eclipse Data Tools" label="Eclipse Data Tools"/>
+   
+   <feature id="org.eclipse.emf">
+      <category name="Eclipse EMF"/>
+   </feature>
+   <category-def name="Eclipse EMF" label="Eclipse EMF"/>
+   
+   <feature id="org.jboss.tools.cdi.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.cdi.microprofile.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.common.core.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.common.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.common.jdt.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.common.text.ext.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.common.ui.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.common.verification.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.foundation.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.jsf.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.jst.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.vpe.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.vpe.preview.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.ws.jaxrs.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <feature id="org.jboss.tools.usage.feature">
+      <category name="JBoss Tools"/>
+   </feature>
+   <category-def name="JBoss Tools" label="JBoss Tools"/>
    
    <feature id="org.openntf.xsp.jakarta.designer.feature">
       <category name="Eclipse WST Bridge"/>

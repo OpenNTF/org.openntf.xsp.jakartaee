@@ -248,6 +248,10 @@
 	<plugin id="org.eclipse.jst.j2ee.core" version="0.0.0" unpack="false"/>
 	<plugin id="org.eclipse.jst.j2ee.web" version="0.0.0" unpack="false"/>
 	<plugin id="org.eclipse.jst.j2ee.jca" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.j2ee.jca.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.j2ee.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.j2ee.ejb" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.j2ee.ejb.annotation.model" version="0.0.0" unpack="false"/>
 	<plugin id="org.eclipse.jst.jsp.core" version="0.0.0" unpack="false"/>
 	<plugin id="org.eclipse.jst.jsp.ui" version="0.0.0" unpack="false"/>
 	<plugin id="org.eclipse.jst.jsp.ui.infopop" version="0.0.0" unpack="false"/>
@@ -260,6 +264,45 @@
 	<plugin id="org.eclipse.jem.proxy" version="0.0.0" unpack="false"/>
 	<plugin id="org.eclipse.jem.workbench" version="0.0.0" unpack="false"/>
 	<plugin id="javax.mail" version="0.0.0" unpack="false"/>
+	<plugin id="javax.activation" version="1.1.0.v201211130549" unpack="false" />
+	<plugin id="javax.xml.bind" version="2.2.0.v201105210648" unpack="false" />
+	<plugin id="javax.xml.stream" version="1.0.1.v201004272200" unpack="false" />
+	<plugin id="com.sun.xml.bind" version="2.2.0.v20201118-1845" unpack="false" />
 	<plugin id="org.apache.log4j" version="0.0.0" unpack="false"/>
+	
+	<plugin id="org.eclipse.jpt.common.core" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jpt.common.utility" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.commons.httpclient" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.commons.lang3" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.commons.exec" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.mylyn.commons.core" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.mylyn.commons.net" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.mylyn.commons.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.mylyn.commons.screenshots" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.ws.jaxrs.core" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.lucene.core" version="7.5.0.v20181003-1532" unpack="false"/>
+	<plugin id="org.apache.lucene.analyzers-common" version="7.5.0.v20181003-1532" unpack="false"/>
+	<plugin id="org.apache.lucene.queryparser" version="7.5.0.v20181003-1532" unpack="false"/>
+	<plugin id="com.google.guava" version="21.0.0.v20170206-1425" unpack="false"/>
+	<plugin id="org.apache.velocity" version="0.0.0" unpack="false"/>
+	<plugin id="org.jdom" version="0.0.0" unpack="false"/>
+	
+	<plugin id="org.eclipse.datatools.connectivity.db.generic" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.datatools.connectivity.db.generic.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.wst.xml.xpath.core" version="0.0.0" unpack="false"/>
+	<plugin id="java_cup.runtime" version="0.0.0" unpack="false"/>
+	
+	<plugin id="org.eclipse.jst.jee.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.servlet.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.servlet.ui.infopop" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.j2ee.navigator.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.j2ee.webservice" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.j2ee.webservice.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.ws.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.ws.creation.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.ws.consumption" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.ws.consumption.ui" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.ws.infopop" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.jst.ws" version="0.0.0" unpack="false"/>
 
 </feature>
