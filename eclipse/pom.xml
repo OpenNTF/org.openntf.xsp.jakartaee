@@ -122,8 +122,12 @@
 		<module>tests/org.openntf.xsp.test.jasapi</module>
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		
+		
+		<module>features/org.openntf.xsp.jakarta.designer.feature</module>
+		
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
+		<module>releng/org.openntf.xsp.jakartaee.designer.updatesite</module>
 		<module>releng/org.openntf.xsp.jakartaee.source.updatesite</module>
 		<module>releng/xsp-jakartaee-dist</module>
 	</modules>
@@ -150,6 +154,12 @@
 			<id>artifactory.openntf.org</id>
 			<name>artifactory.openntf.org</name>
 			<url>https://artifactory.openntf.org/openntf</url>
+		</repository>
+		<repository>
+			<id>webtools</id>
+			<name>Web Tools</name>
+			<url>https://download.eclipse.org/webtools/downloads/drops/R3.24.0/R-3.24.0-20211122101137/repository</url>
+			<layout>p2</layout>
 		</repository>
 	</repositories>
 	
@@ -236,6 +246,14 @@
 						<plugin id="org.eclipse.jdt.core"/>
 						<plugin id="org.antlr.antlr4-runtime.jakarta"/>
 						<plugin id="org.openntf.xsp.jsonapi.cdi"/>
+						
+						<plugin id="org.apache.commons.codec"/>
+						<plugin id="org.apache.commons.logging"/>
+						<plugin id="org.eclipse.jst.jsf.doc.user"/>
+						<plugin id="org.eclipse.jst.jsp.ui.infopop"/>
+						<plugin id="org.eclipse.jst.standard.schemas"/>
+						<plugin id="javax.mail"/>
+						<plugin id="org.apache.log4j"/>
 					</excludes>
 				</configuration>
 			</plugin>

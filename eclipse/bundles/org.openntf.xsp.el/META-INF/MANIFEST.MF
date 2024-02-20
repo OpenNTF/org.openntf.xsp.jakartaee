@@ -7,7 +7,7 @@ Bundle-Version: 2.16.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
- jakarta.el-api;bundle-version="4.0.0";visibility:=reexport,
+ jakarta.el;bundle-version="4.0.0";visibility:=reexport;resolution:=optional,
  org.glassfish.jakarta.el;bundle-version="4.0.1",
  org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0";visibility:=reexport
 Import-Package: com.ibm.commons.util,

@@ -7,7 +7,7 @@
 		<version>2.16.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-	<artifactId>org.openntf.xsp.jakartaee.updatesite</artifactId>
+	<artifactId>org.openntf.xsp.jakartaee.designer.updatesite</artifactId>
 
 	<packaging>eclipse-repository</packaging>
 

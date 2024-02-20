@@ -88,7 +88,16 @@
 								-->
 								<artifact><id>jakarta.annotation:jakarta.annotation-api:2.1.1</id><source>true</source></artifact>
 								<artifact><id>jakarta.inject:jakarta.inject-api:2.0.1</id><source>true</source></artifact>
-								<artfiact><id>jakarta.servlet:jakarta.servlet-api:5.0.0</id><source>true</source></artfiact>
+								<artfiact>
+									<id>jakarta.servlet:jakarta.servlet-api:5.0.0</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>jakarta.servlet</Bundle-SymbolicName>
+										<Export-Package>*;version="5.0"</Export-Package>
+										<Bundle-Version>5.0.0.v${osgi.qualifier}</Bundle-Version>
+									</instructions>
+								</artfiact>
 								<artfiact><id>jakarta.ejb:jakarta.ejb-api:4.0.1</id><source>true</source></artfiact>
 								<artfiact><id>jakarta.transaction:jakarta.transaction-api:2.0.1</id><source>true</source></artfiact>
 								<artifact><id>jakarta.websocket:jakarta.websocket-client-api:2.1.0</id><source>true</source></artifact>
@@ -425,7 +434,16 @@
 								<!--
 									EL
 								-->
-								<artifact><id>jakarta.el:jakarta.el-api:4.0.0</id><source>true</source></artifact>
+								<artifact>
+									<id>jakarta.el:jakarta.el-api:4.0.0</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>jakarta.el</Bundle-SymbolicName>
+										<Export-Package>*;version="4.0"</Export-Package>
+										<Bundle-Version>4.0.0.v${osgi.qualifier}</Bundle-Version>
+									</instructions>
+								</artifact>
 								<artifact><id>org.glassfish:jakarta.el:4.0.2</id><source>true</source></artifact>
 								
 								<!--
@@ -449,8 +467,10 @@
 										<Import-Package>jakarta.ejb;version="4.0.0";resolution:=optional</Import-Package>
 										<Require-Bundle>
 											jakarta.inject.jakarta.inject-api;bundle-version="2.0.0",
-											jakarta.el-api;bundle-version="4.0.0",
-											jakarta.interceptor-api;bundle-version="2.0.0"
+											
+											 jakarta.el;bundle-version="4.0.0";resolution:=optional,
+											 jakarta.el-api;bundle-version="4.0.0";resolution:=optional,
+											 jakarta.interceptor-api;bundle-version="2.0.0"
 										</Require-Bundle>
 										<DynamicImport-Package>*</DynamicImport-Package>
 									</instructions>

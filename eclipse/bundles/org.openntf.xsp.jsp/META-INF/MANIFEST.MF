@@ -6,9 +6,9 @@ Automatic-Module-Name: org.openntf.xsp.jsp
 Bundle-Version: 2.16.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: jakarta.servlet-api;bundle-version="5.0.0";visibility:=reexport,
+Require-Bundle: jakarta.servlet;bundle-version="5.0.0";visibility:=reexport,
  org.openntf.xsp.jakartaee.commons;bundle-version="2.5.0";visibility:=reexport,
- jakarta.el-api;bundle-version="4.0.0";visibility:=reexport,
+ jakarta.el;bundle-version="4.0.0";visibility:=reexport,
  org.glassfish.jakarta.el;bundle-version="4.0.1";visibility:=reexport,
  jakarta.servlet.jsp-api;bundle-version="3.0.0";visibility:=reexport,
  org.glassfish.web.jakarta.servlet.jsp;bundle-version="3.0.0";visibility:=reexport,

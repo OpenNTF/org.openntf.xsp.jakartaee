@@ -10,7 +10,7 @@ Import-Package: com.ibm.xsp.application,
  com.ibm.xsp.library,
  org.eclipse.core.runtime,
  org.osgi.framework
-Require-Bundle: jakarta.servlet-api;bundle-version="5.0.0";visibility:=reexport,
+Require-Bundle: jakarta.servlet;bundle-version="5.0.0";visibility:=reexport,
  jakarta.ws.rs-api;bundle-version="3.0.0";visibility:=reexport,
  org.openntf.xsp.jaxrs;bundle-version="2.0.0",
  org.openntf.jakarta.enterprise.cdi-api;visibility:=reexport,
