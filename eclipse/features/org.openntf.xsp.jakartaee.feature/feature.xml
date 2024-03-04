@@ -274,5 +274,8 @@
 	<plugin id="org.openntf.jboss-classfilewriter" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.logging.jboss-logging" version="0.0.0" unpack="false"/>
 	<plugin id="javassist" version="0.0.0" unpack="false"/>
+	
+	<plugin id="jakarta.security.enterprise-api" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.security.auth.message-api" version="0.0.0" unpack="false"/>
 
 </feature>

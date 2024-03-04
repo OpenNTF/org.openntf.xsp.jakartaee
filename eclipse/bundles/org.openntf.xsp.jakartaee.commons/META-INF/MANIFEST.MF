@@ -13,7 +13,9 @@ Require-Bundle: com.ibm.pvc.servlet;bundle-version="2.5.0",
  jakarta.activation-api;bundle-version="2.0.0";visibility:=reexport,
  org.openntf.org.eclipse.angus.jakarta.mail;bundle-version="1.0.0";visibility:=reexport,
  jakarta.enterprise.concurrent-api;bundle-version="2.0.0";visibility:=reexport,
- net.fortuna.ical4j;bundle-version="1.0.0";resolution:=optional;visibility:=reexport
+ net.fortuna.ical4j;bundle-version="1.0.0";resolution:=optional;visibility:=reexport,
+ jakarta.security.auth.message-api;bundle-version="2.0.0";visibility:=reexport,
+ jakarta.security.enterprise-api;bundle-version="2.0.0";visibility:=reexport
 Bundle-ClassPath: .
 Export-Package: org.openntf.xsp.cdi.ext;version="2.16.0",
  org.openntf.xsp.jakartaee;version="2.16.0",

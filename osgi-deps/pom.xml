@@ -586,6 +586,13 @@
 								</artifact>
 								
 								<!--
+									Security
+								-->
+								<artifact><id>jakarta.security.enterprise:jakarta.security.enterprise-api:2.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.authentication:jakarta.authentication-api:2.0.0</id><source>true</source></artifact>
+								
+								
+								<!--
 									NoSQL
 								-->
 								<!--
