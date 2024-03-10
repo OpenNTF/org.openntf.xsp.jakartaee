@@ -274,9 +274,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		Set<String> unids = new HashSet<>();
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
+				String unid = ""; //$NON-NLS-1$
+				String serverName = ""; //$NON-NLS-1$
+				String filePath = ""; //$NON-NLS-1$
+				
 				try {
+					unid = entry.getUniversalID();
 					if(distinct) {
-						String unid = entry.getUniversalID();
 						if(unids.contains(unid)) {
 							return null;
 						}
@@ -284,10 +288,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					}
 					
 					lotus.domino.Document doc = entry.getDocument();
+					Database database = doc.getParentDatabase();
+					serverName = database.getServer();
+					filePath = database.getFilePath();
 					List<Document> documents = convertDominoDocument(doc, classMapping, itemTypes);
 					return DocumentEntity.of(entityName, documents);
 				} catch (NotesException e) {
-					throw new RuntimeException(e);
+					throw new RuntimeException(MessageFormat.format("Encountered exception converting document UNID {0} in {1}!!{2}", unid, serverName, filePath), e);
 				}
 			})
 			.filter(Objects::nonNull);
