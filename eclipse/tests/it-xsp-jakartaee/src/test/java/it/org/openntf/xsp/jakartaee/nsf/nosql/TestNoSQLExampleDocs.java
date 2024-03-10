@@ -17,6 +17,7 @@ package it.org.openntf.xsp.jakartaee.nsf.nosql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -40,6 +41,7 @@ import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonValue;
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
@@ -1010,6 +1012,65 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertEquals(expected, jsonObject.getBoolean("doubleBooleanStorage"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));
 			stored = DOMUtil.evaluateXPath(xmlDoc, "//*[name()='item'][@name='DoubleBooleanStorage']/*/text()").getStringValue();
 			assertEquals(expected ? "0" : "1", stored);
+		}
+	}
+	
+	/**
+	 * Tests that a field marked with {@link JsonbTransient @JsonbTransient} is not included
+	 * in the JSON output but is loaded by way of a special method included in the JSON.
+	 * 
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/513">Issue #513</a>
+	 */
+	@Test
+	public void testJsonbTransientField() {
+		Client client = getAdminClient();
+		
+		// Create a new doc
+		String unid;
+		{
+			JsonObject payloadJson = Json.createObjectBuilder()
+				.add("title", "I am testJsonbTransientField guy")
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+			assertFalse(jsonObject.containsKey("jsonTransientField"));
+			assertFalse(jsonObject.containsKey("jsonTransientField2"));
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(unid, jsonObject.getString("unid"));
+			
+			assertEquals("I am testJsonbTransientField guy", jsonObject.getString("title"));
+
+			assertFalse(jsonObject.containsKey("jsonTransientField"));
+			// Check the alternate way to fetch the field
+			JsonArray expectedValues = Json.createArrayBuilder(Arrays.asList("i", "am", "the", "default", "value")).build();
+			JsonArray alternateMethod = jsonObject.getJsonArray("alternateMethodStorage");
+			assertIterableEquals(expectedValues, alternateMethod);
+			
+			// Same for the other field
+			assertFalse(jsonObject.containsKey("jsonTransientField2"));
+			// Check the alternate way to fetch the field
+			expectedValues = Json.createArrayBuilder(Arrays.asList("default value")).build();
+			alternateMethod = jsonObject.getJsonArray("alternateMethodStorage2");
+			assertIterableEquals(expectedValues, alternateMethod);
+			
 		}
 	}
 }
