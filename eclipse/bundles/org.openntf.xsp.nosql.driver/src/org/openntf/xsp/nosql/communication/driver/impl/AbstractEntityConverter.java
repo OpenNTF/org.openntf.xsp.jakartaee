@@ -16,6 +16,7 @@
 package org.openntf.xsp.nosql.communication.driver.impl;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.MessageDigest;
@@ -49,7 +50,7 @@ public abstract class AbstractEntityConverter {
 			.map(field -> field.getAnnotation(annotation));
 	}
 	
-	protected Optional<Class<?>> getFieldType(ClassMapping classMapping, String fieldName) {
+	protected Optional<Type> getFieldType(ClassMapping classMapping, String fieldName) {
 		if(classMapping == null) {
 			return Optional.empty();
 		}
@@ -58,7 +59,7 @@ public abstract class AbstractEntityConverter {
 			.filter(field -> fieldName.equals(field.getName()))
 			.findFirst()
 			.map(FieldMapping::getNativeField)
-			.map(field -> field.getType());
+			.map(field -> field.getGenericType());
 	}
 	
 	protected String composeEtag(String universalId, Temporal modTime) {

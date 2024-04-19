@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -1108,7 +1109,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	private Optional<Object> maybeConvertJson(Object value, Optional<ItemStorage> optStorage, String itemName, ClassMapping classMapping) {
 		if(optStorage.isPresent()) {
 			if(optStorage.get().type() == ItemStorage.Type.JSON) {
-				Optional<Class<?>> targetType = getFieldType(classMapping, itemName);
+				Optional<Type> targetType = getFieldType(classMapping, itemName);
 				if(targetType.isPresent()) {
 					if(String.class.equals(targetType.get())) {
 						// Ignore when the target is a string
