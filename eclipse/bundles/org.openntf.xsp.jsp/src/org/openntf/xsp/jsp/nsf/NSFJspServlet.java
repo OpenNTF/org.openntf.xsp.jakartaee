@@ -25,6 +25,7 @@ import java.security.PrivilegedExceptionAction;
 import org.apache.jasper.Constants;
 import org.apache.jasper.servlet.JspServlet;
 import org.apache.jasper.xmlparser.ParserUtils;
+import org.openntf.xsp.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jsp.EarlyInitFactory;
@@ -71,6 +72,7 @@ public class NSFJspServlet extends AbstractXspLifecycleServlet {
 	@Override
 	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application)
 			throws ServletException, IOException {
+		HttpContextBean.setThreadResponse(response);
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 				
@@ -109,6 +111,7 @@ public class NSFJspServlet extends AbstractXspLifecycleServlet {
 		} finally {
 			// Looks like Jasper doesn't flush this on its own
 			ServletUtil.close(response);
+			HttpContextBean.setThreadResponse(null);
 		}
 	}
 	

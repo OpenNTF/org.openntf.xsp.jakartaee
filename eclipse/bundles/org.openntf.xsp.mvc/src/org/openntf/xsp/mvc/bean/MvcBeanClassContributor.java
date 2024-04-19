@@ -32,7 +32,6 @@ public class MvcBeanClassContributor implements WeldBeanClassContributor {
 	public Collection<Class<?>> getBeanClasses() {
 		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
 			return Arrays.asList(
-				DominoHttpContextBean.class,
 				DelegatingExceptionViewEngine.class
 			);
 		} else {

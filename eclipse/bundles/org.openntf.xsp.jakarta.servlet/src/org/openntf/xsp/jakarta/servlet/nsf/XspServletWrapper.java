@@ -17,7 +17,7 @@ package org.openntf.xsp.jakarta.servlet.nsf;
 
 import java.io.IOException;
 import java.util.Enumeration;
-
+import org.openntf.xsp.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -61,7 +61,12 @@ public class XspServletWrapper extends AbstractXspLifecycleServlet {
 	@Override
 	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application)
 			throws ServletException, IOException {
-		delegate.service(request, response);
+		HttpContextBean.setThreadResponse(response);
+		try {
+			delegate.service(request, response);
+		} finally {
+			HttpContextBean.setThreadResponse(null);
+		}
 	}
 	
 	@Override
