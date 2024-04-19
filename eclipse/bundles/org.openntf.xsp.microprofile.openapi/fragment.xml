@@ -21,4 +21,7 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.microprofile.openapi.OpenAPIResourceContributor" />
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.spi.JAXRSActivationParticipant" class="org.openntf.xsp.microprofile.openapi.OASFactoryInitializer" />
+	</extension>
 </plugin>

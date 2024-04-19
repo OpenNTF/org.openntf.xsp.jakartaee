@@ -60,29 +60,33 @@ public class TestOpenAPI extends AbstractWebClientTest {
 			.get();
 		
 		String json = response.readEntity(String.class);
-		JsonObject obj = Json.createReader(new StringReader(json)).readObject();
-		
-		// Check for a known resource
-		JsonObject paths = obj.getJsonObject("paths");
-		assertTrue(paths.containsKey("/adminrole"));
-
-		JsonObject info = obj.getJsonObject("info");
-		assertEquals("XPages JEE Example", info.getString("title"));
-		
-		// Check for the presence of a version from $TemplateBuild
-		String mavenVersion = DominoContainer.getMavenVersion();
-		if(mavenVersion.endsWith("-SNAPSHOT")) {
-			mavenVersion = mavenVersion.substring(0, mavenVersion.length()-"-SNAPSHOT".length());
+		try {
+			JsonObject obj = Json.createReader(new StringReader(json)).readObject();
+			
+			// Check for a known resource
+			JsonObject paths = obj.getJsonObject("paths");
+			assertTrue(paths.containsKey("/adminrole"));
+	
+			JsonObject info = obj.getJsonObject("info");
+			assertEquals("XPages JEE Example", info.getString("title"));
+			
+			// Check for the presence of a version from $TemplateBuild
+			String mavenVersion = DominoContainer.getMavenVersion();
+			if(mavenVersion.endsWith("-SNAPSHOT")) {
+				mavenVersion = mavenVersion.substring(0, mavenVersion.length()-"-SNAPSHOT".length());
+			}
+			if(!info.containsKey("version")) {
+				fail("Encountered unexpected JSON: " + json);
+			}
+			String version = info.getString("version");
+			assertTrue(version.startsWith(mavenVersion), "Expected version '" + version + "' to start with '" + mavenVersion + "'");
+			
+			JsonArray servers = obj.getJsonArray("servers");
+			JsonObject server0 = servers.getJsonObject(0);
+			assertEquals(getRestUrl(null, TestDatabase.MAIN), server0.getString("url"));
+		} catch(Exception e) {
+			fail("Encountered exception with JSON " + json, e);
 		}
-		if(!info.containsKey("version")) {
-			fail("Encountered unexpected JSON: " + json);
-		}
-		String version = info.getString("version");
-		assertTrue(version.startsWith(mavenVersion), "Expected version '" + version + "' to start with '" + mavenVersion + "'");
-		
-		JsonArray servers = obj.getJsonArray("servers");
-		JsonObject server0 = servers.getJsonObject(0);
-		assertEquals(getRestUrl(null, TestDatabase.MAIN), server0.getString("url"));
 	}
 	
 	@ParameterizedTest
@@ -95,11 +99,11 @@ public class TestOpenAPI extends AbstractWebClientTest {
 			.get();
 		
 		String json = response.readEntity(String.class);
-		JsonObject obj = Json.createReader(new StringReader(json)).readObject();
-		
-		// Check for the presence overridden versions
-		JsonObject info = obj.getJsonObject("info");
 		try {
+			JsonObject obj = Json.createReader(new StringReader(json)).readObject();
+			
+			// Check for the presence overridden versions
+			JsonObject info = obj.getJsonObject("info");
 			assertEquals("OpenAPI Overridden Title", info.getString("title"));
 			assertEquals("3.1.1.override", info.getString("version"));
 			JsonObject license = info.getJsonObject("license");
@@ -108,8 +112,8 @@ public class TestOpenAPI extends AbstractWebClientTest {
 			JsonArray servers = obj.getJsonArray("servers");
 			JsonObject server0 = servers.getJsonObject(0);
 			assertEquals("http://override.server/path", server0.getString("url"));
-		} catch(NullPointerException e) {
-			fail("Encountered NPE with JSON " + json, e);
+		} catch(Exception e) {
+			fail("Encountered exception with JSON " + json, e);
 		}
 	}
 }
