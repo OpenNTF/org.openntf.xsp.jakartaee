@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.cdi.bean;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -32,7 +33,10 @@ public class BuiltinBeanClassContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		return Collections.singleton(DominoFacesImplicitObjectProvider.class);
+		return Arrays.asList(
+			DominoFacesImplicitObjectProvider.class,
+			HttpContextBean.class
+		);
 	}
 
 	@Override

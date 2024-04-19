@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 import org.apache.myfaces.ee.MyFacesContainerInitializer;
 import org.apache.myfaces.shared.config.MyfacesConfig;
 import org.eclipse.core.runtime.FileLocator;
+import org.openntf.xsp.cdi.bean.HttpContextBean;
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
@@ -141,6 +142,7 @@ public class NSFJsfServlet extends HttpServlet {
 		ServletContext ctx = req.getServletContext();
 		HttpSession session = req.getSession(true);
 
+		HttpContextBean.setThreadResponse(resp);
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>) () -> {
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
@@ -193,6 +195,7 @@ public class NSFJsfServlet extends HttpServlet {
 		} finally {
 			// In case it's not flushed on its own
 			ServletUtil.close(resp);
+			HttpContextBean.setThreadResponse(null);
 		}
 	}
 
