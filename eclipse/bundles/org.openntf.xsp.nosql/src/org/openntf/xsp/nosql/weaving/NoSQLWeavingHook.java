@@ -53,6 +53,8 @@ public class NoSQLWeavingHook implements WeavingHook {
 			processValueWriter(c);
 		} else if("jakarta.nosql.TypeReferenceReaderDecorator".equals(c.getClassName())) { //$NON-NLS-1$
 			processTypeReferenceReader(c);
+		} else if("org.eclipse.jnosql.mapping.reflection.GenericFieldMapping".equals(c.getClassName())) { //$NON-NLS-1$
+			processGenericFieldMapping(c);
 		}
 	}
 
@@ -229,6 +231,47 @@ public class NoSQLWeavingHook implements WeavingHook {
 		} catch(CannotCompileException | IOException e) {
 			e.printStackTrace();
 			new RuntimeException("Encountered exception when weaving jakarta.nosql.ServiceLoaderProvider replacement", e).printStackTrace();
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("nls")
+	private void processGenericFieldMapping(WovenClass c) {
+		ClassPool pool = new ClassPool();
+		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
+		pool.appendClassPath(new LoaderClassPath(c.getBundleWiring().getClassLoader()));
+		CtClass cc;
+		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
+			cc = pool.makeClass(is);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		cc.defrost();
+		
+		try {
+			// boolean hasFieldAnnotation(Class clazz)
+			{
+				String body = "{\n"
+						+ "		java.lang.reflect.Type genericType = getNativeField().getGenericType();\n"
+						+ "		if(genericType instanceof Class) {\n"
+						+ "			return ((Class)genericType).isAnnotationPresent($1);\n"
+						+ "		} else {\n"
+						+ "			return (((Class) ((java.lang.reflect.ParameterizedType)genericType).getActualTypeArguments()[0])\n"
+						+ "				.getAnnotation($1) != null);\n"
+						+ "		}"
+						+ "    }";
+				CtMethod m = cc.getDeclaredMethod("hasFieldAnnotation"); //$NON-NLS-1$
+				m.setBody(body);
+			}
+		
+			c.setBytes(cc.toBytecode());
+		} catch(NotFoundException e) {
+			// Then the method has been removed - that's fine
+			e.printStackTrace();
+		} catch(CannotCompileException | IOException e) {
+			e.printStackTrace();
+			new RuntimeException("Encountered exception when weaving org.eclipse.jnosql.mapping.reflection.GenericFieldMapping replacement", e).printStackTrace();
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
