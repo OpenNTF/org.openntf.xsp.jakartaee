@@ -58,4 +58,47 @@ public class TestCustomPropertyTypeList extends AbstractWebClientTest {
 			}
 		}
 	}
+	
+	@Test
+	public void testJsonArrayStorage() {
+		Client client = getAdminClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/customPropertyList"); //$NON-NLS-1$
+		
+		JsonArray expected = Json.createArrayBuilder()
+			.add(Json.createObjectBuilder().add("value", "foo"))
+			.add(Json.createObjectBuilder().add("value", "bar"))
+			.add("baz")
+			.build();
+		
+		String id;
+		{
+			JsonObject payload = Json.createObjectBuilder()
+				.add("jsonArrayStorage", expected)
+				.build();
+			
+			Response response = target.request().post(Entity.json(payload));
+			JsonObject responseJson = response.readEntity(JsonObject.class);
+			try {
+				id = responseJson.getString("id");
+				JsonArray actual = responseJson.getJsonArray("jsonArrayStorage");
+				assertEquals(expected, actual);
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + responseJson, e);
+				throw e;
+			}
+		}
+		
+		{
+			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/customPropertyList/" + id);
+			Response response = getTarget.request().get();
+			
+			JsonObject responseJson = response.readEntity(JsonObject.class);
+			try {
+				JsonArray actual = responseJson.getJsonArray("jsonArrayStorage");
+				assertEquals(expected, actual, () -> "Failed with JSON " + responseJson);
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + responseJson, e);
+			}
+		}
+	}
 }
