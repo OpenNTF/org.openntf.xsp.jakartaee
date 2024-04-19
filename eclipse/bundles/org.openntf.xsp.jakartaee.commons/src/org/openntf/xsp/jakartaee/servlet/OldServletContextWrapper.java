@@ -171,6 +171,13 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public Object getAttribute(String arg0) {
+		// Handle a common case of requesting the spec-defined temp directory
+		if(ServletContext.TEMPDIR.equals(arg0)) {
+			Object explicit = delegate.getAttribute(arg0);
+			if(explicit == null) {
+				return delegate.getAttribute("javax.servlet.context.tempdir"); //$NON-NLS-1$
+			}
+		}
 		return delegate.getAttribute(arg0);
 	}
 
