@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="view" xmlns="http://www.lotus.com/dxl">
+  <item name="$FormulaClass" sign="true">
+    <text>1</text>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>Custom Property List Entities</text>
+  </item>
+  <item name="$Index" sign="true">
+    <text/>
+  </item>
+  <item name="$Formula" sign="true" summary="true">
+    <formula compiled="true">
+VgAFABoAFQACAAkABAAkQ29uZmxpY3QkUkVGAAQABAAAACwABQAEAEZvcm0BABgAQ3VzdG9tUHJv
+cGVydHlMaXN0RW50aXR5CgIDAAcACgAEAAlMMVM=
+</formula>
+  </item>
+  <item name="$Collation" summary="true">
+    <rawitemdata type="2">
+BgAAAABE
+</rawitemdata>
+  </item>
+  <item name="$ViewFormat" sign="true" summary="true">
+    <rawitemdata type="5">
+AQABAAEACAAAAFZDAAACAAEACgAKAFAAAQAACgAAAAAAAAAAAAICAAAAJDAjCgAAAAgAkgADAAEF
+AQAEAH9BMP8mAAEAAAABAQAJAQAACgEBDgoAAAEArSsBAAEAAQAAAAAAAAAAAFdDAQEACQAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAAAABCAAAAAAABAP///wAFAP///wABAAAA
+AAAAAAAAAAAAAAEA////AAEA////AAAAAQAAAAAAAQAAAAAAAQAAAAAAAAAIAAAAAAABAA==
+</rawitemdata>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$Flags">
+    <text>PY</text>
+  </item>
+</note>
