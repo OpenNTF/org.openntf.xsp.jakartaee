@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.jboss.weld.context.RequestContext;
 import org.jboss.weld.context.bound.BoundLiteral;
 import org.jboss.weld.context.bound.BoundRequestContext;
+import org.openntf.xsp.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
 
 public class WeldServiceParticipant implements ServiceParticipant {
@@ -39,6 +40,8 @@ public class WeldServiceParticipant implements ServiceParticipant {
 		request.setAttribute(KEY_STORAGE, cdiScope);
 		context.associate(cdiScope);
 		context.activate();
+		
+		HttpContextBean.setThreadResponse(response);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -48,6 +51,8 @@ public class WeldServiceParticipant implements ServiceParticipant {
 		context.invalidate();
 		context.deactivate();
 		context.dissociate((Map<String, Object>)request.getAttribute(KEY_STORAGE));
+		
+		HttpContextBean.setThreadResponse(null);
 	}
 
 }

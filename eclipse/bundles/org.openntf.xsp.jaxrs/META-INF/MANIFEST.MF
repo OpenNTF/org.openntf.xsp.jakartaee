@@ -4,6 +4,8 @@ Bundle-Name: XPages JAX-RS Support
 Bundle-SymbolicName: org.openntf.xsp.jaxrs;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jaxrs
 Bundle-Version: 3.0.0.qualifier
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.openntf.xsp.jaxrs.JAXRSActivator
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: jakarta.annotation-api;bundle-version="2.0.0";visibility:=reexport,

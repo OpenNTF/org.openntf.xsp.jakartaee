@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -456,11 +456,11 @@ public enum LibraryUtil {
 	 * @since 2.4.0
 	 */
 	public static Path getTempDirectory() {
-		String osName = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("os.name")); //$NON-NLS-1$
+		String osName = getSystemProperty("os.name"); //$NON-NLS-1$
 		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
 			return Paths.get("/tmp"); //$NON-NLS-1$
 		} else {
-			String tempDir = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+			String tempDir = getSystemProperty("java.io.tmpdir"); //$NON-NLS-1$
 			return Paths.get(tempDir);
 		}
 	}
@@ -487,5 +487,34 @@ public enum LibraryUtil {
 		return resourceName
 			.substring(0, resourceName.length()-".class".length()) //$NON-NLS-1$
 			.replace('/', '.');
+	}
+	
+	/**
+	 * Retrieves the provided system property, wrapping the call in an
+	 * {@code AccessController} block if applicable.
+	 * 
+	 * @param propName the name of the property to retrieve
+	 * @return the value of the property
+	 * @since 2.15.0
+	 */
+	@SuppressWarnings({ "deprecation", "removal" })
+	public static String getSystemProperty(String propName) {
+		return AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty(propName));
+	}
+	
+	/**
+	 * Sets the provided system property, wrapping the call in an
+	 * {@code AccessController} block if applicable.
+	 * 
+	 * @param propName the name of the property to set
+	 * @param value the new value to set
+	 * @since 2.15.0
+	 */
+	@SuppressWarnings({ "deprecation", "removal" })
+	public static void setSystemProperty(String propName, String value) {
+		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+			System.setProperty(propName, value);
+			return null;
+		});
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,6 +171,13 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public Object getAttribute(String arg0) {
+		// Handle a common case of requesting the spec-defined temp directory
+		if(ServletContext.TEMPDIR.equals(arg0)) {
+			Object explicit = delegate.getAttribute(arg0);
+			if(explicit == null) {
+				return delegate.getAttribute("javax.servlet.context.tempdir"); //$NON-NLS-1$
+			}
+		}
 		return delegate.getAttribute(arg0);
 	}
 

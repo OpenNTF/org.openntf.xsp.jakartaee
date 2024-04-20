@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.openntf.xsp.jakarta.servlet.nsf;
 
 import java.io.IOException;
 import java.util.Enumeration;
-
+import org.openntf.xsp.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -61,7 +61,12 @@ public class XspServletWrapper extends AbstractXspLifecycleServlet {
 	@Override
 	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application)
 			throws ServletException, IOException {
-		delegate.service(request, response);
+		HttpContextBean.setThreadResponse(response);
+		try {
+			delegate.service(request, response);
+		} finally {
+			HttpContextBean.setThreadResponse(null);
+		}
 	}
 	
 	@Override

@@ -1,3 +1,4 @@
+
 <?xml version="1.0"?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
@@ -46,6 +47,8 @@
 		<!-- jakarta.* snapshot builds are on OpenNTF's server -->
 		<nosql-version>1.0.2</nosql-version>
 		<nosql-version-osgi>1.0.2</nosql-version-osgi>
+		<!-- Tomcat 10.1 requires Java 11 -->
+		<tomcat-version>10.0.27</tomcat-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
@@ -93,6 +96,43 @@
 								<artifact><id>org.glassfish.corba:glassfish-corba-omgapi:4.2.4</id><source>true</source></artifact>
 								<artfiact><id>io.smallrye:jandex:3.1.1</id><source>true</source></artfiact>
 								<artfiact><id>org.apache.aries.spifly:org.apache.aries.spifly.dynamic.framework.extension:1.3.6</id><source>true</source></artfiact>
+								<!-- Though Tomcat 9 is JEE 8, Tomcat 10 requires Java 11 -->
+								<artfiact>
+									<id>org.apache.tomcat:tomcat-util:${tomcat-version}</id>
+									<source>true</source>
+									<transitive>false</transitive>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.apache.tomcat.util</Bundle-SymbolicName>
+										<Bundle-Version>${tomcat-version}.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="${tomcat-version}"</Export-Package>
+										<Import-Package>!java.*,jakarta.*,*;resolution:=optional</Import-Package>
+									</instructions>
+								</artfiact>
+								<artfiact>
+									<id>org.apache.tomcat:tomcat-util-scan:${tomcat-version}</id>
+									<source>true</source>
+									<transitive>false</transitive>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.apache.tomcat.util.scan</Bundle-SymbolicName>
+										<Bundle-Version>${tomcat-version}.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="${tomcat-version}"</Export-Package>
+										<Import-Package>!java.*,jakarta.*,*;resolution:=optional</Import-Package>
+									</instructions>
+								</artfiact>
+								<artfiact>
+									<id>org.apache.tomcat:tomcat-juli:${tomcat-version}</id>
+									<source>true</source>
+									<transitive>false</transitive>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.apache.tomcat.juli</Bundle-SymbolicName>
+										<Bundle-Version>${tomcat-version}.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="${tomcat-version}"</Export-Package>
+										<Import-Package>!java.*,jakarta.*,*;resolution:=optional</Import-Package>
+									</instructions>
+								</artfiact>
 								
 								<!-- Repackage to avoid trouble with a build finding a newer, beta-only version -->
 								<artifact>

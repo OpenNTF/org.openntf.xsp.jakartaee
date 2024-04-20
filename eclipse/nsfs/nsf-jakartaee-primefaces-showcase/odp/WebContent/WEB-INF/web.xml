@@ -140,19 +140,6 @@
     </error-page>
 
     <servlet>
-        <servlet-name>Faces Servlet</servlet-name>
-        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.jsf</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.xhtml</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>FileUpload Resume Servlet</servlet-name>
         <servlet-class>org.primefaces.webapp.FileUploadChunksServlet</servlet-class>
     </servlet>

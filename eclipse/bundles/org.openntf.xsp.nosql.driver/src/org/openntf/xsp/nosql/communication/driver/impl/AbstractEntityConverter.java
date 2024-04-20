@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.openntf.xsp.nosql.communication.driver.impl;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.MessageDigest;
@@ -49,7 +50,7 @@ public abstract class AbstractEntityConverter {
 			.map(field -> field.getAnnotation(annotation));
 	}
 	
-	protected Optional<Class<?>> getFieldType(EntityMetadata classMapping, String fieldName) {
+	protected Optional<Type> getFieldType(EntityMetadata classMapping, String fieldName) {
 		if(classMapping == null) {
 			return Optional.empty();
 		}
@@ -58,7 +59,7 @@ public abstract class AbstractEntityConverter {
 			.filter(field -> fieldName.equals(field.name()))
 			.findFirst()
 			.map(EntityUtil::getNativeField)
-			.map(field -> field.getType());
+			.map(field -> field.getGenericType());
 	}
 	
 	protected String composeEtag(String universalId, Temporal modTime) {

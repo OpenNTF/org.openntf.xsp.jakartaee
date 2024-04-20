@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.List;
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.nosql.mapping.extension.EntryType;
+import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
 
 import java.time.Instant;
 
@@ -56,6 +57,10 @@ public class Person {
 	
 	@Column("CustomProperty")
 	private CustomPropertyType customProperty;
+	
+	@Column("CustomPropertyListJSON")
+	@ItemStorage(type=ItemStorage.Type.JSON)
+	private List<CustomPropertyType> customTypeList;
 	
 	@Column(DominoConstants.FIELD_ATTACHMENTS)
 	private List<EntityAttachment> attachments;

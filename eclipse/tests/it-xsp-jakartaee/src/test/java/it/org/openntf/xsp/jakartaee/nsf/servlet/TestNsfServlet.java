@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,5 +98,16 @@ public class TestNsfServlet extends AbstractWebClientTest {
 		
 		String body = response.readEntity(String.class);
 		assertEquals("foo=bar", body);
+	}
+	
+	@Test
+	public void testWebXmlServlet() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/xsp/webXmlServlet");
+		Response response = target.request().get();
+		checkResponse(200, response);
+		
+		String body = response.readEntity(String.class);
+		assertEquals("I am the web.xml Servlet, and I was initialized with I was set by web.xml", body);
 	}
 }

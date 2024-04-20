@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,15 @@
 package org.openntf.xsp.jakarta.servlet.nsf;
 
 import java.io.UncheckedIOException;
+import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
@@ -29,6 +33,8 @@ import jakarta.servlet.Servlet;
 import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
 
+import org.apache.tomcat.util.descriptor.web.ServletDef;
+import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.jakarta.servlet.ServletLibrary;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
@@ -36,6 +42,7 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import com.ibm.commons.util.PathUtil;
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
@@ -47,8 +54,10 @@ import com.ibm.designer.runtime.domino.adapter.ServletMatch;
  * @since 2.5.0
  */
 public class ServletServletFactory implements IServletFactory {
+	private static final Logger log = Logger.getLogger(ServletServletFactory.class.getName());
+	
 	private ComponentModule module;
-	private Map<WebServlet, Class<? extends Servlet>> servletClasses;
+	private Map<ServletInfo, Class<? extends Servlet>> servletClasses;
 	private Map<Class<? extends Servlet>, javax.servlet.Servlet> servlets;
 	private long lastUpdate;
 
@@ -61,7 +70,7 @@ public class ServletServletFactory implements IServletFactory {
 	public final ServletMatch getServletMatch(String contextPath, String path) throws javax.servlet.ServletException {
 		try {
 			if(LibraryUtil.usesLibrary(ServletLibrary.LIBRARY_ID, module)) {
-				for(Map.Entry<WebServlet, Class<? extends Servlet>> entry : getModuleServlets().entrySet()) {
+				for(Map.Entry<ServletInfo, Class<? extends Servlet>> entry : getModuleServlets().entrySet()) {
 					String match = matches(entry.getKey(), path);
 					if(match != null) {
 						javax.servlet.Servlet servlet = getExecutorServlet(entry.getKey(), entry.getValue());
@@ -77,7 +86,7 @@ public class ServletServletFactory implements IServletFactory {
 		return null;
 	}
 	
-	private String matches(WebServlet mapping, String path) {
+	private String matches(ServletInfo mapping, String path) {
 		// Context path is like /some/db.nsf
 		// Path is like /xsp/someservlet (no query string)
 		
@@ -85,10 +94,7 @@ public class ServletServletFactory implements IServletFactory {
 			return null;
 		}
 		
-		String[] patterns = mapping.value();
-		if(patterns == null || patterns.length == 0) {
-			patterns = mapping.urlPatterns();
-		}
+		List<String> patterns = mapping.patterns;
 		
 		if(patterns != null) {
 			for(String pattern : patterns) {
@@ -142,7 +148,7 @@ public class ServletServletFactory implements IServletFactory {
 		return null;
 	}
 	
-	private javax.servlet.Servlet getExecutorServlet(WebServlet mapping, Class<? extends Servlet> c) {
+	private javax.servlet.Servlet getExecutorServlet(ServletInfo mapping, Class<? extends Servlet> c) {
 		checkInvalidate();
 		return this.servlets.computeIfAbsent(c, key -> {
 			try {
@@ -154,13 +160,9 @@ public class ServletServletFactory implements IServletFactory {
 				}
 				Servlet wrapper = new XspServletWrapper(module, delegate);
 				
-				Map<String, String> params = Arrays.stream(mapping.initParams())
-					.collect(Collectors.toMap(
-						WebInitParam::name,
-						WebInitParam::value
-					));
+				Map<String, String> params = mapping.def.getParameterMap();
 				
-				return module.createServlet(ServletUtil.newToOld(wrapper), mapping.name(), params);
+				return module.createServlet(ServletUtil.newToOld(wrapper), mapping.def.getServletName(), params);
 			} catch (InstantiationException | IllegalAccessException | ServletException e) {
 				throw new RuntimeException(e);
 			}
@@ -168,17 +170,42 @@ public class ServletServletFactory implements IServletFactory {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private synchronized Map<WebServlet, Class<? extends Servlet>> getModuleServlets() {
+	private synchronized Map<ServletInfo, Class<? extends Servlet>> getModuleServlets() {
 		checkInvalidate();
 		
 		if(this.servletClasses == null) {
-			this.servletClasses = ModuleUtil.getClasses(this.module)
+			Map<ServletInfo, Class<? extends Servlet>> result = new HashMap<>();
+			ModuleUtil.getClasses(this.module)
 				.filter(c -> c.isAnnotationPresent(WebServlet.class))
 				.filter(Servlet.class::isAssignableFrom)
-				.collect(Collectors.toMap(
-					c -> c.getAnnotation(WebServlet.class),
-					c -> (Class<? extends Servlet>)c
-				));
+				.forEach(c -> result.put(toServletDef(c), (Class<? extends Servlet>)c));
+			
+			ClassLoader cl = module.getModuleClassLoader();
+			if(cl != null) {
+				WebXml webXml = ServletUtil.getWebXml(module);
+				
+				// mappings is pattern -> name, so reverse for our needs
+				Map<String, String> mappings = webXml.getServletMappings();
+				Map<String, List<String>> nameToPattern = new HashMap<>();
+				mappings.forEach((pattern, name) -> nameToPattern.computeIfAbsent(name, k -> new ArrayList<>()).add(pattern));
+				
+				Map<String, ServletDef> defs = webXml.getServlets();
+				nameToPattern.forEach((name, patterns) -> {
+					ServletInfo info = new ServletInfo();
+					info.def = defs.get(name);
+					info.patterns = patterns;
+					
+					try {
+						result.put(info, (Class<? extends Servlet>)cl.loadClass(info.def.getServletClass()));
+					} catch (ClassNotFoundException e) {
+						if(log.isLoggable(Level.SEVERE)) {
+							log.log(Level.SEVERE, MessageFormat.format("Encountered exception loading Servlet class {0}", info.def.getServletClass()), e);
+						}
+					}
+				});
+			}
+			
+			this.servletClasses = result;
 		}
 		return this.servletClasses;
 	}
@@ -191,6 +218,46 @@ public class ServletServletFactory implements IServletFactory {
 			this.servlets = new HashMap<>();
 			this.servletClasses = null;
 		}
+	}
+	
+	private ServletInfo toServletDef(Class<?> c) {
+		WebServlet annotation = c.getAnnotation(WebServlet.class);
+		
+		ServletDef def = new ServletDef();
+		
+		def.setAsyncSupported(Boolean.toString(annotation.asyncSupported()));
+		def.setDescription(annotation.description());
+		def.setDisplayName(annotation.displayName());
+		def.setEnabled(Boolean.toString(true));
+		def.setLargeIcon(annotation.largeIcon());
+		def.setLoadOnStartup(Integer.toString(annotation.loadOnStartup()));
+		def.setSmallIcon(annotation.smallIcon());
+		def.setServletClass(c.getName());
+
+		String name = annotation.name();
+		if(StringUtil.isEmpty(name)) {
+			name = c.getName();
+		}
+		def.setServletName(name);
+		
+		
+		for(WebInitParam param : annotation.initParams()) {
+			def.addInitParameter(param.name(), param.value());
+		}
+		
+		ServletInfo info = new ServletInfo();
+		info.def = def;
+		String[] patterns = annotation.value();
+		if(patterns == null || patterns.length == 0) {
+			patterns = annotation.urlPatterns();
+		}
+		info.patterns = new ArrayList<>(Arrays.asList(patterns));
+		return info;
+	}
+	
+	private static class ServletInfo {
+		private ServletDef def;
+		private List<String> patterns;
 	}
 
 }

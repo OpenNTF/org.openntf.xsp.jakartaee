@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+# Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ RUN curl -L https://github.com/ibmruntimes/semeru17-binaries/releases/download/j
 USER notes
 
 COPY --chown=notes:notes staging/domino-config.json /local/runner/
+COPY --chown=notes:notes staging/jacoco.jar /local/
 COPY --chown=notes:notes staging/JavaOptionsFile.txt /local/
 COPY --chown=notes:notes staging/container.link /opt/hcl/domino/notes/latest/linux/osgi/rcp/eclipse/links/container.link
 COPY --chown=notes:notes staging/.java.policy /home/notes/.java.policy

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  */
 package org.openntf.xsp.jakarta.persistence;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -27,10 +25,7 @@ public class PersistenceActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
-			System.setProperty("eclipselink.logging.logger", "JavaLogger"); //$NON-NLS-1$ //$NON-NLS-2$
-			return null;
-		});
+		LibraryUtil.setSystemProperty("eclipselink.logging.logger", "JavaLogger"); //$NON-NLS-1$ //$NON-NLS-2$
 		PersistenceProviderResolverHolder.setPersistenceProviderResolver(new EclipseLinkResolver());
 	}
 

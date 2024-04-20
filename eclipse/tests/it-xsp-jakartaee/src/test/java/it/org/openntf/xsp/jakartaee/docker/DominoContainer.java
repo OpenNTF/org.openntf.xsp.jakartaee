@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,15 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.IOUtils;
+import org.helmetsrequired.jacocotogo.JaCoCoToGo;
+import org.jacoco.agent.AgentJar;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.images.builder.Transferable;
-import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.ibm.commons.util.PathUtil;
@@ -54,6 +56,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		"org.openntf.xsp.jakarta.example.webapp", //$NON-NLS-1$
 		"org.openntf.xsp.test.jasapi" //$NON-NLS-1$
 	};
+	public static final int JACOCO_PORT = 6300;
 	
 	public static final Set<Path> tempFiles = new HashSet<>();
 
@@ -109,12 +112,21 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				// Next up, copy our Java policy to be the Notes home dir in the container
 				withFileFromClasspath("staging/.java.policy", "/docker/java.policy"); //$NON-NLS-1$ //$NON-NLS-2$
 				
+				// Copy in the Jacoco agent from our dependency tree
+				byte[] agentData;
+				try(InputStream is = AgentJar.getResourceAsStream()) {
+					agentData = IOUtils.toByteArray(is);
+				}
+				withFileFromTransferable("staging/jacoco.jar", Transferable.of(agentData)); //$NON-NLS-1$
+				
+				String jacocoLine = "-javaagent:/local/jacoco.jar=output=tcpserver,address=*,port=" + JACOCO_PORT; //$NON-NLS-1$
+				
 				// Add a Java options file for Apple Silicon compatibility
 				String arch = DockerClientFactory.instance().getInfo().getArchitecture();
 				if(!"x86_64".equals(arch)) { //$NON-NLS-1$
-					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of("-Djava.compiler=NONE")); //$NON-NLS-1$ //$NON-NLS-2$
+					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of(jacocoLine + "\n-Djava.compiler=NONE")); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
-					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of("")); //$NON-NLS-1$ //$NON-NLS-2$
+					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of(jacocoLine)); //$NON-NLS-1$
 				}
 				
 				// Add the Postgres driver to jvm/lib/ext
@@ -168,13 +180,13 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		addEnv("TZ", "Etc/UTC"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		withImagePullPolicy(imageName -> false);
-		withExposedPorts(80);
+		withExposedPorts(80, JACOCO_PORT);
 		withStartupTimeout(Duration.ofMinutes(4));
 		waitingFor(
 			new WaitAllStrategy()
 				.withStrategy(new LogMessageWaitStrategy()
 					.withRegEx(".*Adding sign bit to.*") //$NON-NLS-1$
-					.withTimes(300)
+					.withTimes(4000)
 				)
 				.withStrategy(new LogMessageWaitStrategy()
 					.withRegEx(".*HTTP Server: Started.*") //$NON-NLS-1$
@@ -235,6 +247,10 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				
 				this.execInContainer("tar", "-czvf", "/tmp/workspace-logs.tar.gz", "/local/notesdata/domino/workspace/logs");
 				this.copyFileFromContainer("/tmp/workspace-logs.tar.gz", target.resolve("workspace-logs.tar.gz").toString());
+				
+				Path output = target.resolve("jacoco.exec");
+				int port = this.getMappedPort(JACOCO_PORT);
+				JaCoCoToGo.fetchJaCoCoDataOverTcp(this.getHost(), port, output, true);
 			}
 		} catch(IOException | UnsupportedOperationException | InterruptedException e) {
 			e.printStackTrace();

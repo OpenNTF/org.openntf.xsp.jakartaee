@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018-2023 Jesse Gallagher
+      Copyright 2018-2024 Contributors to the XPages Jakarta EE Support Project
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
@@ -218,7 +218,7 @@
       same &quot;printed page&quot; as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2018-2023 Jesse Gallagher
+   Copyright 2018-2024 Contributors to the XPages Jakarta EE Support Project
 
    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -300,7 +300,10 @@
 	<plugin id="jakarta.xml.ws-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.xml.soap-api" version="0.0.0" unpack="false"/>
 	
-	<!-- Concurrency -->
+	<plugin id="org.openntf.org.apache.tomcat.util" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.apache.tomcat.util.scan" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.apache.tomcat.juli" version="0.0.0" unpack="false"/>
+	
 	<plugin id="jakarta.enterprise.concurrent-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.glassfish.jakarta.enterprise.concurrent" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.concurrency" version="0.0.0" unpack="false"/>

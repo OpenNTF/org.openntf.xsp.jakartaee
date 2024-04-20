@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.security.PrivilegedExceptionAction;
 import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.servlet.JspServlet;
 import org.glassfish.wasp.xmlparser.ParserUtils;
+import org.openntf.xsp.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jsp.EarlyInitFactory;
@@ -71,6 +72,7 @@ public class NSFJspServlet extends AbstractXspLifecycleServlet {
 	@Override
 	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application)
 			throws ServletException, IOException {
+		HttpContextBean.setThreadResponse(response);
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 				
@@ -109,6 +111,7 @@ public class NSFJspServlet extends AbstractXspLifecycleServlet {
 		} finally {
 			// Looks like Jasper doesn't flush this on its own
 			ServletUtil.close(response);
+			HttpContextBean.setThreadResponse(null);
 		}
 	}
 	

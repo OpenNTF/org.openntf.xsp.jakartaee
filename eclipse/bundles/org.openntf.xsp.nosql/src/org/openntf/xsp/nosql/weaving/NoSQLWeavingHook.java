@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 		case "org.eclipse.jnosql.communication.ValueWriter" -> processValueWriter(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.ValueWriterDecorator" -> processValueWriterDecorator(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.TypeReferenceReaderDecorator" -> processTypeReferenceReader(c); //$NON-NLS-1$
+		case "org.eclipse.jnosql.mapping.reflection.GenericFieldMapping" -> processGenericFieldMapping(c); //$NON-NLS-1$
 		}
 	}
 	
@@ -270,5 +271,47 @@ public class NoSQLWeavingHook implements WeavingHook {
 		}
 		cc.defrost();
 		return cc;
+	}
+	
+	@SuppressWarnings("nls")
+	private void processGenericFieldMapping(WovenClass c) {
+		ClassPool pool = new ClassPool();
+		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
+		pool.appendClassPath(new LoaderClassPath(c.getBundleWiring().getClassLoader()));
+		CtClass cc;
+		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
+			cc = pool.makeClass(is);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		cc.defrost();
+		
+		try {
+			// boolean hasFieldAnnotation(Class clazz)
+			{
+				String body = """
+				    {
+				    		java.lang.reflect.Type genericType = getNativeField().getGenericType();
+				    		if(genericType instanceof Class) {
+				    			return ((Class)genericType).isAnnotationPresent($1);
+				    		} else {
+				    			return (((Class) ((java.lang.reflect.ParameterizedType)genericType).getActualTypeArguments()[0])
+				    				.getAnnotation($1) != null);
+				    		}\
+				        }""";
+				CtMethod m = cc.getDeclaredMethod("hasFieldAnnotation"); //$NON-NLS-1$
+				m.setBody(body);
+			}
+		
+			c.setBytes(cc.toBytecode());
+		} catch(NotFoundException e) {
+			// Then the method has been removed - that's fine
+			e.printStackTrace();
+		} catch(CannotCompileException | IOException e) {
+			e.printStackTrace();
+			new RuntimeException("Encountered exception when weaving org.eclipse.jnosql.mapping.reflection.GenericFieldMapping replacement", e).printStackTrace();
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 
 import org.apache.myfaces.webapp.MyFacesContainerInitializer;
 import org.eclipse.core.runtime.FileLocator;
+import org.openntf.xsp.cdi.bean.HttpContextBean;
 import org.openntf.xsp.cdi.context.AbstractProxyingContext;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
@@ -139,6 +140,7 @@ public class NSFJsfServlet extends HttpServlet {
 		ServletContext ctx = req.getServletContext();
 		HttpSession session = req.getSession(true);
 
+		HttpContextBean.setThreadResponse(resp);
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>) () -> {
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
@@ -191,6 +193,7 @@ public class NSFJsfServlet extends HttpServlet {
 		} finally {
 			// In case it's not flushed on its own
 			ServletUtil.close(resp);
+			HttpContextBean.setThreadResponse(null);
 		}
 	}
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UncheckedIOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -263,9 +264,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		Set<String> unids = new HashSet<>();
 		Stream<DocumentEntity> result = iter.stream()
 			.map(entry -> {
+				String unid = ""; //$NON-NLS-1$
+				String serverName = ""; //$NON-NLS-1$
+				String filePath = ""; //$NON-NLS-1$
+				
 				try {
+					unid = entry.getUniversalID();
 					if(distinct) {
-						String unid = entry.getUniversalID();
 						if(unids.contains(unid)) {
 							return null;
 						}
@@ -273,10 +278,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					}
 					
 					lotus.domino.Document doc = entry.getDocument();
+					Database database = doc.getParentDatabase();
+					serverName = database.getServer();
+					filePath = database.getFilePath();
 					List<Document> documents = convertDominoDocument(doc, classMapping, itemTypes);
 					return DocumentEntity.of(entityName, documents);
 				} catch (NotesException e) {
-					throw new RuntimeException(e);
+					throw new RuntimeException(MessageFormat.format("Encountered exception converting document UNID {0} in {1}!!{2}", unid, serverName, filePath), e);
 				}
 			})
 			.filter(Objects::nonNull);
@@ -1090,7 +1098,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	private Optional<Object> maybeConvertJson(Object value, Optional<ItemStorage> optStorage, String itemName, EntityMetadata classMapping) {
 		if(optStorage.isPresent()) {
 			if(optStorage.get().type() == ItemStorage.Type.JSON) {
-				Optional<Class<?>> targetType = getFieldType(classMapping, itemName);
+				Optional<Type> targetType = getFieldType(classMapping, itemName);
 				if(targetType.isPresent()) {
 					if(String.class.equals(targetType.get())) {
 						// Ignore when the target is a string
