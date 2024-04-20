@@ -556,7 +556,7 @@
 								-->
 								<artifact><id>jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.1.1</id><source>true</source></artifact>
 								<artifact><id>jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.wasp:wasp:3.2.1</id><source>true</source></artifact>
+								<artifact><id>org.glassfish.wasp:wasp:3.2.2</id><source>true</source></artifact>
 								<artifact><id>org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1</id><source>true</source></artifact>
 								
 								<!--
