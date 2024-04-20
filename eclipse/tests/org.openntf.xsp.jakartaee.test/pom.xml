@@ -46,27 +46,7 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-feature</type>
-								<id>org.openntf.xsp.beanvalidation.feature</id>
-								<versionRange>1.0.0</versionRange>
-							</requirement>
-							<requirement>
-								<type>eclipse-feature</type>
-								<id>org.openntf.xsp.jsonapi.feature</id>
-								<versionRange>1.0.0</versionRange>
-							</requirement>
-							<requirement>
-								<type>eclipse-feature</type>
-								<id>org.openntf.xsp.cdi.feature</id>
-								<versionRange>1.0.0</versionRange>
-							</requirement>
-							<requirement>
-								<type>eclipse-feature</type>
-								<id>org.openntf.xsp.el.feature</id>
-								<versionRange>1.0.0</versionRange>
-							</requirement>
-							<requirement>
-								<type>eclipse-feature</type>
-								<id>org.openntf.xsp.jaxrs.feature</id>
+								<id>org.openntf.xsp.jakartaee.feature</id>
 								<versionRange>1.0.0</versionRange>
 							</requirement>
 							<requirement>

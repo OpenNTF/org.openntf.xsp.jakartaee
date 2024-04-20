@@ -6,9 +6,9 @@ import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
 
 import jakarta.json.JsonArray;
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Id;
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
 
 @Entity("CustomPropertyListEntity")
 public class CustomPropertyListEntity {

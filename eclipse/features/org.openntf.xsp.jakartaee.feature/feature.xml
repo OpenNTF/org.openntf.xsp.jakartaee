@@ -321,7 +321,6 @@
 	
 	<!-- JAX-RS -->
 	<plugin id="org.openntf.xsp.jaxrs" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.jaxrs.cdi" version="0.0.0" fragment="true" unpack="false"/>
 	<plugin id="org.openntf.xsp.jaxrs.factory" version="0.0.0" fragment="true" unpack="false"/>
 	<plugin id="org.openntf.xsp.jaxrs.providers" version="0.0.0" fragment="true" unpack="false"/>
 	<plugin id="org.openntf.xsp.microprofile.openapi" version="0.0.0" fragment="true" unpack="false"/>

@@ -48,4 +48,11 @@
 		<service type="org.openntf.xsp.jaxrs.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jaxrs.exceptions.handler.JsonExceptionHandler" />
 	</extension>
 	
+	<!-- CDI support -->
+	<extension point="com.ibm.commons.Extension">
+ 		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.jaxrs.cdi.ResteasyBeanClassContributor"/>
+ 	</extension>
+ 	<extension point="com.ibm.commons.Extension">
+ 		<service type="org.openntf.xsp.jaxrs.ServiceParticipant" class="org.openntf.xsp.jaxrs.cdi.CDIServiceParticipant"/>
+ 	</extension>
 </plugin>

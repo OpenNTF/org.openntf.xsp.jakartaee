@@ -59,7 +59,7 @@ public class NSFJspServlet extends AbstractXspLifecycleServlet {
 	}
 	
 	@Override
-	protected void doInit(ServletConfig config) throws ServletException {
+	protected void doInit(ServletConfig config, HttpServletRequest request) throws ServletException {
 		ClassLoader current = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], current));

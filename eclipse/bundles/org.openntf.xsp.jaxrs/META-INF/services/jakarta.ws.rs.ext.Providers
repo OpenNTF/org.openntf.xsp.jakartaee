@@ -24,3 +24,5 @@ org.jboss.resteasy.plugins.interceptors.ServerContentEncodingAnnotationFeature
 org.jboss.resteasy.plugins.interceptors.MessageSanitizerContainerResponseFilter
 org.jboss.resteasy.plugins.providers.sse.SseEventProvider
 org.jboss.resteasy.plugins.providers.sse.SseEventSinkInterceptor
+
+org.openntf.xsp.jaxrs.cdi.WeldProxyUnwrapperFilter

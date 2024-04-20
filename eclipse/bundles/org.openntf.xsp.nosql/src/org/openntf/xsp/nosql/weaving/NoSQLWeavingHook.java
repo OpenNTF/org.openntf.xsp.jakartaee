@@ -53,7 +53,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 		case "org.eclipse.jnosql.communication.ValueWriter" -> processValueWriter(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.ValueWriterDecorator" -> processValueWriterDecorator(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.TypeReferenceReaderDecorator" -> processTypeReferenceReader(c); //$NON-NLS-1$
-		case "org.eclipse.jnosql.mapping.reflection.GenericFieldMapping" -> processGenericFieldMapping(c); //$NON-NLS-1$
+		case "org.eclipse.jnosql.mapping.reflection.DefaultGenericFieldMetadata" -> processGenericFieldMapping(c); //$NON-NLS-1$
 		}
 	}
 	
@@ -290,26 +290,20 @@ public class NoSQLWeavingHook implements WeavingHook {
 			// boolean hasFieldAnnotation(Class clazz)
 			{
 				String body = """
-				    {
-				    		java.lang.reflect.Type genericType = getNativeField().getGenericType();
-				    		if(genericType instanceof Class) {
-				    			return ((Class)genericType).isAnnotationPresent($1);
-				    		} else {
-				    			return (((Class) ((java.lang.reflect.ParameterizedType)genericType).getActualTypeArguments()[0])
-				    				.getAnnotation($1) != null);
-				    		}\
-				        }""";
+			    {
+		    		java.lang.reflect.Type genericType = this.field.getGenericType();
+		    		if(genericType instanceof Class) {
+		    			return ((Class)genericType).isAnnotationPresent($1);
+		    		} else {
+		    			return (((Class) ((java.lang.reflect.ParameterizedType)genericType).getActualTypeArguments()[0])
+		    				.getAnnotation($1) != null);
+		    		}
+		        }""";
 				CtMethod m = cc.getDeclaredMethod("hasFieldAnnotation"); //$NON-NLS-1$
 				m.setBody(body);
 			}
 		
 			c.setBytes(cc.toBytecode());
-		} catch(NotFoundException e) {
-			// Then the method has been removed - that's fine
-			e.printStackTrace();
-		} catch(CannotCompileException | IOException e) {
-			e.printStackTrace();
-			new RuntimeException("Encountered exception when weaving org.eclipse.jnosql.mapping.reflection.GenericFieldMapping replacement", e).printStackTrace();
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}

@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jaxrs.weld;
+package org.openntf.xsp.jaxrs.cdi;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -32,10 +31,8 @@ public class ResteasyBeanClassContributor implements WeldBeanClassContributor {
 	}
 
 	@Override
-	public Collection<Extension> getExtensions() {
-		return Arrays.asList(
-			new ResteasyCdiExtension()
-		);
+	public Collection<Class<? extends Extension>> getExtensionClasses() {
+		return Collections.singleton(ResteasyCdiExtension.class);
 	}
 
 }

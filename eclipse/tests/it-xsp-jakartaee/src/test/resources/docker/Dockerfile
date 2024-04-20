@@ -14,27 +14,11 @@
 # limitations under the License.
 #
 
-ARG BASEIMAGE=domino-container:V1202_11032022prod
+ARG BASEIMAGE=hclcom/domino:14.0
 FROM ${BASEIMAGE}
 
 RUN mkdir -p /local/runner \
 	&& mkdir -p /local/eclipse/eclipse/plugins
-
-USER root
-RUN curl -L https://github.com/ibmruntimes/semeru17-binaries/releases/download/jdk-17.0.4.1%2B1_openj9-0.33.1/ibm-semeru-open-jdk_x64_linux_17.0.4.1_1_openj9-0.33.1.tar.gz > /local/jdk.tgz \
-    && cd /local \
-    && tar xzf jdk.tgz \
-    && mkdir back \
-    && cp -r /opt/hcl/domino/notes/latest/linux/jvm/bin/classic back/classic \
-    && cp /opt/hcl/domino/notes/latest/linux/jvm/conf/security/default_US_export.policy back \
-    && cp /opt/hcl/domino/notes/latest/linux/jvm/conf/security/default_local.policy back \
-    && cp /opt/hcl/domino/notes/latest/linux/jvm/conf/security/java.policy back \
-    && cp /opt/hcl/domino/notes/latest/linux/jvm/conf/security/java.security back \
-    && rm -r /opt/hcl/domino/notes/latest/linux/jvm \
-    && mv jdk-17.0.4.1+1 /opt/hcl/domino/notes/latest/linux/jvm \
-    && mv back/classic /opt/hcl/domino/notes/latest/linux/jvm/bin/classic \
-    && mv back/* /opt/hcl/domino/notes/latest/linux/jvm/conf/security
-USER notes
 
 COPY --chown=notes:notes staging/domino-config.json /local/runner/
 COPY --chown=notes:notes staging/jacoco.jar /local/

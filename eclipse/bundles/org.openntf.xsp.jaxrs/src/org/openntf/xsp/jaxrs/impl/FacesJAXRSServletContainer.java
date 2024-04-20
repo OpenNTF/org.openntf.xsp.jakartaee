@@ -17,7 +17,9 @@ package org.openntf.xsp.jaxrs.impl;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -25,6 +27,9 @@ import javax.naming.NamingException;
 
 import org.hibernate.validator.HibernateValidator;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+import org.jboss.weld.context.RequestContext;
+import org.jboss.weld.context.bound.BoundLiteral;
+import org.jboss.weld.context.bound.BoundRequestContext;
 import org.openntf.xsp.cdi.ext.CDIConstants;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
@@ -33,6 +38,7 @@ import org.openntf.xsp.jaxrs.ServiceParticipant;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.xsp.application.ApplicationEx;
 
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequestEvent;
@@ -53,6 +59,8 @@ import jakarta.validation.ValidatorFactory;
 public class FacesJAXRSServletContainer extends AbstractXspLifecycleServlet {
 	private static final long serialVersionUID = 1L;
 	
+	public static final String KEY_CDI_STORAGE = FacesJAXRSServletContainer.class.getName() + "_cdistorage"; //$NON-NLS-1$
+	
 	private final HttpServletDispatcher delegate;
 
 	public FacesJAXRSServletContainer(ComponentModule module) {
@@ -63,11 +71,12 @@ public class FacesJAXRSServletContainer extends AbstractXspLifecycleServlet {
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setAttribute(CDIConstants.CDI_JAXRS_REQUEST, "true"); //$NON-NLS-1$
+		initCdi(request);
 		super.service(request, response);
 	}
 	
 	@Override
-	protected void doInit(ServletConfig config) throws ServletException {
+	protected void doInit(ServletConfig config, HttpServletRequest request) throws ServletException {
 		delegate.init(config);
 	}
 	
@@ -75,7 +84,7 @@ public class FacesJAXRSServletContainer extends AbstractXspLifecycleServlet {
 	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application) throws ServletException, IOException {
 		@SuppressWarnings("unchecked")
 		List<ServiceParticipant> participants = (List<ServiceParticipant>)application.findServices(ServiceParticipant.EXTENSION_POINT);
-    	for(ServiceParticipant participant : participants) {
+		for(ServiceParticipant participant : participants) {
     		participant.doBeforeService(request, response);
     	}
     	ServletUtil.getListeners(request.getServletContext(), ServletRequestListener.class)
@@ -105,6 +114,7 @@ public class FacesJAXRSServletContainer extends AbstractXspLifecycleServlet {
     		for(ServiceParticipant participant : participants) {
 	    		participant.doAfterService(request, response);
 	    	}
+    		termCdi(request);
     		
 			// In case it's not flushed on its own
 			ServletUtil.close(response);
@@ -115,5 +125,22 @@ public class FacesJAXRSServletContainer extends AbstractXspLifecycleServlet {
 	public void destroy() {
 		super.destroy();
 		delegate.destroy();
+	}
+	
+	private void initCdi(HttpServletRequest request) {
+		if(request.getAttribute(KEY_CDI_STORAGE) == null) {
+			BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
+			Map<String, Object> cdiScope = new HashMap<>();
+			request.setAttribute(KEY_CDI_STORAGE, cdiScope);
+			context.associate(cdiScope);
+			context.activate();
+		}
+	}
+	@SuppressWarnings("unchecked")
+	private void termCdi(HttpServletRequest request) {
+		BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
+		context.invalidate();
+		context.deactivate();
+		context.dissociate((Map<String, Object>)request.getAttribute(KEY_CDI_STORAGE));
 	}
 }

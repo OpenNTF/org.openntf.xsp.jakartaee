@@ -17,6 +17,7 @@ package it.org.openntf.xsp.jakartaee.nsf.mvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
 
@@ -70,7 +71,7 @@ public class TestMvcJsf extends AbstractWebClientTest {
 				assertEquals(expected, span.getText());
 			}
 		} catch(Exception e) {
-			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 }

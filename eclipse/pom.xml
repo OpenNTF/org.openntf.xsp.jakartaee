@@ -54,7 +54,6 @@
 		
 		<!-- RESTful Web Services -->
 		<module>bundles/org.openntf.xsp.jaxrs</module>
-		<module>bundles/org.openntf.xsp.jaxrs.cdi</module>
 		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
 		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
 		
@@ -108,8 +107,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho-version>3.0.5</tycho-version>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
 	<repositories>

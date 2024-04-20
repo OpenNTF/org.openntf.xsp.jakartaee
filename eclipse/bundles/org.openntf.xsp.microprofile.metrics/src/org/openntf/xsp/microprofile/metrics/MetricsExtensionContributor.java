@@ -21,6 +21,7 @@ import java.util.Collections;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
+import io.smallrye.metrics.MetricRegistryProducer;
 import io.smallrye.metrics.legacyapi.LegacyMetricsExtension;
 import jakarta.enterprise.inject.spi.Extension;
 
@@ -28,12 +29,12 @@ public class MetricsExtensionContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		return Collections.emptyList();
+		return Collections.emptySet();
 	}
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		if(!"false".equals(LibraryUtil.getApplicationProperty(MetricsResourceContributor.PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
+		if(true || !"false".equals(LibraryUtil.getApplicationProperty(MetricsResourceContributor.PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			return Collections.singleton(new LegacyMetricsExtension());
 		} else {
 			return Collections.emptySet();

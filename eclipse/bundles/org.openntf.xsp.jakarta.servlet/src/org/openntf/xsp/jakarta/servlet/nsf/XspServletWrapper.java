@@ -54,7 +54,7 @@ public class XspServletWrapper extends AbstractXspLifecycleServlet {
 	}
 
 	@Override
-	protected void doInit(ServletConfig config) throws ServletException {
+	protected void doInit(ServletConfig config, HttpServletRequest request) throws ServletException {
 		delegate.init(config);
 	}
 

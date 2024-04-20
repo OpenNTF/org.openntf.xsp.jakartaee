@@ -13,45 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jaxrs.weld;
+package org.openntf.xsp.jaxrs.cdi;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import jakarta.enterprise.inject.spi.CDI;
+import org.openntf.xsp.cdi.bean.HttpContextBean;
+import org.openntf.xsp.jaxrs.ServiceParticipant;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.jboss.weld.context.RequestContext;
-import org.jboss.weld.context.bound.BoundLiteral;
-import org.jboss.weld.context.bound.BoundRequestContext;
-import org.openntf.xsp.cdi.bean.HttpContextBean;
-import org.openntf.xsp.jaxrs.ServiceParticipant;
-
-public class WeldServiceParticipant implements ServiceParticipant {
-	public static final String KEY_STORAGE = WeldServiceParticipant.class.getName() + "_storage"; //$NON-NLS-1$
+public class CDIServiceParticipant implements ServiceParticipant {
+	public static final String KEY_STORAGE = CDIServiceParticipant.class.getName() + "_storage"; //$NON-NLS-1$
 
 	@Override
 	public void doBeforeService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
-		Map<String, Object> cdiScope = new HashMap<>();
-		request.setAttribute(KEY_STORAGE, cdiScope);
-		context.associate(cdiScope);
-		context.activate();
-		
 		HttpContextBean.setThreadResponse(response);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void doAfterService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
-		context.invalidate();
-		context.deactivate();
-		context.dissociate((Map<String, Object>)request.getAttribute(KEY_STORAGE));
-		
 		HttpContextBean.setThreadResponse(null);
 	}
 

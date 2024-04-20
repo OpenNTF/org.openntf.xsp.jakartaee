@@ -300,7 +300,7 @@ public enum LibraryUtil {
 	 * @return a {@link List} of service objects for the class
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> List<T> findExtensions(Class<T> extensionClass) {
+	public static synchronized <T> List<T> findExtensions(Class<T> extensionClass) {
 		return (List<T>)EXTENSION_CACHE.computeIfAbsent(extensionClass, LibraryUtil::findExtensionsUncached);
 	}
 	

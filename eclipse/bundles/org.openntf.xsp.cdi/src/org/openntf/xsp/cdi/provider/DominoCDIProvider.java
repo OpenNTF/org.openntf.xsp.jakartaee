@@ -77,6 +77,7 @@ public class DominoCDIProvider implements CDIProvider {
 			// Will almost definitely be "Invalid disposed application ClassLoader", which occurs
 			//   during active development of an NSF - ignore
 			// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/362
+			e.printStackTrace();
 		} catch(Exception e) {
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered exception trying to load CDI container", e);
