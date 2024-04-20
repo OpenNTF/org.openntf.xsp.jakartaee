@@ -17,6 +17,7 @@ package it.org.openntf.xsp.jakartaee.nsf.mvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,22 +44,25 @@ public class TestMvcJsp extends AbstractWebClientTest {
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testHelloPage(WebDriver driver) {
 		driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc?foo=bar");
-		
-		{
-			WebElement p = driver.findElement(By.xpath("//p[1]"));
-			assertEquals("From the URL, I got: bar", p.getText());
+		try {
+			{
+				WebElement p = driver.findElement(By.xpath("//p[1]"));
+				assertEquals("From the URL, I got: bar", p.getText());
+			}
+			{
+				WebElement p = driver.findElement(By.xpath("//p[2]"));
+				assertTrue(p.getText().startsWith("Application guy is I'm application guy"), () -> p.getText());
+			}
+			{
+				WebElement p = driver.findElement(By.xpath("//p[6]"));
+				assertTrue(p.getText().startsWith("Context from controller is s: CN="), () -> p.getText());
+			}
+			
+			WebElement dd = driver.findElement(By.xpath("//fieldset/p"));
+			assertEquals("I was sent: Value sent into the tag", dd.getText());
+		} catch(Exception e) {
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
-		{
-			WebElement p = driver.findElement(By.xpath("//p[2]"));
-			assertTrue(p.getText().startsWith("Application guy is I'm application guy"), () -> p.getText());
-		}
-		{
-			WebElement p = driver.findElement(By.xpath("//p[6]"));
-			assertTrue(p.getText().startsWith("Context from controller is s: CN="), () -> p.getText());
-		}
-		
-		WebElement dd = driver.findElement(By.xpath("//fieldset/p"));
-		assertEquals("I was sent: Value sent into the tag", dd.getText());
 	}
 	
 	@Test

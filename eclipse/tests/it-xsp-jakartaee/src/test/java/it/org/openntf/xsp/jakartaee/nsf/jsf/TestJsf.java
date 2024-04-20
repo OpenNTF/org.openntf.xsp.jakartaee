@@ -18,6 +18,7 @@ package it.org.openntf.xsp.jakartaee.nsf.jsf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
 
@@ -137,7 +138,7 @@ public class TestJsf extends AbstractWebClientTest {
 				assertTrue(dd.getText().isEmpty());
 			}
 		} catch(Exception e) {
-			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 	
@@ -196,7 +197,7 @@ public class TestJsf extends AbstractWebClientTest {
 			value = waitFor(() -> input.getAttribute("value"), "2"::equals);
 			assertEquals("2", value, () -> "Didn't received expected value with HTML: " + driver.getPageSource());
 		} catch(Exception e) {
-			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 }
