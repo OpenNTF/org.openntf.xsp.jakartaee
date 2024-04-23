@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
@@ -65,7 +65,9 @@ public class TestMvcJsp extends AbstractWebClientTest {
 		}
 	}
 	
-	@Test
+	// Account for cases where only the first MVC call works and then "poisons" future ones - ensure that
+	//   a single test can run twice to show it specifically
+	@RepeatedTest(2)
 	public void testBeanParam() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mvc/beanParam"); //$NON-NLS-1$
