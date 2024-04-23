@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Id;
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
 
 /**
  * Used to test issue #513
