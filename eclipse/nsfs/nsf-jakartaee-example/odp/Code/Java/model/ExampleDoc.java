@@ -27,6 +27,7 @@ import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
 import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
 
 import jakarta.json.JsonObject;
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.nosql.Column;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
@@ -120,6 +121,10 @@ public class ExampleDoc {
 	@Column("DoubleBooleanStorage")
 	@BooleanStorage(type=BooleanStorage.Type.DOUBLE, doubleTrue=0, doubleFalse=1)
 	private boolean doubleBooleanStorage;
+	@Column("JsonTransientField")
+	private List<String> jsonTransientField;
+	@Column("JsonTransientField2")
+	private List<String> jsonTransientField2;
 	
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
@@ -249,5 +254,27 @@ public class ExampleDoc {
 	}
 	public void setStringBooleanStorage(boolean stringBooleanStorage) {
 		this.stringBooleanStorage = stringBooleanStorage;
+	}
+	
+	@JsonbTransient
+	public List<String> getJsonTransientField() {
+		return jsonTransientField;
+	}
+	public void setJsonTransientField(List<String> jsonTransientField) {
+		this.jsonTransientField = jsonTransientField;
+	}
+	public List<String> getAlternateMethodStorage() {
+		return jsonTransientField;
+	}
+	
+	@JsonbTransient
+	public List<String> getJsonTransientField2() {
+		return jsonTransientField2;
+	}
+	public void setJsonTransientField2(List<String> jsonTransientField2) {
+		this.jsonTransientField2 = jsonTransientField2;
+	}
+	public List<String> getAlternateMethodStorage2() {
+		return jsonTransientField2;
 	}
 }
