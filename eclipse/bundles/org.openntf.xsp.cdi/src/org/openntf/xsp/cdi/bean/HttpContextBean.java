@@ -22,6 +22,7 @@ public class HttpContextBean {
 	}
 	
 	@Produces
+	@RequestScoped
 	public HttpServletRequest getServletRequest() {
 		return ComponentModuleLocator.getDefault()
 			.flatMap(ComponentModuleLocator::getServletRequest)
@@ -29,11 +30,13 @@ public class HttpContextBean {
 	}
 	
 	@Produces
+	@RequestScoped
 	public HttpServletResponse getServletResponse() {
 		return THREAD_RESPONSES.get();
 	}
 	
 	@Produces
+	@RequestScoped
 	public ServletContext getServletContext() {
 		return getServletRequest().getServletContext();
 	}
