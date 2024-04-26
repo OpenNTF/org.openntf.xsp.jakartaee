@@ -40,7 +40,7 @@ import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 import jakarta.ws.rs.ext.RuntimeDelegate;
 
 /**
- * An {@link IServletFactory} implementation that provides a Jersey servlet in the context
+ * An {@link IServletFactory} implementation that provides a REST Servlet in the context
  * of an NSF.
  * 
  * @author Martin Pradny
