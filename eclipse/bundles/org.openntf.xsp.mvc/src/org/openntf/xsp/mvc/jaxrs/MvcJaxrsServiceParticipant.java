@@ -36,30 +36,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * This {@link ServiceParticipant} object stashes the current Servlet request and
- * response objects during a JAX-RS request for use in Krazo beans.
+ * This {@link ServiceParticipant} object adjusts the request ClassLoader to
+ * account for some resource-loading needs of Krazo.
  * 
  * @author Jesse Gallagher
  * @since 2.1.0
  */
 public class MvcJaxrsServiceParticipant implements ServiceParticipant {
-	public static final ThreadLocal<HttpServletRequest> CURRENT_REQUEST = new ThreadLocal<>();
-	public static final ThreadLocal<HttpServletResponse> CURRENT_RESPONSE = new ThreadLocal<>();
-	
-	private static final ThreadLocal<ClassLoader> CLASSLOADERS = new ThreadLocal<>();
+	private static final String PROP_CLASSLOADER = MvcJaxrsServiceParticipant.class.getName() + "_classloader"; //$NON-NLS-1$
 
 	@Override
 	public void doBeforeService(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
-			
-			// Stash the response for downstream use
-			CURRENT_REQUEST.set(request);
-			CURRENT_RESPONSE.set(response);
-			
 			// Set a ClassLoader so that Krazo's ServiceLoader use can find these services
 			ClassLoader current = Thread.currentThread().getContextClassLoader();
-			CLASSLOADERS.set(current);
+			request.setAttribute(PROP_CLASSLOADER, current);
 			Thread.currentThread().setContextClassLoader(new KrazoClassLoader(current));
 		}
 	}
@@ -68,9 +60,8 @@ public class MvcJaxrsServiceParticipant implements ServiceParticipant {
 	public void doAfterService(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
-			CURRENT_REQUEST.set(null);
-			CURRENT_RESPONSE.set(null);
-			Thread.currentThread().setContextClassLoader(CLASSLOADERS.get());
+			ClassLoader cl = (ClassLoader)request.getAttribute(PROP_CLASSLOADER);
+			Thread.currentThread().setContextClassLoader(cl);
 		}
 	}
 
