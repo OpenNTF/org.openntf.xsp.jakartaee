@@ -17,11 +17,8 @@ package org.openntf.xsp.cdi.bean;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
-
-import jakarta.enterprise.inject.spi.Extension;
 
 /**
  * Provides implicit beans from this bundle to the new Weld containers.
@@ -37,11 +34,6 @@ public class BuiltinBeanClassContributor implements WeldBeanClassContributor {
 			DominoFacesImplicitObjectProvider.class,
 			HttpContextBean.class
 		);
-	}
-
-	@Override
-	public Collection<Extension> getExtensions() {
-		return Collections.emptyList();
 	}
 
 }
