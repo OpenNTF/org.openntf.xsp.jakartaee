@@ -600,6 +600,7 @@
 											org.jboss.weld.spi,
 											org.jboss.weld.core-impl
 										</Require-Bundle>
+										<DynamicImport-Package>org.openntf.xsp.jakartaee.util</DynamicImport-Package>
 										<Export-Package>*;version="3.0.1"</Export-Package>
 									</instructions>
 								</artifact>
