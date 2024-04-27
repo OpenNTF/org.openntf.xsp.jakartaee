@@ -28,15 +28,15 @@ public class TestJsfContextBeans extends AbstractWebClientTest {
 		try {
 			{
 				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"httpContextGuy.request.contextPath\"]/following-sibling::dd[1]"));
-				assertEquals(TestDatabase.MAIN.getContextPath(), dd.getText());
+				assertEquals(TestDatabase.MAIN.getContextPath(), dd.getText(), () -> "Unexpected source: " + driver.getPageSource());
 			}
 			{
 				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"httpContextGuy.response.status\"]/following-sibling::dd[1]"));
-				assertEquals("200", dd.getText());
+				assertEquals("200", dd.getText(), () -> "Unexpected source: " + driver.getPageSource());
 			}
 			{
 				WebElement dd = driver.findElement(By.xpath("//dt[text()=\"httpContextGuy.context.serverInfo\"]/following-sibling::dd[1]"));
-				assertEquals("XPages-Domino Web Container", dd.getText());
+				assertEquals("XPages-Domino Web Container", dd.getText(), () -> "Unexpected source: " + driver.getPageSource());
 			}
 		} catch(Exception e) {
 			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);

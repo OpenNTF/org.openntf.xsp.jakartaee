@@ -1,6 +1,7 @@
 package it.org.openntf.xsp.jakartaee.nsf.jsp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -38,7 +39,7 @@ public class TestJspContextBeans extends AbstractWebClientTest {
 				assertEquals("XPages-Domino Web Container", dd.getText());
 			}
 		} catch(Exception e) {
-			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 }
