@@ -1,7 +1,5 @@
 package org.openntf.xsp.cdi.bean;
 
-import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
-
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.servlet.ServletContext;
@@ -15,28 +13,29 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @RequestScoped
 public class HttpContextBean {
-	private static ThreadLocal<HttpServletResponse> THREAD_RESPONSES = new ThreadLocal<>();
+	static ThreadLocal<HttpServletResponse> THREAD_RESPONSES = new ThreadLocal<>();
 	
 	public static void setThreadResponse(HttpServletResponse response) {
 		THREAD_RESPONSES.set(response);
 	}
 	
+	// Oddly, starting with version 3.0 (JEE 10), just returning the request
+	//   and response directly leads to MVC re-using the same object across
+	//   multiple requests. Use these constantly-proxying objects instead to
+	//   avoid the trouble.
+	// TODO figure out why this happens, when it didn't in the JEE 9 versions
+	
 	@Produces
-	@RequestScoped
 	public HttpServletRequest getServletRequest() {
-		return ComponentModuleLocator.getDefault()
-			.flatMap(ComponentModuleLocator::getServletRequest)
-			.orElse(null);
+		return ProxyingHttpServletRequest.INSTANCE;
 	}
 	
 	@Produces
-	@RequestScoped
 	public HttpServletResponse getServletResponse() {
-		return THREAD_RESPONSES.get();
+		return ProxyingHttpServletResponse.INSTANCE;
 	}
 	
 	@Produces
-	@RequestScoped
 	public ServletContext getServletContext() {
 		return getServletRequest().getServletContext();
 	}
