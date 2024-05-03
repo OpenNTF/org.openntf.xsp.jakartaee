@@ -17,6 +17,7 @@ package org.openntf.xsp.nosql.mapping.extension.impl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.text.MessageFormat;
@@ -43,6 +44,7 @@ import jakarta.data.repository.PageableRepository;
 import jakarta.data.repository.Sort;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.Entity;
+import jakarta.validation.ConstraintViolationException;
 
 /**
  * Implementation proxy for extended capabilities for Domino document
@@ -262,7 +264,14 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			return null;
 		}
 		
-		return method.invoke(repository, args);
+		try {
+			return method.invoke(repository, args);
+		} catch(InvocationTargetException e) {
+			if(e.getCause() instanceof ConstraintViolationException ve) {
+				throw ve;
+			}
+			throw e;
+		}
 	}
 	
 	private String getId(Object entity) {

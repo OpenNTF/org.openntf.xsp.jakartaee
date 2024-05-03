@@ -118,7 +118,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 		Response response = postTarget.request().post(Entity.form(payload));
 		String html = response.readEntity(String.class);
-		assertEquals(400, response.getStatus(), () -> "Unexpected response code with content: " + html);
+		assertEquals(400, response.getStatus(), () -> "Unexpected response code " + response.getStatus() + " with content: " + html);
 	}
 	
 	/**

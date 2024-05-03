@@ -20,8 +20,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jboss.resteasy.api.validation.ResteasyViolationException;
+import org.jboss.resteasy.plugins.validation.ResteasyViolationExceptionImpl;
 import org.jboss.resteasy.plugins.validation.ResteasyViolationExceptionMapper;
 
+import jakarta.annotation.Priority;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
+import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
@@ -38,11 +43,22 @@ import jakarta.ws.rs.ext.Provider;
  * @author Jesse Gallagher
  * @since 2.9.0
  */
+@Priority(Priorities.USER+1)
 @Provider
 public class ViolationExceptionMapper extends ResteasyViolationExceptionMapper {
 
 	@Context
 	private ResourceInfo resourceInfo;
+	
+	@Override
+	public Response toResponse(ValidationException exception) {
+		if(exception instanceof ConstraintViolationException cve) {
+			if(!(cve instanceof ResteasyViolationException)) {
+				 return super.toResponse(new ResteasyViolationExceptionImpl(cve.getConstraintViolations()));
+			}
+		}
+		return super.toResponse(exception);
+	}
 	
 	@Override
 	protected Response buildViolationReportResponse(ResteasyViolationException exception, Status status) {
