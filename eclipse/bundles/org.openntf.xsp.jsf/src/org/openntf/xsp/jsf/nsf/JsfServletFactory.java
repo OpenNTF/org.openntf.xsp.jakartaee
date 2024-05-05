@@ -36,8 +36,12 @@ import java.util.Set;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.osgi.util.ManifestElement;
+import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -46,10 +50,11 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
-import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.faces.annotation.View;
 import jakarta.faces.application.ResourceHandler;
+import jakarta.faces.view.facelets.Facelet;
 import jakarta.faces.webapp.FacesServlet;
 
 /**
@@ -82,9 +87,20 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 			return true;
 		}
 		ComponentModule module = getModule();
-		return module.getResourceAsStream(servletPath) != null;
+		if(module.getResourceAsStream(servletPath) != null) {
+			return true;
+		} else {
+			// Check CDI for a matching servlet
+			CDI<Object> cdi = ContainerUtil.getContainer(module);
+			if(cdi != null) {
+				Instance<Facelet> facelet = cdi.select(Facelet.class, View.Literal.of(servletPath));
+				return facelet.isResolvable();
+			}
+			return false;
+		}
 	}
 	
+	@SuppressWarnings({ "removal", "deprecation" })
 	@Override
 	public Servlet createExecutorServlet(ComponentModule module) throws ServletException {
 		try {
@@ -111,8 +127,8 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 			});
 		} catch (PrivilegedActionException e) {
 			Throwable cause = e.getCause();
-			if(cause instanceof ServletException) {
-				throw (ServletException)cause;
+			if(cause instanceof ServletException se) {
+				throw se;
 			} else if(cause != null) {
 				throw new ServletException(cause);
 			} else {

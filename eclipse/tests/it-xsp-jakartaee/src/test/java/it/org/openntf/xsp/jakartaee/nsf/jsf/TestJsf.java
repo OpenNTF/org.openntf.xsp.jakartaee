@@ -200,4 +200,19 @@ public class TestJsf extends AbstractWebClientTest {
 			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@Order(5)
+	public void testProgrammaticFacelet(WebDriver driver) {
+		String expected = "foo" + System.currentTimeMillis();
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/programmaticFacelet.xhtml?foo=" + expected);
+
+		try {
+			WebElement output = driver.findElement(By.cssSelector(".param-output"));
+			assertEquals(expected, output.getText());
+		} catch(Exception e) {
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
+		}
+	}
 }
