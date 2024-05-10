@@ -22,15 +22,15 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
-import org.eclipse.jnosql.communication.document.DocumentManagerFactory;
-import org.eclipse.jnosql.communication.document.DocumentConfiguration;
+
+import org.eclipse.jnosql.communication.semistructured.DatabaseManagerFactory;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
 
 @RequestScoped
 public class ContextDocumentCollectionManagerProducer {
-	private DocumentConfiguration configuration;
-	private DocumentManagerFactory managerFactory;
+	private DominoDocumentConfiguration configuration;
+	private DatabaseManagerFactory managerFactory;
 
 	@PostConstruct
 	public void init() {

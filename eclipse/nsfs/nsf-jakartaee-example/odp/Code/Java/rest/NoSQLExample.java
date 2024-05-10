@@ -51,8 +51,8 @@ import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.internet.MimePart;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.data.repository.Pageable;
-import jakarta.data.repository.Sort;
+import jakarta.data.page.PageRequest;
+import jakarta.data.Sort;
 import jakarta.transaction.UserTransaction;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.Consumes;
@@ -94,7 +94,7 @@ public class NoSQLExample {
 	public Object getByLastName(@QueryParam("lastName") String lastName) {
 		Map<String, Object> result = new LinkedHashMap<>();
 		result.put("byQueryLastName", personRepository.findByLastName(lastName).collect(Collectors.toList()));
-		result.put("totalCount", personRepository.count());
+		result.put("totalCount", personRepository.countBy());
 		return result;
 	}
 	
@@ -119,7 +119,7 @@ public class NoSQLExample {
 	public Object getServers() {
 		Map<String, Object> result = new LinkedHashMap<>();
 		result.put("all", serverRepository.findAll(Sort.asc("serverName")).collect(Collectors.toList()));
-		result.put("totalCount", serverRepository.count());
+		result.put("totalCount", serverRepository.countBy());
 		return result;
 	}
 	
@@ -390,7 +390,7 @@ public class NoSQLExample {
 		return personRepository.findByKeyMulti(
 			ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
 			null,
-			Pageable.ofPage(page).size(size)
+			PageRequest.ofPage(page).size(size)
 		).collect(Collectors.toList());
 	}
 	
@@ -642,7 +642,7 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Person> queryByEmailOneKey(@QueryParam("q") @NotEmpty String searchValue, @QueryParam("resort") boolean resort) {
 		ViewQuery query = ViewQuery.query().key(searchValue, true);
-		Sort sorts = resort ? Sort.asc("email") : null;
+		Sort<Person> sorts = resort ? Sort.asc("email") : null;
 		return personRepository.readViewDocuments("PersonEmailOneKey", -1, false, query, sorts, null).collect(Collectors.toList());
 	}
 	

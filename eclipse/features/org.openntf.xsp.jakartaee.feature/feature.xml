@@ -353,18 +353,18 @@
 	<plugin id="org.openntf.xsp.nosql.driver" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.nosql.driver.lsxbe" version="0.0.0" unpack="false"/>
 	
-	<plugin id="jakarta.data.jakarta-data-api" version="0.0.0" unpack="false"/>
-	<plugin id="jakarta.nosql.core" version="0.0.0" unpack="false"/>
-	<plugin id="jakarta.nosql.document" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.data.jakarta.data-api" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.nosql.jakarta.nosql-api" version="0.0.0" unpack="false"/>
    
 	<plugin id="org.openntf.org.eclipse.jnosql.communication.core" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.org.eclipse.jnosql.communication.document" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.communication.semistructured" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.jnosql.communication.query" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.jnosql.mapping.api.core" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.jnosql.mapping.core" version="0.0.0" unpack="false" fragment="true"/>
-	<plugin id="org.openntf.org.eclipse.jnosql.mapping.validation" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.jnosql.mapping.reflection" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.jnosql.mapping.document" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.semistructured" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.validation" version="0.0.0" unpack="false"/>
    
 	<plugin id="org.antlr.antlr4-runtime" version="0.0.0" unpack="false"/>
 	

@@ -20,9 +20,8 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
-
-import org.eclipse.jnosql.communication.document.DocumentEntity;
 
 /**
  * Contains common behavior used by distinct {@link DominoDocumentManager}
@@ -45,29 +44,29 @@ public abstract class AbstractDominoDocumentCollectionManager implements DominoD
 	}
 	
 	@Override
-	public DocumentEntity insert(DocumentEntity entity) {
+	public CommunicationEntity insert(CommunicationEntity entity) {
 		return insert(entity, false);
 	}
 
 	@Override
-	public DocumentEntity insert(DocumentEntity entity, Duration ttl) {
+	public CommunicationEntity insert(CommunicationEntity entity, Duration ttl) {
 		// TODO consider supporting ttl
 		return insert(entity);
 	}
 
 	@Override
-	public Iterable<DocumentEntity> insert(Iterable<DocumentEntity> entities, Duration ttl) {
+	public Iterable<CommunicationEntity> insert(Iterable<CommunicationEntity> entities, Duration ttl) {
 		// TODO consider supporting ttl
 		return insert(entities);
 	}
 	
 	@Override
-	public DocumentEntity update(DocumentEntity entity) {
+	public CommunicationEntity update(CommunicationEntity entity) {
 		return update(entity, false);
 	}
 
 	@Override
-	public Iterable<DocumentEntity> update(Iterable<DocumentEntity> entities) {
+	public Iterable<CommunicationEntity> update(Iterable<CommunicationEntity> entities) {
 		if(entities == null) {
 			return Collections.emptySet();
 		} else {

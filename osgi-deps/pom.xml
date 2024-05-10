@@ -43,8 +43,8 @@
 		<weld-version>5.1.2.Final</weld-version>
 		<resteasy-version>6.2.8.Final</resteasy-version>
 		<resteasy-mp-version>2.1.5.Final</resteasy-mp-version>
-		<nosql-version>1.0.2</nosql-version>
-		<nosql-version-osgi>1.0.2</nosql-version-osgi>
+		<nosql-version>1.1.1-RC1</nosql-version>
+		<nosql-version-osgi>1.1.1</nosql-version-osgi>
 		<tomcat-version>10.1.23</tomcat-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -616,13 +616,12 @@
 								<!--
 									Data
 								-->
-								<artifact><id>jakarta.data:jakarta-data-api:1.0.0-b3</id><source>true</source></artifact>
+								<artifact><id>jakarta.data:jakarta.data-api:1.0.0-RC1</id><source>true</source></artifact>
 								
 								<!--
 									NoSQL
 								-->
-								<artifact><id>jakarta.nosql:nosql-core:1.0.0-b7</id><source>true</source></artifact>
-								<artifact><id>jakarta.nosql:nosql-document:1.0.0-b7</id><source>true</source></artifact>
+								<artifact><id>jakarta.nosql:jakarta.nosql-api:1.0.0-M1</id><source>true</source></artifact>
 								
 								<artifact>
 									<id>org.eclipse.jnosql.communication:jnosql-communication-core:${nosql-version}</id>
@@ -647,11 +646,11 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.eclipse.jnosql.communication:jnosql-communication-document:${nosql-version}</id>
+									<id>org.eclipse.jnosql.communication:jnosql-communication-semistructured:${nosql-version}</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.document</Bundle-SymbolicName>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.communication.semistructured</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
 										<DynamicImport-Package>jakarta.*,org.glassfish.hk2.osgiresourcelocator</DynamicImport-Package>
@@ -693,6 +692,17 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.mapping.reflection</Bundle-SymbolicName>
+										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
+										<DynamicImport-Package>org.jboss.weld.*,jakarta.*</DynamicImport-Package>
+										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>
+									</instructions>
+								</artifact>
+								<artifact>
+									<id>org.eclipse.jnosql.mapping:jnosql-mapping-semistructured:${nosql-version}</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.jnosql.mapping.semistructured</Bundle-SymbolicName>
 										<Bundle-Version>${nosql-version-osgi}.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*,jakarta.*</DynamicImport-Package>
 										<Export-Package>*;version="${nosql-version-osgi}"</Export-Package>

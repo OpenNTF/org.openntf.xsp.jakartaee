@@ -20,9 +20,8 @@ import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 
 import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.Settings;
-import org.eclipse.jnosql.communication.document.DocumentConfiguration;
 
-public class DominoDocumentConfiguration implements DocumentConfiguration {
+public class DominoDocumentConfiguration {
 	public static final String SETTING_SESSION_SUPPLIER = "sessionSupplier"; //$NON-NLS-1$
 	public static final String SETTING_SUPPLIER = "databaseSupplier"; //$NON-NLS-1$
 	
@@ -33,7 +32,6 @@ public class DominoDocumentConfiguration implements DocumentConfiguration {
 		);
 	}
 
-	@Override
 	public DominoDocumentCollectionManagerFactory apply(Settings settings) {
 		if(settings == null) {
 			return get();

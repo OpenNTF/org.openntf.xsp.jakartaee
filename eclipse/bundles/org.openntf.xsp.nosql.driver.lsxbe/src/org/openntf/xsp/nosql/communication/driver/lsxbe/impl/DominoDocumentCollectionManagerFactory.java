@@ -15,12 +15,12 @@
  */
 package org.openntf.xsp.nosql.communication.driver.lsxbe.impl;
 
-import org.eclipse.jnosql.communication.document.DocumentManagerFactory;
+import org.eclipse.jnosql.communication.semistructured.DatabaseManagerFactory;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.nosql.communication.driver.lsxbe.SessionSupplier;
 
-public class DominoDocumentCollectionManagerFactory implements DocumentManagerFactory {
+public class DominoDocumentCollectionManagerFactory implements DatabaseManagerFactory {
 	private final DatabaseSupplier databaseSupplier;
 	private final SessionSupplier sessionSupplier;
 	

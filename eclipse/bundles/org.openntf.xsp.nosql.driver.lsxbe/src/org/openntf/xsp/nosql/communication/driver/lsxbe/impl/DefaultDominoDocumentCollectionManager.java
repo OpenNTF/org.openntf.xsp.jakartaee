@@ -66,13 +66,14 @@ import com.ibm.designer.domino.napi.NotesSession;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.data.repository.Sort;
-import org.eclipse.jnosql.communication.document.Document;
-import org.eclipse.jnosql.communication.document.DocumentDeleteQuery;
-import org.eclipse.jnosql.communication.document.DocumentEntity;
-import org.eclipse.jnosql.communication.document.DocumentQuery;
+import jakarta.data.Sort;
+import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
+import org.eclipse.jnosql.communication.semistructured.Element;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+
 import jakarta.nosql.Column;
-import jakarta.data.repository.Pageable;
+import jakarta.data.page.PageRequest;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
 import jakarta.transaction.SystemException;
@@ -119,35 +120,35 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	 * @since 2.6.0
 	 */
 	@Override
-	public DocumentEntity insert(DocumentEntity entity, boolean computeWithForm) {
+	public CommunicationEntity insert(CommunicationEntity entity, boolean computeWithForm) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
 			
 			// Special handling for named and profile notes
 			lotus.domino.Document target;
-			Optional<Document> maybeName = entity.find(DominoConstants.FIELD_NOTENAME);
-			Optional<Document> maybeProfileName = entity.find(DominoConstants.FIELD_PROFILENAME);
+			Optional<Element> maybeName = entity.find(DominoConstants.FIELD_NOTENAME);
+			Optional<Element> maybeProfileName = entity.find(DominoConstants.FIELD_PROFILENAME);
 			if(maybeName.isPresent() && StringUtil.isNotEmpty(maybeName.get().get(String.class))) {
-				Optional<Document> maybeUserName = entity.find(DominoConstants.FIELD_USERNAME);
+				Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_USERNAME);
 				if(maybeUserName.isPresent() && StringUtil.isNotEmpty(maybeUserName.get().get(String.class))) {
 					target = database.getNamedDocument(maybeName.get().get(String.class), maybeUserName.get().get(String.class));
 				} else {
 					target = database.getNamedDocument(maybeName.get().get(String.class));
 				}
 			} else if(maybeProfileName.isPresent() && StringUtil.isNotEmpty(maybeProfileName.get().get(String.class))) {
-				Optional<Document> maybeUserName = entity.find(DominoConstants.FIELD_PROFILEKEY);
+				Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_PROFILEKEY);
 				target = database.getProfileDocument(maybeProfileName.get().get(String.class), maybeUserName.map(d -> d.get(String.class)).orElse(null));
 			} else {
 				target = database.createDocument();
 			}
 			
-			Optional<Document> maybeId = entity.find(DominoConstants.FIELD_ID);
-			if(maybeId.isPresent()) {
-				target.setUniversalID(maybeId.get().get().toString());
+			Optional<String> maybeId = entity.find(DominoConstants.FIELD_ID, String.class);
+			if(maybeId.isPresent() && !StringUtil.isEmpty(maybeId.get())) {
+				target.setUniversalID(maybeId.get());
 			} else {
 				// Write the generated UNID into the entity
-				entity.add(Document.of(DominoConstants.FIELD_ID, target.getUniversalID()));
+				entity.add(Element.of(DominoConstants.FIELD_ID, target.getUniversalID()));
 			}
 
 			EntityMetadata mapping = EntityUtil.getClassMapping(entity.name());
@@ -163,7 +164,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public Iterable<DocumentEntity> insert(Iterable<DocumentEntity> entities) {
+	public Iterable<CommunicationEntity> insert(Iterable<CommunicationEntity> entities) {
 		if(entities == null) {
 			return Collections.emptySet();
 		} else {
@@ -174,12 +175,12 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public DocumentEntity update(DocumentEntity entity, boolean computeWithForm) {
+	public CommunicationEntity update(CommunicationEntity entity, boolean computeWithForm) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
 			
-			Document id = entity.find(DominoConstants.FIELD_ID)
+			Element id = entity.find(DominoConstants.FIELD_ID)
 				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", DominoConstants.FIELD_ID)));
 			
 			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
@@ -197,11 +198,11 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public void delete(DocumentDeleteQuery query) {
+	public void delete(DeleteQuery query) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
-			List<String> unids = query.documents();
+			List<String> unids = query.columns();
 			if(unids != null && !unids.isEmpty()) {
 				for(String unid : unids) {
 					if(unid != null && !unid.isEmpty()) {
@@ -222,7 +223,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public Stream<DocumentEntity> select(DocumentQuery query) {
+	public Stream<CommunicationEntity> select(SelectQuery query) {
 		try {
 			String entityName = query.name();
 			EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
@@ -231,8 +232,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			
 			long skip = queryResult.getSkip();
 			long limit = queryResult.getLimit();
-			List<Sort> sorts = query.sorts();
-			Stream<DocumentEntity> result;
+			List<Sort<?>> sorts = query.sorts();
+			Stream<CommunicationEntity> result;
 
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -313,7 +314,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pageable pagination,
+	public Stream<CommunicationEntity> viewEntryQuery(String entityName, String viewName, PageRequest pagination,
 			Sort sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
 		EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
 		
@@ -360,7 +361,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pageable pagination,
+	public Stream<CommunicationEntity> viewDocumentQuery(String entityName, String viewName, PageRequest pagination,
 			Sort sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct) {
 		EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
 		
@@ -383,7 +384,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					return Stream.empty();
 				}
 				Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(mapping);
-				return Stream.of(DocumentEntity.of(entityName, entityConverter.convertDominoDocument(doc, mapping, itemTypes)));
+				return Stream.of(CommunicationEntity.of(entityName, entityConverter.convertDominoDocument(doc, mapping, itemTypes)));
 			} catch(NotesException e) {
 				throw new RuntimeException(e);
 			}
@@ -479,7 +480,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 	
 	@Override
-	public Optional<DocumentEntity> getByNoteId(String entityName, String noteId) {
+	public Optional<CommunicationEntity> getByNoteId(String entityName, String noteId) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -492,7 +493,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 	
 	@Override
-	public Optional<DocumentEntity> getById(String entityName, String id) {
+	public Optional<CommunicationEntity> getById(String entityName, String id) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -505,7 +506,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 	
 	@Override
-	public Optional<DocumentEntity> getByName(String entityName, String name, String userName) {
+	public Optional<CommunicationEntity> getByName(String entityName, String name, String userName) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -523,7 +524,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 	
 	@Override
-	public Optional<DocumentEntity> getProfileDocument(String entityName, String profileName, String userName) {
+	public Optional<CommunicationEntity> getProfileDocument(String entityName, String profileName, String userName) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -599,7 +600,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pageable pagination) {
+	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, PageRequest pagination) {
 		try {
 			Database database = supplier.get();
 			Session session = database.getParent();
@@ -718,7 +719,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	// *******************************************************************************
 	
 	@SuppressWarnings("unchecked")
-	private <T> T buildNavigtor(String viewName, Pageable pagination, Sort sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, EntityMetadata mapping, NavFunction<T> consumer) {
+	private <T> T buildNavigtor(String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, EntityMetadata mapping, NavFunction<T> consumer) {
 		try {
 			if(StringUtil.isEmpty(viewName)) {
 				throw new IllegalArgumentException("viewName cannot be empty");
@@ -873,7 +874,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 	}
 
-	private Optional<DocumentEntity> processDocument(String entityName, lotus.domino.Document doc) throws NotesException {
+	private Optional<CommunicationEntity> processDocument(String entityName, lotus.domino.Document doc) throws NotesException {
 		if(doc != null) {
 			if(doc.isDeleted()) {
 				return Optional.empty();
@@ -888,14 +889,14 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			// TODO consider checking the form
 			EntityMetadata EntityMetadata = EntityUtil.getClassMapping(entityName);
 			Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(EntityMetadata);
-			List<Document> result = entityConverter.convertDominoDocument(doc, EntityMetadata, itemTypes);
-			return Optional.of(DocumentEntity.of(entityName, result));
+			List<Element> result = entityConverter.convertDominoDocument(doc, EntityMetadata, itemTypes);
+			return Optional.of(CommunicationEntity.of(entityName, result));
 		} else {
 			return Optional.empty();
 		}
 	}
 	
-	private static void applySorts(View view, Sort sorts, EntityMetadata mapping, ViewQuery query, Pageable pagination) throws NotesException {
+	private static void applySorts(View view, Sort<?> sorts, EntityMetadata mapping, ViewQuery query, PageRequest pagination) throws NotesException {
 		Collection<String> ftSearch = query == null ? Collections.emptySet() : query.getFtSearch();
 		Collection<FTSearchOption> options = query == null ? Collections.emptySet() : query.getFtSearchOptions();
 		

@@ -16,7 +16,6 @@
 package org.openntf.xsp.nosql.mapping.extension.impl;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -28,9 +27,16 @@ import java.util.ServiceLoader;
 import java.util.ServiceLoader.Provider;
 import java.util.stream.Stream;
 
-import org.eclipse.jnosql.mapping.repository.DynamicReturn;
-import org.eclipse.jnosql.mapping.repository.DynamicReturn.DefaultDynamicReturnBuilder;
-import org.eclipse.jnosql.mapping.repository.RepositoryReturn;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.core.query.AbstractRepository;
+import org.eclipse.jnosql.mapping.core.repository.DynamicReturn;
+import org.eclipse.jnosql.mapping.core.repository.DynamicReturn.DefaultDynamicReturnBuilder;
+import org.eclipse.jnosql.mapping.core.repository.RepositoryReturn;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.semistructured.SemiStructuredTemplate;
+import org.eclipse.jnosql.mapping.semistructured.query.AbstractSemiStructuredRepositoryProxy;
+import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryProxy;
 import org.openntf.xsp.nosql.mapping.extension.DominoReflections;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
@@ -39,9 +45,8 @@ import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 
-import jakarta.data.repository.Pageable;
-import jakarta.data.repository.PageableRepository;
-import jakarta.data.repository.Sort;
+import jakarta.data.Sort;
+import jakarta.data.page.PageRequest;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.Entity;
 import jakarta.validation.ConstraintViolationException;
@@ -54,7 +59,7 @@ import jakarta.validation.ConstraintViolationException;
  *
  * @param <T> the model-object type produced by the repository
  */
-public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
+public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredRepositoryProxy<T, K> {
 	
 	// Known handled methods
 	private static final Method putInFolder;
@@ -80,12 +85,12 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			saveWithForm = DominoRepository.class.getDeclaredMethod("save", Object.class, boolean.class); //$NON-NLS-1$
 			getByNoteId = DominoRepository.class.getDeclaredMethod("findByNoteId", String.class); //$NON-NLS-1$
 			getByNoteIdInt = DominoRepository.class.getDeclaredMethod("findByNoteId", int.class); //$NON-NLS-1$
-			readViewEntries = DominoRepository.class.getDeclaredMethod("readViewEntries", String.class, int.class, boolean.class, ViewQuery.class, Sort.class, Pageable.class); //$NON-NLS-1$
-			readViewDocuments = DominoRepository.class.getDeclaredMethod("readViewDocuments", String.class, int.class, boolean.class, ViewQuery.class, Sort.class, Pageable.class); //$NON-NLS-1$
+			readViewEntries = DominoRepository.class.getDeclaredMethod("readViewEntries", String.class, int.class, boolean.class, ViewQuery.class, Sort.class, PageRequest.class); //$NON-NLS-1$
+			readViewDocuments = DominoRepository.class.getDeclaredMethod("readViewDocuments", String.class, int.class, boolean.class, ViewQuery.class, Sort.class, PageRequest.class); //$NON-NLS-1$
 			getViewInfo = DominoRepository.class.getDeclaredMethod("getViewInfo"); //$NON-NLS-1$
 			findNamedDocument = DominoRepository.class.getDeclaredMethod("findNamedDocument", String.class, String.class); //$NON-NLS-1$
 			findProfileDocument = DominoRepository.class.getDeclaredMethod("findProfileDocument", String.class, String.class); //$NON-NLS-1$
-			readCalendarRange = DominoRepository.class.getDeclaredMethod("readCalendarRange", TemporalAccessor.class, TemporalAccessor.class, Pageable.class); //$NON-NLS-1$
+			readCalendarRange = DominoRepository.class.getDeclaredMethod("readCalendarRange", TemporalAccessor.class, TemporalAccessor.class, PageRequest.class); //$NON-NLS-1$
 			readCalendarEntry = DominoRepository.class.getDeclaredMethod("readCalendarEntry", String.class); //$NON-NLS-1$
 			createCalendarEntry = DominoRepository.class.getDeclaredMethod("createCalendarEntry", String.class, boolean.class); //$NON-NLS-1$
 			updateCalendarEntry = DominoRepository.class.getDeclaredMethod("updateCalendarEntry", String.class, String.class, String.class, boolean.class, boolean.class, String.class); //$NON-NLS-1$
@@ -97,17 +102,24 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 
 	private final Class<T> typeClass;
 	private final DominoTemplate template;
-	private final PageableRepository<?, String> repository;
+	private final AbstractRepository<T, K> repository;
+	
+	private final Converters converters;
+	private final EntityMetadata entityMetadata;
+	private final Class<?> repositoryType;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	DominoDocumentRepositoryProxy(DominoTemplate template, Class<?> repositoryType, PageableRepository<?, String> repository) {
+	DominoDocumentRepositoryProxy(DominoTemplate template, Class<?> repositoryType, Converters converters, EntitiesMetadata entitiesMetadata) {
         this.template = template;
         this.typeClass = (Class) ((ParameterizedType) repositoryType.getGenericInterfaces()[0])
                 .getActualTypeArguments()[0];
         if(!typeClass.isAnnotationPresent(Entity.class)) {
         	throw new IllegalStateException(MessageFormat.format("Target type \"{0}\" for repository class \"{1}\" is missing an @Entity annotation", typeClass.getName(), repositoryType.getName()));
         }
-        this.repository = repository;
+        this.converters = converters;
+        this.entityMetadata = entitiesMetadata.get(typeClass);
+        this.repositoryType = repositoryType;
+        this.repository = SemiStructuredRepositoryProxy.SemiStructuredRepository.of(template, entityMetadata);
     }
 
 	@Override
@@ -115,9 +127,9 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 		// View entries support
 		ViewEntries viewEntries = method.getAnnotation(ViewEntries.class);
 		if(viewEntries != null) {
-			Pageable pagination = findArg(args, Pageable.class);
+			PageRequest pagination = findArg(args, PageRequest.class);
 			ViewQuery viewQuery = findArg(args, ViewQuery.class);
-			Sort sorts = findArg(args, Sort.class);
+			Sort<?> sorts = findArg(args, Sort.class);
 			
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
@@ -134,8 +146,8 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			int maxLevel = (int)args[1];
 			boolean documentsOnly = (boolean)args[2];
 			ViewQuery viewQuery = (ViewQuery)args[3];
-			Sort sorts = (Sort)args[4];
-			Pageable pagination = (Pageable)args[5];
+			Sort<?> sorts = (Sort<?>)args[4];
+			PageRequest pagination = (PageRequest)args[5];
 			
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
@@ -148,9 +160,9 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 		// View documents support
 		ViewDocuments viewDocuments = method.getAnnotation(ViewDocuments.class);
 		if(viewDocuments != null) {
-			Pageable pagination = findArg(args, Pageable.class);
+			PageRequest pagination = findArg(args, PageRequest.class);
 			ViewQuery viewQuery = findArg(args, ViewQuery.class);
-			Sort sorts = findArg(args, Sort.class);
+			Sort<?> sorts = findArg(args, Sort.class);
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
 				entityName = typeClass.getSimpleName();
@@ -167,8 +179,8 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 			int maxLevel = (int)args[1];
 			boolean distinct = (boolean)args[2];
 			ViewQuery viewQuery = (ViewQuery)args[3];
-			Sort sorts = (Sort)args[4];
-			Pageable pagination = (Pageable)args[5];
+			Sort<?> sorts = (Sort<?>)args[4];
+			PageRequest pagination = (PageRequest)args[5];
 			
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
@@ -247,7 +259,7 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 		
 		// Calendar operations
 		if(method.equals(readCalendarRange)) {
-			return template.readCalendarRange((TemporalAccessor)args[0], (TemporalAccessor)args[1], (Pageable)args[2]);
+			return template.readCalendarRange((TemporalAccessor)args[0], (TemporalAccessor)args[1], (PageRequest)args[2]);
 		}
 		if(method.equals(readCalendarEntry)) {
 			return template.readCalendarEntry((String)args[0]);
@@ -265,7 +277,7 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 		}
 		
 		try {
-			return method.invoke(repository, args);
+			return super.invoke(o, method, args);
 		} catch(InvocationTargetException e) {
 			if(e.getCause() instanceof ConstraintViolationException ve) {
 				throw ve;
@@ -336,5 +348,30 @@ public class DominoDocumentRepositoryProxy<T> implements InvocationHandler {
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	protected Converters converters() {
+		return this.converters;
+	}
+
+	@Override
+	protected EntityMetadata entityMetadata() {
+		return this.entityMetadata;
+	}
+
+	@Override
+	protected SemiStructuredTemplate template() {
+		return this.template;
+	}
+
+	@Override
+	protected AbstractRepository<T, K> repository() {
+		return this.repository;
+	}
+
+	@Override
+	protected Class<?> repositoryType() {
+		return this.repositoryType;
 	}
 }

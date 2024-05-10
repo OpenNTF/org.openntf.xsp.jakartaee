@@ -64,9 +64,12 @@ public class TestNoSQL extends AbstractWebClientTest {
 			
 			String json = response.readEntity(String.class);
 			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-			
-			JsonArray byQueryLastName = jsonObject.getJsonArray("byQueryLastName"); //$NON-NLS-1$
-			assertTrue(byQueryLastName.isEmpty(), () -> String.valueOf(jsonObject));
+			try {
+				JsonArray byQueryLastName = jsonObject.getJsonArray("byQueryLastName"); //$NON-NLS-1$
+				assertTrue(byQueryLastName.isEmpty(), () -> String.valueOf(jsonObject));
+			} catch(Exception e) {
+				fail("Encounted unexpected JSON: " + jsonObject, e);
+			}
 		}
 		
 		// Now use the MVC endpoint to create one, which admittedly is outside this test

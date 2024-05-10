@@ -22,14 +22,19 @@ import java.util.Set;
 
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.DatabaseType;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
+import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
-import org.openntf.xsp.nosql.mapping.extension.DominoTemplateProducer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.enterprise.inject.spi.PassivationCapable;
 
@@ -75,17 +80,14 @@ public class DominoTemplateBean implements Bean<DominoTemplate>, PassivationCapa
     @Override
     public DominoTemplate create(CreationalContext<DominoTemplate> creationalContext) {
 
-        DominoTemplateProducer producer = getInstance(DominoTemplateProducer.class);
-        DominoDocumentManager manager = getManager();
-        return producer.get(manager);
-    }
-
-    private DominoDocumentManager getManager() {
-        @SuppressWarnings("unchecked")
-		Bean<DominoDocumentManager> bean = (Bean<DominoDocumentManager>) beanManager.getBeans(DominoDocumentManager.class,
-                DatabaseQualifier.ofDocument(provider) ).iterator().next();
-        CreationalContext<DominoDocumentManager> ctx = beanManager.createCreationalContext(bean);
-        return (DominoDocumentManager) beanManager.getReference(bean, DominoDocumentManager.class, ctx);
+        Instance<DominoDocumentManager> managerInstance = CDI.current().select(DominoDocumentManager.class, DatabaseQualifier.ofDocument(provider));
+        return new DefaultDominoTemplate(
+        	managerInstance,
+        	CDI.current().select(EntityConverter.class).get(),
+        	CDI.current().select(EventPersistManager.class).get(),
+        	CDI.current().select(EntitiesMetadata.class).get(),
+        	CDI.current().select(Converters.class).get()
+        );
     }
 
 

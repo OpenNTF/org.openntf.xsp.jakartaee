@@ -27,9 +27,9 @@ import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
 
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
-import org.eclipse.jnosql.communication.document.Document;
-import org.eclipse.jnosql.communication.document.DocumentCondition;
-import org.eclipse.jnosql.communication.document.DocumentQuery;
+import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
+import org.eclipse.jnosql.communication.semistructured.Element;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 
 /**
  * Assistant class to convert queries from Diana internal structures to DQL queries
@@ -44,8 +44,8 @@ public enum QueryConverter {
 
 	private static final String[] ALL_SELECT = { "*" }; //$NON-NLS-1$
 
-	public static QueryConverterResult select(DocumentQuery query) {
-		String[] documents = query.documents().toArray(new String[0]);
+	public static QueryConverterResult select(SelectQuery query) {
+		String[] documents = query.columns().toArray(new String[0]);
 		if (documents.length == 0) {
 			documents = ALL_SELECT;
 		}
@@ -64,8 +64,8 @@ public enum QueryConverter {
 		return new QueryConverterResult(documents, statement, skip, limit);
 	}
 
-	public static DQLTerm getCondition(DocumentCondition condition) {
-		Document document = condition.document();
+	public static DQLTerm getCondition(CriteriaCondition condition) {
+		Element document = condition.element();
 
 		if (!NOT_APPENDABLE.contains(condition.condition())) {
 			// TODO determine if this is relevant
@@ -153,21 +153,21 @@ public enum QueryConverter {
 					return DQL.item(name).contains(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case AND: {
-				List<DocumentCondition> conditions = document.get(new TypeReference<List<DocumentCondition>>() {});
+				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});
 				return DQL.and(conditions
 					.stream()
 					.map(c -> getCondition(c))
 					.toArray(DQLTerm[]::new));
 			}
 			case OR: {
-				List<DocumentCondition> conditions = document.get(new TypeReference<List<DocumentCondition>>() {});
+				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});
 				return DQL.or(conditions
 					.stream()
 					.map(c -> getCondition(c))
 					.toArray(DQLTerm[]::new));
 			}
 			case NOT:
-				DocumentCondition dc = document.get(DocumentCondition.class);
+				CriteriaCondition dc = document.get(CriteriaCondition.class);
 				return DQL.not(getCondition(dc));
 			default:
 				throw new IllegalStateException("This condition is not supported in Domino: " + condition.condition()); //$NON-NLS-1$

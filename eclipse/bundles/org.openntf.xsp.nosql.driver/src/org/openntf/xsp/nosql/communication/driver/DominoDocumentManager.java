@@ -22,15 +22,15 @@ import java.util.stream.Stream;
 import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository.CalendarModScope;
 
-import org.eclipse.jnosql.communication.document.DocumentManager;
-import org.eclipse.jnosql.communication.document.DocumentEntity;
-import jakarta.data.repository.Pageable;
-import jakarta.data.repository.Sort;
+import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
+import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
+import jakarta.data.page.PageRequest;
+import jakarta.data.Sort;
 
-public interface DominoDocumentManager extends DocumentManager {
-	Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName, Pageable pagination, Sort sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
+public interface DominoDocumentManager extends DatabaseManager {
+	Stream<CommunicationEntity> viewEntryQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
 	
-	Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName, Pageable pagination, Sort sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct);
+	Stream<CommunicationEntity> viewDocumentQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct);
 	
 	void putInFolder(String entityId, String folderName);
 	
@@ -45,7 +45,7 @@ public interface DominoDocumentManager extends DocumentManager {
      * @throws NullPointerException when document is null
      * @since 2.6.0
      */
-    DocumentEntity insert(DocumentEntity entity, boolean computeWithForm);
+	CommunicationEntity insert(CommunicationEntity entity, boolean computeWithForm);
 	
 	/**
      * Saves document collection entity
@@ -56,7 +56,7 @@ public interface DominoDocumentManager extends DocumentManager {
      * @throws NullPointerException when document is null
      * @since 2.6.0
      */
-    DocumentEntity update(DocumentEntity entity, boolean computeWithForm);
+	CommunicationEntity update(CommunicationEntity entity, boolean computeWithForm);
     
     /**
      * Determines whether a document exists with the provided UNID.
@@ -76,7 +76,7 @@ public interface DominoDocumentManager extends DocumentManager {
      *         by that ID is found
      * @since 2.8.0
      */
-    Optional<DocumentEntity> getByNoteId(String entityName, String noteId);
+    Optional<CommunicationEntity> getByNoteId(String entityName, String noteId);
     
     /**
      * Retrieves a document by its UNID.
@@ -87,7 +87,7 @@ public interface DominoDocumentManager extends DocumentManager {
      *         by that ID is found
      * @since 2.8.0
      */
-    Optional<DocumentEntity> getById(String entityName, String id);
+    Optional<CommunicationEntity> getById(String entityName, String id);
     
     /**
      * Retrieves a list of the views and folders in the underlying database.
@@ -108,7 +108,7 @@ public interface DominoDocumentManager extends DocumentManager {
      *         there is no document by that name
      * @since 2.13.0
      */
-    Optional<DocumentEntity> getByName(String entityName, String name, String userName);
+    Optional<CommunicationEntity> getByName(String entityName, String name, String userName);
 
     /**
      * Finds a document given its note name
@@ -121,7 +121,7 @@ public interface DominoDocumentManager extends DocumentManager {
      *         there is no document by that name
      * @since 2.13.0
      */
-    Optional<DocumentEntity> getProfileDocument(String entityName, String profileName, String userName);
+    Optional<CommunicationEntity> getProfileDocument(String entityName, String profileName, String userName);
     
     /**
      * Reads event information in iCalendar format from the backing database.
@@ -141,7 +141,7 @@ public interface DominoDocumentManager extends DocumentManager {
      * @see <a href="https://help.hcltechsw.com/dom_designer/11.0.1/basic/H_NOTESCALENDAR_CLASS_JAVA.html">lotus.domino.NotesCalendar documentation</a>
      * @since 2.15.0
      */
-    String readCalendarRange(TemporalAccessor start, TemporalAccessor end, Pageable pagination);
+    String readCalendarRange(TemporalAccessor start, TemporalAccessor end, PageRequest pagination);
 
     /**
      * Retrieves a calendar entry in iCalendar format.

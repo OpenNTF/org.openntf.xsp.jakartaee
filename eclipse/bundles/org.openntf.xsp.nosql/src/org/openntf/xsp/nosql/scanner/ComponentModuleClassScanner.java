@@ -21,14 +21,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.jnosql.mapping.Embeddable;
+import org.eclipse.jnosql.mapping.NoSQLRepository;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
+import jakarta.data.repository.BasicRepository;
 import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.DataRepository;
-import jakarta.data.repository.PageableRepository;
+import jakarta.nosql.Embeddable;
 import jakarta.nosql.Entity;
 
 /**
@@ -96,7 +97,10 @@ public class ComponentModuleClassScanner implements ClassScanner {
 			.map(classes -> {
 				return classes.filter(c -> {
 					List<Class<?>> interfaces = Arrays.asList(c.getInterfaces());
-			        return interfaces.contains(CrudRepository.class) || interfaces.contains(PageableRepository.class);
+                    return interfaces.contains(CrudRepository.class)
+                            || interfaces.contains(BasicRepository.class)
+                            || interfaces.contains(NoSQLRepository.class)
+                            || interfaces.contains(DataRepository.class);
 				})
 				.collect(Collectors.toSet());
 			})

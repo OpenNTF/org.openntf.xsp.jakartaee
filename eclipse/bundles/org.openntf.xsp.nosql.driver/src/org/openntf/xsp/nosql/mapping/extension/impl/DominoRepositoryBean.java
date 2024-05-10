@@ -26,21 +26,18 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
-import org.eclipse.jnosql.mapping.document.query.DocumentRepositoryProducer;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.core.spi.AbstractBean;
+import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
 import org.openntf.xsp.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.nosql.mapping.extension.RepositoryProvider;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
-import jakarta.enterprise.inject.spi.InjectionPoint;
-import jakarta.enterprise.inject.spi.PassivationCapable;
 import jakarta.enterprise.util.AnnotationLiteral;
-import jakarta.data.repository.PageableRepository;
-import jakarta.data.repository.Repository;
 
 /**
  * Bean for producing {@link DominoRepository} instances.
@@ -48,13 +45,12 @@ import jakarta.data.repository.Repository;
  * @author Jesse Gallagher
  * @since 2.5.0
  */
-public class DominoRepositoryBean implements Bean<DominoRepository<?, ?>>, PassivationCapable {
+public class DominoRepositoryBean<T, K> extends AbstractBean<DominoRepository<T, K>> {
 
 	private final Class<?> type;
 	private final BeanManager beanManager;
 	private final Set<Type> types;
 
-	@SuppressWarnings("serial")
 	private final Set<Annotation> qualifiers = Collections.singleton(new AnnotationLiteral<Default>() {
 	});
 
@@ -64,8 +60,9 @@ public class DominoRepositoryBean implements Bean<DominoRepository<?, ?>>, Passi
 		this.types = Collections.singleton(type);
 	}
 
+	@SuppressWarnings({ "removal", "deprecation", "unchecked" })
 	@Override
-	public DominoRepository<?, ?> create(CreationalContext<DominoRepository<?, ?>> creationalContext) {
+	public DominoRepository<T, K> create(CreationalContext<DominoRepository<T, K>> creationalContext) {
 		DominoTemplate template;
 		RepositoryProvider producerAnnotation = type.getAnnotation(RepositoryProvider.class);
 		if (producerAnnotation != null) {
@@ -79,44 +76,25 @@ public class DominoRepositoryBean implements Bean<DominoRepository<?, ?>>, Passi
 					new IllegalStateException("Unable to locate producer method for @Database(value = DatabaseType.DOCUMENT, provider = \"\")")
 				);
 		}
-		DocumentRepositoryProducer producer = getInstance(DocumentRepositoryProducer.class)
-			.orElseThrow(() -> new IllegalStateException("Unable to locate bean for " + DocumentRepositoryProducer.class));
 		// The default DocumentRepositoryProducer uses Class#getClassLoader
-		return AccessController.doPrivileged((PrivilegedAction<DominoRepository<?, ?>>)() -> {
-			@SuppressWarnings("unchecked")
-			PageableRepository<Object, String> repository = producer.get((Class<PageableRepository<Object, String>>) type, template);
-
-			DominoDocumentRepositoryProxy<DominoRepository<?, String>> handler = new DominoDocumentRepositoryProxy<>(template,
-					type, repository);
-			return (DominoRepository<?, ?>) Proxy.newProxyInstance(type.getClassLoader(), new Class[] { type }, handler);
+		return AccessController.doPrivileged((PrivilegedAction<DominoRepository<T, K>>)() -> {
+			Converters converters = getInstance(Converters.class);
+	        EntitiesMetadata entitiesMetadata = getInstance(EntitiesMetadata.class);
+			DominoDocumentRepositoryProxy<T, K> handler = new DominoDocumentRepositoryProxy<>(template,
+					type, converters, entitiesMetadata);
+			return (DominoRepository<T, K>) Proxy.newProxyInstance(type.getClassLoader(), new Class[] { type }, handler);
 		});
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> Optional<T> getInstance(Class<T> clazz) {
-		Iterator<Bean<?>> iter = beanManager.getBeans(clazz).iterator();
-		if(!iter.hasNext()) {
-			return Optional.empty();
-		}
-		Bean<T> bean = (Bean<T>) iter.next();
-		CreationalContext<T> ctx = beanManager.createCreationalContext(bean);
-		return Optional.of((T) beanManager.getReference(bean, clazz, ctx));
-	}
-
-	@SuppressWarnings("unchecked")
-	private <T> Optional<T> getInstance(Class<T> clazz, String provider) {
+	private <S> Optional<S> getInstance(Class<S> clazz, String provider) {
 		Iterator<Bean<?>> iter = beanManager.getBeans(clazz, DatabaseQualifier.ofDocument(provider)).iterator();
 		if(!iter.hasNext()) {
 			return Optional.empty();
 		}
-		Bean<T> bean = (Bean<T>) iter.next();
-		CreationalContext<T> ctx = beanManager.createCreationalContext(bean);
-		return Optional.of((T) beanManager.getReference(bean, clazz, ctx));
-	}
-
-	@Override
-	public void destroy(DominoRepository<?, ?> instance, CreationalContext<DominoRepository<?, ?>> creationalContext) {
-		// NOP
+		Bean<S> bean = (Bean<S>) iter.next();
+		CreationalContext<S> ctx = beanManager.createCreationalContext(bean);
+		return Optional.of((S) beanManager.getReference(bean, clazz, ctx));
 	}
 
 	@Override
@@ -130,26 +108,6 @@ public class DominoRepositoryBean implements Bean<DominoRepository<?, ?>>, Passi
 	}
 
 	@Override
-	public Class<? extends Annotation> getScope() {
-		return ApplicationScoped.class;
-	}
-
-	@Override
-	public String getName() {
-		return null;
-	}
-
-	@Override
-	public Set<Class<? extends Annotation>> getStereotypes() {
-		return Collections.emptySet();
-	}
-
-	@Override
-	public boolean isAlternative() {
-		return false;
-	}
-
-	@Override
 	public String getId() {
 		return type.getName() + "@domino"; //$NON-NLS-1$
 	}
@@ -157,11 +115,6 @@ public class DominoRepositoryBean implements Bean<DominoRepository<?, ?>>, Passi
 	@Override
 	public Class<?> getBeanClass() {
 		return type;
-	}
-
-	@Override
-	public Set<InjectionPoint> getInjectionPoints() {
-		return Collections.emptySet();
 	}
 
 }
