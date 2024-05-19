@@ -26,7 +26,7 @@ public class OpenAPIResourceContributor implements JAXRSClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {
-		if(LibraryUtil.isLibraryActive("org.openntf.xsp.microprofile.config")) { //$NON-NLS-1$
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			return Arrays.asList(
 				OpenAPIResource.class,
 				OpenAPIJSONResource.class,

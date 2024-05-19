@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.eclipse.krazo.servlet.KrazoContainerInitializer;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.mvc.MvcLibrary;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.annotation.HandlesTypes;
@@ -29,7 +28,7 @@ import jakarta.ws.rs.Path;
 public class MvcContainerInitializer extends KrazoContainerInitializer {
 	@Override
 	public void onStartup(Set<Class<?>> classes, ServletContext servletContext) {
-		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			super.onStartup(classes, servletContext);
 		}
 	}

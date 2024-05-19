@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.jsonapi.cdi.jaxrs;
 
-import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.enterprise.inject.Instance;
@@ -38,7 +37,7 @@ public class JsonbProvider implements ContextResolver<Jsonb> {
 	@Override
 	public Jsonb getContext(Class<?> type) {
 		if(Jsonb.class.equals(type)) {
-			if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID)) {
+			if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
 				Instance<Jsonb> bean = CDI.current().select(Jsonb.class);
 				if(bean.isResolvable()) {
 					return bean.get();

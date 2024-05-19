@@ -25,7 +25,7 @@ public class HealthResourceContributor implements JAXRSClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {
-		if(LibraryUtil.isLibraryActive(HealthLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			return Collections.singleton(HealthResource.class);
 		} else {
 			return Collections.emptyList();

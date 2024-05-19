@@ -21,7 +21,6 @@ import java.util.Collection;
 import org.eclipse.krazo.cdi.KrazoCdiExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.mvc.MvcLibrary;
 import org.openntf.xsp.mvc.impl.DelegatingExceptionViewEngine;
 
 import jakarta.enterprise.inject.spi.Extension;
@@ -30,7 +29,7 @@ public class MvcBeanClassContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			return Arrays.asList(
 				DelegatingExceptionViewEngine.class
 			);
@@ -41,7 +40,7 @@ public class MvcBeanClassContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			return Arrays.asList(new KrazoCdiExtension());
 		} else {
 			return null;

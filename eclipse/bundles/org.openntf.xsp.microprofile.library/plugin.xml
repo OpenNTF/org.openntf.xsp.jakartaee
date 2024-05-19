@@ -19,6 +19,6 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.jakarta.persistence.PersistenceLibrary" />
+		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.microprofile.library.MicroProfileLibrary" />
 	</extension>
 </plugin>

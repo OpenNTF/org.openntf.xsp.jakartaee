@@ -40,7 +40,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.Platform;
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
@@ -69,6 +68,22 @@ import lotus.domino.Session;
  */
 public enum LibraryUtil {
 	;
+	
+	/**
+	 * XPages Library ID for core components
+	 * @since 3.0.0
+	 */
+	public static final String LIBRARY_CORE = "org.openntf.xsp.jakartaee.core"; //$NON-NLS-1$
+	/**
+	 * XPages Library ID for UI components
+	 * @since 3.0.0
+	 */
+	public static final String LIBRARY_UI = "org.openntf.xsp.jakartaee.ui"; //$NON-NLS-1$
+	/**
+	 * XPages Library ID for MicroProfile components
+	 * @since 3.0.0
+	 */
+	public static final String LIBRARY_MICROPROFILE = "org.openntf.xsp.microprofile"; //$NON-NLS-1$
 	
 	private static final Map<String, Long> NSF_MOD = new HashMap<>();
 	private static final Map<String, Properties> NSF_PROPS = new ConcurrentHashMap<>();
@@ -112,20 +127,6 @@ public enum LibraryUtil {
 			.sorted(PriorityComparator.DESCENDING)
 			.filter(ComponentEnabledLocator::isActive)
 			.anyMatch(locator -> locator.isComponentEnabled(libraryId));
-	}
-	
-	/**
-	 * Attempts to determine whether all of the given XPages Libraries are
-	 * active for the current application.
-	 * 
-	 * @param libraryIds the library IDs to check
-	 * @return {@code true} if all libraries are active; {@code false} if any
-	 *         of them are not or if the context application cannot be
-	 *         identified
-	 * @since 2.11.0
-	 */
-	public static boolean isLibraryActive(String... libraryIds) {
-		return Stream.of(libraryIds).allMatch(LibraryUtil::isLibraryActive);
 	}
 	
 	/**

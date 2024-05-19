@@ -20,7 +20,6 @@ import java.util.Collections;
 
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.microprofile.config.ConfigLibrary;
 import org.openntf.xsp.microprofile.metrics.MetricsResourceContributor;
 
 import io.smallrye.faulttolerance.FaultToleranceExtension;
@@ -35,7 +34,7 @@ public class FaultToleranceCDIContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		if(LibraryUtil.isLibraryActive(FaultToleranceLibrary.LIBRARY_ID, ConfigLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			// SmallRye Fault Tolerance has an implicit dependency on Metrics
 			if(!"false".equals(LibraryUtil.getApplicationProperty(MetricsResourceContributor.PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				return Collections.singleton(new FaultToleranceExtension());

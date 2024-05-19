@@ -18,7 +18,6 @@ package org.openntf.xsp.beanvalidation.cdi;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.openntf.xsp.beanvalidation.ValidationLibrary;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
@@ -28,7 +27,7 @@ public class ValidatorBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		if(LibraryUtil.isLibraryActive(ValidationLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
 			return Collections.singleton(ValidatorBean.class);
 		} else {
 			return null;

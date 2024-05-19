@@ -33,7 +33,7 @@ public class ConfigCDIContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		if(LibraryUtil.isLibraryActive(ConfigLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			return Collections.singleton(new ConfigExtension());	
 		}
 		return null;

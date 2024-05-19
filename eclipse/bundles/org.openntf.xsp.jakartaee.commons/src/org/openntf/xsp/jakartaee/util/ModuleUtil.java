@@ -179,8 +179,8 @@ public enum ModuleUtil {
 			.map(className -> {
 				try {
 					return Class.forName(className, true, module.getModuleClassLoader());
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException(e);
+				} catch (ClassNotFoundException | NoClassDefFoundError e) {
+					throw new RuntimeException(MessageFormat.format("Encountered exception processing class {0} in {1}", className, getModuleId(module)), e);
 				}
 			}).filter(c -> {
 				for (Class<?> type : types.value()) {

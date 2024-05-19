@@ -45,7 +45,6 @@ import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jsf.JsfLibrary;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
@@ -68,7 +67,7 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 	
 	@Override
 	public String getLibraryId() {
-		return JsfLibrary.LIBRARY_ID;
+		return LibraryUtil.LIBRARY_UI;
 	}
 	
 	@Override

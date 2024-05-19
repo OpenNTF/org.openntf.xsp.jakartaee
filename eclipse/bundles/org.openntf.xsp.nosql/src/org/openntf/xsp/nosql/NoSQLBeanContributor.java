@@ -51,7 +51,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
 			List<Class<?>> result = new ArrayList<>();
 			Stream.of(DatabaseQualifier.class, DocumentTemplate.class, EntityConverter.class, ConstructorException.class, MappingValidator.class)
 				.map(FrameworkUtil::getBundle)
@@ -89,7 +89,7 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 	
 	@Override
 	public Collection<Class<? extends Extension>> getExtensionClasses() {
-		if(LibraryUtil.isLibraryActive(NoSQLLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
 			return Arrays.asList(
 				EntityMetadataExtension.class,
 				DocumentExtension.class,

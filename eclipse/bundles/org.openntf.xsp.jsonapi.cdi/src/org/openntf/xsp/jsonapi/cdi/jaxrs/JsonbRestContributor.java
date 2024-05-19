@@ -18,8 +18,6 @@ package org.openntf.xsp.jsonapi.cdi.jaxrs;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.openntf.xsp.cdi.CDILibrary;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 
 import jakarta.json.bind.Jsonb;
@@ -35,11 +33,7 @@ public class JsonbRestContributor implements JAXRSClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {
-		if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID)) {
-			return Collections.singleton(JsonbProvider.class);
-		} else {
-			return Collections.emptySet();
-		}
+		return Collections.singleton(JsonbProvider.class);
 	}
 
 }

@@ -20,7 +20,6 @@ import java.util.Collections;
 
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jsonapi.JSONLibrary;
 
 import jakarta.json.bind.Jsonb;
 
@@ -35,7 +34,7 @@ public class JsonbBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		if(LibraryUtil.isLibraryActive(JSONLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
 			return Collections.singleton(JsonbBean.class);
 		} else {
 			return Collections.emptySet();

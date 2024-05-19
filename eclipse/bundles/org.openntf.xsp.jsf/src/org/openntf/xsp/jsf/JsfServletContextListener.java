@@ -33,14 +33,14 @@ public class JsfServletContextListener implements ServletContextListener {
 	
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-		if(LibraryUtil.isLibraryActive(JsfLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			delegate.contextInitialized(sce);
 		}
 	}
 	
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
-		if(LibraryUtil.isLibraryActive(JsfLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			delegate.contextDestroyed(sce);
 		}
 	}

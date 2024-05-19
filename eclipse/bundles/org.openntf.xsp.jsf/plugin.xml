@@ -18,11 +18,6 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-	<!-- The Xsp Library -->
-	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.jsf.JsfLibrary" />
-	</extension>
-	
 	<!-- Faux HTTP Service provider to add hooks for JSF handling to the environment -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jsf.JsfEarlyInitFactory"/>

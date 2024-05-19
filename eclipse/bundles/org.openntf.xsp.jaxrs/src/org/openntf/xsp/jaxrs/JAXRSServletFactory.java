@@ -15,15 +15,14 @@
  */
 package org.openntf.xsp.jaxrs;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+
+import org.jboss.resteasy.cdi.CdiInjectorFactory;
 import org.jboss.resteasy.core.providerfactory.ResteasyProviderFactoryImpl;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
@@ -70,18 +69,8 @@ public class JAXRSServletFactory implements IServletFactory {
 		}
 		attrs.put(ATTR_REFRESH, module.getLastRefresh());
 		
-		String path = (String)attrs.computeIfAbsent(JAXRSServletFactory.class.getName()+"_path", key -> { //$NON-NLS-1$
-			Properties props = new Properties();
-			try(InputStream is = module.getResourceAsStream("/WEB-INF/xsp.properties")) { //$NON-NLS-1$
-				if(is != null) {
-					props.load(is);
-				} 
-			} catch(IOException e) {
-				throw new UncheckedIOException(e);
-			}
-			
-			return props.getProperty(PROP_SERVLET_PATH);
-		});
+		Properties props = LibraryUtil.getXspProperties(module);
+		String path = props.getProperty(PROP_SERVLET_PATH);
 		if(StringUtil.isEmpty(path)) {
 			path = SERVLET_PATH_DEFAULT;
 		}
@@ -106,7 +95,7 @@ public class JAXRSServletFactory implements IServletFactory {
 
 	@Override
 	public ServletMatch getServletMatch(String contextPath, String path) throws ServletException {
-		if(LibraryUtil.isLibraryActive(JAXRSLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
 			String baseServletPath = getServletPath(module);
 			// Match either a resource within the path or the specific base path without the trailing "/"
 			String trimmedBaseServletPath = baseServletPath.substring(0, baseServletPath.length()-1);
@@ -127,8 +116,7 @@ public class JAXRSServletFactory implements IServletFactory {
 		if (servlet == null || lastUpdate < this.module.getLastRefresh()) {
 			Map<String, String> params = new HashMap<>();
 			params.put("jakarta.ws.rs.Application", NSFJAXRSApplication.class.getName()); //$NON-NLS-1$
-			// TODO move this to the fragment somehow
-			params.put("resteasy.injector.factory", "org.jboss.resteasy.cdi.CdiInjectorFactory"); //$NON-NLS-1$ //$NON-NLS-2$
+			params.put("resteasy.injector.factory", CdiInjectorFactory.class.getName()); //$NON-NLS-1$
 			params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, getServletPath(module));
 			params.put("resteasy.use.deployment.sensitive.factory", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			

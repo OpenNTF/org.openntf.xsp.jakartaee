@@ -35,8 +35,6 @@ import jakarta.servlet.annotation.WebServlet;
 
 import org.apache.tomcat.util.descriptor.web.ServletDef;
 import org.apache.tomcat.util.descriptor.web.WebXml;
-import org.openntf.xsp.cdi.CDILibrary;
-import org.openntf.xsp.jakarta.servlet.ServletLibrary;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
@@ -69,7 +67,7 @@ public class ServletServletFactory implements IServletFactory {
 	@Override
 	public final ServletMatch getServletMatch(String contextPath, String path) throws javax.servlet.ServletException {
 		try {
-			if(LibraryUtil.usesLibrary(ServletLibrary.LIBRARY_ID, module)) {
+			if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module)) {
 				for(Map.Entry<ServletInfo, Class<? extends Servlet>> entry : getModuleServlets().entrySet()) {
 					String match = matches(entry.getKey(), path);
 					if(match != null) {
@@ -153,7 +151,7 @@ public class ServletServletFactory implements IServletFactory {
 		return this.servlets.computeIfAbsent(c, key -> {
 			try {
 				Servlet delegate;
-				if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, this.module)) {
+				if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, this.module)) {
 					delegate = CDI.current().select(c).get();
 				} else {
 					delegate = c.newInstance();

@@ -21,7 +21,6 @@ import java.util.Collections;
 
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jsf.JsfLibrary;
 
 import jakarta.enterprise.inject.spi.Extension;
 
@@ -32,7 +31,7 @@ import jakarta.enterprise.inject.spi.Extension;
 public class JsfCdiBeanContributor implements WeldBeanClassContributor {
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		if(LibraryUtil.isLibraryActive(JsfLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			return Collections.singleton(FacesConfigBean.class);
 		}
 		return null;
@@ -40,7 +39,7 @@ public class JsfCdiBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		if(LibraryUtil.isLibraryActive(JsfLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			return Arrays.asList(
 				new org.apache.myfaces.cdi.FacesScopeExtension(),
 				new org.apache.myfaces.cdi.FacesArtifactProducerExtension(),
