@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jsonapi.cdi.jaxrs;
+package org.openntf.xsp.jaxrs.json;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 

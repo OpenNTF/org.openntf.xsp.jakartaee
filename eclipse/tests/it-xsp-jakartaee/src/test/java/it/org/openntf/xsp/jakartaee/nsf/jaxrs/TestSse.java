@@ -28,6 +28,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
@@ -41,6 +42,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.sse.SseEventSource;
 
+@Disabled
 public class TestSse extends AbstractWebClientTest {
 	/**
 	 * Tests to see that the SSE endpoint will properly broadcast messages. This

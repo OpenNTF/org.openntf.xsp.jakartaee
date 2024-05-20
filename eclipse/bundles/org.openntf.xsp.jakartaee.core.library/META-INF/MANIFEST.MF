@@ -30,4 +30,4 @@ Require-Bundle: jakarta.servlet-api;bundle-version="6.0.0";visibility:=reexport,
  org.openntf.xsp.nosql;bundle-version="3.0.0";visibility:=reexport
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-DynamicImport-Package: org.jboss.weld.*,org.hibernate.*,org.eclipse.persistence.jaxb
+DynamicImport-Package: *

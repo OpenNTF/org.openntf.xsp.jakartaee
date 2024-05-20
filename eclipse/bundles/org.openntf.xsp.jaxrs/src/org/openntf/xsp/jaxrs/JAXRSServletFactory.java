@@ -49,10 +49,6 @@ import jakarta.ws.rs.ext.RuntimeDelegate;
 public class JAXRSServletFactory implements IServletFactory {
 	public static final String SERVLET_PATH_DEFAULT = "app"; //$NON-NLS-1$
 	public static final String PROP_SERVLET_PATH = "org.openntf.xsp.jaxrs.path"; //$NON-NLS-1$
-	
-	private static final String ATTR_PATH = JAXRSServletFactory.class.getName()+"_path"; //$NON-NLS-1$
-	private static final String ATTR_REFRESH = JAXRSServletFactory.class.getName()+"_refresh"; //$NON-NLS-1$
-	
 	/**
 	 * Determines the effective base servlet path for the provided module.
 	 * 
@@ -60,15 +56,6 @@ public class JAXRSServletFactory implements IServletFactory {
 	 * @return the base servlet path for JAX-RS, e.g. {@code "/xsp/.jaxrs/"}
 	 */
 	public static String getServletPath(ComponentModule module) {
-		Map<String, Object> attrs = module.getAttributes();
-
-		// Module attributes aren't reset on app refresh, so check here
-		Object refresh = attrs.get(ATTR_REFRESH);
-		if(refresh == null || (Long)refresh < module.getLastRefresh()) {
-			attrs.remove(ATTR_PATH);
-		}
-		attrs.put(ATTR_REFRESH, module.getLastRefresh());
-		
 		Properties props = LibraryUtil.getXspProperties(module);
 		String path = props.getProperty(PROP_SERVLET_PATH);
 		if(StringUtil.isEmpty(path)) {
