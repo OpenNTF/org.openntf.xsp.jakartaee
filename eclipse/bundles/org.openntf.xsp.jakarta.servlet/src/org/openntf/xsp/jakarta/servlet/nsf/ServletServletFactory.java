@@ -17,8 +17,8 @@ package org.openntf.xsp.jakarta.servlet.nsf;
 
 import java.io.UncheckedIOException;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,24 +26,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletException;
-
-import jakarta.enterprise.inject.spi.CDI;
-import jakarta.servlet.Servlet;
-import jakarta.servlet.annotation.WebInitParam;
-import jakarta.servlet.annotation.WebServlet;
-
-import org.apache.tomcat.util.descriptor.web.ServletDef;
-import org.apache.tomcat.util.descriptor.web.WebXml;
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jakartaee.util.ModuleUtil;
-
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
+
+import org.apache.tomcat.util.descriptor.web.ServletDef;
+import org.apache.tomcat.util.descriptor.web.WebXml;
+import org.openntf.xsp.jakarta.cdi.util.DiscoveryUtil;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
+
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.annotation.WebServlet;
 
 /**
  * Provides support for Servlet classes inside an NSF annotated with {@link WebServlet}.
@@ -151,17 +150,17 @@ public class ServletServletFactory implements IServletFactory {
 		return this.servlets.computeIfAbsent(c, key -> {
 			try {
 				Servlet delegate;
-				if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, this.module)) {
+				if(Arrays.stream(c.getAnnotations()).anyMatch(DiscoveryUtil::isBeanDefining)) {
 					delegate = CDI.current().select(c).get();
 				} else {
-					delegate = c.newInstance();
+					delegate = c.getConstructor().newInstance();
 				}
 				Servlet wrapper = new XspServletWrapper(module, delegate);
 				
 				Map<String, String> params = mapping.def.getParameterMap();
 				
 				return module.createServlet(ServletUtil.newToOld(wrapper), mapping.def.getServletName(), params);
-			} catch (InstantiationException | IllegalAccessException | ServletException e) {
+			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		});

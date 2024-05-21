@@ -23,5 +23,6 @@ Import-Package: com.ibm.commons.util,
  org.apache.tomcat.util.descriptor.web;version="9.0.84",
  org.openntf.xsp.jakarta.cdi;version="2.5.0",
  org.openntf.xsp.jakarta.cdi.bean;version="[2.16.0,3.0.0]",
+ org.openntf.xsp.jakarta.cdi.util;version="[3.0.0,4.0.0)",
  org.osgi.framework;version="1.8.0"
 Export-Package: org.openntf.xsp.jakarta.servlet.webapp;version="3.0.0"

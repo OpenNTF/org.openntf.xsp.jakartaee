@@ -252,7 +252,7 @@ public enum DiscoveryUtil {
 	}
 	
 	// https://jakarta.ee/specifications/cdi/4.0/jakarta-cdi-spec-4.0.html#bean_defining_annotations
-	private static boolean isBeanDefining(Annotation a) {
+	public static boolean isBeanDefining(Annotation a) {
 		Class<?> type = a.annotationType();
 		return BEAN_DEFINING.computeIfAbsent(type, t -> {
 			if(ApplicationScoped.class.equals(t)) {
