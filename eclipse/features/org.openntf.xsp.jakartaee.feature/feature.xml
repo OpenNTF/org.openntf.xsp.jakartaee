@@ -18,7 +18,7 @@
 -->
 <feature
       id="org.openntf.xsp.jakartaee.feature"
-      label="XPages Jakarta EE Platform Feature"
+      label="XPages Jakarta EE Core Feature"
       version="3.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -275,8 +275,6 @@
 	<plugin id="jakarta.json.bind-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.eclipse.parsson.jakarta.json" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jsonapi" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.jsonapi.jaxrs" version="0.0.0" fragment="true" unpack="false"/>
-	<plugin id="org.openntf.xsp.jsonapi.cdi" version="0.0.0" unpack="false"/>
 	<plugin id="yasson" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.json-p-provider" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.json-binding-provider" version="0.0.0" unpack="false"/>
@@ -322,9 +320,7 @@
 	<!-- JAX-RS -->
 	<plugin id="org.openntf.xsp.jaxrs" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jaxrs.factory" version="0.0.0" fragment="true" unpack="false"/>
-	<plugin id="org.openntf.xsp.jaxrs.providers" version="0.0.0" fragment="true" unpack="false"/>
-	<plugin id="org.openntf.xsp.microprofile.openapi" version="0.0.0" fragment="true" unpack="false"/>
-
+	
 	<plugin id="jakarta.ws.rs-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.core" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.core-spi" version="0.0.0" fragment="true" unpack="false"/>
@@ -373,4 +369,5 @@
 	<plugin id="org.openntf.org.jboss.logging.jboss-logging" version="0.0.0" unpack="false"/>
 	<plugin id="javassist" version="0.0.0" unpack="false"/>
 
+	<plugin id="org.openntf.xsp.jakartaee.core.library" version="0.0.0" unpack="false"/>
 </feature>

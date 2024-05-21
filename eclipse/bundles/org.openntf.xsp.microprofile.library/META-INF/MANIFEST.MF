@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MicroProfile XPages Library
+Bundle-SymbolicName: org.openntf.xsp.microprofile.library;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.microprofile.library
+Bundle-Version: 3.0.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: com.ibm.xsp.library,
+ org.openntf.xsp.jakartaee.util;version="[3.0.0,4.0.0]",
+ org.osgi.framework;version="[1.8.0,2.0.0]"
+Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.xsp.microprofile.config;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.xsp.microprofile.fault.tolerance;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.xsp.microprofile.health;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.xsp.microprofile.metrics;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.xsp.microprofile.rest.client;bundle-version="3.0.0";visibility:=reexport

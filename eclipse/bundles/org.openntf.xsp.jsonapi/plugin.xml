@@ -18,8 +18,7 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-	<!-- The Xsp Library -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.jsonapi.JSONLibrary" />
+		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.jsonapi.cdi.JsonbBeanContributor" />
 	</extension>
 </plugin>

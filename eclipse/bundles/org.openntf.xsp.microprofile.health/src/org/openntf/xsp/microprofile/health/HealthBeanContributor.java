@@ -37,7 +37,7 @@ public class HealthBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		if(LibraryUtil.isLibraryActive(HealthLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			// Look for annotated beans in io.smallrye.health
 			Bundle bundle = FrameworkUtil.getBundle(ResponseProvider.class);
 			try {

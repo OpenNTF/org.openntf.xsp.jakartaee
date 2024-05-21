@@ -17,7 +17,6 @@ package org.openntf.xsp.mvc.impl;
 
 import org.eclipse.krazo.bootstrap.CoreFeature;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.mvc.MvcLibrary;
 
 import jakarta.ws.rs.ConstrainedTo;
 import jakarta.ws.rs.RuntimeType;
@@ -30,7 +29,7 @@ public class CoreFeatureWrapper extends CoreFeature {
 
 	@Override
 	public boolean configure(FeatureContext context) {
-		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			return super.configure(context);
 		}
 		return false;

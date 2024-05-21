@@ -18,11 +18,6 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-	<!-- The Xsp Library -->
-	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.jaxrs.JAXRSLibrary" />
-	</extension>
-	
 	<!-- The RESTEasy servlet factory -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jaxrs.JAXRSServletFactory" />
@@ -55,4 +50,9 @@
  	<extension point="com.ibm.commons.Extension">
  		<service type="org.openntf.xsp.jaxrs.ServiceParticipant" class="org.openntf.xsp.jaxrs.cdi.CDIServiceParticipant"/>
  	</extension>
+ 	
+	<!-- JSON-B support -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.jaxrs.json.JsonbRestContributor" />
+	</extension>
 </plugin>

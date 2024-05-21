@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 import org.openntf.xsp.microprofile.metrics.jaxrs.MetricsResource;
@@ -31,7 +30,7 @@ public class MetricsResourceContributor implements JAXRSClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {
-		if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			if(!"false".equals(LibraryUtil.getApplicationProperty(PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				return Arrays.asList(
 					JaxRsMetricsFilter.class,

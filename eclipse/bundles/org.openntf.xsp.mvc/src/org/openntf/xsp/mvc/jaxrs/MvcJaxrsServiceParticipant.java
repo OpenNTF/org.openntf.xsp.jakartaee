@@ -27,7 +27,6 @@ import java.util.List;
 import org.eclipse.krazo.bootstrap.DefaultConfigProvider;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jaxrs.ServiceParticipant;
-import org.openntf.xsp.mvc.MvcLibrary;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
@@ -48,7 +47,7 @@ public class MvcJaxrsServiceParticipant implements ServiceParticipant {
 	@Override
 	public void doBeforeService(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			// Set a ClassLoader so that Krazo's ServiceLoader use can find these services
 			ClassLoader current = Thread.currentThread().getContextClassLoader();
 			request.setAttribute(PROP_CLASSLOADER, current);
@@ -59,7 +58,7 @@ public class MvcJaxrsServiceParticipant implements ServiceParticipant {
 	@Override
 	public void doAfterService(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		if(LibraryUtil.isLibraryActive(MvcLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			ClassLoader cl = (ClassLoader)request.getAttribute(PROP_CLASSLOADER);
 			Thread.currentThread().setContextClassLoader(cl);
 		}

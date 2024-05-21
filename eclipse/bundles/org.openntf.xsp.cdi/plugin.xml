@@ -18,11 +18,6 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-	<!-- The Xsp Library -->
-	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.cdi.CDILibrary" />
-	</extension>
-	
 	<!-- The ApplicationListener to manage the CDI context -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.core.events.ApplicationListener" class="org.openntf.xsp.cdi.impl.WeldApplicationListener" />

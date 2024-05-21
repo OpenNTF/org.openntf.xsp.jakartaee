@@ -37,7 +37,7 @@ public class RestClientCDIContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		if(LibraryUtil.isLibraryActive(RestClientLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			return Collections.singleton(new RestClientExtension());
 		} else {
 			return Collections.emptyList();

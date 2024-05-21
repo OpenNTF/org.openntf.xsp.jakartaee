@@ -16,7 +16,6 @@
 package org.openntf.xsp.cdi.impl;
 
 import org.jboss.weld.environment.se.WeldContainer;
-import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -39,7 +38,7 @@ public class WeldApplicationListener implements ApplicationListener2 {
 
 	@Override
 	public void applicationDestroyed(ApplicationEx application) {
-		if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, application)) {
+		if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, application)) {
 			ComponentModuleLocator.getDefault()
 				.map(ComponentModuleLocator::getActiveModule)
 				.map(ContainerUtil::getContainerUnchecked)

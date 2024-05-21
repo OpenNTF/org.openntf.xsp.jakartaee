@@ -289,4 +289,7 @@
 	<plugin id="io.prometheus.simpleclient_tracer_otel_agent" version="0.0.0" unpack="false"/>
 	<plugin id="org.hdrhistogram.HdrHistogram" version="0.0.0" unpack="false"/>
 
+	<plugin id="org.openntf.xsp.microprofile.openapi" version="0.0.0" fragment="true" unpack="false"/>
+
+	<plugin id="org.openntf.xsp.microprofile.library" version="0.0.0" unpack="false"/>
 </feature>

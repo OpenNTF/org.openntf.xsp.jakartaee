@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jakarta EE UI XPages Library
+Bundle-SymbolicName: org.openntf.xsp.jakartaee.ui.library;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.jakartaee.ui.library
+Bundle-Version: 3.0.0.qualifier
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: com.ibm.xsp.library,
+ org.openntf.xsp.jakartaee.util;version="[3.0.0,4.0.0]",
+ org.osgi.framework;version="[1.8.0,2.0.0]"
+Require-Bundle: org.openntf.xsp.jsp;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.org.apache.myfaces.core.api;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.org.apache.myfaces.core.impl;bundle-version="3.0.0",
+ org.openntf.xsp.jsf;bundle-version="3.0.0";visibility:=reexport,
+ jakarta.validation.jakarta.validation-api;bundle-version="3.0.0";visibility:=reexport,
+ org.hibernate.validator;bundle-version="8.0.0",
+ org.openntf.xsp.mvc;bundle-version="3.0.0";visibility:=reexport

@@ -16,7 +16,6 @@
 package org.openntf.xsp.cdi.concurrency;
 
 import org.glassfish.enterprise.concurrent.spi.ContextHandle;
-import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.context.RequestScopeContext;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
@@ -38,7 +37,7 @@ public class CDIContextSetupParticipant implements ContextSetupParticipant {
 	@Override
 	public void saveContext(ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
-			if(LibraryUtil.isLibraryActive(CDILibrary.LIBRARY_ID)) {
+			if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
 				((AttributedContextHandle)contextHandle).setAttribute(ATTR_CDI, CDI.current());
 			}
 		}

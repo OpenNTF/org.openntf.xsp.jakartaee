@@ -94,6 +94,7 @@ public class NSFJAXRSApplication extends Application {
 				ModuleUtil.getClasses(module)
 					.filter(this::isJAXRSClass)
 					.forEach(result::add);
+				
 				return result;
 			})
 			.orElseGet(Collections::emptySet);

@@ -49,7 +49,6 @@ import org.jboss.weld.resources.spi.ResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoadingException;
 import org.jboss.weld.serialization.spi.ProxyServices;
 import org.jboss.weld.util.ForwardingBeanManager;
-import org.openntf.xsp.cdi.CDILibrary;
 import org.openntf.xsp.cdi.context.CDIScopesExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -89,14 +88,14 @@ public enum ContainerUtil {
 	 * {@link #getContainer(Bundle)}.
 	 * @since 1.1.0
 	 */
-	public static final String PROP_CDIBUNDLE = CDILibrary.LIBRARY_ID + ".cdibundle"; //$NON-NLS-1$
+	public static final String PROP_CDIBUNDLE = "org.openntf.xsp.cdi.cdibundle"; //$NON-NLS-1$
 	/**
 	 * The xsp.properties key used to determine an OSGi bundle to use as a baseline for CDI
 	 * beans for an NSF. When this is set, CDI will pull all classes and resources from the named
 	 * OSGi bundle, but will use a separate CDI container for each NSF.
 	 * @since 1.2.0
 	 */
-	public static final String PROP_CDIBUNDLEBASE = CDILibrary.LIBRARY_ID + ".cdibundlebase"; //$NON-NLS-1$
+	public static final String PROP_CDIBUNDLEBASE = "org.openntf.xsp.cdi.cdibundlebase"; //$NON-NLS-1$
 	
 	/**
 	 * Keeps track of CDI container IDs mapped to module refresh times. This allows for calls to
@@ -114,7 +113,7 @@ public enum ContainerUtil {
 	//   the same init, and thus it would be preferable to find a better solution
 	private static final Map<String, Object> CONTAINER_INIT_LOCKS = new ConcurrentHashMap<>();
 	
-	private static final String ATTR_CONTEXTCONTAINER = CDILibrary.LIBRARY_ID + ".cdicontainer"; //$NON-NLS-1$
+	private static final String ATTR_CONTEXTCONTAINER = "org.openntf.xsp.cdi.cdicontainer"; //$NON-NLS-1$
 	
 	private static final Logger log = Logger.getLogger(ContainerUtil.class.getPackage().getName());
 	
@@ -262,7 +261,7 @@ public enum ContainerUtil {
 		}
 		
 		
-		if(module instanceof AbstractOSGIModule || LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, module)) {
+		if(module instanceof AbstractOSGIModule || LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module)) {
 			String bundleId = getApplicationCDIBundle(module);
 			if(StringUtil.isNotEmpty(bundleId)) {
 				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);

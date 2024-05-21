@@ -34,7 +34,7 @@ import javax.servlet.ServletException;
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jsp.JspLibrary;
+
 import org.openntf.xsp.jsp.util.DominoJspUtil;
 
 import com.ibm.commons.util.StringUtil;
@@ -57,7 +57,7 @@ public class JspServletFactory extends MappingBasedServletFactory {
 	
 	@Override
 	public String getLibraryId() {
-		return JspLibrary.LIBRARY_ID;
+		return LibraryUtil.LIBRARY_UI;
 	}
 	
 	@Override

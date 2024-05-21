@@ -43,7 +43,7 @@ public class TestConfig extends AbstractWebClientTest {
 		String json = response.readEntity(String.class);
 		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 		assertFalse(jsonObject.getString("java.version").isEmpty(), () -> json);
-		assertTrue(jsonObject.getString("xsp.library.depends").startsWith("org.openntf.xsp.el"), () -> json);
+		assertTrue(jsonObject.getString("xsp.library.depends").startsWith("org.openntf.xsp.jakartaee.core"), () -> json);
 		assertEquals("/local/notesdata", jsonObject.getString("Directory"));
 		assertEquals("foo", jsonObject.getString("mpconfig.example.setting"));
 	}

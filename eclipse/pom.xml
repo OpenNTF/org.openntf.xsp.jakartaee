@@ -52,18 +52,15 @@
 		<!-- Expression Language -->
 		<module>bundles/org.openntf.xsp.el</module>
 		
-		<!-- RESTful Web Services -->
-		<module>bundles/org.openntf.xsp.jaxrs</module>
-		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
-		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
-		
 		<!-- Bean Validation 3.0 -->
 		<module>bundles/org.openntf.xsp.beanvalidation</module>
 		
 		<!-- JSON Processing and Binding -->
 		<module>bundles/org.openntf.xsp.jsonapi</module>
-		<module>bundles/org.openntf.xsp.jsonapi.jaxrs</module>
-		<module>bundles/org.openntf.xsp.jsonapi.cdi</module>
+		
+		<!-- Jakarta REST -->
+		<module>bundles/org.openntf.xsp.jaxrs</module>
+		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
 	
 		<!-- NoSQL -->
 		<module>bundles/org.openntf.xsp.nosql.driver</module>
@@ -85,6 +82,11 @@
 		<module>bundles/org.openntf.xsp.microprofile.health</module>
 		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
 		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
+		
+ 		<!-- XPages libraries -->
+ 		<module>bundles/org.openntf.xsp.jakartaee.core.library</module>
+ 		<module>bundles/org.openntf.xsp.jakartaee.ui.library</module>
+ 		<module>bundles/org.openntf.xsp.microprofile.library</module>
 		
 		<!-- Integration test support and examples -->
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
