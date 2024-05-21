@@ -3,6 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Jakarta EE Core XPages Library
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.core.library;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.core.library
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.openntf.xsp.jakartaee.core.library.JakartaCoreActivator
 Bundle-Version: 3.0.0.qualifier
 Import-Package: com.ibm.xsp.library,
  org.openntf.xsp.jakartaee.util;version="[3.0.0,4.0.0]",

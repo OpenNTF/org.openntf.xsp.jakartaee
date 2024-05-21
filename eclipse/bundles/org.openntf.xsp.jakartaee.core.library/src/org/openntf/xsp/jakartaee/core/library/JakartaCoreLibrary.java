@@ -30,4 +30,10 @@ public class JakartaCoreLibrary extends AbstractXspLibrary {
 		return false;
 	}
 
+	@Override
+	public String[] getFacesConfigFiles() {
+		return new String[] {
+			"/cdi-jsf.xml" //$NON-NLS-1$
+		};
+	}
 }

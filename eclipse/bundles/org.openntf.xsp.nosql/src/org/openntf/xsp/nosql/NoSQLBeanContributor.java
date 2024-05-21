@@ -32,7 +32,6 @@ import org.eclipse.jnosql.mapping.validation.MappingValidator;
 import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
 import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
 import org.openntf.xsp.cdi.util.DiscoveryUtil;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.nosql.bean.ContextDatabaseSupplier;
 import org.openntf.xsp.nosql.bean.ContextDocumentCollectionManagerProducer;
 import org.openntf.xsp.nosql.mapping.extension.DominoReflections;
@@ -51,35 +50,31 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
-			List<Class<?>> result = new ArrayList<>();
-			Stream.of(DatabaseQualifier.class, DocumentTemplate.class, EntityConverter.class, ConstructorException.class, MappingValidator.class)
-				.map(FrameworkUtil::getBundle)
-				.flatMap(t -> {
-					try {
-						return DiscoveryUtil.findBeanClasses(t, false);
-					} catch (BundleException e) {
-						throw new RuntimeException(e);
-					}
-				})
-				// Remove the built-in DocumentManagerSupplier, as we use an app-contextual one
-				// TODO see if using the built-in one could work if we supply configuration
-				.filter(c -> !"org.eclipse.jnosql.mapping.document.configuration.DocumentManagerSupplier".equals(c.getName())) //$NON-NLS-1$
-				.forEach(result::add);
-			
-			result.add(ContextDocumentCollectionManagerProducer.class);
-			result.add(ContextDatabaseSupplier.class);
-			
-			result.add(DefaultDominoTemplate.class);
-			result.add(DominoReflections.class);
-			
-			result.add(Converters.class);
-			result.add(EntityMetadataExtension.class);
-			
-			return result;
-		} else {
-			return Collections.emptySet();
-		}
+		List<Class<?>> result = new ArrayList<>();
+		Stream.of(DatabaseQualifier.class, DocumentTemplate.class, EntityConverter.class, ConstructorException.class, MappingValidator.class)
+			.map(FrameworkUtil::getBundle)
+			.flatMap(t -> {
+				try {
+					return DiscoveryUtil.findBeanClasses(t, false);
+				} catch (BundleException e) {
+					throw new RuntimeException(e);
+				}
+			})
+			// Remove the built-in DocumentManagerSupplier, as we use an app-contextual one
+			// TODO see if using the built-in one could work if we supply configuration
+			.filter(c -> !"org.eclipse.jnosql.mapping.document.configuration.DocumentManagerSupplier".equals(c.getName())) //$NON-NLS-1$
+			.forEach(result::add);
+		
+		result.add(ContextDocumentCollectionManagerProducer.class);
+		result.add(ContextDatabaseSupplier.class);
+		
+		result.add(DefaultDominoTemplate.class);
+		result.add(DominoReflections.class);
+		
+		result.add(Converters.class);
+		result.add(EntityMetadataExtension.class);
+		
+		return result;
 	}
 
 	@Override
@@ -89,16 +84,12 @@ public class NoSQLBeanContributor implements WeldBeanClassContributor {
 	
 	@Override
 	public Collection<Class<? extends Extension>> getExtensionClasses() {
-		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
-			return Arrays.asList(
-				EntityMetadataExtension.class,
-				DocumentExtension.class,
-				
-				DominoExtension.class
-			);
-		} else {
-			return Collections.emptySet();
-		}
+		return Arrays.asList(
+			EntityMetadataExtension.class,
+			DocumentExtension.class,
+			
+			DominoExtension.class
+		);
 	}
 
 }
