@@ -21,12 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -45,11 +49,25 @@ import jakarta.ws.rs.core.Response;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestJsf extends AbstractWebClientTest {
 	
+	public static class BrowserAndHelloProvider implements ArgumentsProvider {
+
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return new BrowserArgumentsProvider().provideArguments(context)
+				.map(arg -> arg.get()[0])
+				.flatMap(browser ->
+					Stream.of("/hello.xhtml", "/xsp/helloForExtensionless")
+						.map(page -> Arguments.of(browser, page))
+				);
+		}
+		
+	}
+	
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@ArgumentsSource(BrowserAndHelloProvider.class)
 	@Order(1)
-	public void testHelloPage(WebDriver driver) {
-		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/hello.xhtml");
+	public void testHelloPage(WebDriver driver, String page) {
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + page);
 		
 		try {
 			String expected = "inputValue" + System.currentTimeMillis();
