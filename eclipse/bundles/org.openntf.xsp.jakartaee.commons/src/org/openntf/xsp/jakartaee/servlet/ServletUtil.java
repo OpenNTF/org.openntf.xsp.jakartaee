@@ -480,8 +480,8 @@ public enum ServletUtil {
 	}
 	
 	/**
-	 * Processes init-param values from any WEB-INF/web.xml and META-INF/web-fragment.xml files
-	 * inside the module.
+	 * Processes context-param values from any WEB-INF/web.xml and META-INF/web-fragment.xml files
+	 * inside the module and sets them as init parameters for the context.
 	 * 
 	 * @param module the module to load resources from
 	 * @param context the context to populate with init parameters
@@ -489,9 +489,24 @@ public enum ServletUtil {
 	 */
 	public static void populateWebXmlParams(ComponentModule module, jakarta.servlet.ServletContext context) {
 		if(module != null) {
+			getWebXmlParams(module).forEach(context::setInitParameter);
+		}
+	}
+	
+	/**
+	 * Processes context-param values from any WEB-INF/web.xml and META-INF/web-fragment.xml files
+	 * inside the module and returns a {@link Map} of them.
+	 * 
+	 * @param module the module to load resources from
+	 * @return a {@link Map} of context parameters from the web descriptor
+	 * @since 3.0.0
+	 */
+	public static Map<String, String> getWebXmlParams(ComponentModule module) {
+		if(module != null) {
 			WebXml result = getWebXml(module);
-			// Now populate resolved params
-			result.getContextParams().forEach(context::setInitParameter);
+			return result.getContextParams();
+		} else {
+			return Collections.emptyMap();
 		}
 	}
 	

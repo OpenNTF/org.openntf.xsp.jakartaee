@@ -31,6 +31,11 @@
     	<param-value>/WEB-INF/exampleFacelets.taglib.xml</param-value>
     </context-param>
     
+	<context-param>
+    	<param-name>jakarta.faces.AUTOMATIC_EXTENSIONLESS_MAPPING</param-name>
+    	<param-value>true</param-value>
+    </context-param>
+    
     <servlet>
     	<servlet-name>webxml-servlet</servlet-name>
     	<servlet-class>servlet.WebXmlServlet</servlet-class>

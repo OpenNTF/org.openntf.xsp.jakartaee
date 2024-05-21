@@ -45,6 +45,7 @@ import org.openntf.xsp.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
@@ -62,7 +63,25 @@ import jakarta.faces.webapp.FacesServlet;
  * @since 2.4.0
  */
 public class JsfServletFactory extends MappingBasedServletFactory {
-	public JsfServletFactory() {
+	
+	@Override
+	public void init(ComponentModule module) {
+		super.init(module);
+		
+		Map<String, String> contextParams = ServletUtil.getWebXmlParams(module);
+		if("true".equalsIgnoreCase(contextParams.get(FacesServlet.AUTOMATIC_EXTENSIONLESS_MAPPING_PARAM_NAME))) { //$NON-NLS-1$
+			// If so, look for .xhtml and .jsf files and push them to known extensions
+			Set<String> exts = getExtensions();
+			ModuleUtil.listFiles(module, null)
+				.filter(f -> !f.startsWith("WEB-INF/")) //$NON-NLS-1$
+				.forEach(f -> {
+					for(String ext : exts) {
+						if(f.endsWith(ext)) {
+							this.addExplicitEndpoint("/xsp/" + f.substring(0, f.length()-ext.length()), '/' + f); //$NON-NLS-1$
+						}
+					}
+				});
+		}
 	}
 	
 	@Override
@@ -72,7 +91,7 @@ public class JsfServletFactory extends MappingBasedServletFactory {
 	
 	@Override
 	public Set<String> getExtensions() {
-		return new HashSet<>(Arrays.asList(".xhtml", ".jsf")); //$NON-NLS-1$ //$NON-NLS-2$
+		return new HashSet<>(Arrays.asList(".xhtml", ".jsf", ".faces")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	@Override

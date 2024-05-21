@@ -38,7 +38,7 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 	private static final Map<String, Map<String, Servlet>> MODULE_SERVLETS = new ConcurrentHashMap<>();
 	private ComponentModule module;
 	private long lastUpdate;
-	
+	private Map<String, String> explicitEndpoints = new ConcurrentHashMap<>();
 	
 	public MappingBasedServletFactory() {
 	}
@@ -50,6 +50,21 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 	
 	public ComponentModule getModule() {
 		return module;
+	}
+	
+	/**
+	 * Adds an additional endpoint that should be mapped to this
+	 * factory, beyond the normal mapping based on file extension.
+	 * 
+	 * @param endpoint the endpoint to add, e.g. {@code "/xsp/foo"}
+	 * @param pathName the translated path to the actual file, e.g.
+	 *        {@code "/foo.xhtml"}
+	 * @since 3.0.0
+	 */
+	public void addExplicitEndpoint(String endpoint, String pathName) {
+		if(StringUtil.isNotEmpty(endpoint)) {
+			explicitEndpoints.put(endpoint, pathName);
+		}
 	}
 	
 	/**
@@ -91,6 +106,14 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 		try {
 			String lib = getLibraryId();
 			if(StringUtil.isEmpty(lib) || LibraryUtil.usesLibrary(lib, module)) {
+				for(Map.Entry<String, String> mapping : this.explicitEndpoints.entrySet()) {
+					if(path.equals(mapping.getKey()) || path.startsWith(mapping.getKey()+'/')) {
+						String servletPath = mapping.getValue();
+						String pathInfo = path.substring(mapping.getKey().length());
+						return new ServletMatch(getExecutorServlet(), servletPath, pathInfo);
+					}
+				}
+				
 				for(String ext : getExtensions()) {
 					int extIndex = StringUtil.toString(path).indexOf(ext);
 					if (extIndex > -1) {
