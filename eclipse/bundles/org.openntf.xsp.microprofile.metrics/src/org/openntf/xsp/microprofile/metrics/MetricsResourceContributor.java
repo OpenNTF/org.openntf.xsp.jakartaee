@@ -30,7 +30,7 @@ public class MetricsResourceContributor implements JAXRSClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {
-		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			if(!"false".equals(LibraryUtil.getApplicationProperty(PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				return Arrays.asList(
 					JaxRsMetricsFilter.class,
