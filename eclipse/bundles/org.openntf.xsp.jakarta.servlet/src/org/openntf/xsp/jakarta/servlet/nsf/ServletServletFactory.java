@@ -150,7 +150,7 @@ public class ServletServletFactory implements IServletFactory {
 		return this.servlets.computeIfAbsent(c, key -> {
 			try {
 				Servlet delegate;
-				if(Arrays.stream(c.getAnnotations()).anyMatch(DiscoveryUtil::isBeanDefining)) {
+				if(Arrays.stream(c.getAnnotations()).anyMatch(DiscoveryUtil::isBeanDefining) || c.isAnnotationPresent(WebServlet.class)) {
 					delegate = CDI.current().select(c).get();
 				} else {
 					delegate = c.getConstructor().newInstance();

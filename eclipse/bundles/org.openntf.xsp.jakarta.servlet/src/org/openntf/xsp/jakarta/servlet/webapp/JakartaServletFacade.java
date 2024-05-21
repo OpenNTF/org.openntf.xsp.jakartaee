@@ -27,6 +27,7 @@ import com.ibm.commons.util.StringUtil;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -59,7 +60,7 @@ public class JakartaServletFacade extends javax.servlet.http.HttpServlet {
 		try {
 			@SuppressWarnings("unchecked")
 			Class<? extends Servlet> delegateClass = (Class<? extends Servlet>) Class.forName(className, true, Thread.currentThread().getContextClassLoader());
-			if(Arrays.stream(delegateClass.getAnnotations()).anyMatch(DiscoveryUtil::isBeanDefining)) {
+			if(Arrays.stream(delegateClass.getAnnotations()).anyMatch(DiscoveryUtil::isBeanDefining) || delegateClass.isAnnotationPresent(WebServlet.class)) {
 				this.delegate = CDI.current().select(delegateClass).get();
 			} else {
 				this.delegate = delegateClass.getConstructor().newInstance();
