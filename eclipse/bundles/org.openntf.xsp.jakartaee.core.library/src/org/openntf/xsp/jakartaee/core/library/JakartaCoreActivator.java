@@ -1,6 +1,6 @@
 package org.openntf.xsp.jakartaee.core.library;
 
-import org.openntf.xsp.cdi.CDIActivator;
+import org.openntf.xsp.jakarta.cdi.CDIActivator;
 import org.openntf.xsp.jakarta.concurrency.ConcurrencyActivator;
 import org.openntf.xsp.jakarta.persistence.PersistenceActivator;
 import org.osgi.framework.BundleActivator;

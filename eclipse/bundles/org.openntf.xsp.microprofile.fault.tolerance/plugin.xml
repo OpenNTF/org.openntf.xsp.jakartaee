@@ -19,6 +19,6 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.microprofile.fault.tolerance.FaultToleranceCDIContributor" />
+		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.microprofile.fault.tolerance.FaultToleranceCDIContributor" />
 	</extension>
 </plugin>

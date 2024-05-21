@@ -39,7 +39,7 @@ Import-Package: com.ibm.commons.util,
  org.jboss.weld.manager.api,
  org.jboss.weld.proxy,
  org.jboss.weld.util,
- org.openntf.xsp.cdi.util;version="3.0.0",
+ org.openntf.xsp.jakarta.cdi.util;version="3.0.0",
  org.openntf.xsp.jakartaee.servlet;version="2.4.0",
  org.osgi.framework;version="1.8.0"
 DynamicImport-Package: *

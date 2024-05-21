@@ -20,9 +20,9 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
-import org.openntf.xsp.nosql.communication.driver.DominoConstants;
-import org.openntf.xsp.nosql.mapping.extension.EntryType;
-import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
+import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.EntryType;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemStorage;
 
 import java.time.Instant;
 

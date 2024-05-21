@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: XPages Bean Validation 2.0 Support
+Bundle-Name: XPages Jakarta Validation Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.validation;singleton:=true
-Automatic-Module-Name: org.openntf.xsp.beanvalidation
+Automatic-Module-Name: org.openntf.xsp.jakarta.validation
 Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
@@ -17,5 +17,5 @@ Import-Package: com.ibm.xsp.designer.context,
  jakarta.enterprise.inject;version="3.0.0",
  jakarta.enterprise.inject.spi;version="3.0.0",
  javax.faces.context,
- org.openntf.xsp.cdi.discovery;version="2.3.0",
+ org.openntf.xsp.jakarta.cdi.discovery;version="2.3.0",
  org.osgi.framework;version="1.8.0"

@@ -21,7 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.openntf.xsp.jsonapi.JSONBindUtil;
+import org.openntf.xsp.jakarta.json.JSONBindUtil;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;

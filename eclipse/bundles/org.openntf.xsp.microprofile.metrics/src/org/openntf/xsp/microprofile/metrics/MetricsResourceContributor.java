@@ -19,13 +19,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.openntf.xsp.jakarta.rest.RestClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 import org.openntf.xsp.microprofile.metrics.jaxrs.MetricsResource;
 
 import io.smallrye.metrics.jaxrs.JaxRsMetricsFilter;
 
-public class MetricsResourceContributor implements JAXRSClassContributor {
+public class MetricsResourceContributor implements RestClassContributor {
 	public static final String PROP_ENABLED = "rest.mpmetrics.enable"; //$NON-NLS-1$
 
 	@Override

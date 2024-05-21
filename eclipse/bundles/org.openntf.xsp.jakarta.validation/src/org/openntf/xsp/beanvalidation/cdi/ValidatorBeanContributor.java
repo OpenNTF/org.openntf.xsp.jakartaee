@@ -18,9 +18,9 @@ package org.openntf.xsp.beanvalidation.cdi;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
+import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 
-public class ValidatorBeanContributor implements WeldBeanClassContributor {
+public class ValidatorBeanContributor implements CDIClassContributor {
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
 		return Collections.singleton(ValidatorBean.class);

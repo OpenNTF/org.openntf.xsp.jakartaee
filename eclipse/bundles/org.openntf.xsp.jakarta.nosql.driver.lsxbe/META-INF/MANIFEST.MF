@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta NoSQL Driver LSXBE Implementation
 Bundle-SymbolicName: org.openntf.xsp.jakarta.nosql.driver.lsxbe;singleton:=true
-Automatic-Module-Name: org.openntf.xsp.nosql.driver.lsxbe
+Automatic-Module-Name: org.openntf.xsp.jakarta.nosql.driver.lsxbe
 Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
@@ -28,9 +28,9 @@ Import-Package: com.ibm.commons.util,
  org.eclipse.jnosql.mapping.reflection,
  org.eclipse.jnosql.mapping.semistructured,
  org.omg.CORBA;resolution:=optional,
- org.openntf.xsp.nosql.communication.driver;version="2.6.0",
- org.openntf.xsp.nosql.communication.driver.impl;version="2.6.0",
- org.openntf.xsp.nosql.mapping.extension;version="2.6.0",
- org.openntf.xsp.nosql.mapping.extension.impl;version="2.8.0"
-Export-Package: org.openntf.xsp.nosql.communication.driver.lsxbe;version="3.0.0",
- org.openntf.xsp.nosql.communication.driver.lsxbe.impl;version="3.0.0"
+ org.openntf.xsp.jakarta.nosql.communication.driver;version="2.6.0",
+ org.openntf.xsp.jakarta.nosql.communication.driver.impl;version="2.6.0",
+ org.openntf.xsp.jakarta.nosql.mapping.extension;version="2.6.0",
+ org.openntf.xsp.jakarta.nosql.mapping.extension.impl;version="2.8.0"
+Export-Package: org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe;version="3.0.0",
+ org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl;version="3.0.0"

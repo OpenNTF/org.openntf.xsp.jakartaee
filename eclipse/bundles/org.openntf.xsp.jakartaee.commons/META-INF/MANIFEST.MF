@@ -15,7 +15,7 @@ Require-Bundle: com.ibm.pvc.servlet;bundle-version="2.5.0",
  jakarta.enterprise.concurrent-api;bundle-version="2.0.0";visibility:=reexport,
  net.fortuna.ical4j;bundle-version="1.0.0";resolution:=optional;visibility:=reexport
 Bundle-ClassPath: .
-Export-Package: org.openntf.xsp.cdi.ext;version="3.0.0",
+Export-Package: org.openntf.xsp.jakarta.cdi.ext;version="3.0.0",
  org.openntf.xsp.jakartaee;version="3.0.0",
  org.openntf.xsp.jakartaee.discovery;version="3.0.0",
  org.openntf.xsp.jakartaee.discovery.impl;version="3.0.0",

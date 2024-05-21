@@ -4,9 +4,9 @@
     <text>34567Cg~[</text>
   </item>
   <item name="$TITLE">
-    <text>META-INF/services/org.openntf.xsp.jaxrs.JAXRSClassContributor</text>
+    <text>META-INF/services/org.openntf.xsp.jakarta.rest.RestClassContributor</text>
   </item>
   <item name="$FileNames" sign="true">
-    <text>META-INF/services/org.openntf.xsp.jaxrs.JAXRSClassContributor</text>
+    <text>META-INF/services/org.openntf.xsp.jakarta.rest.RestClassContributor</text>
   </item>
 </note>

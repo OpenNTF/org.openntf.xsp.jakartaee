@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta JASAPI Bridge
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.bridge.jasapi;singleton:=true
-Automatic-Module-Name: org.openntf.xsp.jakarta.servlet
+Automatic-Module-Name: org.openntf.xsp.jakartaee.bridge.jasapi
 Bundle-Version: 3.0.0.qualifier
 Export-Package: org.openntf.xsp.jakartaee.bridge.jasapi
 Bundle-Vendor: OpenNTF

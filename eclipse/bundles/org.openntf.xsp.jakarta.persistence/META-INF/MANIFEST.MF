@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: XPages Jakarta Persistence (JPA) Support
+Bundle-Name: XPages Jakarta Persistence Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.persistence;singleton:=true
-Automatic-Module-Name: org.openntf.xsp.jakarta.transaction
+Automatic-Module-Name: org.openntf.xsp.jakarta.persistence
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakarta.persistence.PersistenceActivator
 Bundle-Version: 3.0.0.qualifier

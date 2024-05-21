@@ -19,11 +19,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import org.openntf.xsp.jaxrs.JAXRSClassContributor;
+import org.openntf.xsp.jakarta.rest.RestClassContributor;
 
 import jakarta.mvc.security.Csrf;
 
-public class ExampleClassContributor implements JAXRSClassContributor {
+public class ExampleClassContributor implements RestClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {

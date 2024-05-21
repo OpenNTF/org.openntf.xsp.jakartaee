@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XPages Runtime MVC Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.mvc;singleton:=true
-Automatic-Module-Name: org.openntf.xsp.mvc
+Automatic-Module-Name: org.openntf.xsp.jakarta.mvc
 Bundle-ActivationPolicy: lazy
-Bundle-Activator: org.openntf.xsp.mvc.MvcActivator
+Bundle-Activator: org.openntf.xsp.jakarta.mvc.MvcActivator
 Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17

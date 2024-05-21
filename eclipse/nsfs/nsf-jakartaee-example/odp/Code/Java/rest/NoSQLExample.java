@@ -35,10 +35,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
-import org.openntf.xsp.nosql.communication.driver.ByteArrayEntityAttachment;
-import org.openntf.xsp.nosql.communication.driver.ViewInfo;
-import org.openntf.xsp.nosql.mapping.extension.FTSearchOption;
-import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
+import org.openntf.xsp.jakarta.nosql.communication.driver.ByteArrayEntityAttachment;
+import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.FTSearchOption;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;

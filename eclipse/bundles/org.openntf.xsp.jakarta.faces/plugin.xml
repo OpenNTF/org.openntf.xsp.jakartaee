@@ -20,19 +20,19 @@
 <plugin>
 	<!-- Faux HTTP Service provider to add hooks for JSF handling to the environment -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jsf.JsfEarlyInitFactory"/>
+		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakarta.faces.JsfEarlyInitFactory"/>
 	</extension>
 	
 	<!-- Handle in-NSF JSF files -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jsf.nsf.JsfServletFactory" />
+		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jakarta.faces.nsf.FacesServletFactory" />
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.jsf.cdi.JsfCdiBeanContributor" />
+		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.jakarta.faces.cdi.JsfCdiBeanContributor" />
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="jakarta.servlet.ServletContextListener" class="org.openntf.xsp.jsf.JsfServletContextListener" />
+		<service type="jakarta.servlet.ServletContextListener" class="org.openntf.xsp.jakarta.faces.JsfServletContextListener" />
 	</extension>
 </plugin>

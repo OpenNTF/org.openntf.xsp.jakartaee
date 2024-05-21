@@ -20,6 +20,6 @@
 <plugin>
 	<!-- The ApplicationListener to install the EL3 binding factory -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.core.events.ApplicationListener" class="org.openntf.xsp.el.ELApplicationListener" />
+		<service type="com.ibm.xsp.core.events.ApplicationListener" class="org.openntf.xsp.jakarta.el.ELApplicationListener" />
 	</extension>
 </plugin>

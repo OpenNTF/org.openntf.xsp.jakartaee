@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.jakarta.example.webapp;
 
-import org.openntf.xsp.cdi.provider.DominoCDIProvider;
+import org.openntf.xsp.jakarta.cdi.provider.DominoCDIProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 

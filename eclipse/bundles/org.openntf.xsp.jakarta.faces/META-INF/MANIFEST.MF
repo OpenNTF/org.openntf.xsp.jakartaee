@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta Faces Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.faces;singleton:=true
-Automatic-Module-Name: org.openntf.xsp.jsp
+Automatic-Module-Name: org.openntf.xsp.jakarta.faces
 Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17

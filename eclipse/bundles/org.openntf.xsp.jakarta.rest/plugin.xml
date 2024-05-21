@@ -18,41 +18,41 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-	<!-- The RESTEasy servlet factory -->
+	<!-- The REST servlet factory -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jaxrs.JAXRSServletFactory" />
+		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jakarta.rest.RestServletFactory" />
 	</extension>
 	
 	<!-- Standard extension to provide security information -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.jaxrs.security.SecurityContributor" />
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.jakarta.rest.security.SecurityContributor" />
 	</extension>
 	
 	<!-- JSON-emitting exception mapper -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.jaxrs.exceptions.ExceptionMapperContributor" />
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.jakarta.rest.exceptions.ExceptionMapperContributor" />
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jaxrs.exceptions.handler.HtmlExceptionHandler" />
+		<service type="org.openntf.xsp.jakarta.rest.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jakarta.rest.exceptions.handler.HtmlExceptionHandler" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jaxrs.exceptions.handler.TextPlainExceptionHandler" />
+		<service type="org.openntf.xsp.jakarta.rest.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jakarta.rest.exceptions.handler.TextPlainExceptionHandler" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jaxrs.exceptions.handler.JsonExceptionHandler" />
+		<service type="org.openntf.xsp.jakarta.rest.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jakarta.rest.exceptions.handler.JsonExceptionHandler" />
 	</extension>
 	
 	<!-- CDI support -->
 	<extension point="com.ibm.commons.Extension">
- 		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.jaxrs.cdi.ResteasyBeanClassContributor"/>
+ 		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.jakarta.rest.cdi.ResteasyBeanClassContributor"/>
  	</extension>
  	<extension point="com.ibm.commons.Extension">
- 		<service type="org.openntf.xsp.jaxrs.ServiceParticipant" class="org.openntf.xsp.jaxrs.cdi.CDIServiceParticipant"/>
+ 		<service type="org.openntf.xsp.jakarta.rest.ServiceParticipant" class="org.openntf.xsp.jakarta.rest.cdi.CDIServiceParticipant"/>
  	</extension>
  	
 	<!-- JSON-B support -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.jaxrs.json.JsonbRestContributor" />
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.jakarta.rest.json.JsonbRestContributor" />
 	</extension>
 </plugin>

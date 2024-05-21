@@ -15,8 +15,8 @@
  */
 package bean;
 
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentManager;
-import org.openntf.xsp.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
+import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
+import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
 
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 

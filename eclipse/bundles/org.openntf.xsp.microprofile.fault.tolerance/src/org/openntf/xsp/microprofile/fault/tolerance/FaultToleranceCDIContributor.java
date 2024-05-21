@@ -18,14 +18,14 @@ package org.openntf.xsp.microprofile.fault.tolerance;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
+import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.microprofile.metrics.MetricsResourceContributor;
 
 import io.smallrye.faulttolerance.FaultToleranceExtension;
 import jakarta.enterprise.inject.spi.Extension;
 
-public class FaultToleranceCDIContributor implements WeldBeanClassContributor {
+public class FaultToleranceCDIContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {

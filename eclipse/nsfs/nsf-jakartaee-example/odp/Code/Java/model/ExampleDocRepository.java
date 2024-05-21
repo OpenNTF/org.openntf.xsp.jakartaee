@@ -17,8 +17,8 @@ package model;
 
 import java.util.stream.Stream;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
-import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewEntries;
 
 public interface ExampleDocRepository extends DominoRepository<ExampleDoc, String> {
 	String VIEW_DOCS = "Example Docs";

@@ -21,8 +21,8 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
 import org.junit.Test;
+import org.openntf.xsp.jakarta.json.JSONBindUtil;
 import org.openntf.xsp.jakartaee.test.ExampleBean;
-import org.openntf.xsp.jsonapi.JSONBindUtil;
 
 @SuppressWarnings("nls")
 public class TestJsonb {

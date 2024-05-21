@@ -18,10 +18,10 @@ package org.openntf.xsp.microprofile.health;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.openntf.xsp.jakarta.rest.RestClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jaxrs.JAXRSClassContributor;
 
-public class HealthResourceContributor implements JAXRSClassContributor {
+public class HealthResourceContributor implements RestClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {

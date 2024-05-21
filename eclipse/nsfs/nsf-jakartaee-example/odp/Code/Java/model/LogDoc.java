@@ -2,7 +2,7 @@ package model;
 
 import java.util.List;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
 
 import jakarta.nosql.Column;
 import jakarta.nosql.Entity;

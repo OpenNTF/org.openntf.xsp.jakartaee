@@ -17,7 +17,8 @@ package org.openntf.xsp.jakarta.servlet.nsf;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import org.openntf.xsp.cdi.bean.HttpContextBean;
+
+import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;

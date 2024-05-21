@@ -18,6 +18,6 @@
 -->
 <faces-config>
 	<application>
-		<variable-resolver>org.openntf.xsp.cdi.impl.CDIResolver</variable-resolver>
+		<variable-resolver>org.openntf.xsp.jakarta.cdi.impl.CDIResolver</variable-resolver>
 	</application>
 </faces-config>
