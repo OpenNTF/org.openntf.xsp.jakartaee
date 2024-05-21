@@ -45,35 +45,35 @@
 		<module>bundles/org.openntf.xsp.jakarta.servlet</module>
 		
 		<!-- CDI-->
-		<module>bundles/org.openntf.xsp.cdi</module>
-		<module>bundles/org.openntf.xsp.cdi.extlib</module>
+		<module>bundles/org.openntf.xsp.jakarta.cdi</module>
+		<module>bundles/org.openntf.xsp.jakarta.cdi.extlib</module>
 		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
 		
 		<!-- Expression Language -->
-		<module>bundles/org.openntf.xsp.el</module>
+		<module>bundles/org.openntf.xsp.jakarta.el</module>
 		
 		<!-- Bean Validation 3.0 -->
-		<module>bundles/org.openntf.xsp.beanvalidation</module>
+		<module>bundles/org.openntf.xsp.jakarta.validation</module>
 		
 		<!-- JSON Processing and Binding -->
-		<module>bundles/org.openntf.xsp.jsonapi</module>
+		<module>bundles/org.openntf.xsp.jakarta.json</module>
 		
 		<!-- Jakarta REST -->
-		<module>bundles/org.openntf.xsp.jaxrs</module>
-		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
+		<module>bundles/org.openntf.xsp.jakarta.rest</module>
+		<module>bundles/org.openntf.xsp.jakarta.rest.factory</module>
 	
 		<!-- NoSQL -->
-		<module>bundles/org.openntf.xsp.nosql.driver</module>
-		<module>bundles/org.openntf.xsp.nosql.driver.lsxbe</module>
-		<module>bundles/org.openntf.xsp.nosql</module>
+		<module>bundles/org.openntf.xsp.jakarta.nosql.driver</module>
+		<module>bundles/org.openntf.xsp.jakarta.nosql.driver.lsxbe</module>
+		<module>bundles/org.openntf.xsp.jakarta.nosql</module>
 		 
 		<!-- Persistence -->
  		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
  		
 		<!-- UI -->
- 		<module>bundles/org.openntf.xsp.jsp</module>
- 		<module>bundles/org.openntf.xsp.jsf</module>
- 		<module>bundles/org.openntf.xsp.mvc</module>
+ 		<module>bundles/org.openntf.xsp.jakarta.pages</module>
+ 		<module>bundles/org.openntf.xsp.jakarta.faces</module>
+ 		<module>bundles/org.openntf.xsp.jakarta.mvc</module>
 	
 		<!-- MicroProfile -->
 		<module>bundles/org.openntf.xsp.microprofile.config</module>

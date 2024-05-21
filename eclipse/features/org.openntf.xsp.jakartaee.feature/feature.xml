@@ -248,14 +248,14 @@
 	<!-- Expression Language -->
 	<plugin id="jakarta.el-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.glassfish.expressly" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.el" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.el" version="0.0.0" unpack="false"/>
 	
 	<!-- CDI, Interceptors, and Inject -->
 	<plugin id="org.openntf.jakarta.enterprise.cdi-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.interceptor-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.inject.jakarta.inject-api" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.cdi" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.cdi.extlib" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.cdi" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.cdi.extlib" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.transaction" version="0.0.0" unpack="false"/>
     
 	<plugin id="org.jboss.weld.api" version="0.0.0" unpack="false"/>
@@ -274,7 +274,7 @@
 	<!-- JSON Processing and Binding -->
 	<plugin id="jakarta.json.bind-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.eclipse.parsson.jakarta.json" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.jsonapi" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.json" version="0.0.0" unpack="false"/>
 	<plugin id="yasson" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.json-p-provider" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.json-binding-provider" version="0.0.0" unpack="false"/>
@@ -313,13 +313,13 @@
 	
 	<!-- Bean Validation -->
 	<plugin id="jakarta.validation.jakarta.validation-api" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.beanvalidation" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.validation" version="0.0.0" unpack="false"/>
 	<plugin id="com.fasterxml.classmate" version="0.0.0" unpack="false"/>
 	<plugin id="org.hibernate.validator" version="0.0.0" unpack="false"/>
 	
 	<!-- JAX-RS -->
-	<plugin id="org.openntf.xsp.jaxrs" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.jaxrs.factory" version="0.0.0" fragment="true" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.rest" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.rest.factory" version="0.0.0" fragment="true" unpack="false"/>
 	
 	<plugin id="jakarta.ws.rs-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.core" version="0.0.0" unpack="false"/>
@@ -345,9 +345,9 @@
 	<plugin id="org.openntf.com.ibm.async.util" version="0.0.0" unpack="false"/>
 	
 	<!-- NoSQL -->
-	<plugin id="org.openntf.xsp.nosql" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.nosql.driver" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.xsp.nosql.driver.lsxbe" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.nosql" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.nosql.driver" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.nosql.driver.lsxbe" version="0.0.0" unpack="false"/>
 	
 	<plugin id="jakarta.data.jakarta.data-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.nosql.jakarta.nosql-api" version="0.0.0" unpack="false"/>
