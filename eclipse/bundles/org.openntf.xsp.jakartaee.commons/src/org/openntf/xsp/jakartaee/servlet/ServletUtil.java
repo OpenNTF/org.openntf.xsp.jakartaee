@@ -413,8 +413,7 @@ public enum ServletUtil {
 			javax.servlet.http.HttpServletResponse old = newToOld(resp);
 			if(old instanceof LCDAdapterHttpServletResponse) {
 				HttpServletResponseAdapter delegate = ((LCDAdapterHttpServletResponse)old).getDelegate();
-				if(delegate instanceof XspCmdHttpServletResponse) {
-					XspCmdHttpServletResponse xspResp = (XspCmdHttpServletResponse)delegate;
+				if(delegate instanceof XspCmdHttpServletResponse xspResp) {
 					try {
 						if(xspResp.writerInUse()) {
 							xspResp.getWriter().flush();

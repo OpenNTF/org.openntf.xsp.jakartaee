@@ -62,8 +62,7 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 			return NotFoundMapper.INSTANCE.toResponse((NotFoundException)t, request, uriInfo);
 		}
 
-		if (t instanceof WebApplicationException) {
-			WebApplicationException e = (WebApplicationException) t;
+		if (t instanceof WebApplicationException e) {
 			Response r = e.getResponse();
 			if (r != null) {
 				// The response will likely be empty

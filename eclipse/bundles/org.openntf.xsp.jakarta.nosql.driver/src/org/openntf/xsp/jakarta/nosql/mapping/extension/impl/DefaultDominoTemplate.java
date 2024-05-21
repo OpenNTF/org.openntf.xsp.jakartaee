@@ -35,9 +35,7 @@ import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.Calendar
 
 import jakarta.data.page.PageRequest;
 import jakarta.data.Sort;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
-import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 import jakarta.nosql.Entity;
 

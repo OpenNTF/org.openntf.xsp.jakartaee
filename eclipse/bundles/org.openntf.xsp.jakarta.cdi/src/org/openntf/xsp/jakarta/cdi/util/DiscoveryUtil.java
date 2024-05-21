@@ -234,15 +234,15 @@ public enum DiscoveryUtil {
 				}
 				return ScanType.ALL;
 			} else {
-				switch(val) {
-				case "annotated": //$NON-NLS-1$
-					return ScanType.ANNOTATED;
-				case "none": //$NON-NLS-1$
-					return ScanType.NONE;
-				case "all": //$NON-NLS-1$
-				default:
-					return ScanType.ALL;
-				}
+				return switch (val) {
+					case "annotated": //$NON-NLS-1$
+						yield ScanType.ANNOTATED;
+					case "none": //$NON-NLS-1$
+						yield ScanType.NONE;
+					case "all": //$NON-NLS-1$
+					default:
+						yield ScanType.ALL;
+				};
 			}
 		} catch(XMLException e) {
 			throw new RuntimeException(e);

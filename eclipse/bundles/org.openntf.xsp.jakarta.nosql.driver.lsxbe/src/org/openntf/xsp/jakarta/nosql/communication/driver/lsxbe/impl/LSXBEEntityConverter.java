@@ -835,9 +835,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	public void convertNoSQLEntity(CommunicationEntity entity, boolean retainId, lotus.domino.Document target, EntityMetadata classMapping) throws NotesException {
 		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
 		try {
-			@SuppressWarnings("unchecked")
 			List<ValueWriter<Object, Object>> writers = ValueWriter.getWriters()
-				.map(w -> (ValueWriter<Object, Object>)w)
 				.collect(Collectors.toList());
 			
 			Set<String> writtenItems = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);

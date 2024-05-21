@@ -43,8 +43,7 @@ public class CDIApplicationListener implements ApplicationListener2 {
 				.map(ComponentModuleLocator::getActiveModule)
 				.map(ContainerUtil::getContainerUnchecked)
 				.ifPresent(container -> {
-					if(container instanceof WeldContainer) {
-						WeldContainer c = (WeldContainer)container;
+					if(container instanceof WeldContainer c) {
 						if(c.isRunning()) {
 							c.close();
 						}

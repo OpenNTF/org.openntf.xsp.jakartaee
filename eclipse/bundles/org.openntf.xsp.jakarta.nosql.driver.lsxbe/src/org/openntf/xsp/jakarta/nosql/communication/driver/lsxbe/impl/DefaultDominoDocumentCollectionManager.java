@@ -610,7 +610,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			DateTime endDt = DominoNoSQLUtil.fromTemporal(session, end);
 			
 			if(pagination != null) {
-				return cal.readRange(startDt, endDt, (int)(pagination.size() * (pagination.page()-1)), (int)pagination.size());
+				return cal.readRange(startDt, endDt, (int)(pagination.size() * (pagination.page()-1)), pagination.size());
 			} else {
 				return cal.readRange(startDt, endDt);
 			}
@@ -687,21 +687,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				if(scope == null) {
 					scopeVal = 0;
 				} else {
-					switch(scope) {
-						case ALL:
-							scopeVal = 1;
-							break;
-						case FUTURE:
-							scopeVal = 3;
-							break;
-						case PREV:
-							scopeVal = 2;
-							break;
-						case CURRENT:
-						default:
-							scopeVal = 0;
-							break;
-					}
+					scopeVal = switch (scope) {
+						case ALL -> 1;
+						case FUTURE -> 3;
+						case PREV -> 2;
+						case CURRENT -> 0;
+						default -> 0;
+					};
 				}
 				entry.remove(scopeVal, recurId);
 			}
@@ -1032,8 +1024,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		public boolean isSameRM(XAResource xares) throws XAException {
 			if(xares == this) {
 				return true;
-			} else if(xares instanceof DatabaseXAResource) {
-				DatabaseXAResource dbres = (DatabaseXAResource)xares;
+			} else if(xares instanceof DatabaseXAResource dbres) {
 				return StringUtil.equals(server, dbres.server) && StringUtil.equals(filePath, dbres.filePath);
 			} else {
 				return false;

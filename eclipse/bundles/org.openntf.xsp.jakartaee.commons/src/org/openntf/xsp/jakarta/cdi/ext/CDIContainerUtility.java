@@ -18,7 +18,6 @@ package org.openntf.xsp.jakarta.cdi.ext;
 import org.osgi.framework.Bundle;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.xsp.application.ApplicationEx;
 
 /**
  * 

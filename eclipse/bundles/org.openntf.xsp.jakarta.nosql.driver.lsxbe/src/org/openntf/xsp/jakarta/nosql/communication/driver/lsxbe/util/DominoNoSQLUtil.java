@@ -78,7 +78,7 @@ public enum DominoNoSQLUtil {
 
 	public static Object toDominoFriendly(Session session, Object value, Optional<BooleanStorage> optBoolean) throws NotesException {
 		if(value instanceof Iterable) {
-			Vector<Object> result = new Vector<Object>();
+			Vector<Object> result = new Vector<>();
 			for(Object val : (Iterable<?>)value) {
 				result.add(toDominoFriendly(session, val, optBoolean));
 			}
@@ -91,14 +91,11 @@ public enum DominoNoSQLUtil {
 			return ((Number)value).doubleValue();
 		} else if(value instanceof Boolean) {
 			if(optBoolean.isPresent()) {
-				switch(optBoolean.get().type()) {
-					case DOUBLE:
-						return (Boolean)value ? optBoolean.get().doubleTrue() : optBoolean.get().doubleFalse();
-					case STRING:
-					default:
-						return (Boolean)value ? optBoolean.get().stringTrue() : optBoolean.get().stringFalse();
-					
-				}
+				return switch (optBoolean.get().type()) {
+					case DOUBLE -> (Boolean)value ? optBoolean.get().doubleTrue() : optBoolean.get().doubleFalse();
+					case STRING -> (Boolean)value ? optBoolean.get().stringTrue() : optBoolean.get().stringFalse();
+					default -> (Boolean)value ? optBoolean.get().stringTrue() : optBoolean.get().stringFalse();
+				};
 			}
 			return (Boolean)value ? "Y": "N"; //$NON-NLS-1$ //$NON-NLS-2$
 		} else if(value instanceof LocalDate) {
@@ -126,14 +123,16 @@ public enum DominoNoSQLUtil {
 	
 	private static final String ITEM_TEMPTIME = "$$TempTime"; //$NON-NLS-1$
 	@SuppressWarnings("nls")
-	private static final String FORMULA_TOISODATE = "m := @Month($$TempTime);\n"
-		+ "d := @Day($$TempTime);\n"
-		+ "@Text(@Year($$TempTime)) + \"-\" + @If(m < 10; \"0\"; \"\") + @Text(m) + \"-\" + @If(d < 10; \"0\"; \"\") + @Text(d)";
+	private static final String FORMULA_TOISODATE = """
+		m := @Month($$TempTime);
+		d := @Day($$TempTime);
+		@Text(@Year($$TempTime)) + "-" + @If(m < 10; "0"; "") + @Text(m) + "-" + @If(d < 10; "0"; "") + @Text(d)""";
 	@SuppressWarnings("nls")
-	private static final String FORMULA_TOISOTIME = "h := @Hour($$TempTime);\n"
-		+ "m := @Minute($$TempTime);\n"
-		+ "s := @Second($$TempTime);\n"
-		+ "@If(h < 10; \"0\"; \"\") + @Text(h) + \":\" + @If(m < 10; \"0\"; \"\") + @Text(m) + \":\" + @If(s < 10; \"0\"; \"\") + @Text(s)";
+	private static final String FORMULA_TOISOTIME = """
+		h := @Hour($$TempTime);
+		m := @Minute($$TempTime);
+		s := @Second($$TempTime);
+		@If(h < 10; "0"; "") + @Text(h) + ":" + @If(m < 10; "0"; "") + @Text(m) + ":" + @If(s < 10; "0"; "") + @Text(s)""";
 	
 	/**
 	 * Converts the provided value read from Domino to a stock JDK type, if necessary.

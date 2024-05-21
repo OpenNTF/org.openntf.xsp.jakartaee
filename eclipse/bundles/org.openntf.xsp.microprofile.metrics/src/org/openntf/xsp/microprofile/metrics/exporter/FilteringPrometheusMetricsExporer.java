@@ -103,9 +103,9 @@ public class FilteringPrometheusMetricsExporer extends AbstractFilteringExporter
 
     public String filterMetrics(String metricName, String scope) {
 
-        Set<String> unitTypesSet = new HashSet<String>();
+        Set<String> unitTypesSet = new HashSet<>();
         unitTypesSet.add("");
-        Set<String> meterSuffixSet = new HashSet<String>();
+        Set<String> meterSuffixSet = new HashSet<>();
         meterSuffixSet.add("");
 
         for (Meter m : prometheusMeterRegistry.find(metricName).meters()) {
@@ -219,7 +219,7 @@ public class FilteringPrometheusMetricsExporer extends AbstractFilteringExporter
     private Set<String> calculateMeterNamesToScrape(String name, Set<String> meterSuffixSet, Set<String> unitTypeSet) {
         final String METHOD_NAME = "calculateMeterNamesToScrape";
         String promName = resolvePrometheusName(name);
-        Set<String> retSet = new HashSet<String>();
+        Set<String> retSet = new HashSet<>();
         for (String unit : unitTypeSet) {
             for (String suffix : meterSuffixSet) {
                 retSet.add(promName + unit + suffix);

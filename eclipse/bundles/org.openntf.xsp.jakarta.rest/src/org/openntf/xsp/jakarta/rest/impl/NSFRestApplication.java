@@ -131,10 +131,7 @@ public class NSFRestApplication extends Application {
 	
 	private boolean isJAXRSClass(Class<?> clazz) {
 		try {
-			if(clazz.isInterface()) {
-				return false;
-			}
-			if(Modifier.isAbstract(clazz.getModifiers())) {
+			if(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
 				return false;
 			}
 			if(clazz.isAnnotationPresent(Path.class)) {

@@ -83,7 +83,7 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 	@Override
 	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application) throws ServletException, IOException {
 		@SuppressWarnings("unchecked")
-		List<ServiceParticipant> participants = (List<ServiceParticipant>)application.findServices(ServiceParticipant.EXTENSION_POINT);
+		List<ServiceParticipant> participants = application.findServices(ServiceParticipant.EXTENSION_POINT);
 		for(ServiceParticipant participant : participants) {
     		participant.doBeforeService(request, response);
     	}

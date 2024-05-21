@@ -293,8 +293,7 @@ public class NSFFacesServlet extends HttpServlet {
 		//      or by making this an AbstractXspLifecycleServlet
 		// This is not ideal if you're mixing JSF and other technologies
 		CDI<Object> container = CDI.current();
-		if(container instanceof AutoCloseable) { //WeldContainer
-			AutoCloseable c = (AutoCloseable)container;
+		if(container instanceof AutoCloseable c) { //WeldContainer
 			try {
 				c.close();
 			} catch(Exception e) {
