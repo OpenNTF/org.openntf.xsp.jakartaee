@@ -25,6 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -87,7 +88,7 @@ public class TestNoSQLJSF extends AbstractWebClientTest {
 				try {
 					WebElement f = driver.findElement(By.tagName("form"));
 					return f.findElement(By.xpath("//td[text()=\"" + lastName + "\"]/parent::tr"));
-				} catch(NoSuchElementException e) {
+				} catch(NoSuchElementException | StaleElementReferenceException e) {
 					return null;
 				}
 			}, t -> t != null);
@@ -102,7 +103,7 @@ public class TestNoSQLJSF extends AbstractWebClientTest {
 					try {
 						WebElement f = driver.findElement(By.tagName("form"));
 						return f.findElement(By.xpath("//td[text()=\"" + lastName + "\"]/parent::tr/td/fieldset"));
-					} catch(NoSuchElementException e) {
+					} catch(NoSuchElementException | StaleElementReferenceException e) {
 						return null;
 					}
 				}, t -> t != null);
@@ -124,7 +125,7 @@ public class TestNoSQLJSF extends AbstractWebClientTest {
 				try {
 					WebElement f = driver.findElement(By.tagName("form"));
 					return f.findElement(By.xpath("//td[text()=\"" + fFirstName + "\"]/parent::tr"));
-				} catch(NoSuchElementException e) {
+				} catch(NoSuchElementException | StaleElementReferenceException e) {
 					return null;
 				}
 			}, t -> t != null);
@@ -139,7 +140,7 @@ public class TestNoSQLJSF extends AbstractWebClientTest {
 				try {
 					WebElement f = driver.findElement(By.tagName("form"));
 					return f.findElement(By.xpath("//td[text()=\"" + lastName + "\"]/parent::tr"));
-				} catch(NoSuchElementException e) {
+				} catch(NoSuchElementException | StaleElementReferenceException e) {
 					return null;
 				}
 			}, t -> t == null);
