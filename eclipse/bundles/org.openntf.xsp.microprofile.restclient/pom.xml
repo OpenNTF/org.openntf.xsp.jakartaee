@@ -7,7 +7,7 @@
 		<version>3.0.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-	<artifactId>org.openntf.xsp.microprofile.rest.client</artifactId>
+	<artifactId>org.openntf.xsp.microprofile.restclient</artifactId>
 	<packaging>eclipse-plugin</packaging>
 	
 	<build>

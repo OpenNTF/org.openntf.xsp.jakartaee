@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile Config Support
-Bundle-SymbolicName: org.openntf.xsp.microprofile.rest.client;singleton:=true
+Bundle-SymbolicName: org.openntf.xsp.microprofile.restclient;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.rest.client
 Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: OpenNTF

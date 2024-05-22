@@ -18,7 +18,7 @@
 -->
 <feature
       id="org.openntf.xsp.microprofile.feature"
-      label="XPages MicroProfile Support Feature"
+      label="XPages MicroProfile Feature"
       version="3.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
@@ -251,7 +251,7 @@
 	<plugin id="io.smallrye.common.smallrye-common-function" version="0.0.0" unpack="false"/>
 	
 	<!-- Fault Tolerance -->
-	<plugin id="org.openntf.xsp.microprofile.fault.tolerance" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.microprofile.faulttolerance" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.microprofile.fault.tolerance" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.io.smallrye.fault-tolerance" version="0.0.0" unpack="false"/>
 	<plugin id="io.smallrye.fault-tolerance-api" version="0.0.0" unpack="false"/>
@@ -266,7 +266,7 @@
 	<plugin id="io.smallrye.reactive.mutiny" version="0.0.0" unpack="false"/>
 	
 	<!-- Rest Client -->
-	<plugin id="org.openntf.xsp.microprofile.rest.client" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.microprofile.restclient" version="0.0.0" unpack="false"/>
 	<plugin id="org.eclipse.microprofile.rest.client" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client" version="0.0.0" fragment="true" unpack="false"/>
