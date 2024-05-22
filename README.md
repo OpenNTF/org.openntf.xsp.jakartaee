@@ -793,7 +793,7 @@ The "org.openntf.xsp.jakartaee.ui" library contains specs useful for creating se
 
 ### Server Pages and JSTL
 
-[Jakarta Server Pages](https://jakarta.ee/specifications/pages/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/2.0/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
+[Jakarta Server Pages](https://jakarta.ee/specifications/pages/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
 
 When this library is enabled, .jsp files in the "Files" or "WebContent" parts of the NSF will be interpreted as live pages. For example:
 
@@ -822,7 +822,7 @@ As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and
 
 [Jakarta Server Faces](https://jakarta.ee/specifications/faces/) is the Jakarta EE form of JSF, the spec XPages forked off from.
 
-Faces is implemented here by way of [Apache MyFaces](https://myfaces.apache.org/#/core30).
+Faces is implemented here by way of [Apache MyFaces](https://myfaces.apache.org/).
 
 A Faces page, like an XPage, is an XML document that is parsed and converted into components for rendering. When this library is enabled, .jsf and .xhtml files in the "Files" or "WebContent" parts of the NSF will be interpreted as live pages. For example:
 
