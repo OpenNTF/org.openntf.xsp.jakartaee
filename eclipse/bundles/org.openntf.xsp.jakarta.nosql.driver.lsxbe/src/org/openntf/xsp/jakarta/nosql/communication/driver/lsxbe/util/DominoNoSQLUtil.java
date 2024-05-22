@@ -77,40 +77,40 @@ public enum DominoNoSQLUtil {
 	}
 
 	public static Object toDominoFriendly(Session session, Object value, Optional<BooleanStorage> optBoolean) throws NotesException {
-		if(value instanceof Iterable) {
+		if(value instanceof Iterable it) {
 			Vector<Object> result = new Vector<>();
-			for(Object val : (Iterable<?>)value) {
+			for(Object val : it) {
 				result.add(toDominoFriendly(session, val, optBoolean));
 			}
 			return result;
-		} else if(value instanceof Date) {
-			return session.createDateTime((Date)value);
-		} else if(value instanceof Calendar) {
-			return session.createDateTime((Calendar)value);
-		} else if(value instanceof Number) {
-			return ((Number)value).doubleValue();
-		} else if(value instanceof Boolean) {
+		} else if(value instanceof Date d) {
+			return session.createDateTime(d);
+		} else if(value instanceof Calendar c) {
+			return session.createDateTime(c);
+		} else if(value instanceof Number n) {
+			return n.doubleValue();
+		} else if(value instanceof Boolean b) {
 			if(optBoolean.isPresent()) {
 				return switch (optBoolean.get().type()) {
-					case DOUBLE -> (Boolean)value ? optBoolean.get().doubleTrue() : optBoolean.get().doubleFalse();
-					case STRING -> (Boolean)value ? optBoolean.get().stringTrue() : optBoolean.get().stringFalse();
-					default -> (Boolean)value ? optBoolean.get().stringTrue() : optBoolean.get().stringFalse();
+					case DOUBLE -> b ? optBoolean.get().doubleTrue() : optBoolean.get().doubleFalse();
+					case STRING -> b ? optBoolean.get().stringTrue() : optBoolean.get().stringFalse();
+					default -> b ? optBoolean.get().stringTrue() : optBoolean.get().stringFalse();
 				};
 			}
 			return (Boolean)value ? "Y": "N"; //$NON-NLS-1$ //$NON-NLS-2$
-		} else if(value instanceof LocalDate) {
+		} else if(value instanceof LocalDate d) {
 			// TODO fix these Temporals when the API improves
-			Instant inst = ZonedDateTime.of((LocalDate)value, LocalTime.of(12, 0), ZoneId.systemDefault()).toInstant();
+			Instant inst = ZonedDateTime.of(d, LocalTime.of(12, 0), ZoneId.systemDefault()).toInstant();
 			DateTime dt = session.createDateTime(Date.from(inst));
 			dt.setAnyTime();
 			return dt;
-		} else if(value instanceof LocalTime) {
-			Instant inst = ZonedDateTime.of(LocalDate.now(), (LocalTime)value, ZoneId.systemDefault()).toInstant();
+		} else if(value instanceof LocalTime t) {
+			Instant inst = ZonedDateTime.of(LocalDate.now(), t, ZoneId.systemDefault()).toInstant();
 			DateTime dt = session.createDateTime(Date.from(inst));
 			dt.setAnyDate();
 			return dt;
-		} else if(value instanceof TemporalAccessor) {
-			Instant inst = Instant.from((TemporalAccessor)value);
+		} else if(value instanceof TemporalAccessor t) {
+			Instant inst = Instant.from(t);
 			DateTime dt = session.createDateTime(Date.from(inst));
 			return dt;
 		} else if(value == null) {
