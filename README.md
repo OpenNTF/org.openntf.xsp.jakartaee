@@ -236,7 +236,7 @@ Such parameters can also be defined in META-INF/web-fragment.xml files inside JA
 
 The [RESTful Web Services](https://jakarta.ee/specifications/restful-ws/) specification is the standard way to provide web services in Java EE applications. A version of it has been included for a long time in Domino by way of the Extension Library. However, this version is also out of date, with Apache Wink implementing JAX-RS 1.1.1.
 
-This library is based on [the work of Martin Pradny](https://www.pradny.com/2017/11/using-jax-rs-inside-nsf.html) and provides JAX-RS support by way of [RESTEasy](https://resteasy.github.io) for classes inside the NSF. When a class is or has a method annotated with `@Path`, it is included as a service beneath `/xsp/app` inside the NSF. For example:
+This library is based on [the work of Martin Pradny](https://www.pradny.com/2017/11/using-jax-rs-inside-nsf.html) and provides REST support by way of [RESTEasy](https://resteasy.github.io) for classes inside the NSF. When a class is or has a method annotated with `@Path`, it is included as a service beneath `/xsp/app` inside the NSF. For example:
 
 ```java
 package servlet;
@@ -403,7 +403,7 @@ public class ApplicationGuy {
 }
 ```
 
-The `JaxbUtil` class provides a convenience method for creating a `JAXBContext` object to manually marshal (serialize) and unmarshal (deserialize) objects to and from XML. Additionally, objects returned in JAX-RS methods marked as emitting XML will use this implicitly:
+The `JaxbUtil` class provides a convenience method for creating a `JAXBContext` object to manually marshal (serialize) and unmarshal (deserialize) objects to and from XML. Additionally, objects returned in REST methods marked as emitting XML will use this implicitly:
 
 ```java
 @GET
@@ -793,14 +793,14 @@ The "org.openntf.xsp.jakartaee.ui" library contains specs useful for creating se
 
 ### Server Pages and JSTL
 
-[Jakarta Server Pages](https://jakarta.ee/specifications/pages/3.0/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/2.0/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
+[Jakarta Server Pages](https://jakarta.ee/specifications/pages/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/2.0/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
 
 When this library is enabled, .jsp files in the "Files" or "WebContent" parts of the NSF will be interpreted as live pages. For example:
 
 ```jsp
 <%@page contentType="text/html" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html>
 	<head>
