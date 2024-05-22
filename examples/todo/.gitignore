@@ -1,0 +1,8 @@
+.project
+.settings/
+.classpath
+META-INF/
+!/*/odp/.project
+!/*/odp/.settings/
+!/*/odp/.classpath
+!/*/odp/META-INF/

@@ -4,7 +4,7 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf.xsp.examples</groupId>
-	<artifactId>nsf-riekpil-nice-looking-jsf</artifactId>
+	<artifactId>todo-faces</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>domino-nsf</packaging>
 	
@@ -16,7 +16,7 @@
 				<version>4.0.0</version>
 				<extensions>true</extensions>
 				<configuration>
-					<updateSite>${project.baseDir}/../../xsp-jakartaee/releng/org.openntf.xsp.jakartaee.updatesite/target/repository</updateSite>
+					<updateSite>${project.baseDir}/../../../xsp-jakartaee/releng/org.openntf.xsp.jakartaee.updatesite/target/repository</updateSite>
 					<executionEnvironment>JavaSE-17</executionEnvironment>
 				</configuration>
 			</plugin>
