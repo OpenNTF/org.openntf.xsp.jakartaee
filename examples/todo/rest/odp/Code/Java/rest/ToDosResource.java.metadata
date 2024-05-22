@@ -1,18 +1,12 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?><note xmlns="http://www.lotus.com/dxl" class="form" maintenanceversion="2.0" replicaid="85258A14005073B7" version="12.0">
-<noteinfo noteid="1f6" sequence="48" unid="C6DFE98E458CE23D85258A140052ACA8">
-<created><datetime dst="true">20230823T110301,52-04</datetime></created>
-<modified><datetime dst="true">20230823T140054,26-04</datetime></modified>
-<revised><datetime dst="true">20230823T140054,25-04</datetime></revised>
-<lastaccessed><datetime dst="true">20230823T140054,25-04</datetime></lastaccessed>
-<addedtofile><datetime dst="true">20230823T110301,52-04</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
-<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
-<item name="$Flags"><text>34567Cg~[</text></item>
-<item name="$TITLE"><text>rest/ToDosResource.java</text></item>
-
-<item name="$DesignerVersion"><text>8.5.3</text></item>
-
-
-<item name="$FileNames" sign="true"><text>rest/ToDosResource.java</text></item>
-
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$Flags">
+    <text>34567Cg~[</text>
+  </item>
+  <item name="$TITLE">
+    <text>rest/ToDosResource.java</text>
+  </item>
+  <item name="$FileNames" sign="true">
+    <text>rest/ToDosResource.java</text>
+  </item>
 </note>

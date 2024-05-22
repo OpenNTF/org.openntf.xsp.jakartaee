@@ -4,13 +4,13 @@ import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.stream.Stream;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
-import org.openntf.xsp.nosql.mapping.extension.RepositoryProvider;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.RepositoryProvider;
 
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Id;
-import jakarta.nosql.mapping.Sorts;
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
+import jakarta.data.Sort;
 import jakarta.validation.constraints.NotEmpty;
 
 @Entity("To-Do")
@@ -19,9 +19,9 @@ public class ToDo implements Serializable {
 	
 	@RepositoryProvider("current")
 	public interface Repository extends DominoRepository<ToDo, String> {
-		Stream<ToDo> findAll(Sorts sorts);
+		Stream<ToDo> findAll(Sort<?> sorts);
 		
-		Stream<ToDo> findByStatus(State status, Sorts sorts);
+		Stream<ToDo> findByStatus(State status, Sort<?> sorts);
 	}
 	
 	public enum State {
