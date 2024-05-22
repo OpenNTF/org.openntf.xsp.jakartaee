@@ -19,9 +19,6 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.jakarta.nosql.NoSQLLibrary" />
-	</extension>
-	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.jakarta.nosql.NoSQLBeanContributor" />
 	</extension>
 </plugin>

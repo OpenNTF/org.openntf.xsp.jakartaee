@@ -18,11 +18,6 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-	<!-- The Xsp Library -->
-	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.jakarta.mvc.MvcLibrary" />
-	</extension>
-	
 	<extension point="com.ibm.commons.Extension">
 		<service type="jakarta.ws.rs.core.Feature" class="org.openntf.xsp.jakarta.mvc.impl.CoreFeatureWrapper" />
 	</extension>
