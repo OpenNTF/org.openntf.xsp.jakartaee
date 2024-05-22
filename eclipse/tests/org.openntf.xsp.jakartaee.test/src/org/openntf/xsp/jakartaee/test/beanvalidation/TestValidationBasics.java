@@ -23,7 +23,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 
 import org.junit.Test;
-import org.openntf.xsp.beanvalidation.XPagesValidationUtil;
+import org.openntf.xsp.jakarta.validation.XPagesValidationUtil;
 import org.openntf.xsp.jakartaee.test.ExampleBean;
 
 @SuppressWarnings("nls")

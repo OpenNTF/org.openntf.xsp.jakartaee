@@ -13,16 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.beanvalidation.cdi;
+package org.openntf.xsp.jakarta.validation.cdi;
 
-import java.util.Collection;
-import java.util.Collections;
+import org.openntf.xsp.jakarta.validation.XPagesValidationUtil;
 
-import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.validation.ValidatorFactory;
 
-public class ValidatorBeanContributor implements CDIClassContributor {
-	@Override
-	public Collection<Class<?>> getBeanClasses() {
-		return Collections.singleton(ValidatorBean.class);
+/**
+ * Provides an XPages-compatible {@link ValidatorFactory} instance for use in CDI.
+ * 
+ * @author Jesse Gallagher
+ * @since 2.3.0
+ */
+@ApplicationScoped
+public class ValidatorBean {
+	@Produces
+	public ValidatorFactory produceFactory() {
+		return XPagesValidationUtil.constructXPagesValidatorFactory();
 	}
 }

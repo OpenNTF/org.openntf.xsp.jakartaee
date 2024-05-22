@@ -312,10 +312,10 @@ The [Validation](https://jakarta.ee/specifications/bean-validation/) spec provid
 
 This library provides validation annotations and a processor via [Hibernate Validator](http://hibernate.org/validator/). Since there is no existing structure to hook into in the XPages runtime, bean validation must be called explicitly by your code, such as in a common "save" method in model objects. This is done by constructing a `Validator` object using the builder and then running it against a given bean. Due to the intricacies of the XPages runtime, code performing validation should be run from an OSGi plugin.
 
-For generic use, this library provides an `org.openntf.xsp.beanvalidation.XPagesValidationUtil` class with methods to construct a `Validator` object and to use that validator to validate a bean:
+For generic use, this library provides an `org.openntf.xsp.jakarta.validation.XPagesValidationUtil` class with methods to construct a `Validator` object and to use that validator to validate a bean:
 
 ```java
-import org.openntf.xsp.beanvalidation.XPagesValidationUtil;
+import org.openntf.xsp.jakarta.validation.XPagesValidationUtil;
 import jakarta.validation.Validator;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.constraints.NotEmpty;

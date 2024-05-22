@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.beanvalidation;
+package org.openntf.xsp.jakarta.validation;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;

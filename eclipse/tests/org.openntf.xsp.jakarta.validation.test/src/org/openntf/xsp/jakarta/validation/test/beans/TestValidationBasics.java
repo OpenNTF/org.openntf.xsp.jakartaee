@@ -25,7 +25,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 import org.junit.Test;
-import org.openntf.xsp.beanvalidation.XPagesValidationUtil;
+import org.openntf.xsp.jakarta.validation.XPagesValidationUtil;
 
 @SuppressWarnings("nls")
 public class TestValidationBasics {

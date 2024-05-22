@@ -23,7 +23,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
-import org.openntf.xsp.beanvalidation.XPagesValidationUtil;
+import org.openntf.xsp.jakarta.validation.XPagesValidationUtil;
 
 import bean.ValidationBean;
 
