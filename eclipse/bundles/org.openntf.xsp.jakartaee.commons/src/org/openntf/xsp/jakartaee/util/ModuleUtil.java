@@ -174,24 +174,26 @@ public enum ModuleUtil {
 	@SuppressWarnings("unchecked")
 	public static Set<Class<?>> buildMatchingClasses(HandlesTypes types, ComponentModule module, Bundle... bundles) {
 		Set<Class<?>> result = new HashSet<>();
-		ModuleUtil.getClassNames(module)
-			.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
-			.map(className -> {
-				try {
-					return Class.forName(className, true, module.getModuleClassLoader());
-				} catch (ClassNotFoundException | NoClassDefFoundError e) {
-					throw new RuntimeException(MessageFormat.format("Encountered exception processing class {0} in {1}", className, getModuleId(module)), e);
-				}
-			}).filter(c -> {
-				for (Class<?> type : types.value()) {
-					if (type.isAnnotation()) {
-						return c.isAnnotationPresent((Class<? extends Annotation>) type);
-					} else {
-						return type.isAssignableFrom(c);
+		if(module != null) {
+			ModuleUtil.getClassNames(module)
+				.filter(className -> !ModuleUtil.GENERATED_CLASSNAMES.matcher(className).matches())
+				.map(className -> {
+					try {
+						return Class.forName(className, true, module.getModuleClassLoader());
+					} catch (ClassNotFoundException | NoClassDefFoundError e) {
+						throw new RuntimeException(MessageFormat.format("Encountered exception processing class {0} in {1}", className, getModuleId(module)), e);
 					}
-				}
-				return true;
-			}).forEach(result::add);
+				}).filter(c -> {
+					for (Class<?> type : types.value()) {
+						if (type.isAnnotation()) {
+							return c.isAnnotationPresent((Class<? extends Annotation>) type);
+						} else {
+							return type.isAssignableFrom(c);
+						}
+					}
+					return true;
+				}).forEach(result::add);
+		}
 
 		for(Bundle bundle : bundles) {
 			String baseUrl = bundle.getEntry("/").toString(); //$NON-NLS-1$
