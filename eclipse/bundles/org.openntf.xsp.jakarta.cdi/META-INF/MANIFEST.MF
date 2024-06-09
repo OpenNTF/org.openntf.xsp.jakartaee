@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages CDI Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.cdi;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.cdi
-Bundle-Version: 3.0.0.qualifier
+Bundle-Version: 3.1.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
@@ -47,13 +47,13 @@ Import-Package: com.ibm.commons.util,
  org.osgi.framework;version="1.8.0",
  org.osgi.framework.hooks.weaving;version="1.1.0",
  org.osgi.framework.wiring;version="1.2.0"
-Export-Package: org.openntf.xsp.jakarta.cdi;version="3.0.0",
- org.openntf.xsp.jakarta.cdi.bean;version="3.0.0",
- org.openntf.xsp.jakarta.cdi.concurrency;version="3.0.0",
- org.openntf.xsp.jakarta.cdi.context;version="3.0.0",
- org.openntf.xsp.jakarta.cdi.discovery;version="3.0.0",
- org.openntf.xsp.jakarta.cdi.impl;version="3.0.0",
- org.openntf.xsp.jakarta.cdi.provider;version="3.0.0",
- org.openntf.xsp.jakarta.cdi.util;version="3.0.0"
+Export-Package: org.openntf.xsp.jakarta.cdi;version="3.1.0",
+ org.openntf.xsp.jakarta.cdi.bean;version="3.1.0",
+ org.openntf.xsp.jakarta.cdi.concurrency;version="3.1.0",
+ org.openntf.xsp.jakarta.cdi.context;version="3.1.0",
+ org.openntf.xsp.jakarta.cdi.discovery;version="3.1.0",
+ org.openntf.xsp.jakarta.cdi.impl;version="3.1.0",
+ org.openntf.xsp.jakarta.cdi.provider;version="3.1.0",
+ org.openntf.xsp.jakarta.cdi.util;version="3.1.0"
 Bundle-Activator: org.openntf.xsp.jakarta.cdi.CDIActivator
 Bundle-ActivationPolicy: lazy
