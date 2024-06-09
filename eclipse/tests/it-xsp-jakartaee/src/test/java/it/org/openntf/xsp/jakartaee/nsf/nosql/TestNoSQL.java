@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,9 +64,12 @@ public class TestNoSQL extends AbstractWebClientTest {
 			
 			String json = response.readEntity(String.class);
 			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-			
-			JsonArray byQueryLastName = jsonObject.getJsonArray("byQueryLastName"); //$NON-NLS-1$
-			assertTrue(byQueryLastName.isEmpty(), () -> String.valueOf(jsonObject));
+			try {
+				JsonArray byQueryLastName = jsonObject.getJsonArray("byQueryLastName"); //$NON-NLS-1$
+				assertTrue(byQueryLastName.isEmpty(), () -> String.valueOf(jsonObject));
+			} catch(Exception e) {
+				fail("Encounted unexpected JSON: " + jsonObject, e);
+			}
 		}
 		
 		// Now use the MVC endpoint to create one, which admittedly is outside this test
@@ -118,7 +121,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
 		Response response = postTarget.request().post(Entity.form(payload));
 		String html = response.readEntity(String.class);
-		assertEquals(400, response.getStatus(), () -> "Unexpected response code with content: " + html);
+		assertEquals(400, response.getStatus(), () -> "Unexpected response code " + response.getStatus() + " with content: " + html);
 	}
 	
 	/**
@@ -174,8 +177,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			Response response = postTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
 				.post(Entity.entity(payload, MediaType.MULTIPART_FORM_DATA_TYPE));
+			checkResponse(200, response);
 			String json = response.readEntity(String.class);
-			assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
 			JsonObject person = Json.createReader(new StringReader(json)).readObject();
 			unid = person.getString("unid");
@@ -191,7 +194,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
 				.get();
-			assertEquals(200, response.getStatus());
+			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
 			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
@@ -207,8 +210,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
 			.get();
+		checkResponse(200, response);
 		String json = response.readEntity(String.class);
-		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
 		JsonObject result = Json.createReader(new StringReader(json)).readObject();
 		assertEquals(noteId, result.getInt("noteId"));
@@ -232,8 +235,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			Response response = postTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
 				.post(Entity.entity(payload, MediaType.MULTIPART_FORM_DATA_TYPE));
+			checkResponse(200, response);
 			String json = response.readEntity(String.class);
-			assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
 			JsonObject person = Json.createReader(new StringReader(json)).readObject();
 			unid = person.getString("unid");
@@ -265,8 +268,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
 			.get();
+		checkResponse(200, response);
 		String json = response.readEntity(String.class);
-		assertEquals(200, response.getStatus(), () -> "Received unexpected result: " + json);
 
 		JsonObject result = Json.createReader(new StringReader(json)).readObject();
 		assertEquals(noteId, result.getInt("noteId"));

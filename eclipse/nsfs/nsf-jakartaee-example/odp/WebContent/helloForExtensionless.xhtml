@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE html>
+<f:view xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:comp="jakarta.faces.composite/comps"
+      xmlns:openntf="http://openntf.org/facelets">
+	
+    <h:head>
+        <title>Jakarta Faces Hello World</title>
+    </h:head>
+    <h:body>
+    	<h2>Jakarta Faces Hello World Example - helloForExtensionless.xhtml</h2>
+    	
+    	<dl>
+    		<dt>facesContext</dt>
+    		<dd><h:outputText value="#{facesContext}"/></dd>
+    		
+    		<dt>requestGuy.message</dt>
+    		<dd><h:outputText value="#{requestGuy.message}"/></dd>
+    		
+    		<dt>sessionGuy.message</dt>
+    		<dd><h:outputText value="#{sessionGuy.message}"/></dd>
+    		
+    		<dt>applicationGuy.message</dt>
+    		<dd><h:outputText value="#{applicationGuy.message}"/></dd>
+    		
+    		<dt>Project Stage</dt>
+    		<dd><h:outputText value="#{facesContext.application.projectStage}"/></dd>
+    		
+    		<dt>facesContext.externalContext.context</dt>
+    		<dd><h:outputText value="#{facesContext.externalContext.context}"/></dd>
+    		
+    		<dt>Request Method</dt>
+    		<dd><h:outputText value="#{facesContext.externalContext.request.method}"/></dd>
+    		
+    		<dt>Faces Phase Listener Output</dt>
+    		<dd><h:outputText value="#{requestScope.FacesPhaseListener}"/></dd>
+    		
+    		<dt>XPages Phase Listener Output</dt>
+    		<dd><h:outputText value="#{requestScope.XPagesPhaseListener}"/></dd>
+    		
+    		<dt>Composite Component</dt>
+    		<dd><comp:testComponent value="I am text sent to a composite component"/></dd>
+    		
+    		<dt>dominoSession</dt>
+    		<dd><h:outputText value="#{dominoSession}"/></dd>
+    		
+    		<dt>database</dt>
+    		<dd><h:outputText value="#{database}"/></dd>
+    		
+    		<dt>initParam</dt>
+    		<dd><h:outputText value="#{initParam}"/></dd>
+    	</dl>
+    	
+    	<fieldset>
+    		<legend>Example Form</legend>
+    		<h:form>
+    			<h:inputText id="appGuyProperty" value="#{applicationGuy.beanProperty}"/>
+    			<h:commandButton value="Refresh">
+    				<f:ajax execute="appGuyProperty" render="formOutput"/>
+    			</h:commandButton>
+    			
+    			<p><h:outputText id="formOutput" value="#{applicationGuy.beanProperty}"/></p>
+    		</h:form>
+    	</fieldset>
+    	
+    	<openntf:exampleFacelet/>
+    </h:body>
+</f:view>

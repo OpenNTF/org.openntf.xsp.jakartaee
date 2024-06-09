@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConnection;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
@@ -46,6 +48,8 @@ import jakarta.servlet.http.Part;
 
 @SuppressWarnings("unchecked")
 class OldHttpServletRequestWrapper implements HttpServletRequest {
+	private static final String ATTR_REQUEST_ID = OldHttpServletRequestWrapper.class.getPackageName() + "_requestId"; //$NON-NLS-1$
+
 	final javax.servlet.ServletContext context;
 	final javax.servlet.http.HttpServletRequest delegate;
 	
@@ -156,12 +160,6 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	@Override
 	public BufferedReader getReader() throws IOException {
 		return delegate.getReader();
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public String getRealPath(String arg0) {
-		return delegate.getRealPath(arg0);
 	}
 
 	@Override
@@ -400,12 +398,6 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 		return delegate.isRequestedSessionIdFromURL();
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public boolean isRequestedSessionIdFromUrl() {
-		return delegate.isRequestedSessionIdFromUrl();
-	}
-
 	@Override
 	public boolean isRequestedSessionIdValid() {
 		return delegate.isRequestedSessionIdValid();
@@ -429,6 +421,28 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	@Override
 	public <T extends HttpUpgradeHandler> T upgrade(Class<T> arg0) throws IOException, ServletException {
 		throw new ServletException("Upgrade unsupported");
+	}
+
+	@Override
+	public String getRequestId() {
+		// Shim one in
+		String id = (String)getAttribute(ATTR_REQUEST_ID);
+		if(id == null) {
+			id = UUID.randomUUID().toString();
+			setAttribute(ATTR_REQUEST_ID, id);
+		}
+		
+		return id;
+	}
+
+	@Override
+	public String getProtocolRequestId() {
+		return ""; // Always HTTP/1.1 on Domino //$NON-NLS-1$
+	}
+
+	@Override
+	public ServletConnection getServletConnection() {
+		throw new UnsupportedOperationException();
 	}
 	
 	// *******************************************************************************

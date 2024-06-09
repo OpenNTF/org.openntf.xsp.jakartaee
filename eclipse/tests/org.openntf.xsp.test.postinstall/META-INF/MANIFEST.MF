@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Post-Install Tasks For IT Docker Container
 Bundle-SymbolicName: org.openntf.xsp.test.postinstall;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.test.postinstall
-Bundle-Version: 2.15.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.designer.runtime.domino.adapter,
  jakarta.json;version="2.0.0",

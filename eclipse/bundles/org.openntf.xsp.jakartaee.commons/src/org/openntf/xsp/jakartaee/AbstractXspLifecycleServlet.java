@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 		FacesContext facesContext = null;
 		try {
 			if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
-				doInit(config);
+				doInit(config, request);
 				
 				initialized = true;
 			}
@@ -168,9 +168,10 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	 * {@link #init(ServletConfig}}.</p>
 	 * 
 	 * @param config the active {@link ServletConfig}
+	 * @param request the active {@link HttpServletRequest}
 	 * @throws ServletException if initialization encounters a problem
 	 */
-	protected abstract void doInit(ServletConfig config) throws ServletException;
+	protected abstract void doInit(ServletConfig config, HttpServletRequest request) throws ServletException;
 	
 	protected abstract void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application) throws ServletException, IOException;
 

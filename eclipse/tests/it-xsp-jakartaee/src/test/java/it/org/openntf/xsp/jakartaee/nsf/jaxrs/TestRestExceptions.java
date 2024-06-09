@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ public class TestRestExceptions extends AbstractWebClientTest {
 			driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/fakeendpoint");
 			
 			WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
-			assertTrue(span.getText().startsWith("RESTEASY003210: Could not find resource for full path"));
+			assertTrue(span.getText().startsWith("RESTEASY003210: Could not find resource for full path"), () -> "Unexpected content: " + span.getText());
 		}
 		{
 			Client client = getAnonymousClient();

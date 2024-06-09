@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package org.openntf.xsp.jakarta.servlet.nsf;
 
 import java.io.UncheckedIOException;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,26 +26,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletException;
-
-import jakarta.enterprise.inject.spi.CDI;
-import jakarta.servlet.Servlet;
-import jakarta.servlet.annotation.WebInitParam;
-import jakarta.servlet.annotation.WebServlet;
-
-import org.apache.tomcat.util.descriptor.web.ServletDef;
-import org.apache.tomcat.util.descriptor.web.WebXml;
-import org.openntf.xsp.cdi.CDILibrary;
-import org.openntf.xsp.jakarta.servlet.ServletLibrary;
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jakartaee.util.ModuleUtil;
-
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
+
+import org.apache.tomcat.util.descriptor.web.ServletDef;
+import org.apache.tomcat.util.descriptor.web.WebXml;
+import org.openntf.xsp.jakarta.cdi.util.DiscoveryUtil;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
+
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.annotation.WebServlet;
 
 /**
  * Provides support for Servlet classes inside an NSF annotated with {@link WebServlet}.
@@ -69,7 +66,7 @@ public class ServletServletFactory implements IServletFactory {
 	@Override
 	public final ServletMatch getServletMatch(String contextPath, String path) throws javax.servlet.ServletException {
 		try {
-			if(LibraryUtil.usesLibrary(ServletLibrary.LIBRARY_ID, module)) {
+			if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module)) {
 				for(Map.Entry<ServletInfo, Class<? extends Servlet>> entry : getModuleServlets().entrySet()) {
 					String match = matches(entry.getKey(), path);
 					if(match != null) {
@@ -153,17 +150,17 @@ public class ServletServletFactory implements IServletFactory {
 		return this.servlets.computeIfAbsent(c, key -> {
 			try {
 				Servlet delegate;
-				if(LibraryUtil.usesLibrary(CDILibrary.LIBRARY_ID, this.module)) {
+				if(Arrays.stream(c.getAnnotations()).anyMatch(DiscoveryUtil::isBeanDefining) || c.isAnnotationPresent(WebServlet.class)) {
 					delegate = CDI.current().select(c).get();
 				} else {
-					delegate = c.newInstance();
+					delegate = c.getConstructor().newInstance();
 				}
 				Servlet wrapper = new XspServletWrapper(module, delegate);
 				
 				Map<String, String> params = mapping.def.getParameterMap();
 				
 				return module.createServlet(ServletUtil.newToOld(wrapper), mapping.def.getServletName(), params);
-			} catch (InstantiationException | IllegalAccessException | ServletException e) {
+			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		});

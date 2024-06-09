@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class TestConfig extends AbstractWebClientTest {
 		String json = response.readEntity(String.class);
 		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 		assertFalse(jsonObject.getString("java.version").isEmpty(), () -> json);
-		assertTrue(jsonObject.getString("xsp.library.depends").startsWith("org.openntf.xsp.el"), () -> json);
+		assertTrue(jsonObject.getString("xsp.library.depends").startsWith("org.openntf.xsp.jakartaee.core"), () -> json);
 		assertEquals("/local/notesdata", jsonObject.getString("Directory"));
 		assertEquals("foo", jsonObject.getString("mpconfig.example.setting"));
 	}

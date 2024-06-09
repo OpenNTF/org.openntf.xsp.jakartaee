@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,10 +133,10 @@ class NewHttpServletResponseWrapper implements javax.servlet.http.HttpServletRes
 		return delegate.encodeRedirectURL(arg0);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public String encodeRedirectUrl(String arg0) {
-		return delegate.encodeRedirectUrl(arg0);
+		// Duplicate removed in Servlet 6
+		return delegate.encodeRedirectURL(arg0);
 	}
 
 	@Override
@@ -144,10 +144,10 @@ class NewHttpServletResponseWrapper implements javax.servlet.http.HttpServletRes
 		return delegate.encodeURL(arg0);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public String encodeUrl(String arg0) {
-		return delegate.encodeUrl(arg0);
+		// Duplicate removed in Servlet 6
+		return delegate.encodeURL(arg0);
 	}
 
 	@Override
@@ -185,10 +185,10 @@ class NewHttpServletResponseWrapper implements javax.servlet.http.HttpServletRes
 		delegate.setStatus(arg0);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void setStatus(int arg0, String arg1) {
-		delegate.setStatus(arg0, arg1);
+		// Removed in Servlet 6
+		delegate.setStatus(arg0);
 	}
 
 }

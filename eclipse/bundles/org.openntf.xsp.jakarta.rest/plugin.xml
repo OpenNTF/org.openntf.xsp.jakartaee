@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<?eclipse version="3.4"?>
+<plugin>
+	<!-- The REST servlet factory -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jakarta.rest.RestServletFactory" />
+	</extension>
+	
+	<!-- Standard extension to provide security information -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.jakarta.rest.security.SecurityContributor" />
+	</extension>
+	
+	<!-- JSON-emitting exception mapper -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.jakarta.rest.exceptions.ExceptionMapperContributor" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.rest.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jakarta.rest.exceptions.handler.HtmlExceptionHandler" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.rest.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jakarta.rest.exceptions.handler.TextPlainExceptionHandler" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.rest.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jakarta.rest.exceptions.handler.JsonExceptionHandler" />
+	</extension>
+	
+	<!-- CDI support -->
+	<extension point="com.ibm.commons.Extension">
+ 		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.jakarta.rest.cdi.ResteasyBeanClassContributor"/>
+ 	</extension>
+ 	<extension point="com.ibm.commons.Extension">
+ 		<service type="org.openntf.xsp.jakarta.rest.ServiceParticipant" class="org.openntf.xsp.jakarta.rest.cdi.CDIServiceParticipant"/>
+ 	</extension>
+ 	
+	<!-- JSON-B support -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.jakarta.rest.json.JsonbRestContributor" />
+	</extension>
+</plugin>

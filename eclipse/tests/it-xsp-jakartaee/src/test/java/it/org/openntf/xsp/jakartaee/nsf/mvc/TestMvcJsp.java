@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@ package it.org.openntf.xsp.jakartaee.nsf.mvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
@@ -43,25 +44,30 @@ public class TestMvcJsp extends AbstractWebClientTest {
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testHelloPage(WebDriver driver) {
 		driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc?foo=bar");
-		
-		{
-			WebElement p = driver.findElement(By.xpath("//p[1]"));
-			assertEquals("From the URL, I got: bar", p.getText());
+		try {
+			{
+				WebElement p = driver.findElement(By.xpath("//p[1]"));
+				assertEquals("From the URL, I got: bar", p.getText());
+			}
+			{
+				WebElement p = driver.findElement(By.xpath("//p[2]"));
+				assertTrue(p.getText().startsWith("Application guy is I'm application guy"), () -> p.getText());
+			}
+			{
+				WebElement p = driver.findElement(By.xpath("//p[6]"));
+				assertTrue(p.getText().startsWith("Context from controller is s: CN="), () -> p.getText());
+			}
+			
+			WebElement dd = driver.findElement(By.xpath("//fieldset/p"));
+			assertEquals("I was sent: Value sent into the tag", dd.getText());
+		} catch(Exception e) {
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
-		{
-			WebElement p = driver.findElement(By.xpath("//p[2]"));
-			assertTrue(p.getText().startsWith("Application guy is I'm application guy"), () -> p.getText());
-		}
-		{
-			WebElement p = driver.findElement(By.xpath("//p[6]"));
-			assertTrue(p.getText().startsWith("Context from controller is s: CN="), () -> p.getText());
-		}
-		
-		WebElement dd = driver.findElement(By.xpath("//fieldset/p"));
-		assertEquals("I was sent: Value sent into the tag", dd.getText());
 	}
 	
-	@Test
+	// Account for cases where only the first MVC call works and then "poisons" future ones - ensure that
+	//   a single test can run twice to show it specifically
+	@RepeatedTest(2)
 	public void testBeanParam() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mvc/beanParam"); //$NON-NLS-1$

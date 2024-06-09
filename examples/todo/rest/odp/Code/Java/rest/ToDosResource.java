@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
-import jakarta.nosql.mapping.Sorts;
+import jakarta.data.Sort;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -29,9 +29,9 @@ public class ToDosResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ToDo> get(@QueryParam("status") ToDo.State status) {
 		if(status == null) {
-			return repository.findAll(Sorts.sorts().asc("created")).collect(Collectors.toList());
+			return repository.findAll(Sort.asc("created")).collect(Collectors.toList());
 		} else {
-			return repository.findByStatus(status, Sorts.sorts().asc("created")).collect(Collectors.toList());
+			return repository.findByStatus(status, Sort.asc("created")).collect(Collectors.toList());
 		}
 	}
 	

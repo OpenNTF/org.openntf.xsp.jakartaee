@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Bean Validation Compile-Time Tests
-Bundle-SymbolicName: org.openntf.xsp.beanvalidation.test
-Automatic-Module-Name: org.openntf.xsp.beanvalidation.test
-Bundle-Version: 2.15.0.qualifier
-Fragment-Host: org.openntf.xsp.beanvalidation
-Require-Bundle: org.junit;bundle-version="4.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8

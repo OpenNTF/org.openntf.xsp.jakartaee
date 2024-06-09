@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 import org.openntf.xsp.jakarta.concurrency.ConcurrencyActivator;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
+import jakarta.enterprise.concurrent.ContextService;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import jakarta.enterprise.concurrent.Trigger;
 
@@ -135,6 +139,56 @@ public class DelegatingManagedScheduledExecutorService implements ManagedSchedul
 	@Override
 	public <V> ScheduledFuture<V> schedule(Callable<V> callable, Trigger trigger) {
 		return getDelegate().schedule(callable, trigger);
+	}
+
+	@Override
+	public <U> CompletableFuture<U> completedFuture(U value) {
+		return getDelegate().completedFuture(value);
+	}
+
+	@Override
+	public <U> CompletionStage<U> completedStage(U value) {
+		return getDelegate().completedStage(value);
+	}
+
+	@Override
+	public <T> CompletableFuture<T> copy(CompletableFuture<T> stage) {
+		return getDelegate().copy(stage);
+	}
+
+	@Override
+	public <T> CompletionStage<T> copy(CompletionStage<T> stage) {
+		return getDelegate().copy(stage);
+	}
+
+	@Override
+	public <U> CompletableFuture<U> failedFuture(Throwable ex) {
+		return getDelegate().failedFuture(ex);
+	}
+
+	@Override
+	public <U> CompletionStage<U> failedStage(Throwable ex) {
+		return getDelegate().failedStage(ex);
+	}
+
+	@Override
+	public ContextService getContextService() {
+		return getDelegate().getContextService();
+	}
+
+	@Override
+	public <U> CompletableFuture<U> newIncompleteFuture() {
+		return getDelegate().newIncompleteFuture();
+	}
+
+	@Override
+	public CompletableFuture<Void> runAsync(Runnable runnable) {
+		return getDelegate().runAsync(runnable);
+	}
+
+	@Override
+	public <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier) {
+		return getDelegate().supplyAsync(supplier);
 	}
 	
 	private ManagedScheduledExecutorService getDelegate() {

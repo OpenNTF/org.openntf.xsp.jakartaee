@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +40,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.Platform;
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
@@ -71,6 +69,22 @@ import lotus.domino.Session;
 public enum LibraryUtil {
 	;
 	
+	/**
+	 * XPages Library ID for core components
+	 * @since 3.0.0
+	 */
+	public static final String LIBRARY_CORE = "org.openntf.xsp.jakartaee.core"; //$NON-NLS-1$
+	/**
+	 * XPages Library ID for UI components
+	 * @since 3.0.0
+	 */
+	public static final String LIBRARY_UI = "org.openntf.xsp.jakartaee.ui"; //$NON-NLS-1$
+	/**
+	 * XPages Library ID for MicroProfile components
+	 * @since 3.0.0
+	 */
+	public static final String LIBRARY_MICROPROFILE = "org.openntf.xsp.microprofile"; //$NON-NLS-1$
+	
 	private static final Map<String, Long> NSF_MOD = new HashMap<>();
 	private static final Map<String, Properties> NSF_PROPS = new ConcurrentHashMap<>();
 	
@@ -79,12 +93,12 @@ public enum LibraryUtil {
 	 * about dynamically loaded/unloaded bundles.
 	 * @since 2.4.0
 	 */
-	private static final Map<String, Bundle> BUNDLE_CACHE = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, Bundle> BUNDLE_CACHE = new ConcurrentHashMap<>();
 	/**
 	 * Store looked up extensions by class for the lifetime of the JVM.
 	 * @since 2.4.0
 	 */
-	private static final Map<Class<?>, List<?>> EXTENSION_CACHE = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Class<?>, List<?>> EXTENSION_CACHE = new ConcurrentHashMap<>();
 	
 	/**
 	 * Property used to house the time that the xsp.properties resource in a ComponentModule
@@ -113,20 +127,6 @@ public enum LibraryUtil {
 			.sorted(PriorityComparator.DESCENDING)
 			.filter(ComponentEnabledLocator::isActive)
 			.anyMatch(locator -> locator.isComponentEnabled(libraryId));
-	}
-	
-	/**
-	 * Attempts to determine whether all of the given XPages Libraries are
-	 * active for the current application.
-	 * 
-	 * @param libraryIds the library IDs to check
-	 * @return {@code true} if all libraries are active; {@code false} if any
-	 *         of them are not or if the context application cannot be
-	 *         identified
-	 * @since 2.11.0
-	 */
-	public static boolean isLibraryActive(String... libraryIds) {
-		return Stream.of(libraryIds).allMatch(LibraryUtil::isLibraryActive);
 	}
 	
 	/**

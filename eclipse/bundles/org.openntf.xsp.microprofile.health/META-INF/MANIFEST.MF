@@ -3,11 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile Health Support
 Bundle-SymbolicName: org.openntf.xsp.microprofile.health;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.health
-Bundle-Version: 2.15.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
- org.eclipse.microprofile.health;bundle-version="4.0.0";visibility:=reexport
+ org.openntf.org.eclipse.microprofile.health;bundle-version="4.0.0";visibility:=reexport
 Import-Package: com.ibm.xsp.application,
  com.ibm.xsp.library,
  io.smallrye.health;version="4.0.0",
@@ -19,12 +19,12 @@ Import-Package: com.ibm.xsp.application,
  jakarta.ws.rs;version="3.0.0",
  jakarta.ws.rs.core;version="3.0.0",
  org.eclipse.microprofile.openapi.annotations;version="1.0.0",
- org.openntf.xsp.cdi.discovery;version="2.2.0",
- org.openntf.xsp.cdi.util;version="2.2.0",
+ org.openntf.xsp.jakarta.cdi.discovery;version="2.2.0",
+ org.openntf.xsp.jakarta.cdi.util;version="2.2.0",
+ org.openntf.xsp.jakarta.rest;version="2.2.0",
  org.openntf.xsp.jakartaee;version="2.2.0",
  org.openntf.xsp.jakartaee.metrics;version="2.10.0",
  org.openntf.xsp.jakartaee.util;version="2.3.0",
- org.openntf.xsp.jaxrs;version="2.2.0",
  org.osgi.framework;version="1.8.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.microprofile.health.HealthActivator

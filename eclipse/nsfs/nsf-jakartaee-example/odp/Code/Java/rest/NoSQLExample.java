@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
-import org.openntf.xsp.nosql.communication.driver.ByteArrayEntityAttachment;
-import org.openntf.xsp.nosql.communication.driver.ViewInfo;
-import org.openntf.xsp.nosql.mapping.extension.FTSearchOption;
-import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
+import org.openntf.xsp.jakarta.nosql.communication.driver.ByteArrayEntityAttachment;
+import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.FTSearchOption;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.StreamUtil;
@@ -51,8 +51,8 @@ import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.internet.MimePart;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.nosql.mapping.Pagination;
-import jakarta.nosql.mapping.Sorts;
+import jakarta.data.page.PageRequest;
+import jakarta.data.Sort;
 import jakarta.transaction.UserTransaction;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.Consumes;
@@ -94,7 +94,7 @@ public class NoSQLExample {
 	public Object getByLastName(@QueryParam("lastName") String lastName) {
 		Map<String, Object> result = new LinkedHashMap<>();
 		result.put("byQueryLastName", personRepository.findByLastName(lastName).collect(Collectors.toList()));
-		result.put("totalCount", personRepository.count());
+		result.put("totalCount", personRepository.countBy());
 		return result;
 	}
 	
@@ -118,8 +118,8 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object getServers() {
 		Map<String, Object> result = new LinkedHashMap<>();
-		result.put("all", serverRepository.findAll(Sorts.sorts().asc("serverName")).collect(Collectors.toList()));
-		result.put("totalCount", serverRepository.count());
+		result.put("all", serverRepository.findAll(Sort.asc("serverName")).collect(Collectors.toList()));
+		result.put("totalCount", serverRepository.countBy());
 		return result;
 	}
 	
@@ -337,7 +337,7 @@ public class NoSQLExample {
 		if(sortCol == null || sortCol.isEmpty()) {
 			models.put("persons", personRepository.findAll().collect(Collectors.toList()));
 		} else {
-			models.put("persons", personRepository.findAll(Sorts.sorts().asc(sortCol)).collect(Collectors.toList()));
+			models.put("persons", personRepository.findAll(Sort.asc(sortCol)).collect(Collectors.toList()));
 		}
 		return "person-list.jsp";
 	}
@@ -349,7 +349,7 @@ public class NoSQLExample {
 		if(sortCol == null || sortCol.isEmpty()) {
 			return personRepository.findAll().collect(Collectors.toList());
 		} else {
-			return personRepository.findAll(Sorts.sorts().asc(sortCol)).collect(Collectors.toList());
+			return personRepository.findAll(Sort.asc(sortCol)).collect(Collectors.toList());
 		}
 	}
 	
@@ -378,7 +378,7 @@ public class NoSQLExample {
 	public List<Person> ftSearchViewSorted(@QueryParam("search") String search) {
 		return personRepository.findByKeyMulti(
 			ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
-			Sorts.sorts().desc("firstName"),
+			Sort.desc("firstName"),
 			null
 		).collect(Collectors.toList());
 	}
@@ -390,7 +390,7 @@ public class NoSQLExample {
 		return personRepository.findByKeyMulti(
 			ViewQuery.query().ftSearch(search, EnumSet.of(FTSearchOption.UPDATE_INDEX)),
 			null,
-			Pagination.page(page).size(size)
+			PageRequest.ofPage(page).size(size)
 		).collect(Collectors.toList());
 	}
 	
@@ -642,7 +642,7 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Person> queryByEmailOneKey(@QueryParam("q") @NotEmpty String searchValue, @QueryParam("resort") boolean resort) {
 		ViewQuery query = ViewQuery.query().key(searchValue, true);
-		Sorts sorts = resort ? Sorts.sorts().asc("email") : null;
+		Sort<Person> sorts = resort ? Sort.asc("email") : null;
 		return personRepository.readViewDocuments("PersonEmailOneKey", -1, false, query, sorts, null).collect(Collectors.toList());
 	}
 	

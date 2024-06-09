@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package org.openntf.xsp.test.beanbundle.servlet;
 import org.jboss.resteasy.cdi.CdiInjectorFactory;
 import org.jboss.weld.manager.BeanManagerImpl;
 import org.jboss.weld.util.ForwardingBeanManager;
-import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.osgi.framework.FrameworkUtil;
 
 import jakarta.enterprise.inject.spi.BeanManager;

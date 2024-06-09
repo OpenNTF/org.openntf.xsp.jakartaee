@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package it.org.openntf.xsp.jakartaee.nsf.mvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
@@ -39,10 +40,14 @@ public class TestMvcExceptions extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testHtml(WebDriver driver) {
-		driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc/exception");
-		
-		WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
-		assertEquals("I am an exception from an MVC resource", span.getText());
+		try {
+			driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc/exception");
+			
+			WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
+			assertEquals("I am an exception from an MVC resource", span.getText());
+		} catch(Exception e) {
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
+		}
 	}
 	
 	/**
@@ -51,17 +56,21 @@ public class TestMvcExceptions extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testNotFound(WebDriver driver) {
-		{
-			driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc/notFound");
-			
-			WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
-			assertTrue(span.getText().startsWith("I am a programmatic not-found exception from MVC"), () -> "Received unexpected page content: " + driver.getPageSource());
-		}
-		{
-			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mvc/notFound");
-			Response response = target.request().get();
-			assertEquals(404, response.getStatus());
+		try {
+			{
+				driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc/notFound");
+				
+				WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
+				assertTrue(span.getText().startsWith("I am a programmatic not-found exception from MVC"), () -> "Received unexpected page content: " + driver.getPageSource());
+			}
+			{
+				Client client = getAnonymousClient();
+				WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mvc/notFound");
+				Response response = target.request().get();
+				assertEquals(404, response.getStatus());
+			}
+		} catch(Exception e) {
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 	

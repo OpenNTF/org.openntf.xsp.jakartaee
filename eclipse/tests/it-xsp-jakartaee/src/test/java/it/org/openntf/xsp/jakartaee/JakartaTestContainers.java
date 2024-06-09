@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.testcontainers.containers.BrowserWebDriverContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -40,6 +42,7 @@ public enum JakartaTestContainers {
 		.build();
 	public GenericContainer<?> domino;
 	public PostgreSQLContainer<?> postgres;
+	public BrowserWebDriverContainer<?> firefox;
 	
 	@SuppressWarnings("resource")
 	private JakartaTestContainers() {
@@ -76,9 +79,13 @@ public enum JakartaTestContainers {
 				.withNetworkAliases("postgresql") //$NON-NLS-1$
 				.withStartupTimeout(Duration.of(2, ChronoUnit.MINUTES));
 			postgres.addExposedPort(5432);
+			firefox = new BrowserWebDriverContainer<>()
+				.withCapabilities(new FirefoxOptions())
+				.withNetwork(network);
 			
 			domino.start();
 			postgres.start();
+			firefox.start();
 			// The above waits for "Adding sign bit" from AdminP, but we have no
 			//   solid indication when it's done. For now, wait a couple seconds
 			try {
@@ -93,6 +100,9 @@ public enum JakartaTestContainers {
 				}
 				if(postgres != null) {
 					postgres.close();
+				}
+				if(firefox != null) {
+					firefox.close();
 				}
 				network.close();
 				

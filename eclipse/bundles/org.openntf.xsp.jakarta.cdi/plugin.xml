@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<?eclipse version="3.4"?>
+<plugin>
+	<!-- The ApplicationListener to manage the CDI context -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="com.ibm.xsp.core.events.ApplicationListener" class="org.openntf.xsp.jakarta.cdi.impl.CDIApplicationListener" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.cdi.ext.CDIContainerUtility" class="org.openntf.xsp.jakarta.cdi.impl.ContainerUtilProvider" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.jakarta.cdi.bean.BuiltinBeanClassContributor" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.jakarta.cdi.discovery.ComponentModuleClassContributor" />
+	</extension>
+	
+	<!-- Default CDI container locators -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.jakarta.cdi.provider.ComponentModuleCDIContainerLocator" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.jakarta.cdi.provider.ThreadContextDatabasePathCDIContainerLocator" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.jakarta.cdi.concurrency.ConcurrencyCDIContainerLocator" />
+	</extension>
+	
+	<!-- Concurrency thread assistants -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant" class="org.openntf.xsp.jakarta.cdi.concurrency.CDIContextSetupParticipant" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant" class="org.openntf.xsp.jakarta.cdi.concurrency.NSFSessionClonerSetupParticipant" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.jakarta.cdi.concurrency.ConcurrencyBeanClassContributor" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.jboss.weld.serialization.spi.ProxyServices" class="org.openntf.xsp.jakarta.cdi.util.NSFProxyServices" />
+	</extension>
+</plugin>

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import org.eclipse.microprofile.openapi.models.OpenAPI;
 import org.eclipse.microprofile.openapi.models.info.Info;
 import org.eclipse.microprofile.openapi.models.servers.Server;
 import org.jboss.jandex.Index;
+import org.openntf.xsp.jakarta.rest.RestServletFactory;
 import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
-import org.openntf.xsp.jaxrs.JAXRSServletFactory;
 
 import com.ibm.commons.util.PathUtil;
 
@@ -104,7 +104,7 @@ public abstract class AbstractOpenAPIResource {
 			URI uri = URI.create(req.getRequestURL().toString());
 			
 			String jaxrsRoot = module.map(ComponentModuleLocator::getActiveModule)
-				.map(JAXRSServletFactory::getServletPath)
+				.map(RestServletFactory::getServletPath)
 				.orElse(""); //$NON-NLS-1$
 			uri = uri.resolve(PathUtil.concat(req.getContextPath(), jaxrsRoot, '/'));
 			String uriString = uri.toString();

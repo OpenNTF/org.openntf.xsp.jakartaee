@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,18 +135,6 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 		return delegate.encodeRedirectURL(url);
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public String encodeUrl(String url) {
-		return delegate.encodeUrl(url);
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public String encodeRedirectUrl(String url) {
-		return delegate.encodeRedirectUrl(url);
-	}
-
 	@Override
 	public void sendError(int sc, String msg) throws IOException {
 		delegate.sendError(sc, msg);
@@ -197,13 +185,6 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	@Override
 	public void setStatus(int sc) {
 		delegate.setStatus(sc);
-		this.status = sc;
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public void setStatus(int sc, String sm) {
-		delegate.setStatus(sc, sm);
 		this.status = sc;
 	}
 

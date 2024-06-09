@@ -3,9 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta EE Commons
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.commons;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.commons
-Bundle-Version: 2.15.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.ibm.pvc.servlet;bundle-version="2.5.0",
  com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  com.ibm.xsp.designer;bundle-version="9.0.1",
@@ -15,16 +15,16 @@ Require-Bundle: com.ibm.pvc.servlet;bundle-version="2.5.0",
  jakarta.enterprise.concurrent-api;bundle-version="2.0.0";visibility:=reexport,
  net.fortuna.ical4j;bundle-version="1.0.0";resolution:=optional;visibility:=reexport
 Bundle-ClassPath: .
-Export-Package: org.openntf.xsp.cdi.ext;version="2.15.0",
- org.openntf.xsp.jakartaee;version="2.15.0",
- org.openntf.xsp.jakartaee.discovery;version="2.15.0",
- org.openntf.xsp.jakartaee.discovery.impl;version="2.15.0",
- org.openntf.xsp.jakartaee.jasapi;version="2.15.0",
- org.openntf.xsp.jakartaee.metrics;version="2.15.0",
- org.openntf.xsp.jakartaee.module;version="2.15.0",
- org.openntf.xsp.jakartaee.servlet;version="2.15.0",
- org.openntf.xsp.jakartaee.util;version="2.15.0",
- org.openntf.xsp.jakartaee.xml;version="2.15.0"
+Export-Package: org.openntf.xsp.jakarta.cdi.ext;version="3.0.0",
+ org.openntf.xsp.jakartaee;version="3.0.0",
+ org.openntf.xsp.jakartaee.discovery;version="3.0.0",
+ org.openntf.xsp.jakartaee.discovery.impl;version="3.0.0",
+ org.openntf.xsp.jakartaee.jasapi;version="3.0.0",
+ org.openntf.xsp.jakartaee.metrics;version="3.0.0",
+ org.openntf.xsp.jakartaee.module;version="3.0.0",
+ org.openntf.xsp.jakartaee.servlet;version="3.0.0",
+ org.openntf.xsp.jakartaee.util;version="3.0.0",
+ org.openntf.xsp.jakartaee.xml;version="3.0.0"
 Import-Package: com.ibm.commons.extension,
  com.ibm.commons.util,
  com.ibm.designer.domino.napi,
@@ -48,7 +48,6 @@ Import-Package: com.ibm.commons.extension,
  lotus.domino,
  org.apache.tomcat.util.descriptor.web;version="9.0.0",
  org.eclipse.core.runtime;version="3.5.0",
- org.openntf.xsp.jakartaee.jasapi;version="2.13.0",
  org.osgi.framework;version="1.8.0",
  org.osgi.framework.hooks.weaving;version="1.1.0"
 Bundle-ActivationPolicy: lazy

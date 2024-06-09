@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
 import org.junit.Test;
+import org.openntf.xsp.jakarta.json.JSONBindUtil;
 import org.openntf.xsp.jakartaee.test.ExampleBean;
-import org.openntf.xsp.jsonapi.JSONBindUtil;
 
 @SuppressWarnings("nls")
 public class TestJsonb {

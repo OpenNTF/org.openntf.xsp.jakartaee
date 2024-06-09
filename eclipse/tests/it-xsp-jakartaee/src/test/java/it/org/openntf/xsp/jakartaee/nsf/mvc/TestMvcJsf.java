@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package it.org.openntf.xsp.jakartaee.nsf.mvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
 
@@ -70,7 +71,7 @@ public class TestMvcJsf extends AbstractWebClientTest {
 				assertEquals(expected, span.getText());
 			}
 		} catch(Exception e) {
-			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 }

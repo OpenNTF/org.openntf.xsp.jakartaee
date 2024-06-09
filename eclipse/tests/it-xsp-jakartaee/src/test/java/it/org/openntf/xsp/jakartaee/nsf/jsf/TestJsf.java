@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,19 @@ package it.org.openntf.xsp.jakartaee.nsf.jsf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -44,12 +49,26 @@ import jakarta.ws.rs.core.Response;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestJsf extends AbstractWebClientTest {
 	
-	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
-	@Order(1)
-	public void testHelloPage(WebDriver driver) {
-		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/hello.xhtml");
+	public static class BrowserAndHelloProvider implements ArgumentsProvider {
 
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return new BrowserArgumentsProvider().provideArguments(context)
+				.map(arg -> arg.get()[0])
+				.flatMap(browser ->
+					Stream.of("/hello.xhtml", "/xsp/helloForExtensionless")
+						.map(page -> Arguments.of(browser, page))
+				);
+		}
+		
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(BrowserAndHelloProvider.class)
+	@Order(1)
+	public void testHelloPage(WebDriver driver, String page) {
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + page);
+		
 		try {
 			String expected = "inputValue" + System.currentTimeMillis();
 			{
@@ -137,7 +156,7 @@ public class TestJsf extends AbstractWebClientTest {
 				assertTrue(dd.getText().isEmpty());
 			}
 		} catch(Exception e) {
-			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 	
@@ -165,7 +184,7 @@ public class TestJsf extends AbstractWebClientTest {
 	@Order(3)
 	public void testJsfJs() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/jakarta.faces.resource/jsf.js.xhtml?ln=jakarta.faces");
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/jakarta.faces.resource/faces.js.xhtml?ln=jakarta.faces");
 		Response response = target.request().get();
 		assertEquals(200, response.getStatus());
 
@@ -196,7 +215,22 @@ public class TestJsf extends AbstractWebClientTest {
 			value = waitFor(() -> input.getAttribute("value"), "2"::equals);
 			assertEquals("2", value, () -> "Didn't received expected value with HTML: " + driver.getPageSource());
 		} catch(Exception e) {
-			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
+		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@Order(5)
+	public void testProgrammaticFacelet(WebDriver driver) {
+		String expected = "foo" + System.currentTimeMillis();
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/programmaticFacelet.xhtml?foo=" + expected);
+
+		try {
+			WebElement output = driver.findElement(By.cssSelector(".param-output"));
+			assertEquals(expected, output.getText());
+		} catch(Exception e) {
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 }

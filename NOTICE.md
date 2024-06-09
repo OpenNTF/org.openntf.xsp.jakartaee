@@ -1,6 +1,6 @@
 XPages Jakarta EE Support
 
-Portions (c) Copyright 2018-2023 Jesse Gallagher
+Portions (c) Copyright 2018-2024 Jesse Gallagher
 Portions (c) Copyright 2018 Martin Pradny
 Portions (c) Copyright 2022 Per Lausten
 
@@ -15,6 +15,7 @@ The project contains the following third-party code:
 - Portions of Domino JNA, available from https://github.com/klehmann/domino-jna and licensed under Apache 2.0
 - Code derived from the Darwino JNoSQL driver, available from https://github.com/darwino/diana-driver and licensed under Apache 2.0
 - Code derived from the SmallRye Metrics implementation, available from https://github.com/smallrye/smallrye-metrics and licensed under Apache 2.0
+- Code derived from jacocotogo, available from https://github.com/mattcj/jacocotogo and licensed under Apache 2.0
 
 The binary distribution contains the following 3rd party code:
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
-@SuppressWarnings({ "rawtypes", "deprecation" })
+@SuppressWarnings({ "rawtypes" })
 class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequest {
 	final HttpServletRequest delegate;
 	
@@ -127,7 +127,8 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 
 	@Override
 	public String getRealPath(String arg0) {
-		return delegate.getRealPath(arg0);
+		// Removed in Servlet 6
+		return null;
 	}
 
 	@Override
@@ -304,7 +305,8 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 
 	@Override
 	public boolean isRequestedSessionIdFromUrl() {
-		return delegate.isRequestedSessionIdFromUrl();
+		// Duplicate removed in Servlet 6
+		return isRequestedSessionIdFromURL();
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,27 +136,6 @@ public enum ServletUtil {
 			return ((NewHttpServletResponseWrapper)resp).delegate;
 		} else {
 			return new OldHttpServletResponseWrapper(resp);
-		}
-	}
-	
-	@SuppressWarnings("deprecation")
-	public static javax.servlet.http.HttpSessionContext newToOld(jakarta.servlet.http.HttpSessionContext context) {
-		if(context == null) {
-			return null;
-		} else if(context instanceof OldHttpSessionContextWrapper) {
-			return ((OldHttpSessionContextWrapper)context).delegate;
-		} else {
-			return new NewHttpSessionContextWrapper(context);
-		}
-	}
-	@SuppressWarnings("deprecation")
-	public static jakarta.servlet.http.HttpSessionContext oldToNew(javax.servlet.http.HttpSessionContext context) {
-		if(context == null) {
-			return null;
-		} else if(context instanceof NewHttpSessionContextWrapper) {
-			return ((NewHttpSessionContextWrapper)context).delegate;
-		} else {
-			return new OldHttpSessionContextWrapper(context);
 		}
 	}
 	
@@ -434,8 +413,7 @@ public enum ServletUtil {
 			javax.servlet.http.HttpServletResponse old = newToOld(resp);
 			if(old instanceof LCDAdapterHttpServletResponse) {
 				HttpServletResponseAdapter delegate = ((LCDAdapterHttpServletResponse)old).getDelegate();
-				if(delegate instanceof XspCmdHttpServletResponse) {
-					XspCmdHttpServletResponse xspResp = (XspCmdHttpServletResponse)delegate;
+				if(delegate instanceof XspCmdHttpServletResponse xspResp) {
 					try {
 						if(xspResp.writerInUse()) {
 							xspResp.getWriter().flush();
@@ -501,8 +479,8 @@ public enum ServletUtil {
 	}
 	
 	/**
-	 * Processes init-param values from any WEB-INF/web.xml and META-INF/web-fragment.xml files
-	 * inside the module.
+	 * Processes context-param values from any WEB-INF/web.xml and META-INF/web-fragment.xml files
+	 * inside the module and sets them as init parameters for the context.
 	 * 
 	 * @param module the module to load resources from
 	 * @param context the context to populate with init parameters
@@ -510,9 +488,24 @@ public enum ServletUtil {
 	 */
 	public static void populateWebXmlParams(ComponentModule module, jakarta.servlet.ServletContext context) {
 		if(module != null) {
+			getWebXmlParams(module).forEach(context::setInitParameter);
+		}
+	}
+	
+	/**
+	 * Processes context-param values from any WEB-INF/web.xml and META-INF/web-fragment.xml files
+	 * inside the module and returns a {@link Map} of them.
+	 * 
+	 * @param module the module to load resources from
+	 * @return a {@link Map} of context parameters from the web descriptor
+	 * @since 3.0.0
+	 */
+	public static Map<String, String> getWebXmlParams(ComponentModule module) {
+		if(module != null) {
 			WebXml result = getWebXml(module);
-			// Now populate resolved params
-			result.getContextParams().forEach(context::setInitParameter);
+			return result.getContextParams();
+		} else {
+			return Collections.emptyMap();
 		}
 	}
 	

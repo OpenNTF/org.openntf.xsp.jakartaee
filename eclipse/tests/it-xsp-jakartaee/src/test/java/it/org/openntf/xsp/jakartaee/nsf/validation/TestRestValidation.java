@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package it.org.openntf.xsp.jakartaee.nsf.validation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
@@ -45,15 +46,14 @@ public class TestRestValidation extends AbstractWebClientTest {
 		Response response = target.request("text/html","application/xhtml+xml","application/xml","*/*").get();
 		
 		String body = response.readEntity(String.class);
-		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				+ "<violationReport>"
+		assertTrue(body.contains("<violationReport>"
 				+ "<parameterViolations>"
 				+ "<constraintType>PARAMETER</constraintType>"
 				+ "<path>getRequestParamXml.requiredFieldParam</path>"
 				+ "<message>must not be empty</message>"
 				+ "<value></value>"
 				+ "</parameterViolations>"
-				+ "</violationReport>", body);
+				+ "</violationReport>"), () -> "Unexpected result: " + body);
 	}
 	
 	@Test
@@ -63,15 +63,14 @@ public class TestRestValidation extends AbstractWebClientTest {
 		Response response = target.request("application/xml").get();
 		
 		String body = response.readEntity(String.class);
-		assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-				+ "<violationReport>"
+		assertTrue(body.contains("<violationReport>"
 				+ "<parameterViolations>"
 				+ "<constraintType>PARAMETER</constraintType>"
 				+ "<path>getRequestParamXml.requiredFieldParam</path>"
 				+ "<message>must not be empty</message>"
 				+ "<value></value>"
 				+ "</parameterViolations>"
-				+ "</violationReport>", body);
+				+ "</violationReport>"), () -> "Unexpected result: " + body);
 	}
 	
 	@Test

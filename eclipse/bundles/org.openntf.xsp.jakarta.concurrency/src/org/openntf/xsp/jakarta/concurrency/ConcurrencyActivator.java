@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.openntf.xsp.jakarta.concurrency.jndi.DelegatingManagedScheduledExecut
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 import lotus.domino.NotesThread;
 
@@ -65,6 +66,13 @@ public class ConcurrencyActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
+		// Make sure the core JNDI provider is set up
+		try {
+			FrameworkUtil.getBundle(com.ibm.pvc.jndi.provider.java.InitialContextFactory.class).start();
+		} catch(Exception e) {
+			// Ignore if it's already started or otherwise trouble
+		}
+		
 		String jvmVersion = LibraryUtil.getSystemProperty("java.specification.version"); //$NON-NLS-1$
 		
 		if("1.8".equals(jvmVersion)) { //$NON-NLS-1$

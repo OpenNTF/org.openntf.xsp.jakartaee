@@ -3,16 +3,17 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile OpenAPI Support
 Bundle-SymbolicName: org.openntf.xsp.microprofile.openapi;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.openapi
-Bundle-Version: 2.15.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Fragment-Host: org.openntf.xsp.jaxrs
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Fragment-Host: org.openntf.xsp.jakarta.rest
 Import-Package: io.smallrye.openapi.api,
  io.smallrye.openapi.api.models,
  io.smallrye.openapi.api.models.info,
  io.smallrye.openapi.api.models.servers,
  io.smallrye.openapi.runtime,
  io.smallrye.openapi.runtime.io,
+ io.smallrye.openapi.spi;version="3.0.0",
  jakarta.enterprise.inject;version="3.0.0",
  jakarta.enterprise.inject.spi;version="3.0.0",
  jakarta.inject;version="2.0.0",

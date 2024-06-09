@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf.xsp</groupId>
 	<artifactId>xsp-jakartaee</artifactId>
-	<version>2.15.0</version>
+	<version>3.0.0</version>
 	<packaging>pom</packaging>
 
 	<name>XPages Jakarta EE Support</name>
@@ -40,81 +40,53 @@
 		<module>bundles/org.openntf.xsp.jakartaee.osgiresourcelocator</module>
 		<module>bundles/org.openntf.xsp.jakartaee.bridge.jasapi</module>
 		<module>bundles/org.openntf.xsp.jakarta.concurrency</module>
-		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
 		<!-- Servlet -->
 		<module>bundles/org.openntf.xsp.jakarta.servlet</module>
-		<module>features/org.openntf.xsp.jakarta.servlet.feature</module>
 		
-		<!-- CDI 3.0 -->
-		<module>bundles/org.openntf.xsp.cdi</module>
-		<module>bundles/org.openntf.xsp.cdi.extlib</module>
-		<module>bundles/org.openntf.xsp.cdi.jigsaw</module>
+		<!-- CDI-->
+		<module>bundles/org.openntf.xsp.jakarta.cdi</module>
+		<module>bundles/org.openntf.xsp.jakarta.cdi.extlib</module>
 		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
-		<module>features/org.openntf.xsp.cdi.feature</module>
 		
-		<!-- Expression Language 4.0 -->
-		<module>bundles/org.openntf.xsp.el</module>
-		<module>features/org.openntf.xsp.el.feature</module>
-		
-		<!-- JAX-RS 3.0, MicroProfile OpenAPI, and MicroProfile Metrics -->
-		<module>bundles/org.openntf.xsp.jaxrs</module>
-		<module>bundles/org.openntf.xsp.jaxrs.cdi</module>
-		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
-		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
-		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
-		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
-		<module>features/org.openntf.xsp.jaxrs.feature</module>
+		<!-- Expression Language -->
+		<module>bundles/org.openntf.xsp.jakarta.el</module>
 		
 		<!-- Bean Validation 3.0 -->
-		<module>bundles/org.openntf.xsp.beanvalidation</module>
-		<module>features/org.openntf.xsp.beanvalidation.feature</module>
-		<module>tests/org.openntf.xsp.beanvalidation.test</module>
+		<module>bundles/org.openntf.xsp.jakarta.validation</module>
 		
-		<!-- JSON-P 2.0 and JSON-B 2.0 -->
-		<module>bundles/org.openntf.xsp.jsonapi</module>
-		<module>bundles/org.openntf.xsp.jsonapi.jaxrs</module>
-		<module>bundles/org.openntf.xsp.jsonapi.cdi</module>
-		<module>features/org.openntf.xsp.jsonapi.feature</module>
-		<module>tests/org.openntf.xsp.jsonapi.test</module>
+		<!-- JSON Processing and Binding -->
+		<module>bundles/org.openntf.xsp.jakarta.json</module>
 		
-		<!-- JSP -->
- 		<module>bundles/org.openntf.xsp.jsp</module>
- 		<module>features/org.openntf.xsp.jsp.feature</module>
-		
-		<!-- JSF -->
- 		<module>bundles/org.openntf.xsp.jsf</module>
- 		<module>features/org.openntf.xsp.jsf.feature</module>
-		 
-		<!-- MVC -->
- 		<module>bundles/org.openntf.xsp.mvc</module>
- 		<module>features/org.openntf.xsp.mvc.feature</module>
+		<!-- Jakarta REST -->
+		<module>bundles/org.openntf.xsp.jakarta.rest</module>
+		<module>bundles/org.openntf.xsp.jakarta.rest.factory</module>
 	
 		<!-- NoSQL -->
-		<module>bundles/org.openntf.xsp.nosql.driver</module>
-		<module>bundles/org.openntf.xsp.nosql.driver.lsxbe</module>
-		<module>bundles/org.openntf.xsp.nosql</module>
-		<module>features/org.openntf.xsp.nosql.feature</module>
+		<module>bundles/org.openntf.xsp.jakarta.nosql.driver</module>
+		<module>bundles/org.openntf.xsp.jakarta.nosql.driver.lsxbe</module>
+		<module>bundles/org.openntf.xsp.jakarta.nosql</module>
 		 
-		<!-- MVC -->
+		<!-- Persistence -->
  		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
- 		<module>features/org.openntf.xsp.jakarta.persistence.feature</module>
+ 		
+		<!-- UI -->
+ 		<module>bundles/org.openntf.xsp.jakarta.pages</module>
+ 		<module>bundles/org.openntf.xsp.jakarta.faces</module>
+ 		<module>bundles/org.openntf.xsp.jakarta.mvc</module>
 	
-		<!-- MicroProfile Config -->
+		<!-- MicroProfile -->
 		<module>bundles/org.openntf.xsp.microprofile.config</module>
-		<module>features/org.openntf.xsp.microprofile.config.feature</module>
-	
-		<!-- MicroProfile REST Client -->
-		<module>bundles/org.openntf.xsp.microprofile.rest.client</module>
-		<module>features/org.openntf.xsp.microprofile.rest.client.feature</module>
-	
-		<!-- MicroProfile Fault Tolerance -->
-		<module>bundles/org.openntf.xsp.microprofile.fault.tolerance</module>
-		<module>features/org.openntf.xsp.microprofile.fault.tolerance.feature</module>
-	
-		<!-- MicroProfile Health -->
+		<module>bundles/org.openntf.xsp.microprofile.restclient</module>
+		<module>bundles/org.openntf.xsp.microprofile.faulttolerance</module>
 		<module>bundles/org.openntf.xsp.microprofile.health</module>
-		<module>features/org.openntf.xsp.microprofile.health.feature</module>
+		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
+		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
+		
+ 		<!-- XPages libraries -->
+ 		<module>bundles/org.openntf.xsp.jakartaee.core.library</module>
+ 		<module>bundles/org.openntf.xsp.jakartaee.ui.library</module>
+ 		<module>bundles/org.openntf.xsp.microprofile.library</module>
 		
 		<!-- Integration test support and examples -->
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
@@ -122,6 +94,12 @@
 		<module>tests/org.openntf.xsp.test.jasapi</module>
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		
+		<module>features/org.openntf.xsp.jakartaee.feature</module>
+		<module>features/org.openntf.xsp.jakartaee.ui.feature</module>
+		<module>features/org.openntf.xsp.microprofile.feature</module>
+		
+		<module>tests/org.openntf.xsp.jakarta.validation.test</module>
+		<module>tests/org.openntf.xsp.jakarta.json.test</module>
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
 		<module>releng/org.openntf.xsp.jakartaee.source.updatesite</module>
@@ -130,16 +108,16 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>2.7.5</tycho-version>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<tycho-version>3.0.5</tycho-version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
 	<repositories>
 		<repository>
 			<id>notes</id>
 			<layout>p2</layout>
-			<url>${notes-platform}</url>
+			<url>${notes-platform14}</url>
 		</repository>
 		<repository>
 			<id>osgi-deps</id>
@@ -211,33 +189,26 @@
 							<goal>plugin-source</goal>
 						</goals>
 					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-source-feature-plugin</artifactId>
-				<version>${tycho-version}</version>
-		
-				<executions>
 					<execution>
-						<id>source-feature</id>
-						<phase>package</phase>
+						<id>feature-source</id>
 						<goals>
-							<goal>source-feature</goal>
+							<goal>feature-source</goal>
 						</goals>
+						<configuration>
+							<includeBinaryFeature>false</includeBinaryFeature>
+							<excludes>
+								<plugin id="org.openntf.xsp.jaxrs.factory"/>
+								<plugin id="org.openntf.xsp.jaxrs.providers"/>
+								<plugin id="jakarta.servlet.jsp-api"/>
+								<plugin id="org.eclipse.jdt.core"/>
+								<plugin id="org.antlr.antlr4-runtime.jakarta"/>
+								<plugin id="org.openntf.xsp.jsonapi.cdi"/>
+								<plugin id="org.apache.commons.codec"/>
+								<plugin id="org.apache.commons.logging"/>
+							</excludes>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<includeBinaryFeature>false</includeBinaryFeature>
-					<excludes>
-						<plugin id="org.openntf.xsp.jaxrs.factory"/>
-						<plugin id="org.openntf.xsp.jaxrs.providers"/>
-						<plugin id="jakarta.servlet.jsp-api"/>
-						<plugin id="org.eclipse.jdt.core"/>
-						<plugin id="org.antlr.antlr4-runtime.jakarta"/>
-						<plugin id="org.openntf.xsp.jsonapi.cdi"/>
-					</excludes>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -256,6 +227,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
+					<executionEnvironment>JavaSE-17</executionEnvironment>
 					<pomDependencies>consider</pomDependencies>
 					<dependency-resolution>
 						<extraRequirements>
@@ -346,11 +318,13 @@
 						<exclude>**/odp/WebContent/WEB-INF/jakarta/faces-config.xml</exclude>
 						<exclude>**/odp/plugin.xml</exclude>
 						<exclude>**/WeldDefaultProxyServices.java</exclude>
+						<exclude>**/org/eclipse/jnosql/**</exclude>
 						<exclude>**/nsfs/nsf-jakartaee-primefaces-showcase/**</exclude>
+						<exclude>**/org/helmetsrequired/**</exclude>
 					</excludes>
 					<properties>
 						<owner>Contributors to the XPages Jakarta EE Support Project</owner>
-						<copyrightYear>2023</copyrightYear>
+						<copyrightYear>2024</copyrightYear>
 					</properties>
 				</configuration>
 			</plugin>
@@ -371,7 +345,7 @@
 									<version>3.0.1</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
-									<version>11</version>
+									<version>17</version>
 								</requireJavaVersion>
 							</rules>
 						</configuration>
@@ -419,6 +393,7 @@
 					<configuration>
 						<providerHint>junit4</providerHint>
 						<trimStackTrace>false</trimStackTrace>
+						<useJDK>BREE</useJDK>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -450,7 +425,7 @@
 				<plugin>
 					<groupId>org.openntf.maven</groupId>
 					<artifactId>nsfodp-maven-plugin</artifactId>
-					<version>3.7.1</version>
+					<version>4.0.1</version>
 				</plugin>
 				
 				

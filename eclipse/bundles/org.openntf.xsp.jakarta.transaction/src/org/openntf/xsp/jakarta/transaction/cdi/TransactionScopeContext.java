@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import org.openntf.xsp.cdi.context.BasicScopeContextHolder;
-import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
+import org.openntf.xsp.jakarta.cdi.context.BasicScopeContextHolder;
+import org.openntf.xsp.jakarta.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
 
 import jakarta.enterprise.context.spi.Context;
 import jakarta.enterprise.context.spi.Contextual;
