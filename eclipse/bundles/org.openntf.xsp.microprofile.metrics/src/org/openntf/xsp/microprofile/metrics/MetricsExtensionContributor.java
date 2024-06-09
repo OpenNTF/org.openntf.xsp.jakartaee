@@ -18,23 +18,27 @@ package org.openntf.xsp.microprofile.metrics;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
+import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-import io.smallrye.metrics.setup.MetricCdiInjectionExtension;
+import io.smallrye.metrics.legacyapi.LegacyMetricsExtension;
 import jakarta.enterprise.inject.spi.Extension;
 
-public class MetricsExtensionContributor implements WeldBeanClassContributor {
+public class MetricsExtensionContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		return Collections.emptyList();
+		return Collections.emptySet();
 	}
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		if(!"false".equals(LibraryUtil.getApplicationProperty(MetricsResourceContributor.PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
-			return Collections.singleton(new MetricCdiInjectionExtension());
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
+			if(true || !"false".equals(LibraryUtil.getApplicationProperty(MetricsResourceContributor.PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
+				return Collections.singleton(new LegacyMetricsExtension());
+			} else {
+				return Collections.emptySet();
+			}
 		} else {
 			return Collections.emptySet();
 		}

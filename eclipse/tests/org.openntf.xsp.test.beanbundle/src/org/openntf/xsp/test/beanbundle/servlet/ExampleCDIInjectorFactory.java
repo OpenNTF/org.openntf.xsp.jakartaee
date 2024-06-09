@@ -19,7 +19,7 @@ package org.openntf.xsp.test.beanbundle.servlet;
 import org.jboss.resteasy.cdi.CdiInjectorFactory;
 import org.jboss.weld.manager.BeanManagerImpl;
 import org.jboss.weld.util.ForwardingBeanManager;
-import org.openntf.xsp.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.osgi.framework.FrameworkUtil;
 
 import jakarta.enterprise.inject.spi.BeanManager;

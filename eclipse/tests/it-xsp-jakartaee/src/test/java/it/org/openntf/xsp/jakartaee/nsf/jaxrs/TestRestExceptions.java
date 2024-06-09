@@ -113,7 +113,7 @@ public class TestRestExceptions extends AbstractWebClientTest {
 			driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/fakeendpoint");
 			
 			WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
-			assertTrue(span.getText().startsWith("RESTEASY003210: Could not find resource for full path"));
+			assertTrue(span.getText().startsWith("RESTEASY003210: Could not find resource for full path"), () -> "Unexpected content: " + span.getText());
 		}
 		{
 			Client client = getAnonymousClient();

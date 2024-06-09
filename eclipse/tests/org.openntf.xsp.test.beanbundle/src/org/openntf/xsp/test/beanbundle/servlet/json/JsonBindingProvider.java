@@ -32,7 +32,7 @@ import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.MessageBodyWriter;
 import org.jboss.weld.proxy.WeldClientProxy;
 import org.jboss.weld.proxy.WeldClientProxy.Metadata;
-import org.openntf.xsp.jsonapi.JSONBindUtil;
+import org.openntf.xsp.jakarta.json.JSONBindUtil;
 
 @Produces({"application/json", "application/*+json", "text/json", "*/*"})
 @Consumes({"application/json", "application/*+json", "text/json", "*/*"})

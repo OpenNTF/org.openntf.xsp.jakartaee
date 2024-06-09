@@ -19,15 +19,15 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
-import org.openntf.xsp.nosql.mapping.extension.ViewDocuments;
-import org.openntf.xsp.nosql.mapping.extension.ViewEntries;
-import org.openntf.xsp.nosql.mapping.extension.ViewQuery;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewDocuments;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewEntries;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
-import jakarta.nosql.mapping.Pagination;
-import jakarta.nosql.mapping.Param;
-import jakarta.nosql.mapping.Query;
-import jakarta.nosql.mapping.Sorts;
+import jakarta.data.page.PageRequest;
+import jakarta.data.repository.Param;
+import jakarta.data.repository.Query;
+import jakarta.data.Sort;
 
 public interface PersonRepository extends DominoRepository<Person, String> {
 	String FOLDER_PERSONS = "Persons Folder";
@@ -36,7 +36,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	String VIEW_PERSONS = "Persons";
 	
 	Stream<Person> findAll();
-	Stream<Person> findAll(Sorts sorts);
+	Stream<Person> findAll(Sort<?> sorts);
 	Stream<Person> findByLastName(String lastName);
 	
 	@ViewEntries(FOLDER_PERSONS)
@@ -46,7 +46,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	Optional<Person> findByKey(ViewQuery viewQuery);
 	
 	@ViewEntries(VIEW_PERSONS)
-	Stream<Person> findByKeyMulti(ViewQuery viewQuery, Sorts sorts, Pagination pagination);
+	Stream<Person> findByKeyMulti(ViewQuery viewQuery, Sort<?> sorts, PageRequest pagination);
 	
 	@Query("select * from Person where modified >= @modified")
 	Stream<Person> findModifiedSince(@Param("modified") Instant modified);

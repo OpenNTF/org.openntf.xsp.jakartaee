@@ -20,16 +20,16 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
-import org.openntf.xsp.nosql.communication.driver.DominoConstants;
-import org.openntf.xsp.nosql.mapping.extension.EntryType;
-import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
+import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.EntryType;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemStorage;
 
 import java.time.Instant;
 
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Id;
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.FormParam;
 

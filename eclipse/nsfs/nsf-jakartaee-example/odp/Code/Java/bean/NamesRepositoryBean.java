@@ -15,22 +15,22 @@
  */
 package bean;
 
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
-import org.openntf.xsp.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
+import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
+import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
 
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.nosql.mapping.Database;
-import jakarta.nosql.mapping.DatabaseType;
+import org.eclipse.jnosql.mapping.Database;
+import org.eclipse.jnosql.mapping.DatabaseType;
 import lotus.domino.NotesException;
 
 @RequestScoped
 public class NamesRepositoryBean {
 	@Produces
 	@Database(value = DatabaseType.DOCUMENT, provider = "names")
-	public DominoDocumentCollectionManager getNamesManager() {
+	public DominoDocumentManager getNamesManager() {
 		return new DefaultDominoDocumentCollectionManager(
 			() -> {
 				try {

@@ -18,8 +18,8 @@
 -->
 <feature
       id="org.openntf.xsp.jakartaee.feature"
-      label="XPages Jakarta EE Platform Feature"
-      version="2.16.0.qualifier">
+      label="XPages Jakarta EE Core Feature"
+      version="3.0.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -242,19 +242,59 @@
 	<plugin id="com.sun.xml.bind.jaxb-core" version="0.0.0" unpack="false"/>
 	<plugin id="com.sun.xml.bind.jaxb-impl" version="0.0.0" unpack="false"/>
 
+	<!-- Annotations -->
 	<plugin id="jakarta.annotation-api" version="0.0.0" unpack="false"/>
+	
+	<!-- Expression Language -->
 	<plugin id="jakarta.el-api" version="0.0.0" unpack="false"/>
-	<plugin id="org.glassfish.jakarta.el" version="0.0.0" unpack="false"/>
+	<plugin id="org.glassfish.expressly" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.el" version="0.0.0" unpack="false"/>
+	
+	<!-- CDI, Interceptors, and Inject -->
+	<plugin id="org.openntf.jakarta.enterprise.cdi-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.interceptor-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.inject.jakarta.inject-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.cdi" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.cdi.extlib" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.transaction" version="0.0.0" unpack="false"/>
+    
+	<plugin id="org.jboss.weld.api" version="0.0.0" unpack="false"/>
+	<plugin id="org.jboss.weld.spi" version="0.0.0" unpack="false"/>
+	<plugin id="org.jboss.weld.core-impl" version="0.0.0" unpack="false"/>
+	<plugin id="org.jboss.weld.environment.weld-environment-common" version="0.0.0" unpack="false"/>
+	<plugin id="org.jboss.weld.se.weld-se-core" version="0.0.0" unpack="false"/>
+	<plugin id="org.jboss.weld.probe.weld-probe-core" version="0.0.0" unpack="false"/>
+	<plugin id="org.jboss.weld.module.weld-web" version="0.0.0" unpack="false"/>
+	<plugin id="org.jboss.weld.lite-extension-translator" version="0.0.0" unpack="false"/>
+	
+	<!-- Servlet -->
 	<plugin id="jakarta.servlet-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.servlet" version="0.0.0" unpack="false"/>
+	
+	<!-- JSON Processing and Binding -->
 	<plugin id="jakarta.json.bind-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.parsson.jakarta.json" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.json" version="0.0.0" unpack="false"/>
+	<plugin id="yasson" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.json-p-provider" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.json-binding-provider" version="0.0.0" unpack="false"/>
+	
+	<!-- WebSocket -->
 	<plugin id="jakarta.websocket-client-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.websocket-api" version="0.0.0" unpack="false"/>
-	<plugin id="org.glassfish.jakarta.json" version="0.0.0" unpack="false"/>
+	
+	<!-- Persistence -->
 	<plugin id="jakarta.persistence-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.persistence" version="0.0.0" unpack="false"/>
+	<plugin id="org.eclipse.persistence.eclipselink" version="0.0.0" unpack="false"/>
+	
+	<!-- EJB (API only) -->
 	<plugin id="jakarta.ejb-api" version="0.0.0" unpack="false"/>
+	
+	<!-- Transactions -->
 	<plugin id="jakarta.transaction-api" version="0.0.0" unpack="false"/>
+	
+	<!-- XML Web Services (API only) -->
 	<plugin id="jakarta.xml.ws-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.xml.soap-api" version="0.0.0" unpack="false"/>
 	
@@ -271,8 +311,66 @@
 	<plugin id="jakarta.activation-api" version="0.0.0" unpack="false"/>
 	<plugin id="angus-activation" version="0.0.0" unpack="false"/>
 	
+	<!-- Bean Validation -->
+	<plugin id="jakarta.validation.jakarta.validation-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.validation" version="0.0.0" unpack="false"/>
+	<plugin id="com.fasterxml.classmate" version="0.0.0" unpack="false"/>
+	<plugin id="org.hibernate.validator" version="0.0.0" unpack="false"/>
+	
+	<!-- JAX-RS -->
+	<plugin id="org.openntf.xsp.jakarta.rest" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.rest.factory" version="0.0.0" fragment="true" unpack="false"/>
+	
+	<plugin id="jakarta.ws.rs-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.core" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.core-spi" version="0.0.0" fragment="true" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.cdi" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.multipart-provider" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.jaxb-provider" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.validator-provider" version="0.0.0" unpack="false"/>
+	<plugin id="org.jboss.resteasy.client-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.jboss.resteasy.client" version="0.0.0" unpack="false"/>
+	<plugin id="reactive-streams" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.james.apache-mime4j-core" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.james.apache-mime4j-dom" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.james.apache-mime4j-storage" version="0.0.0" unpack="false"/>
+	
+	<plugin id="org.eclipse.microprofile.openapi" version="0.0.0" unpack="false"/>
+    <plugin id="org.openntf.org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.smallrye.open-api-core" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.smallrye.open-api-jaxrs" version="0.0.0" fragment="true" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.core.jackson-core" version="0.0.0" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.core.jackson-databind" version="0.0.0" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.core.jackson-annotations" version="0.0.0" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="0.0.0" unpack="false"/>
+	<plugin id="org.yaml.snakeyaml" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.jandex" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.com.ibm.async.util" version="0.0.0" unpack="false"/>
+	
+	<!-- NoSQL -->
+	<plugin id="org.openntf.xsp.jakarta.nosql" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.nosql.driver" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.nosql.driver.lsxbe" version="0.0.0" unpack="false"/>
+	
+	<plugin id="jakarta.data.jakarta.data-api" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.nosql.jakarta.nosql-api" version="0.0.0" unpack="false"/>
+   
+	<plugin id="org.openntf.org.eclipse.jnosql.communication.core" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.communication.semistructured" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.communication.query" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.api.core" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.core" version="0.0.0" unpack="false" fragment="true"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.reflection" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.document" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.semistructured" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.jnosql.mapping.validation" version="0.0.0" unpack="false"/>
+   
+	<plugin id="org.antlr.antlr4-runtime" version="0.0.0" unpack="false"/>
+	
+	<!-- Misc. Support -->
 	<plugin id="org.openntf.jboss-classfilewriter" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.logging.jboss-logging" version="0.0.0" unpack="false"/>
 	<plugin id="javassist" version="0.0.0" unpack="false"/>
 
+	<plugin id="org.openntf.xsp.jakartaee.core.library" version="0.0.0" unpack="false"/>
 </feature>

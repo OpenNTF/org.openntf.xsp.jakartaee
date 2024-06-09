@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-ARG BASEIMAGE=domino-container:V1202_11032022prod
+ARG BASEIMAGE=hclcom/domino:14.0
 FROM ${BASEIMAGE}
 
 RUN mkdir -p /local/runner \

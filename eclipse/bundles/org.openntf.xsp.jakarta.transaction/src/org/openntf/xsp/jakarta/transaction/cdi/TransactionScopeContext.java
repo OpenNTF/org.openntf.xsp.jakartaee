@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import org.openntf.xsp.cdi.context.BasicScopeContextHolder;
-import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
+import org.openntf.xsp.jakarta.cdi.context.BasicScopeContextHolder;
+import org.openntf.xsp.jakarta.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
 
 import jakarta.enterprise.context.spi.Context;
 import jakarta.enterprise.context.spi.Contextual;

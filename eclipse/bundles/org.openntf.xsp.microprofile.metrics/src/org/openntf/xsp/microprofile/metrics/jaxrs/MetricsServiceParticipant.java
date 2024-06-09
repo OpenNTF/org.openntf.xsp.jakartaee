@@ -18,14 +18,14 @@ package org.openntf.xsp.microprofile.metrics.jaxrs;
 import java.io.IOException;
 import java.time.Duration;
 
-import io.smallrye.metrics.MetricRegistries;
+import io.smallrye.metrics.SharedMetricRegistries;
 import io.smallrye.metrics.jaxrs.JaxRsMetricsServletFilter;
 
 import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.MetricID;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.MetricUnits;
-import org.openntf.xsp.jaxrs.ServiceParticipant;
+import org.openntf.xsp.jakarta.rest.ServiceParticipant;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,13 +48,13 @@ public class MetricsServiceParticipant implements ServiceParticipant {
 	}
 
 	@Override
-	public void doAfterService(HttpServletRequest request, HttpServletResponse response)
+	public void doAfterService(HttpServletRequest servletRequest, HttpServletResponse response)
 			throws ServletException, IOException {
-		MetricID metricID = (MetricID) request.getAttribute("smallrye.metrics.jaxrs.metricID"); //$NON-NLS-1$
+		long start = (Long)servletRequest.getAttribute(ATTR_START);
+		MetricID metricID = (MetricID) servletRequest.getAttribute("smallrye.metrics.jaxrs.metricID");
         if (metricID != null) {
             createMetrics(metricID);
-            boolean success = request.getAttribute("smallrye.metrics.jaxrs.successful") != null; //$NON-NLS-1$
-            long start = (Long)request.getAttribute(ATTR_START);
+            boolean success = servletRequest.getAttribute("smallrye.metrics.jaxrs.successful") != null;
             update(success, start, metricID);
         }
 	}
@@ -67,14 +67,15 @@ public class MetricsServiceParticipant implements ServiceParticipant {
         }
     }
 
+    //TODO: Verify it works properly.
     private void updateAfterSuccess(long startTimestamp, MetricID metricID) {
         long duration = System.nanoTime() - startTimestamp;
-        MetricRegistry registry = MetricRegistries.get(MetricRegistry.Type.BASE);
-        registry.getSimpleTimer(metricID).update(Duration.ofNanos(duration));
+        MetricRegistry registry = SharedMetricRegistries.getOrCreate(MetricRegistry.BASE_SCOPE);
+        registry.getTimer(metricID).update(Duration.ofNanos(duration));
     }
 
     private void updateAfterFailure(MetricID metricID) {
-        MetricRegistry registry = MetricRegistries.get(MetricRegistry.Type.BASE);
+        MetricRegistry registry = SharedMetricRegistries.getOrCreate(MetricRegistry.BASE_SCOPE);
         registry.getCounter(transformToMetricIDForFailedRequest(metricID)).inc();
     }
 
@@ -82,9 +83,10 @@ public class MetricsServiceParticipant implements ServiceParticipant {
         return new MetricID("REST.request.unmappedException.total", metricID.getTagsAsArray());
     }
 
+    //TODO: Verify it works properly.
     private void createMetrics(MetricID metricID) {
-        MetricRegistry registry = MetricRegistries.get(MetricRegistry.Type.BASE);
-        if (registry.getSimpleTimer(metricID) == null) {
+        MetricRegistry registry = SharedMetricRegistries.getOrCreate(MetricRegistry.BASE_SCOPE);
+        if (registry.getTimer(metricID) == null) {
             Metadata successMetadata = Metadata.builder()
                     .withName(metricID.getName())
                     .withDescription(
@@ -92,13 +94,12 @@ public class MetricsServiceParticipant implements ServiceParticipant {
                                     "resource method since the start of the server.")
                     .withUnit(MetricUnits.NANOSECONDS)
                     .build();
-            registry.simpleTimer(successMetadata, metricID.getTagsAsArray());
+            registry.timer(successMetadata, metricID.getTagsAsArray());
         }
         MetricID metricIDForFailure = transformToMetricIDForFailedRequest(metricID);
         if (registry.getCounter(metricIDForFailure) == null) {
             Metadata failureMetadata = Metadata.builder()
                     .withName(metricIDForFailure.getName())
-                    .withDisplayName("Total Unmapped Exceptions count")
                     .withDescription(
                             "The total number of unmapped exceptions that occurred from this RESTful resource " +
                                     "method since the start of the server.")

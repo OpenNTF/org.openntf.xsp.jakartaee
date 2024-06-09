@@ -16,7 +16,7 @@
 
 --%>
 <%@page contentType="text/html" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
-<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html>
 	<head>

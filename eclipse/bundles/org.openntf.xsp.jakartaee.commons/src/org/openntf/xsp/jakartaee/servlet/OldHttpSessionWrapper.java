@@ -23,9 +23,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionAttributeListener;
 import jakarta.servlet.http.HttpSessionBindingEvent;
-import jakarta.servlet.http.HttpSessionContext;
 
-@SuppressWarnings("deprecation")
 class OldHttpSessionWrapper implements HttpSession {
 	final javax.servlet.http.HttpSession delegate;
 	
@@ -68,29 +66,14 @@ class OldHttpSessionWrapper implements HttpSession {
 	}
 
 	@Override
-	public HttpSessionContext getSessionContext() {
-		return ServletUtil.oldToNew(delegate.getSessionContext());
-	}
-
-	@Override
 	public Object getAttribute(String name) {
 		return delegate.getAttribute(name);
-	}
-
-	@Override
-	public Object getValue(String name) {
-		return delegate.getValue(name);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Enumeration<String> getAttributeNames() {
 		return delegate.getAttributeNames();
-	}
-
-	@Override
-	public String[] getValueNames() {
-		return delegate.getValueNames();
 	}
 
 	@Override
@@ -109,22 +92,12 @@ class OldHttpSessionWrapper implements HttpSession {
 	}
 
 	@Override
-	public void putValue(String name, Object value) {
-		delegate.putValue(name, value);
-	}
-
-	@Override
 	public void removeAttribute(String name) {
 		Object val = delegate.getAttribute(name);
 		delegate.removeAttribute(name);
 		this.getAttrListeners().forEach(listener ->
 			listener.attributeRemoved(new HttpSessionBindingEvent(this, name, val))
 		);
-	}
-
-	@Override
-	public void removeValue(String name) {
-		delegate.removeValue(name);
 	}
 
 	@Override

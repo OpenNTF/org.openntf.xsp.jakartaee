@@ -19,7 +19,8 @@ import java.io.IOException;
 
 import org.openntf.xsp.jakarta.example.webapp.beans.WebappBean;
 
-import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.servlet.ServletException;
@@ -28,10 +29,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+@ApplicationScoped
 public class CDIServlet extends HttpServlet {
+	@Inject
+	private WebappBean bean;
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		WebappBean bean = CDI.current().select(WebappBean.class).get();
 		ServletOutputStream out = resp.getOutputStream();
 		Jsonb jsonb = JsonbBuilder.create();
 		jsonb.toJson(bean, out);

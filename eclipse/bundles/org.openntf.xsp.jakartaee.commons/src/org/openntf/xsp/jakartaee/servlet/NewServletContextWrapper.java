@@ -21,11 +21,8 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 
 @SuppressWarnings("rawtypes")
 class NewServletContextWrapper implements javax.servlet.ServletContext {
@@ -115,16 +112,10 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 		return delegate.getServerInfo();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public javax.servlet.Servlet getServlet(String arg0) throws javax.servlet.ServletException {
-		Servlet result;
-		try {
-			result = delegate.getServlet(arg0);
-		} catch (ServletException e) {
-			throw new javax.servlet.ServletException(e);
-		}
-		return ServletUtil.newToOld(result);
+		// Removed in Servlet 6
+		return null;
 	}
 
 	@Override
@@ -132,21 +123,16 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 		return delegate.getServletContextName();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public Enumeration getServletNames() {
-		return delegate.getServletNames();
+		// Removed in Servlet 6
+		return Collections.emptyEnumeration();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public Enumeration getServlets() {
-		return Collections.enumeration(
-			Collections.list(delegate.getServlets())
-				.stream()
-				.map(ServletUtil::newToOld)
-				.collect(Collectors.toList())
-		);
+		// Removed in Servlet 6
+		return Collections.emptyEnumeration();
 	}
 
 	@Override
@@ -154,10 +140,10 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 		delegate.log(arg0);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void log(Exception arg0, String arg1) {
-		delegate.log(arg0, arg1);
+		// Removed in Servlet 6
+		delegate.log(arg1, arg0);
 	}
 
 	@Override

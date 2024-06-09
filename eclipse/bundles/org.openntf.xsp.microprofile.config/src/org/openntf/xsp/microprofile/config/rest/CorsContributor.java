@@ -24,11 +24,10 @@ import java.util.Optional;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
+import org.openntf.xsp.jakarta.rest.RestClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jaxrs.JAXRSClassContributor;
-import org.openntf.xsp.microprofile.config.ConfigLibrary;
 
-public class CorsContributor implements JAXRSClassContributor {
+public class CorsContributor implements RestClassContributor {
 	
 	public static final String PROP_CORS_ENABLE = "rest.cors.enable"; //$NON-NLS-1$
 	public static final String PROP_CORS_CREDENTIALS = "rest.cors.allowCredentials"; //$NON-NLS-1$
@@ -45,7 +44,7 @@ public class CorsContributor implements JAXRSClassContributor {
 	
 	@Override
 	public Collection<Object> getSingletons() {
-		if(LibraryUtil.isLibraryActive(ConfigLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			Config config = ConfigProvider.getConfig();
 			
 			Optional<Boolean> enabled = config.getOptionalValue(PROP_CORS_ENABLE, boolean.class);

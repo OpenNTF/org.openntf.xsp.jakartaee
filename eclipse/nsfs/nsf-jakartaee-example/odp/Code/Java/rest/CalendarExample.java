@@ -21,7 +21,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 
 import jakarta.inject.Inject;
-import jakarta.nosql.mapping.Pagination;
+import jakarta.data.page.PageRequest;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -53,9 +53,9 @@ public class CalendarExample {
 		TemporalAccessor start = parseTime(startParam);
 		TemporalAccessor end = parseTime(endParam);
 		
-		Pagination pagination = null;
+		PageRequest pagination = null;
 		if(pageSize > 0) {
-			pagination = Pagination.page(Math.max(page, 0)).size(pageSize);
+			pagination = PageRequest.ofPage(Math.max(page, 0), pageSize, false);
 		}
 		return repository.readCalendarRange(start, end, pagination);
 	}

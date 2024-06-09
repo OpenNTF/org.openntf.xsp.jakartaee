@@ -19,18 +19,18 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.openntf.xsp.nosql.communication.driver.DominoConstants;
-import org.openntf.xsp.nosql.mapping.extension.BooleanStorage;
-import org.openntf.xsp.nosql.mapping.extension.DXLExport;
-import org.openntf.xsp.nosql.mapping.extension.EntryType;
-import org.openntf.xsp.nosql.mapping.extension.ItemFlags;
-import org.openntf.xsp.nosql.mapping.extension.ItemStorage;
+import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.BooleanStorage;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DXLExport;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.EntryType;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemFlags;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemStorage;
 
 import jakarta.json.JsonObject;
 import jakarta.json.bind.annotation.JsonbTransient;
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Id;
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
 
 @Entity
 public class ExampleDoc {

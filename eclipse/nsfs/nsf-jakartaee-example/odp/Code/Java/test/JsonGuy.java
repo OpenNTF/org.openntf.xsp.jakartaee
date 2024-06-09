@@ -17,10 +17,10 @@ package test;
 
 import java.io.Serializable;
 
+import org.openntf.xsp.jakarta.json.JSONBindUtil;
+
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
-
-import org.openntf.xsp.jsonapi.JSONBindUtil;
 
 public class JsonGuy implements Serializable {
 	private static final long serialVersionUID = 1L;

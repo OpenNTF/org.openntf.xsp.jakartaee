@@ -19,12 +19,9 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.Library" class="org.openntf.xsp.microprofile.health.HealthLibrary" />
+		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.microprofile.health.HealthBeanContributor" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.cdi.discovery.WeldBeanClassContributor" class="org.openntf.xsp.microprofile.health.HealthBeanContributor" />
-	</extension>
-	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.microprofile.health.HealthResourceContributor" />
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.microprofile.health.HealthResourceContributor" />
 	</extension>
 </plugin>

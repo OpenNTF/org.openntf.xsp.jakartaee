@@ -3,12 +3,12 @@ package model;
 import java.util.stream.Stream;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
 
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Id;
-import jakarta.nosql.mapping.Sorts;
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
+import jakarta.data.Sort;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -16,7 +16,7 @@ import jakarta.validation.constraints.NotEmpty;
 @Entity
 public class Employee {
 	public interface Repository extends DominoRepository<Employee, String> {
-		Stream<Employee> findAll(Sorts sorts);
+		Stream<Employee> findAll(Sort<?> sorts);
 	}
 	
 	private @Id String id;

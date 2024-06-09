@@ -3,12 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta EE Compile-Time Integration Tests
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.test;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.test
-Bundle-Version: 2.16.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Import-Package: com.ibm.domino.xsp.bridge.http.exception
 Require-Bundle: org.junit;bundle-version="4.0.0",
- org.openntf.xsp.jsonapi;bundle-version="2.0.0",
- org.openntf.xsp.beanvalidation;bundle-version="2.0.0",
- org.openntf.xsp.el;bundle-version="2.0.0",
- org.openntf.xsp.cdi;bundle-version="2.0.0",
- org.openntf.xsp.jaxrs;bundle-version="2.0.0"
+ org.openntf.xsp.jakarta.json;bundle-version="3.0.0",
+ org.openntf.xsp.jakarta.validation;bundle-version="3.0.0",
+ org.openntf.xsp.jakarta.el;bundle-version="3.0.0",
+ org.openntf.xsp.jakarta.cdi;bundle-version="3.0.0",
+ org.openntf.xsp.jakarta.rest;bundle-version="3.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

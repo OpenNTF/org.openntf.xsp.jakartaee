@@ -34,19 +34,7 @@
     <import optional="true" plugin="com.ibm.xsp.domino"/>
     <import optional="true" plugin="com.ibm.notes.java.api"/>
     <import optional="true" plugin="com.ibm.xsp.rcp"/>
-    <import optional="true" plugin="org.openntf.xsp.el"/>
-    <import optional="true" plugin="org.openntf.xsp.beanvalidation"/>
-    <import optional="true" plugin="org.openntf.xsp.jsonapi"/>
-    <import optional="true" plugin="org.openntf.xsp.cdi"/>
-    <import optional="true" plugin="org.openntf.xsp.jsp"/>
-    <import optional="true" plugin="org.openntf.xsp.jaxrs"/>
-    <import optional="true" plugin="org.openntf.xsp.mvc"/>
-    <import optional="true" plugin="org.openntf.xsp.microprofile.config"/>
-    <import optional="true" plugin="org.openntf.xsp.microprofile.rest.client"/>
-    <import optional="true" plugin="org.openntf.xsp.microprofile.fault.tolerance"/>
-    <import optional="true" plugin="org.openntf.xsp.microprofile.health"/>
-    <import optional="true" plugin="org.openntf.xsp.nosql"/>
-    <import optional="true" plugin="org.openntf.xsp.jsf"/>
+    <import optional="true" plugin="org.openntf.xsp.jakartaee.core.library"/>
     <!--AUTOGEN-END-BUILDER: End of automatically generated section-->
   </requires>
 </plugin>

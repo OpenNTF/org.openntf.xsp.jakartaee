@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Example Bean Bundle for Test Suite
 Bundle-SymbolicName: org.openntf.xsp.test.beanbundle;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.test.beanbundle
-Bundle-Version: 2.16.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.commons.util,
  com.ibm.designer.domino.napi,
@@ -39,10 +39,11 @@ Import-Package: com.ibm.commons.util,
  org.jboss.weld.manager.api,
  org.jboss.weld.proxy,
  org.jboss.weld.util,
- org.openntf.xsp.cdi.util;version="2.4.0",
+ org.openntf.xsp.jakarta.cdi.util;version="3.0.0",
  org.openntf.xsp.jakartaee.servlet;version="2.4.0",
  org.osgi.framework;version="1.8.0"
 DynamicImport-Package: *
 Export-Package: org.openntf.xsp.test.beanbundle
 Require-Bundle: org.openntf.org.jboss.resteasy.cdi;bundle-version="6.0.0";visibility:=reexport,
- org.openntf.xsp.jsonapi;bundle-version="2.4.0"
+ org.openntf.xsp.jakarta.rest;bundle-version="3.0.0",
+ org.openntf.xsp.jakarta.json;bundle-version="3.0.0"

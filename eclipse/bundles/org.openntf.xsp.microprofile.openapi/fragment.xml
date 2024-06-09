@@ -19,9 +19,9 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.JAXRSClassContributor" class="org.openntf.xsp.microprofile.openapi.OpenAPIResourceContributor" />
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.microprofile.openapi.OpenAPIResourceContributor" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jaxrs.spi.JAXRSActivationParticipant" class="org.openntf.xsp.microprofile.openapi.OASFactoryInitializer" />
+		<service type="org.openntf.xsp.jakarta.rest.spi.RestActivationParticipant" class="org.openntf.xsp.microprofile.openapi.OASFactoryInitializer" />
 	</extension>
 </plugin>

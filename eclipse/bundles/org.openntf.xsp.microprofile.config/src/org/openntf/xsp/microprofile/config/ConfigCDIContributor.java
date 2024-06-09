@@ -18,13 +18,13 @@ package org.openntf.xsp.microprofile.config;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
+import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import io.smallrye.config.inject.ConfigExtension;
 import jakarta.enterprise.inject.spi.Extension;
 
-public class ConfigCDIContributor implements WeldBeanClassContributor {
+public class ConfigCDIContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
@@ -33,7 +33,7 @@ public class ConfigCDIContributor implements WeldBeanClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		if(LibraryUtil.isLibraryActive(ConfigLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			return Collections.singleton(new ConfigExtension());	
 		}
 		return null;
