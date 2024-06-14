@@ -99,8 +99,6 @@ public class NSFFacesServlet extends HttpServlet {
 		CDI<Object> cdi = CDI.current();
 		ServletContext context = config.getServletContext();
 		context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
-		// TODO investigate why partial state saving doesn't work with a basic form
-		context.setInitParameter("jakarta.faces.PARTIAL_STATE_SAVING", "false"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		Properties props = LibraryUtil.getXspProperties(module);
 		String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
