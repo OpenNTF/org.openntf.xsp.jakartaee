@@ -43,7 +43,7 @@
 		<weld-version>5.1.2.Final</weld-version>
 		<resteasy-version>6.2.8.Final</resteasy-version>
 		<resteasy-mp-version>2.1.5.Final</resteasy-mp-version>
-		<nosql-version>1.1.1-RC1</nosql-version>
+		<nosql-version>1.1.1</nosql-version>
 		<nosql-version-osgi>1.1.1</nosql-version-osgi>
 		<tomcat-version>10.1.23</tomcat-version>
 		

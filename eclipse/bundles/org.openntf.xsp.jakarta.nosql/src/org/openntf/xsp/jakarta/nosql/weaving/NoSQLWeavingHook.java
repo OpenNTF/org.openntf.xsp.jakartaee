@@ -49,11 +49,12 @@ public class NoSQLWeavingHook implements WeavingHook {
 		switch(c.getClassName()) {
 		case "org.eclipse.jnosql.mapping.metadata.ClassScanner" -> processClassScanner(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.mapping.metadata.ClassConverter" -> processClassConverter(c); //$NON-NLS-1$
-		case "org.eclipse.jnosql.communication.ValueReaderDecorator" -> processValueReader(c); //$NON-NLS-1$
+		case "org.eclipse.jnosql.communication.ValueReaderDecorator" -> processValueReaderDecorator(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.ValueWriter" -> processValueWriter(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.ValueWriterDecorator" -> processValueWriterDecorator(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.TypeReferenceReaderDecorator" -> processTypeReferenceReader(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.mapping.reflection.DefaultGenericFieldMetadata" -> processGenericFieldMapping(c); //$NON-NLS-1$
+		case "org.eclipse.jnosql.mapping.metadata.ConstructorBuilder" -> processConstructorBuilder(c); //$NON-NLS-1$
 		}
 	}
 	
@@ -76,7 +77,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 	}
 
 	@SuppressWarnings("nls")
-	private void processValueReader(WovenClass c) {
+	private void processValueReaderDecorator(WovenClass c) {
 		CtClass cc = defrost(c, ValueReader.class);
 
 		try {
@@ -106,6 +107,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 			            return $1.cast($2);
 			        }
 					java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.communication.ValueReader.class);
+					System.out.println("got instances: " + instances);
 					java.util.List readers = java.util.stream.StreamSupport.stream(instances.spliterator(), false).toList();
 			        for(int i = 0; i < readers.size(); i++) {
 						org.eclipse.jnosql.communication.ValueReader r = (org.eclipse.jnosql.communication.ValueReader)readers.get(i);
@@ -300,6 +302,38 @@ public class NoSQLWeavingHook implements WeavingHook {
 		    		}
 		        }""";
 				CtMethod m = cc.getDeclaredMethod("hasFieldAnnotation"); //$NON-NLS-1$
+				m.setBody(body);
+			}
+		
+			c.setBytes(cc.toBytecode());
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("nls")
+	private void processConstructorBuilder(WovenClass c) {
+		ClassPool pool = new ClassPool();
+		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
+		pool.appendClassPath(new LoaderClassPath(c.getBundleWiring().getClassLoader()));
+		CtClass cc;
+		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
+			cc = pool.makeClass(is);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		cc.defrost();
+		
+		try {
+			// ConstructorBuilder of(ConstructorMetadata constructor)
+			{
+				String body = """
+			    {
+					java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.mapping.metadata.ConstructorBuilderSupplier.class);
+					org.eclipse.jnosql.mapping.metadata.ConstructorBuilderSupplier supplier = (org.eclipse.jnosql.mapping.metadata.ConstructorBuilderSupplier)instances.iterator().next();
+					return supplier.apply($1);
+		        }""";
+				CtMethod m = cc.getDeclaredMethod("of"); //$NON-NLS-1$
 				m.setBody(body);
 			}
 		
