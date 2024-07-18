@@ -97,6 +97,8 @@ public class PostInstallFactory implements IServiceFactory {
 			} finally {
 				session.recycle();
 			}
+			
+			System.out.println("Postinstall successful on Java " + System.getProperty("java.version") + " and OSGi version " + System.getProperty("eclipse.buildId"));
 		} catch(Throwable e) {
 			e.printStackTrace();
 		} finally {
