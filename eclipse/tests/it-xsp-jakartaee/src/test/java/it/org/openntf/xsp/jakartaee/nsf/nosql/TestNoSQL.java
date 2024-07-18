@@ -245,6 +245,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			unid = person.getString("unid");
 			assertNotNull(unid);
 			assertFalse(unid.isEmpty());
+			assertEquals(lastName, person.getString("lastName", null));
+			assertEquals(email, person.getString("email", null));
 		}
 		
 		// Find by note ID

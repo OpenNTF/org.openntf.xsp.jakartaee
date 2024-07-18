@@ -147,7 +147,7 @@ public class NoSQLExample {
 		transaction.begin();
 		try {
 			Person person = new Person();
-			composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+			composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty, null);
 			person.setEmail(email);
 			
 			personRepository.save(person);
@@ -237,7 +237,7 @@ public class NoSQLExample {
 		transaction.begin();
 		try {
 			Person person = new Person();
-			composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+			composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty, null);
 			person.setAttachments(attachments);
 
 			personRepository.save(person);
@@ -263,6 +263,7 @@ public class NoSQLExample {
 		String favoriteTime = "";
 		String added = "";
 		String customProperty = "";
+		String email = "";
 		
 		List<EntityAttachment> attachments = new ArrayList<>();
 		for(int i = 0; i < body.getCount(); i++) {
@@ -289,6 +290,9 @@ public class NoSQLExample {
 					break;
 				case "customProperty":
 					customProperty = StreamUtil.readString(part.getInputStream());
+					break;
+				case "email":
+					email = StreamUtil.readString(part.getInputStream());
 					break;
 				case "attachment":
 					String fileName = disposition.getParameter("filename");
@@ -322,7 +326,7 @@ public class NoSQLExample {
 		}
 		
 		Person person = new Person();
-		composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty);
+		composePerson(person, firstName, lastName, birthday, favoriteTime, added, customProperty, email);
 		person.setAttachments(attachments);
 
 		return personRepository.save(person);
@@ -665,7 +669,7 @@ public class NoSQLExample {
 		return personRepository.readViewEntries("PersonEmail", -1, false, query, null, null).collect(Collectors.toList());
 	}
 	
-	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty) {
+	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty, String email) {
 		person.setFirstName(firstName);
 		person.setLastName(lastName);
 		if(StringUtil.isNotEmpty(birthday)) {
@@ -687,6 +691,7 @@ public class NoSQLExample {
 		} else {
 			person.setAdded(null);
 		}
+		person.setEmail(email);
 		
 		CustomPropertyType prop = new CustomPropertyType();
 		prop.setValue(customProperty);
