@@ -402,6 +402,14 @@ public class NoSQLExample {
 			.orElseThrow(() -> new NotFoundException("Unable to find Person for ID " + id));
 	}
 	
+	@Path("byEmail/{email}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByEmail(@PathParam("email") String email) {
+		return personRepository.findByEmail(email)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for email address " + email));
+	}
+	
 	@Path("{id}")
 	@GET
 	@Controller
