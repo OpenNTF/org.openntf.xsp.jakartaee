@@ -277,7 +277,14 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 		}
 		
 		try {
-			return super.invoke(o, method, args);
+			Object result = super.invoke(o, method, args);
+			// Upstream doesn't seem to check for Optional values and returns
+			//   a Stream, so check for that
+			if(result instanceof Stream && Optional.class.isAssignableFrom(method.getReturnType())) {
+				return ((Stream<?>)result).findFirst();
+			} else {
+				return result;
+			}
 		} catch(InvocationTargetException e) {
 			if(e.getCause() instanceof ConstraintViolationException ve) {
 				throw ve;
