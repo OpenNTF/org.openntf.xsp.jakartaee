@@ -372,7 +372,17 @@
 								<!--
 									MicroProfile REST Client
 								-->
-								<artifact><id>org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1</id><source>true</source></artifact>
+								<artifact>
+									<id>org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.rest.client</Bundle-SymbolicName>
+										<Bundle-Version>3.0.1_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="3.0.1"</Export-Package>
+										<DynamicImport-Package>jakarta.enterprise.*</DynamicImport-Package>
+									</instructions>
+								</artifact>
 								<artifact>
 									<id>org.jboss.resteasy.microprofile:microprofile-rest-client-base:${resteasy-mp-version}</id>
 									<source>true</source>
