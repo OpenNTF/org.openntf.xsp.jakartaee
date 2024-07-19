@@ -27,10 +27,12 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,6 +43,8 @@ import java.util.stream.StreamSupport;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
+
+import jakarta.annotation.Priority;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
@@ -118,7 +122,9 @@ public class ServiceLoader {
 		
 		// TODO support OSGi NotesContext
 		
-		return result;
+		return result.stream()
+			.sorted(ClassPriorityComparator.DESCENDING)
+			.toList();
     }
     
     // *******************************************************************************
@@ -225,5 +231,32 @@ public class ServiceLoader {
 			throw new UncheckedIOException(e);
 		}
     	return result.stream();
+    }
+
+	@SuppressWarnings("rawtypes")
+    public enum ClassPriorityComparator implements Comparator<Class> {
+    	ASCENDING(true), DESCENDING(false);
+    	
+    	private final boolean ascending;
+    	
+    	private ClassPriorityComparator(boolean ascending) {
+    		this.ascending = ascending;
+    	}
+
+		@Override
+    	public int compare(Class a, Class b) {
+    		int priorityA = Optional.ofNullable(((Class<?>)a).getAnnotation(Priority.class))
+    			.map(Priority::value)
+    			.orElse(ascending ? Integer.MAX_VALUE : 0);
+    		int priorityB = Optional.ofNullable(((Class<?>)b).getAnnotation(Priority.class))
+    			.map(Priority::value)
+    			.orElse(ascending ? Integer.MAX_VALUE : 0);
+    		if(ascending) {
+    			return Integer.compare(priorityA, priorityB);
+    		} else {
+    			return Integer.compare(priorityB, priorityA);
+    		}
+    	}
+
     }
 }

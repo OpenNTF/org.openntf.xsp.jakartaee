@@ -53,6 +53,7 @@ public class FacesELContext extends StandardELContext {
 		
 		addELResolver(new BeanNameELResolver(new FacesBeanNameResolver()));
 		addELResolver(new XSPELResolver());
+		addELResolver(new RecordPropertyELResolver());
 	}
 	
 	@Override

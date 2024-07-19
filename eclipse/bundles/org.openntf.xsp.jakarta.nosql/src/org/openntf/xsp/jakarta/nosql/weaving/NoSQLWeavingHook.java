@@ -55,6 +55,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 		case "org.eclipse.jnosql.communication.TypeReferenceReaderDecorator" -> processTypeReferenceReader(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.mapping.reflection.DefaultGenericFieldMetadata" -> processGenericFieldMapping(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.mapping.metadata.ConstructorBuilder" -> processConstructorBuilder(c); //$NON-NLS-1$
+		case "org.eclipse.jnosql.mapping.reflection.DefaultConstructorBuilder" -> processDefaultConstructorBuilder(c); //$NON-NLS-1$
 		}
 	}
 	
@@ -107,7 +108,6 @@ public class NoSQLWeavingHook implements WeavingHook {
 			            return $1.cast($2);
 			        }
 					java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.communication.ValueReader.class);
-					System.out.println("got instances: " + instances);
 					java.util.List readers = java.util.stream.StreamSupport.stream(instances.spliterator(), false).toList();
 			        for(int i = 0; i < readers.size(); i++) {
 						org.eclipse.jnosql.communication.ValueReader r = (org.eclipse.jnosql.communication.ValueReader)readers.get(i);
@@ -334,6 +334,44 @@ public class NoSQLWeavingHook implements WeavingHook {
 					return supplier.apply($1);
 		        }""";
 				CtMethod m = cc.getDeclaredMethod("of"); //$NON-NLS-1$
+				m.setBody(body);
+			}
+		
+			c.setBytes(cc.toBytecode());
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("nls")
+	private void processDefaultConstructorBuilder(WovenClass c) {
+		ClassPool pool = new ClassPool();
+		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
+		pool.appendClassPath(new LoaderClassPath(c.getBundleWiring().getClassLoader()));
+		CtClass cc;
+		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
+			cc = pool.makeClass(is);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		cc.defrost();
+		
+		try {
+			// void addEmptyParameter()
+			{
+				String body = """
+				{
+					java.lang.reflect.Constructor constructor = ((org.eclipse.jnosql.mapping.reflection.DefaultConstructorMetadata) this.metadata).constructor();
+			        Class type = constructor.getParameterTypes()[this.values.size()];
+			        if(boolean.class.equals(type)) {
+				       this.values.add(Boolean.TRUE);
+			        } else if(type.isPrimitive()) {
+						this.values.add(Integer.valueOf(0));
+			        } else {
+			        	this.values.add(null);
+			        }
+			    }""";
+				CtMethod m = cc.getDeclaredMethod("addEmptyParameter"); //$NON-NLS-1$
 				m.setBody(body);
 			}
 		
