@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jakarta.el;
 
+import org.openntf.xsp.jakarta.el.impl.RecordPropertyResolverFactory;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import com.ibm.xsp.application.ApplicationEx;
@@ -35,6 +36,8 @@ public class ELApplicationListener implements ApplicationListener2 {
 			
 			// Create a binding factory for default bindings
 			facts.setFactory(XSPELBindingFactory.IBM_PREFIX, new XSPELBindingFactory(XSPELBindingFactory.IBM_PREFIX));
+			
+			facts.setFactory(RecordPropertyResolverFactory.class.getName(), RecordPropertyResolverFactory.INSTANCE);
 		}
 	}
 

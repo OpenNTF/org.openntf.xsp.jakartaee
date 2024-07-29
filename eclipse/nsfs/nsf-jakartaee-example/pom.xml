@@ -20,7 +20,7 @@
 				<configuration>
 					<updateSite>${project.baseDir}/../../../releng/org.openntf.xsp.jakartaee.updatesite/target/repository</updateSite>
 					<templateName>XPages Jakarta EE Example</templateName>
-					<compiler>17</compiler>
+					<compilerLevel>17</compilerLevel>
 					<executionEnvironment>JavaSE-17</executionEnvironment>
 				</configuration>
 			</plugin>
