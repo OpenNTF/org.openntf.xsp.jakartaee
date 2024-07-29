@@ -50,7 +50,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	@ViewEntries(VIEW_PERSONS)
 	Stream<Person> findByKeyMulti(ViewQuery viewQuery, Sort<?> sorts, PageRequest pagination);
 	
-	@Query("select * from Person where modified >= @modified")
+	@Query("where modified >= :modified")
 	Stream<Person> findModifiedSince(@Param("modified") Instant modified);
 	
 	@ViewDocuments(VIEW_PERSONS_CAT)
