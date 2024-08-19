@@ -302,7 +302,9 @@ public enum LibraryUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> findExtensions(Class<T> extensionClass) {
-		return (List<T>)EXTENSION_CACHE.computeIfAbsent(extensionClass, LibraryUtil::findExtensionsUncached);
+		synchronized(EXTENSION_CACHE) {
+			return (List<T>)EXTENSION_CACHE.computeIfAbsent(extensionClass, LibraryUtil::findExtensionsUncached);
+		}
 	}
 	
 	/**
