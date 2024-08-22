@@ -3,11 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile Metrics Support
 Bundle-SymbolicName: org.openntf.xsp.microprofile.metrics;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.metrics
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.openntf.xsp.microprofile.metrics.MetricsActivator
 Bundle-Version: 2.15.0.qualifier
 Export-Package: org.openntf.xsp.microprofile.metrics;version="2.15.0"
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: io.smallrye.metrics,
+Import-Package: com.ibm.designer.runtime.domino.adapter,
+ io.smallrye.metrics,
  io.smallrye.metrics.exporters,
  io.smallrye.metrics.jaxrs,
  io.smallrye.metrics.setup,
@@ -33,4 +36,5 @@ Import-Package: io.smallrye.metrics,
  org.openntf.xsp.jakartaee.util;version="2.10.0",
  org.openntf.xsp.jaxrs;version="2.2.0",
  org.openntf.xsp.microprofile.config;version="2.11.0",
- org.openntf.xsp.microprofile.config.ext;version="2.10.0"
+ org.openntf.xsp.microprofile.config.ext;version="2.10.0",
+ org.osgi.framework;version="[1.8.0,2.0.0)"
