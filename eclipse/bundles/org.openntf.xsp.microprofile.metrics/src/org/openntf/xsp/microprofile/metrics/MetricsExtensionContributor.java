@@ -27,21 +27,12 @@ import jakarta.enterprise.inject.spi.Extension;
 public class MetricsExtensionContributor implements CDIClassContributor {
 
 	@Override
-	public Collection<Class<?>> getBeanClasses() {
-		return Collections.emptySet();
-	}
-
-	@Override
 	public Collection<Extension> getExtensions() {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
-			if(true || !"false".equals(LibraryUtil.getApplicationProperty(MetricsResourceContributor.PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
-				return Collections.singleton(new LegacyMetricsExtension());
-			} else {
-				return Collections.emptySet();
-			}
+			// Include the extension even when the endpoint is disabled, as Fault Tolerance uses it
+			return Collections.singleton(new LegacyMetricsExtension());
 		} else {
 			return Collections.emptySet();
 		}
 	}
-
 }
