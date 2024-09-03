@@ -487,8 +487,9 @@ public enum LibraryUtil {
 			return null;
 		}
 		
+		// Remove .class suffix and convert slashes to dots
 		return resourceName
-			.substring(0, resourceName.length()-".class".length()) //$NON-NLS-1$
+			.substring(0, resourceName.length()-6)
 			.replace('/', '.');
 	}
 	
