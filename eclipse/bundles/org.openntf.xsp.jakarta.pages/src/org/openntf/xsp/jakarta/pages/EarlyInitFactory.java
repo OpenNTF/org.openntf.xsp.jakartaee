@@ -110,7 +110,6 @@ public class EarlyInitFactory implements IServiceFactory {
 	
 	public static Path getDeployedJstlBundle() throws IOException {
 		Path destDir = getServletDtdPath();
-		System.out.println("deploying DTDs to " + destDir);
 		Files.createDirectories(destDir);
 		
 		Bundle jstl = LibraryUtil.getBundle("org.glassfish.web.jakarta.servlet.jsp.jstl").get(); //$NON-NLS-1$
