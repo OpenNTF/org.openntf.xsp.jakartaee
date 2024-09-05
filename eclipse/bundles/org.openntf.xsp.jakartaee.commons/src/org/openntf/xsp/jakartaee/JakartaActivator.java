@@ -17,11 +17,16 @@ package org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+
+import com.ibm.commons.util.StringUtil;
+import com.ibm.domino.napi.c.Os;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.weaving.MailWeavingHook;
@@ -41,7 +46,7 @@ public class JakartaActivator implements BundleActivator {
 	 * notes.ini property that can be set to specify a temp directory.
 	 * @since 3.1.0
 	 */
-	public static final String PROP_OVERRIDETEMPDIR = "JakartaTempDir"; //$NON-NLS-1$
+	public static final String PROP_OVERRIDETEMPDIR = "Jakarta_TempDir"; //$NON-NLS-1$
 	
 	private final List<ServiceRegistration<?>> regs = new ArrayList<>();
 
@@ -50,11 +55,10 @@ public class JakartaActivator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		regs.add(context.registerService(WeavingHook.class.getName(), new UtilWeavingHook(), null));
 		regs.add(context.registerService(WeavingHook.class.getName(), new MailWeavingHook(), null));
-		
-		AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
-			// The below tries to load jnotes when run in Tycho Surefire
-			String application = String.valueOf(System.getProperty("eclipse.application")); //$NON-NLS-1$
-			if(!application.contains("org.eclipse.tycho")) { //$NON-NLS-1$
+
+		// The below tries to load jnotes when run in Tycho Surefire
+		if(!LibraryUtil.isTycho()) {
+			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 				ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(new MailcapAvoidanceClassLoader(tccl));
 				try {
@@ -67,16 +71,25 @@ public class JakartaActivator implements BundleActivator {
 				} finally {
 					Thread.currentThread().setContextClassLoader(tccl);
 				}
-			}
-			return null;
-		});
+				
+				// Look for a custom temporary directory path
+				// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/554
+				String iniTempDir = Os.OSGetEnvironmentString(PROP_OVERRIDETEMPDIR);
+				if(StringUtil.isNotEmpty(iniTempDir)) {
+					Path tempDir = Paths.get(iniTempDir);
+					if(!tempDir.isAbsolute()) {
+						Path dataDir = Paths.get(Os.OSGetDataDirectory());
+						tempDir = dataDir.resolve(iniTempDir);
+					}
+					LibraryUtil.setTempDirectory(tempDir);
+				}
+				return null;
+			});
+		}
+		
 		// Allow UTF-8-encoded filenames in MimeMultipart
 		// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/501
 		LibraryUtil.setSystemProperty("mail.mime.allowutf8", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-		
-		
-		// Look for a custom temporary directory path
-		// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/554
 		
 	}
 

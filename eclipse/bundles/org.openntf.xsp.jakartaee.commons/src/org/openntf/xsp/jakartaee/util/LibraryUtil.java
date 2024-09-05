@@ -548,4 +548,17 @@ public enum LibraryUtil {
 			return null;
 		});
 	}
+	
+	/**
+	 * Attempts to determine whether the running environment is Tycho - i.e.
+	 * during a compile-time test suite.
+	 * 
+	 * @return {@code true} if this seems to be running in Tycho; {@code false}
+	 *         otherwise
+	 * @since 3.1.0
+	 */
+	public static boolean isTycho() {
+		String application = String.valueOf(getSystemProperty("eclipse.application")); //$NON-NLS-1$
+		return application.contains("org.eclipse.tycho"); //$NON-NLS-1$
+	}
 }
