@@ -21,6 +21,7 @@ import java.time.temporal.Temporal;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 import java.lang.Iterable;
 
@@ -155,7 +156,7 @@ public enum QueryConverter {
 
                     // Make sure value is valid.
                     if (value == null) {
-                        value = "";
+                        value = ""; //$NON-NLS-1$
                     } else if (value.getClass().isArray()) {
                         value = Arrays.asList(value);
                     }
@@ -166,7 +167,7 @@ public enum QueryConverter {
                     } else {
                         valueHelper.add(value.toString());
                     }
-					return DQL.item(name).contains(valueHelper.toArray(new String[valueHelper.size()])); //$NON-NLS-1$
+					return DQL.item(name).contains(valueHelper.toArray(new String[valueHelper.size()]));
 				}
 			case AND: {
 				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});

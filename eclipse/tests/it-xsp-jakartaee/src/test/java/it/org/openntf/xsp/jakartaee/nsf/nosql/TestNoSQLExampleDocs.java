@@ -1071,4 +1071,119 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			
 		}
 	}
+	
+	@Test
+	public void testExampleDocInCategories() {
+		Client client = getAnonymousClient();
+		
+		String prefix13 = "fooddddd";
+		String title1 = prefix13 + System.currentTimeMillis();
+		String title2 = "bar" + System.currentTimeMillis();
+		String title3 = prefix13 + System.nanoTime();
+		
+		// Create two new docs
+		final String unid1;
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.putSingle("title", title1);
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.form(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid1 = jsonObject.getString("unid");
+			assertNotNull(unid1);
+			assertFalse(unid1.isEmpty());
+		}
+		final String unid2;
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.putSingle("title", title2);
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.form(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid2 = jsonObject.getString("unid");
+			assertNotNull(unid2);
+			assertFalse(unid2.isEmpty());
+		}
+		final String unid3;
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.putSingle("title", title3);
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.form(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid3 = jsonObject.getString("unid");
+			assertNotNull(unid3);
+			assertFalse(unid3.isEmpty());
+		}
+		
+		// Update the FT index, to make sure
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/updateExampleDocFtIndex");
+			Response response = target.request().post(Entity.text(""));
+			checkResponse(204, response);
+		}
+		
+		// Fetch the first two titles, which should include both
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInTitle");
+			Response response = target.queryParam("title", title1, title2).request().get();
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
+				assertEquals(2, entities.size());
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unid1.equals(obj.getString("unid"))));
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unid2.equals(obj.getString("unid"))));
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + json, e);
+			}
+		}
+		
+		// Fetch the second two categories, which should also include both
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInTitle");
+			Response response = target.queryParam("title", title2, title3).request().get();
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
+				assertEquals(2, entities.size());
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unid2.equals(obj.getString("unid"))));
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unid3.equals(obj.getString("unid"))));
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + json, e);
+			}
+		}
+
+		// Fetch the prefix
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInTitle");
+			Response response = target.queryParam("title", prefix13 + "*").request().get();
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
+				assertEquals(2, entities.size());
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unid1.equals(obj.getString("unid"))));
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unid3.equals(obj.getString("unid"))));
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + json, e);
+			}
+		}
+	}
 }
