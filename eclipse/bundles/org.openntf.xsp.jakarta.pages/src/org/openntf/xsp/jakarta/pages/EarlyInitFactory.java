@@ -25,15 +25,19 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
+import com.ibm.domino.napi.NException;
 import com.ibm.domino.napi.c.Os;
 import com.ibm.domino.xsp.module.nsf.NSFService;
 
@@ -47,7 +51,13 @@ import jakarta.servlet.Servlet;
  * @since 2.1.0
  */
 public class EarlyInitFactory implements IServiceFactory {
-	public static boolean debug = true;
+	/**
+	 * notes.ini property that can be set to specify a DTD output directory.
+	 * @since 3.1.0
+	 */
+	public static final String PROP_OVERRIDEDTDDIR = "Jakarta_DTDDir"; //$NON-NLS-1$
+	
+	private static final Logger log = Logger.getLogger(EarlyInitFactory.class.getPackageName());
 
 	@Override
 	public HttpService[] getServices(LCDEnvironment env) {
@@ -100,6 +110,7 @@ public class EarlyInitFactory implements IServiceFactory {
 	
 	public static Path getDeployedJstlBundle() throws IOException {
 		Path destDir = getServletDtdPath();
+		System.out.println("deploying DTDs to " + destDir);
 		Files.createDirectories(destDir);
 		
 		Bundle jstl = LibraryUtil.getBundle("org.glassfish.web.jakarta.servlet.jsp.jstl").get(); //$NON-NLS-1$
@@ -113,9 +124,25 @@ public class EarlyInitFactory implements IServiceFactory {
 	}
 	
 	public static Path getServletDtdPath() {
+		try {
+			String iniDtdDir = Os.OSGetEnvironmentString(PROP_OVERRIDEDTDDIR);
+			if(StringUtil.isNotEmpty(iniDtdDir)) {
+				Path dtdDir = Paths.get(iniDtdDir);
+				if(!dtdDir.isAbsolute()) {
+					Path dataDir = Paths.get(Os.OSGetDataDirectory());
+					dtdDir = dataDir.resolve(iniDtdDir);
+				}
+				return dtdDir;
+			}
+		} catch(NException e) {
+			if(log.isLoggable(Level.WARNING)) {
+				log.log(Level.WARNING, "Encountered exception trying to read notes.ini", e);
+			}
+		}
+		
 		String data = Os.OSGetDataDirectory();
 		Path dataDir = Paths.get(data);
-		return dataDir.resolve("jakarta").resolve("dtd"); //$NON-NLS-1$ //$NON-NLS-2$
+		return dataDir.resolve("domino").resolve("jakarta").resolve("dtd"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 }

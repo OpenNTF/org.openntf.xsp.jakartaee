@@ -18,6 +18,7 @@ Require-Bundle: jakarta.servlet-api;bundle-version="5.0.0";visibility:=reexport,
  com.ibm.xsp.designer
 Import-Package: com.ibm.commons.util,
  com.ibm.designer.runtime.domino.adapter,
+ com.ibm.domino.napi,
  com.ibm.domino.napi.c,
  com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.extlib.util,
