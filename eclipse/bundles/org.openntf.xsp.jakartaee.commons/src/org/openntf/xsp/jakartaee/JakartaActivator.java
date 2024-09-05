@@ -37,6 +37,12 @@ import jakarta.activation.MailcapCommandMap;
 import jakarta.mail.Multipart;
 
 public class JakartaActivator implements BundleActivator {
+	/**
+	 * notes.ini property that can be set to specify a temp directory.
+	 * @since 3.1.0
+	 */
+	public static final String PROP_OVERRIDETEMPDIR = "JakartaTempDir"; //$NON-NLS-1$
+	
 	private final List<ServiceRegistration<?>> regs = new ArrayList<>();
 
 	@SuppressWarnings("deprecation")
@@ -67,6 +73,11 @@ public class JakartaActivator implements BundleActivator {
 		// Allow UTF-8-encoded filenames in MimeMultipart
 		// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/501
 		LibraryUtil.setSystemProperty("mail.mime.allowutf8", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		
+		// Look for a custom temporary directory path
+		// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/554
+		
 	}
 
 	@Override
