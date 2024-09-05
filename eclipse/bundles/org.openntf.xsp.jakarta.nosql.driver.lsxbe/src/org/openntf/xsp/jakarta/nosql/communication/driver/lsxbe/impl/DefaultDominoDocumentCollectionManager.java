@@ -271,7 +271,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				if(view != null) {
 					result = entityConverter.convertQRPViewDocuments(database, view, mapping);
 				} else {
-					DominoQuery dominoQuery = database.createDominoQuery();		
+					DominoQuery dominoQuery = database.createDominoQuery();
 					QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
 					try {
 						qrp.addDominoQuery(dominoQuery, dqlQuery, null);

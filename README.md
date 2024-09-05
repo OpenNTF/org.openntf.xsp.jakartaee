@@ -822,6 +822,8 @@ As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and
 
 During page compilation, the runtime will create files on disk. These will default to a system temp directory, but this can be overridden by specifying the `Jakarta_TempDir` notes.ini property.
 
+Additionally, this process requires deploying some DTDs to the filesystem. By default, these are deployed to (Domino data)/domino/jakarta, but this can be overridden by specifying the `Jakarta_DTDDir` notes.ini property.
+
 ### Server Faces
 
 [Jakarta Server Faces](https://jakarta.ee/specifications/faces/) is the Jakarta EE form of JSF, the spec XPages forked off from.
