@@ -20,7 +20,10 @@ import static org.eclipse.jnosql.communication.Condition.IN;
 import java.time.temporal.Temporal;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
+import java.lang.Iterable;
 
 import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
@@ -148,8 +151,23 @@ public enum QueryConverter {
 			case IN:
 				if(value instanceof Number) {
 					throw new IllegalArgumentException("Unable to perform IN query on a number");
-				} else {
-					return DQL.item(name).contains(value == null ? "" : value.toString()); //$NON-NLS-1$
+                } else {
+                    List<String> valueHelper = new ArrayList<>();
+
+                    // Make sure value is valid.
+                    if (value == null) {
+                        value = ""; //$NON-NLS-1$
+                    } else if (value.getClass().isArray()) {
+                        value = Arrays.asList(value);
+                    }
+                    
+                    // If value is an Iterable, convert all entries to String.
+                    if (value instanceof Iterable) {
+                        ((Iterable<?>)value).forEach(item -> valueHelper.add(item.toString()));
+                    } else {
+                        valueHelper.add(value.toString());
+                    }
+					return DQL.item(name).contains(valueHelper.toArray(new String[valueHelper.size()]));
 				}
 			case AND: {
 				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});
@@ -212,7 +230,7 @@ public enum QueryConverter {
 			if(condition == null) {
 				return DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName);
 			} else {
-				return DQL.and(condition, DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName));
+				return DQL.and(DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName), condition);
 			}
 		}
 	}
