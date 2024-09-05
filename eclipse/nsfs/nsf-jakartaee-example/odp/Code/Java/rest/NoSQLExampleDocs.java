@@ -26,7 +26,6 @@ import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoTemplate;
 import bean.TransactionBean;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.nosql.Template;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
 import jakarta.transaction.NotSupportedException;
