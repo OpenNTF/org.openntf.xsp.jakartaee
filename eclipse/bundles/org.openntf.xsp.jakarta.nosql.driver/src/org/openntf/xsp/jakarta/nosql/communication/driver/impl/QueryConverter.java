@@ -212,7 +212,7 @@ public enum QueryConverter {
 			if(condition == null) {
 				return DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName);
 			} else {
-				return DQL.and(condition, DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName));
+				return DQL.and(DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName), condition);
 			}
 		}
 	}
