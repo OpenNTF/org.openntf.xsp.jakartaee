@@ -113,6 +113,13 @@ public enum LibraryUtil {
 	public static final String PROP_XSPPROPS = LibraryUtil.class.getName() + "_xspprops"; //$NON-NLS-1$
 	
 	/**
+	 * Optional setting for a directory to be returned by {@link #getTempDirectory()} instead
+	 * of the system default.
+	 * @since 3.1.0
+	 */
+	private static Path OVERRIDE_TEMP_DIR;
+	
+	/**
 	 * Attempts to determine whether the given XPages Library is active for the
 	 * current application.
 	 * 
@@ -454,11 +461,18 @@ public enum LibraryUtil {
 	 * equivalent to <code>System.getProperty("java.io.tmpdir")</code>. On
 	 * Linux, however, since this seems to return the data directory in some
 	 * cases, it uses <code>/tmp</code>.
+	 * 
+	 * <p>This default can be overridden with {@link #setTempDirectory(Path)}.</p>
 	 *
 	 * @return an appropriate temp directory for the system
 	 * @since 2.4.0
 	 */
 	public static Path getTempDirectory() {
+		Path override = OVERRIDE_TEMP_DIR;
+		if(override != null) {
+			return override;
+		}
+		
 		String osName = getSystemProperty("os.name"); //$NON-NLS-1$
 		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
 			return Paths.get("/tmp"); //$NON-NLS-1$
@@ -466,6 +480,19 @@ public enum LibraryUtil {
 			String tempDir = getSystemProperty("java.io.tmpdir"); //$NON-NLS-1$
 			return Paths.get(tempDir);
 		}
+	}
+	
+	/**
+	 * Sets the directory to be used for temp files, instead of the system default.
+	 * 
+	 * <p>This path must be on the primary local filesystem.</p>
+	 * 
+	 * @param dir a local-filesystem path to use, or {@code null} to un-set an
+	 *        existing value
+	 * @since 3.1.0
+	 */
+	public static void setTempDirectory(Path dir) {
+		OVERRIDE_TEMP_DIR = dir;
 	}
 	
 	/**
@@ -520,5 +547,18 @@ public enum LibraryUtil {
 			System.setProperty(propName, value);
 			return null;
 		});
+	}
+	
+	/**
+	 * Attempts to determine whether the running environment is Tycho - i.e.
+	 * during a compile-time test suite.
+	 * 
+	 * @return {@code true} if this seems to be running in Tycho; {@code false}
+	 *         otherwise
+	 * @since 3.1.0
+	 */
+	public static boolean isTycho() {
+		String application = String.valueOf(getSystemProperty("eclipse.application")); //$NON-NLS-1$
+		return application.contains("org.eclipse.tycho"); //$NON-NLS-1$
 	}
 }

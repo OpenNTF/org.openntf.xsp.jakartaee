@@ -15,10 +15,17 @@
  */
 package org.openntf.xsp.jakarta.nosql;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ibm.commons.util.StringUtil;
+import com.ibm.domino.napi.c.Os;
+
+import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
 import org.openntf.xsp.jakarta.nosql.weaving.NoSQLWeavingHook;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -29,11 +36,34 @@ import org.osgi.framework.hooks.weaving.WeavingHook;
  * @since 2.3.0
  */
 public class NoSQLActivator implements BundleActivator {
+	/**
+	 * notes.ini property that can be set to specify a temp directory.
+	 * @since 3.1.0
+	 */
+	public static final String PROP_OVERRIDEQRPDIR = "Jakarta_QRPDir"; //$NON-NLS-1$
+	
 	private final List<ServiceRegistration<?>> regs = new ArrayList<>();
 
 	@Override
 	public void start(BundleContext context) throws Exception {
 		regs.add(context.registerService(WeavingHook.class.getName(), new NoSQLWeavingHook(), null));
+		
+		if(!LibraryUtil.isTycho()) {
+			// Check for a notes.ini property overriding the scratch directory
+			
+			String iniTempDir = Os.OSGetEnvironmentString(PROP_OVERRIDEQRPDIR);
+			if(StringUtil.isNotEmpty(iniTempDir)) {
+				Path tempDir = Paths.get(iniTempDir);
+				if(!tempDir.isAbsolute()) {
+					Path dataDir = Paths.get(Os.OSGetDataDirectory());
+					tempDir = dataDir.resolve(iniTempDir);
+				}
+				DominoNoSQLUtil.setQrpDirectory(tempDir);
+			}
+			
+			// May have been set to a custom value
+			DominoNoSQLUtil.setTempDirectory(LibraryUtil.getTempDirectory());
+		}
 	}
 
 	@Override
