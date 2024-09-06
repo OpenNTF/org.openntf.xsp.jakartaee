@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta REST Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.rest;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.rest
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.2.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakarta.rest.RestActivator
 Bundle-Vendor: OpenNTF
@@ -72,12 +72,12 @@ Import-Package: com.ibm.commons.util,
  org.openntf.xsp.jakarta.cdi.discovery;version="3.0.0",
  org.openntf.xsp.jakarta.concurrency;version="2.7.0",
  org.osgi.framework;version="1.8.0"
-Export-Package: org.openntf.xsp.jakarta.rest;version="3.1.0",
- org.openntf.xsp.jakarta.rest.cdi;version="3.1.0",
- org.openntf.xsp.jakarta.rest.exceptions;version="3.1.0",
- org.openntf.xsp.jakarta.rest.exceptions.handler;version="3.1.0",
- org.openntf.xsp.jakarta.rest.impl;version="3.1.0",
- org.openntf.xsp.jakarta.rest.json;version="3.1.0",
- org.openntf.xsp.jakarta.rest.security;version="3.1.0",
- org.openntf.xsp.jakarta.rest.spi;version="3.1.0"
+Export-Package: org.openntf.xsp.jakarta.rest;version="3.2.0",
+ org.openntf.xsp.jakarta.rest.cdi;version="3.2.0",
+ org.openntf.xsp.jakarta.rest.exceptions;version="3.2.0",
+ org.openntf.xsp.jakarta.rest.exceptions.handler;version="3.2.0",
+ org.openntf.xsp.jakarta.rest.impl;version="3.2.0",
+ org.openntf.xsp.jakarta.rest.json;version="3.2.0",
+ org.openntf.xsp.jakarta.rest.security;version="3.2.0",
+ org.openntf.xsp.jakarta.rest.spi;version="3.2.0"
 Eclipse-ExtensibleAPI: true
