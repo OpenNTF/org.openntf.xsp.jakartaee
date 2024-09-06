@@ -21,6 +21,7 @@ import jakarta.el.CompositeELResolver;
 import jakarta.enterprise.inject.literal.NamedLiteral;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.jsp.el.ImplicitObjectELResolver;
+import org.openntf.xsp.jakarta.el.impl.RecordPropertyELResolver;
 
 public class NSFELResolver extends CompositeELResolver {
 	public static final NSFELResolver instance = new NSFELResolver();
@@ -28,6 +29,7 @@ public class NSFELResolver extends CompositeELResolver {
 	public NSFELResolver() {
 		add(new ImplicitObjectELResolver());
 		add(new BeanNameELResolver(new CDIBeanResolver()));
+		add(new RecordPropertyELResolver());
 	}
 	
 	public static class CDIBeanResolver extends BeanNameResolver {

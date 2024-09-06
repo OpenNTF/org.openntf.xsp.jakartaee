@@ -271,7 +271,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				if(view != null) {
 					result = entityConverter.convertQRPViewDocuments(database, view, mapping);
 				} else {
-					DominoQuery dominoQuery = database.createDominoQuery();		
+					DominoQuery dominoQuery = database.createDominoQuery();
 					QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
 					try {
 						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
@@ -830,8 +830,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		try {
 			String fileName = AbstractEntityConverter.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
 			
-			Path tempDir = DominoNoSQLUtil.getTempDirectory();
-			Path dest = tempDir.resolve(getClass().getPackage().getName());
+			Path dest = DominoNoSQLUtil.getQrpDirectory()
+				.orElseGet(() -> DominoNoSQLUtil.getTempDirectory().resolve(getClass().getPackageName()));
 			Files.createDirectories(dest);
 			Path dbPath = dest.resolve(fileName);
 			

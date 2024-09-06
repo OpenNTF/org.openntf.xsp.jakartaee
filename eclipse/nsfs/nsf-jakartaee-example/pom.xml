@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.openntf.xsp</groupId>
 		<artifactId>xsp-jakartaee</artifactId>
-		<version>3.1.0-SNAPSHOT</version>
+		<version>3.1.0</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>nsf-jakartaee-example</artifactId>
@@ -20,7 +20,7 @@
 				<configuration>
 					<updateSite>${project.baseDir}/../../../releng/org.openntf.xsp.jakartaee.updatesite/target/repository</updateSite>
 					<templateName>XPages Jakarta EE Example</templateName>
-					<compiler>17</compiler>
+					<compilerLevel>17</compilerLevel>
 					<executionEnvironment>JavaSE-17</executionEnvironment>
 				</configuration>
 			</plugin>

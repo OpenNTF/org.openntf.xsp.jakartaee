@@ -23,7 +23,9 @@ import jakarta.enterprise.inject.spi.Extension;
 public interface CDIClassContributor {
 	public static final String EXTENSION_POINT = CDIClassContributor.class.getName();
 	
-	Collection<Class<?>> getBeanClasses();
+	default Collection<Class<?>> getBeanClasses() {
+		return Collections.emptyList();
+	}
 	
 	default Collection<Extension> getExtensions() {
 		return Collections.emptyList();

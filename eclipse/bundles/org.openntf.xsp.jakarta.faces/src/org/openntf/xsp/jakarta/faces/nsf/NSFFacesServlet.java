@@ -201,14 +201,16 @@ public class NSFFacesServlet extends HttpServlet {
 		ServletUtil.getListeners(ctx, ServletContextListener.class)
 				.forEach(l -> l.contextDestroyed(new ServletContextEvent(ctx)));
 
-		tempFiles.forEach(path -> {
-			try {
-				Files.deleteIfExists(path);
-			} catch (IOException e) {
-				// Ignore
-			}
-		});
-		tempFiles.clear();
+		synchronized(tempFiles) {
+			tempFiles.forEach(path -> {
+				try {
+					Files.deleteIfExists(path);
+				} catch (IOException e) {
+					// Ignore
+				}
+			});
+			tempFiles.clear();
+		}
 		
 		ClassLoader cl = (ClassLoader)ctx.getAttribute(PROP_CLASSLOADER);
 		if(cl != null && cl instanceof Closeable) {
@@ -220,7 +222,10 @@ public class NSFFacesServlet extends HttpServlet {
 		}
 		ctx.removeAttribute(PROP_CLASSLOADER);
 		
-		this.delegate.destroy();
+		FacesServlet delegate = this.delegate;
+		if(delegate != null) {
+			delegate.destroy();
+		}
 
 		super.destroy();
 	}

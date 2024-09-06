@@ -57,6 +57,20 @@ import lotus.domino.Session;
  */
 public enum DominoNoSQLUtil {
 	;
+
+	/**
+	 * Optional setting for a directory to be returned by {@link #getTempDirectory()} instead
+	 * of the system default.
+	 * @since 3.1.0
+	 */
+	private static Path OVERRIDE_TEMP_DIR;
+	
+	/**
+	 * Optional setting for a directory to be returned by {@link #getTQrpDirectory()} instead
+	 * of the system default.
+	 * @since 3.1.0
+	 */
+	private static Path OVERRIDE_QRP_DIR;
 	
 	/**
 	 * Returns an appropriate temp directory for the system. On Windows, this is
@@ -67,6 +81,11 @@ public enum DominoNoSQLUtil {
 	 * @return an appropriate temp directory for the system
 	 */
 	public static Path getTempDirectory() {
+		Path override = OVERRIDE_TEMP_DIR;
+		if(override != null) {
+			return override;
+		}
+		
 		String osName = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("os.name")); //$NON-NLS-1$
 		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
 			return Paths.get("/tmp"); //$NON-NLS-1$
@@ -262,5 +281,42 @@ public enum DominoNoSQLUtil {
 		} catch (NotesException e) {
 			return false;
 		}
+	}
+	
+	/**
+	 * Sets the directory to be used for temp files, instead of the system default.
+	 * 
+	 * <p>This path must be on the primary local filesystem.</p>
+	 * 
+	 * @param dir a local-filesystem path to use, or {@code null} to un-set an
+	 *        existing value
+	 * @since 3.1.0
+	 */
+	public static void setTempDirectory(Path dir) {
+		OVERRIDE_TEMP_DIR = dir;
+	}
+
+	/**
+	 * Sets the directory to be used for QRP databases, instead of the system default.
+	 * 
+	 * <p>This path must be on the primary local filesystem.</p>
+	 * 
+	 * @param dir a local-filesystem path to use, or {@code null} to un-set an
+	 *        existing value
+	 * @since 3.1.0
+	 */
+	public static void setQrpDirectory(Path dir) {
+		OVERRIDE_QRP_DIR = dir;
+	}
+	
+	/**
+	 * Retrieves the base directory to be used for QRP databases
+	 * 
+	 * @return a path to use for QRP databases, or an empty Optional if this
+	 *         was not set
+	 * @since 3.1.0
+	 */
+	public static Optional<Path> getQrpDirectory() {
+		return Optional.ofNullable(OVERRIDE_QRP_DIR);
 	}
 }

@@ -1,1 +1,3 @@
 org.openntf.xsp.jakarta.nosql.communication.driver.impl.InstantValueReader
+org.openntf.xsp.jakarta.nosql.communication.driver.impl.ListValueReader
+org.openntf.xsp.jakarta.nosql.communication.driver.impl.IntValueReader

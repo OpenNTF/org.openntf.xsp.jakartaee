@@ -9,6 +9,10 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.glassfish.hk2.osgiresourcelocator
 Import-Package: com.ibm.designer.runtime.domino.adapter,
  com.ibm.domino.xsp.module.nsf,
+ jakarta.annotation;version="[2.1.0,3.0.0)",
  org.osgi.framework;version="1.8.0"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.glassfish.hk2.osgiresourcelocator.Activator
+Provide-Capability: osgi.extender;osgi.extender="osgi.serviceloader.re
+ gistrar";version:Version="1.0",osgi.extender;osgi.extender="osgi.serv
+ iceloader.processor";version:Version="1.0"

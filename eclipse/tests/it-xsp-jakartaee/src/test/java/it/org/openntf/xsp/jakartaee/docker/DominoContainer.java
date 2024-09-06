@@ -181,7 +181,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 
 		withImagePullPolicy(imageName -> false);
 		withExposedPorts(80, JACOCO_PORT);
-		withStartupTimeout(Duration.ofMinutes(4));
+		withStartupTimeout(Duration.ofMinutes(10));
 		waitingFor(
 			new WaitAllStrategy()
 				.withStrategy(new LogMessageWaitStrategy()

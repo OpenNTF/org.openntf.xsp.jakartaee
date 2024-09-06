@@ -574,6 +574,8 @@ public class NoSQLExample {
 }
 ```
 
+Certain queries, namely arbitrary searches with a sort parameter, will cause the driver to create QRP-view databases on disk. These will default to a system temp directory, but this can be overridden by specifying the `Jakarta_QRPDir` notes.ini property.
+
 #### Accessing Views
 
 View and folder data can be accessed by writing repository methods annotated with the `org.openntf.xsp.nosql.mapping.extension.ViewEntries` and `org.openntf.xsp.nosql.mapping.extension.ViewDocuments` annotations. For example:
@@ -817,6 +819,10 @@ When this library is enabled, .jsp files in the "Files" or "WebContent" parts of
 ```
 
 As demonstrated above, this will resolve in-NSF tags via the NSF's classpath and will allow the use of CDI beans.
+
+During page compilation, the runtime will create files on disk. These will default to a system temp directory, but this can be overridden by specifying the `Jakarta_TempDir` notes.ini property.
+
+Additionally, this process requires deploying some DTDs to the filesystem. By default, these are deployed to (Domino data)/domino/jakarta, but this can be overridden by specifying the `Jakarta_DTDDir` notes.ini property.
 
 ### Server Faces
 
@@ -1170,7 +1176,7 @@ Finally, you should have a Maven toolchain configured that provides JavaSE-17. F
 
 If your Domino Java classpath has any invalid entries in it, the CDI portion of the tooling will complain and fail to load, which may cause XPages apps generally to throw an error 500.
 
-The workaround for this is to check your classpath (jvm/lib/ext and ndext, primarily) for any files that the Domino process user can't access (usually the local system on Windows, or `notes` on Linux). Additionally, look for a `JavaUserClassesExt` entry in the server's notes.ini and make sure that all of the files or directories it references exist and are readable.
+The workaround for this is to check your classpath (ndext, primarily) for any files that the Domino process user can't access (usually the local system on Windows, or `notes` on Linux). Additionally, look for a `JavaUserClassesExt` entry in the server's notes.ini and make sure that all of the files or directories it references exist and are readable.
 
 See [COMPATIBILITY.md](COMPATIBILITY.md) for details on known incompatibilities with specific projects.
 

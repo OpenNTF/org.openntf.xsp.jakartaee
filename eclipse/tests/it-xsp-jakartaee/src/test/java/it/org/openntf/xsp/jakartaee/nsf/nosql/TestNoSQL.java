@@ -219,6 +219,51 @@ public class TestNoSQL extends AbstractWebClientTest {
 	}
 	
 	@Test
+	public void testQueryEmail() throws UnsupportedEncodingException {
+		Client client = getAdminClient();
+		
+		String lastName;
+		String email;
+		String unid;
+		{
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			
+			lastName = "Fooson" + System.nanoTime();
+			email = "foo" + System.nanoTime() + "@foo.com";
+			MultipartFormDataOutput payload = new MultipartFormDataOutput();
+			payload.addFormData("firstName", "Foo" + System.nanoTime(), MediaType.TEXT_PLAIN_TYPE);
+			payload.addFormData("lastName", lastName, MediaType.TEXT_PLAIN_TYPE);
+			payload.addFormData("email", email, MediaType.TEXT_PLAIN_TYPE);
+			
+			Response response = postTarget.request()
+				.accept(MediaType.APPLICATION_JSON_TYPE)
+				.post(Entity.entity(payload, MediaType.MULTIPART_FORM_DATA_TYPE));
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			JsonObject person = Json.createReader(new StringReader(json)).readObject();
+			unid = person.getString("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+			assertEquals(lastName, person.getString("lastName", null));
+			assertEquals(email, person.getString("email", null));
+		}
+		
+		// Find by note ID
+		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byEmail/" + URLEncoder.encode(email, "UTF-8"));
+		
+		Response response = queryTarget.request()
+			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.get();
+		checkResponse(200, response);
+		String json = response.readEntity(String.class);
+
+		JsonObject result = Json.createReader(new StringReader(json)).readObject();
+		assertEquals(email, result.getString("email"));
+		assertEquals(lastName, result.getString("lastName"));
+	}
+	
+	@Test
 	public void testQueryNoteIDInt() throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
