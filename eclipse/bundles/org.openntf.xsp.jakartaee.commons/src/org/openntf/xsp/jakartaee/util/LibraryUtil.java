@@ -39,6 +39,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.Platform;
@@ -309,9 +310,7 @@ public enum LibraryUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> findExtensions(Class<T> extensionClass) {
-		synchronized(EXTENSION_CACHE) {
-			return (List<T>)EXTENSION_CACHE.computeIfAbsent(extensionClass, LibraryUtil::findExtensionsUncached);
-		}
+		return (List<T>)computeIfAbsent(EXTENSION_CACHE, extensionClass, LibraryUtil::findExtensionsUncached);
 	}
 	
 	/**
@@ -453,7 +452,7 @@ public enum LibraryUtil {
 	 * @since 2.4.0
 	 */
 	public static Optional<Bundle> getBundle(String symbolicName) {
-		return Optional.ofNullable(BUNDLE_CACHE.computeIfAbsent(symbolicName, Platform::getBundle));
+		return Optional.ofNullable(computeIfAbsent(BUNDLE_CACHE, symbolicName, Platform::getBundle));
 	}
 	
 	/**
@@ -560,5 +559,33 @@ public enum LibraryUtil {
 	public static boolean isTycho() {
 		String application = String.valueOf(getSystemProperty("eclipse.application")); //$NON-NLS-1$
 		return application.contains("org.eclipse.tycho"); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Performs an operation like {@link Map#computeIfAbsent}, but made to avoid problems
+	 * with ConcurrentModificationException in synchronized maps on Java beyond 8.
+	 *
+	 * <p>This method synchronizes on {@code map}, so the supplier {@code sup} should not
+	 * work with the original map.</p>
+	 *
+	 * @param <S> the key type of the map
+	 * @param <T> the value type of the map
+	 * @param map the map to work with
+	 * @param key the key to check
+	 * @param sup a supplier to provide a value when missing
+	 * @return the existing or new value from the map
+	 * @since 3.2.0
+	 */
+	public static <S, T> T computeIfAbsent(final Map<S, T> map, final S key, final Function<S, T> sup) {
+		synchronized(map) {
+			T result;
+			if(!map.containsKey(key)) {
+				result = sup.apply(key);
+				map.put(key, result);
+			} else {
+				result = map.get(key);
+			}
+			return result;
+		}
 	}
 }

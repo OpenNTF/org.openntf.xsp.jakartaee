@@ -34,12 +34,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -62,7 +62,7 @@ public class ServiceLoader {
 	
 	private static final String SERVICE_LOCATION = "META-INF/services"; //$NON-NLS-1$
 	private static final String COMMENT_PATTERN = "#"; //$NON-NLS-1$
-	private static final Map<Bundle, Set<String>> OSGI_PROVIDERS = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Bundle, Set<String>> OSGI_PROVIDERS = new HashMap<>();
 	@SuppressWarnings("rawtypes")
 	private static final Map<Class<?>, Iterable<Class>> OSGI_INSTANCES = Collections.synchronizedMap(new HashMap<>());
 	
@@ -111,7 +111,7 @@ public class ServiceLoader {
 	public static <T> Iterable<Class> lookupProviderClasses(Class<T> serviceClass) {
 		List<Class> result = new ArrayList<>();
 		
-		Iterable<Class> osgi = OSGI_INSTANCES.computeIfAbsent(serviceClass, ServiceLoader::resolveBundleServices);
+		Iterable<Class> osgi = computeIfAbsent(OSGI_INSTANCES, serviceClass, ServiceLoader::resolveBundleServices);
 		osgi.forEach(result::add);
 		
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
@@ -259,4 +259,17 @@ public class ServiceLoader {
     	}
 
     }
+	
+	private static <S, T> T computeIfAbsent(final Map<S, T> map, final S key, final Function<S, T> sup) {
+		synchronized(map) {
+			T result;
+			if(!map.containsKey(key)) {
+				result = sup.apply(key);
+				map.put(key, result);
+			} else {
+				result = map.get(key);
+			}
+			return result;
+		}
+	}
 }
