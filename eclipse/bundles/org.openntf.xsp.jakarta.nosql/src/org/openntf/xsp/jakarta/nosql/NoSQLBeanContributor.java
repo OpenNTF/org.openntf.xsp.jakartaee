@@ -79,13 +79,12 @@ public class NoSQLBeanContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		return Collections.emptySet();
+		return Collections.singleton(new EntityMetadataExtension());
 	}
 	
 	@Override
 	public Collection<Class<? extends Extension>> getExtensionClasses() {
 		return Arrays.asList(
-			EntityMetadataExtension.class,
 			DocumentExtension.class,
 			
 			DominoExtension.class
