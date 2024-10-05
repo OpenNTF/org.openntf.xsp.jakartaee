@@ -904,7 +904,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				if(pagination != null) {
 					maxDocs = (int)Math.min(pagination.size() * pagination.page() + pagination.size(), Integer.MAX_VALUE);
 				}
-				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, View.VIEW_FTSS_RELEVANCE_ORDER, true, exact, variants, fuzzy);
+
+				// Using View.VIEW_FTSS_RELEVANCE_ORDER causes trouble sometimes in some
+				//   compilation environments, so use the raw integer value 512
+				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, 512, true, exact, variants, fuzzy);
 			}
 			
 			return;

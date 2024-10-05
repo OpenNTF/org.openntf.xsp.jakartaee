@@ -888,7 +888,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									try(InputStream is = att.getData()) {
 										Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
 									}
-									body.embedObject(EmbeddedObject.EMBED_ATTACHMENT, "", tempFile.toString(), null); //$NON-NLS-1$
+									// Using EmbeddedObject.EMBED_ATTACHMENT causes trouble sometimes in some
+									//   compilation environments, so use the raw integer value 1454
+									body.embedObject(1454, "", tempFile.toString(), null); //$NON-NLS-1$
 								} finally {
 									Files.list(tempDir).forEach(t -> {
 										try {
