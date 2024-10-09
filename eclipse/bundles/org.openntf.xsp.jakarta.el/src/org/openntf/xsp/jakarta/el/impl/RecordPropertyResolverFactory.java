@@ -11,7 +11,7 @@ public class RecordPropertyResolverFactory implements PropertyResolverFactory {
 	public static final RecordPropertyResolverFactory INSTANCE = new RecordPropertyResolverFactory();
 
 	@Override
-	public PropertyResolver getPropertyResolver(Object base) {
+	public PropertyResolver getPropertyResolver(final Object base) {
 		if(base != null && base.getClass().isRecord()) {
 			return RecordPropertyResolver.INSTANCE;
 		}

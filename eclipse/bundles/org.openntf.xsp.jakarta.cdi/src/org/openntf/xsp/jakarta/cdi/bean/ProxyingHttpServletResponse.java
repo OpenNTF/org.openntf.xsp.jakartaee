@@ -31,147 +31,183 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public class ProxyingHttpServletResponse implements HttpServletResponse {
 	public static HttpServletResponse INSTANCE = new ProxyingHttpServletResponse();
-	
-	public void addCookie(Cookie cookie) {
+
+	@Override
+	public void addCookie(final Cookie cookie) {
 		delegate().addCookie(cookie);
 	}
 
-	public boolean containsHeader(String name) {
+	@Override
+	public boolean containsHeader(final String name) {
 		return delegate().containsHeader(name);
 	}
 
-	public String encodeURL(String url) {
+	@Override
+	public String encodeURL(final String url) {
 		return delegate().encodeURL(url);
 	}
 
+	@Override
 	public String getCharacterEncoding() {
 		return delegate().getCharacterEncoding();
 	}
 
-	public String encodeRedirectURL(String url) {
+	@Override
+	public String encodeRedirectURL(final String url) {
 		return delegate().encodeRedirectURL(url);
 	}
 
-	public void sendError(int sc, String msg) throws IOException {
+	@Override
+	public void sendError(final int sc, final String msg) throws IOException {
 		delegate().sendError(sc, msg);
 	}
 
+	@Override
 	public String getContentType() {
 		return delegate().getContentType();
 	}
 
+	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
 		return delegate().getOutputStream();
 	}
 
-	public void sendError(int sc) throws IOException {
+	@Override
+	public void sendError(final int sc) throws IOException {
 		delegate().sendError(sc);
 	}
 
+	@Override
 	public PrintWriter getWriter() throws IOException {
 		return delegate().getWriter();
 	}
 
-	public void sendRedirect(String location) throws IOException {
+	@Override
+	public void sendRedirect(final String location) throws IOException {
 		delegate().sendRedirect(location);
 	}
 
-	public void setCharacterEncoding(String charset) {
+	@Override
+	public void setCharacterEncoding(final String charset) {
 		delegate().setCharacterEncoding(charset);
 	}
 
-	public void setDateHeader(String name, long date) {
+	@Override
+	public void setDateHeader(final String name, final long date) {
 		delegate().setDateHeader(name, date);
 	}
 
-	public void addDateHeader(String name, long date) {
+	@Override
+	public void addDateHeader(final String name, final long date) {
 		delegate().addDateHeader(name, date);
 	}
 
-	public void setHeader(String name, String value) {
+	@Override
+	public void setHeader(final String name, final String value) {
 		delegate().setHeader(name, value);
 	}
 
-	public void addHeader(String name, String value) {
+	@Override
+	public void addHeader(final String name, final String value) {
 		delegate().addHeader(name, value);
 	}
 
-	public void setContentLength(int len) {
+	@Override
+	public void setContentLength(final int len) {
 		delegate().setContentLength(len);
 	}
 
-	public void setIntHeader(String name, int value) {
+	@Override
+	public void setIntHeader(final String name, final int value) {
 		delegate().setIntHeader(name, value);
 	}
 
-	public void setContentLengthLong(long len) {
+	@Override
+	public void setContentLengthLong(final long len) {
 		delegate().setContentLengthLong(len);
 	}
 
-	public void setContentType(String type) {
+	@Override
+	public void setContentType(final String type) {
 		delegate().setContentType(type);
 	}
 
-	public void addIntHeader(String name, int value) {
+	@Override
+	public void addIntHeader(final String name, final int value) {
 		delegate().addIntHeader(name, value);
 	}
 
-	public void setStatus(int sc) {
+	@Override
+	public void setStatus(final int sc) {
 		delegate().setStatus(sc);
 	}
 
+	@Override
 	public int getStatus() {
 		return delegate().getStatus();
 	}
 
-	public String getHeader(String name) {
+	@Override
+	public String getHeader(final String name) {
 		return delegate().getHeader(name);
 	}
 
-	public void setBufferSize(int size) {
+	@Override
+	public void setBufferSize(final int size) {
 		delegate().setBufferSize(size);
 	}
 
-	public Collection<String> getHeaders(String name) {
+	@Override
+	public Collection<String> getHeaders(final String name) {
 		return delegate().getHeaders(name);
 	}
 
+	@Override
 	public Collection<String> getHeaderNames() {
 		return delegate().getHeaderNames();
 	}
 
+	@Override
 	public int getBufferSize() {
 		return delegate().getBufferSize();
 	}
 
+	@Override
 	public void flushBuffer() throws IOException {
 		delegate().flushBuffer();
 	}
 
-	public void setTrailerFields(Supplier<Map<String, String>> supplier) {
+	@Override
+	public void setTrailerFields(final Supplier<Map<String, String>> supplier) {
 		delegate().setTrailerFields(supplier);
 	}
 
+	@Override
 	public void resetBuffer() {
 		delegate().resetBuffer();
 	}
 
+	@Override
 	public boolean isCommitted() {
 		return delegate().isCommitted();
 	}
 
+	@Override
 	public void reset() {
 		delegate().reset();
 	}
 
+	@Override
 	public Supplier<Map<String, String>> getTrailerFields() {
 		return delegate().getTrailerFields();
 	}
 
-	public void setLocale(Locale loc) {
+	@Override
+	public void setLocale(final Locale loc) {
 		delegate().setLocale(loc);
 	}
 
+	@Override
 	public Locale getLocale() {
 		return delegate().getLocale();
 	}

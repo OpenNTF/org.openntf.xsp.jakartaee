@@ -18,15 +18,15 @@ package org.openntf.xsp.microprofile.config;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import com.ibm.designer.runtime.domino.adapter.HttpService;
+import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
+import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
+
 import org.eclipse.microprofile.config.spi.ConfigProviderResolver;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.microprofile.config.sources.ImplicitAppConfigSourceFactory;
 import org.openntf.xsp.microprofile.config.sources.NotesEnvironmentConfigSource;
 import org.openntf.xsp.microprofile.config.sources.XspPropertiesConfigSourceFactory;
-
-import com.ibm.designer.runtime.domino.adapter.HttpService;
-import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
-import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 
 import io.smallrye.config.PropertiesLocationConfigSourceFactory;
 import io.smallrye.config.SmallRyeConfigBuilder;
@@ -37,7 +37,7 @@ import jakarta.servlet.ServletContext;
 public class ConfigInitFactory implements IServiceFactory {
 
 	@Override
-	public HttpService[] getServices(LCDEnvironment env) {
+	public HttpService[] getServices(final LCDEnvironment env) {
 		SmallRyeConfigProviderResolver resolver = new SmallRyeConfigProviderResolver() {
 			@Override
 			public SmallRyeConfigBuilder getBuilder() {
@@ -53,7 +53,7 @@ public class ConfigInitFactory implements IServiceFactory {
 					new XspPropertiesConfigSourceFactory(),
 					new ImplicitAppConfigSourceFactory()
 				);
-				
+
 				AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
 					ComponentModuleLocator.getDefault()
 						.flatMap(ComponentModuleLocator::getServletContext)
@@ -61,13 +61,13 @@ public class ConfigInitFactory implements IServiceFactory {
 						.ifPresent(builder::forClassLoader);
 					return null;
 				});
-				
+
 				return builder;
 			}
 		};
-		
+
 		ConfigProviderResolver.setInstance(resolver);
-		
+
 		return null;
 	}
 

@@ -22,6 +22,9 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.xsp.application.ApplicationEx;
+
 import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.servlet.JspServlet;
 import org.glassfish.wasp.xmlparser.ParserUtils;
@@ -32,9 +35,6 @@ import org.openntf.xsp.jakarta.pages.util.DominoPagesUtil;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.xsp.application.ApplicationEx;
-
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -44,22 +44,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.1.0
  */
 public class NSFPagesServlet extends AbstractXspLifecycleServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	private final JspServlet delegate;
-	
-	public NSFPagesServlet(ComponentModule module) {
+
+	public NSFPagesServlet(final ComponentModule module) {
 		super(module);
 		this.delegate = new JspServlet();
 	}
-	
+
 	@Override
-	protected void doInit(ServletConfig config, HttpServletRequest request) throws ServletException {
+	protected void doInit(final ServletConfig config, final HttpServletRequest request) throws ServletException {
 		ClassLoader current = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], current));
@@ -68,19 +68,19 @@ public class NSFPagesServlet extends AbstractXspLifecycleServlet {
 			Thread.currentThread().setContextClassLoader(current);
 		}
 	}
-	
+
 	@SuppressWarnings({ "removal", "deprecation" })
 	@Override
-	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application)
+	protected void doService(final HttpServletRequest request, final HttpServletResponse response, final ApplicationEx application)
 			throws ServletException, IOException {
 		HttpContextBean.setThreadResponse(response);
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
-				
+
 				ServletContext context = request.getServletContext();
 				context.setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$
 				context.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, DominoPagesUtil.buildJstlDtdMap());
-				
+
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(DominoPagesUtil.buildPagesClassLoader(current));
 				ServletUtil.getListeners(context, ServletRequestListener.class)
@@ -115,7 +115,7 @@ public class NSFPagesServlet extends AbstractXspLifecycleServlet {
 			HttpContextBean.setThreadResponse(null);
 		}
 	}
-	
+
 	@Override
 	public void destroy() {
 		super.destroy();

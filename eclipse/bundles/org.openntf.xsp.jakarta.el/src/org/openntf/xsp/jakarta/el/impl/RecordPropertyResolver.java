@@ -22,7 +22,7 @@ public class RecordPropertyResolver extends PropertyResolver {
 
 	@SuppressWarnings({"removal", "deprecation"})
 	@Override
-	public Object getValue(Object base, Object property)
+	public Object getValue(final Object base, final Object property)
 			throws EvaluationException, PropertyNotFoundException {
 		if(base == null) {
 			return null;
@@ -30,7 +30,7 @@ public class RecordPropertyResolver extends PropertyResolver {
 		if(!base.getClass().isRecord()) {
 			return null;
 		}
-		
+
 		Objects.requireNonNull(property);
 		AtomicBoolean resolved = new AtomicBoolean(false);
 		Object result = AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
@@ -44,7 +44,7 @@ public class RecordPropertyResolver extends PropertyResolver {
 				throw new RuntimeException(e);
 			}
 		});
-		
+
 		// Handle custom methods like normal beans
 		if(!resolved.get()) {
 			return delegate.getValue(base, property);
@@ -54,42 +54,42 @@ public class RecordPropertyResolver extends PropertyResolver {
 	}
 
 	@Override
-	public Object getValue(Object base, int index) throws EvaluationException, PropertyNotFoundException {
+	public Object getValue(final Object base, final int index) throws EvaluationException, PropertyNotFoundException {
 		throw new PropertyNotFoundException();
 	}
 
 	@Override
-	public void setValue(Object base, Object property, Object value)
+	public void setValue(final Object base, final Object property, final Object value)
 			throws EvaluationException, PropertyNotFoundException {
 		throw new EvaluationException("Cannot set values on records");
 	}
 
 	@Override
-	public void setValue(Object base, int index, Object value)
+	public void setValue(final Object base, final int index, final Object value)
 			throws EvaluationException, PropertyNotFoundException {
 		throw new PropertyNotFoundException();
 	}
 
 	@Override
-	public boolean isReadOnly(Object base, Object property)
+	public boolean isReadOnly(final Object base, final Object property)
 			throws EvaluationException, PropertyNotFoundException {
 		return true;
 	}
 
 	@Override
-	public boolean isReadOnly(Object base, int index) throws EvaluationException, PropertyNotFoundException {
+	public boolean isReadOnly(final Object base, final int index) throws EvaluationException, PropertyNotFoundException {
 		return true;
 	}
 
 	@SuppressWarnings({"removal", "deprecation", "rawtypes"})
 	@Override
-	public Class getType(Object base, Object property)
+	public Class getType(final Object base, final Object property)
 			throws EvaluationException, PropertyNotFoundException {
 		Objects.requireNonNull(base);
 		if(!base.getClass().isRecord()) {
 			return null;
 		}
-		
+
 		Objects.requireNonNull(property);
 		AtomicBoolean resolved = new AtomicBoolean(false);
 		Class<?> result = AccessController.doPrivileged((PrivilegedAction<Class<?>>)() -> {
@@ -103,7 +103,7 @@ public class RecordPropertyResolver extends PropertyResolver {
 				throw new RuntimeException(e);
 			}
 		});
-		
+
 		// Handle custom methods like normal beans
 		if(!resolved.get()) {
 			return delegate.getType(base, property);
@@ -114,7 +114,7 @@ public class RecordPropertyResolver extends PropertyResolver {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Class getType(Object base, int index) throws EvaluationException, PropertyNotFoundException {
+	public Class getType(final Object base, final int index) throws EvaluationException, PropertyNotFoundException {
 		throw new PropertyNotFoundException();
 	}
 

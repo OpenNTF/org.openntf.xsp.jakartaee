@@ -20,11 +20,12 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.eclipse.jnosql.mapping.metadata.ClassInformationNotFoundException;
-import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.reflection.DefaultFieldMetadata;
 
@@ -33,14 +34,14 @@ import jakarta.nosql.Column;
 
 /**
  * Contains utility methods for working with NoSQL entities.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.9.0
  */
 @SuppressWarnings({ "removal", "deprecation" })
 public enum EntityUtil {
 	;
-	
+
 	// For now, assumine that all implementations used AbstractFieldMetadata
 	private static final Field fieldField;
 	static {
@@ -54,8 +55,8 @@ public enum EntityUtil {
 			}
 		});
 	}
-	
-	public static EntityMetadata getClassMapping(String entityName) {
+
+	public static EntityMetadata getClassMapping(final String entityName) {
 		EntitiesMetadata mappings = CDI.current().select(EntitiesMetadata.class).get();
 		try {
 			return mappings.findByName(entityName);
@@ -64,24 +65,24 @@ public enum EntityUtil {
 			return null;
 		}
 	}
-	
-	public static Map<String, Class<?>> getItemTypes(EntityMetadata classMapping) {
+
+	public static Map<String, Class<?>> getItemTypes(final EntityMetadata classMapping) {
 		return classMapping == null ? Collections.emptyMap() : classMapping.fields()
 			.stream()
 			.collect(Collectors.toMap(
-				f -> f.name(),
+				(Function<? super FieldMetadata, ? extends String>) FieldMetadata::name,
 				f -> getNativeField(f).getType()
 			));
 	}
-	
+
 	/**
 	 * Determines the back-end item name for the given Java property.
-	 * 
+	 *
 	 * @param propName the Java property to check
 	 * @param mapping the {@link ClassMapping} instance for the class in question
 	 * @return the effective item name based on the class properties
 	 */
-	public static String findItemName(String propName, EntityMetadata mapping) {
+	public static String findItemName(final String propName, final EntityMetadata mapping) {
 		if(mapping != null) {
 			Column annotation = mapping.fieldMapping(propName)
 				.map(EntityUtil::getNativeField)
@@ -96,8 +97,8 @@ public enum EntityUtil {
 			return propName;
 		}
 	}
-	
-	public static Field getNativeField(FieldMetadata fieldMapping) {
+
+	public static Field getNativeField(final FieldMetadata fieldMapping) {
 		try {
 			return (Field)fieldField.get(fieldMapping);
 		} catch (IllegalArgumentException | IllegalAccessException e) {

@@ -16,6 +16,7 @@
 package org.openntf.xsp.jakarta.nosql.communication.driver.impl;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,13 +33,13 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 /**
  * Contains methods common among multiple driver implementations when converting
  * entities.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.8.0
  */
 public abstract class AbstractEntityConverter {
-	
-	protected <T extends Annotation> Optional<T> getFieldAnnotation(EntityMetadata classMapping, String fieldName, Class<T> annotation) {
+
+	protected <T extends Annotation> Optional<T> getFieldAnnotation(final EntityMetadata classMapping, final String fieldName, final Class<T> annotation) {
 		if(classMapping == null) {
 			return Optional.empty();
 		}
@@ -49,8 +50,8 @@ public abstract class AbstractEntityConverter {
 			.map(EntityUtil::getNativeField)
 			.map(field -> field.getAnnotation(annotation));
 	}
-	
-	protected Optional<Type> getFieldType(EntityMetadata classMapping, String fieldName) {
+
+	protected Optional<Type> getFieldType(final EntityMetadata classMapping, final String fieldName) {
 		if(classMapping == null) {
 			return Optional.empty();
 		}
@@ -59,15 +60,15 @@ public abstract class AbstractEntityConverter {
 			.filter(field -> fieldName.equals(field.name()))
 			.findFirst()
 			.map(EntityUtil::getNativeField)
-			.map(field -> field.getGenericType());
+			.map(Field::getGenericType);
 	}
-	
-	protected String composeEtag(String universalId, Temporal modTime) {
+
+	protected String composeEtag(final String universalId, final Temporal modTime) {
 		Instant inst = Instant.from(modTime);
 		return md5(universalId + inst.getEpochSecond() + inst.getNano());
 	}
-	
-	public static String md5(String value) {
+
+	public static String md5(final String value) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
 			md.update(String.valueOf(value).getBytes());
@@ -81,14 +82,14 @@ public abstract class AbstractEntityConverter {
 			throw new IllegalStateException(e);
 		}
 	}
-	
-	public static Object applyPrecision(Object dominoVal, int precision) {
+
+	public static Object applyPrecision(final Object dominoVal, final int precision) {
 		if(dominoVal instanceof Number) {
 			BigDecimal decimal = BigDecimal.valueOf(((Number)dominoVal).doubleValue());
 			return decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue();
 		} else if(dominoVal instanceof Collection && !((Collection<?>)dominoVal).isEmpty()) {
 			Vector<Object> result = new Vector<>(((Collection<?>)dominoVal).size());
-			for(Object obj : ((Collection<?>)dominoVal)) {
+			for(Object obj : (Collection<?>)dominoVal) {
 				if(obj instanceof Number) {
 					BigDecimal decimal = BigDecimal.valueOf(((Number)obj).doubleValue());
 					result.add(decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue());

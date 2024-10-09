@@ -40,7 +40,7 @@ import jakarta.enterprise.inject.spi.PassivationCapable;
 
 /**
  * Bean for producing {@link DominoTemplate} instances.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.5.0
  */
@@ -60,7 +60,7 @@ public class DominoTemplateBean implements Bean<DominoTemplate>, PassivationCapa
      * @param beanManager the beanManager
      * @param provider    the provider name, that must be a
      */
-    public DominoTemplateBean(BeanManager beanManager, String provider) {
+    public DominoTemplateBean(final BeanManager beanManager, final String provider) {
         this.beanManager = beanManager;
         this.types = Collections.singleton(DominoTemplate.class);
         this.provider = provider;
@@ -78,7 +78,7 @@ public class DominoTemplateBean implements Bean<DominoTemplate>, PassivationCapa
     }
 
     @Override
-    public DominoTemplate create(CreationalContext<DominoTemplate> creationalContext) {
+    public DominoTemplate create(final CreationalContext<DominoTemplate> creationalContext) {
 
         Instance<DominoDocumentManager> managerInstance = CDI.current().select(DominoDocumentManager.class, DatabaseQualifier.ofDocument(provider));
         return new DefaultDominoTemplate(
@@ -92,7 +92,7 @@ public class DominoTemplateBean implements Bean<DominoTemplate>, PassivationCapa
 
 
     @SuppressWarnings("unchecked")
-    private <T> T getInstance(Class<T> clazz) {
+    private <T> T getInstance(final Class<T> clazz) {
 		Bean<T> bean = (Bean<T>) beanManager.getBeans(clazz).iterator().next();
         CreationalContext<T> ctx = beanManager.createCreationalContext(bean);
         return (T) beanManager.getReference(bean, clazz, ctx);
@@ -100,7 +100,7 @@ public class DominoTemplateBean implements Bean<DominoTemplate>, PassivationCapa
 
 
     @Override
-    public void destroy(DominoTemplate instance, CreationalContext<DominoTemplate> creationalContext) {
+    public void destroy(final DominoTemplate instance, final CreationalContext<DominoTemplate> creationalContext) {
 
     }
 

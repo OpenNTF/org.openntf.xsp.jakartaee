@@ -19,15 +19,15 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
-	
+
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
+	public void start(final BundleContext bundleContext) throws Exception {
 		ServiceLoader.init(bundleContext);
 	}
 
 	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-		
+	public void stop(final BundleContext bundleContext) throws Exception {
+
 	}
 
 }

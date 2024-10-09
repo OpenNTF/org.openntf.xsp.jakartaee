@@ -34,11 +34,11 @@ import jakarta.ws.rs.core.Response;
 public class MetricsResource {
 	@GET
 	@Operation(hidden=true)
-	public Response get(@Context HttpHeaders headers) {
+	public Response get(@Context final HttpHeaders headers) {
 		Config mpConfig = CDI.current().select(Config.class).get();
 		String appName = mpConfig.getOptionalValue(MetricsAppConfigSource.CONFIG_APPNAME, String.class)
 			.orElse(null);
-		
+
 		Exporter exporter = new FilteringPrometheusMetricsExporer(appName);
 		// TODO limit scopes
 		return Response.ok()

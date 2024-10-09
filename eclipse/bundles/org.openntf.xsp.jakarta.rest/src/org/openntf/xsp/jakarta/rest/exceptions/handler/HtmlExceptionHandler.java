@@ -43,7 +43,7 @@ import jakarta.ws.rs.core.StreamingOutput;
 /**
  * This handle will render exceptions using the server-default XPages
  * exception page when the media type is {@code text/html}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
@@ -52,12 +52,12 @@ public class HtmlExceptionHandler implements RestExceptionHandler {
 	private static final Logger log = Logger.getLogger(HtmlExceptionHandler.class.getName());
 
 	@Override
-	public boolean canHandle(ResourceInfo resourceInfo, MediaType mediaType) {
+	public boolean canHandle(final ResourceInfo resourceInfo, final MediaType mediaType) {
 		return MediaType.TEXT_HTML_TYPE.isCompatible(mediaType);
 	}
 
 	@Override
-	public Response handle(Throwable throwable, int status, ResourceInfo resourceInfo, HttpServletRequest req) {
+	public Response handle(final Throwable throwable, final int status, final ResourceInfo resourceInfo, final HttpServletRequest req) {
 		return Response.status(status)
 			.type(MediaType.TEXT_HTML_TYPE)
 			.entity((StreamingOutput)out -> {
@@ -76,19 +76,19 @@ public class HtmlExceptionHandler implements RestExceptionHandler {
 								ViewHandler viewHandler = app.getViewHandler();
 								UIViewRoot viewRoot = viewHandler.createView(facesContext, errorPage);
 								facesContext.setViewRoot(viewRoot);
-								
+
 								// The renderkit factory will be null outside a true XPage request
 								if(FactoryFinder.getFactory(FactoryFinder.RENDER_KIT_FACTORY) == null) {
 									FactoryFinder.setFactory(FactoryFinder.RENDER_KIT_FACTORY, ReadOnlyRenderKitFactory.class.getName());
 								}
-								
+
 								app.getController().render(facesContext, viewRoot);
-								
+
 								return;
 							}
 						}
 					}
-					
+
 					try(PrintWriter w = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
 						XSPErrorPage.handleException(w, throwable, null, false);
 					} catch (ServletException e) {

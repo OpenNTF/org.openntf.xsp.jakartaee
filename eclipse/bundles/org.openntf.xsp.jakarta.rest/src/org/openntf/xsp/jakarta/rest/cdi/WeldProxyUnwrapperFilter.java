@@ -17,6 +17,9 @@ package org.openntf.xsp.jakarta.rest.cdi;
 
 import java.io.IOException;
 
+import org.jboss.weld.proxy.WeldClientProxy;
+import org.jboss.weld.proxy.WeldClientProxy.Metadata;
+
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -24,14 +27,11 @@ import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.ext.Provider;
 
-import org.jboss.weld.proxy.WeldClientProxy;
-import org.jboss.weld.proxy.WeldClientProxy.Metadata;
-
 /**
  * This {@link ContainerResponseFilter} checks for outgoing Weld bean proxies and unwraps them,
  * which avoids trouble with many {@code MessageBodyWriter}
  * that rely on reflection and annotations.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.2.0
  */
@@ -40,7 +40,7 @@ import org.jboss.weld.proxy.WeldClientProxy.Metadata;
 public class WeldProxyUnwrapperFilter implements ContainerResponseFilter {
 
 	@Override
-	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
+	public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext)
 			throws IOException {
 		Object entity = responseContext.getEntity();
 		if(entity instanceof WeldClientProxy) {

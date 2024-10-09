@@ -25,7 +25,7 @@ import jakarta.transaction.Transactional;
 
 /**
  * Basic CDI implementation of the {@link Transactional @Transactional} annotation.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -35,7 +35,7 @@ import jakarta.transaction.Transactional;
 public class TransactionalInterceptorRequiresNew extends AbstractTransactionalInterceptor {
 
 	@AroundInvoke
-	public Object wrapMethod(InvocationContext ctx) throws Exception {
+	public Object wrapMethod(final InvocationContext ctx) throws Exception {
 		TransactionManager man = CDI.current().select(TransactionManager.class).get();
 		if(man.getTransaction() == null) {
 			// Then we run the transaction

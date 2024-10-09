@@ -36,6 +36,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
+
 import org.apache.myfaces.webapp.MyFacesContainerInitializer;
 import org.eclipse.core.runtime.FileLocator;
 import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
@@ -48,9 +51,6 @@ import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
-
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.faces.FactoryFinder;
@@ -73,13 +73,13 @@ import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.4.0
  */
 public class NSFFacesServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final Logger log = Logger.getLogger(NSFFacesServlet.class.getName());
 
 	private static final String PROP_SESSIONINIT = NSFFacesServlet.class.getName() + "_sessionInit"; //$NON-NLS-1$
@@ -90,12 +90,12 @@ public class NSFFacesServlet extends HttpServlet {
 	private boolean initialized;
 	private final Collection<Path> tempFiles = Collections.synchronizedList(new ArrayList<>());
 
-	public NSFFacesServlet(ComponentModule module) {
+	public NSFFacesServlet(final ComponentModule module) {
 		super();
 		this.module = module;
 	}
 
-	public void doInit(HttpServletRequest req, ServletConfig config) throws ServletException {
+	public void doInit(final HttpServletRequest req, final ServletConfig config) throws ServletException {
 		CDI<Object> cdi = CDI.current();
 		ServletContext context = config.getServletContext();
 		context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
@@ -103,7 +103,7 @@ public class NSFFacesServlet extends HttpServlet {
 		Properties props = LibraryUtil.getXspProperties(module);
 		String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
 		context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
-		
+
 		// Look for a web.xml file and populate init params
 		ServletUtil.populateWebXmlParams(module, config.getServletContext());
 
@@ -125,7 +125,7 @@ public class NSFFacesServlet extends HttpServlet {
 			ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
 			ServletUtil.contextInitialized(ctx);
 		}
-		
+
 		this.delegate = new FacesServlet();
 		delegate.init(config);
 	}
@@ -133,7 +133,7 @@ public class NSFFacesServlet extends HttpServlet {
 	@SuppressWarnings({ "deprecation", "removal" })
 	@Override
 	// TODO see if synchronization can be handled better
-	public synchronized void service(HttpServletRequest req, HttpServletResponse resp)
+	public synchronized void service(final HttpServletRequest req, final HttpServletResponse resp)
 			throws ServletException, IOException {
 		ServletContext ctx = req.getServletContext();
 		HttpSession session = req.getSession(true);
@@ -161,11 +161,11 @@ public class NSFFacesServlet extends HttpServlet {
 						session.setAttribute(PROP_SESSIONINIT, "1"); //$NON-NLS-1$
 						// TODO add a hook for session expiration?
 					}
-					
+
 
 					delegate.service(req, resp);
 				} finally {
-					
+
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
 							.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
 					Thread.currentThread().setContextClassLoader(current);
@@ -178,7 +178,7 @@ public class NSFFacesServlet extends HttpServlet {
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered unhandled exception in Servlet", t);
 			}
-			
+
 			try (PrintWriter w = resp.getWriter()) {
 				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				XSPErrorPage.handleException(w, t, null, false);
@@ -211,7 +211,7 @@ public class NSFFacesServlet extends HttpServlet {
 			});
 			tempFiles.clear();
 		}
-		
+
 		ClassLoader cl = (ClassLoader)ctx.getAttribute(PROP_CLASSLOADER);
 		if(cl != null && cl instanceof Closeable) {
 			try {
@@ -221,7 +221,7 @@ public class NSFFacesServlet extends HttpServlet {
 			}
 		}
 		ctx.removeAttribute(PROP_CLASSLOADER);
-		
+
 		FacesServlet delegate = this.delegate;
 		if(delegate != null) {
 			delegate.destroy();
@@ -233,21 +233,21 @@ public class NSFFacesServlet extends HttpServlet {
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
-	
+
 	private static final Map<String, FacesBlockingClassLoader> cached = new ConcurrentHashMap<>();
 
 	@SuppressWarnings("deprecation")
-	private synchronized ClassLoader buildJsfClassLoader(ServletContext context, HttpSession session, ClassLoader delegate)
+	private synchronized ClassLoader buildJsfClassLoader(final ServletContext context, final HttpSession session, final ClassLoader delegate)
 			throws BundleException, IOException {
 		if (context.getAttribute(PROP_CLASSLOADER) == null) {
-			
+
 			// If the app was refreshed, we'll still have a lingering classloader here
 			String id = ModuleUtil.getModuleId(module);
 			FacesBlockingClassLoader old = cached.get(id);
 			if(old != null) {
 				destroyOldContext(old, session);
 			}
-			
+
 			List<URL> urls = new ArrayList<>();
 			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(FactoryFinder.class)).toURI().toURL());
 			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(MyFacesContainerInitializer.class)).toURI().toURL());
@@ -265,14 +265,14 @@ public class NSFFacesServlet extends HttpServlet {
 				.forEach(urls::add);
 
 			FacesBlockingClassLoader cl = new FacesBlockingClassLoader(urls.toArray(new URL[urls.size()]), delegate);
-			
+
 			context.setAttribute(PROP_CLASSLOADER, cl);
 			cached.put(id, cl);
 		}
 		return (ClassLoader) context.getAttribute(PROP_CLASSLOADER);
 	}
-	
-	private void destroyOldContext(FacesBlockingClassLoader old, HttpSession session) throws IOException {
+
+	private void destroyOldContext(final FacesBlockingClassLoader old, final HttpSession session) throws IOException {
 		ClassLoader current = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(old);
 		try {
@@ -281,7 +281,7 @@ public class NSFFacesServlet extends HttpServlet {
 			Thread.currentThread().setContextClassLoader(current);
 		}
 		old.close();
-		
+
 		tempFiles.forEach(path -> {
 			try {
 				Files.deleteIfExists(path);
@@ -290,7 +290,7 @@ public class NSFFacesServlet extends HttpServlet {
 			}
 		});
 		tempFiles.clear();
-		
+
 		// TODO see if we can handle this differently either by moving
 		//      CDI to be based on ComponentModule and refresh that way
 		//      or by making this an AbstractXspLifecycleServlet
@@ -303,7 +303,7 @@ public class NSFFacesServlet extends HttpServlet {
 				// Ignore - will be thrown if it was already shut down
 			}
 		}
-		
+
 		this.initialized = false;
 	}
 }

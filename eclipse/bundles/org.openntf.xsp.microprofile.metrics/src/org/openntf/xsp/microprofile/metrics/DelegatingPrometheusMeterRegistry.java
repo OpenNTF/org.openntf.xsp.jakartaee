@@ -25,8 +25,10 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.ToDoubleFunction;
 
-import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.Meter;
@@ -44,161 +46,198 @@ import jakarta.servlet.ServletContext;
 
 /**
  * This class delegates to an app-specific registry.
- * 
+ *
  * @since 3.0.0
  */
 public class DelegatingPrometheusMeterRegistry extends PrometheusMeterRegistry {
 	private static final String KEY_DELEGATE = DelegatingPrometheusMeterRegistry.class.getName() + "_delegate"; //$NON-NLS-1$
 
-	public DelegatingPrometheusMeterRegistry(PrometheusConfig config) {
+	public DelegatingPrometheusMeterRegistry(final PrometheusConfig config) {
 		super(config);
 	}
 
+	@Override
 	public int hashCode() {
 		return getDelegate().hashCode();
 	}
 
+	@Override
 	public String scrape() {
 		return getDelegate().scrape();
 	}
 
-	public String scrape(String contentType) {
+	@Override
+	public String scrape(final String contentType) {
 		return getDelegate().scrape(contentType);
 	}
 
-	public boolean equals(Object obj) {
+	@Override
+	public boolean equals(final Object obj) {
 		return getDelegate().equals(obj);
 	}
 
-	public void scrape(Writer writer) throws IOException {
+	@Override
+	public void scrape(final Writer writer) throws IOException {
 		getDelegate().scrape(writer);
 	}
 
-	public void scrape(Writer writer, String contentType) throws IOException {
+	@Override
+	public void scrape(final Writer writer, final String contentType) throws IOException {
 		getDelegate().scrape(writer, contentType);
 	}
 
-	public String scrape(String contentType, Set<String> includedNames) {
+	@Override
+	public String scrape(final String contentType, final Set<String> includedNames) {
 		return getDelegate().scrape(contentType, includedNames);
 	}
 
-	public void scrape(Writer writer, String contentType, Set<String> includedNames) throws IOException {
+	@Override
+	public void scrape(final Writer writer, final String contentType, final Set<String> includedNames) throws IOException {
 		getDelegate().scrape(writer, contentType, includedNames);
 	}
 
-	public Counter newCounter(Id id) {
+	@Override
+	public Counter newCounter(final Id id) {
 		return getDelegate().newCounter(id);
 	}
 
-	public DistributionSummary newDistributionSummary(Id id, DistributionStatisticConfig distributionStatisticConfig,
-			double scale) {
+	@Override
+	public DistributionSummary newDistributionSummary(final Id id, final DistributionStatisticConfig distributionStatisticConfig,
+			final double scale) {
 		return getDelegate().newDistributionSummary(id, distributionStatisticConfig, scale);
 	}
 
+	@Override
 	public String toString() {
 		return getDelegate().toString();
 	}
 
+	@Override
 	public List<Meter> getMeters() {
 		return getDelegate().getMeters();
 	}
 
-	public void forEachMeter(Consumer<? super Meter> consumer) {
+	@Override
+	public void forEachMeter(final Consumer<? super Meter> consumer) {
 		getDelegate().forEachMeter(consumer);
 	}
 
+	@Override
 	public Config config() {
 		return getDelegate().config();
 	}
 
-	public Search find(String name) {
+	@Override
+	public Search find(final String name) {
 		return getDelegate().find(name);
 	}
 
-	public RequiredSearch get(String name) {
+	@Override
+	public RequiredSearch get(final String name) {
 		return getDelegate().get(name);
 	}
 
-	public Counter counter(String name, Iterable<Tag> tags) {
+	@Override
+	public Counter counter(final String name, final Iterable<Tag> tags) {
 		return getDelegate().counter(name, tags);
 	}
 
-	public Counter counter(String name, String... tags) {
+	@Override
+	public Counter counter(final String name, final String... tags) {
 		return getDelegate().counter(name, tags);
 	}
 
-	public DistributionSummary summary(String name, Iterable<Tag> tags) {
+	@Override
+	public DistributionSummary summary(final String name, final Iterable<Tag> tags) {
 		return getDelegate().summary(name, tags);
 	}
 
-	public DistributionSummary summary(String name, String... tags) {
+	@Override
+	public DistributionSummary summary(final String name, final String... tags) {
 		return getDelegate().summary(name, tags);
 	}
 
-	public Timer timer(String name, Iterable<Tag> tags) {
+	@Override
+	public Timer timer(final String name, final Iterable<Tag> tags) {
 		return getDelegate().timer(name, tags);
 	}
 
-	public Timer timer(String name, String... tags) {
+	@Override
+	public Timer timer(final String name, final String... tags) {
 		return getDelegate().timer(name, tags);
 	}
 
+	@Override
 	public More more() {
 		return getDelegate().more();
 	}
 
-	public <T> T gauge(String name, Iterable<Tag> tags, T stateObject, ToDoubleFunction<T> valueFunction) {
+	@Override
+	public <T> T gauge(final String name, final Iterable<Tag> tags, final T stateObject, final ToDoubleFunction<T> valueFunction) {
 		return getDelegate().gauge(name, tags, stateObject, valueFunction);
 	}
 
+	@Override
 	public CollectorRegistry getPrometheusRegistry() {
 		return getDelegate().getPrometheusRegistry();
 	}
 
-	public <T extends Number> T gauge(String name, Iterable<Tag> tags, T number) {
+	@Override
+	public <T extends Number> T gauge(final String name, final Iterable<Tag> tags, final T number) {
 		return getDelegate().gauge(name, tags, number);
 	}
 
-	public <T extends Number> T gauge(String name, T number) {
+	@Override
+	public <T extends Number> T gauge(final String name, final T number) {
 		return getDelegate().gauge(name, number);
 	}
 
-	public <T> T gauge(String name, T stateObject, ToDoubleFunction<T> valueFunction) {
+	@Override
+	public <T> T gauge(final String name, final T stateObject, final ToDoubleFunction<T> valueFunction) {
 		return getDelegate().gauge(name, stateObject, valueFunction);
 	}
 
-	public <T extends Collection<?>> T gaugeCollectionSize(String name, Iterable<Tag> tags, T collection) {
+	@Override
+	public <T extends Collection<?>> T gaugeCollectionSize(final String name, final Iterable<Tag> tags, final T collection) {
 		return getDelegate().gaugeCollectionSize(name, tags, collection);
 	}
 
-	public <T extends Map<?, ?>> T gaugeMapSize(String name, Iterable<Tag> tags, T map) {
+	@Override
+	public <T extends Map<?, ?>> T gaugeMapSize(final String name, final Iterable<Tag> tags, final T map) {
 		return getDelegate().gaugeMapSize(name, tags, map);
 	}
 
-	public Meter remove(Meter meter) {
+	@Override
+	public Meter remove(final Meter meter) {
 		return getDelegate().remove(meter);
 	}
 
+	@Override
 	public PrometheusMeterRegistry throwExceptionOnRegistrationFailure() {
 		return getDelegate().throwExceptionOnRegistrationFailure();
 	}
 
-	public Meter removeByPreFilterId(Id preFilterId) {
+	@Override
+	public Meter removeByPreFilterId(final Id preFilterId) {
 		return getDelegate().removeByPreFilterId(preFilterId);
 	}
 
-	public Meter remove(Id mappedId) {
+	@Override
+	public Meter remove(final Id mappedId) {
 		return getDelegate().remove(mappedId);
 	}
 
+	@Override
 	public void clear() {
 		getDelegate().clear();
 	}
 
+	@Override
 	public void close() {
 		getDelegate().close();
 	}
 
+	@Override
 	public boolean isClosed() {
 		return getDelegate().isClosed();
 	}
@@ -214,7 +253,7 @@ public class DelegatingPrometheusMeterRegistry extends PrometheusMeterRegistry {
 			}
 			return del;
 		}
-		
+
 		Optional<ComponentModule> mod = ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule);
 		if(mod.isPresent()) {
@@ -225,7 +264,7 @@ public class DelegatingPrometheusMeterRegistry extends PrometheusMeterRegistry {
 			}
 			return del;
 		}
-		
+
 		return new PrometheusMeterRegistry(new MPPrometheusConfig());
 	}
 }

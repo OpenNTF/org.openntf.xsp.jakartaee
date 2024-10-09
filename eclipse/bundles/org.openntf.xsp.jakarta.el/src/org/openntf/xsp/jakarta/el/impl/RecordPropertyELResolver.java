@@ -12,19 +12,19 @@ import jakarta.el.ELResolver;
 import jakarta.el.PropertyNotWritableException;
 
 public class RecordPropertyELResolver extends ELResolver {
-	
+
 	private final BeanELResolver delegate = new BeanELResolver();
 
 	@SuppressWarnings({"removal", "deprecation"})
 	@Override
-	public Object getValue(ELContext context, Object base, Object property) {
+	public Object getValue(final ELContext context, final Object base, final Object property) {
 		if(base == null) {
 			return null;
 		}
 		if(!base.getClass().isRecord()) {
 			return null;
 		}
-		
+
 		Objects.requireNonNull(property);
 		Object result = AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
 			try {
@@ -37,7 +37,7 @@ public class RecordPropertyELResolver extends ELResolver {
 				throw new RuntimeException(e);
 			}
 		});
-		
+
 		// Handle custom methods like normal beans
 		if(!context.isPropertyResolved()) {
 			return delegate.getValue(context, base, property);
@@ -48,12 +48,12 @@ public class RecordPropertyELResolver extends ELResolver {
 
 	@SuppressWarnings({"removal", "deprecation"})
 	@Override
-	public Class<?> getType(ELContext context, Object base, Object property) {
+	public Class<?> getType(final ELContext context, final Object base, final Object property) {
 		Objects.requireNonNull(base);
 		if(!base.getClass().isRecord()) {
 			return null;
 		}
-		
+
 		Objects.requireNonNull(property);
 		Class<?> result = AccessController.doPrivileged((PrivilegedAction<Class<?>>)() -> {
 			try {
@@ -66,7 +66,7 @@ public class RecordPropertyELResolver extends ELResolver {
 				throw new RuntimeException(e);
 			}
 		});
-		
+
 		// Handle custom methods like normal beans
 		if(!context.isPropertyResolved()) {
 			return delegate.getType(context, base, property);
@@ -76,17 +76,17 @@ public class RecordPropertyELResolver extends ELResolver {
 	}
 
 	@Override
-	public void setValue(ELContext context, Object base, Object property, Object value) {
+	public void setValue(final ELContext context, final Object base, final Object property, final Object value) {
 		throw new PropertyNotWritableException("Cannot write a property on a record");
 	}
 
 	@Override
-	public boolean isReadOnly(ELContext context, Object base, Object property) {
+	public boolean isReadOnly(final ELContext context, final Object base, final Object property) {
 		return true;
 	}
 
 	@Override
-	public Class<?> getCommonPropertyType(ELContext context, Object base) {
+	public Class<?> getCommonPropertyType(final ELContext context, final Object base) {
 		if (base == null) {
             return null;
         }

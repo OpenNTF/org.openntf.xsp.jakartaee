@@ -25,13 +25,13 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
+
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import jakarta.annotation.Priority;
 import jakarta.servlet.ServletContext;
@@ -46,7 +46,7 @@ import lotus.domino.Session;
 /**
  * Locates an active {@link NSFComponentModule} when the current request
  * is in an NSF context.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.8.0
  */
@@ -65,7 +65,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 		});
 	}
 	private static final Logger log = Logger.getLogger(NSFComponentModuleLocator.class.getPackage().getName());
-	
+
 	@Override
 	public boolean isActive() {
 		return NotesContext.getCurrentUnchecked() != null;
@@ -108,7 +108,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 				return null;
 			});
 	}
-	
+
 	@Override
 	public String getTitle() {
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
@@ -124,7 +124,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 		}
 		return getActiveModule().getModuleName();
 	}
-	
+
 	@Override
 	public Optional<String> getVersion() {
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
@@ -133,7 +133,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 				Database database = nsfContext.getCurrentDatabase();
 				Session sessionAsSigner = nsfContext.getSessionAsSigner();
 				Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
-				
+
 				NoteCollection noteCollection = databaseAsSigner.createNoteCollection(true);
 				noteCollection.setSelectSharedFields(true);
 				noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\""); //$NON-NLS-1$
@@ -141,7 +141,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 				String noteID = noteCollection.getFirstNoteID();
 				if(StringUtil.isNotEmpty(noteID)) {
 					Document designDoc = databaseAsSigner.getDocumentByID(noteID);
-					
+
 					if (null != designDoc) {
 						String buildVersion = designDoc.getItemValueString("$TemplateBuild"); //$NON-NLS-1$
 						Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate(); //$NON-NLS-1$
@@ -149,7 +149,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 						return Optional.of(MessageFormat.format("{0} ({1})", buildVersion, buildDateFormatted)); //$NON-NLS-1$
 					}
 				}
-				
+
 				return Optional.empty();
 			} catch(NotesException e) {
 				if(log.isLoggable(Level.SEVERE)) {
@@ -160,7 +160,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 		}
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public Optional<NotesDatabase> getNotesDatabase() {
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
@@ -176,7 +176,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 		}
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public Optional<Database> getUserDatabase() {
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
@@ -185,7 +185,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 		}
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public Optional<Session> getUserSession() {
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
@@ -194,7 +194,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 		}
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public Optional<Session> getSessionAsSigner() {
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
@@ -203,7 +203,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 		}
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public Optional<Session> getSessionAsSignerWithFullAccess() {
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();

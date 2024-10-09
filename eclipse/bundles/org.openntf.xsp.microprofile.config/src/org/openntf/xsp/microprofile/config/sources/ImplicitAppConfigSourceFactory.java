@@ -29,7 +29,7 @@ import io.smallrye.config.ConfigSourceFactory;
 public class ImplicitAppConfigSourceFactory implements ConfigSourceFactory {
 
 	@Override
-	public Iterable<ConfigSource> getConfigSources(ConfigSourceContext context) {
+	public Iterable<ConfigSource> getConfigSources(final ConfigSourceContext context) {
 		return Collections.singleton(new ImplicitAppConfigSource());
 	}
 

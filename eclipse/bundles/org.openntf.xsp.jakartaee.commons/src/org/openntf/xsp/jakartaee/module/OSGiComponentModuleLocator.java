@@ -15,20 +15,12 @@
  */
 package org.openntf.xsp.jakartaee.module;
 
-import jakarta.annotation.Priority;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpServletRequest;
-import lotus.domino.Database;
-import lotus.domino.Session;
-
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
@@ -37,10 +29,18 @@ import com.ibm.domino.xsp.adapter.osgi.AbstractOSGIModule;
 import com.ibm.domino.xsp.adapter.osgi.NotesContext;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+
+import jakarta.annotation.Priority;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import lotus.domino.Database;
+import lotus.domino.Session;
+
 /**
  * Locates an active {@link NSFComponentModule} when the current request
  * is in an OSGi Servlet or WebContainer context.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.8.0
  */
@@ -63,26 +63,26 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 				Field field = osgiContextClass.getDeclaredField("request"); //$NON-NLS-1$
 				field.setAccessible(true);
 				request[0] = field;
-				
+
 				field = osgiContextClass.getDeclaredField("module"); //$NON-NLS-1$
 				field.setAccessible(true);
 				module[0] = field;
 			} catch (NoSuchFieldException | SecurityException e) {
 				throw new RuntimeException(e);
 			}
-			
+
 			return null;
 		});
-		
+
 		osgiNotesContextRequestField = request[0];
 		osgiNotesContextModuleField = module[0];
 	}
 	private static final Logger log = Logger.getLogger(OSGiComponentModuleLocator.class.getPackage().getName());
-	
+
 	private boolean isAvailable() {
 		return osgiNotesContextRequestField != null;
 	}
-	
+
 	@Override
 	public boolean isActive() {
 		return isAvailable() && NotesContext.getCurrentUnchecked() != null;
@@ -115,7 +115,7 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 		String contextPath = getServletRequest().get().getContextPath();
 		return Optional.ofNullable(ServletUtil.oldToNew(contextPath, ctx));
 	}
-	
+
 	@Override
 	public Optional<HttpServletRequest> getServletRequest() {
 		if(!isActive()) {
@@ -138,7 +138,7 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 	public Optional<String> getVersion() {
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public Optional<NotesDatabase> getNotesDatabase() {
 		try {
@@ -150,22 +150,22 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 			return Optional.empty();
 		}
 	}
-	
+
 	@Override
 	public Optional<Database> getUserDatabase() {
 		return Optional.ofNullable(ContextInfo.getUserDatabase());
 	}
-	
+
 	@Override
 	public Optional<Session> getUserSession() {
 		return Optional.ofNullable(ContextInfo.getUserSession());
 	}
-	
+
 	@Override
 	public Optional<Session> getSessionAsSigner() {
 		return Optional.empty();
 	}
-	
+
 	@Override
 	public Optional<Session> getSessionAsSignerWithFullAccess() {
 		return Optional.empty();

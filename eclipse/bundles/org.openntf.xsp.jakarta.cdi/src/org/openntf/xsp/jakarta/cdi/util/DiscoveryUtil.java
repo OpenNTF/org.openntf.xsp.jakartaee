@@ -36,6 +36,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.ibm.commons.util.StringUtil;
+import com.ibm.commons.xml.DOMUtil;
+import com.ibm.commons.xml.XMLException;
+
 import org.eclipse.osgi.util.ManifestElement;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.IndexReader;
@@ -46,10 +50,6 @@ import org.osgi.framework.BundleReference;
 import org.osgi.framework.Version;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.ibm.commons.util.StringUtil;
-import com.ibm.commons.xml.DOMUtil;
-import com.ibm.commons.xml.XMLException;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
@@ -64,29 +64,29 @@ import jakarta.interceptor.Interceptor;
  */
 public enum DiscoveryUtil {
 	;
-	
+
 	private enum ScanType {
 		ALL, ANNOTATED, NONE, UNDEFINED
 	}
-	
+
 	private static final Map<Class<?>, Boolean> BEAN_DEFINING = new ConcurrentHashMap<>();
 	private static Field WEBAPP_BUNDLE_FIELD = null;
-	
+
 	/**
 	 * Searches through the provided bundle to find all exported class names that may
 	 * be applicable CDI beans.
-	 * 
+	 *
 	 * <p>This restricts querying to bundles with a beans.xml file and to classes within
 	 * the bundle's {@code Export-Package} listing.</p>
-	 * 
+	 *
 	 * @param bundle a {@link Bundle} instance to query
 	 * @param nonExported {@code true} to include classes not marked as exported from the bundle
 	 * @return a {@link Stream} of discovered exported classes
 	 * @throws BundleException if there is a problem parsing the bundle manifest
 	 */
-	public static Stream<String> findCandidateBeanClassNames(Bundle bundle, boolean nonExported) throws BundleException {
+	public static Stream<String> findCandidateBeanClassNames(final Bundle bundle, final boolean nonExported) throws BundleException {
 		ScanType scanType = determineScanType(bundle);
-		
+
 		if(scanType == ScanType.ALL || scanType == ScanType.ANNOTATED) {
 			String exportPackages = bundle.getHeaders().get("Export-Package"); //$NON-NLS-1$
 			if(StringUtil.isNotEmpty(exportPackages) || nonExported) {
@@ -99,7 +99,7 @@ public enum DiscoveryUtil {
 						.filter(StringUtil::isNotEmpty)
 						.collect(Collectors.toSet());
 				}
-				
+
 				URL jandexUrl = bundle.getResource("/META-INF/jandex.idx"); //$NON-NLS-1$
 				if(jandexUrl != null) {
 					Index jandex;
@@ -108,7 +108,7 @@ public enum DiscoveryUtil {
 					} catch (IOException e) {
 						throw new UncheckedIOException(MessageFormat.format("Encountered exception reading jandex.idx for {0}", bundle.getSymbolicName()), e);
 					}
-					
+
 					if(packages != null) {
 						return packages.stream()
 							.map(p -> jandex.getClassesInPackage(p))
@@ -121,7 +121,7 @@ public enum DiscoveryUtil {
 							.map(c -> c.name().toString())
 							.distinct();
 					}
-				
+
 				} else {
 					// Otherwise, do a manual crawl for class names
 					String baseUrl = bundle.getEntry("/").toString(); //$NON-NLS-1$
@@ -141,26 +141,26 @@ public enum DiscoveryUtil {
 				}
 			}
 		}
-		
+
 		return Stream.empty();
 	}
-	
+
 	/**
 	 * Searches through the provided bundle to find all exported classes, loading them
 	 * from the bundle.
-	 * 
+	 *
 	 * <p>This restricts querying to bundles with a beans.xml file and to classes within
 	 * the bundle's {@code Export-Package} listing.</p>
-	 * 
+	 *
 	 * @param bundle a {@link Bundle} instance to query
 	 * @param nonExported {@code true} to include classes not marked as exported from the bundle
 	 * @return a {@link Stream} of discovered exported classes
 	 * @throws BundleException if there is a problem parsing the bundle manifest
 	 * @since 2.3.0
 	 */
-	public static Stream<Class<?>> findBeanClasses(Bundle bundle, boolean nonExported) throws BundleException {
+	public static Stream<Class<?>> findBeanClasses(final Bundle bundle, final boolean nonExported) throws BundleException {
 		ScanType scanType = determineScanType(bundle);
-		
+
 		return findCandidateBeanClassNames(bundle, nonExported)
 			.map(className -> {
 				try {
@@ -179,13 +179,13 @@ public enum DiscoveryUtil {
 			})
 			.map(c -> (Class<?>)c);
 	}
-	
-	public static Optional<Bundle> getBundleForClassLoader(ClassLoader cl) {
+
+	public static Optional<Bundle> getBundleForClassLoader(final ClassLoader cl) {
 		// Equinox Servlets
 		if(cl instanceof BundleReference) {
 			return Optional.of(((BundleReference) cl).getBundle());
 		}
-		
+
 		// Bundle webapps
 		if("com.ibm.pvc.internal.webcontainer.webapp.BundleWebAppClassLoader".equals(cl.getClass().getName())) { //$NON-NLS-1$
 			return AccessController.doPrivileged((PrivilegedAction<Optional<Bundle>>)() -> {
@@ -200,11 +200,11 @@ public enum DiscoveryUtil {
 				}
 			});
 		}
-		
+
 		return Optional.empty();
 	}
-	
-	private static ScanType determineScanType(Bundle bundle) {
+
+	private static ScanType determineScanType(final Bundle bundle) {
 		URL beansXml = bundle.getResource("/META-INF/beans.xml"); //$NON-NLS-1$
 		if(beansXml == null) {
 			beansXml = bundle.getResource("/WEB-INF/beans.xml"); //$NON-NLS-1$
@@ -212,13 +212,13 @@ public enum DiscoveryUtil {
 		if(beansXml == null) {
 			return ScanType.UNDEFINED;
 		}
-		
+
 		try {
 			Document doc;
 			try(InputStream is = beansXml.openStream()) {
 				doc = DOMUtil.createDocument(is);
 			}
-			
+
 			Element beans = doc.getDocumentElement();
 			String version = beans.getAttribute("version"); //$NON-NLS-1$
 			String val = beans.getAttribute("bean-discovery-mode"); //$NON-NLS-1$
@@ -250,9 +250,9 @@ public enum DiscoveryUtil {
 			throw new UncheckedIOException(e);
 		}
 	}
-	
+
 	// https://jakarta.ee/specifications/cdi/4.0/jakarta-cdi-spec-4.0.html#bean_defining_annotations
-	public static boolean isBeanDefining(Annotation a) {
+	public static boolean isBeanDefining(final Annotation a) {
 		Class<?> type = a.annotationType();
 		return BEAN_DEFINING.computeIfAbsent(type, t -> {
 			if(ApplicationScoped.class.equals(t)) {
@@ -268,7 +268,7 @@ public enum DiscoveryUtil {
 			} else if(Dependent.class.equals(t)) {
 				return true;
 			}
-			
+
 			return false;
 		});
 	}

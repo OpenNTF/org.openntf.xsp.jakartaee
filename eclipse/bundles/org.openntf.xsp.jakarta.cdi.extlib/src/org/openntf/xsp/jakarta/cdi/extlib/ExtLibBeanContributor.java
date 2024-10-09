@@ -24,7 +24,7 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 /**
  * Contributes known XPages Extension Library beans when the ExtLib
  * is active for the current application.
- * 
+ *
  * @since 2.13.0
  */
 public class ExtLibBeanContributor implements CDIClassContributor {

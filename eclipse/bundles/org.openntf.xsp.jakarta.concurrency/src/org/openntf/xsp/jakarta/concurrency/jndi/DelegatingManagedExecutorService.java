@@ -36,7 +36,7 @@ import jakarta.enterprise.concurrent.ManagedExecutorService;
 /**
  * This class is intended to be provided via JNDI, delegating all calls to the
  * app-context service.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.11.0
  */
@@ -63,79 +63,79 @@ public class DelegatingManagedExecutorService implements ManagedExecutorService 
 	}
 
 	@Override
-	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+	public boolean awaitTermination(final long timeout, final TimeUnit unit) throws InterruptedException {
 		return getDelegate().awaitTermination(timeout, unit);
 	}
 
 	@Override
-	public <T> Future<T> submit(Callable<T> task) {
+	public <T> Future<T> submit(final Callable<T> task) {
 		return getDelegate().submit(task);
 	}
 
 	@Override
-	public <T> Future<T> submit(Runnable task, T result) {
+	public <T> Future<T> submit(final Runnable task, final T result) {
 		return getDelegate().submit(task, result);
 	}
 
 	@Override
-	public Future<?> submit(Runnable task) {
+	public Future<?> submit(final Runnable task) {
 		return getDelegate().submit(task);
 	}
 
 	@Override
-	public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
+	public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks) throws InterruptedException {
 		return getDelegate().invokeAll(tasks);
 	}
 
 	@Override
-	public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+	public <T> List<Future<T>> invokeAll(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
 			throws InterruptedException {
 		return getDelegate().invokeAll(tasks, timeout, unit);
 	}
 
 	@Override
-	public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
+	public <T> T invokeAny(final Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
 		return getDelegate().invokeAny(tasks);
 	}
 
 	@Override
-	public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+	public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		return getDelegate().invokeAny(tasks, timeout, unit);
 	}
 
 	@Override
-	public void execute(Runnable command) {
+	public void execute(final Runnable command) {
 		getDelegate().execute(command);
 	}
 
 	@Override
-	public <U> CompletableFuture<U> completedFuture(U value) {
+	public <U> CompletableFuture<U> completedFuture(final U value) {
 		return getDelegate().completedFuture(value);
 	}
 
 	@Override
-	public <U> CompletionStage<U> completedStage(U value) {
+	public <U> CompletionStage<U> completedStage(final U value) {
 		return getDelegate().completedStage(value);
 	}
 
 	@Override
-	public <T> CompletableFuture<T> copy(CompletableFuture<T> stage) {
+	public <T> CompletableFuture<T> copy(final CompletableFuture<T> stage) {
 		return getDelegate().copy(stage);
 	}
 
 	@Override
-	public <T> CompletionStage<T> copy(CompletionStage<T> stage) {
+	public <T> CompletionStage<T> copy(final CompletionStage<T> stage) {
 		return getDelegate().copy(stage);
 	}
 
 	@Override
-	public <U> CompletableFuture<U> failedFuture(Throwable ex) {
+	public <U> CompletableFuture<U> failedFuture(final Throwable ex) {
 		return getDelegate().failedFuture(ex);
 	}
 
 	@Override
-	public <U> CompletionStage<U> failedStage(Throwable ex) {
+	public <U> CompletionStage<U> failedStage(final Throwable ex) {
 		return getDelegate().failedStage(ex);
 	}
 
@@ -150,15 +150,15 @@ public class DelegatingManagedExecutorService implements ManagedExecutorService 
 	}
 
 	@Override
-	public CompletableFuture<Void> runAsync(Runnable runnable) {
+	public CompletableFuture<Void> runAsync(final Runnable runnable) {
 		return getDelegate().runAsync(runnable);
 	}
 
 	@Override
-	public <U> CompletableFuture<U> supplyAsync(Supplier<U> supplier) {
+	public <U> CompletableFuture<U> supplyAsync(final Supplier<U> supplier) {
 		return getDelegate().supplyAsync(supplier);
 	}
-	
+
 	private ManagedExecutorService getDelegate() {
 		return ComponentModuleLocator.getDefault()
 			.flatMap(ComponentModuleLocator::getServletContext)

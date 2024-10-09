@@ -23,20 +23,20 @@ import org.eclipse.jnosql.mapping.document.DocumentTemplate;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
 
-import jakarta.data.page.PageRequest;
 import jakarta.data.Sort;
+import jakarta.data.page.PageRequest;
 
 /**
  * {@link DocumentTemplate} sub-interface to provide access to
  * Domino-specific extensions.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.5.0
  */
 public interface DominoTemplate extends DocumentTemplate {
 	/**
 	 * Reads entries from the provided view, restricted to the named category.
-	 * 
+	 *
 	 * @param <T> the class of object returned
 	 * @param entityName the effective entity name returned by this type
 	 * @param viewName the name of the view to query
@@ -54,7 +54,7 @@ public interface DominoTemplate extends DocumentTemplate {
 
 	/**
 	 * Reads documents from the provided view, restricted to the named category.
-	 * 
+	 *
 	 * @param <T> the class of object returned
 	 * @param entityName the effective entity name returned by this type
 	 * @param viewName the name of the view to query
@@ -73,7 +73,7 @@ public interface DominoTemplate extends DocumentTemplate {
 	/**
 	 * Adds the entity to the named folder, creating the folder if it doesn't
 	 * exist.
-	 * 
+	 *
 	 * @param entityId the UNID of the entity to add to a folder
 	 * @param folderName the folder to add the entity to
 	 * @throws IllegalStateException if the document has not yet been saved
@@ -81,17 +81,17 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @since 2.6.0
 	 */
 	void putInFolder(String entityId, String folderName);
-	
+
 	/**
 	 * Removes the entity from the named folder.
-	 * 
+	 *
 	 * @param entityId the UNID of the entity to remove from a folder
 	 * @param folderName the folder to remove the entity from
 	 * @throws IllegalArgumentException if {@code folderName} is empty
 	 * @since 2.6.0
 	 */
 	void removeFromFolder(String entityId, String folderName);
-	
+
 	/**
      * Inserts entity, optionally computing with the document's form.
      *
@@ -104,7 +104,7 @@ public interface DominoTemplate extends DocumentTemplate {
      */
     <T> T insert(T entity, boolean computeWithForm);
 
-	
+
 	/**
      * Update entity, optionally computing with the document's form.
      *
@@ -116,19 +116,19 @@ public interface DominoTemplate extends DocumentTemplate {
      * @since 2.6.0
      */
     <T> T update(T entity, boolean computeWithForm);
-    
+
     /**
      * Determines whether a document exists with the provided UNID.
-     * 
+     *
      * @param unid the UNID to check
      * @return {@code true} if a document exists with that UNID; {@code false} otherwise
      * @since 2.7.0
      */
     boolean existsById(String unid);
-    
+
     /**
      * Retrieves a document by its note ID.
-     * 
+     *
      * @param <T> the type of document managed by this repository
 	 * @param entityName the effective entity name returned by this type
      * @param noteId the note ID
@@ -137,18 +137,18 @@ public interface DominoTemplate extends DocumentTemplate {
      * @since 2.8.0
      */
     <T> Optional<T> getByNoteId(String entityName, String noteId);
-    
+
     /**
      * Retrieves a list of the views and folders in the underlying database.
-     * 
+     *
      * @return a {@link Stream} of {@link ViewInfo} objects
      * @since 2.12.0
      */
     Stream<ViewInfo> getViewInfo();
-    
+
     /**
      * Finds an entity given its note name
-     * 
+     *
      * @param <T> the type of document managed by this repository
 	 * @param entityName the effective entity name returned by this type
      * @param name the note name
@@ -161,7 +161,7 @@ public interface DominoTemplate extends DocumentTemplate {
 
     /**
      * Finds an entity given its profile name
-     * 
+     *
      * @param <T> the type of document managed by this repository
 	 * @param entityName the effective entity name returned by this type
      * @param profileName the profile name
@@ -171,14 +171,14 @@ public interface DominoTemplate extends DocumentTemplate {
      * @since 2.13.0
      */
     <T> Optional<T> getProfileDocument(String entityName, String profileName, String userName);
-    
+
     /**
      * Reads event information in iCalendar format from the backing database.
-     * 
+     *
      * <p>The backing database must contain calendar data, expected to be entries
      * in a view named {@code "($Calendar)"} in the same format as a normal mail
      * database.</p>
-     * 
+     *
      * @param start the start of the query range; must be convertible to
      *        {@link java.time.LocalDate LocalDate}, {@link java.time.LocalTime},
      *        or {@link java.time.Instant}
@@ -194,17 +194,17 @@ public interface DominoTemplate extends DocumentTemplate {
 
     /**
      * Retrieves a calendar entry in iCalendar format.
-     * 
+     *
      * @param uid the UID of the entry to retrieve
      * @return an {@link Optional} describing the event data, or an
      *         empty one if no event by that UID is found
      * @since 2.15.0
      */
     Optional<String> readCalendarEntry(String uid);
-    
+
     /**
      * Creates a new calendar entry using the provided iCalendar-format data.
-     * 
+     *
      * @param icalData the iCalendar data to import
      * @param sendInvitations {@code true} to send invitations to participants;
      *                        {@code false} otherwise
@@ -212,10 +212,10 @@ public interface DominoTemplate extends DocumentTemplate {
      * @since 2.15.0
      */
     String createCalendarEntry(String icalData, boolean sendInvitations);
-    
+
     /**
      * Updates an existing calendar entry by UID.
-     * 
+     *
      * @param uid the UID of the entry to update
      * @param icalData the new iCalendar data to write
      * @param comment comments regarding the meeting change; may be {@code null}
@@ -227,10 +227,10 @@ public interface DominoTemplate extends DocumentTemplate {
      * @since 2.15.0
      */
     void updateCalendarEntry(String uid, String icalData, String comment, boolean sendInvitations, boolean overwrite, String recurId);
-    
+
     /**
      * Removes a calendar entry by UID.
-     * 
+     *
      * @param uid the UID of the entry to delete
      * @param scope the scope of entries to remove for repeating events
      * @param recurId the recurrence identifier for the entry; may be {@code null}

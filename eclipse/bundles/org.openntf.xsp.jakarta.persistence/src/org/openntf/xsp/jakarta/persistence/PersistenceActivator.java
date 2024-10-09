@@ -24,13 +24,13 @@ import jakarta.persistence.spi.PersistenceProviderResolverHolder;
 public class PersistenceActivator implements BundleActivator {
 
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
+	public void start(final BundleContext bundleContext) throws Exception {
 		LibraryUtil.setSystemProperty("eclipselink.logging.logger", "JavaLogger"); //$NON-NLS-1$ //$NON-NLS-2$
 		PersistenceProviderResolverHolder.setPersistenceProviderResolver(new EclipseLinkResolver());
 	}
 
 	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
+	public void stop(final BundleContext bundleContext) throws Exception {
 
 	}
 

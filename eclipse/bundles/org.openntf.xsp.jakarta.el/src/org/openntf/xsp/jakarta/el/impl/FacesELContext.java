@@ -20,28 +20,28 @@ import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.List;
 
+import org.openntf.xsp.jakarta.el.ext.ELResolverProvider;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+
 import jakarta.el.BeanNameELResolver;
 import jakarta.el.ELResolver;
 import jakarta.el.ExpressionFactory;
 import jakarta.el.StandardELContext;
 
-import org.openntf.xsp.jakarta.el.ext.ELResolverProvider;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-
 /**
  * A subclass of {@link StandardELContext} that adds a resolver for an
  * active Faces environment.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.0
  */
 public class FacesELContext extends StandardELContext {
-	public FacesELContext(ExpressionFactory factory) {
+	public FacesELContext(final ExpressionFactory factory) {
 		super(factory);
-		
+
 		// Add any other available resolvers
 		List<ELResolverProvider> providers = LibraryUtil.findExtensions(ELResolverProvider.class);
-		
+
 		if(providers != null) {
 			for(ELResolverProvider provider : providers) {
 				Collection<ELResolver> resolvers = provider.provide();
@@ -50,14 +50,14 @@ public class FacesELContext extends StandardELContext {
 				}
 			}
 		}
-		
+
 		addELResolver(new BeanNameELResolver(new FacesBeanNameResolver()));
 		addELResolver(new XSPELResolver());
 		addELResolver(new RecordPropertyELResolver());
 	}
-	
+
 	@Override
-	public <T> T convertToType(Object obj, Class<T> targetType) {
+	public <T> T convertToType(final Object obj, final Class<T> targetType) {
 		return AccessController.doPrivileged((PrivilegedAction<T>)() -> super.convertToType(obj, targetType));
 	}
 }

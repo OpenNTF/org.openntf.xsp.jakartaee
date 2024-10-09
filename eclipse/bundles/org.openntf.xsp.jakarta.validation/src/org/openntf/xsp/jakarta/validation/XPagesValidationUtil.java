@@ -22,24 +22,25 @@ import java.util.Locale;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
+
+import com.ibm.xsp.designer.context.XSPContext;
+
+import org.hibernate.validator.HibernateValidator;
+import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.MessageInterpolator;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
-import org.hibernate.validator.HibernateValidator;
-import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
-
-import com.ibm.xsp.designer.context.XSPContext;
-
 public enum XPagesValidationUtil {
 	;
-	
+
 	/**
 	 * Constructs a new {@link ValidatorFactory} instance that uses the locale
 	 * settings from the current XPages environment.
-	 * 
+	 *
 	 * @return a new {@link ValidatorFactory} instance for XPages use
 	 * @since 2.3.0
 	 */
@@ -52,11 +53,11 @@ public enum XPagesValidationUtil {
 				.buildValidatorFactory()
 		);
 	}
-	
+
 	/**
 	 * Constructs a new {@link Validator} instance that uses the locale settings from
 	 * the current XPages environment.
-	 * 
+	 *
 	 * @return a new {@link Validator} instance for XPages use
 	 */
 	public static Validator constructXPagesValidator() {
@@ -64,10 +65,10 @@ public enum XPagesValidationUtil {
 			constructXPagesValidatorFactory().getValidator()
 		);
 	}
-	
+
 	/**
 	 * Constructs a new {@link Validator} instance that uses default locale settings.
-	 * 
+	 *
 	 * @return a new {@link Validator} instance for generic use
 	 * @since 1.2.0
 	 */
@@ -79,28 +80,28 @@ public enum XPagesValidationUtil {
 				.buildValidatorFactory().getValidator()
 		);
 	}
-	
+
 	/**
 	 * Validates a bean using the default validator for the current XPages environment.
-	 * 
+	 *
 	 * @param <T> the class of the bean to validate
 	 * @param bean the bean object to validate
 	 * @return a {@link Set} of {@link ConstraintViolation} objects for any validation failures
 	 * @since 1.2.0
 	 */
-	public static <T> Set<ConstraintViolation<T>> validateBean(T bean) {
+	public static <T> Set<ConstraintViolation<T>> validateBean(final T bean) {
 		return validateBean(bean, constructXPagesValidator());
 	}
-	
+
 	/**
 	 * Validates a bean using the provided {@link Validator}.
-	 * 
+	 *
 	 * @param <T> the class of the bean to validate
 	 * @param bean the bean object to validate
 	 * @param validator the {@link Validator} instance to use when validating
 	 * @return a {@link Set} of {@link ConstraintViolation} objects for any validation failures
 	 */
-	public static <T> Set<ConstraintViolation<T>> validateBean(T bean, Validator validator) {
+	public static <T> Set<ConstraintViolation<T>> validateBean(final T bean, final Validator validator) {
 		return AccessController.doPrivileged((PrivilegedAction<Set<ConstraintViolation<T>>>) () -> {
 			// Juggling the ClassLoader avoids a problem where the XPages ClassLoader can't
 			// find the com.sun.el classes privately in this plugin
@@ -113,7 +114,7 @@ public enum XPagesValidationUtil {
 			}
 		});
 	}
-	
+
 	private static class XSPLocaleResourceBundleMessageInterpolator extends ResourceBundleMessageInterpolator {
 		@Override
 		public String interpolate(final String message, final MessageInterpolator.Context context) {

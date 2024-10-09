@@ -28,16 +28,16 @@ import jakarta.enterprise.inject.spi.CDI;
 /**
  * This {@link ContextSetupParticipant} handles moving an active {@link DominoTransaction}
  * instance into the new thread
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
 @Priority(0)
 public class TransactionContextSetupParticipant implements ContextSetupParticipant {
 	private static final String PROP_TRANSACTION = TransactionContextSetupParticipant.class.getName() + "_transaction"; //$NON-NLS-1$
-	
+
 	@Override
-	public void saveContext(ContextHandle contextHandle) {
+	public void saveContext(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
 			Instance<DominoTransactionProducer> producer = CDI.current().select(DominoTransactionProducer.class);
 			if(producer.isResolvable()) {
@@ -48,7 +48,7 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 	}
 
 	@Override
-	public void setup(ContextHandle contextHandle) throws IllegalStateException {
+	public void setup(final ContextHandle contextHandle) throws IllegalStateException {
 		if(contextHandle instanceof AttributedContextHandle) {
 			Instance<DominoTransactionProducer> producer = CDI.current().select(DominoTransactionProducer.class);
 			if(producer.isResolvable()) {
@@ -59,7 +59,7 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 	}
 
 	@Override
-	public void reset(ContextHandle contextHandle) {
+	public void reset(final ContextHandle contextHandle) {
 		try {
 			CDI<Object> cdi = CDI.current();
 			if(cdi != null) {

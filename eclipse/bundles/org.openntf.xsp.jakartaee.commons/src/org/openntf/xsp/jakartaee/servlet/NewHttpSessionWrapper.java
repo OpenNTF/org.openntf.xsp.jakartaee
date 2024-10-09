@@ -23,8 +23,8 @@ import jakarta.servlet.http.HttpSession;
 @SuppressWarnings({ "rawtypes", "deprecation" })
 class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 	final HttpSession delegate;
-	
-	public NewHttpSessionWrapper(HttpSession delegate) {
+
+	public NewHttpSessionWrapper(final HttpSession delegate) {
 		this.delegate = delegate;
 	}
 
@@ -49,7 +49,7 @@ class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 	}
 
 	@Override
-	public void setMaxInactiveInterval(int paramInt) {
+	public void setMaxInactiveInterval(final int paramInt) {
 		delegate.setMaxInactiveInterval(paramInt);
 	}
 
@@ -65,12 +65,12 @@ class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 	}
 
 	@Override
-	public Object getAttribute(String paramString) {
+	public Object getAttribute(final String paramString) {
 		return delegate.getAttribute(paramString);
 	}
 
 	@Override
-	public Object getValue(String paramString) {
+	public Object getValue(final String paramString) {
 		// Removed in Servlet 6
 		return delegate.getAttribute(paramString);
 	}
@@ -87,23 +87,23 @@ class NewHttpSessionWrapper implements javax.servlet.http.HttpSession {
 	}
 
 	@Override
-	public void setAttribute(String paramString, Object paramObject) {
+	public void setAttribute(final String paramString, final Object paramObject) {
 		delegate.setAttribute(paramString, paramObject);
 	}
 
 	@Override
-	public void putValue(String paramString, Object paramObject) {
+	public void putValue(final String paramString, final Object paramObject) {
 		// Removed in Servlet 6
 		delegate.setAttribute(paramString, paramObject);
 	}
 
 	@Override
-	public void removeAttribute(String paramString) {
+	public void removeAttribute(final String paramString) {
 		delegate.removeAttribute(paramString);
 	}
 
 	@Override
-	public void removeValue(String paramString) {
+	public void removeValue(final String paramString) {
 		// Removed in Servlet 6
 		delegate.removeAttribute(paramString);
 	}

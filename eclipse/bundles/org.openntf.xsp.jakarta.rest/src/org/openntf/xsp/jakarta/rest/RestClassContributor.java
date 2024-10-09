@@ -24,20 +24,20 @@ import jakarta.ws.rs.core.Application;
 /**
  * Extension interface to contribute additional resource classes
  * at {@link Application} init.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.1.0
  */
 public interface RestClassContributor {
 	Collection<Class<?>> getClasses();
-	
+
 	/**
 	 * @since 2.3.0
 	 */
 	default Collection<Object> getSingletons() {
 		return Collections.emptySet();
 	}
-	
+
 	/**
 	 * @since 2.14.0
 	 */

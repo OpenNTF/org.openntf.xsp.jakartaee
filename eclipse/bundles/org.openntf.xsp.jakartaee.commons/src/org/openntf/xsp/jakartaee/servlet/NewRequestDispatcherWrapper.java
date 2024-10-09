@@ -22,13 +22,13 @@ import jakarta.servlet.ServletException;
 
 class NewRequestDispatcherWrapper implements javax.servlet.RequestDispatcher {
 	final RequestDispatcher delegate;
-	
-	public NewRequestDispatcherWrapper(RequestDispatcher delegate) {
+
+	public NewRequestDispatcherWrapper(final RequestDispatcher delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public void forward(javax.servlet.ServletRequest arg0, javax.servlet.ServletResponse arg1) throws javax.servlet.ServletException, IOException {
+	public void forward(final javax.servlet.ServletRequest arg0, final javax.servlet.ServletResponse arg1) throws javax.servlet.ServletException, IOException {
 		javax.servlet.http.HttpServletRequest req = (javax.servlet.http.HttpServletRequest)arg0;
 		javax.servlet.http.HttpServletResponse resp = (javax.servlet.http.HttpServletResponse)arg1;
 		try {
@@ -39,7 +39,7 @@ class NewRequestDispatcherWrapper implements javax.servlet.RequestDispatcher {
 	}
 
 	@Override
-	public void include(javax.servlet.ServletRequest arg0, javax.servlet.ServletResponse arg1) throws javax.servlet.ServletException, IOException {
+	public void include(final javax.servlet.ServletRequest arg0, final javax.servlet.ServletResponse arg1) throws javax.servlet.ServletException, IOException {
 		javax.servlet.http.HttpServletRequest req = (javax.servlet.http.HttpServletRequest)arg0;
 		javax.servlet.http.HttpServletResponse resp = (javax.servlet.http.HttpServletResponse)arg1;
 		try {

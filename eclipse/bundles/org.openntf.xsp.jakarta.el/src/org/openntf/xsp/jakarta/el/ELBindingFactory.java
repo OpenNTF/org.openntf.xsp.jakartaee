@@ -15,10 +15,6 @@
  */
 package org.openntf.xsp.jakarta.el;
 
-import jakarta.el.ELContext;
-import jakarta.el.ExpressionFactory;
-import jakarta.el.MethodExpression;
-import jakarta.el.ValueExpression;
 import javax.faces.application.Application;
 import javax.faces.el.MethodBinding;
 import javax.faces.el.ValueBinding;
@@ -29,35 +25,40 @@ import org.openntf.xsp.jakarta.el.impl.ExpressionMethodBinding;
 import org.openntf.xsp.jakarta.el.impl.ExpressionValueBinding;
 import org.openntf.xsp.jakarta.el.impl.FacesELContext;
 
+import jakarta.el.ELContext;
+import jakarta.el.ExpressionFactory;
+import jakarta.el.MethodExpression;
+import jakarta.el.ValueExpression;
+
 /**
  * This class provides an Expression Language 4.0 interpreter instead of the stock
  * XPages EL interpreter.
- * 
+ *
  * <p>Note: to get XPages to compile runtime bindings with method calls, prefix the
  * expression with {@code el:}, e.g. "<code>#{el:foo.bar()}</code>".
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.0
  */
 public class ELBindingFactory implements BindingFactory {
-	
+
 	public static final String PREFIX = "el"; //$NON-NLS-1$
-	
+
 	private static final ExpressionFactory fac = ExpressionFactory.newInstance();
-	
+
 	public static ExpressionFactory getExpressionFactory() {
 		return fac;
 	}
-	
+
 	private final String prefix;
-	public ELBindingFactory(String prefix) {
+	public ELBindingFactory(final String prefix) {
 		this.prefix = prefix;
 	}
 
 	@Override
-	public MethodBinding createMethodBinding(Application application, String expression, @SuppressWarnings("rawtypes") Class[] args) {
+	public MethodBinding createMethodBinding(final Application application, final String expression, @SuppressWarnings("rawtypes") final Class[] args) {
 		ELContext context = new FacesELContext(fac);
-		
+
 		String cleanExp;
 		int prefixIndex = expression.indexOf(prefix + ':');
 		if(prefixIndex > -1) {
@@ -66,14 +67,14 @@ public class ELBindingFactory implements BindingFactory {
 			cleanExp = expression;
 		}
 		MethodExpression exp = fac.createMethodExpression(context, cleanExp, Object.class, args == null ? new Class[0] : args);
-		
+
 		return new ExpressionMethodBinding(exp, context, prefix);
 	}
 
 	@Override
-	public ValueBinding createValueBinding(Application application, String expression) {
+	public ValueBinding createValueBinding(final Application application, final String expression) {
 		ELContext context = new FacesELContext(fac);
-		
+
 		String cleanExp;
 		int prefixIndex = expression.indexOf(prefix + ':');
 		if(prefixIndex > -1) {
@@ -81,9 +82,9 @@ public class ELBindingFactory implements BindingFactory {
 		} else {
 			cleanExp = expression;
 		}
-		
+
 		ValueExpression exp = fac.createValueExpression(context, cleanExp, Object.class);
-		
+
 		return new ExpressionValueBinding(exp, context, prefix);
 	}
 

@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 /**
  * This annotation can be placed on a REST resource class to declare that
  * its methods should not be included in Metrics tracking
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */

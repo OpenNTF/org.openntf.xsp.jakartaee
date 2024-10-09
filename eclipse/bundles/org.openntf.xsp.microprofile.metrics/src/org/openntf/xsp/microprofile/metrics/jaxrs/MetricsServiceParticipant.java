@@ -18,15 +18,14 @@ package org.openntf.xsp.microprofile.metrics.jaxrs;
 import java.io.IOException;
 import java.time.Duration;
 
-import io.smallrye.metrics.SharedMetricRegistries;
-import io.smallrye.metrics.jaxrs.JaxRsMetricsServletFilter;
-
 import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.MetricID;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.openntf.xsp.jakarta.rest.ServiceParticipant;
 
+import io.smallrye.metrics.SharedMetricRegistries;
+import io.smallrye.metrics.jaxrs.JaxRsMetricsServletFilter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,7 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * This participant performs a similar job as {@link JaxRsMetricsServletFilter},
  * but works around Domino's lack of Filter support.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.3.0
  */
@@ -42,13 +41,13 @@ public class MetricsServiceParticipant implements ServiceParticipant {
 	public static String ATTR_START = MetricsServiceParticipant.class + "_start"; //$NON-NLS-1$
 
 	@Override
-	public void doBeforeService(HttpServletRequest request, HttpServletResponse response)
+	public void doBeforeService(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setAttribute(ATTR_START, System.nanoTime());
 	}
 
 	@Override
-	public void doAfterService(HttpServletRequest servletRequest, HttpServletResponse response)
+	public void doAfterService(final HttpServletRequest servletRequest, final HttpServletResponse response)
 			throws ServletException, IOException {
 		long start = (Long)servletRequest.getAttribute(ATTR_START);
 		MetricID metricID = (MetricID) servletRequest.getAttribute("smallrye.metrics.jaxrs.metricID");
@@ -59,7 +58,7 @@ public class MetricsServiceParticipant implements ServiceParticipant {
         }
 	}
 
-    private void update(boolean success, long startTimestamp, MetricID metricID) {
+    private void update(final boolean success, final long startTimestamp, final MetricID metricID) {
         if (success) {
             updateAfterSuccess(startTimestamp, metricID);
         } else {
@@ -68,23 +67,23 @@ public class MetricsServiceParticipant implements ServiceParticipant {
     }
 
     //TODO: Verify it works properly.
-    private void updateAfterSuccess(long startTimestamp, MetricID metricID) {
+    private void updateAfterSuccess(final long startTimestamp, final MetricID metricID) {
         long duration = System.nanoTime() - startTimestamp;
         MetricRegistry registry = SharedMetricRegistries.getOrCreate(MetricRegistry.BASE_SCOPE);
         registry.getTimer(metricID).update(Duration.ofNanos(duration));
     }
 
-    private void updateAfterFailure(MetricID metricID) {
+    private void updateAfterFailure(final MetricID metricID) {
         MetricRegistry registry = SharedMetricRegistries.getOrCreate(MetricRegistry.BASE_SCOPE);
         registry.getCounter(transformToMetricIDForFailedRequest(metricID)).inc();
     }
 
-    private MetricID transformToMetricIDForFailedRequest(MetricID metricID) {
+    private MetricID transformToMetricIDForFailedRequest(final MetricID metricID) {
         return new MetricID("REST.request.unmappedException.total", metricID.getTagsAsArray());
     }
 
     //TODO: Verify it works properly.
-    private void createMetrics(MetricID metricID) {
+    private void createMetrics(final MetricID metricID) {
         MetricRegistry registry = SharedMetricRegistries.getOrCreate(MetricRegistry.BASE_SCOPE);
         if (registry.getTimer(metricID) == null) {
             Metadata successMetadata = Metadata.builder()

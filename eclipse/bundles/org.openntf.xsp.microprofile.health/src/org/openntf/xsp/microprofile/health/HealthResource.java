@@ -17,6 +17,9 @@ package org.openntf.xsp.microprofile.health;
 
 import java.util.function.Function;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.openntf.xsp.jakartaee.metrics.MetricsIgnore;
+
 import io.smallrye.health.SmallRyeHealth;
 import io.smallrye.health.SmallRyeHealthReporter;
 import jakarta.enterprise.inject.spi.CDI;
@@ -27,20 +30,17 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
-import org.eclipse.microprofile.openapi.annotations.Operation;
-import org.openntf.xsp.jakartaee.metrics.MetricsIgnore;
-
 @Path("health")
 @MetricsIgnore
 public class HealthResource {
-	
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Operation(hidden=true)
 	public Response getAll() {
 		return emit(SmallRyeHealthReporter::getHealth);
 	}
-	
+
 	@Path("ready")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -56,7 +56,7 @@ public class HealthResource {
 	public Response getLiveness() {
 		return emit(SmallRyeHealthReporter::getLiveness);
 	}
-	
+
 	@Path("started")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -64,13 +64,13 @@ public class HealthResource {
 	public Response getStarted() {
 		return emit(SmallRyeHealthReporter::getStartup);
 	}
-	
-	private Response emit(Function<SmallRyeHealthReporter, SmallRyeHealth> c) {
+
+	private Response emit(final Function<SmallRyeHealthReporter, SmallRyeHealth> c) {
 		SmallRyeHealthReporter reporter = CDI.current().select(SmallRyeHealthReporter.class).get();
 		SmallRyeHealth health = c.apply(reporter);
 		return Response.status(health.isDown() ? Response.Status.SERVICE_UNAVAILABLE : Response.Status.OK)
 			.type(MediaType.APPLICATION_JSON_TYPE)
-			.entity((StreamingOutput)(os) -> reporter.reportHealth(os, health))
+			.entity((StreamingOutput)os -> reporter.reportHealth(os, health))
 			.build();
 	}
 }

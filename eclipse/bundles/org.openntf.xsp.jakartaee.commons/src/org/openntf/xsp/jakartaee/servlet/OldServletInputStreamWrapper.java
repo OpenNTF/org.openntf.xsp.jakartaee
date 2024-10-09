@@ -23,8 +23,8 @@ import jakarta.servlet.ServletInputStream;
 
 class OldServletInputStreamWrapper extends ServletInputStream {
 	final javax.servlet.ServletInputStream delegate;
-	
-	public OldServletInputStreamWrapper(javax.servlet.ServletInputStream delegate) {
+
+	public OldServletInputStreamWrapper(final javax.servlet.ServletInputStream delegate) {
 		this.delegate = delegate;
 	}
 
@@ -43,7 +43,7 @@ class OldServletInputStreamWrapper extends ServletInputStream {
 	}
 
 	@Override
-	public void setReadListener(ReadListener readListener) {
+	public void setReadListener(final ReadListener readListener) {
 		// NOP, hopefully
 	}
 
@@ -53,17 +53,17 @@ class OldServletInputStreamWrapper extends ServletInputStream {
 	}
 
 	@Override
-	public int read(byte[] b) throws IOException {
+	public int read(final byte[] b) throws IOException {
 		return delegate.read(b);
 	}
 
 	@Override
-	public int read(byte[] b, int off, int len) throws IOException {
+	public int read(final byte[] b, final int off, final int len) throws IOException {
 		return delegate.read(b, off, len);
 	}
 
 	@Override
-	public long skip(long n) throws IOException {
+	public long skip(final long n) throws IOException {
 		return delegate.skip(n);
 	}
 
@@ -83,7 +83,7 @@ class OldServletInputStreamWrapper extends ServletInputStream {
 	}
 
 	@Override
-	public void mark(int readlimit) {
+	public void mark(final int readlimit) {
 		delegate.mark(readlimit);
 	}
 
@@ -98,7 +98,7 @@ class OldServletInputStreamWrapper extends ServletInputStream {
 	}
 
 	@Override
-	public int readLine(byte[] b, int off, int len) throws IOException {
+	public int readLine(final byte[] b, final int off, final int len) throws IOException {
 		return delegate.readLine(b, off, len);
 	}
 

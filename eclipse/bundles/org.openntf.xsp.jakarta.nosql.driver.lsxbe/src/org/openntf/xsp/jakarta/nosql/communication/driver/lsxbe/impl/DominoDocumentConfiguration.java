@@ -15,15 +15,16 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl;
 
-import jakarta.enterprise.inject.spi.CDI;
 import org.eclipse.jnosql.communication.Settings;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.SessionSupplier;
 
+import jakarta.enterprise.inject.spi.CDI;
+
 public class DominoDocumentConfiguration {
 	public static final String SETTING_SESSION_SUPPLIER = "sessionSupplier"; //$NON-NLS-1$
 	public static final String SETTING_SUPPLIER = "databaseSupplier"; //$NON-NLS-1$
-	
+
 	public DominoDocumentCollectionManagerFactory get() {
 		return new DominoDocumentCollectionManagerFactory(
 			CDI.current().select(DatabaseSupplier.class).get(),
@@ -31,7 +32,7 @@ public class DominoDocumentConfiguration {
 		);
 	}
 
-	public DominoDocumentCollectionManagerFactory apply(Settings settings) {
+	public DominoDocumentCollectionManagerFactory apply(final Settings settings) {
 		if(settings == null) {
 			return get();
 		}

@@ -26,20 +26,20 @@ import java.util.concurrent.ThreadPoolExecutor;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.glassfish.enterprise.concurrent.spi.ContextHandle;
-import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
-import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
-
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
+
+import org.glassfish.enterprise.concurrent.spi.ContextHandle;
+import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
+import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
 
 import jakarta.annotation.Priority;
 
 /**
  * This {@link ContextSetupParticipant} will initialize and terminate an NSF-specific
  * {@link NotesContext} for the running thread.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -48,7 +48,7 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 	public static final String ATTR_MODULE = NSFNotesContextParticipant.class.getName() + "_module"; //$NON-NLS-1$
 	public static final String ATTR_CLASSLOADER = NSFNotesContextParticipant.class.getName() + "_classLoader"; //$NON-NLS-1$
 	public static final String ATTR_REQUEST = NSFNotesContextParticipant.class.getName() + "_request"; //$NON-NLS-1$
-	
+
 	private static final Field notesContextRequestField;
 	static {
 		notesContextRequestField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
@@ -61,9 +61,9 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 			}
 		});
 	}
-	
+
 	@Override
-	public void saveContext(ContextHandle contextHandle) {
+	public void saveContext(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
 			NotesContext ctx = NotesContext.getCurrentUnchecked();
 			if(ctx != null) {
@@ -74,25 +74,25 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 			}
 		}
 	}
-	
+
 	@Override
-	public void saveContext(ContextHandle contextHandle, Map<String, String> contextObjectProperties) {
+	public void saveContext(final ContextHandle contextHandle, final Map<String, String> contextObjectProperties) {
 		saveContext(contextHandle);
 	}
-	
+
 	@Override
-	public void setup(ContextHandle contextHandle) throws IllegalStateException {
+	public void setup(final ContextHandle contextHandle) throws IllegalStateException {
 		if(!shouldSetup()) {
 			return;
 		}
-		
+
 		if(contextHandle instanceof AttributedContextHandle) {
 			ComponentModule mod = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_MODULE);
 			if(mod instanceof NSFComponentModule) {
 				mod.updateLastModuleAccess();
-				
+
 				NotesContext notesContext = new NotesContext((NSFComponentModule)mod);
-				
+
 				HttpServletRequest request = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_REQUEST);
 				if(request != null) {
 					try {
@@ -101,9 +101,9 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 						e.printStackTrace();
 					}
 				}
-				
+
 				NotesContext.initThread(notesContext);
-				
+
 				ClassLoader cl = AccessController.doPrivileged((PrivilegedAction<ClassLoader>)() -> {
 					ClassLoader tccc = Thread.currentThread().getContextClassLoader();
 					Thread.currentThread().setContextClassLoader(mod.getModuleClassLoader());
@@ -113,9 +113,9 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 			}
 		}
 	}
-	
+
 	@Override
-	public void reset(ContextHandle contextHandle) {
+	public void reset(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
 			ComponentModule mod = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_MODULE);
 			if(mod instanceof NSFComponentModule) {
@@ -126,11 +126,11 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 						return null;
 					});
 				}
-				
+
 				if(NotesContext.getCurrentUnchecked() != null) {
 					NotesContext.termThread();
 				}
-			}	
+			}
 		}
 	}
 
@@ -139,8 +139,8 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 		return Arrays.stream(stack)
 			.anyMatch(el -> ThreadPoolExecutor.class.getName().equals(el.getClassName()));
 	}
-	
-	protected Optional<HttpServletRequest> getHttpServletRequest(NotesContext context) {
+
+	protected Optional<HttpServletRequest> getHttpServletRequest(final NotesContext context) {
 		return AccessController.doPrivileged((PrivilegedAction<Optional<HttpServletRequest>>)() -> {
 			try {
 				return Optional.ofNullable((HttpServletRequest)notesContextRequestField.get(context));

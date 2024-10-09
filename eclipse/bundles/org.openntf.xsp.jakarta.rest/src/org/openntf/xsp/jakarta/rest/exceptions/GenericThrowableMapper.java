@@ -45,13 +45,13 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 
 	@Context
 	private UriInfo uriInfo;
-	
+
 	@Context
 	private HttpServletRequest req;
-	
+
 	@Context
 	private ResourceInfo resourceInfo;
-	
+
 	@Context
 	private Request request;
 
@@ -67,7 +67,7 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 			if (r != null) {
 				// The response will likely be empty
 				Object entity = r.getEntity();
-				if(entity == null || (entity instanceof CharSequence && ((CharSequence)entity).length() == 0)) {
+				if(entity == null || entity instanceof CharSequence && ((CharSequence)entity).length() == 0) {
 					return createResponseFromException(t, r.getStatus(), resourceInfo, req);
 				} else {
 					return e.getResponse();
@@ -79,12 +79,12 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 			return createResponseFromException(t, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resourceInfo, req);
 		}
 	}
-	
-	protected MediaType getMediaType(ResourceInfo resourceInfo) {
+
+	protected MediaType getMediaType(final ResourceInfo resourceInfo) {
 		if(resourceInfo == null) {
 			return MediaType.APPLICATION_JSON_TYPE;
 		}
-		
+
 		Method method = resourceInfo.getResourceMethod();
 		if(method == null) {
 			// Shows up currently with MVC, which breaks resolution
@@ -99,7 +99,7 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 		}
 	}
 
-	protected Response createResponseFromException(final Throwable throwable, final int status, ResourceInfo resourceInfo, HttpServletRequest req) {
+	protected Response createResponseFromException(final Throwable throwable, final int status, final ResourceInfo resourceInfo, final HttpServletRequest req) {
 		MediaType type = getMediaType(resourceInfo);
 		RestExceptionHandler handler = LibraryUtil.findExtensionsSorted(RestExceptionHandler.class, false)
 			.stream()

@@ -15,15 +15,15 @@
  */
 package org.openntf.xsp.jakartaee.discovery.impl;
 
+import com.ibm.xsp.application.ApplicationEx;
+
 import org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-
-import com.ibm.xsp.application.ApplicationEx;
 
 /**
  * Determines whether a given component is enabled based on its ID being
  * present in the enabled XPages Libraries in a context XPages Application.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -35,7 +35,7 @@ public class XPagesComponentEnabledLocator implements ComponentEnabledLocator {
 	}
 
 	@Override
-	public boolean isComponentEnabled(String componentId) {
+	public boolean isComponentEnabled(final String componentId) {
 		ApplicationEx app = ApplicationEx.getInstance();
 		if(app != null) {
 			return LibraryUtil.usesLibrary(componentId, app);

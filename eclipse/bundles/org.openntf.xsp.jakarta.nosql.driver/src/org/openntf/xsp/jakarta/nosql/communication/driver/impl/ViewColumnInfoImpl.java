@@ -22,19 +22,19 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.ViewColumnInfo;
 
 /**
  * Basic implementation of {@link ViewColumnInfo}.
- * 
+ *
  * @since 2.12.0
  */
 public class ViewColumnInfoImpl implements ViewColumnInfo {
-	
+
 	private final String title;
 	private final String programmaticName;
 	private final SortOrder sortOrder;
 	private final Collection<SortOrder> resortOrders;
 	private final boolean categorized;
 
-	public ViewColumnInfoImpl(String title, String programmaticName, SortOrder sortOrder,
-			Collection<SortOrder> resortOrders, boolean categorized) {
+	public ViewColumnInfoImpl(final String title, final String programmaticName, final SortOrder sortOrder,
+			final Collection<SortOrder> resortOrders, final boolean categorized) {
 		super();
 		this.title = title;
 		this.programmaticName = programmaticName;
@@ -62,7 +62,7 @@ public class ViewColumnInfoImpl implements ViewColumnInfo {
 	public Collection<SortOrder> getResortOrders() {
 		return this.resortOrders;
 	}
-	
+
 	@Override
 	public boolean isCategorized() {
 		return this.categorized;

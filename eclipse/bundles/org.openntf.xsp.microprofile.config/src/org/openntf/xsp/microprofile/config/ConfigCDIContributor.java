@@ -34,7 +34,7 @@ public class ConfigCDIContributor implements CDIClassContributor {
 	@Override
 	public Collection<Extension> getExtensions() {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
-			return Collections.singleton(new ConfigExtension());	
+			return Collections.singleton(new ConfigExtension());
 		}
 		return null;
 	}

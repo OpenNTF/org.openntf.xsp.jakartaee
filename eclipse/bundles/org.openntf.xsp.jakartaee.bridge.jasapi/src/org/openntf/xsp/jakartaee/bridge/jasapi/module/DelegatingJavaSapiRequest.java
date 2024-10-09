@@ -20,15 +20,15 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
+import com.ibm.domino.bridge.http.jasapi.IJavaSapiHttpRequestAdapter;
+
 import org.openntf.xsp.jakartaee.jasapi.JavaSapiRequest;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-
-import com.ibm.domino.bridge.http.jasapi.IJavaSapiHttpRequestAdapter;
 
 import jakarta.servlet.http.Cookie;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.13.0
  */

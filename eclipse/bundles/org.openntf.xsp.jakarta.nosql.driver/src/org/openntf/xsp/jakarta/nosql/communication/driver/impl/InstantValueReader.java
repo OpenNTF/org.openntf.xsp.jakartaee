@@ -24,13 +24,13 @@ import org.eclipse.jnosql.communication.ValueReader;
 public class InstantValueReader implements ValueReader {
 
 	@Override
-	public boolean test(Class<?> t) {
+	public boolean test(final Class<?> t) {
 		return Instant.class.equals(t);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T read(Class<T> clazz, Object value) {
+	public <T> T read(final Class<T> clazz, final Object value) {
 		if(value == null) {
 			return null;
 		} else if(value instanceof TemporalAccessor) {

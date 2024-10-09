@@ -20,31 +20,31 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ibm.commons.util.StringUtil;
+
 import org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.jakarta.cdi.ext.CDIContainerUtility;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
 
-import com.ibm.commons.util.StringUtil;
-
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.CDIProvider;
 
 /**
  * Provides access to the current application's CDI context.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.0
  */
 public class DominoCDIProvider implements CDIProvider {
 	private static final Logger log = Logger.getLogger(DominoCDIProvider.class.getPackage().getName());
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized CDI<Object> getCDI() {
 		CDIContainerUtility util = LibraryUtil.findRequiredExtension(CDIContainerUtility.class);
-		
+
 		// Check in any available locator extensions
 		List<CDIContainerLocator> locators = LibraryUtil.findExtensionsSorted(CDIContainerLocator.class, false);
 		try {
@@ -53,7 +53,7 @@ public class DominoCDIProvider implements CDIProvider {
 				if(container != null) {
 					return (CDI<Object>)container;
 				}
-				
+
 				String nsfPath = locator.getNsfPath();
 				if(StringUtil.isNotEmpty(nsfPath)) {
 					container = ModuleUtil.getNSFComponentModule(nsfPath)
@@ -63,8 +63,8 @@ public class DominoCDIProvider implements CDIProvider {
 						return (CDI<Object>)container;
 					}
 				}
-				
-				
+
+
 				String bundleId = locator.getBundleId();
 				if(StringUtil.isNotEmpty(bundleId)) {
 					Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
@@ -85,10 +85,10 @@ public class DominoCDIProvider implements CDIProvider {
 			e.printStackTrace();
 			throw e;
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public int getPriority() {
 		return DEFAULT_CDI_PROVIDER_PRIORITY+2;

@@ -27,12 +27,12 @@ import io.smallrye.openapi.spi.OASFactoryResolverImpl;
 public class OASFactoryInitializer implements RestActivationParticipant {
 
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		OASFactoryResolver.setInstance(new OASFactoryResolverImpl());
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception {
+	public void stop(final BundleContext context) throws Exception {
 
 	}
 

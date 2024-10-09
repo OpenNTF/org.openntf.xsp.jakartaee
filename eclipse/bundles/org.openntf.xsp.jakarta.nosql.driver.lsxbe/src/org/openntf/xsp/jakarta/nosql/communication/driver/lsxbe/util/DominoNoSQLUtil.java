@@ -51,7 +51,7 @@ import lotus.domino.Session;
 
 /**
  * Contains utility methods for working with files
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -64,14 +64,14 @@ public enum DominoNoSQLUtil {
 	 * @since 3.1.0
 	 */
 	private static Path OVERRIDE_TEMP_DIR;
-	
+
 	/**
 	 * Optional setting for a directory to be returned by {@link #getTQrpDirectory()} instead
 	 * of the system default.
 	 * @since 3.1.0
 	 */
 	private static Path OVERRIDE_QRP_DIR;
-	
+
 	/**
 	 * Returns an appropriate temp directory for the system. On Windows, this is
 	 * equivalent to <code>System.getProperty("java.io.tmpdir")</code>. On
@@ -85,7 +85,7 @@ public enum DominoNoSQLUtil {
 		if(override != null) {
 			return override;
 		}
-		
+
 		String osName = AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty("os.name")); //$NON-NLS-1$
 		if (osName.startsWith("Linux") || osName.startsWith("LINUX")) { //$NON-NLS-1$ //$NON-NLS-2$
 			return Paths.get("/tmp"); //$NON-NLS-1$
@@ -95,7 +95,7 @@ public enum DominoNoSQLUtil {
 		}
 	}
 
-	public static Object toDominoFriendly(Session session, Object value, Optional<BooleanStorage> optBoolean) throws NotesException {
+	public static Object toDominoFriendly(final Session session, final Object value, final Optional<BooleanStorage> optBoolean) throws NotesException {
 		if(value instanceof Iterable it) {
 			Vector<Object> result = new Vector<>();
 			for(Object val : it) {
@@ -139,7 +139,7 @@ public enum DominoNoSQLUtil {
 			return value.toString();
 		}
 	}
-	
+
 	private static final String ITEM_TEMPTIME = "$$TempTime"; //$NON-NLS-1$
 	@SuppressWarnings("nls")
 	private static final String FORMULA_TOISODATE = """
@@ -152,14 +152,14 @@ public enum DominoNoSQLUtil {
 		m := @Minute($$TempTime);
 		s := @Second($$TempTime);
 		@If(h < 10; "0"; "") + @Text(h) + ":" + @If(m < 10; "0"; "") + @Text(m) + ":" + @If(s < 10; "0"; "") + @Text(s)""";
-	
+
 	/**
 	 * Converts the provided value read from Domino to a stock JDK type, if necessary.
-	 * 
+	 *
 	 * @param value the value to convert
 	 * @return a stock-JDK object representing the value
 	 */
-	public static Object toJavaFriendly(lotus.domino.Database context, Object value, Optional<BooleanStorage> optBoolean) {
+	public static Object toJavaFriendly(final lotus.domino.Database context, final Object value, final Optional<BooleanStorage> optBoolean) {
 		if(value instanceof Iterable) {
 			return StreamSupport.stream(((Iterable<?>)value).spliterator(), false)
 				.map(val -> toJavaFriendly(context, val, optBoolean))
@@ -205,7 +205,7 @@ public enum DominoNoSQLUtil {
 		}
 	}
 
-	public static Temporal toTemporal(Database context, DateTime dt) throws NotesException {
+	public static Temporal toTemporal(final Database context, final DateTime dt) throws NotesException {
 		try {
 			String datePart = dt.getDateOnly();
 			String timePart = dt.getTimeOnly();
@@ -229,22 +229,22 @@ public enum DominoNoSQLUtil {
 			dt.recycle();
 		}
 	}
-	
-	public static DateTime fromTemporal(Session session, TemporalAccessor time) throws NotesException {
+
+	public static DateTime fromTemporal(final Session session, final TemporalAccessor time) throws NotesException {
 		try {
 			Instant inst = Instant.from(time);
 			return session.createDateTime(Date.from(inst));
-		} catch(DateTimeException e) {	
+		} catch(DateTimeException e) {
 		}
 		try {
 			OffsetDateTime dt = OffsetDateTime.from(time);
 			return session.createDateTime(Date.from(dt.toInstant()));
-		} catch(DateTimeException e) {	
+		} catch(DateTimeException e) {
 		}
 		try {
 			ZonedDateTime dt = ZonedDateTime.from(time);
 			return session.createDateTime(Date.from(dt.toInstant()));
-		} catch(DateTimeException e) {	
+		} catch(DateTimeException e) {
 		}
 		try {
 			LocalDate localDate = LocalDate.from(time);
@@ -265,7 +265,7 @@ public enum DominoNoSQLUtil {
 		throw new IllegalArgumentException(MessageFormat.format("Unsupported time: {0} (class {1})", time, time == null ? null : time.getClass().getName()));
 	}
 
-	public static InputStream wrapInputStream(InputStream is, String encoding) throws IOException {
+	public static InputStream wrapInputStream(final InputStream is, final String encoding) throws IOException {
 		if("gzip".equals(encoding)) { //$NON-NLS-1$
 			return new GZIPInputStream(is);
 		} else if(encoding == null || encoding.isEmpty()) {
@@ -275,43 +275,43 @@ public enum DominoNoSQLUtil {
 		}
 	}
 
-	public static boolean isValid(lotus.domino.Document doc) {
+	public static boolean isValid(final lotus.domino.Document doc) {
 		try {
 			return doc != null && doc.isValid() && !doc.isDeleted() && doc.getCreated() != null;
 		} catch (NotesException e) {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Sets the directory to be used for temp files, instead of the system default.
-	 * 
+	 *
 	 * <p>This path must be on the primary local filesystem.</p>
-	 * 
+	 *
 	 * @param dir a local-filesystem path to use, or {@code null} to un-set an
 	 *        existing value
 	 * @since 3.1.0
 	 */
-	public static void setTempDirectory(Path dir) {
+	public static void setTempDirectory(final Path dir) {
 		OVERRIDE_TEMP_DIR = dir;
 	}
 
 	/**
 	 * Sets the directory to be used for QRP databases, instead of the system default.
-	 * 
+	 *
 	 * <p>This path must be on the primary local filesystem.</p>
-	 * 
+	 *
 	 * @param dir a local-filesystem path to use, or {@code null} to un-set an
 	 *        existing value
 	 * @since 3.1.0
 	 */
-	public static void setQrpDirectory(Path dir) {
+	public static void setQrpDirectory(final Path dir) {
 		OVERRIDE_QRP_DIR = dir;
 	}
-	
+
 	/**
 	 * Retrieves the base directory to be used for QRP databases
-	 * 
+	 *
 	 * @return a path to use for QRP databases, or an empty Optional if this
 	 *         was not set
 	 * @since 3.1.0

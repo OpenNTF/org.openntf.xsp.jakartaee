@@ -40,40 +40,41 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.domino.xsp.module.nsf.NotesContext;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 
 import jakarta.annotation.Priority;
 
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-
 /**
  * This class is intended to be API-compatible with the GlassFish
  * implementation, but provides extensions specific to Domino to allow
  * resolution of providers from an active ComponentModule.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.6.0
  */
 public class ServiceLoader {
 	private static final Logger LOGGER = Logger.getLogger(ServiceLoader.class.getName());
-	
+
 	private static final String SERVICE_LOCATION = "META-INF/services"; //$NON-NLS-1$
 	private static final String COMMENT_PATTERN = "#"; //$NON-NLS-1$
 	private static final Map<Bundle, Set<String>> OSGI_PROVIDERS = new HashMap<>();
 	@SuppressWarnings("rawtypes")
 	private static final Map<Class<?>, Iterable<Class>> OSGI_INSTANCES = Collections.synchronizedMap(new HashMap<>());
-	
-	public static void init(BundleContext bundleContext) {
+
+	public static void init(final BundleContext bundleContext) {
 		Arrays.stream(bundleContext.getBundles())
 			.filter(bundle -> {
 				int state = bundle.getState();
 				return state == Bundle.ACTIVE || state == Bundle.RESOLVED;
 			})
 			.forEach(ServiceLoader::addBundle);
-		
+
 		bundleContext.addBundleListener(bundleEvent -> {
 			Bundle bundle = bundleEvent.getBundle();
     		int type = bundleEvent.getType();
@@ -91,9 +92,9 @@ public class ServiceLoader {
     		}
     	});
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public static <T> Iterable<? extends T> lookupProviderInstances(Class<T> serviceClass) {
+	public static <T> Iterable<? extends T> lookupProviderInstances(final Class<T> serviceClass) {
 		@SuppressWarnings("rawtypes")
 		Iterable<Class> classes = lookupProviderClasses(serviceClass);
 		return (List<? extends T>)StreamSupport.stream(classes.spliterator(), false)
@@ -106,56 +107,56 @@ public class ServiceLoader {
 			})
 			.collect(Collectors.toList());
 	}
-	
+
     @SuppressWarnings("rawtypes")
-	public static <T> Iterable<Class> lookupProviderClasses(Class<T> serviceClass) {
+	public static <T> Iterable<Class> lookupProviderClasses(final Class<T> serviceClass) {
 		List<Class> result = new ArrayList<>();
-		
+
 		Iterable<Class> osgi = computeIfAbsent(OSGI_INSTANCES, serviceClass, ServiceLoader::resolveBundleServices);
 		osgi.forEach(result::add);
-		
+
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
 		if(nsfContext != null) {
 			Iterable<Class> nsf = resolveModuleServices(nsfContext.getModule(), serviceClass);
 			nsf.forEach(result::add);
 		}
-		
+
 		// TODO support OSGi NotesContext
-		
+
 		return result.stream()
 			.sorted(ClassPriorityComparator.DESCENDING)
 			.toList();
     }
-    
+
     // *******************************************************************************
 	// * Internal implementation methods
 	// *******************************************************************************
-    
-    private static void addBundle(Bundle bundle) {
+
+    private static void addBundle(final Bundle bundle) {
     	OSGI_PROVIDERS.put(bundle, identifyServices(bundle));
     }
-    private static void removeBundle(Bundle bundle) {
+    private static void removeBundle(final Bundle bundle) {
     	OSGI_PROVIDERS.remove(bundle);
     	// This is rare on Domino, so just invalidate the whole cache
 		OSGI_INSTANCES.clear();
     }
-    
-    private static Set<String> identifyServices(Bundle bundle) {
+
+    private static Set<String> identifyServices(final Bundle bundle) {
     	if(bundle.getEntry(SERVICE_LOCATION) == null) {
     		// Then no services at all
     		return Collections.emptySet();
     	}
-    	
+
     	return Collections.list(bundle.getEntryPaths(SERVICE_LOCATION))
     		.stream()
     		.map(path -> path.substring(SERVICE_LOCATION.length()+1))
     		.collect(Collectors.toSet());
     }
-    
+
     @SuppressWarnings("rawtypes")
-	private static Iterable<Class> resolveBundleServices(Class<?> serviceClass) {
+	private static Iterable<Class> resolveBundleServices(final Class<?> serviceClass) {
     	String serviceName = serviceClass.getName();
-    	
+
 		return OSGI_PROVIDERS.entrySet().stream()
 			.filter(entry -> entry.getValue().contains(serviceClass.getName()))
 			.map(Map.Entry::getKey)
@@ -184,9 +185,9 @@ public class ServiceLoader {
 			})
 			.collect(Collectors.toList());
     }
-    
+
     @SuppressWarnings("rawtypes")
-	private static Iterable<Class> resolveModuleServices(ComponentModule module, Class<?> serviceClass) {
+	private static Iterable<Class> resolveModuleServices(final ComponentModule module, final Class<?> serviceClass) {
     	String serviceName = serviceClass.getName();
     	try {
     		URL url = module.getResource(SERVICE_LOCATION + '/' + serviceName);
@@ -210,8 +211,8 @@ public class ServiceLoader {
     		throw new UncheckedIOException(e);
     	}
     }
-    
-    private static Stream<String> parseServiceClassNames(URL url) {
+
+    private static Stream<String> parseServiceClassNames(final URL url) {
     	List<String> result = new ArrayList<>();
     	try(
     		InputStream is = url.openStream();
@@ -236,15 +237,15 @@ public class ServiceLoader {
 	@SuppressWarnings("rawtypes")
     public enum ClassPriorityComparator implements Comparator<Class> {
     	ASCENDING(true), DESCENDING(false);
-    	
+
     	private final boolean ascending;
-    	
-    	private ClassPriorityComparator(boolean ascending) {
+
+    	private ClassPriorityComparator(final boolean ascending) {
     		this.ascending = ascending;
     	}
 
 		@Override
-    	public int compare(Class a, Class b) {
+    	public int compare(final Class a, final Class b) {
     		int priorityA = Optional.ofNullable(((Class<?>)a).getAnnotation(Priority.class))
     			.map(Priority::value)
     			.orElse(ascending ? Integer.MAX_VALUE : 0);
@@ -259,7 +260,7 @@ public class ServiceLoader {
     	}
 
     }
-	
+
 	private static <S, T> T computeIfAbsent(final Map<S, T> map, final S key, final Function<S, T> sup) {
 		synchronized(map) {
 			T result;

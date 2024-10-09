@@ -23,11 +23,11 @@ import jakarta.servlet.ServletContext;
 
 class OldServletConfigWrapper implements ServletConfig {
 	final javax.servlet.ServletConfig delegate;
-	
-	public OldServletConfigWrapper(javax.servlet.ServletConfig delegate) {
+
+	public OldServletConfigWrapper(final javax.servlet.ServletConfig delegate) {
 		this.delegate = delegate;
 	}
-	
+
 	@Override
 	public String getServletName() {
 		return delegate.getServletName();
@@ -39,7 +39,7 @@ class OldServletConfigWrapper implements ServletConfig {
 	}
 
 	@Override
-	public String getInitParameter(String name) {
+	public String getInitParameter(final String name) {
 		ServletContext context = getServletContext();
 		if(context instanceof OldServletContextWrapper) {
 			Map<String, String> params = ((OldServletContextWrapper)context).getExtraInitParameters();

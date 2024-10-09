@@ -25,7 +25,7 @@ import jakarta.annotation.Priority;
  * This no-op {@link ValueWriter} implementation handles the case of {@link TemporalAccessor}s
  * to be written to Domino. The driver handles conversion to DateTime specially, and this is
  * intended to override the default JNoSQL implementation, which converts to a String.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
@@ -33,12 +33,12 @@ import jakarta.annotation.Priority;
 public class DominoTemporalValueWriter implements ValueWriter<TemporalAccessor, TemporalAccessor> {
 
 	@Override
-	public boolean test(Class<?> type) {
+	public boolean test(final Class<?> type) {
         return TemporalAccessor.class.isAssignableFrom(type);
 	}
 
 	@Override
-	public TemporalAccessor write(TemporalAccessor object) {
+	public TemporalAccessor write(final TemporalAccessor object) {
 		return object;
 	}
 

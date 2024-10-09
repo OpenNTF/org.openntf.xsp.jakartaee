@@ -25,7 +25,7 @@ import jakarta.ws.rs.ext.Provider;
 /**
  * Provides the {@link Jsonb} instance produced by {@link Jsonb}
  * to the JAX-RS environment.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.11.0
  */
@@ -33,7 +33,7 @@ import jakarta.ws.rs.ext.Provider;
 public class JsonbProvider implements ContextResolver<Jsonb> {
 
 	@Override
-	public Jsonb getContext(Class<?> type) {
+	public Jsonb getContext(final Class<?> type) {
 		if(Jsonb.class.equals(type)) {
 			Instance<Jsonb> bean = CDI.current().select(Jsonb.class);
 			if(bean.isResolvable()) {

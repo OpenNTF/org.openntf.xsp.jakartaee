@@ -28,7 +28,7 @@ import jakarta.ws.rs.ext.Provider;
 public class CoreFeatureWrapper extends CoreFeature {
 
 	@Override
-	public boolean configure(FeatureContext context) {
+	public boolean configure(final FeatureContext context) {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			return super.configure(context);
 		}

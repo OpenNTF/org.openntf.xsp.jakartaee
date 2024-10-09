@@ -29,10 +29,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 class OldHttpServletWrapper extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	final javax.servlet.http.HttpServlet delegate;
-	
-	public OldHttpServletWrapper(javax.servlet.Servlet delegate) {
+
+	public OldHttpServletWrapper(final javax.servlet.Servlet delegate) {
 		if(!(delegate instanceof javax.servlet.http.HttpServlet)) {
 			throw new IllegalArgumentException("Unsupported delegate: " + delegate);
 		}
@@ -40,7 +40,7 @@ class OldHttpServletWrapper extends HttpServlet {
 	}
 
 	@Override
-	public void init(ServletConfig config) throws ServletException {
+	public void init(final ServletConfig config) throws ServletException {
 		try {
 			delegate.init(ServletUtil.newToOld(config));
 		} catch (javax.servlet.ServletException e) {
@@ -54,7 +54,7 @@ class OldHttpServletWrapper extends HttpServlet {
 	}
 
 	@Override
-	public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+	public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException {
 		HttpServletRequest req = (HttpServletRequest)request;
 		HttpServletResponse resp = (HttpServletResponse)response;
 		try {
@@ -70,10 +70,11 @@ class OldHttpServletWrapper extends HttpServlet {
 	}
 
 	@Override
-	public String getInitParameter(String name) {
+	public String getInitParameter(final String name) {
 		return delegate.getInitParameter(name);
 	}
 
+	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Enumeration getInitParameterNames() {
 		return delegate.getInitParameterNames();
@@ -85,7 +86,7 @@ class OldHttpServletWrapper extends HttpServlet {
 	}
 
 	@Override
-	public void log(String msg) {
+	public void log(final String msg) {
 		delegate.log(msg);
 	}
 
@@ -104,7 +105,7 @@ class OldHttpServletWrapper extends HttpServlet {
 	}
 
 	@Override
-	public void log(String message, Throwable t) {
+	public void log(final String message, final Throwable t) {
 		delegate.log(message, t);
 	}
 

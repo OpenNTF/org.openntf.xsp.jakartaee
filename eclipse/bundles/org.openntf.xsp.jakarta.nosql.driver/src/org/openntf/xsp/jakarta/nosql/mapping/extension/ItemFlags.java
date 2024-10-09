@@ -28,7 +28,7 @@ import jakarta.nosql.Column;
  * This can be placed on a field annotated with {@link Column @Column} to
  * provide hints to the driver about the flags to apply to the item when
  * stored in a Domino document.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.6.0
  */

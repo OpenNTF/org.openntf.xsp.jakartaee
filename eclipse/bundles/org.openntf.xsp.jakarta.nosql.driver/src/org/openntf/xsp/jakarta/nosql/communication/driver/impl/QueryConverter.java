@@ -31,7 +31,7 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL.DQLTerm;
 
 /**
  * Assistant class to convert queries from Diana internal structures to DQL queries
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.3.0
  */
@@ -39,10 +39,10 @@ public enum QueryConverter {
 	;
 
 	private static final String[] ALL_SELECT = { "*" }; //$NON-NLS-1$
-	
-	private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-	public static QueryConverterResult select(SelectQuery query) {
+	private static final String[] EMPTY_STRING_ARRAY = {};
+
+	public static QueryConverterResult select(final SelectQuery query) {
 		String[] documents = query.columns().toArray(new String[0]);
 		if (documents.length == 0) {
 			documents = ALL_SELECT;
@@ -62,29 +62,36 @@ public enum QueryConverter {
 		return new QueryConverterResult(documents, statement, skip, limit);
 	}
 
-	public static DQLTerm getCondition(CriteriaCondition condition) {
+	public static DQLTerm getCondition(final CriteriaCondition condition) {
 		Element document = condition.element();
-		
+
 		// Convert special names
 		String name = String.valueOf(document.name());
-		if (DominoConstants.FIELD_ID.equals(name)) {
-			name = "@DocumentUniqueID"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_CDATE.equals(name)) {
-			name = "@Created"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_MDATE.equals(name)) {
-			name = "@Modified"; //$NON-NLS-1$
-		} else if("$REF".equalsIgnoreCase(name)) { //$NON-NLS-1$
-			name = "@Text($REF)"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_SIZE.equals(name)) {
-			name = "@DocLength"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_NOTEID.equals(name)) {
-			name = "@NoteID"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_ADATE.equals(name)) {
-			name = "@Accessed"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_ADDED.equals(name)) {
-			name = "@AddedToThisFile"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE.equals(name)) {
-			name = "@ModifiedInThisFile"; //$NON-NLS-1$
+		switch (name) {
+			case DominoConstants.FIELD_ID:
+				name = "@DocumentUniqueID"; //$NON-NLS-1$
+				break;
+			case DominoConstants.FIELD_CDATE:
+				name = "@Created"; //$NON-NLS-1$
+				break;
+			case DominoConstants.FIELD_MDATE:
+				name = "@Modified"; //$NON-NLS-1$
+				break;
+			default:
+				if("$REF".equalsIgnoreCase(name)) { //$NON-NLS-1$
+					name = "@Text($REF)"; //$NON-NLS-1$
+				} else if(DominoConstants.FIELD_SIZE.equals(name)) {
+					name = "@DocLength"; //$NON-NLS-1$
+				} else if(DominoConstants.FIELD_NOTEID.equals(name)) {
+					name = "@NoteID"; //$NON-NLS-1$
+				} else if(DominoConstants.FIELD_ADATE.equals(name)) {
+					name = "@Accessed"; //$NON-NLS-1$
+				} else if(DominoConstants.FIELD_ADDED.equals(name)) {
+					name = "@AddedToThisFile"; //$NON-NLS-1$
+				} else if(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE.equals(name)) {
+					name = "@ModifiedInThisFile"; //$NON-NLS-1$
+				}
+				break;
 		}
 
 		Object value = document.get();
@@ -152,14 +159,14 @@ public enum QueryConverter {
 				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});
 				return DQL.and(conditions
 					.stream()
-					.map(c -> getCondition(c))
+					.map(QueryConverter::getCondition)
 					.toArray(DQLTerm[]::new));
 			}
 			case OR: {
 				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});
 				return DQL.or(conditions
 					.stream()
-					.map(c -> getCondition(c))
+					.map(QueryConverter::getCondition)
 					.toArray(DQLTerm[]::new));
 			}
 			case NOT:
@@ -177,13 +184,13 @@ public enum QueryConverter {
 		private final long skip;
 		private final long limit;
 
-		QueryConverterResult(String[] unids, DQLTerm dql, long skip, long limit) {
+		QueryConverterResult(final String[] unids, final DQLTerm dql, final long skip, final long limit) {
 			this.unids = unids;
 			this.dql = dql;
 			this.skip = skip;
 			this.limit = limit;
 		}
-		
+
 		public String[] getUnids() {
 			return unids;
 		}
@@ -191,18 +198,18 @@ public enum QueryConverter {
 		public DQLTerm getStatement() {
 			return dql;
 		}
-		
+
 		public long getSkip() {
 			return skip;
 		}
-		
+
 		public long getLimit() {
 			return limit;
 		}
 	}
 
-	
-	private static DQLTerm applyFormName(DQLTerm condition, String formName) {
+
+	private static DQLTerm applyFormName(final DQLTerm condition, final String formName) {
 		if(formName == null || formName.isEmpty()) {
 			return condition;
 		} else {
@@ -213,13 +220,13 @@ public enum QueryConverter {
 			}
 		}
 	}
-	
+
 	/**
 	 * Converts the provided value to a DQL-usable array:
 	 * either a String[], int[], or double[].
 	 */
 	@SuppressWarnings("unchecked")
-	private static Object toDqlArray(Object value) {
+	private static Object toDqlArray(final Object value) {
 		if(value == null) {
 			return EMPTY_STRING_ARRAY;
 		} else if(value instanceof String s) {

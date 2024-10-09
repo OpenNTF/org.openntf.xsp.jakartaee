@@ -49,6 +49,9 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.ibm.commons.util.StringUtil;
+
+import org.eclipse.jnosql.communication.ValueWriter;
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -68,11 +71,8 @@ import org.openntf.xsp.jakarta.nosql.mapping.extension.EntryType;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemFlags;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemStorage;
 
-import com.ibm.commons.util.StringUtil;
-
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
-import org.eclipse.jnosql.communication.ValueWriter;
 import lotus.domino.Database;
 import lotus.domino.DateTime;
 import lotus.domino.DocumentCollection;
@@ -92,30 +92,30 @@ import lotus.domino.ViewNavigator;
 
 /**
  * Utility methods for converting between Domino and NoSQL entities.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.3.0
  */
 public class LSXBEEntityConverter extends AbstractEntityConverter {
-	
+
 	private final DatabaseSupplier databaseSupplier;
 	private final Jsonb jsonb;
-	
-	public LSXBEEntityConverter(DatabaseSupplier databaseSupplier) {
+
+	public LSXBEEntityConverter(final DatabaseSupplier databaseSupplier) {
 		this.databaseSupplier = databaseSupplier;
 		this.jsonb = JsonbBuilder.create();
 	}
-	
+
 	/**
 	 * Converts the provided QRP view to NoSQL document entities.
-	 * 
+	 *
 	 * @param database the database containing the actual documents
 	 * @param docs the QRP generated view
 	 * @param classMapping the {@link EntityMetadata} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link CommunicationEntity} objects
 	 * @throws NotesException if there is a problem reading the view or documents
 	 */
-	public Stream<CommunicationEntity> convertQRPViewDocuments(Database database, View docs, EntityMetadata classMapping) throws NotesException {
+	public Stream<CommunicationEntity> convertQRPViewDocuments(final Database database, final View docs, final EntityMetadata classMapping) throws NotesException {
 		ViewNavigator nav = docs.createViewNav();
 		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, false, false, false);
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
@@ -143,11 +143,11 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			})
 			.filter(Objects::nonNull);
 	}
-	
+
 	/**
 	 * Converts the entries in the provided {@link ViewNavigator} into NoSQL document entities
 	 * based on their column values.
-	 * 
+	 *
 	 * @param entityName the name of the target entity
 	 * @param nav the {@link ViewNavigator} to traverse
 	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
@@ -158,9 +158,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @return a {@link Stream} of NoSQL {@link CommunicationEntity} objects
 	 * @throws NotesException if there is a problem reading the view
 	 */
-	public Stream<CommunicationEntity> convertViewEntries(String entityName, ViewNavigator nav, boolean didSkip, boolean didKey, long limit, boolean docsOnly, EntityMetadata classMapping) throws NotesException {
+	public Stream<CommunicationEntity> convertViewEntries(final String entityName, final ViewNavigator nav, final boolean didSkip, final boolean didKey, final long limit, final boolean docsOnly, final EntityMetadata classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
-		
+
 		// Read in the column names
 		View view = nav.getParentView();
 		@SuppressWarnings("unchecked")
@@ -174,9 +174,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			}
 		}
 		view.recycle(columns);
-		
+
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
-		
+
 		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, docsOnly, didSkip, didKey);
 		Stream<CommunicationEntity> result = iter.stream()
 			.map(entry -> {
@@ -191,13 +191,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Converts the entries in the provided {@link ViewEntryCollection} into NoSQL document entities
 	 * based on their column values.
-	 * 
+	 *
 	 * <p>This method is intended to be used when {@code view} has been FT-searched.</p>
-	 * 
+	 *
 	 * @param entityName the name of the target entity
 	 * @param entries the {@link ViewEntryCollection} to traverse
 	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
@@ -208,9 +208,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @return a {@link Stream} of NoSQL {@link CommunicationEntity} objects
 	 * @throws NotesException if there is a problem reading the view
 	 */
-	public Stream<CommunicationEntity> convertViewEntries(String entityName, ViewEntryCollection entries, boolean didSkip, boolean didKey, long limit, boolean docsOnly, EntityMetadata classMapping) throws NotesException {
+	public Stream<CommunicationEntity> convertViewEntries(final String entityName, final ViewEntryCollection entries, final boolean didSkip, final boolean didKey, final long limit, final boolean docsOnly, final EntityMetadata classMapping) throws NotesException {
 		View view = entries.getParent();
-		
+
 		// Read in the column names
 		@SuppressWarnings("unchecked")
 		Vector<ViewColumn> columns = view.getColumns();
@@ -225,7 +225,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		view.recycle(columns);
 
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
-		
+
 		ViewEntryCollectionIterator iter = new ViewEntryCollectionIterator(entries, didSkip);
 		Stream<CommunicationEntity> result = iter.stream()
 			.map(entry -> {
@@ -240,11 +240,11 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Converts the document entries in the provided {@link ViewNavigator} to NoSQL documents
 	 * based on their backing {@link Document} objects.
-	 * 
+	 *
 	 * @param entityName the name of the target entity
 	 * @param nav the {@link ViewNavigator} to traverse
 	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
@@ -255,19 +255,19 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @return a {@link Stream} of NoSQL {@link CommunicationEntity} objects
 	 * @throws NotesException if there is a problem reading the view or documents
 	 */
-	public Stream<CommunicationEntity> convertViewDocuments(String entityName, ViewNavigator nav, boolean didSkip, boolean didKey, long limit, boolean distinct, EntityMetadata classMapping) throws NotesException {
+	public Stream<CommunicationEntity> convertViewDocuments(final String entityName, final ViewNavigator nav, final boolean didSkip, final boolean didKey, final long limit, final boolean distinct, final EntityMetadata classMapping) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOLUMNVALUES | ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
-		
+
 		ViewNavigatorIterator iter = new ViewNavigatorIterator(nav, true, didSkip, didKey);
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
-		
+
 		Set<String> unids = new HashSet<>();
 		Stream<CommunicationEntity> result = iter.stream()
 			.map(entry -> {
 				String unid = ""; //$NON-NLS-1$
 				String serverName = ""; //$NON-NLS-1$
 				String filePath = ""; //$NON-NLS-1$
-				
+
 				try {
 					unid = entry.getUniversalID();
 					if(distinct) {
@@ -276,7 +276,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						}
 						unids.add(unid);
 					}
-					
+
 					lotus.domino.Document doc = entry.getDocument();
 					Database database = doc.getParentDatabase();
 					serverName = database.getServer();
@@ -293,13 +293,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Converts the document entries in the provided {@link ViewEntryCollection} to NoSQL documents
 	 * based on their backing {@link Document} objects.
-	 * 
+	 *
 	 * <p>This method is intended to be used when {@code view} has been FT-searched.</p>
-	 * 
+	 *
 	 * @param entityName the name of the target entity
 	 * @param entries the {@link ViewEntryCollection} to traverse
 	 * @param didSkip whether previous code called {@code skip(...)} on {@code nav}
@@ -310,10 +310,10 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @return a {@link Stream} of NoSQL {@link CommunicationEntity} objects
 	 * @throws NotesException if there is a problem reading the view or documents
 	 */
-	public Stream<CommunicationEntity> convertViewDocuments(String entityName, ViewEntryCollection entries, boolean didSkip, boolean didKey, long limit, boolean distinct, EntityMetadata classMapping) throws NotesException {
+	public Stream<CommunicationEntity> convertViewDocuments(final String entityName, final ViewEntryCollection entries, final boolean didSkip, final boolean didKey, final long limit, final boolean distinct, final EntityMetadata classMapping) throws NotesException {
 		ViewEntryCollectionIterator iter = new ViewEntryCollectionIterator(entries, didSkip);
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
-		
+
 		Set<String> unids = new HashSet<>();
 		Stream<CommunicationEntity> result = iter.stream()
 			.map(entry -> {
@@ -325,7 +325,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						}
 						unids.add(unid);
 					}
-					
+
 					lotus.domino.Document doc = entry.getDocument();
 					List<Element> documents = convertDominoDocument(doc, classMapping, itemTypes);
 					return CommunicationEntity.of(entityName, documents);
@@ -341,13 +341,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 	/**
 	 * Converts the documents in the provided {@link DocumentCollection} to NoSQL documents.
-	 * 
+	 *
 	 * @param docs the {@link DocumentCollection} to process
 	 * @param classMapping the {@link EntityMetadata} instance for the target entity; may be {@code null}
 	 * @return a {@link Stream} of NoSQL {@link CommunicationEntity} objects
 	 * @throws NotesException if there is a problem reading the documents
 	 */
-	public Stream<CommunicationEntity> convertDocuments(DocumentCollection docs, EntityMetadata classMapping) throws NotesException {
+	public Stream<CommunicationEntity> convertDocuments(final DocumentCollection docs, final EntityMetadata classMapping) throws NotesException {
 		DocumentCollectionIterator iter = new DocumentCollectionIterator(docs);
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
 		return iter.stream()
@@ -362,12 +362,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				}
 			});
 	}
-	
-	public CommunicationEntity convertViewEntry(String entityName, ViewEntry viewEntry, EntityMetadata classMapping) throws NotesException {
+
+	public CommunicationEntity convertViewEntry(final String entityName, final ViewEntry viewEntry, final EntityMetadata classMapping) throws NotesException {
 		Object parent = viewEntry.getParent();
 		View view;
 		if(parent instanceof View) {
-			view = ((View)parent);
+			view = (View)parent;
 		} else if(parent instanceof ViewEntryCollection) {
 			view = ((ViewEntryCollection)parent).getParent();
 		} else if(parent instanceof ViewNavigator) {
@@ -375,7 +375,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		} else {
 			throw new RuntimeException("Unable to locate parent view from " + viewEntry);
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		Vector<ViewColumn> columns = view.getColumns();
 		List<String> columnNames = new ArrayList<>();
@@ -387,13 +387,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			}
 		}
 		view.recycle(columns);
-		
+
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
-		
+
 		return convertViewEntryInner(view.getParent(), viewEntry, columnNames, columnFormulas, entityName, itemTypes, classMapping);
 	}
-	
-	private CommunicationEntity convertViewEntryInner(Database context, ViewEntry entry, List<String> columnNames, List<String> columnFormulas, String entityName, Map<String, Class<?>> itemTypes, EntityMetadata classMapping) throws NotesException {
+
+	private CommunicationEntity convertViewEntryInner(final Database context, final ViewEntry entry, final List<String> columnNames, final List<String> columnFormulas, final String entityName, final Map<String, Class<?>> itemTypes, final EntityMetadata classMapping) throws NotesException {
 		Vector<?> columnValues = entry.getColumnValues();
 		try {
 			List<Element> convertedEntry = new ArrayList<>(columnValues.size());
@@ -402,8 +402,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			convertedEntry.add(Element.of(DominoConstants.FIELD_ID, universalId));
 			convertedEntry.add(Element.of(DominoConstants.FIELD_POSITION, entry.getPosition('.')));
 			convertedEntry.add(Element.of(DominoConstants.FIELD_READ, entry.getRead()));
-			
-			
+
+
 			EntryType type;
 			if(entry.isCategory()) {
 				type = EntryType.CATEGORY;
@@ -413,18 +413,18 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				type = EntryType.DOCUMENT;
 			}
 			convertedEntry.add(Element.of(DominoConstants.FIELD_ENTRY_TYPE, type));
-			
+
 			for(int i = 0; i < columnValues.size(); i++) {
 				String itemName = columnNames.get(i);
 				Object value = columnValues.get(i);
-				
+
 				// Check to see if we have a matching time-based or number-based field and strip
 				//   empty strings, since JNoSQL will otherwise try to parse them and will throw
 				//   an exception
 				// Check if the item is expected to be stored specially, which may be handled down the line
 				Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, itemName, ItemStorage.class);
 				Optional<BooleanStorage> optBoolean = getFieldAnnotation(classMapping, itemName, BooleanStorage.class);
-				
+
 				if(itemTypes != null) {
 					Class<?> itemType = itemTypes.get(itemName);
 					if(isParsedType(itemType)) {
@@ -434,7 +434,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						}
 					}
 				}
-				
+
 				// Check for known system formula equivalents
 				switch(String.valueOf(columnFormulas.get(i))) {
 				case "@DocLength": //$NON-NLS-1$
@@ -486,14 +486,14 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				default:
 					break;
 				}
-				
+
 				if(value != null && !"".equals(value)) { //$NON-NLS-1$
 					// Check if it's JSON storage, which is the only fancy storage that will show up in a view
 					Optional<Object> jsonConverted = maybeConvertJson(value, optStorage, itemName, classMapping);
 					if(jsonConverted.isPresent()) {
 						value = jsonConverted.get();
 					}
-					
+
 					Object val = DominoNoSQLUtil.toJavaFriendly(context, value, optBoolean);
 					if(itemTypes != null) {
 						if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
@@ -506,7 +506,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					convertedEntry.add(Element.of(itemName, val));
 				}
 			}
-			
+
 			// If the entity requested an ETag and we happened to include the modified date, we can do that here
 			Set<String> fieldNames = itemTypes.keySet();
 			if(fieldNames.contains(DominoConstants.FIELD_ETAG)) {
@@ -520,7 +520,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					convertedEntry.add(Element.of(DominoConstants.FIELD_ETAG, etag));
 				}
 			}
-			
+
 			if(fieldNames.contains(DominoConstants.FIELD_REPLICAID)) {
 				convertedEntry.add(Element.of(DominoConstants.FIELD_REPLICAID, context.getReplicaID()));
 			}
@@ -541,7 +541,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			}
 			if(fieldNames.contains(DominoConstants.FIELD_NOTEID) && !columnFormulas.contains("@NoteID")) { //$NON-NLS-1$
 				if(String.class.isAssignableFrom(itemTypes.get(DominoConstants.FIELD_NOTEID))) {
-					convertedEntry.add(Element.of(DominoConstants.FIELD_NOTEID, entry.getNoteID()));	
+					convertedEntry.add(Element.of(DominoConstants.FIELD_NOTEID, entry.getNoteID()));
 				} else {
 					convertedEntry.add(Element.of(DominoConstants.FIELD_NOTEID, entry.getNoteIDAsInt()));
 				}
@@ -555,7 +555,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			if(fieldNames.contains(DominoConstants.FIELD_FTSEARCHSCORE)) {
 				convertedEntry.add(Element.of(DominoConstants.FIELD_FTSEARCHSCORE, entry.getFTSearchScore()));
 			}
-			
+
 			return CommunicationEntity.of(entityName, convertedEntry);
 		} finally {
 			entry.recycle(columnValues);
@@ -563,7 +563,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Element> convertDominoDocument(lotus.domino.Document doc, EntityMetadata classMapping, Map<String, Class<?>> itemTypes) throws NotesException {
+	public List<Element> convertDominoDocument(final lotus.domino.Document doc, final EntityMetadata classMapping, final Map<String, Class<?>> itemTypes) throws NotesException {
 		Set<String> fieldNames = classMapping == null ? null : classMapping.fieldsName()
 			.stream()
 			.filter(s -> !DominoConstants.FIELD_ID.equals(s))
@@ -574,11 +574,11 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		boolean convertMime = session.isConvertMime();
 		try {
 			session.setConvertMime(false);
-			
+
 			List<Element> result = new ArrayList<>();
 			String unid = doc.getUniversalID();
 			result.add(Element.of(DominoConstants.FIELD_ID, unid));
-			
+
 			// TODO when fieldNames is present, only loop over those names
 			Map<String, Object> docMap = new LinkedHashMap<>();
 			for(Item item : (List<Item>)doc.getItems()) {
@@ -586,7 +586,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				if(DominoConstants.SYSTEM_FIELDS.contains(itemName)) {
 					continue;
 				}
-				
+
 				// If we have field information, restrict to only those fields
 				//   and match capitalization
 				if(fieldNames != null) {
@@ -599,18 +599,18 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						continue;
 					}
 				}
-				
+
 				// Check if the item is expected to be stored specially, which may be handled down the line
 				Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, itemName, ItemStorage.class);
 				Optional<BooleanStorage> optBoolean = getFieldAnnotation(classMapping, itemName, BooleanStorage.class);
-				
+
 				if(item instanceof RichTextItem) {
 					// Special handling here for RT -> HTML
 					String html = ((RichTextItem)item).convertToHTML(DominoConstants.HTML_CONVERSION_OPTIONS);
 					docMap.put(itemName, html);
 				} else if(item.getType() == Item.MIME_PART) {
 					MIMEEntity entity = doc.getMIMEEntity(itemName);
-					
+
 					// See if this is expected to be MIMEBean
 					if(optStorage.isPresent() && optStorage.get().type() == ItemStorage.Type.MIMEBean) {
 						// If so, deserialize it
@@ -629,13 +629,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							outStream.close();
 							outStream.recycle();
 						}
-						
+
 						String encoding = null;
 						MIMEHeader encodingHeader = entity.getNthHeader("Content-Encoding"); //$NON-NLS-1$
 						if(encodingHeader != null) {
 							encoding = encodingHeader.getHeaderVal();
 						}
-						
+
 						try(
 							InputStream bais = new ByteArrayInputStream(serialized);
 							InputStream is = DominoNoSQLUtil.wrapInputStream(bais, encoding);
@@ -649,7 +649,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							throw new RuntimeException(e);
 						}
 					}
-					
+
 					// TODO consider whether to pass this back as a Mail API MIME entity
 					MIMEEntity html = findEntityForType(entity, "text", "html"); //$NON-NLS-1$ //$NON-NLS-2$
 					if(html != null) {
@@ -675,7 +675,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 								continue;
 							}
 						}
-						
+
 						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val.get(0), optBoolean);
 						if(itemTypes != null) {
 							if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
@@ -700,9 +700,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					}
 				}
 			}
-			
+
 			docMap.forEach((key, value) -> result.add(Element.of(key, value)));
-	
+
 			if(fieldNames != null) {
 				if(fieldNames.contains(DominoConstants.FIELD_CDATE)) {
 					result.add(Element.of(DominoConstants.FIELD_CDATE, DominoNoSQLUtil.toTemporal(database, doc.getCreated())));
@@ -762,7 +762,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				if(fieldNames.contains(DominoConstants.FIELD_FTSEARCHSCORE)) {
 					result.add(Element.of(DominoConstants.FIELD_FTSEARCHSCORE, doc.getFTSearchScore()));
 				}
-				
+
 				if(fieldNames.contains(DominoConstants.FIELD_ATTACHMENTS)) {
 					List<String> attachmentNames = session.evaluate(" @AttachmentNames ", doc); //$NON-NLS-1$
 					List<EntityAttachment> attachments = attachmentNames.stream()
@@ -771,14 +771,14 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						.collect(Collectors.toList());
 					result.add(Element.of(DominoConstants.FIELD_ATTACHMENTS, attachments));
 				}
-				
+
 				if(fieldNames.contains(DominoConstants.FIELD_DXL)) {
 					DxlExporter exporter = session.createDxlExporter();
-					
+
 					Optional<DXLExport> optSettings = getFieldAnnotation(classMapping, DominoConstants.FIELD_DXL, DXLExport.class);
 					if(optSettings.isPresent()) {
 						DXLExport settings = optSettings.get();
-						
+
 						if(StringUtil.isNotEmpty(settings.attachmentOmittedText())) {
 							exporter.setAttachmentOmittedText(settings.attachmentOmittedText());
 						}
@@ -812,12 +812,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							exporter.setRichTextOption(DxlExporter.DXLRICHTEXTOPTION_RAW);
 						}
 					}
-					
+
 					String dxl = exporter.exportDxl(doc);
 					result.add(Element.of(DominoConstants.FIELD_DXL, dxl));
 				}
 			}
-			
+
 			return result;
 		} finally {
 			session.setConvertMime(convertMime);
@@ -827,22 +827,22 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	/**
 	 * Converts the provided {@link CommunicationEntity} instance into a Domino
 	 * JSON object.
-	 * 
+	 *
 	 * @param entity the entity instance to convert
 	 * @param retainId whether or not to remove the {@link #FIELD_ID} field during conversion
 	 * @param target the target Domino Document to store in
 	 */
-	public void convertNoSQLEntity(CommunicationEntity entity, boolean retainId, lotus.domino.Document target, EntityMetadata classMapping) throws NotesException {
+	public void convertNoSQLEntity(final CommunicationEntity entity, final boolean retainId, final lotus.domino.Document target, final EntityMetadata classMapping) throws NotesException {
 		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
 		try {
 			List<ValueWriter<Object, Object>> writers = ValueWriter.getWriters()
 				.collect(Collectors.toList());
-			
+
 			Set<String> writtenItems = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-	
+
 			for(Element doc : entity.elements()) {
 				writtenItems.add(doc.name());
-				
+
 				if(DominoConstants.FIELD_ATTACHMENTS.equals(doc.name())) {
 					@SuppressWarnings("unchecked")
 					List<EntityAttachment> incoming = (List<EntityAttachment>)doc.get();
@@ -853,7 +853,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						.filter(DominoDocumentAttachment.class::isInstance)
 						.map(EntityAttachment::getName)
 						.collect(Collectors.toSet());
-					
+
 					// TODO change to account for specific rich text fields
 					// Remove any attachments no longer in the entity
 					@SuppressWarnings("unchecked")
@@ -868,7 +868,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							}
 						}
 					}
-					
+
 					// Now attach any incoming that aren't currently in the doc
 					List<EntityAttachment> newAttachments = incoming.stream()
 						.filter(att -> !(att instanceof DominoDocumentAttachment))
@@ -917,7 +917,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							continue;
 						}
 					}
-					
+
 					Object value = doc.get();
 					if(value == null) {
 						target.removeItem(doc.name());
@@ -929,9 +929,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 								break;
 							}
 						}
-						
+
 						Item item;
-						
+
 						// Check if the item is expected to be stored specially, which may be handled down the line
 						if(optStorage.isPresent() && optStorage.get().type() != ItemStorage.Type.Default) {
 							ItemStorage storage = optStorage.get();
@@ -979,7 +979,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									mimeStream.close();
 									mimeStream.recycle();
 								}
-								
+
 								continue;
 							case Default:
 							default:
@@ -989,7 +989,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						} else {
 							Optional<BooleanStorage> optBoolean = getFieldAnnotation(classMapping, doc.name(), BooleanStorage.class);
 							Object dominoVal = DominoNoSQLUtil.toDominoFriendly(target.getParentDatabase().getParent(), val, optBoolean);
-							
+
 							// Set number precision if applicable
 							if(optStorage.isPresent()) {
 								int precision = optStorage.get().precision();
@@ -997,10 +997,10 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									dominoVal = applyPrecision(dominoVal, precision);
 								}
 							}
-							
+
 							item = target.replaceItemValue(doc.name(), dominoVal);
 						}
-						
+
 						// Check for a @ItemFlags annotation
 						Optional<ItemFlags> itemFlagsOpt = getFieldAnnotation(classMapping, doc.name(), ItemFlags.class);
 						if(itemFlagsOpt.isPresent()) {
@@ -1020,12 +1020,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							}
 							item.setSaveToDisk(itemFlags.saveToDisk());
 						}
-						
+
 						item.recycle();
 					}
 				}
 			}
-			
+
 			// Remove any items not present in the doc list - null values may be skipped
 			classMapping.fieldsName().stream()
 				.filter(f -> !writtenItems.contains(f))
@@ -1037,20 +1037,20 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						// Ignore
 					}
 				});
-			
+
 			target.replaceItemValue(DominoConstants.FIELD_NAME, entity.name());
-			
+
 			target.closeMIMEEntities(true);
 		} catch(Exception e) {
 			throw e;
 		}
 	}
-	
+
 	// *******************************************************************************
 	// * Utility methods
 	// *******************************************************************************
-	
-	private static MIMEEntity findEntityForType(MIMEEntity entity, String targetType, String targetSubtype) throws NotesException {
+
+	private static MIMEEntity findEntityForType(final MIMEEntity entity, final String targetType, final String targetSubtype) throws NotesException {
 		String type = entity.getContentType();
 		String subtype = entity.getContentSubType();
 		if(targetType.equals(type) && targetSubtype.equals(subtype)) {
@@ -1062,7 +1062,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				if(result != null) {
 					return result;
 				}
-				
+
 				child = child.getNextSibling();
 			}
 			return null;
@@ -1070,19 +1070,19 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Determines whether the provided NoSQL entity property type is likely
 	 * to be parsed when provided as a string. This allows reading code
 	 * to avoid emitting empty strings that will throw exceptions down the
 	 * line.
-	 * 
+	 *
 	 * @param type the type to check
 	 * @return whether the type is likely to be parsed as a string, such as
 	 *         a temporal or numeric value
 	 * @since 2.11.0
 	 */
-	private boolean isParsedType(Class<?> type) {
+	private boolean isParsedType(final Class<?> type) {
 		if(type == null) {
 			return false;
 		}
@@ -1097,8 +1097,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		}
 		return false;
 	}
-	
-	private Optional<Object> maybeConvertJson(Object value, Optional<ItemStorage> optStorage, String itemName, EntityMetadata classMapping) {
+
+	private Optional<Object> maybeConvertJson(final Object value, final Optional<ItemStorage> optStorage, final String itemName, final EntityMetadata classMapping) {
 		if(optStorage.isPresent()) {
 			if(optStorage.get().type() == ItemStorage.Type.JSON) {
 				Optional<Type> targetType = getFieldType(classMapping, itemName);
@@ -1109,9 +1109,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					} else {
 						// Then try to deserialize it as the target type
 						Object fValue = value;
-						return Optional.ofNullable(AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
-							return jsonb.fromJson(fValue.toString(), targetType.get());
-						}));
+						return Optional.ofNullable(AccessController.doPrivileged((PrivilegedAction<Object>)() -> jsonb.fromJson(fValue.toString(), targetType.get())));
 					}
 				}
 			}

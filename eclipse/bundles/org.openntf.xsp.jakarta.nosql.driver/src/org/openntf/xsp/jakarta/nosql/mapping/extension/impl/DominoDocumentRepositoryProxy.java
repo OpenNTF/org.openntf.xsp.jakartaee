@@ -39,11 +39,11 @@ import org.eclipse.jnosql.mapping.semistructured.query.AbstractSemiStructuredRep
 import org.eclipse.jnosql.mapping.semistructured.query.SemiStructuredRepositoryProxy;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoReflections;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewDocuments;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewEntries;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
-import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
 
 import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
@@ -54,13 +54,13 @@ import jakarta.validation.ConstraintViolationException;
 /**
  * Implementation proxy for extended capabilities for Domino document
  * repositories.
- * 
+ *
  * @author Jesse Gallagher
  *
  * @param <T> the model-object type produced by the repository
  */
 public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredRepositoryProxy<T, K> {
-	
+
 	// Known handled methods
 	private static final Method putInFolder;
 	private static final Method removeFromFolder;
@@ -77,7 +77,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 	private static final Method createCalendarEntry;
 	private static final Method updateCalendarEntry;
 	private static final Method removeCalendarEntry;
-	
+
 	static {
 		try {
 			putInFolder = DominoRepository.class.getDeclaredMethod("putInFolder", Object.class, String.class); //$NON-NLS-1$
@@ -103,13 +103,13 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 	private final Class<T> typeClass;
 	private final DominoTemplate template;
 	private final AbstractRepository<T, K> repository;
-	
+
 	private final Converters converters;
 	private final EntityMetadata entityMetadata;
 	private final Class<?> repositoryType;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	DominoDocumentRepositoryProxy(DominoTemplate template, Class<?> repositoryType, Converters converters, EntitiesMetadata entitiesMetadata) {
+	DominoDocumentRepositoryProxy(final DominoTemplate template, final Class<?> repositoryType, final Converters converters, final EntitiesMetadata entitiesMetadata) {
         this.template = template;
         this.typeClass = (Class) ((ParameterizedType) repositoryType.getGenericInterfaces()[0])
                 .getActualTypeArguments()[0];
@@ -123,19 +123,19 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
     }
 
 	@Override
-	public Object invoke(Object o, Method method, Object[] args) throws Throwable {
+	public Object invoke(final Object o, final Method method, final Object[] args) throws Throwable {
 		// View entries support
 		ViewEntries viewEntries = method.getAnnotation(ViewEntries.class);
 		if(viewEntries != null) {
 			PageRequest pagination = findArg(args, PageRequest.class);
 			ViewQuery viewQuery = findArg(args, ViewQuery.class);
 			Sort<?> sorts = findArg(args, Sort.class);
-			
+
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
 				entityName = typeClass.getSimpleName();
 			}
-			
+
 			Class<?> returnType = method.getReturnType();
 			boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
 			Object result = template.viewEntryQuery(entityName, viewEntries.value(), pagination, sorts, viewEntries.maxLevel(), viewEntries.documentsOnly(), viewQuery, singleResult);
@@ -148,7 +148,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			ViewQuery viewQuery = (ViewQuery)args[3];
 			Sort<?> sorts = (Sort<?>)args[4];
 			PageRequest pagination = (PageRequest)args[5];
-			
+
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
 				entityName = typeClass.getSimpleName();
@@ -156,7 +156,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			Object result = template.viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, documentsOnly, viewQuery, false);
 			return convert(result, method);
 		}
-		
+
 		// View documents support
 		ViewDocuments viewDocuments = method.getAnnotation(ViewDocuments.class);
 		if(viewDocuments != null) {
@@ -168,7 +168,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 				entityName = typeClass.getSimpleName();
 			}
 			boolean distinct = viewDocuments.distinct();
-			
+
 			Class<?> returnType = method.getReturnType();
 			boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
 			Object result = template.viewDocumentQuery(entityName, viewDocuments.value(), pagination, sorts, viewDocuments.maxLevel(), viewQuery, singleResult, distinct);
@@ -181,7 +181,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			ViewQuery viewQuery = (ViewQuery)args[3];
 			Sort<?> sorts = (Sort<?>)args[4];
 			PageRequest pagination = (PageRequest)args[5];
-			
+
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
 				entityName = typeClass.getSimpleName();
@@ -189,23 +189,23 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			Object result = template.viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, false, distinct);
 			return convert(result, method);
 		}
-		
+
 		if(method.equals(putInFolder)) {
 			String id = getId(args[0]);
 			String folderName = (String)args[1];
-			
+
 			template.putInFolder(id, folderName);
 			return null;
 		}
-		
+
 		if(method.equals(removeFromFolder)) {
 			String id = getId(args[0]);
 			String folderName = (String)args[1];
-			
+
 			template.removeFromFolder(id, folderName);
 			return null;
 		}
-		
+
 		if(method.equals(saveWithForm)) {
 			String id = getId(args[0]);
 			if(id !=null && !id.isEmpty() && template.existsById(id)) {
@@ -216,7 +216,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 				return convert(result, method);
 			}
 		}
-		
+
 		if(method.equals(getByNoteId)) {
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
@@ -225,7 +225,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			Object result = template.getByNoteId(entityName, (String)args[0]);
 			return convert(result, method);
 		}
-		
+
 		if(method.equals(getByNoteIdInt)) {
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
@@ -234,11 +234,11 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			Object result = template.getByNoteId(entityName, Integer.toHexString((int)args[0]));
 			return convert(result, method);
 		}
-		
+
 		if(method.equals(getViewInfo)) {
 			return template.getViewInfo();
 		}
-		
+
 		if(method.equals(findNamedDocument)) {
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
@@ -247,7 +247,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			Object result = template.getByName(entityName, (String)args[0], (String)args[1]);
 			return convert(result, method);
 		}
-		
+
 		if(method.equals(findProfileDocument)) {
 			String entityName = typeClass.getAnnotation(Entity.class).value();
 			if(entityName == null || entityName.isEmpty()) {
@@ -256,7 +256,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			Object result = template.getProfileDocument(entityName, (String)args[0], (String)args[1]);
 			return convert(result, method);
 		}
-		
+
 		// Calendar operations
 		if(method.equals(readCalendarRange)) {
 			return template.readCalendarRange((TemporalAccessor)args[0], (TemporalAccessor)args[1], (PageRequest)args[2]);
@@ -275,7 +275,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			template.removeCalendarEntry((String)args[0], (CalendarModScope)args[1], (String)args[2]);
 			return null;
 		}
-		
+
 		try {
 			Object result = super.invoke(o, method, args);
 			// Upstream doesn't seem to check for Optional values and returns
@@ -292,16 +292,16 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			throw e;
 		}
 	}
-	
-	private String getId(Object entity) {
+
+	private String getId(final Object entity) {
 		DominoReflections reflections = CDI.current().select(DominoReflections.class).get();
-		
+
 		Field idField = reflections.getFields(entity.getClass())
 			.stream()
 			.filter(reflections::isIdField)
 			.findFirst()
 			.orElseThrow(() -> new IllegalStateException("Unable to find @Id field on " + entity.getClass()));
-		
+
 		try {
 			idField.setAccessible(true);
 			return (String)idField.get(entity);
@@ -309,9 +309,9 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private Object convert(Object result, Method method) {
+	private Object convert(final Object result, final Method method) {
 		Class<?> returnType = method.getReturnType();
 
 		RepositoryReturn repoReturn = ServiceLoader.load(RepositoryReturn.class, RepositoryReturn.class.getClassLoader())
@@ -344,8 +344,8 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			return repoReturn.convert(builder.build());
 		}
 	}
-	
-	private <A> A findArg(Object[] args, Class<A> clazz) {
+
+	private <A> A findArg(final Object[] args, final Class<A> clazz) {
 		if(args != null) {
 			return Stream.of(args)
 				.filter(clazz::isInstance)

@@ -41,16 +41,16 @@ public class NoSQLActivator implements BundleActivator {
 	 * @since 3.1.0
 	 */
 	public static final String PROP_OVERRIDEQRPDIR = "Jakarta_QRPDir"; //$NON-NLS-1$
-	
+
 	private final List<ServiceRegistration<?>> regs = new ArrayList<>();
 
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		regs.add(context.registerService(WeavingHook.class.getName(), new NoSQLWeavingHook(), null));
-		
+
 		if(!LibraryUtil.isTycho()) {
 			// Check for a notes.ini property overriding the scratch directory
-			
+
 			String iniTempDir = Os.OSGetEnvironmentString(PROP_OVERRIDEQRPDIR);
 			if(StringUtil.isNotEmpty(iniTempDir)) {
 				Path tempDir = Paths.get(iniTempDir);
@@ -60,14 +60,14 @@ public class NoSQLActivator implements BundleActivator {
 				}
 				DominoNoSQLUtil.setQrpDirectory(tempDir);
 			}
-			
+
 			// May have been set to a custom value
 			DominoNoSQLUtil.setTempDirectory(LibraryUtil.getTempDirectory());
 		}
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception {
+	public void stop(final BundleContext context) throws Exception {
 		regs.forEach(ServiceRegistration::unregister);
 		regs.clear();
 	}

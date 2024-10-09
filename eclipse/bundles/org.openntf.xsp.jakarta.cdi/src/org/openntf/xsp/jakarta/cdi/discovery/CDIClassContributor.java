@@ -22,15 +22,15 @@ import jakarta.enterprise.inject.spi.Extension;
 
 public interface CDIClassContributor {
 	public static final String EXTENSION_POINT = CDIClassContributor.class.getName();
-	
+
 	default Collection<Class<?>> getBeanClasses() {
 		return Collections.emptyList();
 	}
-	
+
 	default Collection<Extension> getExtensions() {
 		return Collections.emptyList();
 	}
-	
+
 	/**
 	 * @since 2.5.0
 	 */

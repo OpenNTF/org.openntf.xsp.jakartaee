@@ -23,7 +23,7 @@ import jakarta.transaction.Transactional;
 
 /**
  * Basic CDI implementation of the {@link Transactional @Transactional} annotation.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -33,7 +33,7 @@ import jakarta.transaction.Transactional;
 public class TransactionalInterceptorSupports extends AbstractTransactionalInterceptor {
 
 	@AroundInvoke
-	public Object wrapMethod(InvocationContext ctx) throws Exception {
+	public Object wrapMethod(final InvocationContext ctx) throws Exception {
 		// No difference in behavior here between an active transaction and not
 		return super.doWrapMethod(ctx);
 	}

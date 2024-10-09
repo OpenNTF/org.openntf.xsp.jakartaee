@@ -31,12 +31,12 @@ public class MvcActivator implements BundleActivator {
 	private final List<ServiceRegistration<?>> regs = new ArrayList<>();
 
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		 regs.add(context.registerService(WeavingHook.class.getName(), new MvcWeavingHook(), null));
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception {
+	public void stop(final BundleContext context) throws Exception {
 		regs.forEach(ServiceRegistration::unregister);
 		regs.clear();
 	}

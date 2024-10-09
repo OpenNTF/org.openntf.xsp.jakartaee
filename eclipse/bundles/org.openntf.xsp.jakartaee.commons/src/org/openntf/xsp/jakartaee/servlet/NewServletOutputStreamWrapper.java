@@ -21,8 +21,8 @@ import jakarta.servlet.ServletOutputStream;
 
 class NewServletOutputStreamWrapper extends javax.servlet.ServletOutputStream {
 	final ServletOutputStream delegate;
-	
-	public NewServletOutputStreamWrapper(ServletOutputStream delegate) {
+
+	public NewServletOutputStreamWrapper(final ServletOutputStream delegate) {
 		this.delegate = delegate;
 	}
 
@@ -37,37 +37,37 @@ class NewServletOutputStreamWrapper extends javax.servlet.ServletOutputStream {
 	}
 
 	@Override
-	public void print(boolean b) throws IOException {
+	public void print(final boolean b) throws IOException {
 		delegate.print(b);
 	}
 
 	@Override
-	public void print(char c) throws IOException {
+	public void print(final char c) throws IOException {
 		delegate.print(c);
 	}
 
 	@Override
-	public void print(double d) throws IOException {
+	public void print(final double d) throws IOException {
 		delegate.print(d);
 	}
 
 	@Override
-	public void print(float f) throws IOException {
+	public void print(final float f) throws IOException {
 		delegate.print(f);
 	}
 
 	@Override
-	public void print(int i) throws IOException {
+	public void print(final int i) throws IOException {
 		delegate.print(i);
 	}
 
 	@Override
-	public void print(long l) throws IOException {
+	public void print(final long l) throws IOException {
 		delegate.print(l);
 	}
 
 	@Override
-	public void print(String arg0) throws IOException {
+	public void print(final String arg0) throws IOException {
 		delegate.print(arg0);
 	}
 
@@ -77,52 +77,52 @@ class NewServletOutputStreamWrapper extends javax.servlet.ServletOutputStream {
 	}
 
 	@Override
-	public void println(boolean b) throws IOException {
+	public void println(final boolean b) throws IOException {
 		delegate.println(b);
 	}
 
 	@Override
-	public void println(char c) throws IOException {
+	public void println(final char c) throws IOException {
 		delegate.println(c);
 	}
 
 	@Override
-	public void println(double d) throws IOException {
+	public void println(final double d) throws IOException {
 		delegate.println(d);
 	}
 
 	@Override
-	public void println(float f) throws IOException {
+	public void println(final float f) throws IOException {
 		delegate.println(f);
 	}
 
 	@Override
-	public void println(int i) throws IOException {
+	public void println(final int i) throws IOException {
 		delegate.println(i);
 	}
 
 	@Override
-	public void println(long l) throws IOException {
+	public void println(final long l) throws IOException {
 		delegate.println(l);
 	}
 
 	@Override
-	public void println(String s) throws IOException {
+	public void println(final String s) throws IOException {
 		delegate.println(s);
 	}
 
 	@Override
-	public void write(int b) throws IOException {
+	public void write(final int b) throws IOException {
 		delegate.write(b);
 	}
 
 	@Override
-	public void write(byte[] b) throws IOException {
+	public void write(final byte[] b) throws IOException {
 		delegate.write(b);
 	}
 
 	@Override
-	public void write(byte[] b, int off, int len) throws IOException {
+	public void write(final byte[] b, final int off, final int len) throws IOException {
 		delegate.write(b, off, len);
 	}
 

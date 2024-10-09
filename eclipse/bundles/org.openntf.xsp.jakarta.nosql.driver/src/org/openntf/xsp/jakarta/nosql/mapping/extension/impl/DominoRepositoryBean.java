@@ -41,7 +41,7 @@ import jakarta.enterprise.util.AnnotationLiteral;
 
 /**
  * Bean for producing {@link DominoRepository} instances.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.5.0
  */
@@ -54,7 +54,7 @@ public class DominoRepositoryBean<T, K> extends AbstractBean<DominoRepository<T,
 	private final Set<Annotation> qualifiers = Collections.singleton(new AnnotationLiteral<Default>() {
 	});
 
-	public DominoRepositoryBean(Class<?> type, BeanManager beanManager) {
+	public DominoRepositoryBean(final Class<?> type, final BeanManager beanManager) {
 		this.type = type;
 		this.beanManager = beanManager;
 		this.types = Collections.singleton(type);
@@ -62,12 +62,12 @@ public class DominoRepositoryBean<T, K> extends AbstractBean<DominoRepository<T,
 
 	@SuppressWarnings({ "removal", "deprecation", "unchecked" })
 	@Override
-	public DominoRepository<T, K> create(CreationalContext<DominoRepository<T, K>> creationalContext) {
+	public DominoRepository<T, K> create(final CreationalContext<DominoRepository<T, K>> creationalContext) {
 		DominoTemplate template;
 		RepositoryProvider producerAnnotation = type.getAnnotation(RepositoryProvider.class);
 		if (producerAnnotation != null) {
 			template = getInstance(DominoTemplate.class, producerAnnotation.value())
-				.orElseThrow(() -> 
+				.orElseThrow(() ->
 					new IllegalStateException("Unable to locate producer method for @Database(value = DatabaseType.DOCUMENT, provider = \""+ producerAnnotation.value() + "\")")
 				);
 		} else {
@@ -87,7 +87,7 @@ public class DominoRepositoryBean<T, K> extends AbstractBean<DominoRepository<T,
 	}
 
 	@SuppressWarnings("unchecked")
-	private <S> Optional<S> getInstance(Class<S> clazz, String provider) {
+	private <S> Optional<S> getInstance(final Class<S> clazz, final String provider) {
 		Iterator<Bean<?>> iter = beanManager.getBeans(clazz, DatabaseQualifier.ofDocument(provider)).iterator();
 		if(!iter.hasNext()) {
 			return Optional.empty();

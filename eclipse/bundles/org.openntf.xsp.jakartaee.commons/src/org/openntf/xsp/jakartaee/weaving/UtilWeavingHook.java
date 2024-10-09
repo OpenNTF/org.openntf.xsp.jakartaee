@@ -31,19 +31,19 @@ import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 
 /**
- * This {@link WeavingHook} implementation listens for attempts to load 
+ * This {@link WeavingHook} implementation listens for attempts to load
  * {@code com.ibm.xsp.util.ClassLoaderUtil} and, when found, replaces the
  * {@code checkProhibitedClassNames} method with a no-op version, in order to
  * allow loading of otherwise-prohibited packages (like Eclipse MicroProfile)
  * from within an NSF.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.2.0
  */
 public class UtilWeavingHook implements WeavingHook {
 
 	@Override
-	public void weave(WovenClass c) {
+	public void weave(final WovenClass c) {
 		if("com.ibm.xsp.util.ClassLoaderUtil".equals(c.getClassName())) { //$NON-NLS-1$
 			ClassPool pool = new ClassPool();
 			pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));

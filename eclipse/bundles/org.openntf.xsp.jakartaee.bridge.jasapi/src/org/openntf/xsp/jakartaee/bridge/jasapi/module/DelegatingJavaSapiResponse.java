@@ -18,15 +18,15 @@ package org.openntf.xsp.jakartaee.bridge.jasapi.module;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import com.ibm.domino.bridge.http.jasapi.IJavaSapiHttpResponseAdapter;
+
 import org.openntf.xsp.jakartaee.jasapi.JavaSapiResponse;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-
-import com.ibm.domino.bridge.http.jasapi.IJavaSapiHttpResponseAdapter;
 
 import jakarta.servlet.ServletOutputStream;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.13.0
  */

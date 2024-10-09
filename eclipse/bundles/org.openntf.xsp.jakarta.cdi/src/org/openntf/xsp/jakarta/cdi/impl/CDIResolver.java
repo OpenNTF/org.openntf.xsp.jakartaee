@@ -18,32 +18,33 @@ package org.openntf.xsp.jakarta.cdi.impl;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import jakarta.enterprise.inject.Instance;
-import jakarta.enterprise.inject.literal.NamedLiteral;
-import jakarta.enterprise.inject.spi.CDI;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.VariableResolver;
 
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.application.ApplicationEx;
+
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.literal.NamedLiteral;
+import jakarta.enterprise.inject.spi.CDI;
 
 public class CDIResolver extends VariableResolver {
 
 	private final VariableResolver delegate;
-	
-	public CDIResolver(VariableResolver delegate) {
+
+	public CDIResolver(final VariableResolver delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public Object resolveVariable(FacesContext facesContext, String name) throws EvaluationException {
+	public Object resolveVariable(final FacesContext facesContext, final String name) throws EvaluationException {
 		if(StringUtil.isEmpty(name)) {
 			return null;
 		}
-		
+
 		// Check the delegate first, since this adds the beans to the appropriate scope as needed
 		if(delegate != null) {
 			Object existing = delegate.resolveVariable(facesContext, name);
@@ -51,7 +52,7 @@ public class CDIResolver extends VariableResolver {
 				return existing;
 			}
 		}
-		
+
 		// Finally, ask CDI for a named bean
 		ApplicationEx app = ApplicationEx.getInstance(facesContext);
 		if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, app)) {
@@ -68,7 +69,7 @@ public class CDIResolver extends VariableResolver {
 				});
 			}
 		}
-		
+
 		return null;
 	}
 

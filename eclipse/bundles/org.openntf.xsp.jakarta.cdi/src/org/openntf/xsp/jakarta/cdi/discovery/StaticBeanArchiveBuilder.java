@@ -22,18 +22,18 @@ import org.jboss.weld.environment.deployment.discovery.BeanArchiveBuilder;
  * This variant of {@link BeanArchiveBuilder} is intended to be a basic
  * holder that represents an empty beans.xml and does not update it
  * when asked to do so.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
 public class StaticBeanArchiveBuilder extends BeanArchiveBuilder {
-	public StaticBeanArchiveBuilder(String id) {
+	public StaticBeanArchiveBuilder(final String id) {
 		super.setBeansXml(BeansXml.EMPTY_BEANS_XML);
 		super.setId(id);
 	}
-	
+
 	@Override
-	public BeanArchiveBuilder setBeansXml(BeansXml beansXml) {
+	public BeanArchiveBuilder setBeansXml(final BeansXml beansXml) {
 		return this;
 	}
 }

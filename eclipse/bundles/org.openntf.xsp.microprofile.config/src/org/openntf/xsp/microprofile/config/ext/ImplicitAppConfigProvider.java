@@ -23,11 +23,11 @@ import jakarta.annotation.Priority;
 /**
  * This extension class allows for contributors to provide configuration
  * properties dynamically for an application.
- * 
+ *
  * <p>These providers can be annotated with {@link Priority} to control
  * the order in which they are applied. Providers with higher priority
- * values will be applied after those with lower values.</p> 
- * 
+ * values will be applied after those with lower values.</p>
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */

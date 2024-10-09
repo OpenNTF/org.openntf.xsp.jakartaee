@@ -24,8 +24,8 @@ import java.util.stream.StreamSupport;
 public abstract class AbstractCollectionIterator<E> implements Iterator<E> {
 	protected final int size;
 	protected int fetched = 0;
-	
-	public AbstractCollectionIterator(int size) {
+
+	public AbstractCollectionIterator(final int size) {
 		this.size = size;
 	}
 
@@ -33,7 +33,7 @@ public abstract class AbstractCollectionIterator<E> implements Iterator<E> {
 	public boolean hasNext() {
 		return fetched < size;
 	}
-	
+
 	public Stream<E> stream() {
 		Spliterator<E> iter = Spliterators.spliterator(this, size, Spliterator.DISTINCT | Spliterator.ORDERED | Spliterator.SIZED);
 		return StreamSupport.stream(iter, false);

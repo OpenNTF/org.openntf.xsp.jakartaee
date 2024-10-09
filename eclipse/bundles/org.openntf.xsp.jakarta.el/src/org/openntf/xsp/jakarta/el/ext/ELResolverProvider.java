@@ -22,7 +22,7 @@ import jakarta.el.ELResolver;
 /**
  * Service extension point to allow client code to provide custom {@link ELResolver}
  * implementations to be added to the XPages replacement resolver.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.2.0
  */

@@ -29,9 +29,9 @@ import org.openntf.xsp.microprofile.config.ext.ImplicitAppConfigProvider;
  * @since 2.10.0
  */
 public class ImplicitAppConfigSource implements ConfigSource {
-	
+
 	private final Map<String, String> properties = new HashMap<>();
-	
+
 	public ImplicitAppConfigSource() {
 		LibraryUtil.findExtensionsSorted(ImplicitAppConfigProvider.class, true)
 			.stream()
@@ -46,7 +46,7 @@ public class ImplicitAppConfigSource implements ConfigSource {
 	}
 
 	@Override
-	public String getValue(String propertyName) {
+	public String getValue(final String propertyName) {
 		return properties.get(propertyName);
 	}
 
@@ -54,7 +54,7 @@ public class ImplicitAppConfigSource implements ConfigSource {
 	public String getName() {
 		return getClass().getSimpleName();
 	}
-	
+
 	@Override
 	public int getOrdinal() {
 		return DEFAULT_ORDINAL-1;

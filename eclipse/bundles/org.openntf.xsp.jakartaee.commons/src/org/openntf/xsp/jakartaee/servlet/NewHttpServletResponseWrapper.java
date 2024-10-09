@@ -23,11 +23,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 class NewHttpServletResponseWrapper implements javax.servlet.http.HttpServletResponse {
 	final HttpServletResponse delegate;
-	
-	public NewHttpServletResponseWrapper(HttpServletResponse delegate) {
+
+	public NewHttpServletResponseWrapper(final HttpServletResponse delegate) {
 		this.delegate = delegate;
 	}
-	
+
 	@Override
 	public void flushBuffer() throws IOException {
 		this.delegate.flushBuffer();
@@ -79,114 +79,114 @@ class NewHttpServletResponseWrapper implements javax.servlet.http.HttpServletRes
 	}
 
 	@Override
-	public void setBufferSize(int arg0) {
+	public void setBufferSize(final int arg0) {
 		delegate.setBufferSize(arg0);
 	}
 
 	@Override
-	public void setCharacterEncoding(String arg0) {
+	public void setCharacterEncoding(final String arg0) {
 		delegate.setCharacterEncoding(arg0);
 	}
 
 	@Override
-	public void setContentLength(int arg0) {
+	public void setContentLength(final int arg0) {
 		delegate.setContentLength(arg0);
 	}
 
 	@Override
-	public void setContentType(String arg0) {
+	public void setContentType(final String arg0) {
 		delegate.setContentType(arg0);
 	}
 
 	@Override
-	public void setLocale(Locale arg0) {
+	public void setLocale(final Locale arg0) {
 		delegate.setLocale(arg0);
 	}
 
 	@Override
-	public void addCookie(javax.servlet.http.Cookie arg0) {
+	public void addCookie(final javax.servlet.http.Cookie arg0) {
 		delegate.addCookie(ServletUtil.oldToNew(arg0));
 	}
 
 	@Override
-	public void addDateHeader(String arg0, long arg1) {
+	public void addDateHeader(final String arg0, final long arg1) {
 		delegate.addDateHeader(arg0, arg1);
 	}
 
 	@Override
-	public void addHeader(String arg0, String arg1) {
+	public void addHeader(final String arg0, final String arg1) {
 		delegate.addHeader(arg0, arg1);
 	}
 
 	@Override
-	public void addIntHeader(String arg0, int arg1) {
+	public void addIntHeader(final String arg0, final int arg1) {
 		delegate.addIntHeader(arg0, arg1);
 	}
 
 	@Override
-	public boolean containsHeader(String arg0) {
+	public boolean containsHeader(final String arg0) {
 		return delegate.containsHeader(arg0);
 	}
 
 	@Override
-	public String encodeRedirectURL(String arg0) {
+	public String encodeRedirectURL(final String arg0) {
 		return delegate.encodeRedirectURL(arg0);
 	}
 
 	@Override
-	public String encodeRedirectUrl(String arg0) {
+	public String encodeRedirectUrl(final String arg0) {
 		// Duplicate removed in Servlet 6
 		return delegate.encodeRedirectURL(arg0);
 	}
 
 	@Override
-	public String encodeURL(String arg0) {
+	public String encodeURL(final String arg0) {
 		return delegate.encodeURL(arg0);
 	}
 
 	@Override
-	public String encodeUrl(String arg0) {
+	public String encodeUrl(final String arg0) {
 		// Duplicate removed in Servlet 6
 		return delegate.encodeURL(arg0);
 	}
 
 	@Override
-	public void sendError(int arg0) throws IOException {
+	public void sendError(final int arg0) throws IOException {
 		delegate.sendError(arg0);
 	}
 
 	@Override
-	public void sendError(int arg0, String arg1) throws IOException {
+	public void sendError(final int arg0, final String arg1) throws IOException {
 		delegate.sendError(arg0, arg1);
 	}
 
 	@Override
-	public void sendRedirect(String arg0) throws IOException {
+	public void sendRedirect(final String arg0) throws IOException {
 		delegate.sendRedirect(arg0);
 	}
 
 	@Override
-	public void setDateHeader(String arg0, long arg1) {
+	public void setDateHeader(final String arg0, final long arg1) {
 		delegate.setDateHeader(arg0, arg1);
 	}
 
 	@Override
-	public void setHeader(String arg0, String arg1) {
+	public void setHeader(final String arg0, final String arg1) {
 		delegate.setHeader(arg0, arg1);
 	}
 
 	@Override
-	public void setIntHeader(String arg0, int arg1) {
+	public void setIntHeader(final String arg0, final int arg1) {
 		delegate.setIntHeader(arg0, arg1);
 	}
 
 	@Override
-	public void setStatus(int arg0) {
+	public void setStatus(final int arg0) {
 		delegate.setStatus(arg0);
 	}
 
 	@Override
-	public void setStatus(int arg0, String arg1) {
+	public void setStatus(final int arg0, final String arg1) {
 		// Removed in Servlet 6
 		delegate.setStatus(arg0);
 	}

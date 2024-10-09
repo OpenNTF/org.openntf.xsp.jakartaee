@@ -23,7 +23,7 @@ import jakarta.validation.ValidatorFactory;
 
 /**
  * Provides an XPages-compatible {@link ValidatorFactory} instance for use in CDI.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.3.0
  */

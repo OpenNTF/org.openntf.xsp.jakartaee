@@ -28,12 +28,12 @@ public class CDIServiceParticipant implements ServiceParticipant {
 	public static final String KEY_STORAGE = CDIServiceParticipant.class.getName() + "_storage"; //$NON-NLS-1$
 
 	@Override
-	public void doBeforeService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doBeforeService(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		HttpContextBean.setThreadResponse(response);
 	}
 
 	@Override
-	public void doAfterService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doAfterService(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		HttpContextBean.setThreadResponse(null);
 	}
 

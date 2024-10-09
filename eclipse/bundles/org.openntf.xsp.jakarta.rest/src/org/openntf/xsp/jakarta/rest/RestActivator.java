@@ -26,14 +26,14 @@ import org.osgi.framework.BundleContext;
 public class RestActivator implements BundleActivator {
 
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		for(RestActivationParticipant p : LibraryUtil.findExtensions(RestActivationParticipant.class)) {
 			p.start(context);
 		}
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception {
+	public void stop(final BundleContext context) throws Exception {
 		for(RestActivationParticipant p : LibraryUtil.findExtensions(RestActivationParticipant.class)) {
 			p.stop(context);
 		}

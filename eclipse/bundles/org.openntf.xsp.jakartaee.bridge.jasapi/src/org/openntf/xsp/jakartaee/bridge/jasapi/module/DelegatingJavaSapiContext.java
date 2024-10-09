@@ -15,36 +15,36 @@
  */
 package org.openntf.xsp.jakartaee.bridge.jasapi.module;
 
+import com.ibm.domino.bridge.http.jasapi.IJavaSapiHttpContextAdapter;
+
 import org.openntf.xsp.jakartaee.jasapi.JavaSapiContext;
 import org.openntf.xsp.jakartaee.jasapi.JavaSapiRequest;
 import org.openntf.xsp.jakartaee.jasapi.JavaSapiResponse;
 
-import com.ibm.domino.bridge.http.jasapi.IJavaSapiHttpContextAdapter;
-
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.13.0
  */
 public class DelegatingJavaSapiContext implements JavaSapiContext {
 	private final IJavaSapiHttpContextAdapter delegate;
-	
-	public DelegatingJavaSapiContext(IJavaSapiHttpContextAdapter delegate) {
+
+	public DelegatingJavaSapiContext(final IJavaSapiHttpContextAdapter delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public void addContext(String var1, Object var2) {
+	public void addContext(final String var1, final Object var2) {
 		delegate.addContext(var1, var2);
 	}
 
 	@Override
-	public void removeContext(String var1) {
+	public void removeContext(final String var1) {
 		delegate.removeContext(var1);
 	}
 
 	@Override
-	public Object getContext(String var1) {
+	public Object getContext(final String var1) {
 		return delegate.getContext(var1);
 	}
 
@@ -64,7 +64,7 @@ public class DelegatingJavaSapiContext implements JavaSapiContext {
 	}
 
 	@Override
-	public String createContextName(String var1) {
+	public String createContextName(final String var1) {
 		return delegate.createContextName(var1);
 	}
 

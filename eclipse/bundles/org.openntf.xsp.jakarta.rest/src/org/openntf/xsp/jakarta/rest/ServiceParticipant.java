@@ -23,7 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface ServiceParticipant {
 	public static final String EXTENSION_POINT = ServiceParticipant.class.getName();
-	
+
 	void doBeforeService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
 	void doAfterService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
 }

@@ -33,14 +33,14 @@ public class SessionScopeContext extends AbstractProxyingContext {
 	public Class<? extends Annotation> getScope() {
 		return SessionScoped.class;
 	}
-	
+
 	@Override
 	protected synchronized BasicScopeContextHolder getHolder() {
 		Optional<HttpServletRequest> req = getHttpServletRequest();
 		if(req.isPresent()) {
 			HttpSession session = req.get().getSession(true);
 			String key = generateKey();
-			
+
 			BasicScopeContextHolder holder = (BasicScopeContextHolder)session.getAttribute(key);
 			if(holder == null) {
 				holder = new BasicScopeContextHolder();

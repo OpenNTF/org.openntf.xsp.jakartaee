@@ -31,7 +31,7 @@ public abstract class AbstractForbiddenExceptionHandler<T extends Exception> imp
 	private UriInfo uriInfo;
 
 	@Override
-	public Response toResponse(T exception) {
+	public Response toResponse(final T exception) {
 		throw new NoAccessSignal(exception, uriInfo.getRequestUri().toString());
 	}
 }

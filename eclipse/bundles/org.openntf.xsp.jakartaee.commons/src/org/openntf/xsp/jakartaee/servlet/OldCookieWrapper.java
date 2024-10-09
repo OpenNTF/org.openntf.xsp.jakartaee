@@ -19,98 +19,116 @@ import jakarta.servlet.http.Cookie;
 
 class OldCookieWrapper extends Cookie {
 	private static final long serialVersionUID = 1L;
-	
+
 	final javax.servlet.http.Cookie delegate;
 	private boolean httpOnly;
-	
-	public OldCookieWrapper(javax.servlet.http.Cookie delegate) {
+
+	public OldCookieWrapper(final javax.servlet.http.Cookie delegate) {
 		super(delegate.getName(), delegate.getValue());
 		this.delegate = delegate;
 	}
 
+	@Override
 	public String getComment() {
 		return delegate.getComment();
 	}
 
+	@Override
 	public String getDomain() {
 		return delegate.getDomain();
 	}
 
+	@Override
 	public int getMaxAge() {
 		return delegate.getMaxAge();
 	}
 
+	@Override
 	public String getName() {
 		return delegate.getName();
 	}
 
+	@Override
 	public String getPath() {
 		return delegate.getPath();
 	}
 
+	@Override
 	public boolean getSecure() {
 		return delegate.getSecure();
 	}
 
+	@Override
 	public String getValue() {
 		return delegate.getValue();
 	}
 
+	@Override
 	public int getVersion() {
 		return delegate.getVersion();
 	}
 
+	@Override
 	public boolean isHttpOnly() {
 		// TODO consider looking this up in the props if possible
 		return httpOnly;
 	}
 
-	public void setComment(String purpose) {
+	@Override
+	public void setComment(final String purpose) {
 		delegate.setComment(purpose);
 	}
 
-	public void setDomain(String domain) {
+	@Override
+	public void setDomain(final String domain) {
 		delegate.setDomain(domain);
 	}
 
-	public void setHttpOnly(boolean isHttpOnly) {
+	@Override
+	public void setHttpOnly(final boolean isHttpOnly) {
 		// TODO consider investigating how this can be set
 		this.httpOnly = isHttpOnly;
 	}
 
-	public void setMaxAge(int expiry) {
+	@Override
+	public void setMaxAge(final int expiry) {
 		delegate.setMaxAge(expiry);
 	}
 
-	public void setPath(String uri) {
+	@Override
+	public void setPath(final String uri) {
 		delegate.setPath(uri);
 	}
 
-	public void setSecure(boolean flag) {
+	@Override
+	public void setSecure(final boolean flag) {
 		delegate.setSecure(flag);
 	}
 
-	public void setValue(String newValue) {
+	@Override
+	public void setValue(final String newValue) {
 		delegate.setValue(newValue);
 	}
 
-	public void setVersion(int v) {
+	@Override
+	public void setVersion(final int v) {
 		delegate.setVersion(v);
 	}
 
+	@Override
 	public String toString() {
 		return delegate.toString();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return delegate.hashCode() + getClass().hashCode();
 	}
-	
+
 	@Override
 	public Object clone() {
 		return new OldCookieWrapper((javax.servlet.http.Cookie)delegate.clone());
 	}
-	
+
 
 }

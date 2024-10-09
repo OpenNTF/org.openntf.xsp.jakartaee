@@ -18,7 +18,7 @@ package org.openntf.xsp.jakartaee.jasapi;
 /**
  * Contextual information about a JavaSapi event, allowing access
  * to the request, response, and custom contextual data.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.13.0
  */

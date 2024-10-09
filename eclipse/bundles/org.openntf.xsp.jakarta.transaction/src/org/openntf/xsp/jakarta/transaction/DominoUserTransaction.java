@@ -36,7 +36,7 @@ import jakarta.transaction.Transaction;
 import jakarta.transaction.UserTransaction;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -44,7 +44,7 @@ import jakarta.transaction.UserTransaction;
 public class DominoUserTransaction implements UserTransaction, Serializable {
 	private static final long serialVersionUID = 1L;
 	private final Logger log = Logger.getLogger(DominoUserTransaction.class.getName());
-	
+
 	/**
 	 * This shared instance may be used in any context when CDI is not yet available.
 	 * All methods on this class are proxies for dynamically-looked-up CDI operations and
@@ -86,7 +86,7 @@ public class DominoUserTransaction implements UserTransaction, Serializable {
 	}
 
 	@Override
-	public void setTransactionTimeout(int seconds) throws SystemException {
+	public void setTransactionTimeout(final int seconds) throws SystemException {
 		Transaction transaction = CDI.current().select(Transaction.class).get();
 		if(transaction instanceof DominoTransaction) {
 			Collection<XAResource> resources = ((DominoTransaction)transaction).getResources();

@@ -39,7 +39,7 @@ import jakarta.ws.rs.ext.Provider;
  * This subclass of {@link ResteasyViolationExceptionMapper} uses the
  * {@link Produces @Produces} annotation of the target method, when present,
  * in preference to the client's {@code Accept} header.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.9.0
  */
@@ -49,9 +49,9 @@ public class ViolationExceptionMapper extends ResteasyViolationExceptionMapper {
 
 	@Context
 	private ResourceInfo resourceInfo;
-	
+
 	@Override
-	public Response toResponse(ValidationException exception) {
+	public Response toResponse(final ValidationException exception) {
 		if(exception instanceof ConstraintViolationException cve) {
 			if(!(cve instanceof ResteasyViolationException)) {
 				 return super.toResponse(new ResteasyViolationExceptionImpl(cve.getConstraintViolations()));
@@ -59,9 +59,9 @@ public class ViolationExceptionMapper extends ResteasyViolationExceptionMapper {
 		}
 		return super.toResponse(exception);
 	}
-	
+
 	@Override
-	protected Response buildViolationReportResponse(ResteasyViolationException exception, Status status) {
+	protected Response buildViolationReportResponse(final ResteasyViolationException exception, final Status status) {
 		if(resourceInfo != null) {
 			Produces produces = resourceInfo.getResourceMethod().getAnnotation(Produces.class);
 			if(produces != null) {

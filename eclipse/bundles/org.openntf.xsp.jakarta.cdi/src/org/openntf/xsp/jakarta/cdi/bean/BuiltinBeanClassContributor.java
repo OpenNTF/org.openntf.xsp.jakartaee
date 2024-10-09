@@ -22,7 +22,7 @@ import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 
 /**
  * Provides implicit beans from this bundle to the new Weld containers.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.1.0
  */

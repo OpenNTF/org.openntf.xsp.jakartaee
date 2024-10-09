@@ -34,12 +34,12 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 	private ViewEntry onDeck;
 	private boolean done;
 	private final boolean manualDocumentScan;
-	
-	public ViewNavigatorIterator(ViewNavigator nav, boolean docsOnly, boolean didSkip, boolean didKey) throws NotesException {
+
+	public ViewNavigatorIterator(final ViewNavigator nav, final boolean docsOnly, final boolean didSkip, final boolean didKey) throws NotesException {
 		this.nav = nav;
 		this.docsOnly = docsOnly;
 		this.didSkip = didSkip;
-		
+
 		// Initially, it seemed like manual scanning was only necessary when looking
 		//   for documents when having searched by key in a categorized view. However,
 		//   it turns out that this is also sometimes needed when looking up by key
@@ -67,7 +67,7 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 		if(done) {
 			throw new NoSuchElementException();
 		}
-		
+
 		try {
 			if(onDeck == null) {
 				onDeck = fetchNext();
@@ -90,14 +90,14 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 		Spliterator<ViewEntry> iter = Spliterators.spliteratorUnknownSize(this, Spliterator.DISTINCT | Spliterator.ORDERED);
 		return StreamSupport.stream(iter, false);
 	}
-	
+
 	private ViewEntry fetchNext() throws NotesException {
 		ViewEntry next;
-		
+
 		// "getFirstDocument" throws "NotesException: Method is not available"
 		//   when the view is categorized and createViewNavFromKey is used.
 		//   In these situations, we'll manually traverse for document entries
-		
+
 		if(prev == null && !didSkip) {
 			if(docsOnly) {
 				if(manualDocumentScan) {
@@ -125,7 +125,7 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 		}
 		return next;
 	}
-	
+
 	private ViewEntry firstDocumentManual() throws NotesException {
 		ViewEntry first = nav.getFirst();
 		while(first != null && !first.isDocument()) {
@@ -133,7 +133,7 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 		}
 		return first;
 	}
-	
+
 	private ViewEntry nextDocumentManual() throws NotesException {
 		ViewEntry first = nav.getNext();
 		while(first != null && !first.isDocument()) {

@@ -19,8 +19,6 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
-import jakarta.el.ELContext;
-import jakarta.el.MethodExpression;
 import javax.faces.component.StateHolder;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
@@ -31,25 +29,28 @@ import com.ibm.xsp.util.ValueBindingUtil;
 
 import org.openntf.xsp.jakarta.el.ELBindingFactory;
 
+import jakarta.el.ELContext;
+import jakarta.el.MethodExpression;
+
 public class ExpressionMethodBinding extends MethodBinding implements StateHolder {
-	
+
 	private MethodExpression exp;
 	private ELContext elContext;
 	private boolean isTransient;
 	private String prefix;
-	
+
 	public ExpressionMethodBinding() {
-		
+
 	}
 
-	public ExpressionMethodBinding(MethodExpression exp, ELContext elContext, String prefix) {
+	public ExpressionMethodBinding(final MethodExpression exp, final ELContext elContext, final String prefix) {
 		this.exp = exp;
 		this.elContext = elContext;
 		this.prefix = prefix;
 	}
 
 	@Override
-	public Class<?> getType(FacesContext facesContext) throws MethodNotFoundException {
+	public Class<?> getType(final FacesContext facesContext) throws MethodNotFoundException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)() -> exp.getMethodInfo(elContext).getReturnType());
 		} catch (PrivilegedActionException e) {
@@ -69,7 +70,7 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	}
 
 	@Override
-	public Object invoke(FacesContext facesContext, Object[] params) throws EvaluationException, MethodNotFoundException {
+	public Object invoke(final FacesContext facesContext, final Object[] params) throws EvaluationException, MethodNotFoundException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Object>)() -> exp.invoke(elContext, params));
 		} catch (PrivilegedActionException e) {
@@ -96,7 +97,7 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	}
 
 	@Override
-	public void restoreState(FacesContext facesContext, Object state) {
+	public void restoreState(final FacesContext facesContext, final Object state) {
 		Object[] stateArray = (Object[])state;
 		this.exp = (MethodExpression)stateArray[0];
 		this.elContext = new FacesELContext(ELBindingFactory.getExpressionFactory());
@@ -104,7 +105,7 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	}
 
 	@Override
-	public Object saveState(FacesContext facesContext) {
+	public Object saveState(final FacesContext facesContext) {
 		return new Object[] {
 			this.exp,
 			this.prefix
@@ -112,10 +113,10 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 	}
 
 	@Override
-	public void setTransient(boolean isTransient) {
+	public void setTransient(final boolean isTransient) {
 		this.isTransient = isTransient;
 	}
-	
+
 	@Override
 	public String getExpressionString() {
 		String expString = this.exp.getExpressionString();

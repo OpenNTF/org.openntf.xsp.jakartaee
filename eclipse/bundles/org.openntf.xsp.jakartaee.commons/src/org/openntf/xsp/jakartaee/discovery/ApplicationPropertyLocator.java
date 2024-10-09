@@ -24,7 +24,7 @@ import org.openntf.xsp.jakartaee.util.PriorityComparator;
 /**
  * This extension class allows contributions to the process of determining
  * the value of a given application property.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -37,26 +37,26 @@ public interface ApplicationPropertyLocator {
 			.filter(ApplicationPropertyLocator::isActive)
 			.findFirst();
 	}
-	
+
 	/**
 	 * @return {@code true} if the locator is in a context where it can run
 	 */
 	boolean isActive();
-	
+
 	/**
 	 * @param prop the property to retrieve
 	 * @param defaultValue the default value to return when the property is not set
 	 * @return {@link prop} if set in the application; {@code defaultValue} otherwise
 	 */
-	default String getApplicationProperty(String prop, String defaultValue) {
+	default String getApplicationProperty(final String prop, final String defaultValue) {
 		return getApplicationProperties()
 			.map(props -> props.getProperty(prop, defaultValue))
 			.orElse(defaultValue);
 	}
-	
+
 	/**
 	 * Retrieves all properties for the active application, if available.
-	 * 
+	 *
 	 * @return an {@link Optional} describing the {@link Properties} for the active
 	 *         application, or an empty one if this locator does not support retrieving
 	 *         all properties

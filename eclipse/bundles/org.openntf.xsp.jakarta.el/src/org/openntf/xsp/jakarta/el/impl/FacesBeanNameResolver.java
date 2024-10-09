@@ -17,29 +17,30 @@ package org.openntf.xsp.jakarta.el.impl;
 
 import java.util.Collections;
 
-import jakarta.el.BeanNameResolver;
 import javax.faces.context.FacesContext;
 import javax.faces.el.VariableResolver;
 
+import jakarta.el.BeanNameResolver;
+
 /**
  * Provides bean resolution in a Faces context.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.0
  */
 public class FacesBeanNameResolver extends BeanNameResolver {
 
 	@Override
-	public boolean isNameResolved(String beanName) {
+	public boolean isNameResolved(final String beanName) {
 		return getBean(beanName) != null;
 	}
-	
+
 	@Override
-	public Object getBean(String beanName) {
+	public Object getBean(final String beanName) {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		VariableResolver vr = facesContext.getApplication().getVariableResolver();
 		Object result = vr.resolveVariable(facesContext, beanName);
-		
+
 		// Check for known "environmental" beans that may not exist in edge cases
 		if(result == null) {
 			switch(beanName) {
@@ -49,7 +50,7 @@ public class FacesBeanNameResolver extends BeanNameResolver {
 				break;
 			}
 		}
-		
+
 		return result;
 	}
 

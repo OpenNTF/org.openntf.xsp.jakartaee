@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakarta.cdi.extlib;
 
+import javax.faces.context.FacesContext;
+
 import com.ibm.xsp.extlib.beans.DeviceBean;
 import com.ibm.xsp.extlib.beans.PeopleBean;
 import com.ibm.xsp.extlib.beans.UserBean;
@@ -24,12 +26,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Named;
-import javax.faces.context.FacesContext;
 
 /**
  * Contributes known XPages Extension Library beans when the ExtLib
  * is active for the current application.
- * 
+ *
  * @since 2.13.0
  */
 @ApplicationScoped
@@ -43,7 +44,7 @@ public class ExtLibBeanProvider {
 		}
 		return UserBean.get();
 	}
-	
+
 	@Produces
 	@Named(PeopleBean.BEAN_NAME)
 	@Dependent
@@ -53,7 +54,7 @@ public class ExtLibBeanProvider {
 		}
 		return PeopleBean.get();
 	}
-	
+
 	@Produces
 	@Named("deviceBean")
 	@Dependent

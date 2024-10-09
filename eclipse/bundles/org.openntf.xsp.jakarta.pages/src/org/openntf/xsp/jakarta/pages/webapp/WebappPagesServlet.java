@@ -26,6 +26,8 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.stream.Collectors;
 
+import com.ibm.xsp.extlib.util.ExtLibUtil;
+
 import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.servlet.JspServlet;
 import org.glassfish.wasp.xmlparser.ParserUtils;
@@ -34,8 +36,6 @@ import org.openntf.xsp.jakarta.pages.util.DominoPagesUtil;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.BundleException;
-
-import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -47,7 +47,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Legacy {@link HttpServlet} implementation that can be mapped to {@code *.jsp}
  * to provide JSP processing in a webapp.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.8.0
  */
@@ -57,17 +57,17 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 
 	private final JspServlet delegate;
 	private ServletContext context;
-	
+
 	public WebappPagesServlet() {
 		this.delegate = new JspServlet();
 	}
-	
+
 	@Override
-	public void init(javax.servlet.ServletConfig config) throws javax.servlet.ServletException {
+	public void init(final javax.servlet.ServletConfig config) throws javax.servlet.ServletException {
 		super.init(config);
-		
+
 		this.context = ServletUtil.oldToNew(config.getServletContext().getContextPath(), config.getServletContext());
-		
+
 		try {
 			String classpath = DominoPagesUtil.buildBundleClassPath()
 				.stream()
@@ -75,7 +75,7 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 				.collect(Collectors.joining(DominoPagesUtil.PATH_SEP));
 			this.context.setInitParameter("classpath", classpath); //$NON-NLS-1$
 			this.context.setInitParameter("development", Boolean.toString(ExtLibUtil.isDevelopmentMode())); //$NON-NLS-1$
-	
+
 			Path tempDir = LibraryUtil.getTempDirectory();
 			tempDir = tempDir.resolve(getClass().getName());
 			String moduleName = Integer.toString(System.identityHashCode(config.getServletContext()));
@@ -85,7 +85,7 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 		} catch(IOException | BundleException e) {
 			throw new javax.servlet.ServletException(e);
 		}
-		
+
 		ClassLoader current = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(new URLClassLoader(new URL[0], current));
@@ -98,19 +98,19 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 			Thread.currentThread().setContextClassLoader(current);
 		}
 	}
-	
+
 	@Override
-	public void service(javax.servlet.ServletRequest oldRequest, javax.servlet.ServletResponse oldResponse)
+	public void service(final javax.servlet.ServletRequest oldRequest, final javax.servlet.ServletResponse oldResponse)
 			throws javax.servlet.ServletException, IOException {
 		try {
 			HttpServletRequest request = ServletUtil.oldToNew(ServletUtil.newToOld(this.context), (javax.servlet.http.HttpServletRequest)oldRequest);
 			HttpServletResponse response = ServletUtil.oldToNew((javax.servlet.http.HttpServletResponse)oldResponse);
-			
+
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
-				
+
 				//context.setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$
 				context.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, DominoPagesUtil.buildJstlDtdMap());
-				
+
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(DominoPagesUtil.buildPagesClassLoader(current));
 				ServletUtil.getListeners(context, ServletRequestListener.class)
@@ -124,7 +124,7 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 					Thread.currentThread().setContextClassLoader(current);
 					context.removeAttribute("org.glassfish.jsp.beanManagerELResolver"); //$NON-NLS-1$
 					context.removeAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP);
-					
+
 					ServletUtil.close(response);
 				}
 				return null;
@@ -144,7 +144,7 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 			throw t;
 		}
 	}
-	
+
 	@Override
 	public void destroy() {
 		super.destroy();

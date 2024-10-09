@@ -33,10 +33,10 @@ import jakarta.ws.rs.core.Response;
 @Path("openapi")
 @MetricsIgnore
 public class OpenAPIResource extends AbstractOpenAPIResource {
-	
+
 	@GET
 	@Operation(hidden=true)
-	public Response get(@Context HttpHeaders headers) throws IOException {
+	public Response get(@Context final HttpHeaders headers) throws IOException {
 		OpenAPI openapi = buildOpenAPI();
 
 		// JSON wins if it's explicitly mentioned; otherwise it's YAML as text/plain

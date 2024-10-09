@@ -17,7 +17,7 @@ package org.openntf.xsp.jakarta.cdi.ext;
 
 /**
  * Common CDI-related constants for multiple modules.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.0.0
  */

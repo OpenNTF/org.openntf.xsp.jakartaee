@@ -26,9 +26,9 @@ import org.osgi.framework.BundleContext;
 public class RestClientActivator implements BundleActivator {
 
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
+	public void start(final BundleContext bundleContext) throws Exception {
 		RestClientBuilderResolver.setInstance(new BuilderResolver());
-		
+
 		// Initialize RESTEasy's MP config with its own ClassLoader to make ServiceLoader work
 		try {
 		LibraryUtil.withClassLoader(RestClientProxy.class.getClassLoader(), () -> {
@@ -42,7 +42,7 @@ public class RestClientActivator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
+	public void stop(final BundleContext bundleContext) throws Exception {
 
 	}
 

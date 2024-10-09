@@ -15,11 +15,11 @@
  */
 package org.openntf.xsp.microprofile.library;
 
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.osgi.framework.FrameworkUtil;
-
 import com.ibm.xsp.library.AbstractXspLibrary;
 import com.ibm.xsp.library.CoreLibrary;
+
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.osgi.framework.FrameworkUtil;
 
 public class MicroProfileLibrary extends AbstractXspLibrary {
 
@@ -27,12 +27,12 @@ public class MicroProfileLibrary extends AbstractXspLibrary {
 	public String getLibraryId() {
 		return LibraryUtil.LIBRARY_MICROPROFILE;
 	}
-	
+
 	@Override
 	public String getPluginId() {
 		return FrameworkUtil.getBundle(getClass()).getSymbolicName();
 	}
-	
+
 	@Override
 	public String[] getDependencies() {
 		return new String[] {
@@ -40,7 +40,7 @@ public class MicroProfileLibrary extends AbstractXspLibrary {
 			LibraryUtil.LIBRARY_CORE
 		};
 	}
-	
+
 	@Override
 	public boolean isGlobalScope() {
 		return false;

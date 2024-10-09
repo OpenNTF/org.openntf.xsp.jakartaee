@@ -20,39 +20,40 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 
-import jakarta.el.ELContext;
-import jakarta.el.ValueExpression;
 import javax.faces.component.StateHolder;
 import javax.faces.context.FacesContext;
 import javax.faces.el.EvaluationException;
 import javax.faces.el.PropertyNotFoundException;
 import javax.faces.el.ValueBinding;
 
+import com.ibm.xsp.util.ValueBindingUtil;
+
 import org.openntf.xsp.jakarta.el.ELBindingFactory;
 import org.openntf.xsp.jakarta.el.ext.ELValueConverter;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-import com.ibm.xsp.util.ValueBindingUtil;
+import jakarta.el.ELContext;
+import jakarta.el.ValueExpression;
 
 public class ExpressionValueBinding extends ValueBinding implements StateHolder {
-	
+
 	private ValueExpression exp;
 	private ELContext elContext;
 	private boolean isTransient;
 	private String prefix;
-	
+
 	public ExpressionValueBinding() {
-		
+
 	}
-	
-	public ExpressionValueBinding(ValueExpression exp, ELContext elContext, String prefix) {
+
+	public ExpressionValueBinding(final ValueExpression exp, final ELContext elContext, final String prefix) {
 		this.exp = exp;
 		this.elContext = elContext;
 		this.prefix = prefix;
 	}
 
 	@Override
-	public Class<?> getType(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
+	public Class<?> getType(final FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)() -> exp.getType(elContext));
 		} catch (PrivilegedActionException e) {
@@ -74,15 +75,15 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	}
 
 	@Override
-	public Object getValue(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
+	public Object getValue(final FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Object>)() -> {
 				Object v = exp.getValue(elContext);
-				
+
 				for(ELValueConverter conv : LibraryUtil.findExtensionsSorted(ELValueConverter.class, false)) {
 					v = conv.postGetValue(elContext, exp, v);
 				}
-				
+
 				return v;
 			});
 		} catch (Throwable e) {
@@ -98,7 +99,7 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	}
 
 	@Override
-	public boolean isReadOnly(FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
+	public boolean isReadOnly(final FacesContext facesContext) throws EvaluationException, PropertyNotFoundException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() -> exp.isReadOnly(elContext));
 		} catch (PrivilegedActionException e) {
@@ -120,14 +121,14 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	}
 
 	@Override
-	public void setValue(FacesContext facesContext, Object value) throws EvaluationException, PropertyNotFoundException {
+	public void setValue(final FacesContext facesContext, final Object value) throws EvaluationException, PropertyNotFoundException {
 		try {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 				Object v = value;
 				for(ELValueConverter conv : LibraryUtil.findExtensionsSorted(ELValueConverter.class, false)) {
 					v = conv.preSetValue(elContext, exp, v);
 				}
-				
+
 				exp.setValue(elContext, v);
 				return null;
 			});
@@ -155,7 +156,7 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	}
 
 	@Override
-	public void restoreState(FacesContext facesContext, Object state) {
+	public void restoreState(final FacesContext facesContext, final Object state) {
 		Object[] stateArray = (Object[])state;
 		this.exp = (ValueExpression)stateArray[0];
 		this.elContext = new FacesELContext(ELBindingFactory.getExpressionFactory());
@@ -163,7 +164,7 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	}
 
 	@Override
-	public Object saveState(FacesContext facesContext) {
+	public Object saveState(final FacesContext facesContext) {
 		return new Object[] {
 			this.exp,
 			this.prefix
@@ -171,10 +172,10 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 	}
 
 	@Override
-	public void setTransient(boolean isTransient) {
+	public void setTransient(final boolean isTransient) {
 		this.isTransient = isTransient;
 	}
-	
+
 	@Override
 	public String getExpressionString() {
 		String expString = this.exp.getExpressionString();
@@ -186,5 +187,5 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 			return ValueBindingUtil.getExpressionString(prefix, this.exp.getExpressionString(), ValueBindingUtil.RUNTIME_EXPRESSION);
 		}
 	}
-	
+
 }

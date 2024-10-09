@@ -25,7 +25,7 @@ import jakarta.json.bind.Jsonb;
 /**
  * Provides a bean to produce a {@link Jsonb} instance when JSON is enabled
  * in the current application.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.11.0
  */

@@ -29,15 +29,15 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.tomcat.util.descriptor.web.WebXml;
-import org.apache.tomcat.util.descriptor.web.WebXmlParser;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.xml.sax.InputSource;
-
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpServletResponse;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.domino.xsp.bridge.http.servlet.XspCmdHttpServletResponse;
+
+import org.apache.tomcat.util.descriptor.web.WebXml;
+import org.apache.tomcat.util.descriptor.web.WebXmlParser;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.xml.sax.InputSource;
 
 import jakarta.servlet.ServletContextAttributeListener;
 import jakarta.servlet.ServletContextEvent;
@@ -49,18 +49,18 @@ import jakarta.servlet.http.HttpSessionAttributeListener;
 /**
  * This utility class contains methods for converting between old
  * and new Servlet API classes.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.0.0
  */
 public enum ServletUtil {
 	;
-	
+
 	public static final String KEY_WEBXML = ServletUtil.class.getPackage().getName() + "_webXml"; //$NON-NLS-1$
-	
+
 	private static final Logger log = Logger.getLogger(ServletUtil.class.getName());
-	
-	public static javax.servlet.Servlet newToOld(jakarta.servlet.Servlet servlet) {
+
+	public static javax.servlet.Servlet newToOld(final jakarta.servlet.Servlet servlet) {
 		if(servlet == null) {
 			return null;
 		} else if(servlet instanceof OldHttpServletWrapper) {
@@ -69,7 +69,7 @@ public enum ServletUtil {
 			return new NewHttpServletWrapper(servlet);
 		}
 	}
-	public static jakarta.servlet.Servlet oldToNew(javax.servlet.Servlet servlet) {
+	public static jakarta.servlet.Servlet oldToNew(final javax.servlet.Servlet servlet) {
 		if(servlet == null) {
 			return null;
 		} else if(servlet instanceof NewHttpServletWrapper) {
@@ -78,21 +78,21 @@ public enum ServletUtil {
 			return new OldHttpServletWrapper(servlet);
 		}
 	}
-	
-	public static javax.servlet.http.HttpServletRequest newToOld(jakarta.servlet.http.HttpServletRequest req) {
+
+	public static javax.servlet.http.HttpServletRequest newToOld(final jakarta.servlet.http.HttpServletRequest req) {
 		return newToOld(req, false);
 	}
 	/**
 	 * Variant of {@link #newToOld(jakarta.servlet.http.HttpServletRequest)} that allows for the creation
 	 * of a wrapper that hides the request's {@code InputStream} and {@code BufferedReader} in the wrapped
 	 * version.
-	 * 
+	 *
 	 * @param req the Jakarta request to wrap
 	 * @param hideBody whether to hide the body content from the wrapper
 	 * @return a Java EE wrapper for the request
 	 * @since 2.10.0
 	 */
-	public static javax.servlet.http.HttpServletRequest newToOld(jakarta.servlet.http.HttpServletRequest req, boolean hideBody) {
+	public static javax.servlet.http.HttpServletRequest newToOld(final jakarta.servlet.http.HttpServletRequest req, final boolean hideBody) {
 		if(req == null) {
 			return null;
 		} else if(hideBody) {
@@ -103,7 +103,7 @@ public enum ServletUtil {
 			return new NewHttpServletRequestWrapper(req);
 		}
 	}
-	public static jakarta.servlet.http.HttpServletRequest oldToNew(javax.servlet.ServletContext context, javax.servlet.http.HttpServletRequest request) {
+	public static jakarta.servlet.http.HttpServletRequest oldToNew(final javax.servlet.ServletContext context, final javax.servlet.http.HttpServletRequest request) {
 		if(request == null) {
 			return null;
 		} else if(request instanceof NewHttpServletRequestWrapper) {
@@ -119,8 +119,8 @@ public enum ServletUtil {
 			}
 		}
 	}
-	
-	public static javax.servlet.http.HttpServletResponse newToOld(jakarta.servlet.http.HttpServletResponse resp) {
+
+	public static javax.servlet.http.HttpServletResponse newToOld(final jakarta.servlet.http.HttpServletResponse resp) {
 		if(resp == null) {
 			return null;
 		} else if(resp instanceof OldHttpServletResponseWrapper) {
@@ -129,7 +129,7 @@ public enum ServletUtil {
 			return new NewHttpServletResponseWrapper(resp);
 		}
 	}
-	public static jakarta.servlet.http.HttpServletResponse oldToNew(javax.servlet.http.HttpServletResponse resp) {
+	public static jakarta.servlet.http.HttpServletResponse oldToNew(final javax.servlet.http.HttpServletResponse resp) {
 		if(resp == null) {
 			return null;
 		} else if(resp instanceof NewHttpServletResponseWrapper) {
@@ -138,8 +138,8 @@ public enum ServletUtil {
 			return new OldHttpServletResponseWrapper(resp);
 		}
 	}
-	
-	public static javax.servlet.http.HttpSession newToOld(jakarta.servlet.http.HttpSession session) {
+
+	public static javax.servlet.http.HttpSession newToOld(final jakarta.servlet.http.HttpSession session) {
 		if(session == null) {
 			return null;
 		} else if(session instanceof OldHttpSessionWrapper) {
@@ -148,7 +148,7 @@ public enum ServletUtil {
 			return new NewHttpSessionWrapper(session);
 		}
 	}
-	public static jakarta.servlet.http.HttpSession oldToNew(javax.servlet.http.HttpSession session) {
+	public static jakarta.servlet.http.HttpSession oldToNew(final javax.servlet.http.HttpSession session) {
 		if(session == null) {
 			return null;
 		} else if(session instanceof NewHttpSessionWrapper) {
@@ -164,8 +164,8 @@ public enum ServletUtil {
 			}
 		}
 	}
-	
-	public static javax.servlet.RequestDispatcher newToOld(jakarta.servlet.RequestDispatcher disp) {
+
+	public static javax.servlet.RequestDispatcher newToOld(final jakarta.servlet.RequestDispatcher disp) {
 		if(disp == null) {
 			return null;
 		} else if(disp instanceof OldRequestDispatcherWrapper) {
@@ -174,7 +174,7 @@ public enum ServletUtil {
 			return new NewRequestDispatcherWrapper(disp);
 		}
 	}
-	public static jakarta.servlet.RequestDispatcher oldToNew(javax.servlet.RequestDispatcher disp) {
+	public static jakarta.servlet.RequestDispatcher oldToNew(final javax.servlet.RequestDispatcher disp) {
 		if(disp == null) {
 			return null;
 		} else if(disp instanceof NewRequestDispatcherWrapper) {
@@ -183,8 +183,8 @@ public enum ServletUtil {
 			return new OldRequestDispatcherWrapper(disp);
 		}
 	}
-	
-	public static javax.servlet.ServletConfig newToOld(jakarta.servlet.ServletConfig config) {
+
+	public static javax.servlet.ServletConfig newToOld(final jakarta.servlet.ServletConfig config) {
 		if(config == null) {
 			return null;
 		} else if(config instanceof OldServletConfigWrapper) {
@@ -193,7 +193,7 @@ public enum ServletUtil {
 			return new NewServletConfigWrapper(config);
 		}
 	}
-	public static jakarta.servlet.ServletConfig oldToNew(javax.servlet.ServletConfig config) {
+	public static jakarta.servlet.ServletConfig oldToNew(final javax.servlet.ServletConfig config) {
 		if(config == null) {
 			return null;
 		} else if(config instanceof NewServletConfigWrapper) {
@@ -202,8 +202,8 @@ public enum ServletUtil {
 			return new OldServletConfigWrapper(config);
 		}
 	}
-	
-	public static javax.servlet.ServletContext newToOld(jakarta.servlet.ServletContext context) {
+
+	public static javax.servlet.ServletContext newToOld(final jakarta.servlet.ServletContext context) {
 		if(context == null) {
 			return null;
 		} else if(context instanceof OldServletContextWrapper) {
@@ -212,7 +212,7 @@ public enum ServletUtil {
 			return new NewServletContextWrapper(context);
 		}
 	}
-	public static jakarta.servlet.ServletContext oldToNew(String contextPath, javax.servlet.ServletContext context) {
+	public static jakarta.servlet.ServletContext oldToNew(final String contextPath, final javax.servlet.ServletContext context) {
 		if(context == null) {
 			return null;
 		} else if(context instanceof NewServletContextWrapper) {
@@ -232,10 +232,10 @@ public enum ServletUtil {
 	/**
 	 * Wraps the provided {@link javax.servlet.ServletContext} implementation in a
 	 * {@link jakarta.servlet.ServletContext} wrapper.
-	 * 
+	 *
 	 * <p>This method allows specification of the effective Servlet version, overriding the default
 	 * 2.5.</p>
-	 * 
+	 *
 	 * @param contextPath the context path of the servet, or {@code null} if unavailable
 	 * @param context the {@link javax.servlet.ServletContext} to wrap
 	 * @param majorVersion the effective major version to set
@@ -243,7 +243,7 @@ public enum ServletUtil {
 	 * @return a {@link jakarta.servlet.ServletContext} wrapper
 	 * @since 2.3.0
 	 */
-	public static jakarta.servlet.ServletContext oldToNew(String contextPath, javax.servlet.ServletContext context, int majorVersion, int minorVersion) {
+	public static jakarta.servlet.ServletContext oldToNew(final String contextPath, final javax.servlet.ServletContext context, final int majorVersion, final int minorVersion) {
 		if(context == null) {
 			return null;
 		} else if(context instanceof NewServletContextWrapper) {
@@ -260,8 +260,8 @@ public enum ServletUtil {
 			}
 		}
 	}
-	
-	public static javax.servlet.ServletInputStream newToOld(jakarta.servlet.ServletInputStream is) {
+
+	public static javax.servlet.ServletInputStream newToOld(final jakarta.servlet.ServletInputStream is) {
 		if(is == null) {
 			return null;
 		} else if(is instanceof OldServletInputStreamWrapper) {
@@ -270,7 +270,7 @@ public enum ServletUtil {
 			return new NewServletInputStreamWrapper(is);
 		}
 	}
-	public static jakarta.servlet.ServletInputStream oldToNew(javax.servlet.ServletInputStream is) {
+	public static jakarta.servlet.ServletInputStream oldToNew(final javax.servlet.ServletInputStream is) {
 		if(is == null) {
 			return null;
 		} else if(is instanceof NewServletInputStreamWrapper) {
@@ -279,8 +279,8 @@ public enum ServletUtil {
 			return new OldServletInputStreamWrapper(is);
 		}
 	}
-	
-	public static javax.servlet.ServletOutputStream newToOld(jakarta.servlet.ServletOutputStream os) {
+
+	public static javax.servlet.ServletOutputStream newToOld(final jakarta.servlet.ServletOutputStream os) {
 		if(os == null) {
 			return null;
 		} else if(os instanceof OldServletOutputStreamWrapper) {
@@ -289,7 +289,7 @@ public enum ServletUtil {
 			return new NewServletOutputStreamWrapper(os);
 		}
 	}
-	public static jakarta.servlet.ServletOutputStream oldToNew(javax.servlet.ServletOutputStream os) {
+	public static jakarta.servlet.ServletOutputStream oldToNew(final javax.servlet.ServletOutputStream os) {
 		if(os == null) {
 			return null;
 		} else if(os instanceof NewServletOutputStreamWrapper) {
@@ -298,8 +298,8 @@ public enum ServletUtil {
 			return new OldServletOutputStreamWrapper(os);
 		}
 	}
-	
-	public static javax.servlet.http.Cookie newToOld(jakarta.servlet.http.Cookie cookie) {
+
+	public static javax.servlet.http.Cookie newToOld(final jakarta.servlet.http.Cookie cookie) {
 		if(cookie == null) {
 			return null;
 		} else if(cookie instanceof OldCookieWrapper) {
@@ -308,7 +308,7 @@ public enum ServletUtil {
 			return new NewCookieWrapper(cookie);
 		}
 	}
-	public static jakarta.servlet.http.Cookie oldToNew(javax.servlet.http.Cookie cookie) {
+	public static jakarta.servlet.http.Cookie oldToNew(final javax.servlet.http.Cookie cookie) {
 		if(cookie == null) {
 			return null;
 		} else if(cookie instanceof NewCookieWrapper) {
@@ -317,33 +317,33 @@ public enum ServletUtil {
 			return new OldCookieWrapper(cookie);
 		}
 	}
-	
+
 	/**
 	 * Wraps an old {@code ServletException} with a new one.
-	 * 
+	 *
 	 * @param e the old-style exception to wrap
 	 * @return a new-style exception
 	 * @since 2.8.0
 	 */
-	public static jakarta.servlet.ServletException oldToNew(javax.servlet.ServletException e) {
+	public static jakarta.servlet.ServletException oldToNew(final javax.servlet.ServletException e) {
 		return new jakarta.servlet.ServletException(e);
 	}
 	/**
 	 * Wraps a new {@code ServletException} with an old one.
-	 * 
+	 *
 	 * @param e the new-style exception to wrap
 	 * @return an old-style exception
 	 * @since 2.8.0
 	 */
-	public static javax.servlet.ServletException newToOld(jakarta.servlet.ServletException e) {
+	public static javax.servlet.ServletException newToOld(final jakarta.servlet.ServletException e) {
 		return new javax.servlet.ServletException(e);
 	}
-	
+
 	// *******************************************************************************
 	// * Shim methods for working with listeners
 	// *******************************************************************************
-	
-	public static void addListener(jakarta.servlet.ServletRequest req, ServletRequestAttributeListener listener) {
+
+	public static void addListener(final jakarta.servlet.ServletRequest req, final ServletRequestAttributeListener listener) {
 		if(req == null) {
 			return;
 		}
@@ -352,8 +352,8 @@ public enum ServletUtil {
 		}
 		((OldHttpServletRequestWrapper)req).addListener(listener);
 	}
-	
-	public static void addListener(jakarta.servlet.http.HttpSession session, HttpSessionAttributeListener listener) {
+
+	public static void addListener(final jakarta.servlet.http.HttpSession session, final HttpSessionAttributeListener listener) {
 		if(session == null) {
 			return;
 		}
@@ -363,7 +363,7 @@ public enum ServletUtil {
 		((OldHttpSessionWrapper)session).addListener(listener);
 	}
 
-	public static void addListener(jakarta.servlet.ServletContext context, ServletContextAttributeListener listener) {
+	public static void addListener(final jakarta.servlet.ServletContext context, final ServletContextAttributeListener listener) {
 		if(context == null) {
 			return;
 		}
@@ -372,9 +372,9 @@ public enum ServletUtil {
 		}
 		((OldServletContextWrapper)context).addListener(listener);
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public static <T extends EventListener> List<T> getListeners(jakarta.servlet.ServletContext context, Class<T> listenerClass) {
+	public static <T extends EventListener> List<T> getListeners(final jakarta.servlet.ServletContext context, final Class<T> listenerClass) {
 		if(context == null) {
 			return Collections.emptyList();
 		}
@@ -383,31 +383,31 @@ public enum ServletUtil {
 		}
 		return (List<T>)((OldServletContextWrapper)context).getListeners(listenerClass);
 	}
-	
+
 	private static final String ATTR_CONTEXTINITIALIZED = ServletUtil.class.getName() + "_contextInitialized"; //$NON-NLS-1$
-	
-	public static void contextInitialized(jakarta.servlet.ServletContext context) {
+
+	public static void contextInitialized(final jakarta.servlet.ServletContext context) {
 		if(!Boolean.TRUE.equals(context.getAttribute(ATTR_CONTEXTINITIALIZED))) {
 			LibraryUtil.findExtensionsUncached(ServletContextListener.class)
 				.forEach(l -> context.addListener(l));
-			
+
 			getListeners(context, ServletContextListener.class)
 				.forEach(l -> l.contextInitialized(new ServletContextEvent(context)));
-			
+
 			context.setAttribute(ATTR_CONTEXTINITIALIZED, Boolean.TRUE);
 		}
 	}
-	
+
 	/**
 	 * Attempts to close the writer or stream associated with this response.
-	 * 
+	 *
 	 * <p>This is intended for use with Servlet delegates that may not reliably
 	 * themselves flush the buffer.</p>
-	 * 
+	 *
 	 * @param resp the response to close
-	 * @since 2.9.0 
+	 * @since 2.9.0
 	 */
-	public static void close(HttpServletResponse resp) {
+	public static void close(final HttpServletResponse resp) {
 		// Special handling for wrapped XSP responses
 		if(resp instanceof OldHttpServletResponseWrapper) {
 			javax.servlet.http.HttpServletResponse old = newToOld(resp);
@@ -428,7 +428,7 @@ public enum ServletUtil {
 				}
 			}
 		}
-		
+
 		// NB: resp.flushBuffer() is insufficient here
 		try {
 			resp.getWriter().flush();
@@ -451,56 +451,56 @@ public enum ServletUtil {
 			// No need to propagate this
 		}
 	}
-	
+
 	/**
 	 * Attempts to determine whether the provided {@link Throwable}'s root
 	 * cause is a closed connection from a browser, which usually manifests
 	 * as an {@code XspCmdException} with a blank internal error message.
-	 * 
+	 *
 	 * @param t the throwable to check
 	 * @return {@code true} if the exception can be safely squelched as
 	 *         normal browser behavior; {@code false} otherwise
 	 * @since 2.11.0
 	 */
-	public static boolean isClosedConnection(Throwable t) {
+	public static boolean isClosedConnection(final Throwable t) {
 		Throwable cause = t;
 		while(cause.getCause() != null) {
 			cause = cause.getCause();
 		}
-		
+
 		// Avoid an explicit import on the jvm/lib/ext class
 		if("com.ibm.domino.xsp.bridge.http.exception.XspCmdException".equals(cause.getClass().getName())) { //$NON-NLS-1$
 			if("HTTP: Internal error:".equals(String.valueOf(cause.getMessage().trim()))) { //$NON-NLS-1$
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Processes context-param values from any WEB-INF/web.xml and META-INF/web-fragment.xml files
 	 * inside the module and sets them as init parameters for the context.
-	 * 
+	 *
 	 * @param module the module to load resources from
 	 * @param context the context to populate with init parameters
 	 * @since 2.15.0
 	 */
-	public static void populateWebXmlParams(ComponentModule module, jakarta.servlet.ServletContext context) {
+	public static void populateWebXmlParams(final ComponentModule module, final jakarta.servlet.ServletContext context) {
 		if(module != null) {
 			getWebXmlParams(module).forEach(context::setInitParameter);
 		}
 	}
-	
+
 	/**
 	 * Processes context-param values from any WEB-INF/web.xml and META-INF/web-fragment.xml files
 	 * inside the module and returns a {@link Map} of them.
-	 * 
+	 *
 	 * @param module the module to load resources from
 	 * @return a {@link Map} of context parameters from the web descriptor
 	 * @since 3.0.0
 	 */
-	public static Map<String, String> getWebXmlParams(ComponentModule module) {
+	public static Map<String, String> getWebXmlParams(final ComponentModule module) {
 		if(module != null) {
 			WebXml result = getWebXml(module);
 			return result.getContextParams();
@@ -508,20 +508,20 @@ public enum ServletUtil {
 			return Collections.emptyMap();
 		}
 	}
-	
+
 	/**
 	 * Process any WEB-INF/web.xml and META-INF/web-fragment.xml files in the module
 	 * into a deployment descriptor.
-	 * 
+	 *
 	 * @param module the module to load resources from
 	 * @return a {@link WebXml} descriptor object for the module
 	 * @since 2.15.0
 	 */
-	public static WebXml getWebXml(ComponentModule module) {
+	public static WebXml getWebXml(final ComponentModule module) {
 		if(module == null) {
 			return new WebXml();
 		}
-		
+
 		Map<String, Object> attrs = module.getAttributes();
 		return (WebXml)attrs.computeIfAbsent(KEY_WEBXML, key -> AccessController.doPrivileged((PrivilegedAction<WebXml>)() -> {
 			ClassLoader tccl = Thread.currentThread().getContextClassLoader();
@@ -529,7 +529,7 @@ public enum ServletUtil {
 			WebXml webXml = new WebXml();
 			try {
 				WebXmlParser parser = new WebXmlParser(false, false, false);
-			
+
 				InputStream is = module.getResourceAsStream("/WEB-INF/web.xml"); //$NON-NLS-1$
 				if(is != null) {
 					if(log.isLoggable(Level.FINE)) {
@@ -538,7 +538,7 @@ public enum ServletUtil {
 					InputSource source = new InputSource(is);
 					parser.parseWebXml(source, webXml, false);
 				}
-				
+
 				// Look for META-INF/web-fragment.xml files
 				ClassLoader cl = module.getModuleClassLoader();
 				if(cl != null) {

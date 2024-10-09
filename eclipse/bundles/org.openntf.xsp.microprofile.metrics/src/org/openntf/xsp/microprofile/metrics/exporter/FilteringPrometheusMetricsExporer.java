@@ -42,13 +42,13 @@ public class FilteringPrometheusMetricsExporer extends AbstractFilteringExporter
 
     private final PrometheusMeterRegistry prometheusMeterRegistry;
 
-    public FilteringPrometheusMetricsExporer(String appName) {
+    public FilteringPrometheusMetricsExporer(final String appName) {
     	super(appName);
 
         final String METHOD_NAME = "PrometheusMetricsExporter";
 
         prometheusRegistryList = Metrics.globalRegistry.getRegistries().stream()
-                .filter(registry -> registry instanceof PrometheusMeterRegistry).collect(Collectors.toList());
+                .filter(PrometheusMeterRegistry.class::isInstance).collect(Collectors.toList());
 
         if (prometheusRegistryList == null || prometheusRegistryList.size() == 0) {
             throw new IllegalStateException("Prometheus registry was not found in the global registry");
@@ -82,26 +82,26 @@ public class FilteringPrometheusMetricsExporer extends AbstractFilteringExporter
     }
 
     @Override
-    public String exportOneScope(String scope) {
+    public String exportOneScope(final String scope) {
         String scrapeOutput = prometheusMeterRegistry.scrape(TextFormat.CONTENT_TYPE_004).replaceFirst("# EOF\r?\n?", "");
         return filterScope(scrapeOutput, scope);
     }
 
     @Override
-    public String exportMetricsByName(String scope, String metricName) {
+    public String exportMetricsByName(final String scope, final String metricName) {
         return filterMetrics(metricName, scope);
     }
 
     @Override
-    public String exportOneMetricAcrossScopes(String metricName) {
+    public String exportOneMetricAcrossScopes(final String metricName) {
         return filterMetrics(metricName);
     }
 
-    public String filterMetrics(String name) {
+    public String filterMetrics(final String name) {
         return filterMetrics(name, null);
     }
 
-    public String filterMetrics(String metricName, String scope) {
+    public String filterMetrics(final String metricName, final String scope) {
 
         Set<String> unitTypesSet = new HashSet<>();
         unitTypesSet.add("");
@@ -118,10 +118,10 @@ public class FilteringPrometheusMetricsExporer extends AbstractFilteringExporter
         String scrapeOutput = prometheusMeterRegistry.scrape(TextFormat.CONTENT_TYPE_004, scrapeMeterNames)
                 .replaceFirst("\r?\n?# EOF", "");
 
-        return (scope == null || scope.isEmpty()) ? scrapeOutput : filterScope(scrapeOutput, scope);
+        return scope == null || scope.isEmpty() ? scrapeOutput : filterScope(scrapeOutput, scope);
     }
 
-    public String filterScope(String scrapeOutput, String scope) {
+    public String filterScope(final String scrapeOutput, final String scope) {
         String[] lines = scrapeOutput.split("\r?\n");
 
         StringBuilder outputBuilder = new StringBuilder();
@@ -169,7 +169,7 @@ public class FilteringPrometheusMetricsExporer extends AbstractFilteringExporter
      * @param input
      * @return
      */
-    private String resolvePrometheusName(String input) {
+    private String resolvePrometheusName(final String input) {
         String output = input;
 
         // Change other special characters to underscore - Use to convert double underscores to single
@@ -193,7 +193,7 @@ public class FilteringPrometheusMetricsExporer extends AbstractFilteringExporter
         return output;
     }
 
-    private void resolveMeterSuffixes(Set<String> set, Type inputType) {
+    private void resolveMeterSuffixes(final Set<String> set, final Type inputType) {
 
         final String METHOD_NAME = "resolveMeterSuffixes";
         switch (inputType) {
@@ -216,7 +216,7 @@ public class FilteringPrometheusMetricsExporer extends AbstractFilteringExporter
         }
     }
 
-    private Set<String> calculateMeterNamesToScrape(String name, Set<String> meterSuffixSet, Set<String> unitTypeSet) {
+    private Set<String> calculateMeterNamesToScrape(final String name, final Set<String> meterSuffixSet, final Set<String> unitTypeSet) {
         final String METHOD_NAME = "calculateMeterNamesToScrape";
         String promName = resolvePrometheusName(name);
         Set<String> retSet = new HashSet<>();

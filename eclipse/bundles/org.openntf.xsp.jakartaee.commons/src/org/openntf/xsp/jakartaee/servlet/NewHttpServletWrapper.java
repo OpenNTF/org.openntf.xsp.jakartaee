@@ -26,10 +26,10 @@ import jakarta.servlet.http.HttpServlet;
 
 class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	final HttpServlet delegate;
-	
-	public NewHttpServletWrapper(Servlet delegate) {
+
+	public NewHttpServletWrapper(final Servlet delegate) {
 		if(!(delegate instanceof HttpServlet)) {
 			throw new IllegalArgumentException("Unsupported delegate: " + delegate);
 		}
@@ -52,7 +52,7 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	}
 
 	@Override
-	public void init(javax.servlet.ServletConfig arg0) throws javax.servlet.ServletException {
+	public void init(final javax.servlet.ServletConfig arg0) throws javax.servlet.ServletException {
 		try {
 			delegate.init(ServletUtil.oldToNew(arg0));
 		} catch (ServletException e) {
@@ -61,7 +61,7 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	}
 
 	@Override
-	public String getInitParameter(String name) {
+	public String getInitParameter(final String name) {
 		return delegate.getInitParameter(name);
 	}
 
@@ -77,7 +77,7 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	}
 
 	@Override
-	public void log(String msg) {
+	public void log(final String msg) {
 		delegate.log(msg);
 	}
 
@@ -96,12 +96,12 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	}
 
 	@Override
-	public void log(String message, Throwable t) {
+	public void log(final String message, final Throwable t) {
 		delegate.log(message, t);
 	}
 
 	@Override
-	public void service(javax.servlet.ServletRequest arg0, javax.servlet.ServletResponse arg1) throws javax.servlet.ServletException, IOException {
+	public void service(final javax.servlet.ServletRequest arg0, final javax.servlet.ServletResponse arg1) throws javax.servlet.ServletException, IOException {
 		javax.servlet.http.HttpServletRequest req = (javax.servlet.http.HttpServletRequest)arg0;
 		javax.servlet.http.HttpServletResponse resp = (javax.servlet.http.HttpServletResponse)arg1;
 

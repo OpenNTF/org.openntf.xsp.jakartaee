@@ -23,18 +23,18 @@ import java.util.Objects;
 
 /**
  * Default representation of {@link EntityAttachment} for a filesystem {@link Path}.
- * 
+ *
  * @since 0.0.9
  */
 class PathEntityAttachment implements EntityAttachment {
     private final Path path;
-    
-    public PathEntityAttachment(Path path) {
+
+    public PathEntityAttachment(final Path path) {
         Objects.requireNonNull(path, "path cannot be null");
         if(!Files.isRegularFile(path) || !Files.isReadable(path)) {
             throw new IllegalArgumentException("Path is not a readable file: " + path);
         }
-        
+
         this.path = path;
     }
 

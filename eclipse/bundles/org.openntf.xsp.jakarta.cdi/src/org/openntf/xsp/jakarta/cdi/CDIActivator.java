@@ -28,12 +28,12 @@ import jakarta.enterprise.inject.spi.CDI;
 public class CDIActivator implements BundleActivator {
 
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		CDI.setCDIProvider(new DominoCDIProvider());
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception {
+	public void stop(final BundleContext context) throws Exception {
 
 	}
 

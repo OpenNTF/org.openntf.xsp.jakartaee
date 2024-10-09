@@ -17,8 +17,9 @@ package org.openntf.xsp.jakarta.cdi.context;
 
 import java.lang.annotation.Annotation;
 
-import jakarta.enterprise.context.ConversationScoped;
 import javax.faces.context.FacesContext;
+
+import jakarta.enterprise.context.ConversationScoped;
 
 /**
  * @author Jesse Gallagher
@@ -31,14 +32,14 @@ public class ConversationScopeContext extends AbstractProxyingContext {
 	public Class<? extends Annotation> getScope() {
 		return ConversationScoped.class;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public BasicScopeContextHolder getHolder() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		if(context != null) {
 			String key = generateKey();
-			
+
 			return (BasicScopeContextHolder)context.getViewRoot()
 				.getViewMap()
 				.computeIfAbsent(key, k -> new BasicScopeContextHolder());
@@ -46,7 +47,7 @@ public class ConversationScopeContext extends AbstractProxyingContext {
 		// Must be in a non-HTTP task - just spin up a discardable one
 		return new BasicScopeContextHolder();
 	}
-	
+
 	@Override
 	public boolean isActive() {
 		return FacesContext.getCurrentInstance() != null;
