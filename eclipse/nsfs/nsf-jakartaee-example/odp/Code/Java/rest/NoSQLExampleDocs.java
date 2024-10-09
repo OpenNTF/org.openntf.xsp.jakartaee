@@ -237,6 +237,36 @@ public class NoSQLExampleDocs {
 	}
 	
 	/**
+	 * Used to test the use of the DQL "contains" operation with a list
+	 * 
+	 * @param titles the titles to include
+	 * @return the matching documents
+	 */
+	@Path("exampleDocsInNumberGuy")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getInNumberGuy(@QueryParam("numberGuy") List<Double> numberGuy) {
+		return template.select(ExampleDoc.class)
+			.where("numberGuy").in(numberGuy) //$NON-NLS-1$
+			.result();
+	}
+	
+	/**
+	 * Used to test the use of the DQL "contains" operation with a list
+	 * 
+	 * @param titles the titles to include
+	 * @return the matching documents
+	 */
+	@Path("exampleDocsLikeTitle")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getTitles(@QueryParam("title") String title) {
+		return template.select(ExampleDoc.class)
+			.where("title").like(title) //$NON-NLS-1$
+			.result();
+	}
+	
+	/**
 	 * Utility method to make sure that the FT index is updated for use with
 	 * DQL contains
 	 * 
