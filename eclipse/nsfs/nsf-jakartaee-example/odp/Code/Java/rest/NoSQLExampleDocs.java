@@ -266,6 +266,13 @@ public class NoSQLExampleDocs {
 			.result();
 	}
 	
+	@Path("allSorted")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getAllSorted() {
+		return repository.findAllSorted().toList();
+	}
+	
 	/**
 	 * Utility method to make sure that the FT index is updated for use with
 	 * DQL contains
