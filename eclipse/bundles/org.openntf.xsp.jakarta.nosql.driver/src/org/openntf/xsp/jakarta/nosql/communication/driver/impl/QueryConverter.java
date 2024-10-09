@@ -15,19 +15,13 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver.impl;
 
-import static org.eclipse.jnosql.communication.Condition.IN;
-
+import java.lang.reflect.Array;
 import java.time.temporal.Temporal;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.StreamSupport;
-import java.lang.Iterable;
-import java.lang.reflect.Array;
 
-import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -43,8 +37,6 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL.DQLTerm;
  */
 public enum QueryConverter {
 	;
-
-	private static final Set<Condition> NOT_APPENDABLE = EnumSet.of(IN, Condition.AND, Condition.OR);
 
 	private static final String[] ALL_SELECT = { "*" }; //$NON-NLS-1$
 	
@@ -72,12 +64,7 @@ public enum QueryConverter {
 
 	public static DQLTerm getCondition(CriteriaCondition condition) {
 		Element document = condition.element();
-
-		if (!NOT_APPENDABLE.contains(condition.condition())) {
-			// TODO determine if this is relevant
-//			params = EntityConverter.add(params, document.getName(), document.get());
-		}
-
+		
 		// Convert special names
 		String name = String.valueOf(document.name());
 		if (DominoConstants.FIELD_ID.equals(name)) {
