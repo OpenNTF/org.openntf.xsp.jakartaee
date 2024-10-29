@@ -154,8 +154,7 @@
 									JAX-B 
 								-->
 								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.2</id><source>true</source></artifact>
-								<artifact><id>com.sun.xml.bind:jaxb-core:4.0.5</id><source>true</source></artifact>
-								<artifact><id>com.sun.xml.bind:jaxb-impl:4.0.5</id><source>true</source></artifact>
+								<!-- EclipseLink is also a JAX-B implementation -->
 								
 								<!--
 									JSON-P and JSON-B
@@ -744,7 +743,23 @@
 									JPA
 								-->
 								<artfiact><id>jakarta.persistence:jakarta.persistence-api:3.1.0</id><source>true</source></artfiact>
-								<artfiact><id>org.eclipse.persistence:eclipselink:4.0.2</id><source>true</source></artfiact>
+								<artfiact>
+									<id>org.eclipse.persistence:eclipselink:4.0.2</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.eclipse.persistence.eclipselink</Bundle-SymbolicName>
+										<Bundle-Version>4.0.2.0.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="4.0.2"</Export-Package>
+										<Import-Package>
+											!sun.misc,
+											org.eclipse.persistence;version="4.0.0";resolution:=optional,
+											org.eclipse.persistence.*;version="4.0.0";resolution:=optional,
+											*;resolution:=optional
+										</Import-Package>
+										<Require-Capability></Require-Capability>
+									</instructions>
+								</artfiact>
 								
 								<!--
 									MicroProfile Config
