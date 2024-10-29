@@ -195,6 +195,7 @@ public enum ModuleUtil {
 				}).forEach(result::add);
 		}
 
+		// TODO cache per bundle
 		for(Bundle bundle : bundles) {
 			String baseUrl = bundle.getEntry("/").toString(); //$NON-NLS-1$
 			List<URL> entries = Collections.list(bundle.findEntries("/", "*.class", true)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -214,12 +215,16 @@ public enum ModuleUtil {
 				}).filter(c -> {
 					for (Class<?> type : types.value()) {
 						if (type.isAnnotation()) {
-							return c.isAnnotationPresent((Class<? extends Annotation>) type);
+							if(c.isAnnotationPresent((Class<? extends Annotation>) type)) {
+								return true;
+							}
 						} else {
-							return type.isAssignableFrom(c);
+							if(type.isAssignableFrom(c)) {
+								return true;
+							}
 						}
 					}
-					return true;
+					return false;
 				}).forEach(result::add);
 		}
 

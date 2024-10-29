@@ -4,6 +4,7 @@ Bundle-Name: XPages Jakarta Faces Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.faces;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.faces
 Bundle-Version: 3.2.0.qualifier
+Export-Package: org.openntf.xsp.jakarta.faces.webapp;version="3.2.0"
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: jakarta.servlet-api;bundle-version="6.0.0";visibility:=reexport,
@@ -20,6 +21,7 @@ Import-Package: com.ibm.commons.util,
  com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.library,
  javax.servlet,
+ javax.servlet.http,
  org.eclipse.core.runtime,
  org.eclipse.osgi.util,
  org.jboss.weld.manager,

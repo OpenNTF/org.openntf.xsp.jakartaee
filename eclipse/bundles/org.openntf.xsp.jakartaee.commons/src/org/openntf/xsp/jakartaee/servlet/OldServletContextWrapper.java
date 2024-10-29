@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -146,7 +145,8 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public jakarta.servlet.ServletRegistration.Dynamic addServlet(final String arg0, final Class<? extends Servlet> arg1) {
-		throw unavailable();
+		// Soft unavailable
+		return null;
 	}
 
 	@Override
@@ -412,68 +412,27 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public Map<String, ? extends ServletRegistration> getServletRegistrations() {
+		Map<String, ServletRegistration> result = new HashMap<>();
+		
+		// Faces in webapps needs to find something either named jakarta.faces.webapp.FacesServlet
+		//      or a real class assignable to org.apache.myfaces.webapp.DelegatedFacesServlet
+		Set<String> registered = (Set<String>)getAttribute(ServletUtil.KEY_REGISTEREDSERVLETS);
+		if(registered != null) {
+			for(String className : registered) {
+				result.put(className, new DummyServletRegistration(className, className, Collections.emptySet()));
+			}
+		}
+		
 		// Not supported on Domino, so build a map based on IServletFactory instances
-		return getServletFactories()
+		getServletFactories()
 			.stream()
 			.filter(MappingBasedServletFactory.class::isInstance)
 			.map(MappingBasedServletFactory.class::cast)
-			.collect(Collectors.toMap(
-				fac -> fac.getClass().getName(),
-				fac -> new ServletRegistration() {
-
-					@Override
-					public String getClassName() {
-						return fac.getServletClassName();
-					}
-
-					@Override
-					public String getInitParameter(final String param) {
-						return null;
-					}
-
-					@Override
-					public Map<String, String> getInitParameters() {
-						return Collections.emptyMap();
-					}
-
-					@Override
-					public String getName() {
-						return fac.getClass().getName();
-					}
-
-					@Override
-					public boolean setInitParameter(final String param, final String value) {
-						// NOP
-						return false;
-					}
-
-					@Override
-					public Set<String> setInitParameters(final Map<String, String> params) {
-						// NOP
-						return Collections.emptySet();
-					}
-
-					@Override
-					public Set<String> addMapping(final String... urlPatterns) {
-						// NOP
-						return fac.getExtensions();
-					}
-
-					@Override
-					public Collection<String> getMappings() {
-						return fac.getExtensions()
-							.stream()
-							.map(ext -> "*" + ext) //$NON-NLS-1$
-							.collect(Collectors.toSet());
-					}
-
-					@Override
-					public String getRunAsRole() {
-						return null;
-					}
-
-				}
-			));
+			.forEach(fac -> {
+				result.put(fac.getClass().getName(), new DummyServletRegistration(fac.getClass().getName(), fac.getServletClassName(), fac.getExtensions()));
+			});
+		
+		return result;
 	}
 
 	@Override

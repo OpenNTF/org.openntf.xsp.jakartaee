@@ -23,6 +23,11 @@
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 	
+	<context-param>
+    	<param-name>jakarta.faces.FACELETS_LIBRARIES</param-name>
+    	<param-value>/WEB-INF/exampleFacelets.taglib.xml</param-value>
+    </context-param>
+	
 	<servlet>
 		<servlet-name>JspServlet</servlet-name>
 		<servlet-class>org.openntf.xsp.jakarta.pages.webapp.WebappPagesServlet</servlet-class>
@@ -38,6 +43,15 @@
 	<servlet-mapping>
 		<servlet-name>JspServlet</servlet-name>
 		<url-pattern>*.jsp</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>JsfServlet</servlet-name>
+		<servlet-class>org.openntf.xsp.jakarta.faces.webapp.WebappFacesServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JsfServlet</servlet-name>
+		<url-pattern>*.xhtml</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>

@@ -24,8 +24,10 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,7 +58,15 @@ import jakarta.servlet.http.HttpSessionAttributeListener;
 public enum ServletUtil {
 	;
 
-	public static final String KEY_WEBXML = ServletUtil.class.getPackage().getName() + "_webXml"; //$NON-NLS-1$
+	public static final String KEY_WEBXML = ServletUtil.class.getPackageName() + "_webXml"; //$NON-NLS-1$
+	/**
+	 * Key for an attribute in ServletContextWrapper to house the names of Servlets registered
+	 * to it. This is needed specifically for a case of MyFaces looking for a Servlet
+	 * named jakarta.faces.webapp.FacesServlet exactly in the list, or else it tries
+	 * to register it dynamically.
+	 * @since 3.2.0
+	 */
+	public static final String KEY_REGISTEREDSERVLETS = ServletUtil.class.getPackageName() + "_registeredServlets"; //$NON-NLS-1$
 
 	private static final Logger log = Logger.getLogger(ServletUtil.class.getName());
 
@@ -563,5 +573,16 @@ public enum ServletUtil {
 			}
 			return webXml;
 		}));
+	}
+	
+	public static void addServletMappingStub(javax.servlet.ServletContext context, String servletClassName) {
+		synchronized(context) {
+			Set<String> registered = (Set<String>)context.getAttribute(ServletUtil.KEY_REGISTEREDSERVLETS);
+			if(registered == null) {
+				registered = new HashSet<>();
+				context.setAttribute(ServletUtil.KEY_REGISTEREDSERVLETS, registered);
+			}
+			registered.add(servletClassName);
+		}
 	}
 }
