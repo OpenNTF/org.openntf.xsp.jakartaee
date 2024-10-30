@@ -52,6 +52,9 @@ public class AtomPubCollection {
 	public CategoriesRef getCategories() {
 		return categories;
 	}
+	public void setCategories(CategoriesRef categories) {
+		this.categories = categories;
+	}
 	public void setCategoriesHref(String url) {
 		CategoriesRef categories = new CategoriesRef();
 		categories.setHref(url);
