@@ -417,6 +417,8 @@ public Object xml() {
 }
 ```
 
+XML Binding is provided by [EclipseLink](https://eclipse.dev/eclipselink/), which can be pickier than other implementations. Specifically, a getter annotated with `@XmlElementRef` will likely require a corresponding setter or else result in a `JAXBException` with a null message.
+
 ### Mail
 
 The [Mail](https://jakarta.ee/specifications/mail/2.1/) API provides classes for working with MIME and other email technologies. Though this does not integrate with Domino's mail capabilities, it can be useful for generating and processing MIME messages generally. For example:
