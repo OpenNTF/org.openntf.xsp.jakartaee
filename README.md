@@ -42,7 +42,7 @@ Note: the term "core" is distinct from the ["Jakarta EE Core Profile"](https://j
 
 ### CDI
 
-The [Jakarta Contexts and Dependency Injection 3.0](https://jakarta.ee/specifications/cdi/) specification provides for managed beans and dependency injection.
+The [Jakarta Contexts and Dependency Injection](https://jakarta.ee/specifications/cdi/) specification provides for managed beans and dependency injection.
 
 Currently, this support is focused around adding annotated CDI managed bean classes in an NSF and having them picked up by the variable resolver. For example:
 
@@ -157,7 +157,7 @@ The Jakarta EL handler is currently stricter about null values than the default 
 <xp:text value="${beanThatDoesNotExist.someProp}"/>
 ```
 
-In standard XPages, this will result in an empty output. With the EL 4 resolver, however, this will cause an exception like `ELResolver cannot handle a null base Object with identifier 'beanThatDoesNotExist'`. I'm considering changing this behavior to match the XPages default, but there's also some value in the strictness, especially because the exception is helpful in referencing the object it's trying to resolve against, which could help track down subtle bugs.
+In standard XPages, this will result in an empty output. With the Jakarta EL resolver, however, this will cause an exception like `ELResolver cannot handle a null base Object with identifier 'beanThatDoesNotExist'`. I'm considering changing this behavior to match the XPages default, but there's also some value in the strictness, especially because the exception is helpful in referencing the object it's trying to resolve against, which could help track down subtle bugs.
 
 Additionally, if you use Server JavaScript bindings inside a theme (e.g. `rendered="${javascript:...}"`), the resolver will complain on the server console if there is whitespace immediately following `javascript:`.
 
@@ -389,7 +389,7 @@ By default, JSON-B will export object properties based on publicly-visible gette
 
 ### XML Binding
 
-The [XML Binding](https://jakarta.ee/specifications/xml-binding/3.0/) spec provides for translating objects to and from XML, similar to JSON-B for JSON. In addition to default translations for un-configured objects, this allows for annotating classes with information to specify their translation.
+The [XML Binding](https://jakarta.ee/specifications/xml-binding/) spec provides for translating objects to and from XML, similar to JSON-B for JSON. In addition to default translations for un-configured objects, this allows for annotating classes with information to specify their translation.
 
 For example:
 
@@ -421,7 +421,7 @@ XML Binding is provided by [EclipseLink](https://eclipse.dev/eclipselink/), whic
 
 ### Mail
 
-The [Mail](https://jakarta.ee/specifications/mail/2.1/) API provides classes for working with MIME and other email technologies. Though this does not integrate with Domino's mail capabilities, it can be useful for generating and processing MIME messages generally. For example:
+The [Mail](https://jakarta.ee/specifications/mail/) API provides classes for working with MIME and other email technologies. Though this does not integrate with Domino's mail capabilities, it can be useful for generating and processing MIME messages generally. For example:
 
 ```java
 @GET
