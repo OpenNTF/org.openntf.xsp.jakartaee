@@ -22,6 +22,7 @@ import org.openntf.xsp.jakarta.transaction.DominoTransaction;
 import org.openntf.xsp.jakarta.transaction.cdi.DominoTransactionProducer;
 
 import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ContextNotActiveException;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
 
@@ -39,10 +40,14 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
-			Instance<DominoTransactionProducer> producer = CDI.current().select(DominoTransactionProducer.class);
-			if(producer.isResolvable()) {
-				DominoTransaction transaction = producer.get().peekTransaction();
-				((AttributedContextHandle)contextHandle).setAttribute(PROP_TRANSACTION, transaction);
+			try {
+				Instance<DominoTransactionProducer> producer = CDI.current().select(DominoTransactionProducer.class);
+				if(producer.isResolvable()) {
+					DominoTransaction transaction = producer.get().peekTransaction();
+					((AttributedContextHandle)contextHandle).setAttribute(PROP_TRANSACTION, transaction);
+				}
+			} catch(ContextNotActiveException e) {
+				// Scheduled during something other than an active request - ignore
 			}
 		}
 	}
@@ -50,10 +55,14 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 	@Override
 	public void setup(final ContextHandle contextHandle) throws IllegalStateException {
 		if(contextHandle instanceof AttributedContextHandle) {
-			Instance<DominoTransactionProducer> producer = CDI.current().select(DominoTransactionProducer.class);
-			if(producer.isResolvable()) {
-				DominoTransaction transaction = ((AttributedContextHandle)contextHandle).getAttribute(PROP_TRANSACTION);
-				producer.get().setTransaction(transaction);
+			try {
+				Instance<DominoTransactionProducer> producer = CDI.current().select(DominoTransactionProducer.class);
+				if(producer.isResolvable()) {
+					DominoTransaction transaction = ((AttributedContextHandle)contextHandle).getAttribute(PROP_TRANSACTION);
+					producer.get().setTransaction(transaction);
+				}
+			} catch(ContextNotActiveException e) {
+				// Scheduled during something other than an active request - ignore
 			}
 		}
 	}
@@ -72,6 +81,8 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 			// Will almost definitely be "Invalid disposed application ClassLoader", which occurs
 			//   during active development of an NSF - ignore
 			// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/362
+		} catch(ContextNotActiveException e) {
+			// Scheduled during something other than an active request - ignore
 		}
 	}
 
