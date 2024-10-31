@@ -26,25 +26,25 @@ import java.util.logging.Logger;
 /**
  * Utility class to house references to all active executors, so they can
  * be mass closed during task shutdown.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
 public enum ExecutorHolder {
 	INSTANCE;
-	
+
 	private static final Logger log = Logger.getLogger(ExecutorHolder.class.getPackage().getName());
-	
+
 	private final Collection<ExecutorService> executors = Collections.synchronizedSet(new HashSet<>());
-	
-	public void register(ExecutorService exec) {
+
+	public void register(final ExecutorService exec) {
 		this.executors.add(exec);
 	}
-	
-	public void unregister(ExecutorService exec) {
+
+	public void unregister(final ExecutorService exec) {
 		this.executors.remove(exec);
 	}
-	
+
 	public synchronized void termAll() {
 		executors.forEach(exec -> {
 			if(!(exec.isShutdown() || exec.isTerminated())) {

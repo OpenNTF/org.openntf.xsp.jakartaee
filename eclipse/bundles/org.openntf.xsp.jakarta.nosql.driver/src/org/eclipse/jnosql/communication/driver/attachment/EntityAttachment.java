@@ -47,44 +47,44 @@ public interface EntityAttachment {
      * @return the size of the content in bytes
      */
     long getLength();
-    
+
     /**
      * @return an ETag value for the current version of the content
      */
     default String getETag() {
         return getName() + "-" + Long.toString(getLastModified(), 16); //$NON-NLS-1$
     }
-    
+
     /**
      * Creates a new in-memory {@link EntityAttachment} for the provided information
-     * 
+     *
      * @param name the name of the attachment
      * @param lastModified the last modification date, in ms since the epoch
      * @param contentType the MIME type of the content
      * @param data the data if the attachment
      * @return a new {@link EntityAttachment}
      */
-    static EntityAttachment of(String name, long lastModified, String contentType, byte[] data) {
+    static EntityAttachment of(final String name, final long lastModified, final String contentType, final byte[] data) {
         return new ByteArrayEntityAttachment(name, contentType, lastModified, data);
     }
-    
+
     /**
      * Creates a new {@link EntityAttachment} to represent the provided file {@link Path}
-     * 
+     *
      * @param path a {@link Path} representing a readable file on disk
      * @return a new {@link EntityAttachment}
      */
-    static EntityAttachment of(Path path) {
+    static EntityAttachment of(final Path path) {
         return new PathEntityAttachment(path);
     }
-    
+
     /**
      * Creates a new {@link EntityAttachment} to represent the provided {@link File}
-     * 
+     *
      * @param file a {@link File} representing a readable file on disk
      * @return a new {@link EntityAttachment}
      */
-    static EntityAttachment of(File file) {
+    static EntityAttachment of(final File file) {
         Objects.requireNonNull(file, "file cannot be null");
         return of(file.toPath());
     }

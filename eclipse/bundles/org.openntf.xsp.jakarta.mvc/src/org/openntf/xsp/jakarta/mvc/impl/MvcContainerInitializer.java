@@ -27,7 +27,7 @@ import jakarta.ws.rs.Path;
 @HandlesTypes({Path.class})
 public class MvcContainerInitializer extends KrazoContainerInitializer {
 	@Override
-	public void onStartup(Set<Class<?>> classes, ServletContext servletContext) {
+	public void onStartup(final Set<Class<?>> classes, final ServletContext servletContext) {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			super.onStartup(classes, servletContext);
 		}

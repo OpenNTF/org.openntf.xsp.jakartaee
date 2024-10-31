@@ -29,7 +29,7 @@ import jakarta.json.JsonStructure;
 public class JsonStructureTypeReferenceReader implements TypeReferenceReader {
 
 	@Override
-	public boolean test(TypeSupplier<?> t) {
+	public boolean test(final TypeSupplier<?> t) {
 		if(t.get() instanceof Class) {
 			return JsonStructure.class.isAssignableFrom((Class<?>)t.get());
 		}
@@ -38,7 +38,7 @@ public class JsonStructureTypeReferenceReader implements TypeReferenceReader {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T convert(TypeSupplier<T> typeReference, Object value) {
+	public <T> T convert(final TypeSupplier<T> typeReference, Object value) {
 		if(value instanceof JsonArray) {
 			return (T)value;
 		}

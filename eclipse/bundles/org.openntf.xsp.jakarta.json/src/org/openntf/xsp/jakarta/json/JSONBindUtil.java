@@ -27,41 +27,39 @@ import jakarta.json.bind.Jsonb;
 
 /**
  * Utility methods for working with JSON-B in an XPages context.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.0
  */
 public enum JSONBindUtil {
 	;
-	
+
 	/**
 	 * Converts the provided object to JSON using the provided {@link Jsonb} instance.
-	 * 
+	 *
 	 * <p>This method performs conversion in an {@link AccessController#doPrivileged} block
 	 * to avoid permissions issues in an XPages application.</p>
-	 * 
+	 *
 	 * @param obj the object to convert to JSON
 	 * @param jsonb the {@link Jsonb} instance to use for processing
 	 * @return the object's JSON form
 	 */
-	public static String toJson(Object obj, Jsonb jsonb) {
-		return AccessController.doPrivileged((PrivilegedAction<String>)() -> {
-			return jsonb.toJson(obj);
-		});
+	public static String toJson(final Object obj, final Jsonb jsonb) {
+		return AccessController.doPrivileged((PrivilegedAction<String>)() -> jsonb.toJson(obj));
 	}
-	
+
 	/**
 	 * Converts the provided object to JSON using the provided {@link Jsonb} instance.
-	 * 
+	 *
 	 * <p>This method performs conversion in an {@link AccessController#doPrivileged} block
 	 * to avoid permissions issues in an XPages application.</p>
-	 * 
+	 *
 	 * @param obj the object to convert to JSON
 	 * @param jsonb the {@link Jsonb} instance to use for processing
 	 * @param os the {@link OutputStream} to stream the response to
 	 * @since 1.1.0
 	 */
-	public static void toJson(Object obj, Jsonb jsonb, OutputStream os) {
+	public static void toJson(final Object obj, final Jsonb jsonb, final OutputStream os) {
 		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
 			jsonb.toJson(obj, os);
 			return null;
@@ -70,93 +68,85 @@ public enum JSONBindUtil {
 
 	/**
 	 * Converts the provided object to JSON using the provided {@link Jsonb} instance.
-	 * 
+	 *
 	 * <p>This method performs conversion in an {@link AccessController#doPrivileged} block
 	 * to avoid permissions issues in an XPages application.</p>
-	 * 
+	 *
 	 * @param obj the object to convert to JSON
 	 * @param jsonb the {@link Jsonb} instance to use for processing
 	 * @param writer the {@link Writer} to stream the response to
 	 * @since 1.1.0
 	 */
-	public static void toJson(Object obj, Jsonb jsonb, Writer writer) {
+	public static void toJson(final Object obj, final Jsonb jsonb, final Writer writer) {
 		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
 			jsonb.toJson(obj, writer);
 			return null;
 		});
 	}
-	
+
 	/**
 	 * Converts the provided JSON string to an object of the given type using the provided
 	 * {@link Jsonb} instance.
-	 * 
+	 *
 	 * <p>This method performs conversion in an {@link AccessController#doPrivileged} block
 	 * to avoid permissions issues in an XPages application.</p>
-	 * 
+	 *
 	 * @param json the JSON string to parse
 	 * @param jsonb the {@link Jsonb} instance to use for processing
 	 * @param type the class to deserialize to
 	 * @return a deserialized object
 	 */
-	public static <T> T fromJson(String json, Jsonb jsonb, Class<T> type) {
-		return AccessController.doPrivileged((PrivilegedAction<T>)() -> {
-			return jsonb.fromJson(json, type);
-		});
+	public static <T> T fromJson(final String json, final Jsonb jsonb, final Class<T> type) {
+		return AccessController.doPrivileged((PrivilegedAction<T>)() -> jsonb.fromJson(json, type));
 	}
-	
+
 	/**
 	 * Converts the provided JSON string to an object of the given type using the provided
 	 * {@link Jsonb} instance.
-	 * 
+	 *
 	 * <p>This method performs conversion in an {@link AccessController#doPrivileged} block
 	 * to avoid permissions issues in an XPages application.</p>
-	 * 
+	 *
 	 * @param json the JSON {@link InputStream} to parse
 	 * @param jsonb the {@link Jsonb} instance to use for processing
 	 * @param type the class to deserialize to
 	 * @return a deserialized object
 	 * @since 1.1.0
 	 */
-	public static <T> T fromJson(InputStream json, Jsonb jsonb, Class<T> type) {
-		return AccessController.doPrivileged((PrivilegedAction<T>)() -> {
-			return jsonb.fromJson(json, type);
-		});
+	public static <T> T fromJson(final InputStream json, final Jsonb jsonb, final Class<T> type) {
+		return AccessController.doPrivileged((PrivilegedAction<T>)() -> jsonb.fromJson(json, type));
 	}
 	/**
 	 * Converts the provided JSON string to an object of the given type using the provided
 	 * {@link Jsonb} instance.
-	 * 
+	 *
 	 * <p>This method performs conversion in an {@link AccessController#doPrivileged} block
 	 * to avoid permissions issues in an XPages application.</p>
-	 * 
+	 *
 	 * @param json the JSON {@link InputStream} to parse
 	 * @param jsonb the {@link Jsonb} instance to use for processing
 	 * @param type the generic type to deserialize to
 	 * @return a deserialized object
 	 * @since 1.2.0
 	 */
-	public static Object fromJson(InputStream json, Jsonb jsonb, Type type) {
-		return AccessController.doPrivileged((PrivilegedAction<Object>)() -> {
-			return jsonb.fromJson(json, type);
-		});
+	public static Object fromJson(final InputStream json, final Jsonb jsonb, final Type type) {
+		return AccessController.doPrivileged((PrivilegedAction<Object>)() -> jsonb.fromJson(json, type));
 	}
-	
+
 	/**
 	 * Converts the provided JSON string to an object of the given type using the provided
 	 * {@link Jsonb} instance.
-	 * 
+	 *
 	 * <p>This method performs conversion in an {@link AccessController#doPrivileged} block
 	 * to avoid permissions issues in an XPages application.</p>
-	 * 
+	 *
 	 * @param json the JSON {@link Reader} to parse
 	 * @param jsonb the {@link Jsonb} instance to use for processing
 	 * @param type the class to deserialize to
 	 * @return a deserialized object
 	 * @since 1.1.0
 	 */
-	public static <T> T fromJson(Reader json, Jsonb jsonb, Class<T> type) {
-		return AccessController.doPrivileged((PrivilegedAction<T>)() -> {
-			return jsonb.fromJson(json, type);
-		});
+	public static <T> T fromJson(final Reader json, final Jsonb jsonb, final Class<T> type) {
+		return AccessController.doPrivileged((PrivilegedAction<T>)() -> jsonb.fromJson(json, type));
 	}
 }

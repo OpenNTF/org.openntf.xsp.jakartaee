@@ -18,20 +18,20 @@ package org.openntf.xsp.jakartaee.bridge.jasapi.module;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.openntf.xsp.jakartaee.bridge.jasapi.JasapiServiceFactory;
-
 import com.ibm.domino.bridge.http.jasapi.IJavaSapiEnvironment;
 import com.ibm.domino.bridge.http.jasapi.JavaSapiService;
 
+import org.openntf.xsp.jakartaee.bridge.jasapi.JasapiServiceFactory;
+
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.13.0
  */
 public class ComponentModuleJasapiFactory implements JasapiServiceFactory {
 
 	@Override
-	public Collection<JavaSapiService> getServices(IJavaSapiEnvironment env) {
+	public Collection<JavaSapiService> getServices(final IJavaSapiEnvironment env) {
 		return Collections.singleton(new NSFComponentModuleJavaSapiService(env));
 	}
 

@@ -26,13 +26,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 class OldRequestDispatcherWrapper implements RequestDispatcher {
 	final javax.servlet.RequestDispatcher delegate;
-	
-	public OldRequestDispatcherWrapper(javax.servlet.RequestDispatcher delegate) {
+
+	public OldRequestDispatcherWrapper(final javax.servlet.RequestDispatcher delegate) {
 		this.delegate = delegate;
 	}
-	
+
 	@Override
-	public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+	public void forward(final ServletRequest request, final ServletResponse response) throws ServletException, IOException {
 		HttpServletRequest req = (HttpServletRequest)request;
 		HttpServletResponse resp = (HttpServletResponse)response;
 		try {
@@ -43,7 +43,7 @@ class OldRequestDispatcherWrapper implements RequestDispatcher {
 	}
 
 	@Override
-	public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+	public void include(final ServletRequest request, final ServletResponse response) throws ServletException, IOException {
 		HttpServletRequest req = (HttpServletRequest)request;
 		HttpServletResponse resp = (HttpServletResponse)response;
 		try {

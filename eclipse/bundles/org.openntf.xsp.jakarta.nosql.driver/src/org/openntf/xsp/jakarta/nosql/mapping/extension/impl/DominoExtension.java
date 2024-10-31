@@ -37,7 +37,7 @@ import jakarta.enterprise.inject.spi.ProcessProducer;
 
 /**
  * CDI extension to provide Domino-specific NoSQL capabilities.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.5.0
  */

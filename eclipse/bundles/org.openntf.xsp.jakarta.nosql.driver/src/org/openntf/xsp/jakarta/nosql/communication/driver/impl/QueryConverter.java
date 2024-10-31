@@ -15,17 +15,13 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver.impl;
 
-import static org.eclipse.jnosql.communication.Condition.IN;
-
+import java.lang.reflect.Array;
 import java.time.temporal.Temporal;
-import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
-import java.lang.Iterable;
+import java.util.Spliterator;
+import java.util.stream.StreamSupport;
 
-import org.eclipse.jnosql.communication.Condition;
 import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
@@ -35,18 +31,18 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL.DQLTerm;
 
 /**
  * Assistant class to convert queries from Diana internal structures to DQL queries
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.3.0
  */
 public enum QueryConverter {
 	;
 
-	private static final Set<Condition> NOT_APPENDABLE = EnumSet.of(IN, Condition.AND, Condition.OR);
-
 	private static final String[] ALL_SELECT = { "*" }; //$NON-NLS-1$
 
-	public static QueryConverterResult select(SelectQuery query) {
+	private static final String[] EMPTY_STRING_ARRAY = {};
+
+	public static QueryConverterResult select(final SelectQuery query) {
 		String[] documents = query.columns().toArray(new String[0]);
 		if (documents.length == 0) {
 			documents = ALL_SELECT;
@@ -66,34 +62,36 @@ public enum QueryConverter {
 		return new QueryConverterResult(documents, statement, skip, limit);
 	}
 
-	public static DQLTerm getCondition(CriteriaCondition condition) {
+	public static DQLTerm getCondition(final CriteriaCondition condition) {
 		Element document = condition.element();
-
-		if (!NOT_APPENDABLE.contains(condition.condition())) {
-			// TODO determine if this is relevant
-//			params = EntityConverter.add(params, document.getName(), document.get());
-		}
 
 		// Convert special names
 		String name = String.valueOf(document.name());
-		if (DominoConstants.FIELD_ID.equals(name)) {
-			name = "@DocumentUniqueID"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_CDATE.equals(name)) {
-			name = "@Created"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_MDATE.equals(name)) {
-			name = "@Modified"; //$NON-NLS-1$
-		} else if("$REF".equalsIgnoreCase(name)) { //$NON-NLS-1$
-			name = "@Text($REF)"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_SIZE.equals(name)) {
-			name = "@DocLength"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_NOTEID.equals(name)) {
-			name = "@NoteID"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_ADATE.equals(name)) {
-			name = "@Accessed"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_ADDED.equals(name)) {
-			name = "@AddedToThisFile"; //$NON-NLS-1$
-		} else if(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE.equals(name)) {
-			name = "@ModifiedInThisFile"; //$NON-NLS-1$
+		switch (name) {
+			case DominoConstants.FIELD_ID:
+				name = "@DocumentUniqueID"; //$NON-NLS-1$
+				break;
+			case DominoConstants.FIELD_CDATE:
+				name = "@Created"; //$NON-NLS-1$
+				break;
+			case DominoConstants.FIELD_MDATE:
+				name = "@Modified"; //$NON-NLS-1$
+				break;
+			default:
+				if("$REF".equalsIgnoreCase(name)) { //$NON-NLS-1$
+					name = "@Text($REF)"; //$NON-NLS-1$
+				} else if(DominoConstants.FIELD_SIZE.equals(name)) {
+					name = "@DocLength"; //$NON-NLS-1$
+				} else if(DominoConstants.FIELD_NOTEID.equals(name)) {
+					name = "@NoteID"; //$NON-NLS-1$
+				} else if(DominoConstants.FIELD_ADATE.equals(name)) {
+					name = "@Accessed"; //$NON-NLS-1$
+				} else if(DominoConstants.FIELD_ADDED.equals(name)) {
+					name = "@AddedToThisFile"; //$NON-NLS-1$
+				} else if(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE.equals(name)) {
+					name = "@ModifiedInThisFile"; //$NON-NLS-1$
+				}
+				break;
 		}
 
 		Object value = document.get();
@@ -142,45 +140,33 @@ public enum QueryConverter {
 					return DQL.item(name).isGreaterThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case LIKE:
-				// TODO investigate @Like
 				if(value instanceof Number) {
 					throw new IllegalArgumentException("Unable to perform LIKE query on a number");
 				} else {
 					return DQL.item(name).contains(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case IN:
-				if(value instanceof Number) {
-					throw new IllegalArgumentException("Unable to perform IN query on a number");
-                } else {
-                    List<String> valueHelper = new ArrayList<>();
-
-                    // Make sure value is valid.
-                    if (value == null) {
-                        value = ""; //$NON-NLS-1$
-                    } else if (value.getClass().isArray()) {
-                        value = Arrays.asList(value);
-                    }
-                    
-                    // If value is an Iterable, convert all entries to String.
-                    if (value instanceof Iterable) {
-                        ((Iterable<?>)value).forEach(item -> valueHelper.add(item.toString()));
-                    } else {
-                        valueHelper.add(value.toString());
-                    }
-					return DQL.item(name).contains(valueHelper.toArray(new String[valueHelper.size()]));
+				Object arr = toDqlArray(value);
+				if(arr instanceof int[] i) {
+					return DQL.item(name).in(i);
+				} else if(arr instanceof double[] d) {
+					return DQL.item(name).in(d);
+				} else {
+					// Guaranteed to be String[]
+					return DQL.item(name).in((String[])arr);
 				}
 			case AND: {
 				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});
 				return DQL.and(conditions
 					.stream()
-					.map(c -> getCondition(c))
+					.map(QueryConverter::getCondition)
 					.toArray(DQLTerm[]::new));
 			}
 			case OR: {
 				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});
 				return DQL.or(conditions
 					.stream()
-					.map(c -> getCondition(c))
+					.map(QueryConverter::getCondition)
 					.toArray(DQLTerm[]::new));
 			}
 			case NOT:
@@ -198,13 +184,13 @@ public enum QueryConverter {
 		private final long skip;
 		private final long limit;
 
-		QueryConverterResult(String[] unids, DQLTerm dql, long skip, long limit) {
+		QueryConverterResult(final String[] unids, final DQLTerm dql, final long skip, final long limit) {
 			this.unids = unids;
 			this.dql = dql;
 			this.skip = skip;
 			this.limit = limit;
 		}
-		
+
 		public String[] getUnids() {
 			return unids;
 		}
@@ -212,18 +198,18 @@ public enum QueryConverter {
 		public DQLTerm getStatement() {
 			return dql;
 		}
-		
+
 		public long getSkip() {
 			return skip;
 		}
-		
+
 		public long getLimit() {
 			return limit;
 		}
 	}
 
-	
-	private static DQLTerm applyFormName(DQLTerm condition, String formName) {
+
+	private static DQLTerm applyFormName(final DQLTerm condition, final String formName) {
 		if(formName == null || formName.isEmpty()) {
 			return condition;
 		} else {
@@ -232,6 +218,97 @@ public enum QueryConverter {
 			} else {
 				return DQL.and(DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName), condition);
 			}
+		}
+	}
+
+	/**
+	 * Converts the provided value to a DQL-usable array:
+	 * either a String[], int[], or double[].
+	 */
+	@SuppressWarnings("unchecked")
+	private static Object toDqlArray(final Object value) {
+		if(value == null) {
+			return EMPTY_STRING_ARRAY;
+		} else if(value instanceof String s) {
+			return new String[] { s };
+		} else if(value instanceof String[] s) {
+			return s;
+		} else if(value instanceof Integer i) {
+			return new int[] { i };
+		} else if(value instanceof int[] s) {
+			return s;
+		} else if(value instanceof double[] s) {
+			return s;
+		} else if(value instanceof float[] s) {
+			double[] result = new double[s.length];
+			for(int i = 0; i < s.length; i++) {
+				result[i] = s[i];
+			}
+			return result;
+		} else if(value instanceof long[] s) {
+			double[] result = new double[s.length];
+			for(int i = 0; i < s.length; i++) {
+				result[i] = s[i];
+			}
+			return result;
+		} else if(value instanceof short[] s) {
+			int[] result = new int[s.length];
+			for(int i = 0; i < s.length; i++) {
+				result[i] = s[i];
+			}
+			return result;
+		} else if(value instanceof boolean[] b) {
+			int[] result = new int[b.length];
+			for(int i = 0; i < b.length; i++) {
+				result[i] = b[i] ? 1 : 0;
+			}
+			return result;
+		} else if(value instanceof Number n) {
+			return new double[] { n.doubleValue() };
+		} else if(value.getClass().isArray()) {
+			Class<?> componentType = value.getClass().getComponentType();
+			if(Number.class.isAssignableFrom(componentType)) {
+				double[] result = new double[Array.getLength(value)];
+				for(int i = 0; i < result.length; i++) {
+					Number n = (Number)Array.get(value, i);
+					result[i] = n == null ? 0 : n.doubleValue();
+				}
+				return result;
+			} else {
+				String[] result = new String[Array.getLength(value)];
+				for(int i = 0; i < result.length; i++) {
+					Object o = Array.get(value, i);
+					result[i] = o == null ? "" : o.toString(); //$NON-NLS-1$
+				}
+				return result;
+			}
+		} else if(value instanceof Iterable i) {
+			Iterator<?> iter = i.iterator();
+			if(!iter.hasNext()) {
+				return EMPTY_STRING_ARRAY;
+			} else {
+				Object o = iter.next();
+				if(o instanceof Integer) {
+					Spliterator<Object> s = i.spliterator();
+					return StreamSupport.stream(s, false)
+						.map(Number.class::cast)
+						.mapToInt(Number::intValue)
+						.toArray();
+				} else if(o instanceof Number) {
+					Spliterator<Object> s = i.spliterator();
+					return StreamSupport.stream(s, false)
+						.map(Number.class::cast)
+						.mapToDouble(Number::doubleValue)
+						.toArray();
+				} else {
+					Spliterator<Object> s = i.spliterator();
+					return StreamSupport.stream(s, false)
+						.map(o2 -> o2 == null ? "" : o2.toString()) //$NON-NLS-1$
+						.toArray(String[]::new);
+				}
+			}
+		} else {
+			return new String[] { value.toString() };
 		}
 	}
 }

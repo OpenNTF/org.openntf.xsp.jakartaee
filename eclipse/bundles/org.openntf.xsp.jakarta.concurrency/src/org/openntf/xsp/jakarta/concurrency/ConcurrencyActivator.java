@@ -39,11 +39,11 @@ import lotus.domino.NotesThread;
  * are terminated at HTTP stop, even if they were violently flushed out
  * of context by design changes or if incoming HTTP requests are still
  * held up by blocked threads.
- * 
+ *
  * <p>This class works reflectively to access
  * {@code lotus.notes.internal.MessageQueue} because Domino's OSGi stack
  * may prevent normal access to it.</p>
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
@@ -57,7 +57,7 @@ public class ConcurrencyActivator implements BundleActivator {
 	public static final String JNDI_SCHEDULEDEXECUTORSERVICE = "java:comp/DefaultManagedScheduledExecutorService"; //$NON-NLS-1$
 
 	public static final String JNDI_EXECUTORSERVICE = "java:comp/DefaultManagedExecutorService"; //$NON-NLS-1$
-	
+
 	private ScheduledExecutorService executor;
 	private Class<?> mqClass;
 	private Method mqOpen;
@@ -65,16 +65,16 @@ public class ConcurrencyActivator implements BundleActivator {
 	private Method mqClose;
 
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
+	public void start(final BundleContext bundleContext) throws Exception {
 		// Make sure the core JNDI provider is set up
 		try {
 			FrameworkUtil.getBundle(com.ibm.pvc.jndi.provider.java.InitialContextFactory.class).start();
 		} catch(Exception e) {
 			// Ignore if it's already started or otherwise trouble
 		}
-		
+
 		String jvmVersion = LibraryUtil.getSystemProperty("java.specification.version"); //$NON-NLS-1$
-		
+
 		if("1.8".equals(jvmVersion)) { //$NON-NLS-1$
 			ClassLoader cl = ClassLoader.getSystemClassLoader();
 			while(cl.getParent() != null) {
@@ -84,7 +84,7 @@ public class ConcurrencyActivator implements BundleActivator {
 			this.mqOpen = this.mqClass.getMethod("open", String.class, int.class); //$NON-NLS-1$
 			this.isQuitPending = this.mqClass.getMethod("isQuitPending"); //$NON-NLS-1$
 			this.mqClose = this.mqClass.getMethod("close", int.class); //$NON-NLS-1$
-			
+
 			this.executor = Executors.newScheduledThreadPool(10, NotesThread::new);
 			this.executor.scheduleAtFixedRate(() -> {
 				if(isHttpQuitting()) {
@@ -92,7 +92,7 @@ public class ConcurrencyActivator implements BundleActivator {
 				}
 			}, 0, 10, TimeUnit.SECONDS);
 		}
-		
+
 		InitialContext jndi = new InitialContext();
 		try {
 			jndi.rebind(ConcurrencyActivator.JNDI_EXECUTORSERVICE, new DelegatingManagedExecutorService());
@@ -111,7 +111,7 @@ public class ConcurrencyActivator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
+	public void stop(final BundleContext bundleContext) throws Exception {
 		ExecutorHolder.INSTANCE.termAll();
 		if(executor != null) {
 			if(!(executor.isShutdown() || executor.isTerminated())) {
@@ -123,7 +123,7 @@ public class ConcurrencyActivator implements BundleActivator {
 			}
 		}
 	}
-	
+
 	private boolean isHttpQuitting() {
 		try {
 			ClassLoader cl = ClassLoader.getSystemClassLoader();

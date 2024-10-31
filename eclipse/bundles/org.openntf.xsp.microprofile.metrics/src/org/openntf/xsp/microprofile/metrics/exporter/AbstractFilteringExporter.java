@@ -23,18 +23,18 @@ import org.openntf.xsp.microprofile.metrics.config.MetricsAppConfigSource;
 import io.smallrye.metrics.exporters.Exporter;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
 public abstract class AbstractFilteringExporter implements Exporter {
 	private final String appName;
-	
-	public AbstractFilteringExporter(String appName) {
+
+	public AbstractFilteringExporter(final String appName) {
 		this.appName = appName;
 	}
-	
-	protected boolean matchesApp(MetricID id) {
+
+	protected boolean matchesApp(final MetricID id) {
 		if (appName == null || appName.isEmpty()) {
 			return true;
 		} else {

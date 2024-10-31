@@ -26,7 +26,7 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
 /**
  * Contains common behavior used by distinct {@link DominoDocumentManager}
  * implementations.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.8.0
  */
@@ -42,31 +42,31 @@ public abstract class AbstractDominoDocumentCollectionManager implements DominoD
 		}
 		transactionsAvailable = found;
 	}
-	
+
 	@Override
-	public CommunicationEntity insert(CommunicationEntity entity) {
+	public CommunicationEntity insert(final CommunicationEntity entity) {
 		return insert(entity, false);
 	}
 
 	@Override
-	public CommunicationEntity insert(CommunicationEntity entity, Duration ttl) {
+	public CommunicationEntity insert(final CommunicationEntity entity, final Duration ttl) {
 		// TODO consider supporting ttl
 		return insert(entity);
 	}
 
 	@Override
-	public Iterable<CommunicationEntity> insert(Iterable<CommunicationEntity> entities, Duration ttl) {
+	public Iterable<CommunicationEntity> insert(final Iterable<CommunicationEntity> entities, final Duration ttl) {
 		// TODO consider supporting ttl
 		return insert(entities);
 	}
-	
+
 	@Override
-	public CommunicationEntity update(CommunicationEntity entity) {
+	public CommunicationEntity update(final CommunicationEntity entity) {
 		return update(entity, false);
 	}
 
 	@Override
-	public Iterable<CommunicationEntity> update(Iterable<CommunicationEntity> entities) {
+	public Iterable<CommunicationEntity> update(final Iterable<CommunicationEntity> entities) {
 		if(entities == null) {
 			return Collections.emptySet();
 		} else {

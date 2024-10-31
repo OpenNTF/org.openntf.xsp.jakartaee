@@ -29,14 +29,14 @@ import jakarta.enterprise.inject.spi.BeforeBeanDiscovery;
 import jakarta.enterprise.inject.spi.Extension;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
 public class TransactionExtension implements Extension {
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void addInterceptorBindings(@Observes BeforeBeanDiscovery bbd, BeanManager manager) {
+	public void addInterceptorBindings(@Observes final BeforeBeanDiscovery bbd, final BeanManager manager) {
 		String extensionName = TransactionExtension.class.getName();
 
 		for (Class clazz : new Class[] {
@@ -50,7 +50,7 @@ public class TransactionExtension implements Extension {
 			bbd.addAnnotatedType(manager.createAnnotatedType(clazz), extensionName + "_" + clazz.getName()); //$NON-NLS-1$
 		}
 	}
-	
+
 	public void registerContext(@Observes final AfterBeanDiscovery event) {
         event.addContext(new TransactionScopeContext());
     }

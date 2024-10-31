@@ -15,26 +15,26 @@
  */
 package org.openntf.xsp.jakarta.cdi.impl;
 
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+
 import org.openntf.xsp.jakarta.cdi.ext.CDIContainerUtility;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.osgi.framework.Bundle;
 
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.2.0
  */
 public class ContainerUtilProvider implements CDIContainerUtility {
-	
+
 	@Override
-	public Object getContainer(ComponentModule module) {
+	public Object getContainer(final ComponentModule module) {
 		return ContainerUtil.getContainer(module);
 	}
 
 	@Override
-	public Object getContainer(Bundle bundle) {
+	public Object getContainer(final Bundle bundle) {
 		return ContainerUtil.getContainer(bundle);
 	}
 

@@ -22,15 +22,15 @@ import jakarta.annotation.Priority;
 
 public enum PriorityComparator implements Comparator<Object> {
 	ASCENDING(true), DESCENDING(false);
-	
+
 	private final boolean ascending;
-	
-	private PriorityComparator(boolean ascending) {
+
+	private PriorityComparator(final boolean ascending) {
 		this.ascending = ascending;
 	}
 
 	@Override
-	public int compare(Object a, Object b) {
+	public int compare(final Object a, final Object b) {
 		int priorityA = Optional.ofNullable(a.getClass().getAnnotation(Priority.class))
 			.map(Priority::value)
 			.orElse(ascending ? Integer.MAX_VALUE : 0);

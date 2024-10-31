@@ -29,19 +29,19 @@ import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
-import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
 
-import jakarta.data.page.PageRequest;
 import jakarta.data.Sort;
+import jakarta.data.page.PageRequest;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.nosql.Entity;
 
 /**
  * Default implementation of {@link DominoTemplate}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.5.0
  */
@@ -60,11 +60,11 @@ public class DefaultDominoTemplate extends AbstractSemiStructuredTemplate implem
 	private Converters converters;
 
 	@Inject
-	DefaultDominoTemplate(Instance<DominoDocumentManager> manager,
-			EntityConverter converter,
-			EventPersistManager persistManager,
-			EntitiesMetadata mappings,
-			Converters converters) {
+	DefaultDominoTemplate(final Instance<DominoDocumentManager> manager,
+			final EntityConverter converter,
+			final EventPersistManager persistManager,
+			final EntitiesMetadata mappings,
+			final Converters converters) {
 		this.manager = manager;
 		this.converter = converter;
 		this.persistManager = persistManager;
@@ -102,8 +102,8 @@ public class DefaultDominoTemplate extends AbstractSemiStructuredTemplate implem
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewEntryQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts,
-			int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
+	public <T> Stream<T> viewEntryQuery(final String entityName, final String viewName, final PageRequest pagination, final Sort<?> sorts,
+			final int maxLevel, final boolean docsOnly, final ViewQuery viewQuery, final boolean singleResult) {
 		return manager()
 				.viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, viewQuery, singleResult)
 				.map(converter()::toEntity)
@@ -112,8 +112,8 @@ public class DefaultDominoTemplate extends AbstractSemiStructuredTemplate implem
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> Stream<T> viewDocumentQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts,
-			int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct) {
+	public <T> Stream<T> viewDocumentQuery(final String entityName, final String viewName, final PageRequest pagination, final Sort<?> sorts,
+			final int maxLevel, final ViewQuery viewQuery, final boolean singleResult, final boolean distinct) {
 		return manager()
 				.viewDocumentQuery(entityName, viewName, pagination, sorts, maxLevel, viewQuery, singleResult, distinct)
 				.map(converter()::toEntity)
@@ -121,27 +121,27 @@ public class DefaultDominoTemplate extends AbstractSemiStructuredTemplate implem
 	}
 
 	@Override
-	public void putInFolder(String entityId, String folderName) {
+	public void putInFolder(final String entityId, final String folderName) {
 		manager().putInFolder(entityId, folderName);
 	}
 
 	@Override
-	public void removeFromFolder(String entityId, String folderName) {
+	public void removeFromFolder(final String entityId, final String folderName) {
 		manager().removeFromFolder(entityId, folderName);
 	}
 
 	@Override
-	public boolean existsById(String unid) {
+	public boolean existsById(final String unid) {
 		return manager().existsById(unid);
 	}
 
 	@Override
-	public <T> Optional<T> getByNoteId(String entityName, String noteId) {
+	public <T> Optional<T> getByNoteId(final String entityName, final String noteId) {
 		return manager().getByNoteId(entityName, noteId).map(converter()::toEntity);
 	}
 
 	@Override
-	public <T, K> Optional<T> find(Class<T> entityClass, K id) {
+	public <T, K> Optional<T> find(final Class<T> entityClass, final K id) {
 		Entity entityAnnotation = entityClass.getAnnotation(Entity.class);
 		String entityName = entityAnnotation == null ? "" : entityAnnotation.value(); //$NON-NLS-1$
 		if (entityName.isEmpty()) {
@@ -157,59 +157,60 @@ public class DefaultDominoTemplate extends AbstractSemiStructuredTemplate implem
 	}
 
 	@Override
-	public <T> Optional<T> getByName(String entityName, String name, String userName) {
+	public <T> Optional<T> getByName(final String entityName, final String name, final String userName) {
 		return manager().getByName(entityName, name, userName).map(converter()::toEntity);
 	}
 
 	@Override
-	public <T> Optional<T> getProfileDocument(String entityName, String profileName, String userName) {
+	public <T> Optional<T> getProfileDocument(final String entityName, final String profileName, final String userName) {
 		return manager().getProfileDocument(entityName, profileName, userName).map(converter()::toEntity);
 	}
 
 	@Override
-	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, PageRequest pagination) {
+	public String readCalendarRange(final TemporalAccessor start, final TemporalAccessor end, final PageRequest pagination) {
 		return manager().readCalendarRange(start, end, pagination);
 	}
 
 	@Override
-	public Optional<String> readCalendarEntry(String uid) {
+	public Optional<String> readCalendarEntry(final String uid) {
 		return manager().readCalendarEntry(uid);
 	}
 
 	@Override
-	public String createCalendarEntry(String icalData, boolean sendInvitations) {
+	public String createCalendarEntry(final String icalData, final boolean sendInvitations) {
 		return manager().createCalendarEntry(icalData, sendInvitations);
 	}
 
 	@Override
-	public void updateCalendarEntry(String uid, String icalData, String comment, boolean sendInvitations,
-			boolean overwrite, String recurId) {
+	public void updateCalendarEntry(final String uid, final String icalData, final String comment, final boolean sendInvitations,
+			final boolean overwrite, final String recurId) {
 		manager().updateCalendarEntry(uid, icalData, comment, sendInvitations, overwrite, recurId);
 	}
 
 	@Override
-	public void removeCalendarEntry(String uid, CalendarModScope scope, String recurId) {
+	public void removeCalendarEntry(final String uid, final CalendarModScope scope, final String recurId) {
 		manager().removeCalendarEntry(uid, scope, recurId);
 	}
 
 	@Override
-	public <T> T insert(T entity, boolean computeWithForm) {
+	public <T> T insert(final T entity, final boolean computeWithForm) {
 		return persist(entity, e -> manager().insert(e, computeWithForm));
 	}
 
 	@Override
-	public <T> T update(T entity, boolean computeWithForm) {
+	public <T> T update(final T entity, final boolean computeWithForm) {
 		return persist(entity, e -> manager().update(e, computeWithForm));
 	}
 
-	private <T> UnaryOperator<T> toUnary(Consumer<T> consumer) {
+	private <T> UnaryOperator<T> toUnary(final Consumer<T> consumer) {
 		return t -> {
 			consumer.accept(t);
 			return t;
 		};
 	}
 
-	protected <T> T persist(T entity, UnaryOperator<CommunicationEntity> persistAction) {
+	@Override
+	protected <T> T persist(final T entity, final UnaryOperator<CommunicationEntity> persistAction) {
 		return Stream.of(entity)
 				.map(toUnary(eventManager()::firePreEntity))
 				.map(converter()::toCommunication)

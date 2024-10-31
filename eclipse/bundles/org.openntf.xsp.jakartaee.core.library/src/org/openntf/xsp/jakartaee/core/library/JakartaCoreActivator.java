@@ -24,10 +24,10 @@ import org.osgi.framework.BundleContext;
 public class JakartaCoreActivator implements BundleActivator {
 
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		// Make sure some important activators are run
 		@SuppressWarnings("unused")
-		Class<?>[] c = new Class<?>[] {
+		Class<?>[] c = {
 			PersistenceActivator.class,
 			CDIActivator.class,
 			ConcurrencyActivator.class
@@ -35,7 +35,7 @@ public class JakartaCoreActivator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception {
+	public void stop(final BundleContext context) throws Exception {
 
 	}
 

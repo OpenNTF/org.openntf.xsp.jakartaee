@@ -24,13 +24,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jakartaee.util.ModuleUtil;
-
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
+
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import jakarta.servlet.ServletContext;
 
@@ -39,70 +39,70 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 	private ComponentModule module;
 	private long lastUpdate;
 	private Map<String, String> explicitEndpoints = new ConcurrentHashMap<>();
-	
+
 	public MappingBasedServletFactory() {
 	}
-	
+
 	@Override
-	public void init(ComponentModule module) {
+	public void init(final ComponentModule module) {
 		this.module = module;
 	}
-	
+
 	public ComponentModule getModule() {
 		return module;
 	}
-	
+
 	/**
 	 * Adds an additional endpoint that should be mapped to this
 	 * factory, beyond the normal mapping based on file extension.
-	 * 
+	 *
 	 * @param endpoint the endpoint to add, e.g. {@code "/xsp/foo"}
 	 * @param pathName the translated path to the actual file, e.g.
 	 *        {@code "/foo.xhtml"}
 	 * @since 3.0.0
 	 */
-	public void addExplicitEndpoint(String endpoint, String pathName) {
+	public void addExplicitEndpoint(final String endpoint, final String pathName) {
 		if(StringUtil.isNotEmpty(endpoint)) {
 			explicitEndpoints.put(endpoint, pathName);
 		}
 	}
-	
+
 	/**
 	 * Retrieves a list of file extensions (e.g. ".jsp") supported by this factory
-	 * 
+	 *
 	 * @return a {@link Collection} of supported extensions
 	 */
 	public abstract Set<String> getExtensions();
-	
+
 	/**
 	 * Retrieves the name of the XSP library that must be present in the application
 	 * in order for this factory to be active.
-	 * 
+	 *
 	 * @return a library name, or {@code null} if it should always be active
 	 */
 	public abstract String getLibraryId();
-	
+
 	/**
 	 * Method to create the executing Servlet, called when the module is new or has
 	 * been modified.
-	 * 
+	 *
 	 * @param module the active module to contain the Servlet
 	 * @return a {@link Servlet} to handle requests
 	 */
 	public abstract Servlet createExecutorServlet(ComponentModule module) throws ServletException;
-	
+
 	/**
 	 * Retrieves the name of the Servlet class created by this factory.
-	 * 
+	 *
 	 * <p>This method is used by {@link ServletContext#getServletRegistrations()} and does
 	 * not have to match the actual implementation Servlet.</p>
-	 * 
+	 *
 	 * @return a string representing a servlet type
 	 */
 	public abstract String getServletClassName();
-	
+
 	@Override
-	public final ServletMatch getServletMatch(String contextPath, String path) throws ServletException {
+	public final ServletMatch getServletMatch(final String contextPath, final String path) throws ServletException {
 		try {
 			String lib = getLibraryId();
 			if(StringUtil.isEmpty(lib) || LibraryUtil.usesLibrary(lib, module)) {
@@ -113,7 +113,7 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 						return new ServletMatch(getExecutorServlet(), servletPath, pathInfo);
 					}
 				}
-				
+
 				for(String ext : getExtensions()) {
 					int extIndex = StringUtil.toString(path).indexOf(ext);
 					if (extIndex > -1) {
@@ -130,21 +130,21 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * This method checks to ensure that a match potentially identified by
 	 * {@link #getServletMatch(String, String)} actually exists. The default behavior
 	 * is to immediately return {@code true}, but implementation classes can override
 	 * this when applicable.
-	 * 
+	 *
 	 * @param servletPath the path to the servlet matched, e.g. {@code "/foo.bar"}
 	 * @param pathInfo any information following the matched path
 	 * @return {@code true} if the servlet exists; {@code false} otherwise
 	 */
-	protected boolean checkExists(String servletPath, String pathInfo) {
+	protected boolean checkExists(final String servletPath, final String pathInfo) {
 		return true;
 	}
-	
+
 	public final Servlet getExecutorServlet() throws ServletException {
 		Servlet servlet = getServlet();
 		if (servlet == null || lastUpdate < this.module.getLastRefresh()) {
@@ -157,13 +157,13 @@ public abstract class MappingBasedServletFactory implements IServletFactory {
 		}
 		return servlet;
 	}
-	
+
 	protected Servlet getServlet() {
 		String id = ModuleUtil.getModuleId(this.module);
 		return MODULE_SERVLETS.computeIfAbsent(id, key -> new ConcurrentHashMap<>())
 			.get(getClass().getName());
 	}
-	protected void setServlet(Servlet servlet) {
+	protected void setServlet(final Servlet servlet) {
 		String id = ModuleUtil.getModuleId(this.module);
 		MODULE_SERVLETS.computeIfAbsent(id, key -> new ConcurrentHashMap<>())
 			.put(getClass().getName(), servlet);

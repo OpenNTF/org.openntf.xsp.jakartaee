@@ -18,7 +18,7 @@ package org.openntf.xsp.jakarta.nosql.mapping.extension;
 /**
  * These options can be used when executing full-text searches to
  * refine the search behavior.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.11.0
  */

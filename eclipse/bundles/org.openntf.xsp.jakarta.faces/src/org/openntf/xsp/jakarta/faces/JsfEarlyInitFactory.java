@@ -24,7 +24,7 @@ import com.ibm.domino.xsp.module.nsf.NSFService;
 /**
  * This {@link IServiceFactory} doesn't provide any HTTP services, but is used to
  * enable hooks very early in the HTTP init process.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.4.0
  */
@@ -32,17 +32,17 @@ public class JsfEarlyInitFactory implements IServiceFactory {
 	public static boolean debug = true;
 
 	@Override
-	public HttpService[] getServices(LCDEnvironment env) {
+	public HttpService[] getServices(final LCDEnvironment env) {
 		try {
 			initNsf();
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
-		
-		
+
+
 		return null;
 	}
-	
+
 	/**
 	 * Adds JSP support to NSFs.
 	 */

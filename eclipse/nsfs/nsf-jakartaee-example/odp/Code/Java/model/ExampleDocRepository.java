@@ -20,6 +20,9 @@ import java.util.stream.Stream;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewEntries;
 
+import jakarta.data.repository.Find;
+import jakarta.data.repository.OrderBy;
+
 public interface ExampleDocRepository extends DominoRepository<ExampleDoc, String> {
 	String VIEW_DOCS = "Example Docs";
 	
@@ -33,4 +36,9 @@ public interface ExampleDocRepository extends DominoRepository<ExampleDoc, Strin
 
 	@ViewEntries(value=VIEW_DOCS, maxLevel=0)
 	Stream<ExampleDoc> getViewCategories();
+	
+	@Find
+	@OrderBy("title")
+	@OrderBy("numberGuy")
+	Stream<ExampleDoc> findAllSorted();
 }

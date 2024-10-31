@@ -22,6 +22,12 @@ import java.util.Properties;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
+import com.ibm.commons.util.PathUtil;
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.IServletFactory;
+import com.ibm.designer.runtime.domino.adapter.ServletMatch;
+
 import org.jboss.resteasy.cdi.CdiInjectorFactory;
 import org.jboss.resteasy.core.providerfactory.ResteasyProviderFactoryImpl;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
@@ -30,18 +36,12 @@ import org.openntf.xsp.jakarta.rest.impl.NSFRestApplication;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-import com.ibm.commons.util.PathUtil;
-import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.designer.runtime.domino.adapter.IServletFactory;
-import com.ibm.designer.runtime.domino.adapter.ServletMatch;
-
 import jakarta.ws.rs.ext.RuntimeDelegate;
 
 /**
  * An {@link IServletFactory} implementation that provides a REST Servlet in the context
  * of an NSF.
- * 
+ *
  * @author Martin Pradny
  * @author Jesse Gallagher
  * @since 1.0.0
@@ -51,11 +51,11 @@ public class RestServletFactory implements IServletFactory {
 	public static final String PROP_SERVLET_PATH = "org.openntf.xsp.jakarta.rest.path"; //$NON-NLS-1$
 	/**
 	 * Determines the effective base servlet path for the provided module.
-	 * 
+	 *
 	 * @param module the {@link ComponentModule} housing the servlet.
 	 * @return the base servlet path for JAX-RS, e.g. {@code "/xsp/.jaxrs/"}
 	 */
-	public static String getServletPath(ComponentModule module) {
+	public static String getServletPath(final ComponentModule module) {
 		Properties props = LibraryUtil.getXspProperties(module);
 		String path = props.getProperty(PROP_SERVLET_PATH);
 		if(StringUtil.isEmpty(path)) {
@@ -73,15 +73,15 @@ public class RestServletFactory implements IServletFactory {
 	private long lastUpdate;
 
 	@Override
-	public void init(ComponentModule module) {
+	public void init(final ComponentModule module) {
 		this.module = module;
 		this.lastUpdate = module.getLastRefresh();
-		
+
 		RuntimeDelegate.setInstance(new ResteasyProviderFactoryImpl());
 	}
 
 	@Override
-	public ServletMatch getServletMatch(String contextPath, String path) throws ServletException {
+	public ServletMatch getServletMatch(final String contextPath, final String path) throws ServletException {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
 			String baseServletPath = getServletPath(module);
 			// Match either a resource within the path or the specific base path without the trailing "/"
@@ -106,7 +106,7 @@ public class RestServletFactory implements IServletFactory {
 			params.put("resteasy.injector.factory", CdiInjectorFactory.class.getName()); //$NON-NLS-1$
 			params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, getServletPath(module));
 			params.put("resteasy.use.deployment.sensitive.factory", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-			
+
 			servlet = module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new JakartaRestServlet(module)), "XSP JAX-RS Servlet", params); //$NON-NLS-1$
 			lastUpdate = this.module.getLastRefresh();
 		}

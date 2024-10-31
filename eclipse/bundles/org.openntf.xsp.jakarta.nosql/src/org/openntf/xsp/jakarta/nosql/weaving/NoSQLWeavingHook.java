@@ -34,18 +34,18 @@ import javassist.CtMethod;
 import javassist.LoaderClassPath;
 
 /**
- * This {@link WeavingHook} implementation listens for attempts to load 
+ * This {@link WeavingHook} implementation listens for attempts to load
  * {@code jakarta.nosql.ValueReaderDecorator} and, when found, replaces the
  * implementation methods with a version that dynamically looks up providers
  * at runtime instead of using a global singleton value.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.5.0
  */
 public class NoSQLWeavingHook implements WeavingHook {
 
 	@Override
-	public void weave(WovenClass c) {
+	public void weave(final WovenClass c) {
 		switch(c.getClassName()) {
 		case "org.eclipse.jnosql.mapping.metadata.ClassScanner" -> processClassScanner(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.mapping.metadata.ClassConverter" -> processClassConverter(c); //$NON-NLS-1$
@@ -58,8 +58,8 @@ public class NoSQLWeavingHook implements WeavingHook {
 		case "org.eclipse.jnosql.mapping.reflection.DefaultConstructorBuilder" -> processDefaultConstructorBuilder(c); //$NON-NLS-1$
 		}
 	}
-	
-	private void processClassScanner(WovenClass c) {
+
+	private void processClassScanner(final WovenClass c) {
 		CtClass cc = defrost(c, DataRepository.class, org.eclipse.core.runtime.Platform.class, org.osgi.framework.Bundle.class);
 
 		try {
@@ -70,7 +70,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 			}"""; //$NON-NLS-1$
 			CtMethod m = cc.getDeclaredMethod("load"); //$NON-NLS-1$
 			m.setBody(body);
-			
+
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();
@@ -78,7 +78,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 	}
 
 	@SuppressWarnings("nls")
-	private void processValueReaderDecorator(WovenClass c) {
+	private void processValueReaderDecorator(final WovenClass c) {
 		CtClass cc = defrost(c, ValueReader.class);
 
 		try {
@@ -99,7 +99,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("test"); //$NON-NLS-1$
 				m.setBody(body);
 			}
-			
+
 			// <T> T read(Class<T> clazz, Object value)
 			{
 				String body = """
@@ -120,15 +120,15 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("read"); //$NON-NLS-1$
 				m.setBody(body);
 			}
-		
+
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 	}
-	
+
 	@SuppressWarnings("nls")
-	private void processTypeReferenceReader(WovenClass c) {
+	private void processTypeReferenceReader(final WovenClass c) {
 		CtClass cc = defrost(c, TypeReferenceReader.class);
 
 		try {
@@ -149,7 +149,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("test"); //$NON-NLS-1$
 				m.setBody(body);
 			}
-			
+
 			// <T> T convert(TypeSupplier, Object value)
 			{
 				String body = """
@@ -167,16 +167,16 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("convert"); //$NON-NLS-1$
 				m.setBody(body);
 			}
-		
+
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 	}
 
-	private void processValueWriter(WovenClass c) {
+	private void processValueWriter(final WovenClass c) {
 		CtClass cc = defrost(c);
-		
+
 		try {
 			String body = """
 			{
@@ -185,15 +185,15 @@ public class NoSQLWeavingHook implements WeavingHook {
 			}"""; //$NON-NLS-1$
 			CtMethod m = cc.getDeclaredMethod("getWriters"); //$NON-NLS-1$
 			m.setBody(body);
-			
+
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 	}
-	
+
 	@SuppressWarnings("nls")
-	private void processValueWriterDecorator(WovenClass c) {
+	private void processValueWriterDecorator(final WovenClass c) {
 		CtClass cc = defrost(c, ValueWriter.class);
 
 		try {
@@ -214,7 +214,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("test"); //$NON-NLS-1$
 				m.setBody(body);
 			}
-			
+
 			// Object write(Object value)
 			{
 				String body = """
@@ -233,14 +233,14 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("read"); //$NON-NLS-1$
 				m.setBody(body);
 			}
-		
+
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 	}
-	
-	private void processClassConverter(WovenClass c) {
+
+	private void processClassConverter(final WovenClass c) {
 		CtClass cc = defrost(c, DataRepository.class);
 
 		try {
@@ -251,14 +251,14 @@ public class NoSQLWeavingHook implements WeavingHook {
 			}"""; //$NON-NLS-1$
 			CtMethod m = cc.getDeclaredMethod("load"); //$NON-NLS-1$
 			m.setBody(body);
-			
+
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 	}
-	
-	private CtClass defrost(WovenClass c, Class<?>... contextClass) {
+
+	private CtClass defrost(final WovenClass c, final Class<?>... contextClass) {
 		ClassPool pool = new ClassPool();
 		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
 		pool.appendClassPath(new ClassClassPath(org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class));
@@ -274,9 +274,9 @@ public class NoSQLWeavingHook implements WeavingHook {
 		cc.defrost();
 		return cc;
 	}
-	
+
 	@SuppressWarnings("nls")
-	private void processGenericFieldMapping(WovenClass c) {
+	private void processGenericFieldMapping(final WovenClass c) {
 		ClassPool pool = new ClassPool();
 		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
 		pool.appendClassPath(new LoaderClassPath(c.getBundleWiring().getClassLoader()));
@@ -287,7 +287,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 			throw new UncheckedIOException(e);
 		}
 		cc.defrost();
-		
+
 		try {
 			// boolean hasFieldAnnotation(Class clazz)
 			{
@@ -304,7 +304,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("hasFieldAnnotation"); //$NON-NLS-1$
 				m.setBody(body);
 			}
-		
+
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();
@@ -312,7 +312,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 	}
 
 	@SuppressWarnings("nls")
-	private void processConstructorBuilder(WovenClass c) {
+	private void processConstructorBuilder(final WovenClass c) {
 		ClassPool pool = new ClassPool();
 		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
 		pool.appendClassPath(new LoaderClassPath(c.getBundleWiring().getClassLoader()));
@@ -323,7 +323,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 			throw new UncheckedIOException(e);
 		}
 		cc.defrost();
-		
+
 		try {
 			// ConstructorBuilder of(ConstructorMetadata constructor)
 			{
@@ -336,15 +336,15 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("of"); //$NON-NLS-1$
 				m.setBody(body);
 			}
-		
+
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 	}
-	
+
 	@SuppressWarnings("nls")
-	private void processDefaultConstructorBuilder(WovenClass c) {
+	private void processDefaultConstructorBuilder(final WovenClass c) {
 		ClassPool pool = new ClassPool();
 		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
 		pool.appendClassPath(new LoaderClassPath(c.getBundleWiring().getClassLoader()));
@@ -355,7 +355,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 			throw new UncheckedIOException(e);
 		}
 		cc.defrost();
-		
+
 		try {
 			// void addEmptyParameter()
 			{
@@ -374,7 +374,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("addEmptyParameter"); //$NON-NLS-1$
 				m.setBody(body);
 			}
-		
+
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();

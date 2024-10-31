@@ -25,6 +25,9 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.xsp.application.ApplicationEx;
+
 import org.hibernate.validator.HibernateValidator;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.weld.context.RequestContext;
@@ -34,9 +37,6 @@ import org.openntf.xsp.jakarta.cdi.ext.CDIConstants;
 import org.openntf.xsp.jakarta.rest.ServiceParticipant;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.xsp.application.ApplicationEx;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.ServletConfig;
@@ -51,37 +51,37 @@ import jakarta.validation.ValidatorFactory;
 /**
  * An {@link ServletContainer} subclass that provides a Faces context to the
  * servlet request.
- * 
+ *
  * @author Martin Pradny
  * @author Jesse Gallagher
  * @since 1.0.0
  */
 public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final String KEY_CDI_STORAGE = JakartaRestServlet.class.getName() + "_cdistorage"; //$NON-NLS-1$
-	
+
 	private final HttpServletDispatcher delegate;
 
-	public JakartaRestServlet(ComponentModule module) {
+	public JakartaRestServlet(final ComponentModule module) {
 		super(module);
 		this.delegate = new HttpServletDispatcher();
 	}
-	
+
 	@Override
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		request.setAttribute(CDIConstants.CDI_JAXRS_REQUEST, "true"); //$NON-NLS-1$
 		initCdi(request);
 		super.service(request, response);
 	}
-	
+
 	@Override
-	protected void doInit(ServletConfig config, HttpServletRequest request) throws ServletException {
+	protected void doInit(final ServletConfig config, final HttpServletRequest request) throws ServletException {
 		delegate.init(config);
 	}
-	
+
 	@Override
-	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application) throws ServletException, IOException {
+	protected void doService(final HttpServletRequest request, final HttpServletResponse response, final ApplicationEx application) throws ServletException, IOException {
 		@SuppressWarnings("unchecked")
 		List<ServiceParticipant> participants = application.findServices(ServiceParticipant.EXTENSION_POINT);
 		for(ServiceParticipant participant : participants) {
@@ -89,7 +89,7 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
     	}
     	ServletUtil.getListeners(request.getServletContext(), ServletRequestListener.class)
 			.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), request)));
-    	
+
     	try {
             Context context = new InitialContext();
             ValidatorFactory fac = Validation.byDefaultProvider()
@@ -115,19 +115,19 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 	    		participant.doAfterService(request, response);
 	    	}
     		termCdi(request);
-    		
+
 			// In case it's not flushed on its own
 			ServletUtil.close(response);
     	}
 	}
-	
+
 	@Override
 	public void destroy() {
 		super.destroy();
 		delegate.destroy();
 	}
-	
-	private void initCdi(HttpServletRequest request) {
+
+	private void initCdi(final HttpServletRequest request) {
 		if(request.getAttribute(KEY_CDI_STORAGE) == null) {
 			BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
 			Map<String, Object> cdiScope = new HashMap<>();
@@ -137,7 +137,7 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 		}
 	}
 	@SuppressWarnings("unchecked")
-	private void termCdi(HttpServletRequest request) {
+	private void termCdi(final HttpServletRequest request) {
 		BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
 		context.invalidate();
 		context.deactivate();

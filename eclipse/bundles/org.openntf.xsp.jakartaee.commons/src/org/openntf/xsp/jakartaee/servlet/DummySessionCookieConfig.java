@@ -23,15 +23,15 @@ import jakarta.servlet.SessionCookieConfig;
 /**
  * Basic implementation of {@link SessionCookieConfig} that no-ops a number
  * of methods, as this isn't controllable on Domino
- * 
+ *
  * @author Jesse Gallagher
  * @since 3.0.0
  */
 // TODO consider looking up some values from server config if practical
 public class DummySessionCookieConfig implements SessionCookieConfig {
 	@Override
-	public void setName(String name) {
-		
+	public void setName(final String name) {
+
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class DummySessionCookieConfig implements SessionCookieConfig {
 	}
 
 	@Override
-	public void setDomain(String domain) {
+	public void setDomain(final String domain) {
 
 	}
 
@@ -50,7 +50,7 @@ public class DummySessionCookieConfig implements SessionCookieConfig {
 	}
 
 	@Override
-	public void setPath(String path) {
+	public void setPath(final String path) {
 
 	}
 
@@ -60,7 +60,7 @@ public class DummySessionCookieConfig implements SessionCookieConfig {
 	}
 
 	@Override
-	public void setComment(String comment) {
+	public void setComment(final String comment) {
 
 	}
 
@@ -70,7 +70,7 @@ public class DummySessionCookieConfig implements SessionCookieConfig {
 	}
 
 	@Override
-	public void setHttpOnly(boolean httpOnly) {
+	public void setHttpOnly(final boolean httpOnly) {
 
 	}
 
@@ -80,7 +80,7 @@ public class DummySessionCookieConfig implements SessionCookieConfig {
 	}
 
 	@Override
-	public void setSecure(boolean secure) {
+	public void setSecure(final boolean secure) {
 
 	}
 
@@ -90,8 +90,8 @@ public class DummySessionCookieConfig implements SessionCookieConfig {
 	}
 
 	@Override
-	public void setMaxAge(int maxAge) {
-		
+	public void setMaxAge(final int maxAge) {
+
 	}
 
 	@Override
@@ -100,12 +100,12 @@ public class DummySessionCookieConfig implements SessionCookieConfig {
 	}
 
 	@Override
-	public void setAttribute(String name, String value) {
-		
+	public void setAttribute(final String name, final String value) {
+
 	}
 
 	@Override
-	public String getAttribute(String name) {
+	public String getAttribute(final String name) {
 		return null;
 	}
 

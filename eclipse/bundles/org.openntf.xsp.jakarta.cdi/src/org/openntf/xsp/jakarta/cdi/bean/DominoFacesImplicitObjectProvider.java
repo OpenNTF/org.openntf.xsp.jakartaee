@@ -28,7 +28,7 @@ import lotus.domino.Session;
 /**
  * This bean provides access to implicit objects from the current
  * {@link NotesContext}, when available.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.1.0
  */
@@ -60,7 +60,7 @@ public class DominoFacesImplicitObjectProvider {
 		if(threadSession != null) {
 			return threadSession;
 		}
-		
+
 		return ComponentModuleLocator.getDefault()
 			.flatMap(ComponentModuleLocator::getSessionAsSigner)
 			.orElse(null);
@@ -74,7 +74,7 @@ public class DominoFacesImplicitObjectProvider {
 		if(threadSession != null) {
 			return threadSession;
 		}
-		
+
 		return ComponentModuleLocator.getDefault()
 			.flatMap(ComponentModuleLocator::getSessionAsSignerWithFullAccess)
 			.orElse(null);

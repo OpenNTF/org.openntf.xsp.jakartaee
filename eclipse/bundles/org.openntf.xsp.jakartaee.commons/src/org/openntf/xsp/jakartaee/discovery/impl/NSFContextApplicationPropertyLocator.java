@@ -18,12 +18,12 @@ package org.openntf.xsp.jakartaee.discovery.impl;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
+
+import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.annotation.Priority;
 
@@ -31,7 +31,7 @@ import jakarta.annotation.Priority;
  * Determines whether a given component is enabled based on its ID being
  * present in the enabled XPages Libraries in the current {@link NotesContent}
  * {@link NotesDatabase}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -53,7 +53,7 @@ public class NSFContextApplicationPropertyLocator implements ApplicationProperty
 		}
 		return false;
 	}
-	
+
 	@Override
 	public Optional<Properties> getApplicationProperties() {
 		NotesContext ctx = NotesContext.getCurrentUnchecked();

@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 /**
  * This annotation applies to Domino Repository interfaces to allow the
  * specification of a provider ID.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.5.0
  */

@@ -27,11 +27,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 class OldHttpServletResponseWrapper implements HttpServletResponse {
 	final javax.servlet.http.HttpServletResponse delegate;
-	
-	public OldHttpServletResponseWrapper(javax.servlet.http.HttpServletResponse delegate) {
+
+	public OldHttpServletResponseWrapper(final javax.servlet.http.HttpServletResponse delegate) {
 		this.delegate = delegate;
 	}
-	
+
 	@Override
 	public String getCharacterEncoding() {
 		return delegate.getCharacterEncoding();
@@ -53,17 +53,17 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	}
 
 	@Override
-	public void setCharacterEncoding(String charset) {
+	public void setCharacterEncoding(final String charset) {
 		delegate.setCharacterEncoding(charset);
 	}
 
 	@Override
-	public void setContentLength(int len) {
+	public void setContentLength(final int len) {
 		delegate.setContentLength(len);
 	}
 
 	@Override
-	public void setContentLengthLong(long len) {
+	public void setContentLengthLong(final long len) {
 		if(len > Integer.MAX_VALUE) {
 			throw new UnsupportedOperationException("Cannot set length larger than INT_MAX");
 		}
@@ -71,12 +71,12 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	}
 
 	@Override
-	public void setContentType(String type) {
+	public void setContentType(final String type) {
 		delegate.setContentType(type);
 	}
 
 	@Override
-	public void setBufferSize(int size) {
+	public void setBufferSize(final int size) {
 		delegate.setBufferSize(size);
 	}
 
@@ -106,7 +106,7 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	}
 
 	@Override
-	public void setLocale(Locale loc) {
+	public void setLocale(final Locale loc) {
 		delegate.setLocale(loc);
 	}
 
@@ -116,74 +116,74 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	}
 
 	@Override
-	public void addCookie(Cookie cookie) {
+	public void addCookie(final Cookie cookie) {
 		delegate.addCookie(ServletUtil.newToOld(cookie));
 	}
 
 	@Override
-	public boolean containsHeader(String name) {
+	public boolean containsHeader(final String name) {
 		return delegate.containsHeader(name);
 	}
 
 	@Override
-	public String encodeURL(String url) {
+	public String encodeURL(final String url) {
 		return delegate.encodeURL(url);
 	}
 
 	@Override
-	public String encodeRedirectURL(String url) {
+	public String encodeRedirectURL(final String url) {
 		return delegate.encodeRedirectURL(url);
 	}
 
 	@Override
-	public void sendError(int sc, String msg) throws IOException {
+	public void sendError(final int sc, final String msg) throws IOException {
 		delegate.sendError(sc, msg);
 	}
 
 	@Override
-	public void sendError(int sc) throws IOException {
+	public void sendError(final int sc) throws IOException {
 		delegate.sendError(sc);
 	}
 
 	@Override
-	public void sendRedirect(String location) throws IOException {
+	public void sendRedirect(final String location) throws IOException {
 		delegate.sendRedirect(location);
 	}
 
 	@Override
-	public void setDateHeader(String name, long date) {
+	public void setDateHeader(final String name, final long date) {
 		delegate.setDateHeader(name, date);
 	}
 
 	@Override
-	public void addDateHeader(String name, long date) {
+	public void addDateHeader(final String name, final long date) {
 		delegate.addDateHeader(name, date);
 	}
 
 	@Override
-	public void setHeader(String name, String value) {
+	public void setHeader(final String name, final String value) {
 		delegate.setHeader(name, value);
 	}
 
 	@Override
-	public void addHeader(String name, String value) {
+	public void addHeader(final String name, final String value) {
 		delegate.addHeader(name, value);
 	}
 
 	@Override
-	public void setIntHeader(String name, int value) {
+	public void setIntHeader(final String name, final int value) {
 		delegate.setIntHeader(name, value);
 	}
 
 	@Override
-	public void addIntHeader(String name, int value) {
+	public void addIntHeader(final String name, final int value) {
 		delegate.addIntHeader(name, value);
 	}
-	
+
 	int status = 200;
 
 	@Override
-	public void setStatus(int sc) {
+	public void setStatus(final int sc) {
 		delegate.setStatus(sc);
 		this.status = sc;
 	}
@@ -194,13 +194,13 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	}
 
 	@Override
-	public String getHeader(String name) {
+	public String getHeader(final String name) {
 		// Soft unavailable
 		return null;
 	}
 
 	@Override
-	public Collection<String> getHeaders(String name) {
+	public Collection<String> getHeaders(final String name) {
 		// Soft unavailable
 		return Collections.emptySet();
 	}

@@ -26,25 +26,25 @@ import jakarta.enterprise.inject.spi.CDI;
 
 /**
  * Provides CDI capabilities to managed executors.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
 @Priority(2)
 public class CDIContextSetupParticipant implements ContextSetupParticipant {
 	private static final String ATTR_CDI = CDIContextSetupParticipant.class.getName();
-	
+
 	@Override
-	public void saveContext(ContextHandle contextHandle) {
+	public void saveContext(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
 			if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
 				((AttributedContextHandle)contextHandle).setAttribute(ATTR_CDI, CDI.current());
 			}
 		}
 	}
-	
+
 	@Override
-	public void setup(ContextHandle contextHandle) throws IllegalStateException {
+	public void setup(final ContextHandle contextHandle) throws IllegalStateException {
 		if(contextHandle instanceof AttributedContextHandle) {
 			RequestScopeContext.FORCE_ACTIVE.set(true);
 			CDI<Object> cdi = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_CDI);
@@ -56,7 +56,7 @@ public class CDIContextSetupParticipant implements ContextSetupParticipant {
 	}
 
 	@Override
-	public void reset(ContextHandle contextHandle) {
+	public void reset(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
 			ConcurrencyCDIContainerLocator.setCdi(null);
 			RequestScopeContext.FORCE_ACTIVE.set(false);

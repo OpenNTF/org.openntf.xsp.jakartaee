@@ -15,29 +15,29 @@
  */
 package org.openntf.xsp.jakarta.cdi.impl;
 
+import com.ibm.xsp.application.ApplicationEx;
+import com.ibm.xsp.application.events.ApplicationListener2;
+
 import org.jboss.weld.environment.se.WeldContainer;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-import com.ibm.xsp.application.ApplicationEx;
-import com.ibm.xsp.application.events.ApplicationListener2;
-
 /**
  * Manages the lifecycle of the app's associated Weld instance.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.0
  */
 public class CDIApplicationListener implements ApplicationListener2 {
-	
+
 	@Override
-	public void applicationCreated(ApplicationEx application) {
+	public void applicationCreated(final ApplicationEx application) {
 		// NOP
 	}
 
 	@Override
-	public void applicationDestroyed(ApplicationEx application) {
+	public void applicationDestroyed(final ApplicationEx application) {
 		if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, application)) {
 			ComponentModuleLocator.getDefault()
 				.map(ComponentModuleLocator::getActiveModule)
@@ -53,7 +53,7 @@ public class CDIApplicationListener implements ApplicationListener2 {
 	}
 
 	@Override
-	public void applicationRefreshed(ApplicationEx application) {
+	public void applicationRefreshed(final ApplicationEx application) {
 		// NOP
 	}
 }

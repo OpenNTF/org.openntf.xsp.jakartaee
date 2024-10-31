@@ -35,7 +35,7 @@ import jakarta.nosql.Entity;
 /**
  * Implementation of {@link ClassScanner} that scans the active component module
  * dynamically.
- * 
+ *
  * @since 3.0.0
  */
 public class ComponentModuleClassScanner implements ClassScanner {
@@ -45,10 +45,8 @@ public class ComponentModuleClassScanner implements ClassScanner {
 		return ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
 			.map(ModuleUtil::getClasses)
-			.map(classes -> {
-				return classes.filter(c -> c.isAnnotationPresent(Entity.class))
-					.collect(Collectors.toSet());
-			})
+			.map(classes -> classes.filter(c -> c.isAnnotationPresent(Entity.class))
+				.collect(Collectors.toSet()))
 			.orElseGet(Collections::emptySet);
 	}
 
@@ -57,10 +55,8 @@ public class ComponentModuleClassScanner implements ClassScanner {
 		return ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
 			.map(ModuleUtil::getClasses)
-			.map(classes -> {
-				return classes.filter(c -> DataRepository.class.isAssignableFrom(c))
-					.collect(Collectors.toSet());
-			})
+			.map(classes -> classes.filter(c -> DataRepository.class.isAssignableFrom(c))
+				.collect(Collectors.toSet()))
 			.orElseGet(Collections::emptySet);
 	}
 
@@ -69,23 +65,19 @@ public class ComponentModuleClassScanner implements ClassScanner {
 		return ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
 			.map(ModuleUtil::getClasses)
-			.map(classes -> {
-				return classes.filter(c -> c.isAnnotationPresent(Embeddable.class))
-					.collect(Collectors.toSet());
-			})
+			.map(classes -> classes.filter(c -> c.isAnnotationPresent(Embeddable.class))
+				.collect(Collectors.toSet()))
 			.orElseGet(Collections::emptySet);
 	}
 
 	@Override
-	public <T extends DataRepository<?, ?>> Set<Class<?>> repositories(Class<T> filter) {
+	public <T extends DataRepository<?, ?>> Set<Class<?>> repositories(final Class<T> filter) {
 		return ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
 			.map(ModuleUtil::getClasses)
-			.map(classes -> {
-				return classes.filter(c -> DataRepository.class.isAssignableFrom(c))
-					.filter(c -> filter.isAssignableFrom(c))
-					.collect(Collectors.toSet());
-			})
+			.map(classes -> classes.filter(c -> DataRepository.class.isAssignableFrom(c))
+				.filter(c -> filter.isAssignableFrom(c))
+				.collect(Collectors.toSet()))
 			.orElseGet(Collections::emptySet);
 	}
 
@@ -94,16 +86,14 @@ public class ComponentModuleClassScanner implements ClassScanner {
 		return ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
 			.map(ModuleUtil::getClasses)
-			.map(classes -> {
-				return classes.filter(c -> {
-					List<Class<?>> interfaces = Arrays.asList(c.getInterfaces());
-                    return interfaces.contains(CrudRepository.class)
-                            || interfaces.contains(BasicRepository.class)
-                            || interfaces.contains(NoSQLRepository.class)
-                            || interfaces.contains(DataRepository.class);
-				})
-				.collect(Collectors.toSet());
+			.map(classes -> classes.filter(c -> {
+				List<Class<?>> interfaces = Arrays.asList(c.getInterfaces());
+			    return interfaces.contains(CrudRepository.class)
+			            || interfaces.contains(BasicRepository.class)
+			            || interfaces.contains(NoSQLRepository.class)
+			            || interfaces.contains(DataRepository.class);
 			})
+			.collect(Collectors.toSet()))
 			.orElseGet(Collections::emptySet);
 	}
 

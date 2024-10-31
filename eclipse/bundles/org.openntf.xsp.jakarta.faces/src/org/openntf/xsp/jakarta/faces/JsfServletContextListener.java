@@ -24,22 +24,22 @@ import jakarta.servlet.ServletContextListener;
 /**
  * This wrapper around {@link StartupServletContextListener} checks to ensure
  * that the current application opts in to JSF.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
 public class JsfServletContextListener implements ServletContextListener {
 	private final StartupServletContextListener delegate = new StartupServletContextListener();
-	
+
 	@Override
-	public void contextInitialized(ServletContextEvent sce) {
+	public void contextInitialized(final ServletContextEvent sce) {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			delegate.contextInitialized(sce);
 		}
 	}
-	
+
 	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
+	public void contextDestroyed(final ServletContextEvent sce) {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			delegate.contextDestroyed(sce);
 		}

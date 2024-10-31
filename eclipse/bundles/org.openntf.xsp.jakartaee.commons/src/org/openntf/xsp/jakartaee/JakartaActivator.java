@@ -47,12 +47,12 @@ public class JakartaActivator implements BundleActivator {
 	 * @since 3.1.0
 	 */
 	public static final String PROP_OVERRIDETEMPDIR = "Jakarta_TempDir"; //$NON-NLS-1$
-	
+
 	private final List<ServiceRegistration<?>> regs = new ArrayList<>();
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		regs.add(context.registerService(WeavingHook.class.getName(), new UtilWeavingHook(), null));
 		regs.add(context.registerService(WeavingHook.class.getName(), new MailWeavingHook(), null));
 
@@ -71,7 +71,7 @@ public class JakartaActivator implements BundleActivator {
 				} finally {
 					Thread.currentThread().setContextClassLoader(tccl);
 				}
-				
+
 				// Look for a custom temporary directory path
 				// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/554
 				String iniTempDir = Os.OSGetEnvironmentString(PROP_OVERRIDETEMPDIR);
@@ -86,26 +86,26 @@ public class JakartaActivator implements BundleActivator {
 				return null;
 			});
 		}
-		
+
 		// Allow UTF-8-encoded filenames in MimeMultipart
 		// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/501
 		LibraryUtil.setSystemProperty("mail.mime.allowutf8", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception {
+	public void stop(final BundleContext context) throws Exception {
 		regs.forEach(ServiceRegistration::unregister);
 		regs.clear();
 	}
-	
+
 	private static class MailcapAvoidanceClassLoader extends ClassLoader {
-		public MailcapAvoidanceClassLoader(ClassLoader parent) {
+		public MailcapAvoidanceClassLoader(final ClassLoader parent) {
 			super(parent);
 		}
-		
+
 		@Override
-		public Enumeration<URL> getResources(String name) throws IOException {
+		public Enumeration<URL> getResources(final String name) throws IOException {
 			if("META-INF/mailcap".equals(name)) { //$NON-NLS-1$
 				// By default, this will find nothing. Then, in turn,
 				//   Activation will search the system and find the old

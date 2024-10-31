@@ -23,7 +23,7 @@ import jakarta.servlet.http.Cookie;
 
 /**
  * Request object for an incoming JavaSapi event.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.13.0
  */

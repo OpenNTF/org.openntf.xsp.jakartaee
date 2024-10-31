@@ -37,7 +37,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * This {@link ServiceParticipant} object adjusts the request ClassLoader to
  * account for some resource-loading needs of Krazo.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.1.0
  */
@@ -45,7 +45,7 @@ public class MvcRestServiceParticipant implements ServiceParticipant {
 	private static final String PROP_CLASSLOADER = MvcRestServiceParticipant.class.getName() + "_classloader"; //$NON-NLS-1$
 
 	@Override
-	public void doBeforeService(HttpServletRequest request, HttpServletResponse response)
+	public void doBeforeService(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			// Set a ClassLoader so that Krazo's ServiceLoader use can find these services
@@ -56,7 +56,7 @@ public class MvcRestServiceParticipant implements ServiceParticipant {
 	}
 
 	@Override
-	public void doAfterService(HttpServletRequest request, HttpServletResponse response)
+	public void doAfterService(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
 			ClassLoader cl = (ClassLoader)request.getAttribute(PROP_CLASSLOADER);
@@ -67,20 +67,20 @@ public class MvcRestServiceParticipant implements ServiceParticipant {
 	// *******************************************************************************
 	// * Internal implementation utilities
 	// *******************************************************************************
-	
+
 	private static class KrazoClassLoader extends ClassLoader {
 		private static final Bundle krazo;
-		
+
 		static {
 			krazo = FrameworkUtil.getBundle(DefaultConfigProvider.class);
 		}
-		
-		public KrazoClassLoader(ClassLoader delegate) {
+
+		public KrazoClassLoader(final ClassLoader delegate) {
 			super(delegate);
 		}
-		
+
 		@Override
-		protected Class<?> findClass(String name) throws ClassNotFoundException {
+		protected Class<?> findClass(final String name) throws ClassNotFoundException {
 			try {
 				return krazo.loadClass(name);
 			} catch(ClassNotFoundException e) {
@@ -92,18 +92,18 @@ public class MvcRestServiceParticipant implements ServiceParticipant {
 				throw new ClassNotFoundException("Unable to locate class " + name, e);
 			}
 		}
-		
+
 		@Override
-		public URL getResource(String name) {
+		public URL getResource(final String name) {
 			URL res = krazo.getResource(name);
 			if(res != null) {
 				return res;
 			}
 			return super.getResource(name);
 		}
-		
+
 		@Override
-		public InputStream getResourceAsStream(String name) {
+		public InputStream getResourceAsStream(final String name) {
 			URL res = krazo.getResource(name);
 			if(res != null) {
 				try {
@@ -114,11 +114,11 @@ public class MvcRestServiceParticipant implements ServiceParticipant {
 			}
 			return super.getResourceAsStream(name);
 		}
-		
+
 		@Override
-		public Enumeration<URL> getResources(String name) throws IOException {
+		public Enumeration<URL> getResources(final String name) throws IOException {
 			List<URL> result = new ArrayList<>();
-			
+
 			Enumeration<URL> kres = krazo.getResources(name);
 			if(kres != null) {
 				result.addAll(Collections.list(kres));

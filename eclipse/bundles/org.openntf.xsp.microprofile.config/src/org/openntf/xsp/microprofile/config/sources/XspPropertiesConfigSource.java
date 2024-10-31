@@ -24,26 +24,26 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 /**
  * {@link ConfigSource} implementation that reads properties from
  * the current NSF's xsp.properties file.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.2.0
  */
 public class XspPropertiesConfigSource implements ConfigSource {
 	public XspPropertiesConfigSource() {
 	}
-	
+
 	@Override
 	public String getName() {
 		return "XSPProperties"; //$NON-NLS-1$
 	}
-	
+
 	@Override
 	public Set<String> getPropertyNames() {
 		return Collections.emptySet();
 	}
 
 	@Override
-	public String getValue(String propertyName) {
+	public String getValue(final String propertyName) {
 		return LibraryUtil.getApplicationProperty(propertyName, null);
 	}
 

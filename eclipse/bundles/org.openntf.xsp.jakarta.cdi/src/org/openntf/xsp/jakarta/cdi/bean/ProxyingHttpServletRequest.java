@@ -50,376 +50,450 @@ import jakarta.servlet.http.PushBuilder;
 class ProxyingHttpServletRequest implements HttpServletRequest {
 	public static final HttpServletRequest INSTANCE = new ProxyingHttpServletRequest();
 
-	public Object getAttribute(String name) {
+	@Override
+	public Object getAttribute(final String name) {
 		return delegate().getAttribute(name);
 	}
 
 
+	@Override
 	public String getAuthType() {
 		return delegate().getAuthType();
 	}
 
 
+	@Override
 	public Cookie[] getCookies() {
 		return delegate().getCookies();
 	}
 
 
+	@Override
 	public Enumeration<String> getAttributeNames() {
 		return delegate().getAttributeNames();
 	}
 
 
-	public long getDateHeader(String name) {
+	@Override
+	public long getDateHeader(final String name) {
 		return delegate().getDateHeader(name);
 	}
 
 
+	@Override
 	public String getCharacterEncoding() {
 		return delegate().getCharacterEncoding();
 	}
 
 
-	public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+	@Override
+	public void setCharacterEncoding(final String env) throws UnsupportedEncodingException {
 		delegate().setCharacterEncoding(env);
 	}
 
 
-	public String getHeader(String name) {
+	@Override
+	public String getHeader(final String name) {
 		return delegate().getHeader(name);
 	}
 
 
+	@Override
 	public int getContentLength() {
 		return delegate().getContentLength();
 	}
 
 
-	public Enumeration<String> getHeaders(String name) {
+	@Override
+	public Enumeration<String> getHeaders(final String name) {
 		return delegate().getHeaders(name);
 	}
 
 
+	@Override
 	public long getContentLengthLong() {
 		return delegate().getContentLengthLong();
 	}
 
 
+	@Override
 	public String getContentType() {
 		return delegate().getContentType();
 	}
 
 
+	@Override
 	public ServletInputStream getInputStream() throws IOException {
 		return delegate().getInputStream();
 	}
 
 
+	@Override
 	public Enumeration<String> getHeaderNames() {
 		return delegate().getHeaderNames();
 	}
 
 
-	public String getParameter(String name) {
+	@Override
+	public String getParameter(final String name) {
 		return delegate().getParameter(name);
 	}
 
 
-	public int getIntHeader(String name) {
+	@Override
+	public int getIntHeader(final String name) {
 		return delegate().getIntHeader(name);
 	}
 
 
+	@Override
 	public HttpServletMapping getHttpServletMapping() {
 		return delegate().getHttpServletMapping();
 	}
 
 
+	@Override
 	public Enumeration<String> getParameterNames() {
 		return delegate().getParameterNames();
 	}
 
 
-	public String[] getParameterValues(String name) {
+	@Override
+	public String[] getParameterValues(final String name) {
 		return delegate().getParameterValues(name);
 	}
 
 
+	@Override
 	public Map<String, String[]> getParameterMap() {
 		return delegate().getParameterMap();
 	}
 
 
+	@Override
 	public String getProtocol() {
 		return delegate().getProtocol();
 	}
 
 
+	@Override
 	public String getScheme() {
 		return delegate().getScheme();
 	}
 
 
+	@Override
 	public String getServerName() {
 		return delegate().getServerName();
 	}
 
 
+	@Override
 	public int getServerPort() {
 		return delegate().getServerPort();
 	}
 
 
+	@Override
 	public String getMethod() {
 		return delegate().getMethod();
 	}
 
 
+	@Override
 	public BufferedReader getReader() throws IOException {
 		return delegate().getReader();
 	}
 
 
+	@Override
 	public String getPathInfo() {
 		return delegate().getPathInfo();
 	}
 
 
+	@Override
 	public String getRemoteAddr() {
 		return delegate().getRemoteAddr();
 	}
 
 
+	@Override
 	public String getRemoteHost() {
 		return delegate().getRemoteHost();
 	}
 
 
+	@Override
 	public String getPathTranslated() {
 		return delegate().getPathTranslated();
 	}
 
 
-	public void setAttribute(String name, Object o) {
+	@Override
+	public void setAttribute(final String name, final Object o) {
 		delegate().setAttribute(name, o);
 	}
 
 
+	@Override
 	public PushBuilder newPushBuilder() {
 		return delegate().newPushBuilder();
 	}
 
 
-	public void removeAttribute(String name) {
+	@Override
+	public void removeAttribute(final String name) {
 		delegate().removeAttribute(name);
 	}
 
 
+	@Override
 	public String getContextPath() {
 		return delegate().getContextPath();
 	}
 
 
+	@Override
 	public Locale getLocale() {
 		return delegate().getLocale();
 	}
 
 
+	@Override
 	public Enumeration<Locale> getLocales() {
 		return delegate().getLocales();
 	}
 
 
+	@Override
 	public boolean isSecure() {
 		return delegate().isSecure();
 	}
 
 
-	public RequestDispatcher getRequestDispatcher(String path) {
+	@Override
+	public RequestDispatcher getRequestDispatcher(final String path) {
 		return delegate().getRequestDispatcher(path);
 	}
 
 
+	@Override
 	public String getQueryString() {
 		return delegate().getQueryString();
 	}
 
 
+	@Override
 	public String getRemoteUser() {
 		return delegate().getRemoteUser();
 	}
 
 
-	public boolean isUserInRole(String role) {
+	@Override
+	public boolean isUserInRole(final String role) {
 		return delegate().isUserInRole(role);
 	}
 
 
+	@Override
 	public int getRemotePort() {
 		return delegate().getRemotePort();
 	}
 
 
+	@Override
 	public Principal getUserPrincipal() {
 		return delegate().getUserPrincipal();
 	}
 
 
+	@Override
 	public String getLocalName() {
 		return delegate().getLocalName();
 	}
 
 
+	@Override
 	public String getLocalAddr() {
 		return delegate().getLocalAddr();
 	}
 
 
+	@Override
 	public String getRequestedSessionId() {
 		return delegate().getRequestedSessionId();
 	}
 
 
+	@Override
 	public int getLocalPort() {
 		return delegate().getLocalPort();
 	}
 
 
+	@Override
 	public String getRequestURI() {
 		return delegate().getRequestURI();
 	}
 
 
+	@Override
 	public ServletContext getServletContext() {
 		return delegate().getServletContext();
 	}
 
 
+	@Override
 	public AsyncContext startAsync() throws IllegalStateException {
 		return delegate().startAsync();
 	}
 
 
+	@Override
 	public StringBuffer getRequestURL() {
 		return delegate().getRequestURL();
 	}
 
 
+	@Override
 	public String getServletPath() {
 		return delegate().getServletPath();
 	}
 
 
-	public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+	@Override
+	public AsyncContext startAsync(final ServletRequest servletRequest, final ServletResponse servletResponse)
 			throws IllegalStateException {
 		return delegate().startAsync(servletRequest, servletResponse);
 	}
 
 
-	public HttpSession getSession(boolean create) {
+	@Override
+	public HttpSession getSession(final boolean create) {
 		return delegate().getSession(create);
 	}
 
 
+	@Override
 	public HttpSession getSession() {
 		return delegate().getSession();
 	}
 
 
+	@Override
 	public String changeSessionId() {
 		return delegate().changeSessionId();
 	}
 
 
+	@Override
 	public boolean isRequestedSessionIdValid() {
 		return delegate().isRequestedSessionIdValid();
 	}
 
 
+	@Override
 	public boolean isRequestedSessionIdFromCookie() {
 		return delegate().isRequestedSessionIdFromCookie();
 	}
 
 
+	@Override
 	public boolean isRequestedSessionIdFromURL() {
 		return delegate().isRequestedSessionIdFromURL();
 	}
 
 
-	public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+	@Override
+	public boolean authenticate(final HttpServletResponse response) throws IOException, ServletException {
 		return delegate().authenticate(response);
 	}
 
 
+	@Override
 	public boolean isAsyncStarted() {
 		return delegate().isAsyncStarted();
 	}
 
 
-	public void login(String username, String password) throws ServletException {
+	@Override
+	public void login(final String username, final String password) throws ServletException {
 		delegate().login(username, password);
 	}
 
 
+	@Override
 	public boolean isAsyncSupported() {
 		return delegate().isAsyncSupported();
 	}
 
 
+	@Override
 	public AsyncContext getAsyncContext() {
 		return delegate().getAsyncContext();
 	}
 
 
+	@Override
 	public DispatcherType getDispatcherType() {
 		return delegate().getDispatcherType();
 	}
 
 
+	@Override
 	public void logout() throws ServletException {
 		delegate().logout();
 	}
 
 
+	@Override
 	public Collection<Part> getParts() throws IOException, ServletException {
 		return delegate().getParts();
 	}
 
 
+	@Override
 	public String getRequestId() {
 		return delegate().getRequestId();
 	}
 
 
+	@Override
 	public String getProtocolRequestId() {
 		return delegate().getProtocolRequestId();
 	}
 
 
-	public Part getPart(String name) throws IOException, ServletException {
+	@Override
+	public Part getPart(final String name) throws IOException, ServletException {
 		return delegate().getPart(name);
 	}
 
 
+	@Override
 	public ServletConnection getServletConnection() {
 		return delegate().getServletConnection();
 	}
 
 
-	public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+	@Override
+	public <T extends HttpUpgradeHandler> T upgrade(final Class<T> handlerClass) throws IOException, ServletException {
 		return delegate().upgrade(handlerClass);
 	}
 
 
+	@Override
 	public Map<String, String> getTrailerFields() {
 		return delegate().getTrailerFields();
 	}
 
 
+	@Override
 	public boolean isTrailerFieldsReady() {
 		return delegate().isTrailerFieldsReady();
 	}
-	
+
 
 	private HttpServletRequest delegate() {
 		return ComponentModuleLocator.getDefault()

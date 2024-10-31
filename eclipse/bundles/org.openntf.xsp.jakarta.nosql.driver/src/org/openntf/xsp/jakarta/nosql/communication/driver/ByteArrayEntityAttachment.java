@@ -23,10 +23,10 @@ import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 
 /**
  * This class allows for the creation of in-memory attachments in a way.
- * 
+ *
  * <p>This is similar to the class used by {@link EntityAttachment#of}, but
- * is {@code public} to avoid trouble with JSON serialization via Yasson.</p> 
- * 
+ * is {@code public} to avoid trouble with JSON serialization via Yasson.</p>
+ *
  * @author Jesse Gallagher
  * @since 2.6.0
  */
@@ -35,8 +35,8 @@ public class ByteArrayEntityAttachment implements EntityAttachment {
     private final String contentType;
     private final long lastModified;
     private final byte[] data;
-    
-    public ByteArrayEntityAttachment(String name, String contentType, long lastModified, byte[] data) {
+
+    public ByteArrayEntityAttachment(final String name, final String contentType, final long lastModified, final byte[] data) {
         this.name = name;
         this.contentType = contentType;
         this.lastModified = lastModified;
@@ -62,7 +62,7 @@ public class ByteArrayEntityAttachment implements EntityAttachment {
     public InputStream getData() throws IOException {
         return new ByteArrayInputStream(data);
     }
-    
+
     @Override
     public long getLength() {
         return data.length;

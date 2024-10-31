@@ -32,8 +32,8 @@ public class ViewEntryCollectionIterator implements Iterator<ViewEntry> {
 	private ViewEntry prev;
 	private ViewEntry onDeck;
 	private boolean done;
-	
-	public ViewEntryCollectionIterator(ViewEntryCollection entries, boolean didSkip) throws NotesException {
+
+	public ViewEntryCollectionIterator(final ViewEntryCollection entries, final boolean didSkip) throws NotesException {
 		this.entries = entries;
 		this.didSkip = didSkip;
 	}
@@ -58,7 +58,7 @@ public class ViewEntryCollectionIterator implements Iterator<ViewEntry> {
 		if(done) {
 			throw new NoSuchElementException();
 		}
-		
+
 		try {
 			if(onDeck == null) {
 				onDeck = fetchNext();
@@ -81,14 +81,14 @@ public class ViewEntryCollectionIterator implements Iterator<ViewEntry> {
 		Spliterator<ViewEntry> iter = Spliterators.spliteratorUnknownSize(this, Spliterator.DISTINCT | Spliterator.ORDERED);
 		return StreamSupport.stream(iter, false);
 	}
-	
+
 	private ViewEntry fetchNext() throws NotesException {
 		ViewEntry next;
-		
+
 		// "getFirstDocument" throws "NotesException: Method is not available"
 		//   when the view is categorized and createViewNavFromKey is used.
 		//   In these situations, we'll manually traverse for document entries
-		
+
 		if(prev == null && !didSkip) {
 			next = entries.getFirstEntry();
 		} else {

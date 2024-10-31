@@ -36,13 +36,13 @@ import javassist.LoaderClassPath;
 public class MvcWeavingHook implements WeavingHook {
 
 	@Override
-	public void weave(WovenClass c) {
+	public void weave(final WovenClass c) {
 		switch(c.getClassName()) {
 		case "org.eclipse.krazo.util.ServiceLoaders" -> processServiceLoaders(c); //$NON-NLS-1$
 		}
 	}
-	
-	private void processServiceLoaders(WovenClass c) {
+
+	private void processServiceLoaders(final WovenClass c) {
 		CtClass cc = defrost(c, PriorityComparator.class);
 
 		try {
@@ -50,26 +50,26 @@ public class MvcWeavingHook implements WeavingHook {
 			String body = """
 			{
 				java.util.List result = new java.util.ArrayList();
-				
+
 				ClassLoader classLoader = $1.getClassLoader();
 				result.addAll(java.util.stream.StreamSupport.stream(java.util.ServiceLoader.load($1, classLoader).spliterator(), false).toList());
-				
+
 				classLoader = Thread.currentThread().getContextClassLoader();
 	            result.addAll(java.util.stream.StreamSupport.stream(java.util.ServiceLoader.load($1, classLoader).spliterator(), false).toList());
-	            
+
 		        result.sort(org.openntf.xsp.jakartaee.util.PriorityComparator.DESCENDING);
 		        return result;
 			}"""; //$NON-NLS-1$
 			CtMethod m = cc.getDeclaredMethod("list"); //$NON-NLS-1$
 			m.setBody(body);
-	        
+
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 	}
-	
-	private CtClass defrost(WovenClass c, Class<?>... contextClass) {
+
+	private CtClass defrost(final WovenClass c, final Class<?>... contextClass) {
 		ClassPool pool = new ClassPool();
 		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
 		pool.appendClassPath(new ClassClassPath(org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class));

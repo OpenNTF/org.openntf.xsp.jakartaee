@@ -33,10 +33,10 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.core.StreamingOutput;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.core.Variant;
-import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
 /**
@@ -46,22 +46,22 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 @Priority(Priorities.USER+1)
 public class NotFoundMapper implements ExceptionMapper<NotFoundException> {
 	public static final NotFoundMapper INSTANCE = new NotFoundMapper();
-	
+
 	@Context
 	Request request;
-	
+
 	@Context
 	UriInfo uriInfo;
-	
+
 	@Override
 	public Response toResponse(final NotFoundException exception) {
 		return toResponse(exception, request, uriInfo);
 	}
-	
-	public Response toResponse(NotFoundException exception, Request request, UriInfo uriInfo) {
+
+	public Response toResponse(final NotFoundException exception, final Request request, final UriInfo uriInfo) {
 		List<Variant> options = Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaType.TEXT_HTML_TYPE).build();
 		Variant preferred = request.selectVariant(options);
-		
+
 		if(MediaType.TEXT_HTML_TYPE.isCompatible(preferred.getMediaType())) {
 			return Response.status(Status.NOT_FOUND)
 				.type(MediaType.TEXT_HTML_TYPE)
@@ -74,7 +74,7 @@ public class NotFoundMapper implements ExceptionMapper<NotFoundException> {
 					}
 				})
 				.build();
-				
+
 		} else {
 			return Response.status(Status.NOT_FOUND)
 				.type(MediaType.APPLICATION_JSON_TYPE)

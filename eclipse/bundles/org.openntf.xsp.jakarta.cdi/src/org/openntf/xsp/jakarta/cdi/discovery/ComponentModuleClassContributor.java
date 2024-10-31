@@ -24,10 +24,10 @@ import org.openntf.xsp.jakartaee.util.ModuleUtil;
 /**
  * This class is responsible for locating and loading bean classes from the
  * context NSF when active.
- * 
+ *
  * <p>Originally, this work was done by {@link StaticBeanArchiveHandler}, but
  * this mechanism avoids the trouble of handing off just string class names.</p>
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.9.0
  */

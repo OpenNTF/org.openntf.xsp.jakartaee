@@ -22,17 +22,17 @@ import jakarta.servlet.ServletConfig;
 @SuppressWarnings("rawtypes")
 class NewServletConfigWrapper implements javax.servlet.ServletConfig {
 	final ServletConfig delegate;
-	
-	public NewServletConfigWrapper(ServletConfig delegate) {
+
+	public NewServletConfigWrapper(final ServletConfig delegate) {
 		this.delegate = delegate;
 	}
-	
+
 	public ServletConfig getDelegate() {
 		return delegate;
 	}
-	
+
 	@Override
-	public String getInitParameter(String arg0) {
+	public String getInitParameter(final String arg0) {
 		return delegate.getInitParameter(arg0);
 	}
 

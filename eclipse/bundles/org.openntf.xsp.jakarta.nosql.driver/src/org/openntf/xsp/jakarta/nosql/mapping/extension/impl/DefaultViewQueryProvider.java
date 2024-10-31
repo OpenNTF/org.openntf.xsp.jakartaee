@@ -20,7 +20,7 @@ import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery.ViewQueryProvid
 
 /**
  * Default implementation of {@link ViewQueryProvider}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.8.0
  */

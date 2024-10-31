@@ -24,7 +24,7 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
 
 /**
  * Basic implementation of {@link ViewInfo}.
- * 
+ *
  * @since 2.12.0
  */
 public class ViewInfoImpl implements ViewInfo {
@@ -34,8 +34,8 @@ public class ViewInfoImpl implements ViewInfo {
 	private final String unid;
 	private final String selectionFormula;
 	private final List<ViewColumnInfo> columnInfo;
-	
-	public ViewInfoImpl(Type type, String title, List<String> aliases, String unid, String selectionFormula, List<ViewColumnInfo> columnInfo) {
+
+	public ViewInfoImpl(final Type type, final String title, final List<String> aliases, final String unid, final String selectionFormula, final List<ViewColumnInfo> columnInfo) {
 		this.type = type;
 		this.title = title == null ? "" : title; //$NON-NLS-1$
 		this.aliases = aliases == null ? Collections.emptyList() : Collections.unmodifiableList(new ArrayList<>(aliases));
@@ -63,12 +63,12 @@ public class ViewInfoImpl implements ViewInfo {
 	public String getUnid() {
 		return this.unid;
 	}
-	
+
 	@Override
 	public String getSelectionFormula() {
 		return this.selectionFormula;
 	}
-	
+
 	@Override
 	public List<ViewColumnInfo> getColumnInfo() {
 		return this.columnInfo;

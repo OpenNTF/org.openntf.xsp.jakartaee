@@ -23,7 +23,7 @@ import com.ibm.domino.bridge.http.jasapi.JavaSapiService;
 /**
  * This extention point interface allows for plugins to register JavaSapi
  * services that will be loaded at HTTP init.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.12.0
  */

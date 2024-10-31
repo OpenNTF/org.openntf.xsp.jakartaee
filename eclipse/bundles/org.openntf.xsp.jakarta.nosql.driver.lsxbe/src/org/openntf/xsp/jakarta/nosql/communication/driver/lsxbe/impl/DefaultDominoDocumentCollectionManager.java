@@ -40,6 +40,14 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesSession;
+
+import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
+import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
+import org.eclipse.jnosql.communication.semistructured.Element;
+import org.eclipse.jnosql.communication.semistructured.SelectQuery;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewColumnInfo;
@@ -47,33 +55,24 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL;
+import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL.DQLTerm;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.QueryConverter;
+import org.openntf.xsp.jakarta.nosql.communication.driver.impl.QueryConverter.QueryConverterResult;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.ViewColumnInfoImpl;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.ViewInfoImpl;
-import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL.DQLTerm;
-import org.openntf.xsp.jakarta.nosql.communication.driver.impl.QueryConverter.QueryConverterResult;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.SessionSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
-import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
 
-import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.domino.napi.NotesAPIException;
-import com.ibm.designer.domino.napi.NotesSession;
-
+import jakarta.data.Sort;
+import jakarta.data.page.PageRequest;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.data.Sort;
-import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
-import org.eclipse.jnosql.communication.semistructured.DeleteQuery;
-import org.eclipse.jnosql.communication.semistructured.Element;
-import org.eclipse.jnosql.communication.semistructured.SelectQuery;
-
 import jakarta.nosql.Column;
-import jakarta.data.page.PageRequest;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
 import jakarta.transaction.SystemException;
@@ -100,12 +99,12 @@ import lotus.domino.ViewNavigator;
 
 public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocumentCollectionManager {
 	private final Logger log = Logger.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
-	
+
 	private final DatabaseSupplier supplier;
 	private final SessionSupplier sessionSupplier;
 	private final LSXBEEntityConverter entityConverter;
-	
-	public DefaultDominoDocumentCollectionManager(DatabaseSupplier supplier, SessionSupplier sessionSupplier) {
+
+	public DefaultDominoDocumentCollectionManager(final DatabaseSupplier supplier, final SessionSupplier sessionSupplier) {
 		this.supplier = supplier;
 		this.sessionSupplier = sessionSupplier;
 		this.entityConverter = new LSXBEEntityConverter(supplier);
@@ -115,16 +114,16 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	public String name() {
 		return getClass().getName();
 	}
-	
+
 	/**
 	 * @since 2.6.0
 	 */
 	@Override
-	public CommunicationEntity insert(CommunicationEntity entity, boolean computeWithForm) {
+	public CommunicationEntity insert(final CommunicationEntity entity, final boolean computeWithForm) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
-			
+
 			// Special handling for named and profile notes
 			lotus.domino.Document target;
 			Optional<Element> maybeName = entity.find(DominoConstants.FIELD_NOTENAME);
@@ -142,7 +141,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			} else {
 				target = database.createDocument();
 			}
-			
+
 			Optional<String> maybeId = entity.find(DominoConstants.FIELD_ID, String.class);
 			if(maybeId.isPresent() && !StringUtil.isEmpty(maybeId.get())) {
 				target.setUniversalID(maybeId.get());
@@ -164,7 +163,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public Iterable<CommunicationEntity> insert(Iterable<CommunicationEntity> entities) {
+	public Iterable<CommunicationEntity> insert(final Iterable<CommunicationEntity> entities) {
 		if(entities == null) {
 			return Collections.emptySet();
 		} else {
@@ -175,14 +174,14 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public CommunicationEntity update(CommunicationEntity entity, boolean computeWithForm) {
+	public CommunicationEntity update(final CommunicationEntity entity, final boolean computeWithForm) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
-			
+
 			Element id = entity.find(DominoConstants.FIELD_ID)
 				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", DominoConstants.FIELD_ID)));
-			
+
 			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
 
 			EntityMetadata mapping = EntityUtil.getClassMapping(entity.name());
@@ -198,7 +197,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public void delete(DeleteQuery query) {
+	public void delete(final DeleteQuery query) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -223,13 +222,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public Stream<CommunicationEntity> select(SelectQuery query) {
+	public Stream<CommunicationEntity> select(final SelectQuery query) {
 		try {
 			String entityName = query.name();
 			EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
-			
+
 			QueryConverterResult queryResult = QueryConverter.select(query);
-			
+
 			long skip = queryResult.getSkip();
 			long limit = queryResult.getLimit();
 			List<Sort<?>> sorts = query.sorts();
@@ -256,7 +255,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 							serverName = ""; //$NON-NLS-1$
 						}
 						long dataMod = NotesSession.getLastDataModificationDateByName(serverName, database.getFilePath());
-						if(dataMod > (created.toJavaDate().getTime() / 1000)) {
+						if(dataMod > created.toJavaDate().getTime() / 1000) {
 							view.remove();
 							view.recycle();
 							view = null;
@@ -277,18 +276,18 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
 						for(Sort sort : sorts) {
 							String itemName = EntityUtil.findItemName(sort.property(), mapping);
-							
+
 							int dir = sort.isDescending() ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
 							qrp.addColumn(itemName, itemName, null, dir, false, false);
 						}
-						
+
 						view = qrp.executeToView(viewName, 24);
 						result = entityConverter.convertQRPViewDocuments(database, view, mapping);
 					} finally {
 						recycle(qrp, dominoQuery);
 					}
 				}
-				
+
 			} else {
 				DominoQuery dominoQuery = database.createDominoQuery();
 				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
@@ -298,14 +297,14 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					recycle(dominoQuery);
 				}
 			}
-			
+
 			if(skip > 0) {
 				result = result.skip(skip);
 			}
 			if(limit > 0) {
 				result = result.limit(limit);
 			}
-			
+
 			return result;
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
@@ -314,10 +313,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Stream<CommunicationEntity> viewEntryQuery(String entityName, String viewName, PageRequest pagination,
-			Sort sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
+	public Stream<CommunicationEntity> viewEntryQuery(final String entityName, final String viewName, final PageRequest pagination,
+			final Sort sorts, final int maxLevel, final boolean docsOnly, final ViewQuery viewQuery, final boolean singleResult) {
 		EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
-		
+
 		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
 			try {
 				Database database = supplier.get();
@@ -341,7 +340,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				throw new RuntimeException(e);
 			}
 		}
-		
+
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
 			(nav, limit, didSkip, didKey) -> {
 				try {
@@ -358,20 +357,20 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public Stream<CommunicationEntity> viewDocumentQuery(String entityName, String viewName, PageRequest pagination,
-			Sort sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct) {
+	public Stream<CommunicationEntity> viewDocumentQuery(final String entityName, final String viewName, final PageRequest pagination,
+			final Sort sorts, final int maxLevel, final ViewQuery viewQuery, final boolean singleResult, final boolean distinct) {
 		EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
-		
+
 		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
 			try {
 				Database database = supplier.get();
 				beginTransaction(database);
 				View view = database.getView(viewName);
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
-				
+
 				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 				Vector<Object> vecKeys;
 				if(keys instanceof List) {
@@ -389,7 +388,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				throw new RuntimeException(e);
 			}
 		}
-		
+
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
 			(nav, limit, didSkip, didKey) -> {
 				try {
@@ -406,16 +405,16 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		);
 	}
-	
+
 	@Override
-	public void putInFolder(String entityId, String folderName) {
+	public void putInFolder(final String entityId, final String folderName) {
 		if(StringUtil.isEmpty(entityId)) {
 			throw new IllegalArgumentException("entityId cannot be empty");
 		}
 		if(StringUtil.isEmpty(folderName)) {
 			throw new IllegalArgumentException("folderName cannot be empty");
 		}
-		
+
 		Database database = supplier.get();
 		beginTransaction(database);
 		try {
@@ -427,9 +426,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@Override
-	public void removeFromFolder(String entityId, String folderName) {
+	public void removeFromFolder(final String entityId, final String folderName) {
 		if(StringUtil.isEmpty(entityId)) {
 			// No harm here
 			return;
@@ -437,7 +436,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		if(StringUtil.isEmpty(folderName)) {
 			throw new IllegalArgumentException("folderName cannot be empty");
 		}
-		
+
 		Database database = supplier.get();
 		beginTransaction(database);
 		try {
@@ -451,7 +450,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public long count(String documentCollection) {
+	public long count(final String documentCollection) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -462,11 +461,11 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
 		}
-		
+
 	}
-	
+
 	@Override
-	public boolean existsById(String unid) {
+	public boolean existsById(final String unid) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -478,9 +477,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return false;
 		}
 	}
-	
+
 	@Override
-	public Optional<CommunicationEntity> getByNoteId(String entityName, String noteId) {
+	public Optional<CommunicationEntity> getByNoteId(final String entityName, final String noteId) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -491,9 +490,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return Optional.empty();
 		}
 	}
-	
+
 	@Override
-	public Optional<CommunicationEntity> getById(String entityName, String id) {
+	public Optional<CommunicationEntity> getById(final String entityName, final String id) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -504,9 +503,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return Optional.empty();
 		}
 	}
-	
+
 	@Override
-	public Optional<CommunicationEntity> getByName(String entityName, String name, String userName) {
+	public Optional<CommunicationEntity> getByName(final String entityName, final String name, final String userName) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -522,9 +521,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return Optional.empty();
 		}
 	}
-	
+
 	@Override
-	public Optional<CommunicationEntity> getProfileDocument(String entityName, String profileName, String userName) {
+	public Optional<CommunicationEntity> getProfileDocument(final String entityName, final String profileName, final String userName) {
 		try {
 			Database database = supplier.get();
 			beginTransaction(database);
@@ -535,7 +534,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return Optional.empty();
 		}
 	}
-	
+
 	@Override
 	public Stream<ViewInfo> getViewInfo() {
 		try {
@@ -551,7 +550,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 						List<String> aliases = view.getAliases();
 						String unid = view.getUniversalID();
 						String selectionFormula = view.getSelectionFormula();
-						
+
 						@SuppressWarnings("unchecked")
 						Vector<ViewColumn> columns = view.getColumns();
 						List<ViewColumnInfo> columnInfo = columns.stream()
@@ -560,10 +559,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 									String columnTitle = column.getTitle();
 									String itemName = column.getItemName();
 									ViewColumnInfo.SortOrder sortOrder = column.isSorted() ?
-										(
-											column.isSortDescending() ? ViewColumnInfo.SortOrder.DESCENDING :
-											ViewColumnInfo.SortOrder.ASCENDING
-										) :
+										column.isSortDescending() ? ViewColumnInfo.SortOrder.DESCENDING :
+										ViewColumnInfo.SortOrder.ASCENDING :
 										ViewColumnInfo.SortOrder.NONE;
 									Collection<ViewColumnInfo.SortOrder> resortOrders = EnumSet.noneOf(ViewColumnInfo.SortOrder.class);
 									if(column.isResortAscending()) {
@@ -573,16 +570,16 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 										resortOrders.add(ViewColumnInfo.SortOrder.DESCENDING);
 									}
 									boolean categorized = column.isCategory();
-									
+
 									return new ViewColumnInfoImpl(columnTitle, itemName, sortOrder, resortOrders, categorized);
-										
+
 								} catch(NotesException e) {
 									throw new RuntimeException(e);
 								}
 							})
 							.collect(Collectors.toList());
 						view.recycle(columns);
-						
+
 						return new ViewInfoImpl(type, title, aliases, unid, selectionFormula, columnInfo);
 					} catch(NotesException e) {
 						throw new RuntimeException(e);
@@ -600,15 +597,15 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public String readCalendarRange(TemporalAccessor start, TemporalAccessor end, PageRequest pagination) {
+	public String readCalendarRange(final TemporalAccessor start, final TemporalAccessor end, final PageRequest pagination) {
 		try {
 			Database database = supplier.get();
 			Session session = database.getParent();
 			NotesCalendar cal = session.getCalendar(database);
-			
+
 			DateTime startDt = DominoNoSQLUtil.fromTemporal(session, start);
 			DateTime endDt = DominoNoSQLUtil.fromTemporal(session, end);
-			
+
 			if(pagination != null) {
 				return cal.readRange(startDt, endDt, (int)(pagination.size() * (pagination.page()-1)), pagination.size());
 			} else {
@@ -618,14 +615,14 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@Override
-	public Optional<String> readCalendarEntry(String uid) {
+	public Optional<String> readCalendarEntry(final String uid) {
 		try {
 			Database database = supplier.get();
 			Session session = database.getParent();
 			NotesCalendar cal = session.getCalendar(database);
-			
+
 			NotesCalendarEntry entry = cal.getEntry(uid);
 			try {
 				return Optional.of(entry.read());
@@ -639,12 +636,12 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public String createCalendarEntry(String icalData, boolean sendInvitations) {
+	public String createCalendarEntry(final String icalData, final boolean sendInvitations) {
 		try {
 			Database database = supplier.get();
 			Session session = database.getParent();
 			NotesCalendar cal = session.getCalendar(database);
-			
+
 			NotesCalendarEntry entry = cal.createEntry(icalData, sendInvitations ? 0 : NotesCalendar.CS_WRITE_DISABLE_IMPLICIT_SCHEDULING);
 			return entry.getUID();
 		} catch(NotesException e) {
@@ -653,13 +650,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public void updateCalendarEntry(String uid, String icalData, String comment, boolean sendInvitations,
-			boolean overwrite, String recurId) {
+	public void updateCalendarEntry(final String uid, final String icalData, final String comment, final boolean sendInvitations,
+			final boolean overwrite, final String recurId) {
 		try {
 			Database database = supplier.get();
 			Session session = database.getParent();
 			NotesCalendar cal = session.getCalendar(database);
-			
+
 			NotesCalendarEntry entry = cal.getEntry(uid);
 			int flags = (sendInvitations ? 0 : NotesCalendar.CS_WRITE_DISABLE_IMPLICIT_SCHEDULING) | (overwrite ? NotesCalendar.CS_WRITE_MODIFY_LITERAL : 0);
 			if(StringUtil.isEmpty(recurId)) {
@@ -673,12 +670,12 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	}
 
 	@Override
-	public void removeCalendarEntry(String uid, CalendarModScope scope, String recurId) {
+	public void removeCalendarEntry(final String uid, final CalendarModScope scope, final String recurId) {
 		try {
 			Database database = supplier.get();
 			Session session = database.getParent();
 			NotesCalendar cal = session.getCalendar(database);
-			
+
 			NotesCalendarEntry entry = cal.getEntry(uid);
 			if(StringUtil.isEmpty(recurId)) {
 				entry.remove();
@@ -705,32 +702,32 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	@Override
 	public void close() {
 	}
-	
+
 	// *******************************************************************************
 	// * Internal implementation utilities
 	// *******************************************************************************
-	
+
 	@SuppressWarnings("unchecked")
-	private <T> T buildNavigtor(String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, EntityMetadata mapping, NavFunction<T> consumer) {
+	private <T> T buildNavigtor(final String viewName, final PageRequest pagination, final Sort<?> sorts, final int maxLevel, final ViewQuery viewQuery, final boolean singleResult, final EntityMetadata mapping, final NavFunction<T> consumer) {
 		try {
 			if(StringUtil.isEmpty(viewName)) {
 				throw new IllegalArgumentException("viewName cannot be empty");
 			}
-			
+
 			Database database = supplier.get();
 			beginTransaction(database);
 			View view = database.getView(viewName);
 			Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
 			view.setAutoUpdate(false);
 			applySorts(view, sorts, mapping, viewQuery, pagination);
-			
+
 			long limit = 0;
 			boolean didSkip = false;
 			long skip = 0;
 			if(pagination != null) {
-				skip = (pagination.size() * (pagination.page()-1));
+				skip = pagination.size() * (pagination.page()-1);
 				limit = pagination.size();
-				
+
 				if(skip > Integer.MAX_VALUE) {
 					throw new UnsupportedOperationException("Domino does not support skipping more than Integer.MAX_VALUE entries");
 				}
@@ -746,18 +743,18 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					int n = Math.min((int)skip, entries.getCount());
 					// Downstream code will call getNext, so position one before
 					// NB: not recycling is intentional, as doing so un-does the skip
-					entries.getNthEntry(n); 
+					entries.getNthEntry(n);
 				}
 				return consumer.apply(entries, limit, didSkip, false);
 			}
-			
+
 			// Override anything above if we were told to get a single view entry
 			if(viewQuery != null && viewQuery.getKey() != null) {
 				if(singleResult) {
 					limit = 1;
 				}
 			}
-			
+
 			boolean didKey = false;
 			ViewNavigator nav;
 			String category = viewQuery == null ? null : viewQuery.getCategory();
@@ -778,14 +775,14 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			} else {
 				nav = view.createViewNavFromCategory(category);
 			}
-			
+
 			// Check if the class requests count data and skip reading if not
 			boolean requestsCounts = mapping.fields()
 				.stream()
 				.map(EntityUtil::getNativeField)
 				.map(f -> f.getAnnotation(Column.class))
 				.filter(Objects::nonNull)
-				.map(col -> col.value())
+				.map(Column::value)
 				.anyMatch(name ->
 					DominoConstants.FIELD_CHILDCOUNT.equals(name)
 					|| DominoConstants.FIELD_SIBLINGCOUNT.equals(name)
@@ -794,54 +791,54 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			if(!requestsCounts) {
 				nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 			}
-			
-			
+
+
 			if(maxLevel > -1) {
 				nav.setMaxLevel(maxLevel);
 			}
-			
+
 			if(skip > 0) {
 				nav.skip((int)skip-1);
 			}
-			
+
 			// Override anything above if we were told to get a single view entry
 			if(viewQuery != null && viewQuery.getKey() != null) {
 				if(singleResult) {
 					limit = 1;
 				}
 			}
-			
+
 			if(limit > 0) {
 				nav.setBufferMaxEntries((int)Math.min(400, limit));
 			} else {
 				nav.setBufferMaxEntries(400);
 			}
-			
+
 			return consumer.apply(nav, limit, didSkip, didKey);
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	private Database getQrpDatabase(Session session, Database database) throws NotesException {
+
+	private Database getQrpDatabase(final Session session, final Database database) throws NotesException {
 		String server = database.getServer();
 		String filePath = database.getFilePath();
 
 		try {
 			String fileName = AbstractEntityConverter.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
-			
+
 			Path dest = DominoNoSQLUtil.getQrpDirectory()
 				.orElseGet(() -> DominoNoSQLUtil.getTempDirectory().resolve(getClass().getPackageName()));
 			Files.createDirectories(dest);
 			Path dbPath = dest.resolve(fileName);
-			
+
 			Database qrp = session.getDatabase("", dbPath.toString()); //$NON-NLS-1$
 			if(!qrp.isOpen()) {
 				qrp.recycle();
 				DbDirectory dbDir = session.getDbDirectory(null);
 				// TODO encrypt when the API allows
 				qrp = dbDir.createDatabase(dbPath.toString(), true);
-				
+
 				ACL acl = qrp.getACL();
 				ACLEntry entry = acl.createACLEntry(session.getEffectiveUserName(), ACL.LEVEL_MANAGER);
 				entry.setCanDeleteDocuments(true);
@@ -851,10 +848,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
-		
+
 	}
 
-	private static void recycle(Object... objects) {
+	private static void recycle(final Object... objects) {
 		for(Object obj : objects) {
 			if(obj instanceof Base) {
 				try {
@@ -866,7 +863,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 	}
 
-	private Optional<CommunicationEntity> processDocument(String entityName, lotus.domino.Document doc) throws NotesException {
+	private Optional<CommunicationEntity> processDocument(final String entityName, final lotus.domino.Document doc) throws NotesException {
 		if(doc != null) {
 			if(doc.isDeleted()) {
 				return Optional.empty();
@@ -877,7 +874,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			if(unid == null || unid.isEmpty()) {
 				return Optional.empty();
 			}
-			
+
 			// TODO consider checking the form
 			EntityMetadata EntityMetadata = EntityUtil.getClassMapping(entityName);
 			Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(EntityMetadata);
@@ -887,11 +884,11 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return Optional.empty();
 		}
 	}
-	
-	private static void applySorts(View view, Sort<?> sorts, EntityMetadata mapping, ViewQuery query, PageRequest pagination) throws NotesException {
+
+	private static void applySorts(final View view, final Sort<?> sorts, final EntityMetadata mapping, final ViewQuery query, final PageRequest pagination) throws NotesException {
 		Collection<String> ftSearch = query == null ? Collections.emptySet() : query.getFtSearch();
 		Collection<FTSearchOption> options = query == null ? Collections.emptySet() : query.getFtSearchOptions();
-		
+
 		if(sorts == null) {
 			if(ftSearch != null && !ftSearch.isEmpty()) {
 				if(options.contains(FTSearchOption.UPDATE_INDEX)) {
@@ -904,13 +901,16 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				if(pagination != null) {
 					maxDocs = (int)Math.min(pagination.size() * pagination.page() + pagination.size(), Integer.MAX_VALUE);
 				}
-				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, View.VIEW_FTSS_RELEVANCE_ORDER, true, exact, variants, fuzzy);
+
+				// Using View.VIEW_FTSS_RELEVANCE_ORDER causes trouble sometimes in some
+				//   compilation environments, so use the raw integer value 512
+				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, 512, true, exact, variants, fuzzy);
 			}
-			
+
 			return;
 		} else {
 			String itemName = EntityUtil.findItemName(sorts.property(), mapping);
-			
+
 			if(ftSearch != null && !ftSearch.isEmpty()) {
 				if(options.contains(FTSearchOption.UPDATE_INDEX)) {
 					view.getParent().updateFTIndex(true);
@@ -928,8 +928,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		}
 	}
-	
-	private void beginTransaction(Database database) {
+
+	private void beginTransaction(final Database database) {
 		if(transactionsAvailable) {
 			Instance<TransactionManager> tm = CDI.current().select(TransactionManager.class);
 			if(tm.isResolvable()) {
@@ -950,15 +950,15 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 							// TODO determine if this should throw an exception in other states
 							return;
 						}
-						
+
 						res = new DatabaseXAResource(database);
 						if(t.enlistResource(res)) {
 							// Only begin a DB transaction if there wasn't already a transaction
 							//  for it
 							database.transactionBegin();
 						}
-						
-						
+
+
 					} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
 						if(log.isLoggable(Level.SEVERE)) {
 							if(e instanceof NotesException && ((NotesException)e).id == 4864) {
@@ -980,22 +980,22 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		}
 	}
-	
+
 	private static class DatabaseXAResource implements XAResource {
-		
+
 		private final Database database;
 		private final String server;
 		private final String filePath;
 		private int transactionTimeout = Integer.MAX_VALUE;
-		
-		public DatabaseXAResource(Database database) throws NotesException {
+
+		public DatabaseXAResource(final Database database) throws NotesException {
 			this.database = database;
 			this.server = database.getServer();
 			this.filePath = database.getFilePath();
 		}
 
 		@Override
-		public void commit(Xid xid, boolean onePhase) throws XAException {
+		public void commit(final Xid xid, final boolean onePhase) throws XAException {
 			try {
 				database.transactionCommit();
 			} catch (NotesException e) {
@@ -1004,15 +1004,15 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 
 		@Override
-		public void end(Xid xid, int flags) throws XAException {
+		public void end(final Xid xid, final int flags) throws XAException {
 			// TODO Figure out what to do here
-			
+
 		}
 
 		@Override
-		public void forget(Xid xid) throws XAException {
+		public void forget(final Xid xid) throws XAException {
 			// TODO Figure out what to do here
-			
+
 		}
 
 		@Override
@@ -1021,7 +1021,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 
 		@Override
-		public boolean isSameRM(XAResource xares) throws XAException {
+		public boolean isSameRM(final XAResource xares) throws XAException {
 			if(xares == this) {
 				return true;
 			} else if(xares instanceof DatabaseXAResource dbres) {
@@ -1032,19 +1032,19 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 
 		@Override
-		public int prepare(Xid xid) throws XAException {
+		public int prepare(final Xid xid) throws XAException {
 			// NOP for Domino
 			return XA_OK;
 		}
 
 		@Override
-		public Xid[] recover(int flag) throws XAException {
+		public Xid[] recover(final int flag) throws XAException {
 			// TODO Figure out what to do here
 			return new Xid[0];
 		}
 
 		@Override
-		public void rollback(Xid xid) throws XAException {
+		public void rollback(final Xid xid) throws XAException {
 			try {
 				database.transactionRollback();
 			} catch (NotesException e) {
@@ -1053,13 +1053,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 
 		@Override
-		public boolean setTransactionTimeout(int seconds) throws XAException {
+		public boolean setTransactionTimeout(final int seconds) throws XAException {
 			this.transactionTimeout = seconds;
 			return true;
 		}
 
 		@Override
-		public void start(Xid xid, int flags) throws XAException {
+		public void start(final Xid xid, final int flags) throws XAException {
 			// TODO Figure out what to do here
 		}
 
@@ -1068,9 +1068,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return String.format("DatabaseXAResource [server=%s, filePath=%s]", server, filePath); //$NON-NLS-1$
 		}
 
-		
+
 	}
-	
+
 	@FunctionalInterface
 	public interface NavFunction<R> {
 	    R apply(Object nav, long limit, boolean didSkip, boolean didKey);

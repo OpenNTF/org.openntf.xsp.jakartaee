@@ -16,10 +16,11 @@
 package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe;
 
 import java.util.function.Supplier;
+
 import lotus.domino.Session;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.3.0
  */

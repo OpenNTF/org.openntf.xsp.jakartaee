@@ -27,17 +27,17 @@ import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewEntries;
 /**
  * Contains constant values used by the Domino NoSQL driver for mapping
  * and querying.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.6.0
  */
 public enum DominoConstants {
 	;
-	
+
 	/**
 	 * The field used to store the UNID of the document during NoSQL
 	 * conversion, currently {@value #FIELD_ID}.
-	 * 
+	 *
 	 * <p>This value is shared with the default value for the
 	 * {@link jakarta.nosql.mapping.Id @Id} annotation from Jakarta NoSQL.</p>
 	 */
@@ -47,25 +47,25 @@ public enum DominoConstants {
 	 * Domino, currently {@value #FIELD_NAME}
 	 */
 	public static final String FIELD_NAME = "Form"; //$NON-NLS-1$
-	
+
 	/**
 	 * The field used to store the creation date of the document during
 	 * NoSQL conversion, currently {@value #FIELD_CDATE}
 	 */
 	public static final String FIELD_CDATE = "@cdate"; //$NON-NLS-1$
-	
+
 	/**
 	 * The field used to store the last modification date of the document during
 	 * NoSQL conversion, currently {@value #FIELD_MDATE}
 	 */
 	public static final String FIELD_MDATE = "@mdate"; //$NON-NLS-1$
-	
+
 	/**
 	 * The field used to store document attachments during NoSQL conversion,
 	 * currently {@value #FIELD_ATTACHMENTS}
 	 */
 	public static final String FIELD_ATTACHMENTS = "@attachments"; //$NON-NLS-1$
-	
+
 	/**
 	 * The field used to request storage of a DXL representation of the document during
 	 * NoSQL conversion, currently {@value #FIELD_DXL}
@@ -199,7 +199,7 @@ public enum DominoConstants {
 	 * @since 2.13.0
 	 */
 	public static final String FIELD_PROFILEKEY = "@profilekey"; //$NON-NLS-1$
-	
+
 	/**
 	 * Options used when converting composite data to HTML. This list is based
 	 * on the options used by XPages.
@@ -216,7 +216,7 @@ public enum DominoConstants {
 		"ListFidelity=1", //$NON-NLS-1$
 		"ParagraphIndent=2" //$NON-NLS-1$
 	));
-	
+
 	/**
 	 * This header is used to denote the stored Java class for "MIMEBean"-type storage.
 	 * @since 2.6.0
@@ -227,7 +227,7 @@ public enum DominoConstants {
 	 * @since 2.6.0
 	 */
 	public static final String MIME_TYPE_SERIALIZED_OBJECT = "application/x-java-serialized-object"; //$NON-NLS-1$
-	
+
 	public static final Collection<String> SYSTEM_FIELDS;
 	public static final Collection<String> SKIP_WRITING_FIELDS;
 	static {
@@ -251,7 +251,7 @@ public enum DominoConstants {
 			DominoConstants.FIELD_FILEPATH
 		));
 		SYSTEM_FIELDS = Collections.unmodifiableSet(systemFields);
-		
+
 		Set<String> skipWritingFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 		skipWritingFields.add("$FILE"); //$NON-NLS-1$
 		skipWritingFields.addAll(SYSTEM_FIELDS);

@@ -25,7 +25,7 @@ import jakarta.json.bind.Jsonb;
 /**
  * Contributes a provider that will emit the {@link Jsonb}
  * instance from CDI for JAX-RS.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.11.0
  */

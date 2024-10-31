@@ -21,9 +21,6 @@ import java.util.stream.StreamSupport;
 
 import javax.servlet.ServletException;
 
-import org.openntf.xsp.jakartaee.jasapi.JavaSapiExtension;
-import org.openntf.xsp.jakartaee.util.PriorityComparator;
-
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.domino.bridge.http.jasapi.IJavaSapiEnvironment;
@@ -34,26 +31,27 @@ import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFService;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
+import org.openntf.xsp.jakartaee.jasapi.JavaSapiExtension;
+import org.openntf.xsp.jakartaee.util.PriorityComparator;
+
 /**
  * Provides a JavaSapi bridge for NSFs.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.13.0
  */
 public class NSFComponentModuleJavaSapiService extends JavaSapiService {
 	private NSFService nsfService;
 
-	public NSFComponentModuleJavaSapiService(IJavaSapiEnvironment env) {
+	public NSFComponentModuleJavaSapiService(final IJavaSapiEnvironment env) {
 		super(env);
 	}
 
 	@Override
-	public int authenticate(IJavaSapiHttpContextAdapter context) {
+	public int authenticate(final IJavaSapiHttpContextAdapter context) {
 		try {
 			// TODO figure out the "reported the following problem causing authentication to fail: File does not exist" thing
-			return withExtensions(context, ext -> {
-				return ext.authenticate(new DelegatingJavaSapiContext(context));
-			}).getStatus();
+			return withExtensions(context, ext -> ext.authenticate(new DelegatingJavaSapiContext(context))).getStatus();
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
@@ -61,12 +59,12 @@ public class NSFComponentModuleJavaSapiService extends JavaSapiService {
 	}
 
 	@Override
-	public void startRequest(IJavaSapiHttpContextAdapter context) {
+	public void startRequest(final IJavaSapiHttpContextAdapter context) {
 		// Too early to call into the NSF
 	}
 
 	@Override
-	public void endRequest(IJavaSapiHttpContextAdapter context) {
+	public void endRequest(final IJavaSapiHttpContextAdapter context) {
 		try {
 			withExtensions(context, ext -> {
 				ext.authenticate(new DelegatingJavaSapiContext(context));
@@ -83,11 +81,9 @@ public class NSFComponentModuleJavaSapiService extends JavaSapiService {
 	}
 
 	@Override
-	public int processRequest(IJavaSapiHttpContextAdapter context) {
+	public int processRequest(final IJavaSapiHttpContextAdapter context) {
 		try {
-			return withExtensions(context, ext -> {
-				return ext.processRequest(new DelegatingJavaSapiContext(context));
-			}).getStatus();
+			return withExtensions(context, ext -> ext.processRequest(new DelegatingJavaSapiContext(context))).getStatus();
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
@@ -95,11 +91,9 @@ public class NSFComponentModuleJavaSapiService extends JavaSapiService {
 	}
 
 	@Override
-	public int rawRequest(IJavaSapiHttpContextAdapter context) {
+	public int rawRequest(final IJavaSapiHttpContextAdapter context) {
 		try {
-			return withExtensions(context, ext -> {
-				return ext.rawRequest(new DelegatingJavaSapiContext(context));
-			}).getStatus();
+			return withExtensions(context, ext -> ext.rawRequest(new DelegatingJavaSapiContext(context))).getStatus();
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
@@ -107,18 +101,16 @@ public class NSFComponentModuleJavaSapiService extends JavaSapiService {
 	}
 
 	@Override
-	public int rewriteURL(IJavaSapiHttpContextAdapter context) {
+	public int rewriteURL(final IJavaSapiHttpContextAdapter context) {
 		try {
-			return withExtensions(context, ext -> {
-				return ext.rewriteURL(new DelegatingJavaSapiContext(context));
-			}).getStatus();
+			return withExtensions(context, ext -> ext.rewriteURL(new DelegatingJavaSapiContext(context))).getStatus();
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
 		return HTEXTENSION_EVENT_DECLINED;
 	}
-	
-	private JavaSapiExtension.Result withExtensions(IJavaSapiHttpContextAdapter context, Function<JavaSapiExtension, JavaSapiExtension.Result> c) throws ServletException {
+
+	private JavaSapiExtension.Result withExtensions(final IJavaSapiHttpContextAdapter context, final Function<JavaSapiExtension, JavaSapiExtension.Result> c) throws ServletException {
 		IJavaSapiHttpRequestAdapter req = context.getRequest();
 		String path = StringUtil.toString(req.getRequestURI());
 		int nsfIndex = path.toLowerCase().indexOf(".nsf"); //$NON-NLS-1$
@@ -128,7 +120,7 @@ public class NSFComponentModuleJavaSapiService extends JavaSapiService {
 			if(mod != null) {
 				// TODO cache cache cache
 				// TODO invalidate that cache
-				
+
 				NotesContext.initThread(new NotesContext(mod));
 				try {
 					ServiceLoader<JavaSapiExtension> extensions = ServiceLoader.load(JavaSapiExtension.class, mod.getModuleClassLoader());

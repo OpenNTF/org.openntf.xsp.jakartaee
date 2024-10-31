@@ -40,26 +40,26 @@ import lotus.domino.NotesException;
  * This handle will render exceptions as JSON objects with stack elements
  * represented as an array of strings when the content type is
  * {@code application/json}.
- * 
+ *
  * <p>This is also used by the mapper as the generic fallback handler when
  * no other registered handler applies.</p>
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
 @Priority(RestExceptionHandler.DEFAULT_PRIORITY)
 public class JsonExceptionHandler implements RestExceptionHandler {
 	public static final JsonExceptionHandler DEFAULT = new JsonExceptionHandler();
-	
+
 	private static final Logger log = Logger.getLogger(JsonExceptionHandler.class.getName());
 
 	@Override
-	public boolean canHandle(ResourceInfo resourceInfo, MediaType mediaType) {
+	public boolean canHandle(final ResourceInfo resourceInfo, final MediaType mediaType) {
 		return MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType);
 	}
 
 	@Override
-	public Response handle(Throwable throwable, int status, ResourceInfo resourceInfo, HttpServletRequest req) {
+	public Response handle(final Throwable throwable, final int status, final ResourceInfo resourceInfo, final HttpServletRequest req) {
 		return Response.status(status)
 			.type(MediaType.APPLICATION_JSON_TYPE)
 			.entity((StreamingOutput)out -> {
@@ -72,7 +72,7 @@ public class JsonExceptionHandler implements RestExceptionHandler {
 							message = ((NotesException) t).text;
 						} else if (t instanceof ConstraintViolationException) {
 							message = t.getMessage();
-	
+
 							if (message == null || message.isEmpty()) {
 								List<String> cvMsgList = new ArrayList<>();
 								for (@SuppressWarnings("rawtypes")
@@ -85,16 +85,16 @@ public class JsonExceptionHandler implements RestExceptionHandler {
 						} else {
 							message = t.getMessage();
 						}
-	
+
 						t = t.getCause();
 					}
-					
+
 					JsonGeneratorFactory jsonFac = Json.createGeneratorFactory(Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
 					try(JsonGenerator json = jsonFac.createGenerator(out)) {
 						json.writeStartObject();
-						
+
 						json.write("message", throwable.getClass().getName() + ": " + message); //$NON-NLS-1$ //$NON-NLS-2$
-						
+
 						json.writeKey("stackTrace"); //$NON-NLS-1$
 						json.writeStartArray();
 						for (Throwable cause = throwable; cause != null; cause = cause.getCause()) {
@@ -107,7 +107,7 @@ public class JsonExceptionHandler implements RestExceptionHandler {
 							json.writeEnd();
 						}
 						json.writeEnd();
-						
+
 						json.writeEnd();
 					}
 				} catch(Throwable t) {

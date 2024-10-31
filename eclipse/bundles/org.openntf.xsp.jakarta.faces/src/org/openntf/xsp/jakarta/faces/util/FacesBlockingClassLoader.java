@@ -34,20 +34,20 @@ import jakarta.faces.context.FacesContext;
  * to the XPages implementation classes. Additionally, it allows access to
  * META-INF resources from the Faces API bundle, which would otherwise
  * be invisible in OSGi.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.12.0
  */
 public class FacesBlockingClassLoader extends URLClassLoader {
 	private final Collection<ClassLoader> facesCl;
 
-	public FacesBlockingClassLoader(URL[] urls, ClassLoader parent) {
+	public FacesBlockingClassLoader(final URL[] urls, final ClassLoader parent) {
 		super(urls, parent);
 		this.facesCl = Arrays.asList(FacesContext.class.getClassLoader(), getClass().getClassLoader());
 	}
-	
+
 	@Override
-	public Class<?> loadClass(String name) throws ClassNotFoundException {
+	public Class<?> loadClass(final String name) throws ClassNotFoundException {
 		if (name != null && name.startsWith("com.sun.faces.")) { //$NON-NLS-1$
 			throw new ClassNotFoundException();
 		}
@@ -56,9 +56,9 @@ public class FacesBlockingClassLoader extends URLClassLoader {
 
 	// The Faces API will already be on the classpath, but its resources won't be.
 	//   Also shim in access to that
-	
+
 	@Override
-	public URL getResource(String name) {
+	public URL getResource(final String name) {
 		URL parent = super.getResource(name);
 		if(parent != null) {
 			return parent;
@@ -69,9 +69,9 @@ public class FacesBlockingClassLoader extends URLClassLoader {
 			.findFirst()
 			.orElse(null);
 	}
-	
+
 	@Override
-	public InputStream getResourceAsStream(String name) {
+	public InputStream getResourceAsStream(final String name) {
 		InputStream parent = super.getResourceAsStream(name);
 		if(parent != null) {
 			return parent;
@@ -82,9 +82,9 @@ public class FacesBlockingClassLoader extends URLClassLoader {
 			.findFirst()
 			.orElse(null);
 	}
-	
+
 	@Override
-	public Enumeration<URL> getResources(String name) throws IOException {
+	public Enumeration<URL> getResources(final String name) throws IOException {
 		List<URL> parent = Collections.list(super.getResources(name));
 		facesCl.stream()
 			.map(cl -> {

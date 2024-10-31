@@ -25,12 +25,12 @@ import jakarta.servlet.ServletRequestListener;
 public class TransactionRequestListener implements ServletRequestListener, AbstractTransactionJndiConfigurator {
 
 	@Override
-	public void requestInitialized(ServletRequestEvent sre) {
+	public void requestInitialized(final ServletRequestEvent sre) {
 		pushTransaction();
 	}
-	
+
 	@Override
-	public void requestDestroyed(ServletRequestEvent sre) {
+	public void requestDestroyed(final ServletRequestEvent sre) {
 		popTransaction();
 	}
 

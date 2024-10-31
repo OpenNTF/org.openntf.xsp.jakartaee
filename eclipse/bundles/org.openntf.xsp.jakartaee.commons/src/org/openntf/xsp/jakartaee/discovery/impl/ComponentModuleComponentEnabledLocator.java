@@ -15,16 +15,16 @@
  */
 package org.openntf.xsp.jakartaee.discovery.impl;
 
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+
 import org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-
 /**
  * Determines whether a given component is enabled based on its ID being
  * present in the enabled XPages Libraries in the current {@link ComponentModule}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -36,7 +36,7 @@ public class ComponentModuleComponentEnabledLocator implements ComponentEnabledL
 	}
 
 	@Override
-	public boolean isComponentEnabled(String componentId) {
+	public boolean isComponentEnabled(final String componentId) {
 		ComponentModule module = ComponentModuleLocator.getDefault().get().getActiveModule();
 		if(module != null) {
 			return LibraryUtil.usesLibrary(componentId, module);

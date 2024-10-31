@@ -23,8 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Random;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -1128,13 +1130,6 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertFalse(unid3.isEmpty());
 		}
 		
-		// Update the FT index, to make sure
-		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/updateExampleDocFtIndex");
-			Response response = target.request().post(Entity.text(""));
-			checkResponse(204, response);
-		}
-		
 		// Fetch the first two titles, which should include both
 		{
 			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInTitle");
@@ -1168,19 +1163,217 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				fail("Encountered exception with JSON " + json, e);
 			}
 		}
+	}
+	
+	@Test
+	public void testExampleDocInNumberGuy() {
+		Client client = getAnonymousClient();
+		
+		String prefix13 = "fooddddd";
+		String title = prefix13 + System.currentTimeMillis();
+		Random rand = new SecureRandom();
+		int[] guys = new int[] { rand.nextInt(), rand.nextInt(), rand.nextInt() };
+		String[] unids = new String[3];
+		
+		// Create three new docs
+		for(int i = 0; i < guys.length; i++) {
+			JsonObject payload = Json.createObjectBuilder()
+				.add("title", title)
+				.add("numberGuy", guys[i])
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payload));
+			checkResponse(200, response);
 
-		// Fetch the prefix
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unids[i] = jsonObject.getString("unid");
+			assertNotNull(unids[i]);
+			assertFalse(unids[i].isEmpty());
+		}
+		
+		// Update the FT index, to make sure
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInTitle");
-			Response response = target.queryParam("title", prefix13 + "*").request().get();
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/updateExampleDocFtIndex");
+			Response response = target.request().post(Entity.text(""));
+			checkResponse(204, response);
+		}
+		
+		// Fetch the first two values, which should include both
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInNumberGuy");
+			Response response = target.queryParam("numberGuy", guys[0], guys[1]).request().get();
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
 			try {
 				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
 				assertEquals(2, entities.size());
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unids[0].equals(obj.getString("unid"))));
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unids[1].equals(obj.getString("unid"))));
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + json, e);
+			}
+		}
+		
+		// Fetch the second two values
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInNumberGuy");
+			Response response = target.queryParam("numberGuy", guys[1], guys[2]).request().get();
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
+				assertEquals(2, entities.size());
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unids[1].equals(obj.getString("unid"))));
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unids[2].equals(obj.getString("unid"))));
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + json, e);
+			}
+		}
+	}
+	
+	@Test
+	public void testExampleDocLikeTitle() {
+		Client client = getAnonymousClient();
+		
+		final String prefix1 = "fooddddd";
+		final String title1 = prefix1 + System.currentTimeMillis();
+		final String prefix2 = "dsfsdf";
+		final String title2 = prefix2 + System.currentTimeMillis();
+		
+		// Create two new docs
+		final String unid1;
+		{
+			JsonObject payload = Json.createObjectBuilder()
+				.add("title", title1)
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid1 = jsonObject.getString("unid");
+			assertNotNull(unid1);
+			assertFalse(unid1.isEmpty());
+		}
+		final String unid2;
+		{
+			JsonObject payload = Json.createObjectBuilder()
+				.add("title", title2)
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid2 = jsonObject.getString("unid");
+			assertNotNull(unid2);
+			assertFalse(unid2.isEmpty());
+		}
+		
+		// Update the FT index, to make sure
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/updateExampleDocFtIndex");
+			Response response = target.request().post(Entity.text(""));
+			checkResponse(204, response);
+		}
+
+		// Fetch the first prefix
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsLikeTitle");
+			Response response = target.queryParam("title", prefix1 + "*").request().get();
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
+				assertEquals(1, entities.size());
 				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unid1.equals(obj.getString("unid"))));
-				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unid3.equals(obj.getString("unid"))));
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + json, e);
+			}
+		}
+
+		// Fetch the second prefix
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsLikeTitle");
+			Response response = target.queryParam("title", prefix2 + "*").request().get();
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
+				assertEquals(1, entities.size());
+				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unid2.equals(obj.getString("unid"))));
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + json, e);
+			}
+		}
+	}
+	
+	@Test
+	public void testExampleDocAllSorted() {
+		Client client = getAnonymousClient();
+		
+		String prefix = "allsorted";
+		String[] unids = new String[2];
+		
+		// Create two docs with the same title but different numberGuy to test sorting
+		for(int i = 0; i < 2; i++) {
+			JsonObject payload = Json.createObjectBuilder()
+				.add("title", prefix)
+				.add("numberGuy", 2-i)
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unids[i] = jsonObject.getString("unid");
+			assertNotNull(unids[i]);
+			assertFalse(unids[i].isEmpty());
+		}
+		
+		// Fetch the list and make sure that the second UNID is before the first
+		
+		// Fetch the first two values, which should include both
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/allSorted");
+			Response response = target.request().get();
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
+				assertTrue(entities.size() > 2, "Received unexpected count " + entities.size());
+				
+				int index1 = -1;
+				int index2 = -1; 
+				for(int i = 0; i < entities.size(); i++) {
+					JsonObject entity = entities.getJsonObject(i);
+					if(unids[0].equals(entity.getString("unid"))) {
+						index1 = i;
+					} else if(unids[1].equals(entity.getString("unid"))) {
+						index2 = i;
+					}
+				}
+				if(index1 == -1) {
+					fail("Did not find first UNID");
+				} else if(index2 == -1) {
+					fail("Did not find second UNID");
+				} else if(index1 <= index2) {
+					fail("index1 should not be less than index2");
+				}
+				
 			} catch(Exception e) {
 				fail("Encountered exception with JSON " + json, e);
 			}

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta NoSQL Driver
 Bundle-SymbolicName: org.openntf.xsp.jakarta.nosql.driver;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.nosql.driver
-Bundle-Version: 3.1.0.qualifier
+Bundle-Version: 3.2.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: jakarta.annotation;version="[2.1.0,3.0.0)",
@@ -35,8 +35,8 @@ Import-Package: jakarta.annotation;version="[2.1.0,3.0.0)",
  org.eclipse.jnosql.mapping.semistructured,
  org.eclipse.jnosql.mapping.semistructured.query
 Export-Package: org.eclipse.jnosql.communication.driver.attachment;version="1.0.2",
- org.openntf.xsp.jakarta.nosql.communication.driver;version="3.1.0",
- org.openntf.xsp.jakarta.nosql.communication.driver.impl;version="3.1.0",
- org.openntf.xsp.jakarta.nosql.mapping.extension;version="3.1.0",
- org.openntf.xsp.jakarta.nosql.mapping.extension.impl;version="3.1.0"
+ org.openntf.xsp.jakarta.nosql.communication.driver;version="3.2.0",
+ org.openntf.xsp.jakarta.nosql.communication.driver.impl;version="3.2.0",
+ org.openntf.xsp.jakarta.nosql.mapping.extension;version="3.2.0",
+ org.openntf.xsp.jakarta.nosql.mapping.extension.impl;version="3.2.0"
 DynamicImport-Package: org.jboss.weld.*

@@ -31,7 +31,7 @@ import jakarta.ws.rs.core.StreamingOutput;
 /**
  * This handle will render exceptions as just their stack trace when the
  * media type is {@code text/plain}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
@@ -40,12 +40,12 @@ public class TextPlainExceptionHandler implements RestExceptionHandler {
 	private static final Logger log = Logger.getLogger(TextPlainExceptionHandler.class.getName());
 
 	@Override
-	public boolean canHandle(ResourceInfo resourceInfo, MediaType mediaType) {
+	public boolean canHandle(final ResourceInfo resourceInfo, final MediaType mediaType) {
 		return MediaType.TEXT_PLAIN_TYPE.isCompatible(mediaType) && !(mediaType.isWildcardType() || mediaType.isWildcardSubtype());
 	}
 
 	@Override
-	public Response handle(Throwable throwable, int status, ResourceInfo resourceInfo, HttpServletRequest req) {
+	public Response handle(final Throwable throwable, final int status, final ResourceInfo resourceInfo, final HttpServletRequest req) {
 		return Response.status(status)
 			.type(MediaType.TEXT_PLAIN)
 			.entity((StreamingOutput)out -> {

@@ -26,15 +26,15 @@ import jakarta.servlet.http.HttpSessionBindingEvent;
 
 class OldHttpSessionWrapper implements HttpSession {
 	final javax.servlet.http.HttpSession delegate;
-	
-	public OldHttpSessionWrapper(javax.servlet.http.HttpSession delegate) {
+
+	public OldHttpSessionWrapper(final javax.servlet.http.HttpSession delegate) {
 		this.delegate = delegate;
 	}
-	
-	void addListener(HttpSessionAttributeListener listener) {
+
+	void addListener(final HttpSessionAttributeListener listener) {
 		this.getAttrListeners().add(listener);
 	}
-	
+
 	@Override
 	public long getCreationTime() {
 		return delegate.getCreationTime();
@@ -56,7 +56,7 @@ class OldHttpSessionWrapper implements HttpSession {
 	}
 
 	@Override
-	public void setMaxInactiveInterval(int interval) {
+	public void setMaxInactiveInterval(final int interval) {
 		delegate.setMaxInactiveInterval(interval);
 	}
 
@@ -66,7 +66,7 @@ class OldHttpSessionWrapper implements HttpSession {
 	}
 
 	@Override
-	public Object getAttribute(String name) {
+	public Object getAttribute(final String name) {
 		return delegate.getAttribute(name);
 	}
 
@@ -77,7 +77,7 @@ class OldHttpSessionWrapper implements HttpSession {
 	}
 
 	@Override
-	public void setAttribute(String name, Object value) {
+	public void setAttribute(final String name, final Object value) {
 		boolean exists = Collections.list(this.getAttributeNames()).contains(name);
 		Object oldVal = delegate.getAttribute(name);
 		delegate.setAttribute(name, value);
@@ -92,7 +92,7 @@ class OldHttpSessionWrapper implements HttpSession {
 	}
 
 	@Override
-	public void removeAttribute(String name) {
+	public void removeAttribute(final String name) {
 		Object val = delegate.getAttribute(name);
 		delegate.removeAttribute(name);
 		this.getAttrListeners().forEach(listener ->
@@ -109,11 +109,11 @@ class OldHttpSessionWrapper implements HttpSession {
 	public boolean isNew() {
 		return delegate.isNew();
 	}
-	
+
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
-	
+
 	private List<HttpSessionAttributeListener> getAttrListeners() {
 		return ServletUtil.getListeners(getServletContext(), HttpSessionAttributeListener.class);
 	}

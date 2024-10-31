@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import com.ibm.commons.util.PathUtil;
+
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
 import org.eclipse.microprofile.openapi.models.info.Info;
@@ -31,8 +33,6 @@ import org.openntf.xsp.jakarta.rest.RestServletFactory;
 import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
-
-import com.ibm.commons.util.PathUtil;
 
 import io.smallrye.openapi.api.OpenApiConfig;
 import io.smallrye.openapi.api.OpenApiConfigImpl;
@@ -49,17 +49,17 @@ import jakarta.ws.rs.core.Context;
  * @since 2.2.0
  */
 public abstract class AbstractOpenAPIResource {
-	
+
 	@Context
 	protected Configuration jaxrsConfig;
-	
+
 	@Context
 	protected Application application;
-	
+
 	@Context
 	protected HttpServletRequest req;
 
-	
+
 	protected OpenAPI buildOpenAPI() throws IOException {
 		Set<Class<?>> classes = new HashSet<>();
 		classes.addAll(application.getClasses());
@@ -69,9 +69,9 @@ public abstract class AbstractOpenAPIResource {
 		module.map(ComponentModuleLocator::getActiveModule)
 			.map(ModuleUtil::getClasses)
 			.ifPresent(moduleClasses -> moduleClasses.forEach(classes::add));
-		
+
 		Index index = Index.of(classes);
-		
+
 		Config mpConfig = CDI.current().select(Config.class).get();
 		OpenApiConfig config = OpenApiConfigImpl.fromConfig(mpConfig);
 		ClassLoader cl = new DelegatingClassLoader(OpenApiProcessor.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
@@ -80,7 +80,7 @@ public abstract class AbstractOpenAPIResource {
 			// OpenApiProcessor appears to be not thread-safe
 			openapi = OpenApiProcessor.bootstrap(config, index, cl);
 		}
-		
+
 		Info info = openapi.getInfo();
 		String existingTitle = config.getInfoTitle();
 		if(existingTitle == null || existingTitle.isEmpty()) {
@@ -95,14 +95,14 @@ public abstract class AbstractOpenAPIResource {
 		} else {
 			info.setVersion(existingVersion);
 		}
-	
+
 		// Build a URI to the base of JAX-RS
 		Collection<String> servers = config.servers();
 		if(servers == null || servers.isEmpty()) {
 			Server server = new ServerImpl();
-			
+
 			URI uri = URI.create(req.getRequestURL().toString());
-			
+
 			String jaxrsRoot = module.map(ComponentModuleLocator::getActiveModule)
 				.map(RestServletFactory::getServletPath)
 				.orElse(""); //$NON-NLS-1$
@@ -114,7 +114,7 @@ public abstract class AbstractOpenAPIResource {
 			server.setUrl(uriString);
 			openapi.addServer(server);
 		}
-		
+
 		return openapi;
 	}
 }

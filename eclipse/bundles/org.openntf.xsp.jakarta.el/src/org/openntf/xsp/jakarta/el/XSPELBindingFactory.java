@@ -27,10 +27,10 @@ import com.sun.faces.util.Util;
 public class XSPELBindingFactory implements BindingFactory {
 
 	public static final String IBM_PREFIX = "xspel"; //$NON-NLS-1$
-	
+
 	private final String prefix;
-	
-	public XSPELBindingFactory(String prefix) {
+
+	public XSPELBindingFactory(final String prefix) {
 		this.prefix = prefix;
 	}
 
@@ -40,18 +40,18 @@ public class XSPELBindingFactory implements BindingFactory {
 	}
 
 	@Override
-	public ValueBinding createValueBinding(Application application, String ref) {
+	public ValueBinding createValueBinding(final Application application, final String ref) {
 		ValueBindingImpl result = new ValueBindingImpl(application);
 		result.setRef(Util.stripBracketsIfNecessary(cleanRef(ref)));
 		return result;
 	}
 
 	@Override
-	public MethodBinding createMethodBinding(Application application, String ref, @SuppressWarnings("rawtypes") Class[] args) {
+	public MethodBinding createMethodBinding(final Application application, final String ref, @SuppressWarnings("rawtypes") final Class[] args) {
 		return new MethodBindingImpl(application, cleanRef(ref), args);
 	}
 
-	private String cleanRef(String ref) {
+	private String cleanRef(final String ref) {
 		if(ref.startsWith("#{" + prefix + ':')) { //$NON-NLS-1$
 			return ref.substring(0, 2) + ref.substring(prefix.length()+3);
 		} else {

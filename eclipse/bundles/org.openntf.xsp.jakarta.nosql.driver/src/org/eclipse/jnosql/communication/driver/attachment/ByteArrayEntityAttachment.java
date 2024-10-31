@@ -20,7 +20,7 @@ import java.io.InputStream;
 
 /**
  * Default representation of {@link EntityAttachment} for in-memory data.
- * 
+ *
  * @since 0.0.9
  */
 class ByteArrayEntityAttachment implements EntityAttachment {
@@ -28,8 +28,8 @@ class ByteArrayEntityAttachment implements EntityAttachment {
     private final String contentType;
     private final long lastModified;
     private final byte[] data;
-    
-    public ByteArrayEntityAttachment(String name, String contentType, long lastModified, byte[] data) {
+
+    public ByteArrayEntityAttachment(final String name, final String contentType, final long lastModified, final byte[] data) {
         this.name = name;
         this.contentType = contentType;
         this.lastModified = lastModified;
@@ -55,7 +55,7 @@ class ByteArrayEntityAttachment implements EntityAttachment {
     public InputStream getData() throws IOException {
         return new ByteArrayInputStream(data);
     }
-    
+
     @Override
     public long getLength() {
         return data.length;

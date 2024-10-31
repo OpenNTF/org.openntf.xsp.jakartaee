@@ -27,7 +27,7 @@ import org.openntf.xsp.microprofile.metrics.MetricsResourceContributor;
 /**
  * This MP Config provider produces the current app's context path as a prefix
  * for metrics, to allow for app-specific metric collection.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */

@@ -502,7 +502,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 			Response response = postTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
 				.post(Entity.entity(payload, MediaType.MULTIPART_FORM_DATA_TYPE));
-			assertEquals(200, response.getStatus());
+			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
 			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
@@ -518,7 +518,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
 				.get();
-			assertEquals(200, response.getStatus());
+			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
 			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
@@ -537,7 +537,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid + "/attachment/foo.html");
 
 			Response response = getTarget.request().get();
-			assertEquals(200, response.getStatus());
+			checkResponse(200, response);
 
 			String html = response.readEntity(String.class);
 			assertEquals("<p>I am foo HTML</p>", html);

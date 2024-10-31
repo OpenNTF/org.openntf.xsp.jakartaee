@@ -28,13 +28,13 @@ import io.smallrye.health.ResponseProvider;
 public class HealthActivator implements BundleActivator {
 
 	@Override
-	public void start(BundleContext bundleContext) throws Exception {
+	public void start(final BundleContext bundleContext) throws Exception {
 		// Set the provider instance manually since we're in Domino OSGi
 		HealthCheckResponse.setResponseProvider(new ResponseProvider());
 	}
 
 	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
+	public void stop(final BundleContext bundleContext) throws Exception {
 
 	}
 

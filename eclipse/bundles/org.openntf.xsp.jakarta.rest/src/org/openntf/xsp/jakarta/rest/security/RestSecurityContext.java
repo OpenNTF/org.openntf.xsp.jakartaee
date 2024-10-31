@@ -18,10 +18,10 @@ package org.openntf.xsp.jakarta.rest.security;
 import java.security.Principal;
 import java.util.Collection;
 
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-
 import com.ibm.commons.util.StringUtil;
 import com.ibm.xsp.extlib.util.ExtLibUtil;
+
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.SecurityContext;
@@ -30,10 +30,10 @@ import lotus.domino.NotesException;
 
 public class RestSecurityContext implements SecurityContext {
 	public static final String ATTR_ROLES = RestSecurityContext.class.getName() + "_roles"; //$NON-NLS-1$
-	
+
 	private final HttpServletRequest req;
 
-	public RestSecurityContext(HttpServletRequest req) {
+	public RestSecurityContext(final HttpServletRequest req) {
 		this.req = req;
 	}
 
@@ -71,7 +71,7 @@ public class RestSecurityContext implements SecurityContext {
 		// TODO look this up from the active authentication filter
 		return FORM_AUTH;
 	}
-	
+
 	private Collection<String> getRoles() {
 		@SuppressWarnings("unchecked")
 		Collection<String> roles = (Collection<String>)this.req.getAttribute(ATTR_ROLES);

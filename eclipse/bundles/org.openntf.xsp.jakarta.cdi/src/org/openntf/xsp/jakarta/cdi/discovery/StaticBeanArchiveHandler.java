@@ -26,7 +26,7 @@ import jakarta.annotation.Priority;
  * This implementation of {@link BeanArchiveHandler} just returns a
  * basic {@link BeanArchiveBuilder} with a randomized ID, since actual
  * class contribution happens elsewhere.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
@@ -34,7 +34,7 @@ import jakarta.annotation.Priority;
 public class StaticBeanArchiveHandler implements BeanArchiveHandler {
 
 	@Override
-	public BeanArchiveBuilder handle(String beanArchiveReference) {
+	public BeanArchiveBuilder handle(final String beanArchiveReference) {
 		return new StaticBeanArchiveBuilder(UUID.randomUUID().toString());
 	}
 

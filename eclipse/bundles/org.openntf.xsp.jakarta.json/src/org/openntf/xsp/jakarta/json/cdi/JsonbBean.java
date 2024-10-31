@@ -27,7 +27,7 @@ import jakarta.json.spi.JsonProvider;
 /**
  * Provides a {@link Jsonb} instance optionally configured with a
  * {@link JsonbConfig} object produced by the application.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.11.0
  */
@@ -36,17 +36,17 @@ public class JsonbBean {
 	@Produces
 	public Jsonb getJsonb() {
 		JsonbBuilder builder = JsonbBuilder.newBuilder();
-		
+
 		Instance<JsonbConfig> configBean = CDI.current().select(JsonbConfig.class);
 		if(configBean.isResolvable()) {
 			builder = builder.withConfig(configBean.get());
 		}
-		
+
 		Instance<JsonProvider> providerBean = CDI.current().select(JsonProvider.class);
 		if(providerBean.isResolvable()) {
 			builder = builder.withProvider(providerBean.get());
 		}
-		
+
 		return builder.build();
 	}
 }

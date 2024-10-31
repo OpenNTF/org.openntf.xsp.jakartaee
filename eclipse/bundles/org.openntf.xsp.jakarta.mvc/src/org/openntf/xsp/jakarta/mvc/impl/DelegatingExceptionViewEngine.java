@@ -31,12 +31,12 @@ import jakarta.ws.rs.core.StreamingOutput;
  */
 public class DelegatingExceptionViewEngine implements ViewEngine {
 	@Override
-	public boolean supports(String view) {
+	public boolean supports(final String view) {
 		return getClass().getName().equals(view);
 	}
 
 	@Override
-	public void processView(ViewEngineContext context) throws ViewEngineException {
+	public void processView(final ViewEngineContext context) throws ViewEngineException {
 		Models models = context.getModels();
 		Response sup = (Response)models.get("response"); //$NON-NLS-1$
 		Object entity = sup.getEntity();

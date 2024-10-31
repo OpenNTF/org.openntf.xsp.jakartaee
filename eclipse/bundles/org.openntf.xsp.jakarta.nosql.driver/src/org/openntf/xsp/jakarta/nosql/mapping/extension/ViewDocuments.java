@@ -26,10 +26,10 @@ import java.lang.annotation.Target;
  * This annotation can be placed on a method in a {@link DominoRepository}
  * interface to indicate that the results should be pulled
  * from the named view, retrieving the document for each applicable entry.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.6.0
- * 
+ *
  * @see {@link ViewCategory}
  */
 @Documented
@@ -40,12 +40,12 @@ public @interface ViewDocuments {
 	 * @return the name of the view to read
 	 */
 	String value();
-	
+
 	/**
 	 * @return the maximum entry level to process
 	 */
 	int maxLevel() default -1;
-	
+
 	/**
 	 * @return whether only distinct documents should
 	 *         be returned, regardless of how often they

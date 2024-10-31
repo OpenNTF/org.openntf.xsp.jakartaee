@@ -28,7 +28,7 @@ import org.openntf.xsp.jakarta.rest.RestClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 public class CorsContributor implements RestClassContributor {
-	
+
 	public static final String PROP_CORS_ENABLE = "rest.cors.enable"; //$NON-NLS-1$
 	public static final String PROP_CORS_CREDENTIALS = "rest.cors.allowCredentials"; //$NON-NLS-1$
 	public static final String PROP_CORS_METHODS = "rest.cors.allowedMethods"; //$NON-NLS-1$
@@ -41,16 +41,16 @@ public class CorsContributor implements RestClassContributor {
 	public Collection<Class<?>> getClasses() {
 		return Collections.emptySet();
 	}
-	
+
 	@Override
 	public Collection<Object> getSingletons() {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			Config config = ConfigProvider.getConfig();
-			
+
 			Optional<Boolean> enabled = config.getOptionalValue(PROP_CORS_ENABLE, boolean.class);
 			if(enabled.isPresent() && enabled.get()) {
 				CorsFilter filter = new CorsFilter();
-				
+
 				boolean credentials = config.getOptionalValue(PROP_CORS_CREDENTIALS, boolean.class)
 					.orElse(true);
 				filter.setAllowCredentials(credentials);
@@ -66,11 +66,11 @@ public class CorsContributor implements RestClassContributor {
 				int maxAge = config.getOptionalValue(PROP_CORS_MAXAGE, int.class)
 					.orElse(-1);
 				filter.setCorsMaxAge(maxAge);
-				
+
 				List<String> allowedOrigins = config.getOptionalValues(PROP_CORS_ORIGINS, String.class)
 					.orElseGet(() -> Arrays.asList("*")); //$NON-NLS-1$
 				filter.getAllowedOrigins().addAll(allowedOrigins);
-				
+
 				return Collections.singleton(filter);
 			}
 		}

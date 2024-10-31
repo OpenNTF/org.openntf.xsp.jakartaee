@@ -27,7 +27,7 @@ import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
 /**
  * Default implementation of {@link ViewQuery}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.8.0
  */
@@ -45,45 +45,45 @@ public class DefaultViewQuery implements ViewQuery {
 	private Collection<FTSearchOption> ftSearchOptions;
 
 	@Override
-	public ViewQuery category(String category) {
+	public ViewQuery category(final String category) {
 		this.category = category;
 		return this;
 	}
-	
+
 	@Override
 	public String getCategory() {
 		return category;
 	}
 
 	@Override
-	public ViewQuery key(Object key, boolean exact) {
+	public ViewQuery key(final Object key, final boolean exact) {
 		this.viewKey = key;
 		this.exact = exact;
 		return this;
 	}
-	
+
 	@Override
 	public Object getKey() {
 		return viewKey;
 	}
-	
+
 	@Override
 	public boolean isExact() {
 		return exact;
 	}
-	
+
 	@Override
-	public ViewQuery ftSearch(String query, Collection<FTSearchOption> options) {
+	public ViewQuery ftSearch(final String query, final Collection<FTSearchOption> options) {
 		return ftSearch(query == null || query.isEmpty() ? null : Collections.singletonList(query), options);
 	}
-	
+
 	@Override
-	public ViewQuery ftSearch(Collection<String> queries, Collection<FTSearchOption> options) {
+	public ViewQuery ftSearch(final Collection<String> queries, final Collection<FTSearchOption> options) {
 		this.ftSearch = queries == null ? null : new ArrayList<>(queries);
 		this.ftSearchOptions = options == null ? null : EnumSet.copyOf(options);
 		return this;
 	}
-	
+
 	@Override
 	public List<String> getFtSearch() {
 		List<String> ftSearch = this.ftSearch;
@@ -95,7 +95,7 @@ public class DefaultViewQuery implements ViewQuery {
 				.collect(Collectors.toList());
 		}
 	}
-	
+
 	@Override
 	public Collection<FTSearchOption> getFtSearchOptions() {
 		Collection<FTSearchOption> options = this.ftSearchOptions;

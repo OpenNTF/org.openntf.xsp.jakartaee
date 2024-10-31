@@ -22,14 +22,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
+import org.eclipse.jnosql.mapping.core.Converters;
+import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
 import org.eclipse.jnosql.mapping.document.DocumentTemplate;
 import org.eclipse.jnosql.mapping.document.spi.DocumentExtension;
 import org.eclipse.jnosql.mapping.reflection.ConstructorException;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.validation.MappingValidator;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakarta.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakarta.nosql.bean.ContextDatabaseSupplier;
@@ -64,30 +64,29 @@ public class NoSQLBeanContributor implements CDIClassContributor {
 			// TODO see if using the built-in one could work if we supply configuration
 			.filter(c -> !"org.eclipse.jnosql.mapping.document.configuration.DocumentManagerSupplier".equals(c.getName())) //$NON-NLS-1$
 			.forEach(result::add);
-		
+
 		result.add(ContextDocumentCollectionManagerProducer.class);
 		result.add(ContextDatabaseSupplier.class);
-		
+
 		result.add(DefaultDominoTemplate.class);
 		result.add(DominoReflections.class);
-		
+
 		result.add(Converters.class);
 		result.add(EntityMetadataExtension.class);
-		
+
 		return result;
 	}
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		return Collections.emptySet();
+		return Collections.singleton(new EntityMetadataExtension());
 	}
-	
+
 	@Override
 	public Collection<Class<? extends Extension>> getExtensionClasses() {
 		return Arrays.asList(
-			EntityMetadataExtension.class,
 			DocumentExtension.class,
-			
+
 			DominoExtension.class
 		);
 	}

@@ -58,16 +58,16 @@ import jakarta.faces.view.facelets.Facelet;
 import jakarta.faces.webapp.FacesServlet;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.4.0
  */
 public class FacesServletFactory extends MappingBasedServletFactory {
-	
+
 	@Override
-	public void init(ComponentModule module) {
+	public void init(final ComponentModule module) {
 		super.init(module);
-		
+
 		Map<String, String> contextParams = ServletUtil.getWebXmlParams(module);
 		if("true".equalsIgnoreCase(contextParams.get(FacesServlet.AUTOMATIC_EXTENSIONLESS_MAPPING_PARAM_NAME))) { //$NON-NLS-1$
 			// If so, look for .xhtml and .jsf files and push them to known extensions
@@ -83,12 +83,12 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 				});
 		}
 	}
-	
+
 	@Override
 	public String getLibraryId() {
 		return LibraryUtil.LIBRARY_UI;
 	}
-	
+
 	@Override
 	public Set<String> getExtensions() {
 		return new HashSet<>(Arrays.asList(".xhtml", ".jsf", ".faces")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -98,9 +98,9 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 	public String getServletClassName() {
 		return FacesServlet.class.getName();
 	}
-	
+
 	@Override
-	protected boolean checkExists(String servletPath, String pathInfo) {
+	protected boolean checkExists(final String servletPath, final String pathInfo) {
 		if(servletPath.startsWith(ResourceHandler.RESOURCE_IDENTIFIER)) {
 			return true;
 		}
@@ -117,16 +117,16 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 			return false;
 		}
 	}
-	
+
 	@SuppressWarnings({ "removal", "deprecation" })
 	@Override
-	public Servlet createExecutorServlet(ComponentModule module) throws ServletException {
+	public Servlet createExecutorServlet(final ComponentModule module) throws ServletException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				try {
 					Map<String, String> params = new HashMap<>();
-					
+
 					URL[] urls = buildBundleClassPath().stream()
 						.map(t -> {
 							try {
@@ -137,7 +137,7 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 						})
 						.toArray(URL[]::new);
 					Thread.currentThread().setContextClassLoader(new URLClassLoader(urls, current));
-					
+
 					return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFFacesServlet(module)), "XSP JSF Servlet", params); //$NON-NLS-1$
 				} finally {
 					Thread.currentThread().setContextClassLoader(current);
@@ -159,14 +159,14 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 		Bundle bundle = FrameworkUtil.getBundle(FacesServletFactory.class);
 		List<File> classpath = new ArrayList<>();
 		toClasspathEntry(bundle, classpath);
-		
+
 		return classpath;
 	}
-	
-	private static void toClasspathEntry(Bundle bundle, List<File> classpath) throws BundleException, IOException {
+
+	private static void toClasspathEntry(final Bundle bundle, final List<File> classpath) throws BundleException, IOException {
 		// These entries MUST be filesystem paths
 		classpath.add(FileLocator.getBundleFile(bundle));
-		
+
 		String req = bundle.getHeaders().get("Require-Bundle"); //$NON-NLS-1$
 		if(StringUtil.isNotEmpty(req)) {
 			ManifestElement[] elements = ManifestElement.parseHeader("Require-Bundle", req); //$NON-NLS-1$

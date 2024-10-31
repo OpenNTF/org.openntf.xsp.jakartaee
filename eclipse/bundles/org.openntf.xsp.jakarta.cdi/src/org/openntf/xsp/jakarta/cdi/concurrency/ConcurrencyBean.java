@@ -29,7 +29,7 @@ import jakarta.inject.Named;
 /**
  * Provides {@link ManagedExecutorService} and {@link ManagedScheduledExecutorService}
  * instances to the running application via CDI.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -44,7 +44,7 @@ public class ConcurrencyBean {
 			throw new RuntimeException("Encountered exception looking up ManagedExecutorService");
 		}
 	}
-	
+
 	@Produces @Named(ConcurrencyActivator.JNDI_SCHEDULEDEXECUTORSERVICE)
 	public ManagedScheduledExecutorService produceScheduledExecutorService() {
 		try {

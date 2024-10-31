@@ -35,7 +35,7 @@ import jakarta.ws.rs.ext.Provider;
 /**
  * Checks incoming requests for security annotations and enforces them using
  * the current security context.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.2.0
  */
@@ -46,25 +46,25 @@ public class RolesAllowedFilter implements ContainerRequestFilter {
 	ResourceInfo resourceInfo;
 
 	@Override
-	public void filter(ContainerRequestContext requestContext) throws IOException {
+	public void filter(final ContainerRequestContext requestContext) throws IOException {
 		if(!isAllowed(requestContext)) {
 			NoAccessSignal signal = new NoAccessSignal();
 			signal.setStackTrace(new StackTraceElement[0]);
 			throw signal;
 		}
 	}
-	
-	private boolean isAllowed(ContainerRequestContext requestContext) {
+
+	private boolean isAllowed(final ContainerRequestContext requestContext) {
 		Method method = resourceInfo.getResourceMethod();
 		Class<?> clazz = resourceInfo.getResourceClass();
-		
+
 		if(method.isAnnotationPresent(PermitAll.class)) {
 			return true;
 		}
 		if(method.isAnnotationPresent(DenyAll.class)) {
 			return false;
 		}
-		
+
 		RolesAllowed roles = method.getAnnotation(RolesAllowed.class);
 		if(roles == null) {
 			roles = clazz.getAnnotation(RolesAllowed.class);
@@ -78,7 +78,7 @@ public class RolesAllowedFilter implements ContainerRequestFilter {
 			}
 			return false;
 		}
-		
+
 		return true;
 	}
 

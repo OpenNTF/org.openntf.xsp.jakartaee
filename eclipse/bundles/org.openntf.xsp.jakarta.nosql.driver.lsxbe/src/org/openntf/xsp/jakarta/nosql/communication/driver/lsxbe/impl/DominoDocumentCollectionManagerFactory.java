@@ -23,14 +23,14 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.SessionSupplier;
 public class DominoDocumentCollectionManagerFactory implements DatabaseManagerFactory {
 	private final DatabaseSupplier databaseSupplier;
 	private final SessionSupplier sessionSupplier;
-	
-	public DominoDocumentCollectionManagerFactory(DatabaseSupplier databaseSupplier, SessionSupplier sessionSupplier) {
+
+	public DominoDocumentCollectionManagerFactory(final DatabaseSupplier databaseSupplier, final SessionSupplier sessionSupplier) {
 		this.databaseSupplier = databaseSupplier;
 		this.sessionSupplier = sessionSupplier;
 	}
 
 	@Override
-	public AbstractDominoDocumentCollectionManager apply(String type) {
+	public AbstractDominoDocumentCollectionManager apply(final String type) {
 		return new DefaultDominoDocumentCollectionManager(databaseSupplier, sessionSupplier);
 	}
 

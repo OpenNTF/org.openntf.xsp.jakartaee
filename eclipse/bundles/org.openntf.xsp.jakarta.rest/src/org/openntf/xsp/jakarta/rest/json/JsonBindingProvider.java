@@ -47,16 +47,16 @@ import jakarta.ws.rs.ext.Providers;
 @Consumes({"application/json", "application/*+json", "text/json", "*/*"})
 public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBodyReader<Object> {
 	private static final Logger log = Logger.getLogger(JsonBindingProvider.class.getPackage().getName());
-	
+
 	public static final String PROP_STREAM = "rest.jsonb.stream"; //$NON-NLS-1$
-	
+
 	@Context
 	private Providers providers;
-	
+
 	@Context
 	private Application application;
-	
-	protected Jsonb getJsonb(Class<?> type) {
+
+	protected Jsonb getJsonb(final Class<?> type) {
 		ContextResolver<Jsonb> resolver = providers.getContextResolver(Jsonb.class, MediaType.WILDCARD_TYPE);
 		if(resolver != null) {
 			return resolver.getContext(Jsonb.class);
@@ -70,13 +70,13 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 	// *******************************************************************************
 
 	@Override
-	public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+	public boolean isReadable(final Class<?> type, final Type genericType, final Annotation[] annotations, final MediaType mediaType) {
 		return isSupportedMediaType(mediaType);
 	}
 
 	@Override
-	public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
+	public Object readFrom(final Class<Object> type, final Type genericType, final Annotation[] annotations, final MediaType mediaType,
+			final MultivaluedMap<String, String> httpHeaders, final InputStream entityStream)
 			throws IOException, WebApplicationException {
 		try {
 			Jsonb jsonb = getJsonb(type);
@@ -88,24 +88,24 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 			throw e;
 		}
 	}
-	
+
 	// *******************************************************************************
 	// * MessageBodyWriter
 	// *******************************************************************************
 
 	@Override
-	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+	public boolean isWriteable(final Class<?> type, final Type genericType, final Annotation[] annotations, final MediaType mediaType) {
 		return isSupportedMediaType(mediaType);
 	}
-	
+
 	@Override
-	public long getSize(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+	public long getSize(final Object t, final Class<?> type, final Type genericType, final Annotation[] annotations, final MediaType mediaType) {
 		return -1;
 	}
 
 	@Override
-	public void writeTo(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
+	public void writeTo(final Object t, final Class<?> type, final Type genericType, final Annotation[] annotations, final MediaType mediaType,
+			final MultivaluedMap<String, Object> httpHeaders, final OutputStream entityStream)
 			throws IOException, WebApplicationException {
 		try {
 			Object obj = t;
@@ -114,16 +114,16 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 				Metadata meta = ((WeldClientProxy)obj).getMetadata();
 				obj = meta.getContextualInstance();
 			}
-			
+
 			Jsonb jsonb = getJsonb(type);
-			
+
 			boolean stream = false;
 			Application app = this.application;
 			if(app != null) {
 				Object streamProp = app.getProperties().get(PROP_STREAM);
 				stream = !"false".equals(streamProp); //$NON-NLS-1$
 			}
-			
+
 			if(stream) {
 				JSONBindUtil.toJson(obj, jsonb, entityStream);
 			} else {
@@ -136,21 +136,21 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 				// Ignore
 				return;
 			}
-			
+
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered exception writing JSON output", e);
 			}
 			throw e;
 		}
 	}
-	
+
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
-	
+
 	private static final String JSON = "json"; //$NON-NLS-1$
 	private static final String PLUS_JSON = "+json"; //$NON-NLS-1$
-	
+
 	public static boolean isSupportedMediaType(final MediaType mediaType) {
 		return mediaType.getSubtype().equals(JSON) || mediaType.getSubtype().endsWith(PLUS_JSON);
 	}

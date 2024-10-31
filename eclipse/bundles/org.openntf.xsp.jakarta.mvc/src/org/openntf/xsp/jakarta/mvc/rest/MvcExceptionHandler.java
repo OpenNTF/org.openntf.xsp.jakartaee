@@ -27,7 +27,7 @@ import jakarta.ws.rs.core.MediaType;
  * This exception handler will check if the incoming request appears
  * to be an MVC request and will handle it as HTML regardless
  * of whether or not there is a declared return type.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
@@ -35,11 +35,11 @@ import jakarta.ws.rs.core.MediaType;
 public class MvcExceptionHandler extends HtmlExceptionHandler {
 
 	@Override
-	public boolean canHandle(ResourceInfo resourceInfo, MediaType mediaType) {
+	public boolean canHandle(final ResourceInfo resourceInfo, final MediaType mediaType) {
 		return isMvcRequest(resourceInfo);
 	}
-	
-	private boolean isMvcRequest(ResourceInfo resourceInfo) {
+
+	private boolean isMvcRequest(final ResourceInfo resourceInfo) {
 		if(resourceInfo == null) {
 			return false;
 		}

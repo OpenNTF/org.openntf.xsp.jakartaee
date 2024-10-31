@@ -28,7 +28,7 @@ import jakarta.nosql.Column;
  * This can be placed on a field annotated with {@link Column @Column} to
  * provide hints to the driver about how to store the value of the item
  * property in the backend document.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.6.0
  */
@@ -53,43 +53,43 @@ public @interface ItemStorage {
 		MIMEBean,
 		/**
 		 * Stores the value as a JSON string serialized using JSON-B.
-		 * 
+		 *
 		 * <p>Note: When using this type, the value is currently stored as a text
 		 * item with summary set to {@code false}. The summary flag can be
 		 * re-enabled by using the {@link ItemFlags} annotation.</p>
 		 */
 		JSON
 	}
-	
+
 	Type type() default Type.Default;
-	
+
 	/**
 	 * When storing an item using type {@link Type#MIME}, this value can be used to
 	 * set the Content-Type header of the part.
-	 * 
+	 *
 	 * @return the MIME type to use for MIME storage
 	 */
 	String mimeType() default "text/html";
-	
+
 	/**
 	 * Indicates whether this value should be written to the back end when
 	 * creating a new document.
-	 * 
+	 *
 	 * @since 2.7.0
 	 */
 	boolean insertable() default true;
 	/**
 	 * Indicates whether this value should be written to the back end when
 	 * updating an existing document.
-	 * 
+	 *
 	 * @since 2.7.0
 	 */
 	boolean updatable() default true;
-	
+
 	/**
-     * (Optional) The precision for a decimal (exact numeric) 
+     * (Optional) The precision for a decimal (exact numeric)
      * column. (Applies only if a decimal column is used.)
-     * 
+     *
      * @since 2.8.0
      */
     int precision() default 0;

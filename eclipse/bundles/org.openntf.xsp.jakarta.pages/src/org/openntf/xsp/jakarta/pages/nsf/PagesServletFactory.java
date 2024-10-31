@@ -31,48 +31,48 @@ import java.util.stream.Collectors;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.xsp.extlib.util.ExtLibUtil;
+
 import org.openntf.xsp.jakarta.pages.util.DominoPagesUtil;
 import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.xsp.extlib.util.ExtLibUtil;
-
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.1.0
  */
 public class PagesServletFactory extends MappingBasedServletFactory {
 	public PagesServletFactory() {
 	}
-	
+
 	@Override
 	public Set<String> getExtensions() {
 		return new HashSet<>(Arrays.asList(".jsp", ".jspx")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	@Override
 	public String getLibraryId() {
 		return LibraryUtil.LIBRARY_UI;
 	}
-	
+
 	@Override
 	public String getServletClassName() {
 		return NSFPagesServlet.class.getName();
 	}
-	
+
 	@Override
-	protected boolean checkExists(String servletPath, String pathInfo) {
+	protected boolean checkExists(final String servletPath, final String pathInfo) {
 		ComponentModule module = getModule();
 		return module.getResourceAsStream(servletPath) != null;
 	}
-	
+
 	@SuppressWarnings({ "removal", "deprecation" })
 	@Override
-	public Servlet createExecutorServlet(ComponentModule module) throws ServletException {
+	public Servlet createExecutorServlet(final ComponentModule module) throws ServletException {
 		try {
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Servlet>)() -> {
 				Map<String, String> params = new HashMap<>();
@@ -94,7 +94,7 @@ public class PagesServletFactory extends MappingBasedServletFactory {
 				tempDir = tempDir.resolve(moduleName);
 				Files.createDirectories(tempDir);
 				params.put("scratchdir", tempDir.toString()); //$NON-NLS-1$
-				
+
 				return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFPagesServlet(module)), "XSP JSP Servlet", params); //$NON-NLS-1$
 			});
 		} catch (PrivilegedActionException e) {

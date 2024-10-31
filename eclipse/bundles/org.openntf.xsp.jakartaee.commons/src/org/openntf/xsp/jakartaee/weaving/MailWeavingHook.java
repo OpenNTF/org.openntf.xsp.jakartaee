@@ -31,18 +31,18 @@ import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 
 /**
- * This {@link WeavingHook} implementation listens for attempts to load 
+ * This {@link WeavingHook} implementation listens for attempts to load
  * {@code jakarta.mail.FactoryFinder} and, when found, replaces the
  * {@code find} method with a version that uses the service class's
  * ClassLoader instead of the current thread's.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.5.0
  */
 public class MailWeavingHook implements WeavingHook {
 
 	@Override
-	public void weave(WovenClass c) {
+	public void weave(final WovenClass c) {
 		if("jakarta.mail.util.FactoryFinder".equals(c.getClassName())) { //$NON-NLS-1$
 			ClassPool pool = new ClassPool();
 			pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));

@@ -19,10 +19,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
+import com.ibm.commons.util.StringUtil;
+
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
-
-import com.ibm.commons.util.StringUtil;
 
 import jakarta.activation.MimetypesFileTypeMap;
 import lotus.domino.Database;
@@ -37,8 +37,8 @@ public class DominoDocumentAttachment implements EntityAttachment {
 	private Long lastModified;
 	private String contentType;
 	private Long length;
-	
-	public DominoDocumentAttachment(DatabaseSupplier databaseSupplier, String unid, String attachmentName) {
+
+	public DominoDocumentAttachment(final DatabaseSupplier databaseSupplier, final String unid, final String attachmentName) {
 		this.databaseSupplier = databaseSupplier;
 		this.unid = unid;
 		this.attachmentName = attachmentName;
@@ -80,11 +80,11 @@ public class DominoDocumentAttachment implements EntityAttachment {
 	public String toString() {
 		return String.format( "DominoDocumentAttachment [unid=%s, attachmentName=%s]", unid, attachmentName); //$NON-NLS-1$
 	}
-	
+
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
-	
+
 
 	private synchronized void cacheMeta() {
 		if(this.lastModified == null) {
@@ -108,27 +108,27 @@ public class DominoDocumentAttachment implements EntityAttachment {
 			throw new RuntimeException(ne);
 		}
 	}
-	
-	private static String guessContentType(String fileName) {
+
+	private static String guessContentType(final String fileName) {
 		String contentType = URLConnection.guessContentTypeFromName(fileName);
 		if(StringUtil.isNotEmpty(contentType)) {
 			return contentType;
 		}
-		
+
 		MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
 	    contentType = fileTypeMap.getContentType(fileName);
 		if(StringUtil.isNotEmpty(contentType)) {
 			return contentType;
 		}
-		
+
 		return "application/octet-stream"; //$NON-NLS-1$
 	}
-	
+
 	private static class EmbeddedObjectInputStream extends InputStream {
 		private final EmbeddedObject eo;
 		private final InputStream delegate;
-		
-		public EmbeddedObjectInputStream(EmbeddedObject eo) throws NotesException {
+
+		public EmbeddedObjectInputStream(final EmbeddedObject eo) throws NotesException {
 			this.eo = eo;
 			this.delegate = eo.getInputStream();
 		}
@@ -139,17 +139,17 @@ public class DominoDocumentAttachment implements EntityAttachment {
 		}
 
 		@Override
-		public int read(byte[] b) throws IOException {
+		public int read(final byte[] b) throws IOException {
 			return delegate.read(b);
 		}
 
 		@Override
-		public int read(byte[] b, int off, int len) throws IOException {
+		public int read(final byte[] b, final int off, final int len) throws IOException {
 			return delegate.read(b, off, len);
 		}
 
 		@Override
-		public long skip(long n) throws IOException {
+		public long skip(final long n) throws IOException {
 			return delegate.skip(n);
 		}
 
@@ -165,12 +165,12 @@ public class DominoDocumentAttachment implements EntityAttachment {
 			try {
 				eo.recycle();
 			} catch (NotesException e) {
-				
+
 			}
 		}
 
 		@Override
-		public synchronized void mark(int readlimit) {
+		public synchronized void mark(final int readlimit) {
 			delegate.mark(readlimit);
 		}
 

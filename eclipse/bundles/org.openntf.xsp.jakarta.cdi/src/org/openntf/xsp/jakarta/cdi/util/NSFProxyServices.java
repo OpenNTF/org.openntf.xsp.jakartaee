@@ -20,26 +20,26 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jboss.weld.bean.proxy.util.WeldDefaultProxyServices;
-
 import com.ibm.domino.xsp.module.nsf.ModuleClassLoader;
+
+import org.jboss.weld.bean.proxy.util.WeldDefaultProxyServices;
 
 import jakarta.annotation.Priority;
 
 /**
  * This subclass of {@link WeldDefaultProxyServices} keeps an internal cache of generated
  * classes. This is to avoid {@code java.lang.LinkageError: A duplicate class definition for jakarta/enterprise/event/Event$WeldEvent$Proxy$_$$_Weld$Proxy$ is found}
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.0.0
  */
 @Priority(0)
 public class NSFProxyServices extends WeldDefaultProxyServices {
-	
+
 	private static Map<String, Class<?>> classCache = Collections.synchronizedMap(new HashMap<>());
-	
+
 	@Override
-	public Class<?> defineClass(Class<?> originalClass, String className, byte[] classBytes, int off, int len)
+	public Class<?> defineClass(final Class<?> originalClass, final String className, final byte[] classBytes, final int off, final int len)
 			throws ClassFormatError {
 		Class<?> result = super.defineClass(originalClass, className, classBytes, off, len);
 		if(result != null && !(originalClass.getClassLoader() instanceof ModuleClassLoader)) {
@@ -47,19 +47,19 @@ public class NSFProxyServices extends WeldDefaultProxyServices {
 		}
 		return result;
 	}
-	
+
 	@Override
-	public Class<?> defineClass(Class<?> originalClass, String className, byte[] classBytes, int off, int len,
-			ProtectionDomain protectionDomain) throws ClassFormatError {
+	public Class<?> defineClass(final Class<?> originalClass, final String className, final byte[] classBytes, final int off, final int len,
+			final ProtectionDomain protectionDomain) throws ClassFormatError {
 		Class<?> result = super.defineClass(originalClass, className, classBytes, off, len, protectionDomain);
 		if(result != null && !(originalClass.getClassLoader() instanceof ModuleClassLoader)) {
 			classCache.put(className + originalClass.hashCode(), result);
 		}
 		return result;
 	}
-	
+
 	@Override
-	public synchronized Class<?> loadClass(Class<?> originalClass, String classBinaryName) throws ClassNotFoundException {
+	public synchronized Class<?> loadClass(final Class<?> originalClass, final String classBinaryName) throws ClassNotFoundException {
 		String key = classBinaryName + originalClass.hashCode();
 		if(classCache.containsKey(key)) {
 			return classCache.get(key);

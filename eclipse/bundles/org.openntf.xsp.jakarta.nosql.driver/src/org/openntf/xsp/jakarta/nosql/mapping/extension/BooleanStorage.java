@@ -28,9 +28,9 @@ import jakarta.nosql.Column;
  * This can be placed on a field annotated with {@link Column @Column} to
  * provide hints to the driver about how to store boolean values inside
  * the backing document.
- * 
+ *
  * <p>The type of entity field must be {@code boolean} or {@code Boolean}.</p>
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.15.0
  */
@@ -41,30 +41,30 @@ public @interface BooleanStorage {
 	enum Type {
 		STRING, DOUBLE
 	}
-	
+
 	/**
 	 * @return the type of values to store
 	 */
 	Type type();
-	
+
 	/**
 	 * @return the value to store for {@code true} when the
 	 *         type is {@link Type#STRING}
 	 */
 	String stringTrue() default "Y";
-	
+
 	/**
 	 * @return the value to store for {@code false} when the
 	 *         type is {@link Type#STRING}
 	 */
 	String stringFalse() default "N";
-	
+
 	/**
 	 * @return the value to store for {@code true} when the
 	 *         type is {@link Type#DOUBLE}
 	 */
 	double doubleTrue() default 1;
-	
+
 	/**
 	 * @return the value to store for {@code false} when the
 	 *         type is {@link Type#DOUBLE}

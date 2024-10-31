@@ -46,25 +46,25 @@ import jakarta.servlet.annotation.WebServlet;
 
 /**
  * Provides support for Servlet classes inside an NSF annotated with {@link WebServlet}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.5.0
  */
 public class ServletServletFactory implements IServletFactory {
 	private static final Logger log = Logger.getLogger(ServletServletFactory.class.getName());
-	
+
 	private ComponentModule module;
 	private Map<ServletInfo, Class<? extends Servlet>> servletClasses;
 	private Map<Class<? extends Servlet>, javax.servlet.Servlet> servlets;
 	private long lastUpdate;
 
 	@Override
-	public void init(ComponentModule module) {
+	public void init(final ComponentModule module) {
 		this.module = module;
 	}
 
 	@Override
-	public final ServletMatch getServletMatch(String contextPath, String path) throws javax.servlet.ServletException {
+	public final ServletMatch getServletMatch(final String contextPath, final String path) throws javax.servlet.ServletException {
 		try {
 			if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module)) {
 				for(Map.Entry<ServletInfo, Class<? extends Servlet>> entry : getModuleServlets().entrySet()) {
@@ -82,17 +82,17 @@ public class ServletServletFactory implements IServletFactory {
 		}
 		return null;
 	}
-	
-	private String matches(ServletInfo mapping, String path) {
+
+	private String matches(final ServletInfo mapping, final String path) {
 		// Context path is like /some/db.nsf
 		// Path is like /xsp/someservlet (no query string)
-		
+
 		if(path == null || path.length() < 5) {
 			return null;
 		}
-		
+
 		List<String> patterns = mapping.patterns;
-		
+
 		if(patterns != null) {
 			for(String pattern : patterns) {
 				if(pattern != null) {
@@ -122,11 +122,11 @@ public class ServletServletFactory implements IServletFactory {
 				}
 			}
 		}
-		
+
 		return null;
 	}
-	
-	private String findPathInfo(String path, String pattern) {
+
+	private String findPathInfo(final String path, final String pattern) {
 		if(pattern.endsWith("/*")) { //$NON-NLS-1$
 			// Path-matching pattern
 			String prefix = pattern.substring(0, pattern.length()-2);
@@ -144,8 +144,8 @@ public class ServletServletFactory implements IServletFactory {
 		}
 		return null;
 	}
-	
-	private javax.servlet.Servlet getExecutorServlet(ServletInfo mapping, Class<? extends Servlet> c) {
+
+	private javax.servlet.Servlet getExecutorServlet(final ServletInfo mapping, final Class<? extends Servlet> c) {
 		checkInvalidate();
 		return this.servlets.computeIfAbsent(c, key -> {
 			try {
@@ -156,42 +156,42 @@ public class ServletServletFactory implements IServletFactory {
 					delegate = c.getConstructor().newInstance();
 				}
 				Servlet wrapper = new XspServletWrapper(module, delegate);
-				
+
 				Map<String, String> params = mapping.def.getParameterMap();
-				
+
 				return module.createServlet(ServletUtil.newToOld(wrapper), mapping.def.getServletName(), params);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		});
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private synchronized Map<ServletInfo, Class<? extends Servlet>> getModuleServlets() {
 		checkInvalidate();
-		
+
 		if(this.servletClasses == null) {
 			Map<ServletInfo, Class<? extends Servlet>> result = new HashMap<>();
 			ModuleUtil.getClasses(this.module)
 				.filter(c -> c.isAnnotationPresent(WebServlet.class))
 				.filter(Servlet.class::isAssignableFrom)
 				.forEach(c -> result.put(toServletDef(c), (Class<? extends Servlet>)c));
-			
+
 			ClassLoader cl = module.getModuleClassLoader();
 			if(cl != null) {
 				WebXml webXml = ServletUtil.getWebXml(module);
-				
+
 				// mappings is pattern -> name, so reverse for our needs
 				Map<String, String> mappings = webXml.getServletMappings();
 				Map<String, List<String>> nameToPattern = new HashMap<>();
 				mappings.forEach((pattern, name) -> nameToPattern.computeIfAbsent(name, k -> new ArrayList<>()).add(pattern));
-				
+
 				Map<String, ServletDef> defs = webXml.getServlets();
 				nameToPattern.forEach((name, patterns) -> {
 					ServletInfo info = new ServletInfo();
 					info.def = defs.get(name);
 					info.patterns = patterns;
-					
+
 					try {
 						result.put(info, (Class<? extends Servlet>)cl.loadClass(info.def.getServletClass()));
 					} catch (ClassNotFoundException e) {
@@ -201,12 +201,12 @@ public class ServletServletFactory implements IServletFactory {
 					}
 				});
 			}
-			
+
 			this.servletClasses = result;
 		}
 		return this.servletClasses;
 	}
-	
+
 	private void checkInvalidate() {
 		if(lastUpdate < this.module.getLastRefresh()) {
 			if(servlets != null) {
@@ -216,12 +216,12 @@ public class ServletServletFactory implements IServletFactory {
 			this.servletClasses = null;
 		}
 	}
-	
-	private ServletInfo toServletDef(Class<?> c) {
+
+	private ServletInfo toServletDef(final Class<?> c) {
 		WebServlet annotation = c.getAnnotation(WebServlet.class);
-		
+
 		ServletDef def = new ServletDef();
-		
+
 		def.setAsyncSupported(Boolean.toString(annotation.asyncSupported()));
 		def.setDescription(annotation.description());
 		def.setDisplayName(annotation.displayName());
@@ -236,12 +236,12 @@ public class ServletServletFactory implements IServletFactory {
 			name = c.getName();
 		}
 		def.setServletName(name);
-		
-		
+
+
 		for(WebInitParam param : annotation.initParams()) {
 			def.addInitParameter(param.name(), param.value());
 		}
-		
+
 		ServletInfo info = new ServletInfo();
 		info.def = def;
 		String[] patterns = annotation.value();
@@ -251,7 +251,7 @@ public class ServletServletFactory implements IServletFactory {
 		info.patterns = new ArrayList<>(Arrays.asList(patterns));
 		return info;
 	}
-	
+
 	private static class ServletInfo {
 		private ServletDef def;
 		private List<String> patterns;

@@ -15,6 +15,9 @@
  */
 package org.openntf.xsp.jakarta.nosql.bean;
 
+import org.eclipse.jnosql.communication.semistructured.DatabaseManagerFactory;
+import org.eclipse.jnosql.mapping.Database;
+import org.eclipse.jnosql.mapping.DatabaseType;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl.DominoDocumentConfiguration;
 
@@ -22,10 +25,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
-
-import org.eclipse.jnosql.communication.semistructured.DatabaseManagerFactory;
-import org.eclipse.jnosql.mapping.Database;
-import org.eclipse.jnosql.mapping.DatabaseType;
 
 @RequestScoped
 public class ContextDocumentCollectionManagerProducer {
@@ -37,13 +36,13 @@ public class ContextDocumentCollectionManagerProducer {
 		configuration = new DominoDocumentConfiguration();
 		managerFactory = configuration.apply(null);
 	}
-	
+
 	@Produces
 	@Database(value = DatabaseType.DOCUMENT, provider = "")
 	public DominoDocumentManager getManager() {
 		return (DominoDocumentManager)managerFactory.apply(null);
 	}
-	
+
 	@Produces
 	@Default
 	public DominoDocumentManager getManagerDefault() {

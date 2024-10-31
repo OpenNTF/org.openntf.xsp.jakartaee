@@ -20,9 +20,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 
-import jakarta.el.ELContext;
-import jakarta.el.ELResolver;
 import javax.faces.el.PropertyResolver;
+
 import com.ibm.commons.util.io.json.JsonObject;
 import com.ibm.jscript.types.FBSObject;
 import com.ibm.xsp.el.PropertyResolverImpl;
@@ -32,11 +31,13 @@ import com.ibm.xsp.model.DataObject;
 import com.ibm.xsp.model.ViewRowData;
 import com.ibm.xsp.model.domino.DominoDocumentPropertyResolver;
 
+import jakarta.el.ELContext;
+import jakarta.el.ELResolver;
 import lotus.domino.Document;
 
 /**
  * An {@link ELResolver} instance that handles XPages-specific data types. Specifically:
- * 
+ *
  * <ul>
  * 	<li>{@link ResourceBundle}<li>
  * 	<li>{@link ViewRowData}</li>
@@ -45,14 +46,14 @@ import lotus.domino.Document;
  *	<li>{@link FBSObject}</li>
  *	<li>{@link Document}</li>
  * </ul>
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.0
  */
 public class XSPELResolver extends ELResolver {
 
 	@Override
-	public Object getValue(ELContext context, Object base, Object property) {
+	public Object getValue(final ELContext context, final Object base, final Object property) {
 		PropertyResolver propertyResolver = getPropertyResolver(base);
 		if(propertyResolver != null) {
 			context.setPropertyResolved(true);
@@ -62,7 +63,7 @@ public class XSPELResolver extends ELResolver {
 	}
 
 	@Override
-	public Class<?> getType(ELContext context, Object base, Object property) {
+	public Class<?> getType(final ELContext context, final Object base, final Object property) {
 		PropertyResolver propertyResolver = getPropertyResolver(base);
 		if(propertyResolver != null) {
 			context.setPropertyResolved(true);
@@ -72,7 +73,7 @@ public class XSPELResolver extends ELResolver {
 	}
 
 	@Override
-	public void setValue(ELContext context, Object base, Object property, Object value) {
+	public void setValue(final ELContext context, final Object base, final Object property, final Object value) {
 		PropertyResolver propertyResolver = getPropertyResolver(base);
 		if(propertyResolver != null) {
 			context.setPropertyResolved(true);
@@ -81,7 +82,7 @@ public class XSPELResolver extends ELResolver {
 	}
 
 	@Override
-	public boolean isReadOnly(ELContext context, Object base, Object property) {
+	public boolean isReadOnly(final ELContext context, final Object base, final Object property) {
 		PropertyResolver propertyResolver = getPropertyResolver(base);
 		if(propertyResolver != null) {
 			context.setPropertyResolved(true);
@@ -91,12 +92,12 @@ public class XSPELResolver extends ELResolver {
 	}
 
 	@Override
-	public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
+	public Iterator<FeatureDescriptor> getFeatureDescriptors(final ELContext context, final Object base) {
 		return Collections.emptyIterator();
 	}
 
 	@Override
-	public Class<?> getCommonPropertyType(ELContext context, Object base) {
+	public Class<?> getCommonPropertyType(final ELContext context, final Object base) {
 		if (base == null){
             return null;
         }
@@ -107,10 +108,10 @@ public class XSPELResolver extends ELResolver {
 	// *******************************************************************************
 	// * Internal methods
 	// *******************************************************************************
-	
+
 	private static PropertyResolverImpl ibmPropertyResolver = new PropertyResolverImpl();
-	
-	private PropertyResolver getPropertyResolver(Object object) {
+
+	private PropertyResolver getPropertyResolver(final Object object) {
 		if(object instanceof ResourceBundle) {
 			return ibmPropertyResolver;
 		} else if(object instanceof ViewRowData) {

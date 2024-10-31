@@ -30,7 +30,7 @@ public class ContextDatabaseSupplier {
 	public DatabaseSupplier getDatabaseSupplier() {
 		return () -> NotesContext.getCurrent().getCurrentDatabase();
 	}
-	
+
 	@Produces
 	public SessionSupplier getSessionAsSignerSupplier() {
 		return () -> NotesContext.getCurrent().getSessionAsSigner();

@@ -15,12 +15,12 @@
  */
 package org.openntf.xsp.jakarta.cdi.ext;
 
-import org.osgi.framework.Bundle;
-
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
+import org.osgi.framework.Bundle;
+
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.2.0
  */

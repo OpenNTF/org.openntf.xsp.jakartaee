@@ -44,7 +44,7 @@ import jakarta.ws.rs.ext.Providers;
 
 /**
  * An {@link Application} subclass that searches the current module for resource classes.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.0
  */
@@ -53,18 +53,18 @@ public class NSFRestApplication extends Application {
 
 	public NSFRestApplication() {
 	}
-	
+
 	@Override
 	public Set<Object> getSingletons() {
 		Set<Object> result = new HashSet<>();
 		result.addAll(super.getSingletons());
-		
+
 		List<Providers> providers = LibraryUtil.findExtensionsUncached(Providers.class);
 		result.addAll(providers);
-		
+
 		List<Feature> features = LibraryUtil.findExtensionsUncached(Feature.class);
 		result.addAll(features);
-		
+
 		List<RestClassContributor> contributors = ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
 			.map(module -> LibraryUtil.findExtensions(RestClassContributor.class, module))
@@ -73,10 +73,10 @@ public class NSFRestApplication extends Application {
 			.map(RestClassContributor::getSingletons)
 			.filter(Objects::nonNull)
 			.forEach(result::addAll);
-		
+
 		return result;
 	}
-	
+
 	@Override
 	public Set<Class<?>> getClasses() {
 		return ComponentModuleLocator.getDefault()
@@ -84,26 +84,26 @@ public class NSFRestApplication extends Application {
 			.map(module -> {
 				Set<Class<?>> result = new HashSet<>();
 				result.addAll(super.getClasses());
-				
+
 				List<RestClassContributor> contributors = LibraryUtil.findExtensions(RestClassContributor.class, module);
 				contributors.stream()
 					.map(RestClassContributor::getClasses)
 					.filter(Objects::nonNull)
 					.forEach(result::addAll);
-				
+
 				ModuleUtil.getClasses(module)
 					.filter(this::isJAXRSClass)
 					.forEach(result::add);
-				
+
 				return result;
 			})
 			.orElseGet(Collections::emptySet);
 	}
-	
+
 	@Override
 	public Map<String, Object> getProperties() {
 		Map<String, Object> result = new LinkedHashMap<>();
-		
+
 		// Read in xsp.properties
 		LibraryUtil.findExtensions(ApplicationPropertyLocator.class)
 			.stream()
@@ -115,7 +115,7 @@ public class NSFRestApplication extends Application {
 			.forEach(properties -> {
 				properties.forEach((key, value) -> result.put(key.toString(), value));
 			});
-		
+
 		// Read in any contributors
 		List<RestClassContributor> contributors = ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
@@ -125,11 +125,11 @@ public class NSFRestApplication extends Application {
 			.map(RestClassContributor::getProperties)
 			.filter(Objects::nonNull)
 			.forEach(result::putAll);
-		
+
 		return result;
 	}
-	
-	private boolean isJAXRSClass(Class<?> clazz) {
+
+	private boolean isJAXRSClass(final Class<?> clazz) {
 		try {
 			if(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
 				return false;
@@ -137,15 +137,15 @@ public class NSFRestApplication extends Application {
 			if(clazz.isAnnotationPresent(Path.class)) {
 				return true;
 			}
-			
+
 			if(Stream.of(clazz.getMethods()).anyMatch(m -> m.isAnnotationPresent(Path.class))) {
 				return true;
 			}
-			
+
 			if(clazz.isAnnotationPresent(Provider.class)) {
 				return true;
 			}
-			
+
 			return false;
 		} catch(Throwable e) {
 			// Catch Throwable because this may come through as an Error

@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jakartaee.feature"
       label="XPages Jakarta EE Core Feature"
-      version="3.1.0.qualifier">
+      version="3.2.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -239,8 +239,6 @@
 	
 	<!-- XML Binding -->
 	<plugin id="jakarta.xml.bind-api" version="0.0.0" unpack="false"/>
-	<plugin id="com.sun.xml.bind.jaxb-core" version="0.0.0" unpack="false"/>
-	<plugin id="com.sun.xml.bind.jaxb-impl" version="0.0.0" unpack="false"/>
 
 	<!-- Annotations -->
 	<plugin id="jakarta.annotation-api" version="0.0.0" unpack="false"/>
@@ -286,7 +284,7 @@
 	<!-- Persistence -->
 	<plugin id="jakarta.persistence-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.persistence" version="0.0.0" unpack="false"/>
-	<plugin id="org.eclipse.persistence.eclipselink" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.eclipse.persistence.eclipselink" version="0.0.0" unpack="false"/>
 	
 	<!-- EJB (API only) -->
 	<plugin id="jakarta.ejb-api" version="0.0.0" unpack="false"/>

@@ -17,11 +17,11 @@ package org.openntf.xsp.jakarta.concurrency.nsf;
 
 import java.util.Optional;
 
-import org.openntf.xsp.jakarta.concurrency.AbstractServletConcurrencyContainer;
-import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
-
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.events.ApplicationListener2;
+
+import org.openntf.xsp.jakarta.concurrency.AbstractServletConcurrencyContainer;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
 import jakarta.servlet.ServletContext;
 
@@ -29,24 +29,24 @@ import jakarta.servlet.ServletContext;
  * Listens for XPages application initialization - which should be roughly
  * comparable to ServletContext lifecycle - to attach a listener to init/term
  * JNDI configuration for Concurrency.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
 public class ConcurrencyApplicationListener extends AbstractServletConcurrencyContainer implements ApplicationListener2 {
 	@Override
-	public void applicationCreated(ApplicationEx app) {
+	public void applicationCreated(final ApplicationEx app) {
 		initializeConcurrencyContainer(app::getProperty);
 	}
 
 	@Override
-	public void applicationDestroyed(ApplicationEx app) {
+	public void applicationDestroyed(final ApplicationEx app) {
 		terminateConcurrencyContainer();
 	}
 
 	@Override
-	public void applicationRefreshed(ApplicationEx app) {
-		
+	public void applicationRefreshed(final ApplicationEx app) {
+
 	}
 
 	@Override

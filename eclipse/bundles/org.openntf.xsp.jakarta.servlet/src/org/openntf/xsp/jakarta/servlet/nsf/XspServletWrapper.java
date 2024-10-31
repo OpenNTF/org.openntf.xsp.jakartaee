@@ -18,11 +18,11 @@ package org.openntf.xsp.jakarta.servlet.nsf;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
-import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
-
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.xsp.application.ApplicationEx;
+
+import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
+import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
@@ -34,20 +34,20 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Wraps a provided {@link Servlet} implementation with behavior to participate
  * in the XPages request lifecycle.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.5.0
  */
 public class XspServletWrapper extends AbstractXspLifecycleServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	private final HttpServlet delegate;
-	
-	public XspServletWrapper(ComponentModule module, Servlet delegate) {
+
+	public XspServletWrapper(final ComponentModule module, final Servlet delegate) {
 		super(module);
 		this.delegate = (HttpServlet)delegate;
 	}
-	
+
 	@Override
 	public void init() throws ServletException {
 		super.init();
@@ -55,12 +55,12 @@ public class XspServletWrapper extends AbstractXspLifecycleServlet {
 	}
 
 	@Override
-	protected void doInit(ServletConfig config, HttpServletRequest request) throws ServletException {
+	protected void doInit(final ServletConfig config, final HttpServletRequest request) throws ServletException {
 		delegate.init(config);
 	}
 
 	@Override
-	protected void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application)
+	protected void doService(final HttpServletRequest request, final HttpServletResponse response, final ApplicationEx application)
 			throws ServletException, IOException {
 		HttpContextBean.setThreadResponse(response);
 		try {
@@ -69,7 +69,7 @@ public class XspServletWrapper extends AbstractXspLifecycleServlet {
 			HttpContextBean.setThreadResponse(null);
 		}
 	}
-	
+
 	@Override
 	public void destroy() {
 		super.destroy();
@@ -77,7 +77,7 @@ public class XspServletWrapper extends AbstractXspLifecycleServlet {
 	}
 
 	@Override
-	public String getInitParameter(String name) {
+	public String getInitParameter(final String name) {
 		return delegate.getInitParameter(name);
 	}
 
@@ -92,12 +92,12 @@ public class XspServletWrapper extends AbstractXspLifecycleServlet {
 	}
 
 	@Override
-	public void log(String msg) {
+	public void log(final String msg) {
 		delegate.log(msg);
 	}
 
 	@Override
-	public void log(String message, Throwable t) {
+	public void log(final String message, final Throwable t) {
 		delegate.log(message, t);
 	}
 

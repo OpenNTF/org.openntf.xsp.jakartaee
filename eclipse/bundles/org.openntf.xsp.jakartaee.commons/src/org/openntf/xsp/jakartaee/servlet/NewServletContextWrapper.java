@@ -27,13 +27,13 @@ import jakarta.servlet.ServletContext;
 @SuppressWarnings("rawtypes")
 class NewServletContextWrapper implements javax.servlet.ServletContext {
 	final ServletContext delegate;
-	
-	public NewServletContextWrapper(ServletContext delegate) {
+
+	public NewServletContextWrapper(final ServletContext delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public Object getAttribute(String arg0) {
+	public Object getAttribute(final String arg0) {
 		return delegate.getAttribute(arg0);
 	}
 
@@ -43,7 +43,7 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 	}
 
 	@Override
-	public javax.servlet.ServletContext getContext(String arg0) {
+	public javax.servlet.ServletContext getContext(final String arg0) {
 		return ServletUtil.newToOld(delegate.getContext(arg0));
 	}
 
@@ -53,7 +53,7 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 	}
 
 	@Override
-	public String getInitParameter(String arg0) {
+	public String getInitParameter(final String arg0) {
 		return delegate.getInitParameter(arg0);
 	}
 
@@ -68,7 +68,7 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 	}
 
 	@Override
-	public String getMimeType(String arg0) {
+	public String getMimeType(final String arg0) {
 		return delegate.getMimeType(arg0);
 	}
 
@@ -78,32 +78,32 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 	}
 
 	@Override
-	public javax.servlet.RequestDispatcher getNamedDispatcher(String arg0) {
+	public javax.servlet.RequestDispatcher getNamedDispatcher(final String arg0) {
 		return ServletUtil.newToOld(delegate.getNamedDispatcher(arg0));
 	}
 
 	@Override
-	public String getRealPath(String arg0) {
+	public String getRealPath(final String arg0) {
 		return delegate.getRealPath(arg0);
 	}
 
 	@Override
-	public javax.servlet.RequestDispatcher getRequestDispatcher(String arg0) {
+	public javax.servlet.RequestDispatcher getRequestDispatcher(final String arg0) {
 		return ServletUtil.newToOld(delegate.getRequestDispatcher(arg0));
 	}
 
 	@Override
-	public URL getResource(String arg0) throws MalformedURLException {
+	public URL getResource(final String arg0) throws MalformedURLException {
 		return delegate.getResource(arg0);
 	}
 
 	@Override
-	public InputStream getResourceAsStream(String arg0) {
+	public InputStream getResourceAsStream(final String arg0) {
 		return delegate.getResourceAsStream(arg0);
 	}
 
 	@Override
-	public Set getResourcePaths(String arg0) {
+	public Set getResourcePaths(final String arg0) {
 		return delegate.getResourcePaths(arg0);
 	}
 
@@ -113,7 +113,7 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 	}
 
 	@Override
-	public javax.servlet.Servlet getServlet(String arg0) throws javax.servlet.ServletException {
+	public javax.servlet.Servlet getServlet(final String arg0) throws javax.servlet.ServletException {
 		// Removed in Servlet 6
 		return null;
 	}
@@ -136,28 +136,28 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 	}
 
 	@Override
-	public void log(String arg0) {
+	public void log(final String arg0) {
 		delegate.log(arg0);
 	}
 
 	@Override
-	public void log(Exception arg0, String arg1) {
+	public void log(final Exception arg0, final String arg1) {
 		// Removed in Servlet 6
 		delegate.log(arg1, arg0);
 	}
 
 	@Override
-	public void log(String arg0, Throwable arg1) {
+	public void log(final String arg0, final Throwable arg1) {
 		delegate.log(arg0, arg1);
 	}
 
 	@Override
-	public void removeAttribute(String arg0) {
+	public void removeAttribute(final String arg0) {
 		delegate.removeAttribute(arg0);
 	}
 
 	@Override
-	public void setAttribute(String arg0, Object arg1) {
+	public void setAttribute(final String arg0, final Object arg1) {
 		delegate.setAttribute(arg0, arg1);
 	}
 }

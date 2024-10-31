@@ -24,7 +24,7 @@ import org.openntf.xsp.jakarta.transaction.DominoUserTransaction;
 import jakarta.enterprise.inject.spi.Extension;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */

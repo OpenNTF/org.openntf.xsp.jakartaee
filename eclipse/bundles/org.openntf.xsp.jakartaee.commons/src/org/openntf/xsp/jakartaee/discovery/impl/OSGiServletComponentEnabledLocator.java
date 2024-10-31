@@ -15,18 +15,18 @@
  */
 package org.openntf.xsp.jakartaee.discovery.impl;
 
-import org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.domino.osgi.core.context.ContextInfo;
+
+import org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 /**
  * Determines whether a given component is enabled based on its ID being
  * present in the enabled XPages Libraries in the context NSF of an OSGi-based
  * servlet request.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -48,7 +48,7 @@ public class OSGiServletComponentEnabledLocator implements ComponentEnabledLocat
 	}
 
 	@Override
-	public boolean isComponentEnabled(String componentId) {
+	public boolean isComponentEnabled(final String componentId) {
 		try {
 			NotesDatabase database = ContextInfo.getServerDatabase();
 			if(database != null) {

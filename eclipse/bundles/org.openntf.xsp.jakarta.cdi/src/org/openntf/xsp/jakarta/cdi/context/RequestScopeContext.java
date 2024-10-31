@@ -21,7 +21,6 @@ import java.util.Optional;
 import org.openntf.xsp.jakarta.cdi.ext.CDIConstants;
 
 import jakarta.enterprise.context.RequestScoped;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -30,20 +29,20 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public class RequestScopeContext extends AbstractProxyingContext {
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final ThreadLocal<Boolean> FORCE_ACTIVE = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
 	@Override
 	public Class<? extends Annotation> getScope() {
 		return RequestScoped.class;
 	}
-	
+
 	@Override
 	public BasicScopeContextHolder getHolder() {
 		Optional<HttpServletRequest> req = getHttpServletRequest();
 		if(req.isPresent()) {
 			String key = generateKey();
-			
+
 			BasicScopeContextHolder holder = (BasicScopeContextHolder)req.get().getAttribute(key);
 			if(holder == null) {
 				holder = new BasicScopeContextHolder();
@@ -55,7 +54,7 @@ public class RequestScopeContext extends AbstractProxyingContext {
 			return new BasicScopeContextHolder();
 		}
 	}
-	
+
 	@Override
 	public boolean isActive() {
 		if(FORCE_ACTIVE.get() == Boolean.TRUE) {

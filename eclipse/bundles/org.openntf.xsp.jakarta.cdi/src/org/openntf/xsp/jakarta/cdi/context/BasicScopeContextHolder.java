@@ -52,23 +52,23 @@ public class BasicScopeContextHolder implements Serializable {
 		String beanClass;
         CreationalContext<T> ctx;
 		T instance;
-		
+
 		public String getBeanClass() {
 			return beanClass;
 		}
-		public void setBeanClass(String beanClass) {
+		public void setBeanClass(final String beanClass) {
 			this.beanClass = beanClass;
 		}
 		public CreationalContext<T> getCtx() {
 			return ctx;
 		}
-		public void setCtx(CreationalContext<T> ctx) {
+		public void setCtx(final CreationalContext<T> ctx) {
 			this.ctx = ctx;
 		}
 		public T getInstance() {
 			return instance;
 		}
-		public void setInstance(T instance) {
+		public void setInstance(final T instance) {
 			this.instance = instance;
 		}
     }

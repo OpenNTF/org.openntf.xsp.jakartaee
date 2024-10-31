@@ -33,24 +33,24 @@ import jakarta.enterprise.inject.spi.Bean;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.2.0
  */
 @SuppressWarnings("serial")
 public abstract class AbstractProxyingContext implements Context, Serializable {
-	
+
 	private static final ThreadLocal<HttpServletRequest> THREAD_REQUESTS = new ThreadLocal<>();
-	
-	
-	public static void setThreadContextRequest(HttpServletRequest request) {
+
+
+	public static void setThreadContextRequest(final HttpServletRequest request) {
 		THREAD_REQUESTS.set(request);
 	}
-	
+
 	private final String id = UUID.randomUUID().toString();
 
 	protected abstract BasicScopeContextHolder getHolder();
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized <T> T get(final Contextual<T> contextual, final CreationalContext<T> creationalContext) {
@@ -81,16 +81,16 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 	public boolean isActive() {
 		return true;
 	}
-	
+
 	protected String generateKey() {
 		return getClass().getName() + '-' + id;
 	}
-	
+
 	protected Optional<HttpServletRequest> getHttpServletRequest() {
 		if(THREAD_REQUESTS.get() != null) {
 			return Optional.of(THREAD_REQUESTS.get());
 		}
-		
+
 		// Check the active session
 		FacesContext facesContext = FacesContext.getCurrentInstance();
 		if(facesContext != null) {
@@ -98,7 +98,7 @@ public abstract class AbstractProxyingContext implements Context, Serializable {
 			javax.servlet.http.HttpServletRequest request = (javax.servlet.http.HttpServletRequest)facesContext.getExternalContext().getRequest();
 			return Optional.ofNullable(ServletUtil.oldToNew(context, request));
 		}
-		
+
 		return LibraryUtil.findExtensionsSorted(ComponentModuleLocator.class, false)
 			.stream()
 			.map(ComponentModuleLocator::getServletRequest)

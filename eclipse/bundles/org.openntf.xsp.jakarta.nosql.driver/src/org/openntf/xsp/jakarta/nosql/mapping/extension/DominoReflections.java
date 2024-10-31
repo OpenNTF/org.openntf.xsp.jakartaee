@@ -15,17 +15,7 @@
  */
 package org.openntf.xsp.jakarta.nosql.mapping.extension;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.nosql.Column;
-import jakarta.nosql.DiscriminatorColumn;
-import jakarta.nosql.DiscriminatorValue;
-import jakarta.nosql.Entity;
-import jakarta.nosql.Id;
-import jakarta.nosql.Inheritance;
-import jakarta.nosql.MappedSuperclass;
-
-import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
-import org.eclipse.jnosql.mapping.reflection.ConstructorException;
+import static java.util.Objects.requireNonNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -43,7 +33,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static java.util.Objects.requireNonNull;
+import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
+import org.eclipse.jnosql.mapping.reflection.ConstructorException;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.nosql.Column;
+import jakarta.nosql.DiscriminatorColumn;
+import jakarta.nosql.DiscriminatorValue;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
+import jakarta.nosql.Inheritance;
+import jakarta.nosql.MappedSuperclass;
 
 /**
  * Variant of the JNoSQL {@code Reflections} utility class that makes most method
@@ -52,7 +52,7 @@ import static java.util.Objects.requireNonNull;
 @ApplicationScoped
 public class DominoReflections {
     private static final Logger LOGGER = Logger.getLogger(DominoReflections.class.getName());
-    
+
     /**
      * This Comparator defines the priority of the entity's constructor that JNoSQL will use as a priority.
      * The emphasis will be on a default constructor, a non-arg-param constructor.
@@ -63,7 +63,7 @@ public class DominoReflections {
         INSTANCE;
 
         @Override
-        public int compare(Constructor<?> constructorA, Constructor<?> constructorB) {
+        public int compare(final Constructor<?> constructorA, final Constructor<?> constructorB) {
             int parameterCount = constructorA.getParameterCount();
             int parameterCountB = constructorB.getParameterCount();
             if (parameterCount == 0 && parameterCountB == 0) {
@@ -88,7 +88,7 @@ public class DominoReflections {
      * @param field  the field to return object
      * @return - the field value in Object
      */
-    Object getValue(Object object, Field field) {
+    Object getValue(final Object object, final Field field) {
 
         try {
             return field.get(object);
@@ -107,7 +107,7 @@ public class DominoReflections {
      * @param value  the value to object
      * @return - if the operation was executed with success
      */
-    boolean setValue(Object object, Field field, Object value) {
+    boolean setValue(final Object object, final Field field, final Object value) {
         try {
 
             field.set(object, value);
@@ -126,7 +126,7 @@ public class DominoReflections {
      * @param <T>         the instance type
      * @return the new instance that class
      */
-    public static <T> T newInstance(Constructor<T> constructor) {
+    public static <T> T newInstance(final Constructor<T> constructor) {
         try {
             return constructor.newInstance();
         } catch (Exception exception) {
@@ -143,7 +143,7 @@ public class DominoReflections {
      * @param <T>  the instance type
      * @return the new instance that class
      */
-    public static <T> T newInstance(Class<T> type) {
+    public static <T> T newInstance(final Class<T> type) {
         try {
             Constructor<T> constructor = getConstructor(type);
             return newInstance(constructor);
@@ -162,7 +162,7 @@ public class DominoReflections {
      *
      * @param field field the field to make accessible
      */
-    void makeAccessible(Field field) {
+    void makeAccessible(final Field field) {
         if ((!Modifier.isPublic(field.getModifiers()) || !Modifier
                 .isPublic(field.getDeclaringClass().getModifiers()))
                 && !field.isAccessible()) {
@@ -181,7 +181,7 @@ public class DominoReflections {
      * @return the constructor class
      * @throws ConstructorException when the constructor has public and default
      */
-    public static <T> Constructor<T> getConstructor(Class<T> type) {
+    public static <T> Constructor<T> getConstructor(final Class<T> type) {
 
         final Predicate<Constructor<?>> defaultConstructorPredicate = c -> c.getParameterCount() == 0;
         final Predicate<Constructor<?>> customConstructorPredicate = c -> {
@@ -224,7 +224,7 @@ public class DominoReflections {
      * @return if the provided {@link Parameter} instance is annotated with
      * Jakarta NoSQL annotations (@{@link Id} or @{@link Column}).
      */
-    static boolean hasNoSQLAnnotation(Parameter parameter) {
+    static boolean hasNoSQLAnnotation(final Parameter parameter) {
         return parameter != null && Arrays.stream(parameter.getAnnotations())
                 .map(Annotation::annotationType)
                 .map(Class::getName)
@@ -239,7 +239,7 @@ public class DominoReflections {
      * @return the {@link Entity} when is not blank otherwise {@link Class#getSimpleName()}
      * @throws NullPointerException when entity is null
      */
-    String getEntityName(Class<?> entity) {
+    String getEntityName(final Class<?> entity) {
         requireNonNull(entity, "class entity is required");
 
         if (isInheritance(entity)) {
@@ -256,7 +256,7 @@ public class DominoReflections {
      * {@link Id}
      * @throws NullPointerException when class entity is null
      */
-    public List<Field> getFields(Class<?> type) {
+    public List<Field> getFields(final Class<?> type) {
         requireNonNull(type, "class entity is required");
 
         List<Field> fields = new ArrayList<>();
@@ -281,7 +281,7 @@ public class DominoReflections {
      * @return if the class is annotated
      * @throws NullPointerException when type is null
      */
-    boolean isMappedSuperclass(Class<?> type) {
+    boolean isMappedSuperclass(final Class<?> type) {
         requireNonNull(type, "class entity is required");
         Class<?> superclass = type.getSuperclass();
         return superclass.getAnnotation(MappedSuperclass.class) != null
@@ -295,7 +295,7 @@ public class DominoReflections {
      * @return if the field is annotated with {@link Column}
      * @throws NullPointerException when the field is null
      */
-    public boolean isIdField(Field field) {
+    public boolean isIdField(final Field field) {
         requireNonNull(field, "field is required");
         return field.getAnnotation(Id.class) != null;
     }
@@ -308,7 +308,7 @@ public class DominoReflections {
      * @return the column name
      * @throws NullPointerException when the field is null
      */
-    String getColumnName(Field field) {
+    String getColumnName(final Field field) {
         requireNonNull(field, "field is required");
         return Optional.ofNullable(field.getAnnotation(Column.class))
                 .map(Column::value)
@@ -323,7 +323,7 @@ public class DominoReflections {
      * @return the column name
      * @throws NullPointerException when the field is null
      */
-    String getIdName(Field field) {
+    String getIdName(final Field field) {
         requireNonNull(field, "field is required");
         return Optional.ofNullable(field.getAnnotation(Id.class))
                 .map(Id::value)
@@ -341,7 +341,7 @@ public class DominoReflections {
      * @return the {@link InheritanceMetadata} or {@link Optional#empty()}
      * @throws NullPointerException when type is null
      */
-    Optional<InheritanceMetadata> getInheritance(Class<?> type) {
+    Optional<InheritanceMetadata> getInheritance(final Class<?> type) {
         Objects.requireNonNull(type, "entity is required");
         if (isInheritance(type)) {
             Class<?> parent = type.getSuperclass();
@@ -364,7 +364,7 @@ public class DominoReflections {
      * @param entity the entity
      * @return true if it has the {@link Inheritance} annotation
      */
-    boolean hasInheritanceAnnotation(Class<?> entity) {
+    boolean hasInheritanceAnnotation(final Class<?> entity) {
         Objects.requireNonNull(entity, "entity is required");
         return entity.getAnnotation(Inheritance.class) != null;
     }
@@ -382,7 +382,7 @@ public class DominoReflections {
      * @return the UDT name specified in the {@link Column} annotation of the field, or {@code null} if not specified
      * @throws NullPointerException if the field is null
      */
-    public String getUDTName(Field field) {
+    public String getUDTName(final Field field) {
         Objects.requireNonNull(field, "field is required");
         return Optional.ofNullable(field.getAnnotation(Column.class))
                 .map(Column::udt)
@@ -391,28 +391,28 @@ public class DominoReflections {
     }
 
 
-    private String getDiscriminatorColumn(Class<?> parent) {
+    private String getDiscriminatorColumn(final Class<?> parent) {
         return Optional
                 .ofNullable(parent.getAnnotation(DiscriminatorColumn.class))
                 .map(DiscriminatorColumn::value)
                 .orElse(DiscriminatorColumn.DEFAULT_DISCRIMINATOR_COLUMN);
     }
 
-    private String getDiscriminatorValue(Class<?> entity) {
+    private String getDiscriminatorValue(final Class<?> entity) {
         return Optional
                 .ofNullable(entity.getAnnotation(DiscriminatorValue.class))
                 .map(DiscriminatorValue::value)
                 .orElse(entity.getSimpleName());
     }
 
-    private String readEntity(Class<?> entity) {
+    private String readEntity(final Class<?> entity) {
         return Optional.ofNullable(entity.getAnnotation(Entity.class))
                 .map(Entity::value)
                 .filter(s -> s != null && !s.isEmpty())
                 .orElse(entity.getSimpleName());
     }
 
-    private boolean isInheritance(Class<?> entity) {
+    private boolean isInheritance(final Class<?> entity) {
         Class<?> superclass = entity.getSuperclass();
         return superclass.getAnnotation(Inheritance.class) != null;
     }
