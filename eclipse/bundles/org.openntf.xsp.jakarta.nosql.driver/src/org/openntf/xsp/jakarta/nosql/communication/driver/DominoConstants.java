@@ -199,6 +199,12 @@ public enum DominoConstants {
 	 * @since 2.13.0
 	 */
 	public static final String FIELD_PROFILEKEY = "@profilekey"; //$NON-NLS-1$
+	/**
+	 * The field used to request storage of the parent-doc UNID, marking the
+	 * document as a response document, currently {@value #FIELD_PARENTUNID}
+	 * @since 3.3.0
+	 */
+	public static final String FIELD_PARENTUNID = "$REF"; //$NON-NLS-1$
 
 	/**
 	 * Options used when converting composite data to HTML. This list is based
