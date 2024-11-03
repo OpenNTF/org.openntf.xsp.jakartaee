@@ -75,6 +75,7 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import lotus.domino.Database;
 import lotus.domino.DateTime;
+import lotus.domino.Document;
 import lotus.domino.DocumentCollection;
 import lotus.domino.DxlExporter;
 import lotus.domino.EmbeddedObject;
@@ -922,6 +923,19 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 								throw new UncheckedIOException(e);
 							}
 						}
+					}
+				} else if(DominoConstants.FIELD_PARENTUNID.equals(doc.name())) {
+					String parentUnid = doc.get(String.class);
+					// Only update if the value is different
+					String existingParentUnid = target.getParentDocumentUNID();
+					if(StringUtil.equals(parentUnid, existingParentUnid)) {
+						continue;
+					}
+					if(StringUtil.isEmpty(parentUnid)) {
+						target.removeItem("$REF"); //$NON-NLS-1$
+					} else {
+						Document parentDoc = target.getParentDatabase().getDocumentByUNID(parentUnid);
+						target.makeResponse(parentDoc);
 					}
 				} else if(!DominoConstants.SKIP_WRITING_FIELDS.contains(doc.name())) {
 					Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.name(), ItemStorage.class);
