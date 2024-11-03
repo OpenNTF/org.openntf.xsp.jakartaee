@@ -396,6 +396,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	private CommunicationEntity convertViewEntryInner(final Database context, final ViewEntry entry, final List<String> columnNames, final List<String> columnFormulas, final String entityName, final Map<String, Class<?>> itemTypes, final EntityMetadata classMapping) throws NotesException {
 		Vector<?> columnValues = entry.getColumnValues();
 		try {
+			
+			Set<String> modelFieldNames = classMapping == null ? null : classMapping.fieldsName()
+				.stream()
+				.filter(s -> !DominoConstants.FIELD_ID.equals(s))
+				.collect(Collectors.toSet());
+			
 			List<Element> convertedEntry = new ArrayList<>(columnValues.size());
 
 			String universalId = entry.getUniversalID();
@@ -416,6 +422,17 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 			for(int i = 0; i < columnValues.size(); i++) {
 				String itemName = columnNames.get(i);
+				if(modelFieldNames != null) {
+					String fItemName = itemName;
+					itemName = modelFieldNames.stream()
+						.filter(fieldName -> fieldName.equalsIgnoreCase(fItemName))
+						.findFirst()
+						.orElse(null);
+					if(itemName == null) {
+						continue;
+					}
+				}
+				
 				Object value = columnValues.get(i);
 
 				// Check to see if we have a matching time-based or number-based field and strip
