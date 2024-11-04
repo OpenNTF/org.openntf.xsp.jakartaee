@@ -15,6 +15,9 @@
  */
 package org.openntf.xsp.jakarta.cdi.impl;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.application.events.ApplicationListener2;
 
@@ -30,6 +33,7 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
  * @since 1.0.0
  */
 public class CDIApplicationListener implements ApplicationListener2 {
+	private static final Logger log = Logger.getLogger(CDIApplicationListener.class.getPackageName());
 
 	@Override
 	public void applicationCreated(final ApplicationEx application) {
@@ -39,16 +43,22 @@ public class CDIApplicationListener implements ApplicationListener2 {
 	@Override
 	public void applicationDestroyed(final ApplicationEx application) {
 		if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, application)) {
-			ComponentModuleLocator.getDefault()
-				.map(ComponentModuleLocator::getActiveModule)
-				.map(ContainerUtil::getContainerUnchecked)
-				.ifPresent(container -> {
-					if(container instanceof WeldContainer c) {
-						if(c.isRunning()) {
-							c.close();
+			try {
+				ComponentModuleLocator.getDefault()
+					.map(ComponentModuleLocator::getActiveModule)
+					.map(ContainerUtil::getContainerUnchecked)
+					.ifPresent(container -> {
+						if(container instanceof WeldContainer c) {
+							if(c.isRunning()) {
+								c.close();
+							}
 						}
-					}
-				});
+					});
+			} catch(Throwable t) {
+				if(log.isLoggable(Level.SEVERE)) {
+					log.log(Level.SEVERE, "Encountered exception shutting down CDI container", t);
+				}
+			}
 		}
 	}
 
