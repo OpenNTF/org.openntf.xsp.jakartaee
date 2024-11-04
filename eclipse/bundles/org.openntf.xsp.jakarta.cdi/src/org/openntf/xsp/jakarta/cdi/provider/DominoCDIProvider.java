@@ -80,7 +80,7 @@ public class DominoCDIProvider implements CDIProvider {
 			if(log.isLoggable(Level.INFO)) {
 				log.log(Level.INFO, "Encountered IllegalStateException when loading CDI container", e);
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered exception trying to load CDI container", e);
 			}
