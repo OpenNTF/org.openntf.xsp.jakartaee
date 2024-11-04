@@ -71,17 +71,18 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 	@Override
 	protected void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		request.setAttribute(CDIConstants.CDI_JAXRS_REQUEST, "true"); //$NON-NLS-1$
-		initCdi(request);
 		super.service(request, response);
 	}
 
 	@Override
 	protected void doInit(final ServletConfig config, final HttpServletRequest request) throws ServletException {
+		initCdi(request);
 		delegate.init(config);
 	}
 
 	@Override
 	protected void doService(final HttpServletRequest request, final HttpServletResponse response, final ApplicationEx application) throws ServletException, IOException {
+		initCdi(request);
 		@SuppressWarnings("unchecked")
 		List<ServiceParticipant> participants = application.findServices(ServiceParticipant.EXTENSION_POINT);
 		for(ServiceParticipant participant : participants) {
