@@ -423,18 +423,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 			for(int i = 0; i < columnValues.size(); i++) {
 				String itemName = columnNames.get(i);
-				if(modelFieldNames != null) {
-					String fItemName = itemName;
-					itemName = modelFieldNames.stream()
-						.filter(fieldName -> fieldName.equalsIgnoreCase(fItemName))
-						.findFirst()
-						.orElse(null);
-					if(itemName == null) {
-						continue;
-					}
-				}
-				
 				Object value = columnValues.get(i);
+				String columnFormula = columnFormulas.get(i);
 
 				// Check to see if we have a matching time-based or number-based field and strip
 				//   empty strings, since JNoSQL will otherwise try to parse them and will throw
@@ -454,7 +444,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				}
 
 				// Check for known system formula equivalents
-				switch(String.valueOf(columnFormulas.get(i))) {
+				switch(String.valueOf(columnFormula)) {
 				case "@DocLength": //$NON-NLS-1$
 					itemName = DominoConstants.FIELD_SIZE;
 					break;
@@ -502,6 +492,17 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					}
 					continue; // Skip to the next column
 				default:
+					// Post-process for non-special names to match case
+					if(modelFieldNames != null) {
+						String fItemName = itemName;
+						itemName = modelFieldNames.stream()
+							.filter(fieldName -> fieldName.equalsIgnoreCase(fItemName))
+							.findFirst()
+							.orElse(null);
+						if(itemName == null) {
+							continue;
+						}
+					}
 					break;
 				}
 
