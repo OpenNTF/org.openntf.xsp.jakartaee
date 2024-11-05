@@ -910,6 +910,19 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return;
 		} else {
 			String itemName = EntityUtil.findItemName(sorts.property(), mapping);
+			
+			// Look for special values and map back
+			itemName = switch (itemName) {
+				case DominoConstants.FIELD_SIZE -> formulaToItemName(view, "@DocLength", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_CDATE -> formulaToItemName(view, "@Created", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_MDATE -> formulaToItemName(view, "@Modified", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_ADATE -> formulaToItemName(view, "@Accessed", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_NOTEID -> formulaToItemName(view, "@NoteID", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_ADDED -> formulaToItemName(view, "@AddedToThisFile", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_MODIFIED_IN_THIS_FILE -> formulaToItemName(view, "@ModifiedInThisFile", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_ATTACHMENTS -> formulaToItemName(view, "@AttachmentNames", itemName); //$NON-NLS-1$
+				default -> itemName;
+			};
 
 			if(ftSearch != null && !ftSearch.isEmpty()) {
 				if(options.contains(FTSearchOption.UPDATE_INDEX)) {
@@ -924,6 +937,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				}
 				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, itemName, sorts.isAscending(), exact, variants, fuzzy);
 			} else {
+				System.out.println("sorting view " + view.getName() + " by " + itemName + ", asc=" + sorts.isAscending());
 				view.resortView(itemName, sorts.isAscending());
 			}
 		}
@@ -979,6 +993,24 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				}
 			}
 		}
+	}
+	
+	private static String formulaToItemName(View view, String formula, String originalName) throws NotesException {
+		@SuppressWarnings("unchecked")
+		Vector<ViewColumn> columns = view.getColumns();
+		try {
+			for(ViewColumn col : columns) {
+				if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
+					if(formula.equals(col.getFormula())) {
+						return col.getItemName();
+					}
+				}
+			}
+		} finally {
+			view.recycle(columns);
+		}
+		
+		throw new IllegalStateException(MessageFormat.format("Unable to find column for formula {0} (entity property \"{1}\") in view {2}", formula, originalName, view.getName()));
 	}
 
 	private static class DatabaseXAResource implements XAResource {
