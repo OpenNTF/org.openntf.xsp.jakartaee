@@ -921,7 +921,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				case DominoConstants.FIELD_ADDED -> formulaToItemName(view, "@AddedToThisFile", itemName); //$NON-NLS-1$
 				case DominoConstants.FIELD_MODIFIED_IN_THIS_FILE -> formulaToItemName(view, "@ModifiedInThisFile", itemName); //$NON-NLS-1$
 				case DominoConstants.FIELD_ATTACHMENTS -> formulaToItemName(view, "@AttachmentNames", itemName); //$NON-NLS-1$
-				default -> itemName;
+				default -> formulaToItemName(view, itemName, itemName);
 			};
 
 			if(ftSearch != null && !ftSearch.isEmpty()) {
@@ -995,13 +995,30 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 	}
 	
+	/**
+	 * Matches a formula (such as {@code @AttachmentNames}) or item name to the column in the view
+	 * matching it, which can be used to translate back from a special value or to match the
+	 * case of an entity property to the view column.
+	 * 
+	 * @param view the view containing the columns to check
+	 * @param formula the formula or item name to find
+	 * @param originalName the original name, for error-message purposes
+	 * @return the mapped column name
+	 * @throws NotesException if there is a problem accessing the view
+	 * @throws IllegalStateException if no matching column can be found
+	 */
 	private static String formulaToItemName(View view, String formula, String originalName) throws NotesException {
 		@SuppressWarnings("unchecked")
 		Vector<ViewColumn> columns = view.getColumns();
 		try {
 			for(ViewColumn col : columns) {
 				if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
-					if(formula.equals(col.getFormula())) {
+					String colFormula = col.getFormula();
+					if(StringUtil.isEmpty(colFormula)) {
+						colFormula = col.getItemName();
+					}
+					
+					if(formula.equalsIgnoreCase(colFormula)) {
 						return col.getItemName();
 					}
 				}
