@@ -240,22 +240,32 @@ public enum DominoConstants {
 	static {
 		Set<String> systemFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 		systemFields.addAll(Arrays.asList(
-			DominoConstants.FIELD_ID,
-			DominoConstants.FIELD_CDATE,
-			DominoConstants.FIELD_MDATE,
-			DominoConstants.FIELD_ATTACHMENTS,
-			DominoConstants.FIELD_DXL,
-			DominoConstants.FIELD_POSITION,
-			DominoConstants.FIELD_ENTRY_TYPE,
-			DominoConstants.FIELD_READ,
-			DominoConstants.FIELD_NOTEID,
-			DominoConstants.FIELD_ADATE,
-			DominoConstants.FIELD_ADDED,
-			DominoConstants.FIELD_MODIFIED_IN_THIS_FILE,
-			DominoConstants.FIELD_ETAG,
-			DominoConstants.FIELD_REPLICAID,
-			DominoConstants.FIELD_SERVER,
-			DominoConstants.FIELD_FILEPATH
+			FIELD_ID,
+			FIELD_CDATE,
+			FIELD_MDATE,
+			FIELD_ATTACHMENTS,
+			FIELD_DXL,
+			FIELD_POSITION,
+			FIELD_ENTRY_TYPE,
+			FIELD_READ,
+			FIELD_NOTEID,
+			FIELD_ADATE,
+			FIELD_ADDED,
+			FIELD_MODIFIED_IN_THIS_FILE,
+			FIELD_ETAG,
+			FIELD_REPLICAID,
+			FIELD_SERVER,
+			FIELD_FILEPATH,
+			FIELD_SIBLINGCOUNT,
+			FIELD_CHILDCOUNT,
+			FIELD_DESCENDANTCOUNT,
+			FIELD_COLUMNINDENTLEVEL,
+			FIELD_INDENTLEVEL,
+			FIELD_FTSEARCHSCORE,
+			FIELD_NOTENAME,
+			FIELD_PROFILENAME,
+			FIELD_USERNAME,
+			FIELD_PROFILEKEY
 		));
 		SYSTEM_FIELDS = Collections.unmodifiableSet(systemFields);
 
