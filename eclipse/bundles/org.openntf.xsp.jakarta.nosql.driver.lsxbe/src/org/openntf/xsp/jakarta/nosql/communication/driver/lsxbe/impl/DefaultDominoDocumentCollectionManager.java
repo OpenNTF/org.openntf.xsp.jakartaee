@@ -937,7 +937,6 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				}
 				view.FTSearchSorted(new Vector<>(ftSearch), maxDocs, itemName, sorts.isAscending(), exact, variants, fuzzy);
 			} else {
-				System.out.println("sorting view " + view.getName() + " by " + itemName + ", asc=" + sorts.isAscending());
 				view.resortView(itemName, sorts.isAscending());
 			}
 		}
