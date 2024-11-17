@@ -26,7 +26,7 @@ import jakarta.ws.rs.core.Response;
  *
  * <p>Handlers of this type can be prioritied with the
  * {@link jakarta.annotation.Priority Priority} annotation, with higher values
- * taking precende over lower values.</p>
+ * taking precedence over lower values.</p>
  *
  * @author Jesse Gallagher
  * @since 2.10.0
