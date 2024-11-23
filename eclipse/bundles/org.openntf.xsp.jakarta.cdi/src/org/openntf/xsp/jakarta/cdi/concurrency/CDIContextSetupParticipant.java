@@ -19,7 +19,6 @@ import org.glassfish.enterprise.concurrent.spi.ContextHandle;
 import org.openntf.xsp.jakarta.cdi.context.RequestScopeContext;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.inject.spi.CDI;
