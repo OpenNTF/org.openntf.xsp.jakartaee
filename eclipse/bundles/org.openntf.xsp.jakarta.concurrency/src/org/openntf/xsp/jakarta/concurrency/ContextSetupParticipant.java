@@ -42,13 +42,9 @@ public interface ContextSetupParticipant {
      * Called by ManagedExecutorService in the same thread that submits a
      * task to save the execution context of the submitting thread.
      *
-     * @param contextService ContextService containing information on what
-     * context should be saved
+     * @param contextHandle ContextHandle created by the primary provider
      * @param contextObjectProperties Additional properties specified for
      * for a context object when the ContextService object was created.
-     *
-     * @return A ContextHandle that will be passed to the setup method
-     * in the thread executing the task
      */
     default public void saveContext(final ContextHandle contextHandle, final Map<String, String> contextObjectProperties) {
 
