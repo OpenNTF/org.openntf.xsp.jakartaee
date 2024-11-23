@@ -37,9 +37,7 @@ public class CDIContextSetupParticipant implements ContextSetupParticipant {
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
-			if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
-				((AttributedContextHandle)contextHandle).setAttribute(ATTR_CDI, CDI.current());
-			}
+			((AttributedContextHandle)contextHandle).setAttribute(ATTR_CDI, CDI.current());
 		}
 	}
 
