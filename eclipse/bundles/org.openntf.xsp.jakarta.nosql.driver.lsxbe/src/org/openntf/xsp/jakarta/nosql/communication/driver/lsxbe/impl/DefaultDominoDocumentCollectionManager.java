@@ -836,8 +836,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			if(!qrp.isOpen()) {
 				qrp.recycle();
 				DbDirectory dbDir = session.getDbDirectory(null);
-				// TODO encrypt when the API allows
 				qrp = dbDir.createDatabase(dbPath.toString(), true);
+				qrp.encrypt();
 
 				ACL acl = qrp.getACL();
 				ACLEntry entry = acl.createACLEntry(session.getEffectiveUserName(), ACL.LEVEL_MANAGER);
