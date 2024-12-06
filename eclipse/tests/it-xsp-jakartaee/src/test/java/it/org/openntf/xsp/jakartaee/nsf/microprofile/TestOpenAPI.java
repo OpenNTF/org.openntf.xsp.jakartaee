@@ -46,7 +46,7 @@ public class TestOpenAPI extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String yaml = response.readEntity(String.class);
-		assertTrue(yaml.startsWith("---\nopenapi: 3.0"), () -> yaml);
+		assertTrue(yaml.startsWith("---\nopenapi: 3.1"), () -> yaml);
 		assertTrue(yaml.contains("  /adminrole:"));
 	}
 	

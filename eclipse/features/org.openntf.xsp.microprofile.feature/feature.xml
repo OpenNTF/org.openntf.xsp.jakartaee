@@ -289,7 +289,19 @@
 	<plugin id="io.prometheus.simpleclient_tracer_otel_agent" version="0.0.0" unpack="false"/>
 	<plugin id="org.hdrhistogram.HdrHistogram" version="0.0.0" unpack="false"/>
 
+	<!-- OpenAPI -->
 	<plugin id="org.openntf.xsp.microprofile.openapi" version="0.0.0" fragment="true" unpack="false"/>
+	<plugin id="org.eclipse.microprofile.openapi" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.open-api-model" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.smallrye.open-api-core" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.smallrye.open-api-jaxrs" version="0.0.0" fragment="true" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.core.jackson-core" version="0.0.0" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.core.jackson-databind" version="0.0.0" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.core.jackson-annotations" version="0.0.0" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="0.0.0" unpack="false"/>
+	<plugin id="org.yaml.snakeyaml" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.jandex" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.com.ibm.async.util" version="0.0.0" unpack="false"/>
 
 	<plugin id="org.openntf.xsp.microprofile.library" version="0.0.0" unpack="false"/>
 </feature>
