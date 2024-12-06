@@ -315,7 +315,7 @@
 	<plugin id="com.fasterxml.classmate" version="0.0.0" unpack="false"/>
 	<plugin id="org.hibernate.validator" version="0.0.0" unpack="false"/>
 	
-	<!-- JAX-RS -->
+	<!-- REST -->
 	<plugin id="org.openntf.xsp.jakarta.rest" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.rest.factory" version="0.0.0" fragment="true" unpack="false"/>
 	
@@ -332,6 +332,8 @@
 	<plugin id="org.apache.james.apache-mime4j-core" version="0.0.0" unpack="false"/>
 	<plugin id="org.apache.james.apache-mime4j-dom" version="0.0.0" unpack="false"/>
 	<plugin id="org.apache.james.apache-mime4j-storage" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.commons.commons-io" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.commons.codec" version="0.0.0" unpack="false"/>
 	
 	<!-- NoSQL -->
 	<plugin id="org.openntf.xsp.jakarta.nosql" version="0.0.0" unpack="false"/>
