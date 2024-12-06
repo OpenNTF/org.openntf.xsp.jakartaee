@@ -41,8 +41,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<weld-version>5.1.2.Final</weld-version>
-		<resteasy-version>6.2.8.Final</resteasy-version>
-		<resteasy-mp-version>2.1.5.Final</resteasy-mp-version>
+		<resteasy-version>6.2.11.Final</resteasy-version>
+		<resteasy-mp-version>3.0.0.Final</resteasy-mp-version>
 		<nosql-version>1.1.1</nosql-version>
 		<nosql-version-osgi>1.1.1</nosql-version-osgi>
 		<tomcat-version>10.1.23</tomcat-version>
@@ -674,13 +674,13 @@
 									MicroProfile REST Client
 								-->
 								<artifact>
-									<id>org.eclipse.microprofile.rest.client:microprofile-rest-client-api:3.0.1</id>
+									<id>org.eclipse.microprofile.rest.client:microprofile-rest-client-api:4.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.rest.client</Bundle-SymbolicName>
-										<Bundle-Version>3.0.1_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="3.0.1"</Export-Package>
+										<Bundle-Version>4.0.0_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="4.0.0"</Export-Package>
 										<DynamicImport-Package>jakarta.enterprise.*</DynamicImport-Package>
 									</instructions>
 								</artifact>
@@ -714,47 +714,12 @@
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.resteasy.client</Bundle-SymbolicName>
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>
-											org.openntf.org.apache.httpcomponents.httpcore;bundle-version="4.0.0",
-											org.openntf.org.apache.httpcomponents.httpclient;bundle-version="4.0.0"
-										</Require-Bundle>
 										<Import-Package>
 											!org.apache.http.*,
 											!java.*,
 											*
 										</Import-Package>
 										<Export-Package>*;version="${resteasy-version}"</Export-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.apache.httpcomponents:httpcore:4.4.16</id>
-									<source>true</source>
-									<transitive>false</transitive>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.apache.httpcomponents.httpcore</Bundle-SymbolicName>
-										<Bundle-Version>4.4.16.${osgi.qualifier}</Bundle-Version>
-										<Import-Package>
-											!org.apache.http.*,
-											*
-										</Import-Package>
-										<Export-Package>*;version="4.4.16"</Export-Package>
-									</instructions>
-								</artifact>
-								<artifact>
-									<id>org.apache.httpcomponents:httpclient:4.5.14</id>
-									<source>true</source>
-									<transitive>false</transitive>
-									<override>true</override>
-									<instructions>
-										<Bundle-SymbolicName>org.openntf.org.apache.httpcomponents.httpclient</Bundle-SymbolicName>
-										<Bundle-Version>4.5.14.${osgi.qualifier}</Bundle-Version>
-										<Require-Bundle>org.openntf.org.apache.httpcomponents.httpcore</Require-Bundle>
-										<Import-Package>
-											!org.apache.http.*,
-											*
-										</Import-Package>
-										<Export-Package>*;version="4.5.14"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact><id>commons-io:commons-io:2.15.0</id><source>true</source></artifact>
