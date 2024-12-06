@@ -19,7 +19,6 @@ import org.glassfish.enterprise.concurrent.spi.ContextHandle;
 import org.openntf.xsp.jakarta.cdi.context.RequestScopeContext;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.inject.spi.CDI;
@@ -37,9 +36,7 @@ public class CDIContextSetupParticipant implements ContextSetupParticipant {
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
-			if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
-				((AttributedContextHandle)contextHandle).setAttribute(ATTR_CDI, CDI.current());
-			}
+			((AttributedContextHandle)contextHandle).setAttribute(ATTR_CDI, CDI.current());
 		}
 	}
 
