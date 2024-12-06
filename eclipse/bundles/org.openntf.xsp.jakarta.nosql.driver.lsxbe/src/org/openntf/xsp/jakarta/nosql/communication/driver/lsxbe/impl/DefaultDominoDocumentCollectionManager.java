@@ -910,7 +910,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return;
 		} else {
 			String itemName = EntityUtil.findItemName(sorts.property(), mapping);
-			
+
 			// Look for special values and map back
 			itemName = switch (itemName) {
 				case DominoConstants.FIELD_SIZE -> formulaToItemName(view, "@DocLength", itemName); //$NON-NLS-1$
@@ -993,12 +993,12 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		}
 	}
-	
+
 	/**
 	 * Matches a formula (such as {@code @AttachmentNames}) or item name to the column in the view
 	 * matching it, which can be used to translate back from a special value or to match the
 	 * case of an entity property to the view column.
-	 * 
+	 *
 	 * @param view the view containing the columns to check
 	 * @param formula the formula or item name to find
 	 * @param originalName the original name, for error-message purposes
@@ -1006,7 +1006,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	 * @throws NotesException if there is a problem accessing the view
 	 * @throws IllegalStateException if no matching column can be found
 	 */
-	private static String formulaToItemName(View view, String formula, String originalName) throws NotesException {
+	private static String formulaToItemName(final View view, final String formula, final String originalName) throws NotesException {
 		@SuppressWarnings("unchecked")
 		Vector<ViewColumn> columns = view.getColumns();
 		try {
@@ -1016,7 +1016,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					if(StringUtil.isEmpty(colFormula)) {
 						colFormula = col.getItemName();
 					}
-					
+
 					if(formula.equalsIgnoreCase(colFormula)) {
 						return col.getItemName();
 					}
@@ -1025,7 +1025,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		} finally {
 			view.recycle(columns);
 		}
-		
+
 		throw new IllegalStateException(MessageFormat.format("Unable to find column for formula {0} (entity property \"{1}\") in view {2}", formula, originalName, view.getName()));
 	}
 

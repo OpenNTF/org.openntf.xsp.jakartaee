@@ -152,7 +152,7 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 	private static final String PLUS_JSON = "+json"; //$NON-NLS-1$
 
 	public static boolean isSupportedMediaType(final MediaType mediaType) {
-		return mediaType.getSubtype().equals(JSON) || mediaType.getSubtype().endsWith(PLUS_JSON);
+		return JSON.equals(mediaType.getSubtype()) || mediaType.getSubtype().endsWith(PLUS_JSON);
 	}
 
 }

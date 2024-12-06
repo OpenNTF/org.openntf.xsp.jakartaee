@@ -31,7 +31,7 @@ public class RestActivator implements BundleActivator {
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		RuntimeDelegate.setInstance(new ResteasyProviderFactoryImpl());
-		
+
 		for(RestActivationParticipant p : LibraryUtil.findExtensions(RestActivationParticipant.class)) {
 			p.start(context);
 		}

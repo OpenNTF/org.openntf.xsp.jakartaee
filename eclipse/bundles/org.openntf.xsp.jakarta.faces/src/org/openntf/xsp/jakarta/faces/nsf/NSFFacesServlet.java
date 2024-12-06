@@ -91,7 +91,6 @@ public class NSFFacesServlet extends HttpServlet {
 	private final Collection<Path> tempFiles = Collections.synchronizedList(new ArrayList<>());
 
 	public NSFFacesServlet(final ComponentModule module) {
-		super();
 		this.module = module;
 	}
 
