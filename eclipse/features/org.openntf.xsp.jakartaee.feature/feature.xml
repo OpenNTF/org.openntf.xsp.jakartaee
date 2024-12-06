@@ -277,7 +277,7 @@
 	<plugin id="org.openntf.org.jboss.resteasy.json-p-provider" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.json-binding-provider" version="0.0.0" unpack="false"/>
 	
-	<!-- WebSocket -->
+	<!-- WebSocket (API only) -->
 	<plugin id="jakarta.websocket-client-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.websocket-api" version="0.0.0" unpack="false"/>
 	
