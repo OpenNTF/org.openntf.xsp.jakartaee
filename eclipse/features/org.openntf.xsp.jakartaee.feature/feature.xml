@@ -277,7 +277,7 @@
 	<plugin id="org.openntf.org.jboss.resteasy.json-p-provider" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.json-binding-provider" version="0.0.0" unpack="false"/>
 	
-	<!-- WebSocket -->
+	<!-- WebSocket (API only) -->
 	<plugin id="jakarta.websocket-client-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.websocket-api" version="0.0.0" unpack="false"/>
 	
@@ -315,7 +315,7 @@
 	<plugin id="com.fasterxml.classmate" version="0.0.0" unpack="false"/>
 	<plugin id="org.hibernate.validator" version="0.0.0" unpack="false"/>
 	
-	<!-- JAX-RS -->
+	<!-- REST -->
 	<plugin id="org.openntf.xsp.jakarta.rest" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.rest.factory" version="0.0.0" fragment="true" unpack="false"/>
 	
@@ -332,18 +332,8 @@
 	<plugin id="org.apache.james.apache-mime4j-core" version="0.0.0" unpack="false"/>
 	<plugin id="org.apache.james.apache-mime4j-dom" version="0.0.0" unpack="false"/>
 	<plugin id="org.apache.james.apache-mime4j-storage" version="0.0.0" unpack="false"/>
-	
-	<plugin id="org.eclipse.microprofile.openapi" version="0.0.0" unpack="false"/>
-    <plugin id="org.openntf.org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.io.smallrye.open-api-core" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.io.smallrye.open-api-jaxrs" version="0.0.0" fragment="true" unpack="false"/>
-	<plugin id="com.fasterxml.jackson.core.jackson-core" version="0.0.0" unpack="false"/>
-	<plugin id="com.fasterxml.jackson.core.jackson-databind" version="0.0.0" unpack="false"/>
-	<plugin id="com.fasterxml.jackson.core.jackson-annotations" version="0.0.0" unpack="false"/>
-	<plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="0.0.0" unpack="false"/>
-	<plugin id="org.yaml.snakeyaml" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.jandex" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.com.ibm.async.util" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.commons.commons-io" version="0.0.0" unpack="false"/>
+	<plugin id="org.apache.commons.codec" version="0.0.0" unpack="false"/>
 	
 	<!-- NoSQL -->
 	<plugin id="org.openntf.xsp.jakarta.nosql" version="0.0.0" unpack="false"/>

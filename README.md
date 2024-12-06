@@ -29,7 +29,7 @@ It also provides components from [MicroProfile](https://microprofile.io/):
 - [Rest Client 3.0](#microprofile-rest-client)
 - [Fault Tolerance 4.0](#microprofile-fault-tolerance)
 - [Health 4.0](#microprofile-health)
-- [OpenAPI 3.1](#microprofile-openapi)
+- [OpenAPI 4.0](#microprofile-openapi)
 - [Metrics 5.1](#microprofile-metrics)
 
 These specifications are divided into three groups: core, UI, and MicroProfile.

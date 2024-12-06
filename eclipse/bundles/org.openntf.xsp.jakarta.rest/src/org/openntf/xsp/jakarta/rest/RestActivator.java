@@ -15,10 +15,13 @@
  */
 package org.openntf.xsp.jakarta.rest;
 
+import org.jboss.resteasy.core.providerfactory.ResteasyProviderFactoryImpl;
 import org.openntf.xsp.jakarta.rest.spi.RestActivationParticipant;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+
+import jakarta.ws.rs.ext.RuntimeDelegate;
 
 /**
  * @since 2.16.0
@@ -27,6 +30,8 @@ public class RestActivator implements BundleActivator {
 
 	@Override
 	public void start(final BundleContext context) throws Exception {
+		RuntimeDelegate.setInstance(new ResteasyProviderFactoryImpl());
+		
 		for(RestActivationParticipant p : LibraryUtil.findExtensions(RestActivationParticipant.class)) {
 			p.start(context);
 		}
