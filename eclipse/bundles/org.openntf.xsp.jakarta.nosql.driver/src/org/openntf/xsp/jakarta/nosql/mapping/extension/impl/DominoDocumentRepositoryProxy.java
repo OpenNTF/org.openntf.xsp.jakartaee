@@ -324,22 +324,22 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			return result;
 		} else {
 			DefaultDynamicReturnBuilder<Object> builder = DynamicReturn.builder()
-				.withMethodSource(method)
-				.withClassSource(typeClass);
+				.methodSource(method)
+				.classSource(typeClass);
 			if(result instanceof Stream) {
-				builder = builder.withResult(() -> (Stream<Object>)result)
-					.withSingleResult(() -> ((Stream<Object>)result).findFirst());
+				builder = builder.result(() -> (Stream<Object>)result)
+					.singleResult(() -> ((Stream<Object>)result).findFirst());
 			} else if(result instanceof Collection) {
-				builder = builder.withResult(() -> ((Collection<Object>)result).stream())
-					.withSingleResult(() -> ((Collection<Object>)result).stream().findFirst());
+				builder = builder.result(() -> ((Collection<Object>)result).stream())
+					.singleResult(() -> ((Collection<Object>)result).stream().findFirst());
 			} else if(result instanceof Optional) {
 				Optional<Object> opt = (Optional<Object>)result;
-				builder = builder.withResult(() -> opt.isPresent() ? Stream.of(opt.get()) : Stream.empty())
-					.withSingleResult(() -> opt);
+				builder = builder.result(() -> opt.isPresent() ? Stream.of(opt.get()) : Stream.empty())
+					.singleResult(() -> opt);
 			} else {
 				Optional<Object> opt = Optional.ofNullable(result);
-				builder = builder.withResult(() -> opt.isPresent() ? Stream.of(opt.get()) : Stream.empty())
-					.withSingleResult(() -> opt);
+				builder = builder.result(() -> opt.isPresent() ? Stream.of(opt.get()) : Stream.empty())
+					.singleResult(() -> opt);
 			}
 			return repoReturn.convert(builder.build());
 		}
