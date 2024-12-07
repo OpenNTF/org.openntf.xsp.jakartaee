@@ -97,4 +97,9 @@ public class ComponentModuleClassScanner implements ClassScanner {
 			.orElseGet(Collections::emptySet);
 	}
 
+	@Override
+	public Set<Class<?>> customRepositories() {
+		return Collections.emptySet();
+	}
+
 }
