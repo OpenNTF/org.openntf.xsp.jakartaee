@@ -40,7 +40,9 @@ public class TestXmlXPages extends AbstractWebClientTest {
 		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/jaxb.xsp");
 		
 		try {
-			WebElement span = driver.findElement(By.xpath("//span[@style=\"font-family: monospace; whitespace: pre-wrap\"]"));
+			// NB: the first xpath failed on 14.5 EA2 due to the change in handling of style="" attributes
+//			WebElement span = driver.findElement(By.xpath("//span[@style=\"font-family: monospace; whitespace: pre-wrap\"]"));
+			WebElement span = driver.findElement(By.className("xmlOut"));
 			assertTrue(
 				span.getText().contains("<application-guy>"),
 				() -> "Got unexpected content: " + span.getText()

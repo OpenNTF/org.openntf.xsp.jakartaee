@@ -24,9 +24,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -59,6 +62,12 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	public static final int JACOCO_PORT = 6300;
 	
 	public static final Set<Path> tempFiles = new HashSet<>();
+	
+	/**
+	 * Pattern used to attempt to identify 14.5 EA builds
+	 */
+	private static final Pattern EA_145_PATTERN = Pattern.compile("^domino-container:V1450_(\\d\\d)(\\d\\d)(\\d\\d\\d\\d)prod$"); //$NON-NLS-1$
+	private static final LocalDate DATE_145EA2 = LocalDate.of(2024, 12, 4);
 
 	private static class DominoImage extends ImageFromDockerfile {
 		
@@ -182,22 +191,27 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		withImagePullPolicy(imageName -> false);
 		withExposedPorts(80, JACOCO_PORT);
 		withStartupTimeout(Duration.ofMinutes(10));
-		waitingFor(
-			new WaitAllStrategy()
-				.withStrategy(new LogMessageWaitStrategy()
-					.withRegEx(".*Adding sign bit to.*") //$NON-NLS-1$
-					.withTimes(4000)
-				)
-				.withStrategy(new LogMessageWaitStrategy()
-					.withRegEx(".*HTTP Server: Started.*") //$NON-NLS-1$
-				)
-				.withStrategy(new LogMessageWaitStrategy()
-					.withRegEx(".*Done with postinstall.*") //$NON-NLS-1$
-				)
-			.withStartupTimeout(Duration.ofMinutes(5))
-		);
 		
+		WaitAllStrategy strat = new WaitAllStrategy()
+			.withStrategy(new LogMessageWaitStrategy()
+				.withRegEx(".*HTTP Server: Started.*") //$NON-NLS-1$
+			)
+			.withStrategy(new LogMessageWaitStrategy()
+				.withRegEx(".*Done with postinstall.*") //$NON-NLS-1$
+			);
+		if(useNewEraAdminp()) {
+			strat = strat.withStrategy(new LogMessageWaitStrategy()
+				.withRegEx(".*Database signed by Adminp.*") //$NON-NLS-1$
+				.withTimes(8)
+			);
+		} else {
+			strat = strat.withStrategy(new LogMessageWaitStrategy()
+				.withRegEx(".*Adding sign bit to.*") //$NON-NLS-1$
+				.withTimes(4000)
+			);
+		}
 		
+		waitingFor(strat.withStartupTimeout(Duration.ofMinutes(5)));
 	}
 	
 	private static Path findLocalMavenArtifact(String groupId, String artifactId, String version, String type) {
@@ -236,8 +250,6 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	@SuppressWarnings("nls")
 	@Override
 	protected void containerIsStopping(InspectContainerResponse containerInfo) {
-		super.containerIsStopping(containerInfo);
-		
 		try {
 			// If we can see the target dir, copy log files
 			Path target = Paths.get(".").resolve("target"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -255,5 +267,26 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		} catch(IOException | UnsupportedOperationException | InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		super.containerIsStopping(containerInfo);
+	}
+	
+	/**
+	 * Attempts to glean whether the container uses the newer adminp DB-signing
+	 * output added in 14.5 EA2
+	 */
+	private boolean useNewEraAdminp() {
+		String explicitUse = System.getProperty("jakarta.newAdminp"); //$NON-NLS-1$
+		if("1".equals(explicitUse)) { //$NON-NLS-1$
+			return true;
+		}
+		
+		String baseImage = System.getProperty("jakarta.baseImage"); //$NON-NLS-1$
+		Matcher m;
+		if(baseImage != null && (m = EA_145_PATTERN.matcher(baseImage)).matches()) {
+			LocalDate buildDate = LocalDate.of(Integer.parseInt(m.group(3)), Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
+			return !buildDate.isBefore(DATE_145EA2);
+		}
+		return false;
 	}
 }
