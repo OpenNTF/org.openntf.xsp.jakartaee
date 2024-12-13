@@ -16,24 +16,19 @@
 package org.openntf.xsp.jakarta.rest.impl;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.xsp.application.ApplicationEx;
 
-import org.hibernate.validator.HibernateValidator;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.weld.context.RequestContext;
 import org.jboss.weld.context.bound.BoundLiteral;
 import org.jboss.weld.context.bound.BoundRequestContext;
 import org.openntf.xsp.jakarta.cdi.ext.CDIConstants;
+import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakarta.rest.ServiceParticipant;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
@@ -45,8 +40,6 @@ import jakarta.servlet.ServletRequestEvent;
 import jakarta.servlet.ServletRequestListener;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Validation;
-import jakarta.validation.ValidatorFactory;
 
 /**
  * An {@link ServletContainer} subclass that provides a Faces context to the
@@ -92,23 +85,7 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 			.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), request)));
 
     	try {
-            Context context = new InitialContext();
-            ValidatorFactory fac = Validation.byDefaultProvider()
-				.providerResolver(() -> Arrays.asList(new HibernateValidator()))
-				.configure()
-				.buildValidatorFactory();
-            context.rebind("java:comp/ValidatorFactory", fac); //$NON-NLS-1$
-            try {
-            	delegate.service(request, response);
-            } finally {
-            	try {
-            		context.unbind("java:comp/ValidatorFactory"); //$NON-NLS-1$
-            	} catch(NamingException e) {
-            		// Ignore unbind exceptions
-            	}
-            }
-    	} catch (NamingException e) {
-			throw new ServletException(e);
+        	delegate.service(request, response);
 		} finally {
     		ServletUtil.getListeners(request.getServletContext(), ServletRequestListener.class)
 				.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), request)));
@@ -130,7 +107,8 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 
 	private void initCdi(final HttpServletRequest request) {
 		if(request.getAttribute(KEY_CDI_STORAGE) == null) {
-			BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
+			CDI<Object> cdi = ContainerUtil.getContainer(this.getModule());
+			BoundRequestContext context = (BoundRequestContext)cdi.select(RequestContext.class, BoundLiteral.INSTANCE).get();
 			Map<String, Object> cdiScope = new HashMap<>();
 			request.setAttribute(KEY_CDI_STORAGE, cdiScope);
 			context.associate(cdiScope);
@@ -139,7 +117,8 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 	}
 	@SuppressWarnings("unchecked")
 	private void termCdi(final HttpServletRequest request) {
-		BoundRequestContext context = (BoundRequestContext)CDI.current().select(RequestContext.class, BoundLiteral.INSTANCE).get();
+		CDI<Object> cdi = ContainerUtil.getContainer(this.getModule());
+		BoundRequestContext context = (BoundRequestContext)cdi.select(RequestContext.class, BoundLiteral.INSTANCE).get();
 		context.invalidate();
 		context.deactivate();
 		context.dissociate((Map<String, Object>)request.getAttribute(KEY_CDI_STORAGE));
