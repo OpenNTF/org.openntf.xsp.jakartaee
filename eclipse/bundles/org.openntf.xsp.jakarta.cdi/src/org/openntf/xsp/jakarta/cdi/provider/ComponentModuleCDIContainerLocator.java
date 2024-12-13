@@ -18,9 +18,8 @@ package org.openntf.xsp.jakarta.cdi.provider;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator;
-import org.openntf.xsp.jakarta.cdi.ext.CDIContainerUtility;
+import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.annotation.Priority;
 
@@ -36,11 +35,9 @@ public class ComponentModuleCDIContainerLocator implements CDIContainerLocator {
 
 	@Override
 	public Object getContainer() {
-		CDIContainerUtility util = LibraryUtil.findRequiredExtension(CDIContainerUtility.class);
-
 		return ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
-			.map(util::getContainer)
+			.map(ContainerUtil::getContainer)
 			.orElse(null);
 	}
 

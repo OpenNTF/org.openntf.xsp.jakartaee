@@ -16,8 +16,7 @@
 package org.openntf.xsp.jakarta.cdi.provider;
 
 import org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator;
-import org.openntf.xsp.jakarta.cdi.ext.CDIContainerUtility;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 
 import jakarta.annotation.Priority;
 
@@ -33,8 +32,7 @@ public class ThreadContextDatabasePathCDIContainerLocator implements CDIContaine
 
 	@Override
 	public String getNsfPath() {
-		CDIContainerUtility util = LibraryUtil.findRequiredExtension(CDIContainerUtility.class);
-		return util.getThreadContextDatabasePath();
+		return ContainerUtil.getThreadContextDatabasePath();
 	}
 
 }

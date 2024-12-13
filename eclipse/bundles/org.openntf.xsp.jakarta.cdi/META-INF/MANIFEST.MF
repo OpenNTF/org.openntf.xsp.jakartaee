@@ -52,6 +52,7 @@ Export-Package: org.openntf.xsp.jakarta.cdi;version="3.3.0",
  org.openntf.xsp.jakarta.cdi.concurrency;version="3.3.0",
  org.openntf.xsp.jakarta.cdi.context;version="3.3.0",
  org.openntf.xsp.jakarta.cdi.discovery;version="3.3.0",
+ org.openntf.xsp.jakarta.cdi.ext;version="3.3.0",
  org.openntf.xsp.jakarta.cdi.impl;version="3.3.0",
  org.openntf.xsp.jakarta.cdi.provider;version="3.3.0",
  org.openntf.xsp.jakarta.cdi.util;version="3.3.0"

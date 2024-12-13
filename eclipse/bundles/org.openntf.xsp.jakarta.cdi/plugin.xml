@@ -24,10 +24,6 @@
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakarta.cdi.ext.CDIContainerUtility" class="org.openntf.xsp.jakarta.cdi.impl.ContainerUtilProvider" />
-	</extension>
-	
-	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.jakarta.cdi.bean.BuiltinBeanClassContributor" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
