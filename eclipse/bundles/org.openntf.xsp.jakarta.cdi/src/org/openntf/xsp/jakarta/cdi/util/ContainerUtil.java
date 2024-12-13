@@ -51,7 +51,6 @@ import org.jboss.weld.module.web.el.WeldExpressionFactory;
 import org.jboss.weld.resources.ClassLoaderResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoader;
 import org.jboss.weld.resources.spi.ResourceLoadingException;
-import org.jboss.weld.serialization.spi.ProxyServices;
 import org.jboss.weld.util.ForwardingBeanManager;
 import org.openntf.xsp.jakarta.cdi.context.CDIScopesExtension;
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
@@ -433,7 +432,7 @@ public enum ContainerUtil {
 	private static Weld constructWeld(final String id) {
 		return new Weld()
 			.containerId(id)
-			.addServices(LibraryUtil.findExtensionsSorted(ProxyServices.class, false).get(0))
+			.addServices(new NSFProxyServices())
 			.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, false)
 			// Disable concurrent deployment to avoid Notes thread init trouble
 			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
