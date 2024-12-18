@@ -85,7 +85,9 @@ public class DominoCDIProvider implements CDIProvider {
 			throw e;
 		}
 
-		return null;
+		// It's fair to assume that DominoCDIProvider is the only one on Domino,
+		//   so fail here
+		throw new IllegalStateException("Unable to find a CDI context");
 	}
 
 	@Override

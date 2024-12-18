@@ -51,6 +51,9 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 				}
 			} catch(ContextNotActiveException e) {
 				// Scheduled during something other than an active request - ignore
+			} catch(IllegalStateException e) {
+				// Oddly, this is sometimes called from an existing managed thread,
+				//   which will not have a CDI available yet. If so, ignore
 			}
 		}
 	}

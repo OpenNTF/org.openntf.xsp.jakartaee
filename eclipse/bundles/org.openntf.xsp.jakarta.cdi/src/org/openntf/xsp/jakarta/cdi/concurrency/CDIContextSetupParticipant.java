@@ -36,7 +36,12 @@ public class CDIContextSetupParticipant implements ContextSetupParticipant {
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
-			((AttributedContextHandle)contextHandle).setAttribute(ATTR_CDI, CDI.current());
+			try {
+				((AttributedContextHandle)contextHandle).setAttribute(ATTR_CDI, CDI.current());
+			} catch(IllegalStateException e) {
+				// Oddly, this is sometimes called from an existing managed thread,
+				//   which will not have a CDI available yet. If so, ignore
+			}
 		}
 	}
 
@@ -45,7 +50,9 @@ public class CDIContextSetupParticipant implements ContextSetupParticipant {
 		if(contextHandle instanceof AttributedContextHandle) {
 			RequestScopeContext.FORCE_ACTIVE.set(true);
 			CDI<Object> cdi = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_CDI);
-			ConcurrencyCDIContainerLocator.setCdi(cdi);
+			if(cdi != null) {
+				ConcurrencyCDIContainerLocator.setCdi(cdi);
+			}
 
 			// TODO investigate propagating the same beans from here outside of XPages (Issue #286)
 			// May be handled if we move to WeldWebModule
