@@ -28,7 +28,7 @@ public class PersistenceActivator implements BundleActivator {
 	public void start(final BundleContext bundleContext) throws Exception {
 		LibraryUtil.setSystemProperty("eclipselink.logging.logger", "JavaLogger"); //$NON-NLS-1$ //$NON-NLS-2$
 		PersistenceProviderResolverHolder.setPersistenceProviderResolver(new EclipseLinkResolver());
-		
+
 		EclipseLinkException.setShouldPrintInternalException(true);
 	}
 

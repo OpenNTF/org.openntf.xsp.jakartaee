@@ -22,7 +22,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,15 +93,15 @@ public enum DominoPagesUtil {
 
 
 
-	public static List<File> buildBundleClassPath() throws BundleException, IOException {
+	public static Collection<File> buildBundleClassPath() throws BundleException, IOException {
 		Bundle bundle = FrameworkUtil.getBundle(PagesServletFactory.class);
-		List<File> classpath = new ArrayList<>();
+		Collection<File> classpath = new LinkedHashSet<>();
 		toClasspathEntry(bundle, classpath);
 
 		return classpath;
 	}
 
-	private static void toClasspathEntry(final Bundle bundle, final List<File> classpath) throws BundleException, IOException {
+	private static void toClasspathEntry(final Bundle bundle, final Collection<File> classpath) throws BundleException, IOException {
 		// These entries MUST be filesystem paths
 		classpath.add(FileLocator.getBundleFile(bundle));
 
@@ -109,9 +111,12 @@ public enum DominoPagesUtil {
 			for(ManifestElement element : elements) {
 				String visibility = element.getDirective("visibility"); //$NON-NLS-1$
 				if("reexport".equals(visibility)) { //$NON-NLS-1$
-					Optional<Bundle> dep = LibraryUtil.getBundle(element.getValue());
-					if(dep.isPresent()) {
-						toClasspathEntry(dep.get(), classpath);
+					String symbolicName = element.getValue();
+					if(!symbolicName.startsWith("org.openntf.xsp.jakartaee")) { //$NON-NLS-1$
+						Optional<Bundle> dep = LibraryUtil.getBundle(element.getValue());
+						if(dep.isPresent()) {
+							toClasspathEntry(dep.get(), classpath);
+						}
 					}
 				}
 			}

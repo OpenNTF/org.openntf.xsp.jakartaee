@@ -20,7 +20,8 @@ import org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator;
 import jakarta.annotation.Priority;
 
 /**
- * Provides the CDI environment from an active ServletContext, if available.
+ * Provides the CDI environment set by the Concurrency implementation
+ * for the current thread.
  *
  * @author Jesse Gallagher
  * @since 2.7.0

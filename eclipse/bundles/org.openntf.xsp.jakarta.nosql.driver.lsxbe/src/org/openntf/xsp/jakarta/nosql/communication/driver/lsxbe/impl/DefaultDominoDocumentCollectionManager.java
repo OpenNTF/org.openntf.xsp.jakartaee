@@ -836,8 +836,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			if(!qrp.isOpen()) {
 				qrp.recycle();
 				DbDirectory dbDir = session.getDbDirectory(null);
-				// TODO encrypt when the API allows
 				qrp = dbDir.createDatabase(dbPath.toString(), true);
+				qrp.encrypt();
 
 				ACL acl = qrp.getACL();
 				ACLEntry entry = acl.createACLEntry(session.getEffectiveUserName(), ACL.LEVEL_MANAGER);
@@ -911,6 +911,19 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		} else {
 			String itemName = EntityUtil.findItemName(sorts.property(), mapping);
 
+			// Look for special values and map back
+			itemName = switch (itemName) {
+				case DominoConstants.FIELD_SIZE -> formulaToItemName(view, "@DocLength", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_CDATE -> formulaToItemName(view, "@Created", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_MDATE -> formulaToItemName(view, "@Modified", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_ADATE -> formulaToItemName(view, "@Accessed", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_NOTEID -> formulaToItemName(view, "@NoteID", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_ADDED -> formulaToItemName(view, "@AddedToThisFile", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_MODIFIED_IN_THIS_FILE -> formulaToItemName(view, "@ModifiedInThisFile", itemName); //$NON-NLS-1$
+				case DominoConstants.FIELD_ATTACHMENTS -> formulaToItemName(view, "@AttachmentNames", itemName); //$NON-NLS-1$
+				default -> formulaToItemName(view, itemName, itemName);
+			};
+
 			if(ftSearch != null && !ftSearch.isEmpty()) {
 				if(options.contains(FTSearchOption.UPDATE_INDEX)) {
 					view.getParent().updateFTIndex(true);
@@ -979,6 +992,41 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				}
 			}
 		}
+	}
+
+	/**
+	 * Matches a formula (such as {@code @AttachmentNames}) or item name to the column in the view
+	 * matching it, which can be used to translate back from a special value or to match the
+	 * case of an entity property to the view column.
+	 *
+	 * @param view the view containing the columns to check
+	 * @param formula the formula or item name to find
+	 * @param originalName the original name, for error-message purposes
+	 * @return the mapped column name
+	 * @throws NotesException if there is a problem accessing the view
+	 * @throws IllegalStateException if no matching column can be found
+	 */
+	private static String formulaToItemName(final View view, final String formula, final String originalName) throws NotesException {
+		@SuppressWarnings("unchecked")
+		Vector<ViewColumn> columns = view.getColumns();
+		try {
+			for(ViewColumn col : columns) {
+				if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
+					String colFormula = col.getFormula();
+					if(StringUtil.isEmpty(colFormula)) {
+						colFormula = col.getItemName();
+					}
+
+					if(formula.equalsIgnoreCase(colFormula)) {
+						return col.getItemName();
+					}
+				}
+			}
+		} finally {
+			view.recycle(columns);
+		}
+
+		throw new IllegalStateException(MessageFormat.format("Unable to find column for formula {0} (entity property \"{1}\") in view {2}", formula, originalName, view.getName()));
 	}
 
 	private static class DatabaseXAResource implements XAResource {

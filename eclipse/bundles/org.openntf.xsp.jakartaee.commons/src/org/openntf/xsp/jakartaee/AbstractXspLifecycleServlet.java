@@ -174,6 +174,10 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	protected abstract void doInit(ServletConfig config, HttpServletRequest request) throws ServletException;
 
 	protected abstract void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application) throws ServletException, IOException;
+	
+	public ComponentModule getModule() {
+		return module;
+	}
 
 	// *******************************************************************************
 	// * Internal implementation methods
@@ -206,7 +210,9 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 			FacesController controller = (FacesController)getContextFacesControllerMethod.invoke(facesServlet);
 			controller.release(context);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new RuntimeException(e);
+			if(log.isLoggable(Level.WARNING)) {
+				log.log(Level.WARNING, "Encountered exception releasing XPages context", e);
+			}
 		}
     }
 

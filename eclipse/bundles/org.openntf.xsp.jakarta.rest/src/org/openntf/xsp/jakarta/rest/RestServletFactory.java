@@ -29,14 +29,11 @@ import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 
 import org.jboss.resteasy.cdi.CdiInjectorFactory;
-import org.jboss.resteasy.core.providerfactory.ResteasyProviderFactoryImpl;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
 import org.openntf.xsp.jakarta.rest.impl.JakartaRestServlet;
 import org.openntf.xsp.jakarta.rest.impl.NSFRestApplication;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-
-import jakarta.ws.rs.ext.RuntimeDelegate;
 
 /**
  * An {@link IServletFactory} implementation that provides a REST Servlet in the context
@@ -76,8 +73,6 @@ public class RestServletFactory implements IServletFactory {
 	public void init(final ComponentModule module) {
 		this.module = module;
 		this.lastUpdate = module.getLastRefresh();
-
-		RuntimeDelegate.setInstance(new ResteasyProviderFactoryImpl());
 	}
 
 	@Override

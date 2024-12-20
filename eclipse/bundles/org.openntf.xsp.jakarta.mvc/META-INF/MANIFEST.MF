@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openntf.xsp.jakarta.mvc;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.mvc
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakarta.mvc.MvcActivator
-Bundle-Version: 3.2.0.qualifier
+Bundle-Version: 3.3.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.ibm.xsp.application,

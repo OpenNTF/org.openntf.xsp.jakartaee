@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.microprofile.feature"
       label="XPages MicroProfile Feature"
-      version="3.2.0.qualifier">
+      version="3.3.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
@@ -270,9 +270,6 @@
 	<plugin id="org.openntf.org.eclipse.microprofile.rest.client" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client" version="0.0.0" fragment="true" unpack="false"/>
-	<plugin id="org.apache.commons.commons-io" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.org.apache.httpcomponents.httpclient" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.org.apache.httpcomponents.httpcore" version="0.0.0" unpack="false"/>
 	
 	<!-- Metrics -->
 	<plugin id="org.openntf.xsp.microprofile.metrics" version="0.0.0" unpack="false"/>
@@ -289,7 +286,19 @@
 	<plugin id="io.prometheus.simpleclient_tracer_otel_agent" version="0.0.0" unpack="false"/>
 	<plugin id="org.hdrhistogram.HdrHistogram" version="0.0.0" unpack="false"/>
 
+	<!-- OpenAPI -->
 	<plugin id="org.openntf.xsp.microprofile.openapi" version="0.0.0" fragment="true" unpack="false"/>
+	<plugin id="org.eclipse.microprofile.openapi" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.open-api-model" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.smallrye.open-api-core" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.io.smallrye.open-api-jaxrs" version="0.0.0" fragment="true" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.core.jackson-core" version="0.0.0" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.core.jackson-databind" version="0.0.0" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.core.jackson-annotations" version="0.0.0" unpack="false"/>
+	<plugin id="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="0.0.0" unpack="false"/>
+	<plugin id="org.yaml.snakeyaml" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.jandex" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.com.ibm.async.util" version="0.0.0" unpack="false"/>
 
 	<plugin id="org.openntf.xsp.microprofile.library" version="0.0.0" unpack="false"/>
 </feature>

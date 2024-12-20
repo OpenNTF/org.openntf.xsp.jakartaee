@@ -35,7 +35,6 @@ public class ViewColumnInfoImpl implements ViewColumnInfo {
 
 	public ViewColumnInfoImpl(final String title, final String programmaticName, final SortOrder sortOrder,
 			final Collection<SortOrder> resortOrders, final boolean categorized) {
-		super();
 		this.title = title;
 		this.programmaticName = programmaticName;
 		this.sortOrder = sortOrder == null ? SortOrder.NONE : sortOrder;

@@ -835,7 +835,7 @@ public class DQL {
 					sb.append(m_value);
 				}
 				else if (m_value instanceof Double) {
-					sb.append(formatDoubleValue(((Double)m_value)));
+					sb.append(formatDoubleValue((Double)m_value));
 				}
 				else if (m_value instanceof Date) {
 					sb.append(formatDateValue((Date) m_value));

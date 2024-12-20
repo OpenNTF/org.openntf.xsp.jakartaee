@@ -75,6 +75,7 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import lotus.domino.Database;
 import lotus.domino.DateTime;
+import lotus.domino.Document;
 import lotus.domino.DocumentCollection;
 import lotus.domino.DxlExporter;
 import lotus.domino.EmbeddedObject;
@@ -396,6 +397,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	private CommunicationEntity convertViewEntryInner(final Database context, final ViewEntry entry, final List<String> columnNames, final List<String> columnFormulas, final String entityName, final Map<String, Class<?>> itemTypes, final EntityMetadata classMapping) throws NotesException {
 		Vector<?> columnValues = entry.getColumnValues();
 		try {
+
+			Set<String> modelFieldNames = classMapping == null ? null : classMapping.fieldsName()
+				.stream()
+				.filter(s -> !DominoConstants.FIELD_ID.equals(s))
+				.collect(Collectors.toSet());
+
 			List<Element> convertedEntry = new ArrayList<>(columnValues.size());
 
 			String universalId = entry.getUniversalID();
@@ -417,6 +424,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			for(int i = 0; i < columnValues.size(); i++) {
 				String itemName = columnNames.get(i);
 				Object value = columnValues.get(i);
+				String columnFormula = columnFormulas.get(i);
 
 				// Check to see if we have a matching time-based or number-based field and strip
 				//   empty strings, since JNoSQL will otherwise try to parse them and will throw
@@ -436,7 +444,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				}
 
 				// Check for known system formula equivalents
-				switch(String.valueOf(columnFormulas.get(i))) {
+				switch(String.valueOf(columnFormula)) {
 				case "@DocLength": //$NON-NLS-1$
 					itemName = DominoConstants.FIELD_SIZE;
 					break;
@@ -484,6 +492,17 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					}
 					continue; // Skip to the next column
 				default:
+					// Post-process for non-special names to match case
+					if(modelFieldNames != null) {
+						String fItemName = itemName;
+						itemName = modelFieldNames.stream()
+							.filter(fieldName -> fieldName.equalsIgnoreCase(fItemName))
+							.findFirst()
+							.orElse(null);
+						if(itemName == null) {
+							continue;
+						}
+					}
 					break;
 				}
 
@@ -905,6 +924,19 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 								throw new UncheckedIOException(e);
 							}
 						}
+					}
+				} else if(DominoConstants.FIELD_PARENTUNID.equals(doc.name())) {
+					String parentUnid = doc.get(String.class);
+					// Only update if the value is different
+					String existingParentUnid = target.getParentDocumentUNID();
+					if(StringUtil.equals(parentUnid, existingParentUnid)) {
+						continue;
+					}
+					if(StringUtil.isEmpty(parentUnid)) {
+						target.removeItem("$REF"); //$NON-NLS-1$
+					} else {
+						Document parentDoc = target.getParentDatabase().getDocumentByUNID(parentUnid);
+						target.makeResponse(parentDoc);
 					}
 				} else if(!DominoConstants.SKIP_WRITING_FIELDS.contains(doc.name())) {
 					Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.name(), ItemStorage.class);

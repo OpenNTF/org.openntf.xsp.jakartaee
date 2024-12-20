@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 import com.ibm.commons.util.StringUtil;
 
 import org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator;
-import org.openntf.xsp.jakarta.cdi.ext.CDIContainerUtility;
+import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
@@ -43,8 +43,6 @@ public class DominoCDIProvider implements CDIProvider {
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized CDI<Object> getCDI() {
-		CDIContainerUtility util = LibraryUtil.findRequiredExtension(CDIContainerUtility.class);
-
 		// Check in any available locator extensions
 		List<CDIContainerLocator> locators = LibraryUtil.findExtensionsSorted(CDIContainerLocator.class, false);
 		try {
@@ -57,7 +55,7 @@ public class DominoCDIProvider implements CDIProvider {
 				String nsfPath = locator.getNsfPath();
 				if(StringUtil.isNotEmpty(nsfPath)) {
 					container = ModuleUtil.getNSFComponentModule(nsfPath)
-						.map(util::getContainer)
+						.map(ContainerUtil::getContainer)
 						.orElse(null);
 					if(container != null) {
 						return (CDI<Object>)container;
@@ -69,7 +67,7 @@ public class DominoCDIProvider implements CDIProvider {
 				if(StringUtil.isNotEmpty(bundleId)) {
 					Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
 					if(bundle.isPresent()) {
-						return (CDI<Object>)util.getContainer(bundle.get());
+						return (CDI<Object>)ContainerUtil.getContainer(bundle.get());
 					}
 				}
 			}
@@ -80,14 +78,16 @@ public class DominoCDIProvider implements CDIProvider {
 			if(log.isLoggable(Level.INFO)) {
 				log.log(Level.INFO, "Encountered IllegalStateException when loading CDI container", e);
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered exception trying to load CDI container", e);
 			}
 			throw e;
 		}
 
-		return null;
+		// It's fair to assume that DominoCDIProvider is the only one on Domino,
+		//   so fail here
+		throw new IllegalStateException("Unable to find a CDI context");
 	}
 
 	@Override

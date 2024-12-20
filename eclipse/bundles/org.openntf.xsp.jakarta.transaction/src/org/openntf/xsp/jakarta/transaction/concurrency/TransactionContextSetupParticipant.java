@@ -36,30 +36,40 @@ import jakarta.enterprise.inject.spi.CDI;
 @Priority(0)
 public class TransactionContextSetupParticipant implements ContextSetupParticipant {
 	private static final String PROP_TRANSACTION = TransactionContextSetupParticipant.class.getName() + "_transaction"; //$NON-NLS-1$
+	private static final String PROP_CDI = TransactionContextSetupParticipant.class.getName() + "_cdi"; //$NON-NLS-1$
 
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle) {
 			try {
-				Instance<DominoTransactionProducer> producer = CDI.current().select(DominoTransactionProducer.class);
+				CDI<Object> cdi = CDI.current();
+				((AttributedContextHandle)contextHandle).setAttribute(PROP_CDI, cdi);
+				Instance<DominoTransactionProducer> producer = cdi.select(DominoTransactionProducer.class);
 				if(producer.isResolvable()) {
 					DominoTransaction transaction = producer.get().peekTransaction();
 					((AttributedContextHandle)contextHandle).setAttribute(PROP_TRANSACTION, transaction);
 				}
 			} catch(ContextNotActiveException e) {
 				// Scheduled during something other than an active request - ignore
+			} catch(IllegalStateException e) {
+				// Oddly, this is sometimes called from an existing managed thread,
+				//   which will not have a CDI available yet. If so, ignore
 			}
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setup(final ContextHandle contextHandle) throws IllegalStateException {
 		if(contextHandle instanceof AttributedContextHandle) {
 			try {
-				Instance<DominoTransactionProducer> producer = CDI.current().select(DominoTransactionProducer.class);
-				if(producer.isResolvable()) {
-					DominoTransaction transaction = ((AttributedContextHandle)contextHandle).getAttribute(PROP_TRANSACTION);
-					producer.get().setTransaction(transaction);
+				CDI<Object> cdi = (CDI<Object>)((AttributedContextHandle)contextHandle).getAttribute(PROP_CDI);
+				if(cdi != null) {
+					Instance<DominoTransactionProducer> producer = cdi.select(DominoTransactionProducer.class);
+					if(producer.isResolvable()) {
+						DominoTransaction transaction = ((AttributedContextHandle)contextHandle).getAttribute(PROP_TRANSACTION);
+						producer.get().setTransaction(transaction);
+					}
 				}
 			} catch(ContextNotActiveException e) {
 				// Scheduled during something other than an active request - ignore
@@ -67,10 +77,11 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void reset(final ContextHandle contextHandle) {
 		try {
-			CDI<Object> cdi = CDI.current();
+			CDI<Object> cdi = (CDI<Object>)((AttributedContextHandle)contextHandle).getAttribute(PROP_CDI);
 			if(cdi != null) {
 				Instance<DominoTransactionProducer> producer = cdi.select(DominoTransactionProducer.class);
 				if(producer.isResolvable()) {
