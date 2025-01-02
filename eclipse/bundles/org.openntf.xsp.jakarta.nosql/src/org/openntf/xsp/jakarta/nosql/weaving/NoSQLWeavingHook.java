@@ -313,8 +313,11 @@ public class NoSQLWeavingHook implements WeavingHook {
 	 * As of JNoSQL 1.1.1, DefaultConstructorBuilder's addEmptyParameter method only accounts for
 	 * object types, not primitives. This patch works around that by adding {@code false} for
 	 * empty boolean parameters and {@code 0} for other primitives.
+	 * 
+	 * @deprecated Remove when JNoSQL 1.1.5 is out
 	 */
 	@SuppressWarnings("nls")
+	@Deprecated(forRemoval = true)
 	private void processDefaultConstructorBuilder(final WovenClass c) {
 		ClassPool pool = new ClassPool();
 		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
@@ -357,9 +360,12 @@ public class NoSQLWeavingHook implements WeavingHook {
 	 * a field type is a Map but isn't itself parameterized (e.g. JsonObject). This patch
 	 * works around that by also checking implemented interfaces of the type. This will still
 	 * fail if the type doesn't directly implement or extend Map, but it should help in practical
-	 * cases. 
+	 * cases.
+	 * 
+	 * @deprecated Remove when JNoSQL 1.1.5 is out
 	 */
 	@SuppressWarnings("nls")
+	@Deprecated(forRemoval = true)
 	private void processDefaultMapFieldMetadata(final WovenClass c) {
 		ClassPool pool = new ClassPool();
 		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
@@ -406,8 +412,11 @@ public class NoSQLWeavingHook implements WeavingHook {
 	/**
 	 * Same as {@link #processDefaultMapFieldMetadata(WovenClass)}, but for the
 	 * {@code Collection} type. Unlike in that class, this happens in two methods.
+	 * 
+	 * @deprecated Remove when JNoSQL 1.1.5 is out
 	 */
 	@SuppressWarnings("nls")
+	@Deprecated(forRemoval = true)
 	private void processDefaultCollectionFieldMetadata(final WovenClass c) {
 		ClassPool pool = new ClassPool();
 		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
