@@ -77,4 +77,39 @@ public class TestNoSQLRecords extends AbstractWebClientTest {
 			assertEquals(4, jsonObject.getInt("index", 0));
 		}
 	}
+	
+	// Tests to make sure that default values from docs with primitives work
+	@Test
+	public void testPartialRecordDoc() throws UnsupportedEncodingException {
+		Client client = getAnonymousClient();
+		
+		// Create a new doc
+		String name;
+		{
+			JsonObject payload = Json.createObjectBuilder().build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosqlRecordDocs/createPartial");
+			Response response = postTarget.request().post(Entity.json(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			name = jsonObject.getString("name", null);
+			assertNotNull(name);
+			assertFalse(name.isEmpty());
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosqlRecordDocs/byName/" + URLEncoder.encode(name, "UTF-8"));
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(name, jsonObject.getString("name", null));
+			assertEquals(0, jsonObject.getInt("index", -1));
+		}
+	}
 }
