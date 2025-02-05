@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
 import java.util.Objects;
 
 import jakarta.el.BeanELResolver;
@@ -77,7 +78,9 @@ public class RecordPropertyELResolver extends ELResolver {
 
 	@Override
 	public void setValue(final ELContext context, final Object base, final Object property, final Object value) {
-		throw new PropertyNotWritableException("Cannot write a property on a record");
+		if(value != null && value.getClass().isRecord()) {
+			throw new PropertyNotWritableException(MessageFormat.format("Cannot write a property on a record (property={0}, type={1})", property, base.getClass().getName()));
+		}
 	}
 
 	@Override
