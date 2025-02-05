@@ -22,13 +22,14 @@ import jakarta.ws.rs.core.Response;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
@@ -45,30 +46,30 @@ public abstract class AbstractWebClientTest {
 	public static class AnonymousClientProvider implements ArgumentsProvider {
 		@Override
 		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-			return Stream.of(Arguments.of(anonymousClient));
+			Client client = ClientBuilder.newClient();
+			anonymousClients.add(client);
+			return Stream.of(Arguments.of(client));
 		}
 	}
 	
-	private static Client anonymousClient;
-	private static Client adminClient;
-	
-	@BeforeAll
-	public static void buildClients() {
-		anonymousClient = ClientBuilder.newBuilder().build();
-		adminClient = ClientBuilder.newBuilder().register(AdminUserAuthenticator.class).build();
-	}
+	private static List<Client> anonymousClients = new ArrayList<>();
+	private static List<Client> adminClients = new ArrayList<>();
 	
 	@AfterAll
 	public static void tearDownClients() {
-		anonymousClient.close();
-		adminClient.close();
+		anonymousClients.forEach(Client::close);
+		adminClients.forEach(Client::close);
 	}
 
 	public Client getAnonymousClient() {
-		return anonymousClient;
+		Client client = ClientBuilder.newClient();
+		anonymousClients.add(client);
+		return client;
 	}
 	public Client getAdminClient() {
-		return adminClient;
+		Client client = ClientBuilder.newBuilder().register(AdminUserAuthenticator.class).build();
+		adminClients.add(client);
+		return client;
 	}
 	
 	public String getRootUrl(WebDriver driver, TestDatabase db) {
