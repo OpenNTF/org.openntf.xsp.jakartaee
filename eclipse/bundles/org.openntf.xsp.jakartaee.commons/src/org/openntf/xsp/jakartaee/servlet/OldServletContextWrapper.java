@@ -69,10 +69,12 @@ class OldServletContextWrapper implements ServletContext {
 	private final String contextPath;
 	private int majorVersion = 2;
 	private int minorVersion = 5;
+	private ClassLoader classLoader;
 
 	public OldServletContextWrapper(final String contextPath, final javax.servlet.ServletContext delegate) {
 		this.delegate = delegate;
 		this.contextPath = contextPath;
+		this.classLoader = AccessController.doPrivileged((PrivilegedAction<ClassLoader>)() -> Thread.currentThread().getContextClassLoader());
 	}
 
 	public OldServletContextWrapper(final String contextPath, final javax.servlet.ServletContext delegate, final int majorVersion, final int minorVersion) {
@@ -188,7 +190,7 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public ClassLoader getClassLoader() {
-		return Thread.currentThread().getContextClassLoader();
+		return this.classLoader;
 	}
 
 	@Override
