@@ -3,7 +3,7 @@ package model;
 import java.util.stream.Stream;
 
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
-import org.openntf.xsp.jakarta.nosql.mapping.extension.FormName;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DocumentConfig;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewEntries;
 
 import jakarta.nosql.Column;
@@ -11,7 +11,7 @@ import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
 
 @Entity
-@FormName("AlternateForm")
+@DocumentConfig(formName="AlternateForm")
 public class ExampleAlternateFormDoc {
 	public interface Repository extends DominoRepository<ExampleAlternateFormDoc, String> {
 		@ViewEntries("AlternateForm Documents")

@@ -699,6 +699,22 @@ public class NamesRepositoryBean {
 }
 ```
 
+#### Customizing Form Names
+
+By default, classes annotated with `@Entity` will reflect documents with a form name matching the base name of the class, so a class named `Person` will use `"Person"` as the form name. This can be customized by adding a string parameter to the annotation, such as `@Entity("Employee")` to use the `"Employee"` form instead regardless of class name.
+
+The NoSQL implementation requires that entity names be distinct within an application, so two different classes can't use the name `"Person"` regardless of whether it's specified as the class name or the `@Entity` value. To customize this further, use the Domino-specific `@DocumentConfig` annotation. For example:
+
+```java
+@Entity("Employee")
+@DocumentConfig(formName="Emp")
+public class Person {
+	// ...
+}
+```
+
+This extra layer of configuration can be useful if you want to work with documents that use the same form name in different databases.
+
 ### Persistence (JPA)
 
 The [Persistence](https://jakarta.ee/specifications/persistence/) API (JPA) provides access and mapping to relational databases in a managed way. This feature builds on the existing [RDBMS support in XPages](https://help.hcltechsw.com/dom_designer/9.0.1/user/wpd_data_rdbms_support.html), using the same underlying configuration for the connection pools.
