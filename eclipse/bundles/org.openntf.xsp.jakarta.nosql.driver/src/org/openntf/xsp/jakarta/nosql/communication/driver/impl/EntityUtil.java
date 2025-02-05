@@ -28,6 +28,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.reflection.DefaultFieldMetadata;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.FormName;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.Column;
@@ -103,6 +104,15 @@ public enum EntityUtil {
 			return (Field)fieldField.get(fieldMapping);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public static String getFormName(EntityMetadata classMapping) {
+		FormName ann = classMapping.type().getAnnotation(FormName.class);
+		if(ann != null) {
+			return ann.value();
+		} else {
+			return classMapping.name();
 		}
 	}
 }

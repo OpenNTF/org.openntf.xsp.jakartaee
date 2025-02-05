@@ -26,6 +26,7 @@ import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL.DQLTerm;
 
@@ -42,7 +43,7 @@ public enum QueryConverter {
 
 	private static final String[] EMPTY_STRING_ARRAY = {};
 
-	public static QueryConverterResult select(final SelectQuery query) {
+	public static QueryConverterResult select(final SelectQuery query, EntityMetadata mapping) {
 		String[] documents = query.columns().toArray(new String[0]);
 		if (documents.length == 0) {
 			documents = ALL_SELECT;
@@ -51,13 +52,15 @@ public enum QueryConverter {
 		DQLTerm statement;
 		long skip = query.skip();
 		long limit = query.limit();
+		
+		String formName = EntityUtil.getFormName(mapping);
 
 		if (query.condition().isPresent()) {
 			statement = getCondition(query.condition().get());
 			// Add in the form property if needed
-			statement = applyFormName(statement, query.name());
+			statement = applyFormName(statement, formName);
 		} else {
-			statement = applyFormName(null, query.name());
+			statement = applyFormName(null, formName);
 		}
 		return new QueryConverterResult(documents, statement, skip, limit);
 	}

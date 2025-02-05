@@ -130,7 +130,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
 						if(DominoNoSQLUtil.isValid(doc)) {
 							List<Element> documents = convertDominoDocument(doc, classMapping, itemTypes);
-							String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
+							String name = EntityUtil.getFormName(classMapping);
 							return CommunicationEntity.of(name, documents);
 						} else {
 							return null;
@@ -356,7 +356,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			.map(doc -> {
 				try {
 					List<Element> documents = convertDominoDocument(doc, classMapping, itemTypes);
-					String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
+					String name = EntityUtil.getFormName(classMapping);
 					return CommunicationEntity.of(name, documents);
 				} catch(NotesException e) {
 					throw new RuntimeException(e);
@@ -1069,8 +1069,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						// Ignore
 					}
 				});
-
-			target.replaceItemValue(DominoConstants.FIELD_NAME, entity.name());
+			
+			target.replaceItemValue(DominoConstants.FIELD_NAME, EntityUtil.getFormName(classMapping));
 
 			target.closeMIMEEntities(true);
 		} catch(Exception e) {
