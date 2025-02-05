@@ -227,7 +227,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			String entityName = query.name();
 			EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
 
-			QueryConverterResult queryResult = QueryConverter.select(query);
+			QueryConverterResult queryResult = QueryConverter.select(query, mapping);
 
 			long skip = queryResult.getSkip();
 			long limit = queryResult.getLimit();
@@ -455,7 +455,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			beginTransaction(database);
 			DominoQuery dominoQuery = database.createDominoQuery();
-			DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(documentCollection);
+
+			EntityMetadata mapping = EntityUtil.getClassMapping(documentCollection);
+			String formName = EntityUtil.getFormName(mapping);
+			DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName);
 			DocumentCollection result = dominoQuery.execute(dql.toString());
 			return result.getCount();
 		} catch(NotesException e) {
