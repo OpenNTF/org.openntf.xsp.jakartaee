@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation can be used on an entity class to indicate the
- * actual form name to use for stored documents.
+ * form configuration for stored documents.
  * 
  * <p>This can be useful to distinguish the entity name from the form
  * name in the case that distinct entities from different databases have
@@ -18,9 +18,15 @@ import java.lang.annotation.Target;
  */
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface FormName {
+public @interface DocumentConfig {
 	/**
+	 * Allows specifying a distinct form name.
+	 * 
+	 * <p>This can be useful to distinguish the entity name from the form
+	 * name in the case that distinct entities from different databases have
+	 * the same form name.</p>
+	 * 
 	 * @return the value to use for the Form item in documents
 	 */
-	String value();
+	String formName();
 }
