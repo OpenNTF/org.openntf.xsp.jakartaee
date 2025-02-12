@@ -18,7 +18,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - [Concurrency 3.1](#concurrency)
 - [Transactions 2.0](#transactions) (partial)
 - [Data 1.0 RC1 and NoSQL 1.0 M1](#data-and-nosql)
-- [Persistence 3.1](#persistence-jpa)
+- [Persistence 3.2](#persistence-jpa)
 - [Server Pages 4.0](#server-pages-and-jstl)
 - [Server Faces 4.1](#server-faces)
 - [MVC 2.1](#mvc)
