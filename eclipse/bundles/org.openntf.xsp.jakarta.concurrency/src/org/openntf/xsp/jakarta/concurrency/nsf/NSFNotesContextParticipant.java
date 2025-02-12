@@ -30,7 +30,7 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
-import org.glassfish.enterprise.concurrent.spi.ContextHandle;
+import org.glassfish.concurro.spi.ContextHandle;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
 

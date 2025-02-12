@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.glassfish.enterprise.concurrent.spi.ContextHandle;
-import org.glassfish.enterprise.concurrent.spi.ContextSetupProvider;
+import org.glassfish.concurro.spi.ContextHandle;
+import org.glassfish.concurro.spi.ContextSetupProvider;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.enterprise.concurrent.ContextService;

@@ -15,9 +15,6 @@
  */
 package org.openntf.xsp.jakarta.el.impl;
 
-import java.beans.FeatureDescriptor;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.ResourceBundle;
 
 import javax.faces.el.PropertyResolver;
@@ -89,11 +86,6 @@ public class XSPELResolver extends ELResolver {
 			return propertyResolver.isReadOnly(base, property);
 		}
 		return false;
-	}
-
-	@Override
-	public Iterator<FeatureDescriptor> getFeatureDescriptors(final ELContext context, final Object base) {
-		return Collections.emptyIterator();
 	}
 
 	@Override
