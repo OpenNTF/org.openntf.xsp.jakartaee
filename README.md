@@ -2,7 +2,7 @@
 
 This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](https://jakarta.ee/specifications/) included in the full Jakarta EE spec, this project currently provides:
 
-- [Servlet 6.0](#servlets) (partial)
+- [Servlet 6.1](#servlets) (partial)
 - [Expression Language 5.0](#expression-language)
 - [Contexts and Dependency Injection 4.0](#cdi)
     - Annotations 2.1
@@ -193,7 +193,7 @@ These Servlets will be available under `/xsp` in the NSF with matching patterns.
 
 These Servlets participate in the XPages lifecycle and have programmatic access to CDI beans via `CDI.current()`.
 
-Note, however, that other Servlet artifacts such as `@WebFilter` and `@WebListener` are not yet supported.
+Note, however, that other Servlet artifacts such as `@WebFilter` and `@WebListener` are not yet supported. Additionally, not all newer methods are supported.
 
 #### web.xml
 

@@ -149,6 +149,13 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	public void sendRedirect(final String location) throws IOException {
 		delegate.sendRedirect(location);
 	}
+	
+	@Override
+	public void sendRedirect(String location, int sc, boolean clearBuffer) throws IOException {
+		// clearBuffer is soft unsupported
+		delegate.setStatus(sc);
+		delegate.sendRedirect(location);
+	}
 
 	@Override
 	public void setDateHeader(final String name, final long date) {
