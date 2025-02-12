@@ -18,11 +18,15 @@ package it.org.openntf.xsp.jakartaee.nsf.servlet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.ParseException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -109,5 +113,24 @@ public class TestNsfServlet extends AbstractWebClientTest {
 		
 		String body = response.readEntity(String.class);
 		assertEquals("I am the web.xml Servlet, and I was initialized with I was set by web.xml", body);
+	}
+	
+	@Test
+	public void testByteBufferServlet() throws ParseException {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/xsp/byteBufferServlet");
+		
+		String payload = "I am the text " + System.currentTimeMillis();
+		Response response = target.request().post(Entity.text(payload));
+		checkResponse(200, response);
+		
+		String contentTypeVal = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
+		ContentType type = new ContentType(contentTypeVal);
+		String encoding = type.getParameter("charset");
+		assertEquals(StandardCharsets.US_ASCII.name(), encoding);
+		
+		String body = response.readEntity(String.class);
+		String expected = "Read " + payload.getBytes().length + " bytes of data: " + payload;
+		assertEquals(expected, body);
 	}
 }
