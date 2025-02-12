@@ -324,7 +324,7 @@
 					</excludes>
 					<properties>
 						<owner>Contributors to the XPages Jakarta EE Support Project</owner>
-						<copyrightYear>2024</copyrightYear>
+						<copyrightYear>2025</copyrightYear>
 					</properties>
 				</configuration>
 			</plugin>
