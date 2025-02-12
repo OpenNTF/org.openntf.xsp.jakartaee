@@ -15,6 +15,7 @@
  */
 package rest;
 
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -111,7 +112,11 @@ public class SseExample {
 			}catch(InterruptedException e) {
 				// Closing
 			}
-			sseEventSink.close();
+			try {
+				sseEventSink.close();
+			} catch (IOException e) {
+				// Ignore
+			}
 		});
 	}
 	

@@ -6,9 +6,9 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - [Expression Language 6.0](#expression-language)
 - [Contexts and Dependency Injection 4.1](#cdi)
     - Annotations 3.0
-    - Interceptors 2.1
+    - Interceptors 2.2
     - Dependency Injection 2.0
-- [RESTful Web Services (JAX-RS) 3.1](#restful-web-services)
+- [RESTful Web Services (JAX-RS) 4.0](#restful-web-services)
 - [Validation 3.1](#validation)
 - [JSON Processing 2.1](#json-p-and-json-b)
 - [JSON Binding 3.0](#json-p-and-json-b)
