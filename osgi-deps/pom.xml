@@ -150,7 +150,7 @@
 								<artifact><id>org.glassfish.concurro:concurro:3.1.0-M3</id><source>true</source></artifact>
 								
 								<!--
-									JAX-B 
+									XML Binding
 								-->
 								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.2</id><source>true</source></artifact>
 								<!-- EclipseLink is also a JAX-B implementation -->
@@ -295,7 +295,7 @@
 								<artifact><id>org.glassfish.expressly:expressly:6.0.0-M1</id><source>true</source></artifact>
 								
 								<!--
-									Bean Validation
+									Jakarta Validation
 								-->
 								<artifact><id>jakarta.validation:jakarta.validation-api:3.1.1</id><source>true</source></artifact>
 								<artifact><id>org.hibernate.validator:hibernate-validator:9.0.0.CR1</id><source>true</source></artifact>
