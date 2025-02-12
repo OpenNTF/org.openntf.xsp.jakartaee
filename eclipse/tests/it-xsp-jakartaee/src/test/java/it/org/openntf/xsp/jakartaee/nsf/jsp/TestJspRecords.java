@@ -37,8 +37,22 @@ public class TestJspRecords extends AbstractWebClientTest {
 		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/recordExample.jsp");
 		
 		try {
-			WebElement dd = driver.findElement(By.cssSelector(".text-output"));
-			assertEquals("I am the example", dd.getText());
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output"));
+				assertEquals("I am the example", dd.getText());
+			}
+			
+			// Chained empty Optional in EL
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output2"));
+				assertEquals("", dd.getText());
+			}
+			// Chained full Optional in EL
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output3"));
+				assertEquals("I am the optional example", dd.getText());
+			}
+			
 		} catch(NoSuchElementException e) {
 			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
 		}

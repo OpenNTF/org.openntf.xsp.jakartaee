@@ -30,15 +30,28 @@ import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
 
 @SuppressWarnings("nls")
-public class TestElRecords extends AbstractWebClientTest {
+public class TestXPagesRecords extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testXPagesResolution(WebDriver driver) {
 		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/recordExample.xsp");
 		
 		try {
-			WebElement dd = driver.findElement(By.cssSelector(".text-output"));
-			assertEquals("I am the example", dd.getText());
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output"));
+				assertEquals("I am the example", dd.getText());
+			}
+			
+			// Chained empty Optional in EL
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output2"));
+				assertEquals("", dd.getText());
+			}
+			// Chained full Optional in EL
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output3"));
+				assertEquals("I am the optional example", dd.getText());
+			}
 		} catch(NoSuchElementException e) {
 			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
 		}
