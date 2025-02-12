@@ -20,7 +20,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - [Data 1.0 RC1 and NoSQL 1.0 M1](#data-and-nosql)
 - [Persistence 3.1](#persistence-jpa)
 - [Server Pages 4.0](#server-pages-and-jstl)
-- [Server Faces 4.0](#server-faces)
+- [Server Faces 4.1](#server-faces)
 - [MVC 2.1](#mvc)
 
 It also provides components from [MicroProfile](https://microprofile.io/):

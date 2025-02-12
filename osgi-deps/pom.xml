@@ -400,7 +400,7 @@
 									Jakarta Faces
 								-->
 								<artifact>
-									<id>org.apache.myfaces.core:myfaces-api:4.0.2</id>
+									<id>org.apache.myfaces.core:myfaces-api:4.1.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
@@ -412,7 +412,7 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.apache.myfaces.core:myfaces-impl:4.0.2</id>
+									<id>org.apache.myfaces.core:myfaces-impl:4.1.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
