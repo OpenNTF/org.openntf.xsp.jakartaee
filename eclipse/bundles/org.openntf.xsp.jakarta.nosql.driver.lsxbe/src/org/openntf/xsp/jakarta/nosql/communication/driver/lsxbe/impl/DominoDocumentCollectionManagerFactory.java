@@ -15,16 +15,19 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl;
 
+import java.util.function.Supplier;
+
 import org.eclipse.jnosql.communication.semistructured.DatabaseManagerFactory;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
-import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
-import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.SessionSupplier;
+
+import lotus.domino.Database;
+import lotus.domino.Session;
 
 public class DominoDocumentCollectionManagerFactory implements DatabaseManagerFactory {
-	private final DatabaseSupplier databaseSupplier;
-	private final SessionSupplier sessionSupplier;
+	private final Supplier<Database> databaseSupplier;
+	private final Supplier<Session> sessionSupplier;
 
-	public DominoDocumentCollectionManagerFactory(final DatabaseSupplier databaseSupplier, final SessionSupplier sessionSupplier) {
+	public DominoDocumentCollectionManagerFactory(final Supplier<Database> databaseSupplier, final Supplier<Session> sessionSupplier) {
 		this.databaseSupplier = databaseSupplier;
 		this.sessionSupplier = sessionSupplier;
 	}

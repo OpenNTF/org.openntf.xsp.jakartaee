@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Vector;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -100,14 +101,18 @@ import lotus.domino.ViewNavigator;
 public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocumentCollectionManager {
 	private final Logger log = Logger.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
 
-	private final DatabaseSupplier supplier;
-	private final SessionSupplier sessionSupplier;
+	private final Supplier<Database> supplier;
+	private final Supplier<Session> sessionSupplier;
 	private final LSXBEEntityConverter entityConverter;
 
-	public DefaultDominoDocumentCollectionManager(final DatabaseSupplier supplier, final SessionSupplier sessionSupplier) {
+	public DefaultDominoDocumentCollectionManager(final Supplier<Database> supplier, final Supplier<Session> sessionSupplier) {
 		this.supplier = supplier;
 		this.sessionSupplier = sessionSupplier;
 		this.entityConverter = new LSXBEEntityConverter(supplier);
+	}
+
+	public DefaultDominoDocumentCollectionManager(final DatabaseSupplier supplier, final SessionSupplier sessionSupplier) {
+		this((Supplier<Database>)supplier, (Supplier<Session>)sessionSupplier);
 	}
 
 	@Override

@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,7 +60,6 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
-import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.LoaderObjectInputStream;
@@ -99,10 +99,10 @@ import lotus.domino.ViewNavigator;
  */
 public class LSXBEEntityConverter extends AbstractEntityConverter {
 
-	private final DatabaseSupplier databaseSupplier;
+	private final Supplier<Database> databaseSupplier;
 	private final Jsonb jsonb;
 
-	public LSXBEEntityConverter(final DatabaseSupplier databaseSupplier) {
+	public LSXBEEntityConverter(final Supplier<Database> databaseSupplier) {
 		this.databaseSupplier = databaseSupplier;
 		this.jsonb = JsonbBuilder.create();
 	}
