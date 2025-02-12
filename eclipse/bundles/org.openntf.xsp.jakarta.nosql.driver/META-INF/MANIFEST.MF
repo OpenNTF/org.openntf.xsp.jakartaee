@@ -6,7 +6,7 @@ Automatic-Module-Name: org.openntf.xsp.jakarta.nosql.driver
 Bundle-Version: 3.4.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Import-Package: jakarta.annotation;version="[2.1.0,3.0.0)",
+Import-Package: jakarta.annotation;version="2.1.0",
  jakarta.data,
  jakarta.data.page,
  jakarta.data.repository,

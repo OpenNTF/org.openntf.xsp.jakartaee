@@ -26,6 +26,8 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import jakarta.el.BeanNameELResolver;
 import jakarta.el.ELResolver;
 import jakarta.el.ExpressionFactory;
+import jakarta.el.OptionalELResolver;
+import jakarta.el.RecordELResolver;
 import jakarta.el.StandardELContext;
 
 /**
@@ -52,7 +54,8 @@ public class FacesELContext extends StandardELContext {
 		}
 
 		addELResolver(new BeanNameELResolver(new FacesBeanNameResolver()));
-		addELResolver(new RecordPropertyELResolver());
+		addELResolver(new RecordELResolver());
+		addELResolver(new OptionalELResolver());
 		addELResolver(new XSPELResolver());
 	}
 

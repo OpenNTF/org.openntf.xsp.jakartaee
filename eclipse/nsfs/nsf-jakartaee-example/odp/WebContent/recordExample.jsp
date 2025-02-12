@@ -24,5 +24,7 @@
 	</head>
 	<body>
 		<span class="text-output"><c:out value="${RecordProducer.recordExample.name}"/></span>
+		<span class="text-output2"><c:out value="${RecordProducer.optionalEmpty.name}"/></span>
+		<span class="text-output3"><c:out value="${RecordProducer.optionalFull.name}"/></span>
 	</body>
 </html>

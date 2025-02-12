@@ -250,6 +250,7 @@
 	
 	<!-- CDI, Interceptors, and Inject -->
 	<plugin id="org.openntf.jakarta.enterprise.cdi-api" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.enterprise.cdi-el-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.interceptor-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.inject.jakarta.inject-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.cdi" version="0.0.0" unpack="false"/>
@@ -301,7 +302,7 @@
 	<plugin id="org.openntf.org.apache.tomcat.juli" version="0.0.0" unpack="false"/>
 	
 	<plugin id="jakarta.enterprise.concurrent-api" version="0.0.0" unpack="false"/>
-	<plugin id="org.glassfish.jakarta.enterprise.concurrent" version="0.0.0" unpack="false"/>
+	<plugin id="org.glassfish.concurro" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.concurrency" version="0.0.0" unpack="false"/>
 	
 	<!-- Mail -->

@@ -17,8 +17,8 @@ package org.openntf.xsp.jakarta.concurrency;
 
 import java.util.Map;
 
-import org.glassfish.enterprise.concurrent.spi.ContextHandle;
-import org.glassfish.enterprise.concurrent.spi.ContextSetupProvider;
+import org.glassfish.concurro.spi.ContextHandle;
+import org.glassfish.concurro.spi.ContextSetupProvider;
 
 /**
  * This extension interface can be used to declare participants in events

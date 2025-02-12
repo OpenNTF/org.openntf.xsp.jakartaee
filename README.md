@@ -3,24 +3,24 @@
 This project adds partial support for several Java/Jakarta EE technologies to XPages applications. Of the [list of technologies](https://jakarta.ee/specifications/) included in the full Jakarta EE spec, this project currently provides:
 
 - [Servlet 6.1](#servlets) (partial)
-- [Expression Language 5.0](#expression-language)
-- [Contexts and Dependency Injection 4.0](#cdi)
-    - Annotations 2.1
-    - Interceptors 2.1
+- [Expression Language 6.0](#expression-language)
+- [Contexts and Dependency Injection 4.1](#cdi)
+    - Annotations 3.0
+    - Interceptors 2.2
     - Dependency Injection 2.0
-- [RESTful Web Services (JAX-RS) 3.1](#restful-web-services)
-- [Validation 3.0](#validation)
+- [RESTful Web Services (JAX-RS) 4.0](#restful-web-services)
+- [Validation 3.1](#validation)
 - [JSON Processing 2.1](#json-p-and-json-b)
 - [JSON Binding 3.0](#json-p-and-json-b)
 - [XML Binding 4.0](#xml-binding)
 - [Mail 2.1](#mail)
     - Activation 2.1
-- [Concurrency 3.0](#concurrency)
+- [Concurrency 3.1](#concurrency)
 - [Transactions 2.0](#transactions) (partial)
-- [Data 1.0 RC1 and NoSQL 1.0 M1](#data-and-nosql)
-- [Persistence 3.1](#persistence-jpa)
-- [Server Pages 3.1](#server-pages-and-jstl)
-- [Server Faces 4.0](#server-faces)
+- [Data 1.0 and NoSQL 1.0 M1](#data-and-nosql)
+- [Persistence 3.2](#persistence-jpa)
+- [Server Pages 4.0](#server-pages-and-jstl)
+- [Server Faces 4.1](#server-faces)
 - [MVC 2.1](#mvc)
 
 It also provides components from [MicroProfile](https://microprofile.io/):

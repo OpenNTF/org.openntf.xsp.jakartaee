@@ -15,11 +15,11 @@
  */
 package org.openntf.xsp.jakarta.pages.el;
 
-import org.openntf.xsp.jakarta.el.impl.RecordPropertyELResolver;
-
 import jakarta.el.BeanNameELResolver;
 import jakarta.el.BeanNameResolver;
 import jakarta.el.CompositeELResolver;
+import jakarta.el.OptionalELResolver;
+import jakarta.el.RecordELResolver;
 import jakarta.enterprise.inject.literal.NamedLiteral;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.jsp.el.ImplicitObjectELResolver;
@@ -30,7 +30,8 @@ public class NSFELResolver extends CompositeELResolver {
 	public NSFELResolver() {
 		add(new ImplicitObjectELResolver());
 		add(new BeanNameELResolver(new CDIBeanResolver()));
-		add(new RecordPropertyELResolver());
+		add(new RecordELResolver());
+		add(new OptionalELResolver());
 	}
 
 	public static class CDIBeanResolver extends BeanNameResolver {

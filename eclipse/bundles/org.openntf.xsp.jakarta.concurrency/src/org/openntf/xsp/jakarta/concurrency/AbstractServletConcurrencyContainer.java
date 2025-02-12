@@ -24,11 +24,11 @@ import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.glassfish.enterprise.concurrent.AbstractManagedExecutorService.RejectPolicy;
-import org.glassfish.enterprise.concurrent.ContextServiceImpl;
-import org.glassfish.enterprise.concurrent.ManagedExecutorServiceImpl;
-import org.glassfish.enterprise.concurrent.ManagedScheduledExecutorServiceImpl;
-import org.glassfish.enterprise.concurrent.spi.ContextSetupProvider;
+import org.glassfish.concurro.AbstractManagedExecutorService.RejectPolicy;
+import org.glassfish.concurro.ContextServiceImpl;
+import org.glassfish.concurro.ManagedExecutorServiceImpl;
+import org.glassfish.concurro.ManagedScheduledExecutorServiceImpl;
+import org.glassfish.concurro.spi.ContextSetupProvider;
 
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;

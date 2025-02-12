@@ -37,6 +37,7 @@ import com.ibm.domino.napi.c.Os;
 import com.ibm.domino.xsp.module.nsf.NSFService;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.glassfish.wasp.servlet.WaspLoader;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -112,7 +113,7 @@ public class EarlyInitFactory implements IServiceFactory {
 		Path destDir = getServletDtdPath();
 		Files.createDirectories(destDir);
 
-		Bundle jstl = LibraryUtil.getBundle("org.glassfish.web.jakarta.servlet.jsp.jstl").get(); //$NON-NLS-1$
+		Bundle jstl = FrameworkUtil.getBundle(WaspLoader.class);
 		Path jstlDest = destDir.resolve(jstl.getSymbolicName() + "_" + jstl.getVersion() + ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
 		if(!Files.exists(jstlDest)) {
 			Path jstlSource = FileLocator.getBundleFile(jstl).toPath();

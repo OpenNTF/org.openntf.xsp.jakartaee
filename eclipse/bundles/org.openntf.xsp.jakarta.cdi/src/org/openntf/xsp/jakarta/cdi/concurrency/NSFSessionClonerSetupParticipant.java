@@ -21,7 +21,7 @@ import java.security.PrivilegedAction;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 import com.ibm.domino.xsp.module.nsf.SessionCloner;
 
-import org.glassfish.enterprise.concurrent.spi.ContextHandle;
+import org.glassfish.concurro.spi.ContextHandle;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
 

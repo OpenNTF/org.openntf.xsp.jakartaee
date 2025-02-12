@@ -15,6 +15,8 @@
  */
 package bean;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;
 import model.RecordExample;
@@ -28,5 +30,13 @@ import model.RecordExample;
 public class RecordProducer {
 	public RecordExample getRecordExample() {
 		return new RecordExample("1111", "I am the example", 3);
+	}
+	
+	public Optional<RecordExample> getOptionalEmpty() {
+		return Optional.empty();
+	}
+	
+	public Optional<RecordExample> getOptionalFull() {
+		return Optional.of(new RecordExample("2222", "I am the optional example", 4));
 	}
 }

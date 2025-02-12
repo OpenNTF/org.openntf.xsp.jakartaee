@@ -15,7 +15,7 @@
  */
 package org.openntf.xsp.jakarta.cdi.concurrency;
 
-import org.glassfish.enterprise.concurrent.spi.ContextHandle;
+import org.glassfish.concurro.spi.ContextHandle;
 import org.openntf.xsp.jakarta.cdi.context.RequestScopeContext;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
