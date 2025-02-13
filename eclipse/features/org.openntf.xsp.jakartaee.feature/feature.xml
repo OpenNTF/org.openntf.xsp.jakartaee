@@ -302,7 +302,7 @@
 	<plugin id="org.openntf.org.apache.tomcat.juli" version="0.0.0" unpack="false"/>
 	
 	<plugin id="jakarta.enterprise.concurrent-api" version="0.0.0" unpack="false"/>
-	<plugin id="org.glassfish.concurro" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.org.glassfish.concurro" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.concurrency" version="0.0.0" unpack="false"/>
 	
 	<!-- Mail -->

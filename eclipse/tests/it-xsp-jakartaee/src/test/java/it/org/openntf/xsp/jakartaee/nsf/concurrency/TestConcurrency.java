@@ -15,7 +15,11 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.concurrency;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
@@ -101,5 +105,25 @@ public class TestConcurrency extends AbstractWebClientTest {
 		
 		assertTrue(output.startsWith("I looked up: "), () -> "Received unexpected output: " + output);
 		assertTrue(output.contains("ManagedExecutorService"), () -> "Received unexpected output: " + output);
+	}
+	
+	@Test
+	public void testAsyncMethod() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency/asyncMethod");
+		Response response = target.request().get();
+		
+		String output = response.readEntity(String.class);
+		
+		Pattern pattern = Pattern.compile("^I was run on (\\d+)\\nI was run on thread (\\d+)$");
+		
+		Matcher matcher = pattern.matcher(output);
+		
+		assertTrue(matcher.matches(), () -> "Received unexpected output: " + output);
+		
+		String id1 = matcher.group(1);
+		String id2 = matcher.group(2);
+		
+		assertNotEquals(id1, id2, () -> "IDs should not be the same: " + output);
 	}
 }

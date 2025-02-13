@@ -147,7 +147,17 @@
 									Concurrency
 								-->
 								<artifact><id>jakarta.enterprise.concurrent:jakarta.enterprise.concurrent-api:3.1.1</id><source>true</source></artifact>
-								<artifact><id>org.glassfish.concurro:concurro:3.1.0-M3</id><source>true</source></artifact>
+								<!-- Re-package to export the org.glassfish.concurro.cdi package -->
+								<artifact>
+									<id>org.glassfish.concurro:concurro:3.1.0-M3</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>org.openntf.org.glassfish.concurro</Bundle-SymbolicName>
+										<Bundle-Version>3.1.0.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="3.1.0"</Export-Package>
+									</instructions>
+								</artifact>
 								
 								<!--
 									XML Binding

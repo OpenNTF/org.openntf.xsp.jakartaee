@@ -15,8 +15,11 @@
  */
 package bean;
 
+import java.util.concurrent.CompletableFuture;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.concurrent.Asynchronous;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -36,4 +39,10 @@ public class RequestGuy {
 	public void postConstruct() { System.out.println("Created requestGuy!"); }
 	@PreDestroy
 	public void preDestroy() { System.out.println("Destroying requestGuy!");  }
+	
+	@Asynchronous
+	public CompletableFuture<String> getAsyncMessage() {
+		long id = Thread.currentThread().getId();
+		return CompletableFuture.completedFuture("I was run on thread " + id);
+	}
 }

@@ -135,4 +135,14 @@ public class ConcurrencyExample {
 			).get();
 		}).get();
 	}
+	
+	@Path("asyncMethod")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getAsyncMethod() throws InterruptedException, ExecutionException {
+		long id = Thread.currentThread().getId();
+		String result = requestGuy.getAsyncMessage().get();
+		String preamble = "I was run on " + id;
+		return preamble + "\n" + result;
+	}
 }

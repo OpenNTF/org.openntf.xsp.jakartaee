@@ -18,7 +18,7 @@ package org.openntf.xsp.jakarta.cdi.concurrency;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-
+import org.glassfish.concurro.cdi.ConcurrentCDIExtension;
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 
 import jakarta.enterprise.inject.spi.Extension;
@@ -36,7 +36,7 @@ public class ConcurrencyBeanClassContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		return Collections.emptyList();
+		return Collections.singleton(new ConcurrentCDIExtension());
 	}
 
 }
