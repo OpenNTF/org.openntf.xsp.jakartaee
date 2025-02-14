@@ -36,4 +36,8 @@ public record RecordExample(
 	public interface Repository extends DominoRepository<RecordExample, String> {
 		Optional<RecordExample> findByName(String name);
 	}
+	
+	public String getMessage() {
+		return "I am the message for " + name;
+	}
 }

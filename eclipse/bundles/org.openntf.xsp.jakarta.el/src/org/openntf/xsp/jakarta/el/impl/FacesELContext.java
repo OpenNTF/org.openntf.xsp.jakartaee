@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.openntf.xsp.jakarta.el.ext.ELResolverProvider;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.el.BeanNameELResolver;
@@ -42,7 +43,10 @@ public class FacesELContext extends StandardELContext {
 		super(factory);
 
 		// Add any other available resolvers
-		List<ELResolverProvider> providers = LibraryUtil.findExtensions(ELResolverProvider.class);
+		List<ELResolverProvider> providers = LibraryUtil.findExtensions(
+			ELResolverProvider.class,
+			ComponentModuleLocator.getDefault().map(ComponentModuleLocator::getActiveModule).orElse(null)
+		);
 
 		if(providers != null) {
 			for(ELResolverProvider provider : providers) {
