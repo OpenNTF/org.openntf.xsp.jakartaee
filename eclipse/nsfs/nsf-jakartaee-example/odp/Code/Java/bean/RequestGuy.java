@@ -43,6 +43,6 @@ public class RequestGuy {
 	@Asynchronous
 	public CompletableFuture<String> getAsyncMessage() {
 		long id = Thread.currentThread().getId();
-		return CompletableFuture.completedFuture("I was run on thread " + id);
+		return Asynchronous.Result.complete("I was run on thread " + id);
 	}
 }
