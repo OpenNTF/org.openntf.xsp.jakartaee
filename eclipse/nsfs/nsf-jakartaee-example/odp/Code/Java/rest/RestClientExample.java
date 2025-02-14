@@ -39,7 +39,6 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.ClientRequestContext;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -111,7 +110,7 @@ public class RestClientExample {
 		}
 	}
 	
-	@Context
+	@Inject
 	HttpServletRequest request;
 	
 	@Inject @Named("java:comp/DefaultManagedExecutorService")

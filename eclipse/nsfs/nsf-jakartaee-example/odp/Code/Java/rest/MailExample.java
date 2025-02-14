@@ -22,6 +22,7 @@ import java.net.URI;
 
 import com.ibm.commons.util.io.StreamUtil;
 
+import jakarta.inject.Inject;
 import jakarta.mail.BodyPart;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeBodyPart;
@@ -31,13 +32,12 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/mail")
 public class MailExample {
 	
-	@Context
+	@Inject
 	HttpServletRequest request;
 	
 	@Path("multipart")
