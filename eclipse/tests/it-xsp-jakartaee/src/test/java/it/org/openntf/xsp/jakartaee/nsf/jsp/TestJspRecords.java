@@ -52,6 +52,11 @@ public class TestJspRecords extends AbstractWebClientTest {
 				WebElement dd = driver.findElement(By.cssSelector(".text-output3"));
 				assertEquals("I am the optional example", dd.getText());
 			}
+			// Traditional bean-style getter method
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output4"));
+				assertEquals("I am the message for I am the example", dd.getText());
+			}
 			
 		} catch(NoSuchElementException e) {
 			fail("Encountered exception with HTML: " + driver.getPageSource(), e);

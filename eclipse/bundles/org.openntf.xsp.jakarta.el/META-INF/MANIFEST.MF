@@ -12,6 +12,7 @@ Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0";visibility:=reexport
 Import-Package: com.ibm.commons.util,
  com.ibm.commons.util.io.json,
+ com.ibm.designer.runtime.domino.adapter,
  com.ibm.jscript,
  com.ibm.jscript.types,
  com.ibm.xsp.application,
