@@ -162,4 +162,14 @@ public class TestRestClient extends AbstractWebClientTest {
 			}
 		}
 	}
+	@Test
+	public void testGoogleHomePage() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient/googleHomePage");
+		Response response = target.request().get();
+		checkResponse(200, response);
+		
+		String html = response.readEntity(String.class);
+		assertTrue(html.contains("I'm Feeling Lucky"), () -> "Received unexpected response " + html);
+	}
 }

@@ -24,6 +24,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.inject.Inject;
@@ -110,11 +112,22 @@ public class RestClientExample {
 		}
 	}
 	
+	@RegisterRestClient(baseUri = "https://google.com")
+	public interface GoogleHomePage {
+		@Path("/")
+		@GET
+		public String getHomePage();
+	}
+	
 	@Inject
 	HttpServletRequest request;
 	
 	@Inject @Named("java:comp/DefaultManagedExecutorService")
 	ManagedExecutorService exec;
+	
+	@Inject
+	@RestClient
+	private GoogleHomePage googleHomePage;
 
 	@Path("echo")
 	@GET
@@ -213,5 +226,12 @@ public class RestClientExample {
 		result.put("called", serviceUri);
 		result.put("response", responseObj);
 		return result;
+	}
+	
+	@Path("googleHomePage")
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	public String getGoogleHomePage() {
+		return googleHomePage.getHomePage();
 	}
 }
