@@ -19,8 +19,8 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - [Transactions 2.0](#transactions) (partial)
 - [Data 1.0 and NoSQL 1.0 M1](#data-and-nosql)
 - [Persistence 3.2](#persistence-jpa)
-- [Server Pages 4.0](#server-pages-and-jstl)
-- [Server Faces 4.1](#server-faces)
+- [Pages 4.0](#jakarta-pages-and-jstl)
+- [Faces 4.1](#jakarta-faces)
 - [MVC 2.1](#mvc)
 
 It also provides components from [MicroProfile](https://microprofile.io/):
@@ -533,7 +533,7 @@ public class Person {
 	public void setUnid(String unid) { this.unid = unid; }
 
 	public String getFirstName() { return firstName; }
-	public void setFirstName(String firstName) { this.firstName = firstName;	}
+	public void setFirstName(String firstName) { this.firstName = firstName; }
 
 	public String getLastName() { return lastName; }
 	public void setLastName(String lastName) { this.lastName = lastName; }
@@ -569,7 +569,7 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object get(@QueryParam("lastName") String lastName) {
 		Map<String, Object> result = new LinkedHashMap<>();
-		result.put("byQueryLastName", personRepository.findByLastName(lastName).collect(Collectors.toList()));
+		result.put("byQueryLastName", personRepository.findByLastName(lastName).toList());
 		result.put("totalCount", personRepository.count());
 		return result;
 	}
@@ -754,12 +754,12 @@ Once you've configured the JDBC connection for XPages, you can then map your cla
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence"
+<persistence version="3.2" xmlns="https://jakarta.ee/xml/ns/persistence"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd">
 	<persistence-unit name="JPATestProj" transaction-type="JTA">
-		<class>model.Company</class>
 		<jta-data-source>java:comp/env/jdbc/yourconnectionname</jta-data-source>
+		<class>model.Company</class>
 		<properties>
 			<property name="jakarta.persistence.jdbc.url" value="java:comp/env/jdbc/yourconnectionname" />
 		</properties>
@@ -811,9 +811,9 @@ public class CompaniesResource {
 
 The "org.openntf.xsp.jakartaee.ui" library contains specs useful for creating server-rendered user interfaces.
 
-### Server Pages and JSTL
+### Jakarta Pages and JSTL
 
-[Jakarta Server Pages](https://jakarta.ee/specifications/pages/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. The [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
+[Jakarta Pages](https://jakarta.ee/specifications/pages/) is the current form of the venerable JSP and provides the ability to write single-execution pages in the NSF with a shared CDI space. [Jakarta Standard Tag Library](https://jakarta.ee/specifications/tags/) is the standard set of tags and functions available for looping, formatting, escaping, and other common operations.
 
 When this library is enabled, .jsp files in the "Files" or "WebContent" parts of the NSF will be interpreted as live pages. For example:
 
@@ -824,14 +824,14 @@ When this library is enabled, .jsp files in the "Files" or "WebContent" parts of
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>JSP Inside An NSF</title>
+		<title>Jakarta Pages Inside An NSF</title>
 	</head>
 	<body>
 		<p>My CDI Bean is: ${applicationGuy}</p>
 		<p>My requestScope is: ${requestScope}</p>
 		<p>JSTL XML-escaped content is: ${fn:escapeXml('<hello>')}</p>
 		
-		<t:example value="Value sent into the tag"/>
+		<t:example value="Value sent into a custom tag"/>
 	</body>
 </html>
 ```
@@ -842,9 +842,9 @@ During page compilation, the runtime will create files on disk. These will defau
 
 Additionally, this process requires deploying some DTDs to the filesystem. By default, these are deployed to (Domino data)/domino/jakarta, but this can be overridden by specifying the `Jakarta_DTDDir` notes.ini property.
 
-### Server Faces
+### Jakarta Faces
 
-[Jakarta Server Faces](https://jakarta.ee/specifications/faces/) is the Jakarta EE form of JSF, the spec XPages forked off from.
+[Jakarta Faces](https://jakarta.ee/specifications/faces/) is the Jakarta EE form of JSF, the spec XPages forked off from.
 
 Faces is implemented here by way of [Apache MyFaces](https://myfaces.apache.org/).
 
@@ -943,7 +943,7 @@ This will load the JSP file stored as `WebContent/WEB-INF/views/mvc.jsp` in the 
 
 ## MicroProfile
 
-The "org.openntf.xsp.microprofile" library contains all of the available MicroProfile specs, which enhance the capabilities of the core platform, particularly when writing RESTful web services.
+The "org.openntf.xsp.microprofile" library contains a number of implemented [MicroProfile](https://microprofile.io) specs, which enhance the capabilities of the core platform, particularly when writing RESTful web services.
 
 ### MicroProfile Config
 
