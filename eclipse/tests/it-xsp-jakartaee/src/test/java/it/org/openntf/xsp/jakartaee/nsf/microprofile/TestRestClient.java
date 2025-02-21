@@ -28,6 +28,7 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
@@ -162,7 +163,9 @@ public class TestRestClient extends AbstractWebClientTest {
 			}
 		}
 	}
+	
 	@Test
+	@Disabled("Useful to see the 'Cannot create a session from an agent' output, but the remote network call is time-consuming")
 	public void testGoogleHomePage() {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient/googleHomePage");
