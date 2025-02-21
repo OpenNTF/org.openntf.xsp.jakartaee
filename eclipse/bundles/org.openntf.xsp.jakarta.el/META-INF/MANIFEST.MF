@@ -25,6 +25,7 @@ Import-Package: com.ibm.commons.util,
  com.ibm.xsp.model,
  com.ibm.xsp.model.domino,
  com.ibm.xsp.util,
+ jakarta.annotation;version="2.0.0",
  lotus.domino
 Export-Package: org.openntf.xsp.jakarta.el;version="3.4.0",
  org.openntf.xsp.jakarta.el.ext;version="3.4.0",

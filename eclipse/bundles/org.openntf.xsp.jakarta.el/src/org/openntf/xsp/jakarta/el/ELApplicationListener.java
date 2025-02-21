@@ -16,13 +16,14 @@
 package org.openntf.xsp.jakarta.el;
 
 import com.ibm.xsp.application.ApplicationEx;
-import com.ibm.xsp.application.events.ApplicationListener2;
 import com.ibm.xsp.factory.FactoryLookup;
-
+import jakarta.annotation.Priority;
 import org.openntf.xsp.jakarta.el.impl.RecordPropertyResolverFactory;
+import org.openntf.xsp.jakartaee.events.JakartaApplicationListener;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-public class ELApplicationListener implements ApplicationListener2 {
+@Priority(2)
+public class ELApplicationListener implements JakartaApplicationListener {
 	public static final String PROP_PREFIX =  "org.openntf.xsp.jakarta.el.prefix"; //$NON-NLS-1$
 
 	@Override

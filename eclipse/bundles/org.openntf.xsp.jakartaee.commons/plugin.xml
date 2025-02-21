@@ -52,4 +52,8 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleLocator" class="org.openntf.xsp.jakartaee.module.NSFComponentModuleLocator"/>
 	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="com.ibm.xsp.core.events.ApplicationListener" class="org.openntf.xsp.jakartaee.events.impl.JakartaApplicationListenerImpl"/>
+	</extension>
 </plugin>

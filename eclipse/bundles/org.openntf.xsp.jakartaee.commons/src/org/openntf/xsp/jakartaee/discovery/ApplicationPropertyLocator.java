@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.Properties;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jakartaee.util.PriorityComparator;
 
 /**
  * This extension class allows contributions to the process of determining
@@ -31,9 +30,8 @@ import org.openntf.xsp.jakartaee.util.PriorityComparator;
 public interface ApplicationPropertyLocator {
 	/** @since 2.13.0 */
 	static Optional<ApplicationPropertyLocator> getDefault() {
-		return LibraryUtil.findExtensions(ApplicationPropertyLocator.class)
+		return LibraryUtil.findExtensionsSorted(ApplicationPropertyLocator.class, false)
 			.stream()
-			.sorted(PriorityComparator.DESCENDING)
 			.filter(ApplicationPropertyLocator::isActive)
 			.findFirst();
 	}

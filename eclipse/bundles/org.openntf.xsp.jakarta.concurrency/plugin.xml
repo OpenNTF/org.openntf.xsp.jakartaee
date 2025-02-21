@@ -20,7 +20,7 @@
 <plugin>
 	<!-- The ApplicationListener to manage the CDI context -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.core.events.ApplicationListener" class="org.openntf.xsp.jakarta.concurrency.nsf.ConcurrencyApplicationListener" />
+		<service type="org.openntf.xsp.jakartaee.events.JakartaApplicationListener" class="org.openntf.xsp.jakarta.concurrency.nsf.ConcurrencyApplicationListener" />
 	</extension>
 	
 	<!-- ContextSetupParticipant to propagate NotesContext information for NSFService requests -->
