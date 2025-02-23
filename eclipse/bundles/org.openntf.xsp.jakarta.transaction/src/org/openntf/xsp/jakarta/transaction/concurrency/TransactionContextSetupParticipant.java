@@ -16,10 +16,12 @@
 package org.openntf.xsp.jakarta.transaction.concurrency;
 
 import org.glassfish.concurro.spi.ContextHandle;
+import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
 import org.openntf.xsp.jakarta.transaction.DominoTransaction;
 import org.openntf.xsp.jakarta.transaction.cdi.DominoTransactionProducer;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ContextNotActiveException;
@@ -52,7 +54,10 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 	public void setup(final ContextHandle contextHandle) throws IllegalStateException {
 		if(contextHandle instanceof AttributedContextHandle) {
 			try {
-				CDI<Object> cdi = CDI.current();
+				CDI<Object> cdi = ComponentModuleLocator.getDefault()
+					.map(ComponentModuleLocator::getActiveModule)
+					.map(ContainerUtil::getContainerUnchecked)
+					.orElse(null);
 				if(cdi != null) {
 					Instance<DominoTransactionProducer> producer = cdi.select(DominoTransactionProducer.class);
 					if(producer.isResolvable()) {
@@ -69,7 +74,10 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 	@Override
 	public void reset(final ContextHandle contextHandle) {
 		try {
-			CDI<Object> cdi = CDI.current();
+			CDI<Object> cdi = ComponentModuleLocator.getDefault()
+				.map(ComponentModuleLocator::getActiveModule)
+				.map(ContainerUtil::getContainerUnchecked)
+				.orElse(null);
 			if(cdi != null) {
 				Instance<DominoTransactionProducer> producer = cdi.select(DominoTransactionProducer.class);
 				if(producer.isResolvable()) {
