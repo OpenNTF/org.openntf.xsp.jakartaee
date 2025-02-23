@@ -32,7 +32,7 @@ import jakarta.annotation.Priority;
  * @author Jesse Gallagher
  * @since 2.7.0
  */
-@Priority(2)
+@Priority(3)
 public class ComponentModuleApplicationPropertyLocator implements ApplicationPropertyLocator {
 
 	@Override

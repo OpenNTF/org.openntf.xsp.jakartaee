@@ -30,7 +30,7 @@ import jakarta.annotation.Priority;
  * @author Jesse Gallagher
  * @since 2.7.0
  */
-@Priority(3)
+@Priority(2)
 public class XPagesApplicationPropertyLocator implements ApplicationPropertyLocator {
 
 	@Override

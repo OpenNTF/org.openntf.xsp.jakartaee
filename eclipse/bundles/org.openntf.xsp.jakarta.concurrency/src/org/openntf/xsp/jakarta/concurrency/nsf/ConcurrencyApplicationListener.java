@@ -18,11 +18,12 @@ package org.openntf.xsp.jakarta.concurrency.nsf;
 import java.util.Optional;
 
 import com.ibm.xsp.application.ApplicationEx;
-import com.ibm.xsp.application.events.ApplicationListener2;
 
 import org.openntf.xsp.jakarta.concurrency.AbstractServletConcurrencyContainer;
+import org.openntf.xsp.jakartaee.events.JakartaApplicationListener;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
+import jakarta.annotation.Priority;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -33,7 +34,8 @@ import jakarta.servlet.ServletContext;
  * @author Jesse Gallagher
  * @since 2.7.0
  */
-public class ConcurrencyApplicationListener extends AbstractServletConcurrencyContainer implements ApplicationListener2 {
+@Priority(1)
+public class ConcurrencyApplicationListener extends AbstractServletConcurrencyContainer implements JakartaApplicationListener {
 	@Override
 	public void applicationCreated(final ApplicationEx app) {
 		initializeConcurrencyContainer(app::getProperty);
@@ -42,11 +44,6 @@ public class ConcurrencyApplicationListener extends AbstractServletConcurrencyCo
 	@Override
 	public void applicationDestroyed(final ApplicationEx app) {
 		terminateConcurrencyContainer();
-	}
-
-	@Override
-	public void applicationRefreshed(final ApplicationEx app) {
-
 	}
 
 	@Override

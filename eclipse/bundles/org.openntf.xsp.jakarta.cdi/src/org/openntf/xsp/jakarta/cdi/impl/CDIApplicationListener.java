@@ -19,12 +19,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ibm.xsp.application.ApplicationEx;
-import com.ibm.xsp.application.events.ApplicationListener2;
 
 import org.jboss.weld.environment.se.WeldContainer;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.events.JakartaApplicationListener;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
+
+import jakarta.annotation.Priority;
 
 /**
  * Manages the lifecycle of the app's associated Weld instance.
@@ -32,13 +34,9 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
  * @author Jesse Gallagher
  * @since 1.0.0
  */
-public class CDIApplicationListener implements ApplicationListener2 {
+@Priority(0)
+public class CDIApplicationListener implements JakartaApplicationListener {
 	private static final Logger log = Logger.getLogger(CDIApplicationListener.class.getPackageName());
-
-	@Override
-	public void applicationCreated(final ApplicationEx application) {
-		// NOP
-	}
 
 	@Override
 	public void applicationDestroyed(final ApplicationEx application) {
@@ -60,10 +58,5 @@ public class CDIApplicationListener implements ApplicationListener2 {
 				}
 			}
 		}
-	}
-
-	@Override
-	public void applicationRefreshed(final ApplicationEx application) {
-		// NOP
 	}
 }
