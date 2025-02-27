@@ -20,10 +20,10 @@ import com.ibm.domino.xsp.module.nsf.NotesContext;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.SessionSupplier;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 
-@ApplicationScoped
+@Dependent
 public class ContextDatabaseSupplier {
 
 	@Produces

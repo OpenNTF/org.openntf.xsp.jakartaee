@@ -22,11 +22,11 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl.DominoDocumentConfiguration;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 
-@RequestScoped
+@Dependent
 public class ContextDocumentCollectionManagerProducer {
 	private DominoDocumentConfiguration configuration;
 	private DatabaseManagerFactory managerFactory;
