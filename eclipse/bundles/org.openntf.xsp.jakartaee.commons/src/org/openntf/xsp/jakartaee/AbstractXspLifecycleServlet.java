@@ -210,9 +210,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 			FacesController controller = (FacesController)getContextFacesControllerMethod.invoke(facesServlet);
 			controller.release(context);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			if(log.isLoggable(Level.WARNING)) {
-				log.log(Level.WARNING, "Encountered exception releasing XPages context", e);
-			}
+			// Not important - ignore
 		}
     }
 
