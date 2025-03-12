@@ -921,15 +921,15 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 			// Look for special values and map back
 			itemName = switch (itemName) {
-				case DominoConstants.FIELD_SIZE -> formulaToItemName(view, "@DocLength", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_CDATE -> formulaToItemName(view, "@Created", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_MDATE -> formulaToItemName(view, "@Modified", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_ADATE -> formulaToItemName(view, "@Accessed", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_NOTEID -> formulaToItemName(view, "@NoteID", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_ADDED -> formulaToItemName(view, "@AddedToThisFile", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_MODIFIED_IN_THIS_FILE -> formulaToItemName(view, "@ModifiedInThisFile", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_ATTACHMENTS -> formulaToItemName(view, "@AttachmentNames", itemName); //$NON-NLS-1$
-				default -> formulaToItemName(view, itemName, itemName);
+				case DominoConstants.FIELD_SIZE -> formulaToItemName(view, "@DocLength", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_CDATE -> formulaToItemName(view, "@Created", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_MDATE -> formulaToItemName(view, "@Modified", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_ADATE -> formulaToItemName(view, "@Accessed", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_NOTEID -> formulaToItemName(view, "@NoteID", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_ADDED -> formulaToItemName(view, "@AddedToThisFile", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_MODIFIED_IN_THIS_FILE -> formulaToItemName(view, "@ModifiedInThisFile", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_ATTACHMENTS -> formulaToItemName(view, "@AttachmentNames", sorts.property()); //$NON-NLS-1$
+				default -> formulaToItemName(view, itemName, sorts.property());
 			};
 
 			if(ftSearch != null && !ftSearch.isEmpty()) {
