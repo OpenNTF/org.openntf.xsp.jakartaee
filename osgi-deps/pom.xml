@@ -40,7 +40,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<weld-version>6.0.0.Final</weld-version>
-		<resteasy-version>7.0.0.Alpha4</resteasy-version>
+		<resteasy-version>7.0.0.Beta1</resteasy-version>
 		<resteasy-mp-version>3.0.0.Final</resteasy-mp-version>
 		<nosql-version>1.1.3</nosql-version>
 		<nosql-version-osgi>1.1.3</nosql-version-osgi>
