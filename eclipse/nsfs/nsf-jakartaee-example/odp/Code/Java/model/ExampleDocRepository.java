@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewEntries;
 
+import jakarta.data.Sort;
 import jakarta.data.repository.Find;
 import jakarta.data.repository.OrderBy;
 
@@ -41,4 +42,7 @@ public interface ExampleDocRepository extends DominoRepository<ExampleDoc, Strin
 	@OrderBy("title")
 	@OrderBy("numberGuy")
 	Stream<ExampleDoc> findAllSorted();
+	
+	@ViewEntries(value=VIEW_DOCS)
+	Stream<ExampleDoc> getViewEntriesCustom(Sort<ExampleDoc> sorts);
 }
