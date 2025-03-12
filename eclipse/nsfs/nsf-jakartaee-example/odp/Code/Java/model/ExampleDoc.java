@@ -125,6 +125,9 @@ public class ExampleDoc {
 	private List<String> jsonTransientField;
 	@Column("JsonTransientField2")
 	private List<String> jsonTransientField2;
+	@Column("$CustomSort")
+	@ItemStorage(updatable = false)
+	private String customSort;
 	
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
@@ -276,5 +279,12 @@ public class ExampleDoc {
 	}
 	public List<String> getAlternateMethodStorage2() {
 		return jsonTransientField2;
+	}
+	
+	public String getCustomSort() {
+		return customSort;
+	}
+	public void setCustomSort(String customSort) {
+		this.customSort = customSort;
 	}
 }

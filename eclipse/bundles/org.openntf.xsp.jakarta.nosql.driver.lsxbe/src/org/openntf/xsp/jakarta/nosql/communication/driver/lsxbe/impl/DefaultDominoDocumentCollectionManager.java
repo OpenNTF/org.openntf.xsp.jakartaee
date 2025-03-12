@@ -1020,13 +1020,19 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		try {
 			for(ViewColumn col : columns) {
 				if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
+					String colItemName = col.getItemName();
+					
+					if(formula.equalsIgnoreCase(colItemName)) {
+						return colItemName;
+					}
+					
 					String colFormula = col.getFormula();
 					if(StringUtil.isEmpty(colFormula)) {
-						colFormula = col.getItemName();
+						colFormula = colItemName;
 					}
 
 					if(formula.equalsIgnoreCase(colFormula)) {
-						return col.getItemName();
+						return colItemName;
 					}
 				}
 			}
