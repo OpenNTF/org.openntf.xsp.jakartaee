@@ -13,5 +13,5 @@ Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="3.0.0";visibil
  org.openntf.xsp.microprofile.config;bundle-version="3.0.0";visibility:=reexport,
  org.openntf.xsp.microprofile.faulttolerance;bundle-version="3.0.0";visibility:=reexport,
  org.openntf.xsp.microprofile.health;bundle-version="3.0.0";visibility:=reexport,
- org.openntf.xsp.microprofile.metrics;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.xsp.microprofile.telemetry;bundle-version="3.4.0";visibility:=reexport,
  org.openntf.xsp.microprofile.restclient;bundle-version="3.0.0";visibility:=reexport

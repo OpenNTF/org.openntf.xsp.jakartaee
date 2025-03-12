@@ -19,15 +19,9 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.microprofile.metrics.MetricsExtensionContributor" />
+		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.microprofile.telemetry.cdi.TelemetryCDIClassContributor" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.microprofile.metrics.MetricsResourceContributor" />
-	</extension>
-	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakarta.rest.ServiceParticipant" class="org.openntf.xsp.microprofile.metrics.jaxrs.MetricsServiceParticipant" />
-	</extension>
-	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.microprofile.config.ext.ImplicitAppConfigProvider" class="org.openntf.xsp.microprofile.metrics.config.MetricsAppConfigSource" />
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.microprofile.telemetry.rest.TelemetryRestClassContributor" />
 	</extension>
 </plugin>

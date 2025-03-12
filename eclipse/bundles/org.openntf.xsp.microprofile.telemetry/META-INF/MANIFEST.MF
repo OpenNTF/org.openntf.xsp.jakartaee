@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages MicroProfile Telemetry Support
+Bundle-SymbolicName: org.openntf.xsp.microprofile.telemetry;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.microprofile.telemetry
+Bundle-ActivationPolicy: lazy
+Bundle-Version: 3.4.0.qualifier
+Require-Bundle: io.opentelemetry.api;bundle-version="1.42.1";visibility:=reexport,
+ io.opentelemetry.instrumentation.opentelemetry-instrumentation-annotations;bundle-version="2.8.0";visibility:=reexport,
+ io.opentelemetry.semconv.opentelemetry-semconv;bundle-version="1.25.0";visibility:=reexport,
+ org.openntf.xsp.jakarta.cdi;bundle-version="3.4.0",
+ io.smallrye.opentelemetry.smallrye-opentelemetry-api;bundle-version="2.9.2",
+ io.smallrye.opentelemetry.smallrye-opentelemetry-cdi;bundle-version="2.9.2",
+ io.smallrye.opentelemetry.smallrye-opentelemetry-config;bundle-version="2.9.2",
+ io.smallrye.opentelemetry.smallrye-opentelemetry-rest;bundle-version="2.9.2",
+ org.openntf.xsp.jakarta.rest;bundle-version="3.4.0"
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-17
