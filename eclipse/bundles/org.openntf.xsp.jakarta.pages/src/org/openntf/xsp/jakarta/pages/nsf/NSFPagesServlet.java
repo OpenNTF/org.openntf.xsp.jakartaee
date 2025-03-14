@@ -78,7 +78,7 @@ public class NSFPagesServlet extends AbstractXspLifecycleServlet {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 
 				ServletContext context = request.getServletContext();
-				context.setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$
+				context.setAttribute("org.glassfish.jsp.beanManagerELResolver", new NSFELResolver(getModule())); //$NON-NLS-1$
 				context.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, DominoPagesUtil.buildJstlDtdMap());
 
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
