@@ -48,10 +48,6 @@ public class ConfigExample {
 	private String exampleSetting;
 	
 	@Inject
-	@ConfigProperty(name="mp.metrics.appName")
-	private String appName;
-	
-	@Inject
 	@ConfigProperty(name="ExampleConfig")
 	private String exampleConfigProperty;
 	
@@ -70,7 +66,6 @@ public class ConfigExample {
 		result.put("xsp.library.depends", xspDepends);
 		result.put("Directory", directory);
 		result.put("mpconfig.example.setting", exampleSetting);
-		result.put("mp.metrics.appName", appName);
 		result.put("ExampleConfig", exampleConfigProperty);
 		result.put("ExampleProvidedConfig", exampleProvidedConfigProperty);
 		return result;

@@ -40,7 +40,6 @@ The binary distribution contains the following 3rd party code:
 - The Jakarta Persistence API, available from https://github.com/jakartaee/persistence and licensed under the EPL 2.0
 - The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
 - The MicroProfile Config API, available from https://github.com/eclipse/microprofile-config and licensed under the EPL 2.0
-- The MicroProfile Metrics API, available from https://github.com/eclipse/microprofile-metrics and licensed under the EPL 2.0
 - The MicroProfile Rest Client API, available from https://github.com/eclipse/microprofile-rest-client and licensed under the EPL 2.0
 - The MicroProfile Fault Tolerance API, available from https://github.com/eclipse/microprofile-fault-tolerance and licensed under the EPL 2.0
 - The MicroProfile Health API, available from https://github.com/eclipse/microprofile-health and licensed under the EPL 2.0
@@ -64,7 +63,6 @@ The binary distribution contains the following 3rd party code:
 - EclipseLink, available from https://www.eclipse.org/eclipselink and licensed under the EPL 2.0
 - The GlassFish Concurrency implementation, available from https://github.com/eclipse-ee4j/concurrency-ri and licensed under the EPL 2.0
 - The SmallRye OpenAPI implementation, available from https://github.com/smallrye/smallrye-open-api and licensed under Apache 2.0
-- The SmallRye Metrics implementation, available from https://github.com/smallrye/smallrye-metrics and licensed under Apache 2.0
 - The SmallRye Config implementation, available from https://github.com/smallrye/smallrye-config and licensed under Apache 2.0
 - The SmallRye Fault Tolerance implementation, available from https://github.com/smallrye/smallrye-fault-tolerance and licensed under Apache 2.0
 - The SmallRye Health implementation, available from https://github.com/smallrye/smallrye-health and licensed under Apache 2.0

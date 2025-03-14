@@ -30,7 +30,6 @@ It also provides components from [MicroProfile](https://microprofile.io/):
 - [Fault Tolerance 4.0](#microprofile-fault-tolerance)
 - [Health 4.0](#microprofile-health)
 - [OpenAPI 4.0](#microprofile-openapi)
-- [Metrics 5.1](#microprofile-metrics)
 
 These specifications are divided into three groups: core, UI, and MicroProfile.
 
@@ -1126,29 +1125,6 @@ public Response hello() {
 	// ...
 }
 ```
-
-### MicroProfile Metrics
-
-Using [MicroProfile Metrics](https://github.com/eclipse/microprofile-metrics), it is possible to track invocations and timing from REST services. For example:
-
-```java
-@GET
-@Timed
-public Response hello() {
-	/* Perform the work */
-}
-```
-
-When such a service is executed, its performance is logged and becomes available via `/xsp/app/metrics` within the NSF:
-
-```
-# TYPE application_rest_Sample_hello_total counter
-application_rest_Sample_hello_total 2.0
-# TYPE application_rest_Sample_hello_elapsedTime_seconds gauge
-application_rest_Sample_hello_elapsedTime_seconds 8.252E-4
-```
-
-This capability can be disabled by setting `rest.mpmetrics.enable=false` in your Xsp Properties. Note that Fault Tolerance has an implicit dependency on this, and so will also be unavailable if you set this flag.
 
 ## Requirements
 
