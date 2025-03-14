@@ -18,8 +18,9 @@ package org.openntf.xsp.jakarta.pages.el;
 import java.util.Collection;
 import java.util.List;
 
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+
 import org.openntf.xsp.jakarta.el.ext.ELResolverProvider;
-import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.el.BeanNameELResolver;
@@ -33,22 +34,15 @@ import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.jsp.el.ImplicitObjectELResolver;
 
 public class NSFELResolver extends CompositeELResolver {
-	public static final NSFELResolver instance = new NSFELResolver();
-
-	public NSFELResolver() {
+	public NSFELResolver(ComponentModule module) {
 
 		// Add any other available resolvers
-		List<ELResolverProvider> providers = LibraryUtil.findExtensions(
-			ELResolverProvider.class,
-			ComponentModuleLocator.getDefault().map(ComponentModuleLocator::getActiveModule).orElse(null)
-		);
+		List<ELResolverProvider> providers = LibraryUtil.findExtensions(ELResolverProvider.class, module);
 		
-		if(providers != null) {
-			for(ELResolverProvider provider : providers) {
-				Collection<ELResolver> resolvers = provider.provide();
-				if(resolvers != null) {
-					resolvers.forEach(this::add);
-				}
+		for(ELResolverProvider provider : providers) {
+			Collection<ELResolver> resolvers = provider.provide();
+			if(resolvers != null) {
+				resolvers.forEach(this::add);
 			}
 		}
 		
