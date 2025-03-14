@@ -255,6 +255,7 @@
 	<plugin id="org.openntf.org.eclipse.microprofile.fault.tolerance" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.io.smallrye.fault-tolerance" version="0.0.0" unpack="false"/>
 	<plugin id="io.smallrye.fault-tolerance-api" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.fault-tolerance-apiimpl" version="0.0.0" unpack="false"/>
 	<plugin id="io.smallrye.fault-tolerance-core" version="0.0.0" unpack="false"/>
 	<plugin id="io.smallrye.fault-tolerance-autoconfig-core" version="0.0.0" unpack="false"/>
 	
