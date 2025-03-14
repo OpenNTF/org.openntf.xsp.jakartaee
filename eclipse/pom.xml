@@ -81,7 +81,6 @@
 		<module>bundles/org.openntf.xsp.microprofile.faulttolerance</module>
 		<module>bundles/org.openntf.xsp.microprofile.health</module>
 		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
-		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
 		
  		<!-- XPages libraries -->
  		<module>bundles/org.openntf.xsp.jakartaee.core.library</module>

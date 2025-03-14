@@ -20,7 +20,6 @@ import java.util.Collections;
 
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.microprofile.metrics.MetricsResourceContributor;
 
 import io.smallrye.faulttolerance.FaultToleranceExtension;
 import jakarta.enterprise.inject.spi.Extension;
@@ -36,11 +35,7 @@ public class FaultToleranceCDIContributor implements CDIClassContributor {
 	public Collection<Extension> getExtensions() {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			// SmallRye Fault Tolerance has an implicit dependency on Metrics
-			if(!"false".equals(LibraryUtil.getApplicationProperty(MetricsResourceContributor.PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
-				return Collections.singleton(new FaultToleranceExtension());
-			} else {
-				return Collections.emptySet();
-			}
+			return Collections.singleton(new FaultToleranceExtension());
 		} else {
 			return Collections.emptyList();
 		}

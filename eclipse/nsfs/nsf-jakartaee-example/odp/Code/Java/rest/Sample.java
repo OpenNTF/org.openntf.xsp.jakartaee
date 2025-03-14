@@ -19,8 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.microprofile.metrics.annotation.Timed;
-
 import bean.ApplicationGuy;
 import bean.RequestGuy;
 import jakarta.inject.Inject;
@@ -47,7 +45,6 @@ public class Sample {
 	private RequestGuy requestGuy;
 
 	@GET
-	@Timed
 	public Response hello() {
 		try {
 			String message = applicationGuy.getMessage() + "\n" + requestGuy.getMessage();
