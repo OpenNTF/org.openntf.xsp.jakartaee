@@ -21,7 +21,6 @@ import java.security.PrivilegedAction;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.Date;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -101,13 +100,12 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 				if(nsfContext != null) {
 					try {
 						javax.servlet.http.HttpServletRequest request = (javax.servlet.http.HttpServletRequest)notesContextRequestField.get(nsfContext);
-						Objects.requireNonNull(request, "NotesContext not initialized with a Servlet request");
-						return Optional.of(ServletUtil.oldToNew(ServletUtil.newToOld(servletContext), request));
+						return Optional.ofNullable(ServletUtil.oldToNew(ServletUtil.newToOld(servletContext), request));
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						throw new RuntimeException(e);
 					}
 				}
-				return null;
+				return Optional.empty();
 			});
 	}
 
