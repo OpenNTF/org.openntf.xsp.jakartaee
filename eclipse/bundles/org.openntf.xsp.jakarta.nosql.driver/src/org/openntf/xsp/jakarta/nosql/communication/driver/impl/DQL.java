@@ -13,8 +13,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
-import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL.DQLTerm;
-
 /**
  * Utility class to programmatically compose syntactically correct
  * DQL queries and prevent malicous content injection (we hopefully
