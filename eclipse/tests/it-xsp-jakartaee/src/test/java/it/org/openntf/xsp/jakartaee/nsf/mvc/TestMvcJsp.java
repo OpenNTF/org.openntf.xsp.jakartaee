@@ -19,7 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
@@ -83,6 +85,24 @@ public class TestMvcJsp extends AbstractWebClientTest {
 		String html = response.readEntity(String.class);
 		assertEquals(200, response.getStatus(), () -> "Invalid response code with HTML: " + html);
 		assertTrue(html.contains("Last name: " + lastName), () -> "Unexpected HTML: " + html);
+		
+	}
+	
+	@Disabled("Pending fix in issue #579")
+	@Test
+	public void testBeanParamInvalid() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mvc/beanParam"); //$NON-NLS-1$
+		
+		String firstName = "testBeanParamInvalid" + System.currentTimeMillis();
+		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+		payload.putSingle("lastName", firstName);
+		Response response = target.request()
+			.accept(MediaType.TEXT_HTML_TYPE) // Ensure that it routes to MVC
+			.post(Entity.form(payload));
+		String html = response.readEntity(String.class);
+		assertEquals(400, response.getStatus(), () -> "Invalid response code with HTML: " + html);
+		System.out.println("testBeanParamInvalid html is " + html);
 		
 	}
 }
