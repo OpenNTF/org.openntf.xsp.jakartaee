@@ -679,8 +679,6 @@
 									</instructions>
 								</artifact>
 								<artifact><id>commons-io:commons-io:2.18.0</id><source>true</source></artifact>
-								<!-- Explicitly use 1.11 (with its old Symbolic Name) to match Domino Leap 1.0.5.15 -->
-								<artifact><id>commons-codec:commons-codec:1.11</id><source>true</source></artifact>
 								
 								<!--
 									MicroProfile Config

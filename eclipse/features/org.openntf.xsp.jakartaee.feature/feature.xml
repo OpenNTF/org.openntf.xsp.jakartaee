@@ -334,7 +334,6 @@
 	<plugin id="org.apache.james.apache-mime4j-dom" version="0.0.0" unpack="false"/>
 	<plugin id="org.apache.james.apache-mime4j-storage" version="0.0.0" unpack="false"/>
 	<plugin id="org.apache.commons.commons-io" version="0.0.0" unpack="false"/>
-	<plugin id="org.apache.commons.codec" version="0.0.0" unpack="false"/>
 	
 	<!-- NoSQL -->
 	<plugin id="org.openntf.xsp.jakarta.nosql" version="0.0.0" unpack="false"/>
