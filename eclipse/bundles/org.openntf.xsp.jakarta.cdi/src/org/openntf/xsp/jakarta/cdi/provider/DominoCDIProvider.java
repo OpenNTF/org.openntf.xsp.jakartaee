@@ -54,7 +54,7 @@ public class DominoCDIProvider implements CDIProvider {
 
 				String nsfPath = locator.getNsfPath();
 				if(StringUtil.isNotEmpty(nsfPath)) {
-					container = ModuleUtil.getNSFComponentModule(nsfPath)
+					container = ModuleUtil.getComponentModule(nsfPath)
 						.map(ContainerUtil::getContainer)
 						.orElse(null);
 					if(container != null) {

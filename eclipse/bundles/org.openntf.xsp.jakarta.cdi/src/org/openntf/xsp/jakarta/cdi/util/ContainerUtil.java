@@ -315,7 +315,7 @@ public enum ContainerUtil {
 
 					Weld fweld = weld;
 					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
-						// Special case for using an NSFComponentModule when there's no available NotesContext,
+						// Special case for using an ComponentModule when there's no available NotesContext,
 						//   such as when the first request in is a service
 
 						for(Extension extension : LibraryUtil.findExtensions(Extension.class, module)) {

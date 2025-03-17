@@ -63,8 +63,8 @@ public enum ModuleUtil {
 	public static final Pattern GENERATED_CLASSNAMES = Pattern.compile("^(xsp|plugin)\\..*$"); //$NON-NLS-1$
 
 	public static Stream<String> getClassNames(final ComponentModule module) {
-		if(module instanceof NSFComponentModule) {
-			return ((NSFComponentModule)module).getRuntimeFileSystem().getAllResources().entrySet().stream()
+		if(module instanceof NSFComponentModule nsfModule) {
+			return nsfModule.getRuntimeFileSystem().getAllResources().entrySet().stream()
 				.map(Map.Entry::getKey)
 				.filter(key -> key.startsWith(PREFIX_CLASSES) && key.endsWith(SUFFIX_CLASS))
 				.map(key -> key.substring(PREFIX_CLASSES.length(), key.length()-SUFFIX_CLASS.length()))
@@ -125,8 +125,8 @@ public enum ModuleUtil {
 			path += "/"; //$NON-NLS-1$
 		}
 
-		if(module instanceof NSFComponentModule) {
-			return ((NSFComponentModule)module).getRuntimeFileSystem().getAllResources().entrySet().stream()
+		if(module instanceof NSFComponentModule nsfModule) {
+			return nsfModule.getRuntimeFileSystem().getAllResources().entrySet().stream()
 				.filter(entry -> entry.getValue() instanceof NSFFile)
 				.map(Map.Entry::getKey)
 				.filter(key -> listAll || key.startsWith(basePath));
@@ -152,8 +152,8 @@ public enum ModuleUtil {
 	 * @since 1.13.0
 	 */
 	public static String getModuleId(final ComponentModule module) {
-		if(module instanceof NSFComponentModule) {
-			return ((NSFComponentModule)module).getDatabasePath();
+		if(module instanceof NSFComponentModule nsfModule) {
+			return nsfModule.getDatabasePath();
 		} else {
 			return Integer.toHexString(System.identityHashCode(module));
 		}
@@ -239,7 +239,7 @@ public enum ModuleUtil {
 	 *         if available, or an empty one if there is no such NSF
 	 * @since 2.13.0
 	 */
-	public static Optional<ComponentModule> getNSFComponentModule(final String nsfPath) {
+	public static Optional<ComponentModule> getComponentModule(final String nsfPath) {
 		LCDEnvironment lcd = LCDEnvironment.getInstance();
 		NSFService nsfService = lcd.getServices().stream()
 			.filter(NSFService.class::isInstance)

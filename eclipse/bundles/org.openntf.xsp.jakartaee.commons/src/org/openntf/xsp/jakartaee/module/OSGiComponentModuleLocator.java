@@ -27,7 +27,6 @@ import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.domino.xsp.adapter.osgi.AbstractOSGIModule;
 import com.ibm.domino.xsp.adapter.osgi.NotesContext;
-import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
@@ -38,7 +37,7 @@ import lotus.domino.Database;
 import lotus.domino.Session;
 
 /**
- * Locates an active {@link NSFComponentModule} when the current request
+ * Locates an active {@link ComponentModule} when the current request
  * is in an OSGi Servlet or WebContainer context.
  *
  * @author Jesse Gallagher
