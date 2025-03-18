@@ -12,7 +12,7 @@ import com.ibm.domino.napi.ssl.DominoSSLSocketFactory;
  * This subclass of {@link DominoSSLSocketFactory} replaces the {@link #createSSLContext()}
  * method with a variant that doesn't create an LSXBE session, avoiding a
  * "Cannot create a session from an agent" message in the logs.
- * 
+ *
  * @since 3.4.0
  * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/616">Issue #616</a>
  */

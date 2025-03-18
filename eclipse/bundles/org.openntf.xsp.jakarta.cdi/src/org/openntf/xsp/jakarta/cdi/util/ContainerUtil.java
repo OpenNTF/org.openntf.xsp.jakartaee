@@ -381,10 +381,10 @@ public enum ContainerUtil {
 	 */
 	public static BeanManagerImpl getBeanManager(final CDI<Object> container) {
 		BeanManager manager = container.getBeanManager();
-		if(manager instanceof BeanManagerImpl) {
-			return (BeanManagerImpl)manager;
-		} else if(manager instanceof ForwardingBeanManager) {
-			return (BeanManagerImpl) ((ForwardingBeanManager)manager).delegate();
+		if(manager instanceof BeanManagerImpl bmi) {
+			return bmi;
+		} else if(manager instanceof ForwardingBeanManager fbm) {
+			return (BeanManagerImpl) fbm.delegate();
 		} else {
 			throw new IllegalStateException("Cannot find BeanManagerImpl in " + manager); //$NON-NLS-1$
 		}

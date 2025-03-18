@@ -83,7 +83,7 @@ public class ProxyingHttpServletResponse implements HttpServletResponse {
 	}
 
 	@Override
-	public void sendRedirect(String location, int sc, boolean clearBuffer) throws IOException {
+	public void sendRedirect(final String location, final int sc, final boolean clearBuffer) throws IOException {
 		delegate().sendRedirect(location, sc, clearBuffer);
 	}
 

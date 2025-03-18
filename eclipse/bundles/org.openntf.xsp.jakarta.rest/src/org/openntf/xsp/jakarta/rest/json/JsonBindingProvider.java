@@ -110,8 +110,8 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 		try {
 			Object obj = t;
 			// It may be a CDI proxy - try to unwrap it if so
-			if(obj instanceof WeldClientProxy) {
-				Metadata meta = ((WeldClientProxy)obj).getMetadata();
+			if(obj instanceof WeldClientProxy proxy) {
+				Metadata meta = proxy.getMetadata();
 				obj = meta.getContextualInstance();
 			}
 

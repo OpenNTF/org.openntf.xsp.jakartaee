@@ -55,12 +55,12 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)() -> exp.getMethodInfo(elContext).getReturnType());
 		} catch (PrivilegedActionException e) {
 			Throwable t = e.getCause();
-			if(t instanceof MethodNotFoundException) {
-				throw (MethodNotFoundException)t;
-			} else if(t instanceof Error) {
-				throw (Error)t;
-			} else if(t instanceof RuntimeException) {
-				throw (RuntimeException)t;
+			if(t instanceof MethodNotFoundException mnfe) {
+				throw mnfe;
+			} else if(t instanceof Error err) {
+				throw err;
+			} else if(t instanceof RuntimeException re) {
+				throw re;
 			} else if(t != null) {
 				throw new RuntimeException(t);
 			} else {

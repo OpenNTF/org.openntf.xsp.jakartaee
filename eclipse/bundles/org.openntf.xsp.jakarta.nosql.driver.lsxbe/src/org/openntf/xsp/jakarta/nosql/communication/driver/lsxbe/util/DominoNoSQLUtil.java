@@ -159,32 +159,31 @@ public enum DominoNoSQLUtil {
 	 * @param value the value to convert
 	 * @return a stock-JDK object representing the value
 	 */
+	@SuppressWarnings("unchecked")
 	public static Object toJavaFriendly(final lotus.domino.Database context, final Object value, final Optional<BooleanStorage> optBoolean) {
-		if(value instanceof Iterable) {
-			return StreamSupport.stream(((Iterable<?>)value).spliterator(), false)
+		if(value instanceof Iterable i) {
+			return StreamSupport.stream(i.spliterator(), false)
 				.map(val -> toJavaFriendly(context, val, optBoolean))
 				.collect(Collectors.toList());
-		} else if(value instanceof DateTime) {
+		} else if(value instanceof DateTime dt) {
 			// TODO improve with a better API
 			try {
-				DateTime dt = (DateTime)value;
 				return toTemporal(context, dt);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-		} else if(value instanceof DateRange) {
+		} else if(value instanceof DateRange dr) {
 			try {
-				DateRange dr = (DateRange)value;
 				Temporal start = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getStartDateTime(), optBoolean);
 				Temporal end = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getEndDateTime(), optBoolean);
 				return Arrays.asList(start, end);
 			} catch (NotesException e) {
 				throw new RuntimeException(e);
 			}
-		} else if(value instanceof Number) {
+		} else if(value instanceof Number n) {
 			if(optBoolean.isPresent()) {
 				if(optBoolean.get().type() == BooleanStorage.Type.DOUBLE) {
-					return ((Number)value).doubleValue() == optBoolean.get().doubleTrue();
+					return n.doubleValue() == optBoolean.get().doubleTrue();
 				} else {
 					return false;
 				}

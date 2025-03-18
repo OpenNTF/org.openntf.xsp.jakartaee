@@ -68,15 +68,15 @@ public class JsonExceptionHandler implements RestExceptionHandler {
 					String message = ""; //$NON-NLS-1$
 					Throwable t = throwable;
 					while ((message == null || message.length() == 0) && t != null) {
-						if (t instanceof NotesException) {
-							message = ((NotesException) t).text;
-						} else if (t instanceof ConstraintViolationException) {
+						if (t instanceof NotesException ne) {
+							message = ne.text;
+						} else if (t instanceof ConstraintViolationException cve) {
 							message = t.getMessage();
 
 							if (message == null || message.isEmpty()) {
 								List<String> cvMsgList = new ArrayList<>();
 								for (@SuppressWarnings("rawtypes")
-								ConstraintViolation cv : ((ConstraintViolationException) t).getConstraintViolations()) {
+								ConstraintViolation cv : cve.getConstraintViolations()) {
 									String cvMsg = cv.getPropertyPath() + ": " + cv.getMessage(); //$NON-NLS-1$
 									cvMsgList.add(cvMsg);
 								}

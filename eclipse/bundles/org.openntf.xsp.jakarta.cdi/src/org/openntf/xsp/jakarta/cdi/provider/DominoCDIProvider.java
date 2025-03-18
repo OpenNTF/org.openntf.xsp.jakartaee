@@ -67,7 +67,7 @@ public class DominoCDIProvider implements CDIProvider {
 				if(StringUtil.isNotEmpty(bundleId)) {
 					Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
 					if(bundle.isPresent()) {
-						return (CDI<Object>)ContainerUtil.getContainer(bundle.get());
+						return ContainerUtil.getContainer(bundle.get());
 					}
 				}
 			}

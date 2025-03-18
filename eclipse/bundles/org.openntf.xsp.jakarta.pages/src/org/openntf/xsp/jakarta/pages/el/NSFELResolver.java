@@ -34,18 +34,18 @@ import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.jsp.el.ImplicitObjectELResolver;
 
 public class NSFELResolver extends CompositeELResolver {
-	public NSFELResolver(ComponentModule module) {
+	public NSFELResolver(final ComponentModule module) {
 
 		// Add any other available resolvers
 		List<ELResolverProvider> providers = LibraryUtil.findExtensions(ELResolverProvider.class, module);
-		
+
 		for(ELResolverProvider provider : providers) {
 			Collection<ELResolver> resolvers = provider.provide();
 			if(resolvers != null) {
 				resolvers.forEach(this::add);
 			}
 		}
-		
+
 		add(new ImplicitObjectELResolver());
 		add(new BeanNameELResolver(new CDIBeanResolver()));
 		add(new RecordELResolver());

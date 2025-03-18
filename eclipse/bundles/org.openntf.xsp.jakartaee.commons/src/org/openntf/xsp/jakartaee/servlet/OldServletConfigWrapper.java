@@ -41,8 +41,8 @@ class OldServletConfigWrapper implements ServletConfig {
 	@Override
 	public String getInitParameter(final String name) {
 		ServletContext context = getServletContext();
-		if(context instanceof OldServletContextWrapper) {
-			Map<String, String> params = ((OldServletContextWrapper)context).getExtraInitParameters();
+		if(context instanceof OldServletContextWrapper wrap) {
+			Map<String, String> params = wrap.getExtraInitParameters();
 			if(params.containsKey(name)) {
 				return params.get(name);
 			}

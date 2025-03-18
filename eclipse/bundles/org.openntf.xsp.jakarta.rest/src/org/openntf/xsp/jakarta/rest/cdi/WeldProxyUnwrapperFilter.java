@@ -43,8 +43,8 @@ public class WeldProxyUnwrapperFilter implements ContainerResponseFilter {
 	public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext)
 			throws IOException {
 		Object entity = responseContext.getEntity();
-		if(entity instanceof WeldClientProxy) {
-			Metadata metadata = ((WeldClientProxy)entity).getMetadata();
+		if(entity instanceof WeldClientProxy proxy) {
+			Metadata metadata = proxy.getMetadata();
 			responseContext.setEntity(metadata.getContextualInstance());
 		}
 	}

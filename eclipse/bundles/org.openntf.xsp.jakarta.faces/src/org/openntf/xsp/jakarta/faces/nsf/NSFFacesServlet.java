@@ -212,9 +212,9 @@ public class NSFFacesServlet extends HttpServlet {
 		}
 
 		ClassLoader cl = (ClassLoader)ctx.getAttribute(PROP_CLASSLOADER);
-		if(cl != null && cl instanceof Closeable) {
+		if(cl != null && cl instanceof Closeable c) {
 			try {
-				((Closeable)cl).close();
+				c.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

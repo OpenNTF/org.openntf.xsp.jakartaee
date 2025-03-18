@@ -37,7 +37,7 @@ import lotus.domino.Database;
 import lotus.domino.Session;
 
 /**
- * Locates an active {@link ComponentModule} when the current request
+ * Locates an active {@link AbstractOSGIModule} when the current request
  * is in an OSGi Servlet or WebContainer context.
  *
  * @author Jesse Gallagher

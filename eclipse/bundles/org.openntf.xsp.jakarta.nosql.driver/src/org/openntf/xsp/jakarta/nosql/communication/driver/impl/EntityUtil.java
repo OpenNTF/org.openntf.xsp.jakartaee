@@ -107,7 +107,7 @@ public enum EntityUtil {
 		}
 	}
 
-	public static String getFormName(EntityMetadata classMapping) {
+	public static String getFormName(final EntityMetadata classMapping) {
 		DocumentConfig ann = classMapping.type().getAnnotation(DocumentConfig.class);
 		if(ann != null) {
 			return ann.formName();

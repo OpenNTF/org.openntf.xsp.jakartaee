@@ -174,7 +174,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	protected abstract void doInit(ServletConfig config, HttpServletRequest request) throws ServletException;
 
 	protected abstract void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application) throws ServletException, IOException;
-	
+
 	public ComponentModule getModule() {
 		return module;
 	}

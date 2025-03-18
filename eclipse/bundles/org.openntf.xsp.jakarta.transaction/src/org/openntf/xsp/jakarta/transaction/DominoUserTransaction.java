@@ -55,8 +55,8 @@ public class DominoUserTransaction implements UserTransaction, Serializable {
 	@Override
 	public void begin() throws NotSupportedException, SystemException {
 		Transaction transaction = CDI.current().select(Transaction.class).get();
-		if(transaction instanceof DominoTransaction) {
-			((DominoTransaction)transaction).begin();
+		if(transaction instanceof DominoTransaction dt) {
+			dt.begin();
 		}
 	}
 
@@ -88,8 +88,8 @@ public class DominoUserTransaction implements UserTransaction, Serializable {
 	@Override
 	public void setTransactionTimeout(final int seconds) throws SystemException {
 		Transaction transaction = CDI.current().select(Transaction.class).get();
-		if(transaction instanceof DominoTransaction) {
-			Collection<XAResource> resources = ((DominoTransaction)transaction).getResources();
+		if(transaction instanceof DominoTransaction dt) {
+			Collection<XAResource> resources = dt.getResources();
 			for(XAResource res : new ArrayList<>(resources)) {
 				try {
 					res.setTransactionTimeout(seconds);

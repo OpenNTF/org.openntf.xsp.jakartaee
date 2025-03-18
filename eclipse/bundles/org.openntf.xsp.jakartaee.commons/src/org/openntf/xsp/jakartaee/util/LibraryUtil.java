@@ -415,8 +415,8 @@ public enum LibraryUtil {
 			Throwable t = e.getCause();
 			if(t == null) {
 				throw new RuntimeException(e);
-			} else if(t instanceof RuntimeException) {
-				throw (RuntimeException)t;
+			} else if(t instanceof RuntimeException e2) {
+				throw e2;
 			} else {
 				throw new RuntimeException(t);
 			}

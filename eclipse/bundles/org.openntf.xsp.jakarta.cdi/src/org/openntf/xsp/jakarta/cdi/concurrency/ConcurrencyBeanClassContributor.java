@@ -18,6 +18,7 @@ package org.openntf.xsp.jakarta.cdi.concurrency;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+
 import org.glassfish.concurro.cdi.ConcurrentCDIExtension;
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 

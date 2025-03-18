@@ -12,21 +12,21 @@ public class JakartaApplicationListenerImpl implements ApplicationListener2 {
 	private List<JakartaApplicationListener> listeners;
 
 	@Override
-	public void applicationCreated(ApplicationEx application) {
+	public void applicationCreated(final ApplicationEx application) {
 		listeners = LibraryUtil.findExtensionsSorted(JakartaApplicationListener.class, false);
-		
+
 		listeners.forEach(l -> l.applicationCreated(application));
 	}
 
 	@Override
-	public void applicationDestroyed(ApplicationEx application) {
+	public void applicationDestroyed(final ApplicationEx application) {
 		for(int i = listeners.size()-1; i >= 0; i--) {
 			listeners.get(i).applicationDestroyed(application);
 		}
 	}
 
 	@Override
-	public void applicationRefreshed(ApplicationEx application) {
+	public void applicationRefreshed(final ApplicationEx application) {
 		listeners.forEach(l -> l.applicationRefreshed(application));
 	}
 

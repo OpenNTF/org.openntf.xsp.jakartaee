@@ -132,10 +132,10 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 		} catch(PrivilegedActionException e) {
 			e.printStackTrace();
 			Throwable cause = e.getCause();
-			if(cause instanceof ServletException) {
-				throw ServletUtil.newToOld((ServletException)cause);
-			} else if(cause instanceof IOException) {
-				throw (IOException)cause;
+			if(cause instanceof ServletException e2) {
+				throw ServletUtil.newToOld(e2);
+			} else if(cause instanceof IOException e2) {
+				throw e2;
 			} else {
 				throw new javax.servlet.ServletException(e);
 			}

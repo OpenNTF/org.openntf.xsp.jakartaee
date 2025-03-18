@@ -331,8 +331,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 				Vector<Object> vecKeys;
-				if(keys instanceof List) {
-					vecKeys = (Vector<Object>)keys;
+				if(keys instanceof Vector v) {
+					vecKeys = v;
 				} else {
 					vecKeys = new Vector<>(Arrays.asList(keys));
 				}
@@ -349,10 +349,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
 			(nav, limit, didSkip, didKey) -> {
 				try {
-					if(nav instanceof ViewNavigator) {
-						return entityConverter.convertViewEntries(entityName, (ViewNavigator)nav, didSkip, didKey, limit, docsOnly, mapping);
-					} else if(nav instanceof ViewEntryCollection) {
-						return entityConverter.convertViewEntries(entityName, (ViewEntryCollection)nav, didSkip, didKey, limit, docsOnly, mapping);
+					if(nav instanceof ViewNavigator vn) {
+						return entityConverter.convertViewEntries(entityName, vn, didSkip, didKey, limit, docsOnly, mapping);
+					} else if(nav instanceof ViewEntryCollection vec) {
+						return entityConverter.convertViewEntries(entityName, vec, didSkip, didKey, limit, docsOnly, mapping);
 					} else {
 						throw new IllegalStateException("Cannot process " + nav);
 					}
@@ -378,8 +378,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 				Vector<Object> vecKeys;
-				if(keys instanceof List) {
-					vecKeys = (Vector<Object>)keys;
+				if(keys instanceof Vector v) {
+					vecKeys = v;
 				} else {
 					vecKeys = new Vector<>(Arrays.asList(keys));
 				}
@@ -397,10 +397,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
 			(nav, limit, didSkip, didKey) -> {
 				try {
-					if(nav instanceof ViewNavigator) {
-						return entityConverter.convertViewDocuments(entityName, (ViewNavigator)nav, didSkip, didKey, limit, distinct, mapping);
-					} else if(nav instanceof ViewEntryCollection) {
-						return entityConverter.convertViewDocuments(entityName, (ViewEntryCollection)nav, didSkip, didKey, limit, distinct, mapping);
+					if(nav instanceof ViewNavigator vn) {
+						return entityConverter.convertViewDocuments(entityName, vn, didSkip, didKey, limit, distinct, mapping);
+					} else if(nav instanceof ViewEntryCollection vec) {
+						return entityConverter.convertViewDocuments(entityName, vec, didSkip, didKey, limit, distinct, mapping);
 					} else {
 						throw new IllegalStateException("Cannot process " + nav);
 					}
@@ -770,8 +770,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				if(viewQuery != null && viewQuery.getKey() != null) {
 					Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 					Vector<Object> vecKeys;
-					if(keys instanceof List) {
-						vecKeys = (Vector<Object>)keys;
+					if(keys instanceof Vector v) {
+						vecKeys = v;
 					} else {
 						vecKeys = new Vector<>(Arrays.asList(keys));
 					}
@@ -861,9 +861,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 	private static void recycle(final Object... objects) {
 		for(Object obj : objects) {
-			if(obj instanceof Base) {
+			if(obj instanceof Base b) {
 				try {
-					((Base)obj).recycle();
+					b.recycle();
 				} catch (NotesException e) {
 					// Ignore
 				}
@@ -982,7 +982,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 					} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
 						if(log.isLoggable(Level.SEVERE)) {
-							if(e instanceof NotesException && ((NotesException)e).id == 4864) {
+							if(e instanceof NotesException ne && ne.id == 4864) {
 								// "Transactional Logging must be enabled for this function"
 								log.log(Level.SEVERE, "Transactional logging is not enabled for this server; skipping transaction registration", e);
 								if(res != null) {
@@ -1021,11 +1021,11 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			for(ViewColumn col : columns) {
 				if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
 					String colItemName = col.getItemName();
-					
+
 					if(formula.equalsIgnoreCase(colItemName)) {
 						return colItemName;
 					}
-					
+
 					String colFormula = col.getFormula();
 					if(StringUtil.isEmpty(colFormula)) {
 						colFormula = colItemName;

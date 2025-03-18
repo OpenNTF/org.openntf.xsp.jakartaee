@@ -24,11 +24,11 @@ import java.lang.annotation.Target;
 /**
  * This annotation can be used on an entity class to indicate the
  * form configuration for stored documents.
- * 
+ *
  * <p>This can be useful to distinguish the entity name from the form
  * name in the case that distinct entities from different databases have
  * the same form name.</p>
- * 
+ *
  * @since 3.4.0
  */
 @Retention(RUNTIME)
@@ -36,11 +36,11 @@ import java.lang.annotation.Target;
 public @interface DocumentConfig {
 	/**
 	 * Allows specifying a distinct form name.
-	 * 
+	 *
 	 * <p>This can be useful to distinguish the entity name from the form
 	 * name in the case that distinct entities from different databases have
 	 * the same form name.</p>
-	 * 
+	 *
 	 * @return the value to use for the Form item in documents
 	 */
 	String formName();

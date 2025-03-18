@@ -17,10 +17,12 @@ package org.openntf.xsp.jakarta.el;
 
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.factory.FactoryLookup;
-import jakarta.annotation.Priority;
+
 import org.openntf.xsp.jakarta.el.impl.RecordPropertyResolverFactory;
 import org.openntf.xsp.jakartaee.events.JakartaApplicationListener;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
+
+import jakarta.annotation.Priority;
 
 @Priority(2)
 public class ELApplicationListener implements JakartaApplicationListener {

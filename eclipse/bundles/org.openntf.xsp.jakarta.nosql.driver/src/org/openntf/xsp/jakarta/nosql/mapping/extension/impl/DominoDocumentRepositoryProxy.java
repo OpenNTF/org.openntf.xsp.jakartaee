@@ -280,8 +280,8 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			Object result = super.invoke(o, method, args);
 			// Upstream doesn't seem to check for Optional values and returns
 			//   a Stream, so check for that
-			if(result instanceof Stream && Optional.class.isAssignableFrom(method.getReturnType())) {
-				return ((Stream<?>)result).findFirst();
+			if(result instanceof Stream s && Optional.class.isAssignableFrom(method.getReturnType())) {
+				return s.findFirst();
 			} else {
 				return result;
 			}
@@ -326,14 +326,13 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			DefaultDynamicReturnBuilder<Object> builder = DynamicReturn.builder()
 				.methodSource(method)
 				.classSource(typeClass);
-			if(result instanceof Stream) {
-				builder = builder.result(() -> (Stream<Object>)result)
-					.singleResult(() -> ((Stream<Object>)result).findFirst());
-			} else if(result instanceof Collection) {
-				builder = builder.result(() -> ((Collection<Object>)result).stream())
-					.singleResult(() -> ((Collection<Object>)result).stream().findFirst());
-			} else if(result instanceof Optional) {
-				Optional<Object> opt = (Optional<Object>)result;
+			if(result instanceof Stream s) {
+				builder = builder.result(() -> s)
+					.singleResult(() -> s.findFirst());
+			} else if(result instanceof Collection c) {
+				builder = builder.result(() -> c.stream())
+					.singleResult(() -> c.stream().findFirst());
+			} else if(result instanceof Optional opt) {
 				builder = builder.result(() -> opt.isPresent() ? Stream.of(opt.get()) : Stream.empty())
 					.singleResult(() -> opt);
 			} else {

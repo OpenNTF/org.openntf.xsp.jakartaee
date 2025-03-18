@@ -47,17 +47,17 @@ public class NSFSessionClonerSetupParticipant implements ContextSetupParticipant
 
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
-		if(contextHandle instanceof AttributedContextHandle) {
+		if(contextHandle instanceof AttributedContextHandle ach) {
 			if(NotesContext.getCurrentUnchecked() != null) {
-				((AttributedContextHandle)contextHandle).setAttribute(ATTR_CLONER, SessionCloner.getSessionCloner());
+				ach.setAttribute(ATTR_CLONER, SessionCloner.getSessionCloner());
 			}
 		}
 	}
 
 	@Override
 	public void setup(final ContextHandle contextHandle) throws IllegalStateException {
-		if(contextHandle instanceof AttributedContextHandle) {
-			SessionCloner cloner = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_CLONER);
+		if(contextHandle instanceof AttributedContextHandle ach) {
+			SessionCloner cloner = ach.getAttribute(ATTR_CLONER);
 			if(cloner != null) {
 				try {
 					THREAD_SESSION.set(cloner.getSession());

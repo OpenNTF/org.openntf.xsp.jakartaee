@@ -313,7 +313,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 	 * As of JNoSQL 1.1.1, DefaultConstructorBuilder's addEmptyParameter method only accounts for
 	 * object types, not primitives. This patch works around that by adding {@code false} for
 	 * empty boolean parameters and {@code 0} for other primitives.
-	 * 
+	 *
 	 * @deprecated Remove when JNoSQL 1.1.5 is out
 	 */
 	@SuppressWarnings("nls")
@@ -354,14 +354,14 @@ public class NoSQLWeavingHook implements WeavingHook {
 			t.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * As of JNoSQL 1.1.3, DefaultMapFieldMetadata throws an exception in its constructor when
 	 * a field type is a Map but isn't itself parameterized (e.g. JsonObject). This patch
 	 * works around that by also checking implemented interfaces of the type. This will still
 	 * fail if the type doesn't directly implement or extend Map, but it should help in practical
 	 * cases.
-	 * 
+	 *
 	 * @deprecated Remove when JNoSQL 1.1.5 is out
 	 */
 	@SuppressWarnings("nls")
@@ -408,11 +408,11 @@ public class NoSQLWeavingHook implements WeavingHook {
 			t.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Same as {@link #processDefaultMapFieldMetadata(WovenClass)}, but for the
 	 * {@code Collection} type. Unlike in that class, this happens in two methods.
-	 * 
+	 *
 	 * @deprecated Remove when JNoSQL 1.1.5 is out
 	 */
 	@SuppressWarnings("nls")
@@ -456,7 +456,7 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("hasFieldAnnotation");
 				m.setBody(body);
 			}
-			
+
 			// elementType
 			{
 				String body = """

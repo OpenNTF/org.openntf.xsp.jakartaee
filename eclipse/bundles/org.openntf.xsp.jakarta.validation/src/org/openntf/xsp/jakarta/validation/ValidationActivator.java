@@ -33,7 +33,7 @@ public class ValidationActivator implements BundleActivator {
 	private static final Logger log = Logger.getLogger(ValidationActivator.class.getPackage().getName());
 
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		InitialContext jndi = new InitialContext();
 		try {
 			jndi.rebind("java:comp/ValidatorFactory", Validation.byDefaultProvider() //$NON-NLS-1$
@@ -49,8 +49,8 @@ public class ValidationActivator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception {
-		
+	public void stop(final BundleContext context) throws Exception {
+
 	}
 
 }

@@ -40,9 +40,9 @@ public class DelegatingExceptionViewEngine implements ViewEngine {
 		Models models = context.getModels();
 		Response sup = (Response)models.get("response"); //$NON-NLS-1$
 		Object entity = sup.getEntity();
-		if(entity instanceof StreamingOutput) {
+		if(entity instanceof StreamingOutput so) {
 			try {
-				((StreamingOutput)entity).write(context.getOutputStream());
+				so.write(context.getOutputStream());
 			} catch (WebApplicationException | IOException e) {
 				throw new ViewEngineException(e);
 			}

@@ -64,12 +64,12 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
-		if(contextHandle instanceof AttributedContextHandle) {
+		if(contextHandle instanceof AttributedContextHandle ach) {
 			NotesContext ctx = NotesContext.getCurrentUnchecked();
 			if(ctx != null) {
-				((AttributedContextHandle)contextHandle).setAttribute(ATTR_MODULE, ctx.getModule());
+				ach.setAttribute(ATTR_MODULE, ctx.getModule());
 				getHttpServletRequest(ctx).ifPresent(request -> {
-					((AttributedContextHandle)contextHandle).setAttribute(ATTR_REQUEST, request);
+					ach.setAttribute(ATTR_REQUEST, request);
 				});
 			}
 		}
@@ -86,14 +86,14 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 			return;
 		}
 
-		if(contextHandle instanceof AttributedContextHandle) {
-			ComponentModule mod = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_MODULE);
-			if(mod instanceof NSFComponentModule) {
+		if(contextHandle instanceof AttributedContextHandle ach) {
+			ComponentModule mod = ach.getAttribute(ATTR_MODULE);
+			if(mod instanceof NSFComponentModule nsfMod) {
 				mod.updateLastModuleAccess();
 
-				NotesContext notesContext = new NotesContext((NSFComponentModule)mod);
+				NotesContext notesContext = new NotesContext(nsfMod);
 
-				HttpServletRequest request = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_REQUEST);
+				HttpServletRequest request = ach.getAttribute(ATTR_REQUEST);
 				if(request != null) {
 					try {
 						notesContext.initRequest(request);
@@ -109,17 +109,17 @@ public class NSFNotesContextParticipant implements ContextSetupParticipant {
 					Thread.currentThread().setContextClassLoader(mod.getModuleClassLoader());
 					return tccc;
 				});
-				((AttributedContextHandle)contextHandle).setAttribute(ATTR_CLASSLOADER, cl);
+				ach.setAttribute(ATTR_CLASSLOADER, cl);
 			}
 		}
 	}
 
 	@Override
 	public void reset(final ContextHandle contextHandle) {
-		if(contextHandle instanceof AttributedContextHandle) {
-			ComponentModule mod = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_MODULE);
+		if(contextHandle instanceof AttributedContextHandle ach) {
+			ComponentModule mod = ach.getAttribute(ATTR_MODULE);
 			if(mod instanceof NSFComponentModule) {
-				ClassLoader tccc = ((AttributedContextHandle)contextHandle).getAttribute(ATTR_CLASSLOADER);
+				ClassLoader tccc = ach.getAttribute(ATTR_CLASSLOADER);
 				if(tccc != null) {
 					AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
 						Thread.currentThread().setContextClassLoader(tccc);

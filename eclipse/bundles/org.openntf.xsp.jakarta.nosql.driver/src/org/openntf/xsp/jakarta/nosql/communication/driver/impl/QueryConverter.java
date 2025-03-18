@@ -43,7 +43,7 @@ public enum QueryConverter {
 
 	private static final String[] EMPTY_STRING_ARRAY = {};
 
-	public static QueryConverterResult select(final SelectQuery query, EntityMetadata mapping) {
+	public static QueryConverterResult select(final SelectQuery query, final EntityMetadata mapping) {
 		String[] documents = query.columns().toArray(new String[0]);
 		if (documents.length == 0) {
 			documents = ALL_SELECT;
@@ -52,7 +52,7 @@ public enum QueryConverter {
 		DQLTerm statement;
 		long skip = query.skip();
 		long limit = query.limit();
-		
+
 		String formName = EntityUtil.getFormName(mapping);
 
 		if (query.condition().isPresent()) {
@@ -103,42 +103,42 @@ public enum QueryConverter {
 		}
 		switch (condition.condition()) {
 			case EQUALS:
-				if(value instanceof Number) {
-					return DQL.item(name).isEqualTo(((Number)value).doubleValue());
-				} else if(value instanceof Temporal) {
-					return DQL.item(name).isEqualTo((Temporal)value);
+				if(value instanceof Number n) {
+					return DQL.item(name).isEqualTo(n.doubleValue());
+				} else if(value instanceof Temporal t) {
+					return DQL.item(name).isEqualTo(t);
 				} else {
 					return DQL.item(name).isEqualTo(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case LESSER_THAN:
-				if(value instanceof Number) {
-					return DQL.item(name).isLessThan(((Number)value).doubleValue());
-				} else if(value instanceof Temporal) {
-					return DQL.item(name).isLessThan((Temporal)value);
+				if(value instanceof Number n) {
+					return DQL.item(name).isLessThan(n.doubleValue());
+				} else if(value instanceof Temporal t) {
+					return DQL.item(name).isLessThan(t);
 				} else {
 					return DQL.item(name).isLessThan(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case LESSER_EQUALS_THAN:
-				if(value instanceof Number) {
-					return DQL.item(name).isLessThanOrEqual(((Number)value).doubleValue());
-				} else if(value instanceof Temporal) {
-					return DQL.item(name).isLessThanOrEqual((Temporal)value);
+				if(value instanceof Number n) {
+					return DQL.item(name).isLessThanOrEqual(n.doubleValue());
+				} else if(value instanceof Temporal t) {
+					return DQL.item(name).isLessThanOrEqual(t);
 				} else {
 					return DQL.item(name).isLessThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case GREATER_THAN:
-				if(value instanceof Number) {
-					return DQL.item(name).isGreaterThan(((Number)value).doubleValue());
-				} else if(value instanceof Temporal) {
-					return DQL.item(name).isGreaterThan((Temporal)value);
+				if(value instanceof Number n) {
+					return DQL.item(name).isGreaterThan(n.doubleValue());
+				} else if(value instanceof Temporal t) {
+					return DQL.item(name).isGreaterThan(t);
 				} else {
 					return DQL.item(name).isGreaterThan(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			case GREATER_EQUALS_THAN:
-				if(value instanceof Number) {
-					return DQL.item(name).isGreaterThanOrEqual(((Number)value).doubleValue());
-				} else if(value instanceof Temporal) {
-					return DQL.item(name).isGreaterThanOrEqual((Temporal)value);
+				if(value instanceof Number n) {
+					return DQL.item(name).isGreaterThanOrEqual(n.doubleValue());
+				} else if(value instanceof Temporal t) {
+					return DQL.item(name).isGreaterThanOrEqual(t);
 				} else {
 					return DQL.item(name).isGreaterThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}

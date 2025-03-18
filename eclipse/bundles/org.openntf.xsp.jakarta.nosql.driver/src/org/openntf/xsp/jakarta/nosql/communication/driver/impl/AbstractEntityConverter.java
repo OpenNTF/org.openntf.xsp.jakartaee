@@ -84,14 +84,14 @@ public abstract class AbstractEntityConverter {
 	}
 
 	public static Object applyPrecision(final Object dominoVal, final int precision) {
-		if(dominoVal instanceof Number) {
-			BigDecimal decimal = BigDecimal.valueOf(((Number)dominoVal).doubleValue());
+		if(dominoVal instanceof Number n) {
+			BigDecimal decimal = BigDecimal.valueOf(n.doubleValue());
 			return decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue();
-		} else if(dominoVal instanceof Collection && !((Collection<?>)dominoVal).isEmpty()) {
-			Vector<Object> result = new Vector<>(((Collection<?>)dominoVal).size());
-			for(Object obj : (Collection<?>)dominoVal) {
-				if(obj instanceof Number) {
-					BigDecimal decimal = BigDecimal.valueOf(((Number)obj).doubleValue());
+		} else if(dominoVal instanceof Collection c && !c.isEmpty()) {
+			Vector<Object> result = new Vector<>(c.size());
+			for(Object obj : c) {
+				if(obj instanceof Number n) {
+					BigDecimal decimal = BigDecimal.valueOf(n.doubleValue());
 					result.add(decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue());
 				} else {
 					result.add(obj);

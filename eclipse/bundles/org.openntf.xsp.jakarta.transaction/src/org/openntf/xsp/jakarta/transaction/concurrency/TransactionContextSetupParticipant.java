@@ -41,18 +41,18 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
-		if(contextHandle instanceof AttributedContextHandle) {
+		if(contextHandle instanceof AttributedContextHandle ach) {
 			DominoTransactionProducer producer = DominoTransactionProducer.INSTANCE.get();
 			if(producer != null) {
 				DominoTransaction transaction = producer.peekTransaction();
-				((AttributedContextHandle)contextHandle).setAttribute(PROP_TRANSACTION, transaction);
+				ach.setAttribute(PROP_TRANSACTION, transaction);
 			}
 		}
 	}
 
 	@Override
 	public void setup(final ContextHandle contextHandle) throws IllegalStateException {
-		if(contextHandle instanceof AttributedContextHandle) {
+		if(contextHandle instanceof AttributedContextHandle ach) {
 			try {
 				CDI<Object> cdi = ComponentModuleLocator.getDefault()
 					.map(ComponentModuleLocator::getActiveModule)
@@ -61,7 +61,7 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 				if(cdi != null) {
 					Instance<DominoTransactionProducer> producer = cdi.select(DominoTransactionProducer.class);
 					if(producer.isResolvable()) {
-						DominoTransaction transaction = ((AttributedContextHandle)contextHandle).getAttribute(PROP_TRANSACTION);
+						DominoTransaction transaction = ach.getAttribute(PROP_TRANSACTION);
 						producer.get().setTransaction(transaction);
 					}
 				}

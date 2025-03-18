@@ -182,8 +182,8 @@ public enum DiscoveryUtil {
 
 	public static Optional<Bundle> getBundleForClassLoader(final ClassLoader cl) {
 		// Equinox Servlets
-		if(cl instanceof BundleReference) {
-			return Optional.of(((BundleReference) cl).getBundle());
+		if(cl instanceof BundleReference br) {
+			return Optional.of(br.getBundle());
 		}
 
 		// Bundle webapps

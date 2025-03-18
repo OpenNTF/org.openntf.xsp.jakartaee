@@ -62,8 +62,8 @@ public enum JaxbUtil {
 			);
 		} catch (PrivilegedActionException e) {
 			Throwable cause = e.getCause();
-			if(cause instanceof JAXBException) {
-				throw (JAXBException)cause;
+			if(cause instanceof JAXBException e2) {
+				throw e2;
 			} else {
 				throw new RuntimeException(e);
 			}

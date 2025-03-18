@@ -99,10 +99,10 @@ public class NSFPagesServlet extends AbstractXspLifecycleServlet {
 			});
 		} catch(PrivilegedActionException e) {
 			Throwable cause = e.getCause();
-			if(cause instanceof ServletException) {
-				throw (ServletException)cause;
-			} else if(cause instanceof IOException) {
-				throw (IOException)cause;
+			if(cause instanceof ServletException e2) {
+				throw e2;
+			} else if(cause instanceof IOException e2) {
+				throw e2;
 			} else {
 				throw new ServletException(e);
 			}
