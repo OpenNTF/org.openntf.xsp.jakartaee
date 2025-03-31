@@ -30,7 +30,6 @@ import jakarta.data.repository.DataRepository;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.LoaderClassPath;
 
@@ -55,9 +54,6 @@ public class NoSQLWeavingHook implements WeavingHook {
 		case "org.eclipse.jnosql.communication.ValueWriterDecorator" -> processValueWriterDecorator(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.TypeReferenceReaderDecorator" -> processTypeReferenceReader(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.mapping.metadata.ConstructorBuilder" -> processConstructorBuilder(c); //$NON-NLS-1$
-		case "org.eclipse.jnosql.mapping.reflection.DefaultConstructorBuilder" -> processDefaultConstructorBuilder(c); //$NON-NLS-1$
-		case "org.eclipse.jnosql.mapping.reflection.DefaultMapFieldMetadata" -> processDefaultMapFieldMetadata(c); //$NON-NLS-1$
-		case "org.eclipse.jnosql.mapping.reflection.DefaultCollectionFieldMetadata" -> processDefaultCollectionFieldMetadata(c); //$NON-NLS-1$
 		}
 	}
 
@@ -300,187 +296,6 @@ public class NoSQLWeavingHook implements WeavingHook {
 					return supplier.apply($1);
 		        }""";
 				CtMethod m = cc.getDeclaredMethod("of"); //$NON-NLS-1$
-				m.setBody(body);
-			}
-
-			c.setBytes(cc.toBytecode());
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-	}
-
-	/**
-	 * As of JNoSQL 1.1.1, DefaultConstructorBuilder's addEmptyParameter method only accounts for
-	 * object types, not primitives. This patch works around that by adding {@code false} for
-	 * empty boolean parameters and {@code 0} for other primitives.
-	 *
-	 * @deprecated Remove when JNoSQL 1.1.5 is out
-	 */
-	@SuppressWarnings("nls")
-	@Deprecated(forRemoval = true)
-	private void processDefaultConstructorBuilder(final WovenClass c) {
-		ClassPool pool = new ClassPool();
-		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
-		pool.appendClassPath(new LoaderClassPath(c.getBundleWiring().getClassLoader()));
-		CtClass cc;
-		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
-			cc = pool.makeClass(is);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-		cc.defrost();
-
-		try {
-			// void addEmptyParameter()
-			{
-				String body = """
-				{
-					java.lang.reflect.Constructor constructor = ((org.eclipse.jnosql.mapping.reflection.DefaultConstructorMetadata) this.metadata).constructor();
-			        Class type = constructor.getParameterTypes()[this.values.size()];
-			        if(boolean.class.equals(type)) {
-				       this.values.add(Boolean.TRUE);
-			        } else if(type.isPrimitive()) {
-						this.values.add(Integer.valueOf(0));
-			        } else {
-			        	this.values.add(null);
-			        }
-			    }""";
-				CtMethod m = cc.getDeclaredMethod("addEmptyParameter"); //$NON-NLS-1$
-				m.setBody(body);
-			}
-
-			c.setBytes(cc.toBytecode());
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-	}
-
-	/**
-	 * As of JNoSQL 1.1.3, DefaultMapFieldMetadata throws an exception in its constructor when
-	 * a field type is a Map but isn't itself parameterized (e.g. JsonObject). This patch
-	 * works around that by also checking implemented interfaces of the type. This will still
-	 * fail if the type doesn't directly implement or extend Map, but it should help in practical
-	 * cases.
-	 *
-	 * @deprecated Remove when JNoSQL 1.1.5 is out
-	 */
-	@SuppressWarnings("nls")
-	@Deprecated(forRemoval = true)
-	private void processDefaultMapFieldMetadata(final WovenClass c) {
-		ClassPool pool = new ClassPool();
-		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
-		pool.appendClassPath(new LoaderClassPath(c.getBundleWiring().getClassLoader()));
-		CtClass cc;
-		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
-			cc = pool.makeClass(is);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-		cc.defrost();
-
-		try {
-			{
-				String body = """
-				{
-					super($1, $2, $3, $5, $6, $7, $8);
-			        this.typeSupplier = $4;
-			        java.lang.reflect.Type mapType = this.field.getGenericType();
-			        if(!(mapType instanceof java.lang.reflect.ParameterizedType)) {
-						java.lang.reflect.Type[] interfaces = ((java.lang.Class)mapType).getGenericInterfaces();
-						for(int i = 0; i < interfaces.length; i++) {
-							if(interfaces[i].getTypeName().startsWith("java.util.Map")) {
-								mapType = interfaces[i];
-								break;
-							}
-						}
-			        }
-			        this.keyType = (java.lang.Class) ((java.lang.reflect.ParameterizedType) mapType)
-			                .getActualTypeArguments()[0];
-			        this.valueType = (java.lang.Class) ((java.lang.reflect.ParameterizedType) mapType)
-			                .getActualTypeArguments()[1];
-			    }""";
-				CtConstructor m = cc.getDeclaredConstructors()[0];
-				m.setBody(body);
-			}
-
-			c.setBytes(cc.toBytecode());
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-	}
-
-	/**
-	 * Same as {@link #processDefaultMapFieldMetadata(WovenClass)}, but for the
-	 * {@code Collection} type. Unlike in that class, this happens in two methods.
-	 *
-	 * @deprecated Remove when JNoSQL 1.1.5 is out
-	 */
-	@SuppressWarnings("nls")
-	@Deprecated(forRemoval = true)
-	private void processDefaultCollectionFieldMetadata(final WovenClass c) {
-		ClassPool pool = new ClassPool();
-		pool.appendClassPath(new LoaderClassPath(ClassLoader.getSystemClassLoader()));
-		pool.appendClassPath(new LoaderClassPath(c.getBundleWiring().getClassLoader()));
-		CtClass cc;
-		try(InputStream is = new ByteArrayInputStream(c.getBytes())) {
-			cc = pool.makeClass(is);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-		cc.defrost();
-
-		try {
-			// hasFieldAnnotation(Class)
-			{
-				String body = """
-				{
-					java.lang.reflect.Type mapType = this.field.getGenericType();
-			        if(!(mapType instanceof java.lang.reflect.ParameterizedType)) {
-						java.lang.reflect.Type[] interfaces = ((java.lang.Class)mapType).getGenericInterfaces();
-						for(int i = 0; i < interfaces.length; i++) {
-							if(interfaces[i].getTypeName().startsWith("java.util.Collection")) {
-								mapType = interfaces[i];
-								break;
-							} else if(interfaces[i].getTypeName().startsWith("java.util.Set")) {
-								mapType = interfaces[i];
-								break;
-							} else if(interfaces[i].getTypeName().startsWith("java.util.List")) {
-								mapType = interfaces[i];
-								break;
-							}
-						}
-			        }
-			        return ((java.lang.Class) ((java.lang.reflect.ParameterizedType) mapType)
-			                .getActualTypeArguments()[0]).getAnnotation($1) != null;
-			    }""";
-				CtMethod m = cc.getDeclaredMethod("hasFieldAnnotation");
-				m.setBody(body);
-			}
-
-			// elementType
-			{
-				String body = """
-				{
-					java.lang.reflect.Type mapType = this.field.getGenericType();
-			        if(!(mapType instanceof java.lang.reflect.ParameterizedType)) {
-						java.lang.reflect.Type[] interfaces = ((java.lang.Class)mapType).getGenericInterfaces();
-						for(int i = 0; i < interfaces.length; i++) {
-							if(interfaces[i].getTypeName().startsWith("java.util.Collection")) {
-								mapType = interfaces[i];
-								break;
-							} else if(interfaces[i].getTypeName().startsWith("java.util.Set")) {
-								mapType = interfaces[i];
-								break;
-							} else if(interfaces[i].getTypeName().startsWith("java.util.List")) {
-								mapType = interfaces[i];
-								break;
-							}
-						}
-			        }
-			        return (java.lang.Class) ((java.lang.reflect.ParameterizedType) mapType)
-			                .getActualTypeArguments()[0];
-			    }""";
-				CtMethod m = cc.getDeclaredMethod("elementType");
 				m.setBody(body);
 			}
 

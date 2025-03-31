@@ -16,18 +16,17 @@
 package org.openntf.xsp.jakarta.nosql;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
 import org.eclipse.jnosql.mapping.document.DocumentTemplate;
 import org.eclipse.jnosql.mapping.document.spi.DocumentExtension;
 import org.eclipse.jnosql.mapping.reflection.ConstructorException;
+import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.validation.MappingValidator;
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
@@ -72,22 +71,18 @@ public class NoSQLBeanContributor implements CDIClassContributor {
 		result.add(DominoReflections.class);
 
 		result.add(Converters.class);
-		result.add(EntityMetadataExtension.class);
 
 		return result;
 	}
 
 	@Override
-	public Collection<Extension> getExtensions() {
-		return Collections.singleton(new EntityMetadataExtension());
-	}
-
-	@Override
 	public Collection<Class<? extends Extension>> getExtensionClasses() {
-		return Arrays.asList(
+		return Set.of(
 			DocumentExtension.class,
 
-			DominoExtension.class
+			DominoExtension.class,
+			
+			ReflectionEntityMetadataExtension.class
 		);
 	}
 
