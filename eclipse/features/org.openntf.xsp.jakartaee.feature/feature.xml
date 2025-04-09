@@ -355,6 +355,9 @@
    
 	<plugin id="org.antlr.antlr4-runtime" version="0.0.0" unpack="false"/>
 	
+	<!-- Component Modules -->
+	<plugin id="org.openntf.xsp.jakartaee.nsfmodule" version="0.0.0" unpack="false"/>
+	
 	<!-- Misc. Support -->
 	<plugin id="org.openntf.jboss-classfilewriter" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.logging.jboss-logging" version="0.0.0" unpack="false"/>

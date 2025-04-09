@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Jakarta EE NSF Module
+Bundle-SymbolicName: org.openntf.xsp.jakartaee.nsfmodule;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.jakartaee.nsfmodule
+Bundle-Version: 3.4.0.qualifier
+Import-Package: com.ibm.commons.util,
+ com.ibm.designer.runtime.domino.adapter,
+ com.ibm.designer.runtime.domino.bootstrap.adapter,
+ com.ibm.domino.xsp.module.nsf,
+ javax.servlet;version="[2.5.0,3.0.0)",
+ javax.servlet.http;version="[2.5.0,3.0.0)",
+ lotus.domino,
+ lotus.notes.addins
+Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="3.4.0"
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
