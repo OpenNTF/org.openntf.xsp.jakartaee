@@ -20,4 +20,16 @@ public interface ComponentModuleProcessor<T extends ComponentModule> {
 	default String getModuleId(final T module) {
 		return Integer.toHexString(System.identityHashCode(module));
 	}
+	
+	default String getXspPrefix(final T module) {
+		return ""; //$NON-NLS-1$
+	}
+	
+	default boolean isJakartaModule(final T module) {
+		return false;
+	}
+	
+	default boolean hasXPages(final T module) {
+		return false;
+	}
 }

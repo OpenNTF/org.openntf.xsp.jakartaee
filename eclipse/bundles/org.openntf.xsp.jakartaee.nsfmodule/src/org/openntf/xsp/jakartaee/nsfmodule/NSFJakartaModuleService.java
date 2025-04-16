@@ -23,7 +23,6 @@ import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
-import com.ibm.domino.xsp.module.nsf.NSFService;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
@@ -39,13 +38,22 @@ import lotus.domino.ViewNavigator;
  */
 public class NSFJakartaModuleService extends HttpService {
 	private static final Logger log = Logger.getLogger(NSFJakartaModuleService.class.getPackageName());
+	static {
+		// TODO remove
+		log.setLevel(Level.FINEST);
+	}
+	
+	private static ThreadLocal<ActiveRequest> ACTIVE_REQUEST = new ThreadLocal<>();
+	
+	public static Optional<ActiveRequest> getActiveRequest() {
+		return Optional.ofNullable(ACTIVE_REQUEST.get());
+	}
 	
 	private static final String PREFIX_WEBPATH = "webpath="; //$NON-NLS-1$
 	private static final int MAX_REFRESH_ATTEMPTS = 10;
 	
 	private final String catalogNsfPath;
 	private final Map<String, NSFJakartaModule> modules;
-	private NSFService nsfService;
 
 	public NSFJakartaModuleService(LCDEnvironment env) {
 		super(env);
@@ -63,7 +71,9 @@ public class NSFJakartaModuleService extends HttpService {
 				log.info(MessageFormat.format("Initialized {0} with mappings {1}", getClass().getSimpleName(), matches));
 			}
 		} catch(Throwable t) {
-			t.printStackTrace();
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, "Encountered exception initializing NSFJakartaModuleService", t);
+			}
 			throw t;
 		}
 	}
@@ -108,30 +118,30 @@ public class NSFJakartaModuleService extends HttpService {
 			String contextPath = '/' + module.getMapping().path();
 			String pathInfo = fullPath.substring(contextPath.length());
 			int i = 0;
-			while(i++ < MAX_REFRESH_ATTEMPTS) {
-				try {
-					module.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
-					return true;
-				} catch(RestartModuleSignal s) {
+			ACTIVE_REQUEST.set(new ActiveRequest(module));
+			try(NSFJakartaModule.WithContext c = module.withContext()) {
+				if(module.shouldRefresh()) {
 					module.refresh();
 				}
+				
+				while(i++ < MAX_REFRESH_ATTEMPTS) {
+					try {
+						module.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
+						return true;
+					} catch(RestartModuleSignal s) {
+						try {
+							module.refresh();
+						} catch(NullPointerException e) {
+							// Will likely throw an NPE because the Faces ApplicationFactory is not found
+						}
+					}
+				}
+			} finally {
+				ACTIVE_REQUEST.set(null);
 			}
 			throw new IllegalStateException(MessageFormat.format("Module didn't refresh after {0} attempts", MAX_REFRESH_ATTEMPTS));
 		}
 		return false;
-	}
-	
-	public NSFService getNSFService() {
-		synchronized(this) {
-			if(this.nsfService == null) {
-				this.nsfService = getEnvironment().getServices().stream()
-					.filter(NSFService.class::isInstance)
-					.map(NSFService.class::cast)
-					.findFirst()
-					.orElseThrow(() -> new IllegalStateException("Unable to locate active NSFService"));
-			}
-			return nsfService;
-		}
 	}
 	
 	// *******************************************************************************

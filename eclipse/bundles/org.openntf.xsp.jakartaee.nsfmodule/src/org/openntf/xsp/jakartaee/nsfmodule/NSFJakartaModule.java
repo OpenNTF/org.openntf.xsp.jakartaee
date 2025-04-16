@@ -3,35 +3,55 @@ package org.openntf.xsp.jakartaee.nsfmodule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.Objects;
+import java.util.Collection;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.hcl.domino.module.nsf.NSFComponentModule;
+import com.hcl.domino.module.nsf.NotesContext;
+import com.hcl.domino.module.nsf.RuntimeFileSystem;
+import com.hcl.domino.module.nsf.RuntimeFileSystem.NSFFile;
+import com.hcl.domino.module.nsf.RuntimeFileSystem.NSFResource;
+import com.ibm.commons.extension.ExtensionManager;
+import com.ibm.commons.util.NotImplementedException;
+import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
-import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
-import com.ibm.domino.xsp.module.nsf.NSFService;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem;
+import com.ibm.domino.xsp.module.nsf.NotesURL;
+
+import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 
 /**
  * @since 3.4.0
  */
 public class NSFJakartaModule extends ComponentModule {
+	private static final Logger log = Logger.getLogger(NSFJakartaModule.class.getPackageName());
+	
+	static {
+		// TODO switch back
+		log.setLevel(Level.FINEST);
+	}
+	
 	private final ModuleMap mapping;
 	private NSFComponentModule delegate;
+	private Collection<JakartaIServletFactory> servletFactories;
 	private boolean initialized;
+	private NSFJakartaModuleClassLoader moduleClassLoader;
+	private long lastRefresh;
 	
 	public NSFJakartaModule(LCDEnvironment env, NSFJakartaModuleService service, ModuleMap mapping) {
 		super(env, service, MessageFormat.format("{0} -> {1}", mapping.path(), mapping.nsfPath()), true);
@@ -53,17 +73,26 @@ public class NSFJakartaModule extends ComponentModule {
 
 	@Override
 	protected void doInitModule() {
-		NSFService nsfService = getHttpService().getNSFService();
-		try {
-			NSFComponentModule delegate = nsfService.loadModule(mapping.nsfPath());
-			this.delegate = Objects.requireNonNull(delegate, MessageFormat.format("Unable to open database {0}", mapping.nsfPath()));
-		} catch(ServletException e) {
-			e.printStackTrace();
-			throw new RuntimeException(MessageFormat.format("Encountered exception loading database {0}", mapping.nsfPath()), e);
+		this.delegate = new NSFComponentModule(mapping.nsfPath());
+
+		try(WithContext c = withContext()) {
+			this.delegate.initModule();
+			
+			if(this.moduleClassLoader != null) {
+				this.moduleClassLoader.close();
+			}
+			this.moduleClassLoader = new NSFJakartaModuleClassLoader(this);
+			
+			this.servletFactories = ExtensionManager.findApplicationServices(getModuleClassLoader(), "com.ibm.xsp.adapter.servletFactory").stream() //$NON-NLS-1$
+				.filter(JakartaIServletFactory.class::isInstance)
+				.map(JakartaIServletFactory.class::cast)
+				.peek(fac -> fac.init(this))
+				.toList();
 		}
 		
 		this.initialized = true;
 	}
+	
 	
 	public boolean isInitialized() {
 		return initialized;
@@ -72,19 +101,21 @@ public class NSFJakartaModule extends ComponentModule {
 	@Override
 	protected void doDestroyModule() {
 		this.initialized = false;
+		
+		if(this.moduleClassLoader != null) {
+			this.moduleClassLoader.close();
+			this.moduleClassLoader = null;
+		}
 	}
 	
 	@Override
 	public void doService(String contextPath, String pathInfo, HttpSessionAdapter httpSessionAdapter, HttpServletRequestAdapter servletRequest,
 			HttpServletResponseAdapter servletResponse) throws ServletException, IOException {
-		System.out.println(getClass().getSimpleName() + "#doService with contextPath=" + contextPath + ", pathInfo=" + pathInfo);
-		NotesContext notesContext = new NotesContext(delegate);
-		NotesContext.initThread(notesContext);
-		try {
-			super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
-		} finally {
-			NotesContext.termThread();
+		if(log.isLoggable(Level.FINER)) {
+			log.finer(getClass().getSimpleName() + "#doService with contextPath=" + contextPath + ", pathInfo=" + pathInfo);
 		}
+		
+		super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
 	}
 
 	@Override
@@ -94,32 +125,76 @@ public class NSFJakartaModule extends ComponentModule {
 
 	@Override
 	public ClassLoader getModuleClassLoader() {
-		return delegate.getModuleClassLoader();
+		return this.moduleClassLoader;
 	}
 
 	@Override
 	public URL getResource(String res) throws MalformedURLException {
-		return delegate.getResource(res);
+		try(WithContext ctx = withContext()) {
+			RuntimeFileSystem fs = delegate.getRuntimeFileSystem();
+			if(fs.exists(res)) {
+				return NotesURL.createNSFUrl(mapping.nsfPath(), res);
+			}
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		return null;
 	}
 
 	@Override
 	public InputStream getResourceAsStream(String res) {
-		return delegate.getResourceAsStream(res);
+		try(WithContext ctx = withContext()) {
+			RuntimeFileSystem fs = delegate.getRuntimeFileSystem();
+			// TODO check if the paths have the same symantics
+			NSFResource nsfRes = fs.getResource(res);
+			if(nsfRes instanceof NSFFile file) {
+				return fs.getFileContent(NotesContext.getCurrent().getNotesDatabase(), file);
+			}
+		} catch (NotesAPIException | IOException e) {
+			throw new RuntimeException(e);
+		}
+		return null;
 	}
 
 	@Override
 	public Set<String> getResourcePaths(String res) {
-		return delegate.getResourcePaths(res);
+		// This is looking for all resources strictly within the folder path,
+		//   with a trailing "/" if it's a subfolder of it
+//		for(String path : delegate.getRuntimeFileSystem().getAllResources().keySet()) {
+			// TODO implement
+//		}
+		throw new NotImplementedException();
 	}
 
 	@Override
 	public boolean refresh() {
-		return delegate.refresh();
+		if(log.isLoggable(Level.FINE)) {
+			log.fine(MessageFormat.format("Refreshing module {0}", this));
+		}
+		doInitModule();
+		this.lastRefresh = System.currentTimeMillis();
+		return true;
+	}
+	
+	@Override
+	public long getLastRefresh() {
+		return Math.max(lastRefresh, super.getLastRefresh());
 	}
 
 	@Override
 	public boolean shouldRefresh() {
-		return delegate.shouldRefresh();
+		try(WithContext w = withContext()) {
+			boolean shouldRefresh = delegate.shouldRefresh();
+			if(log.isLoggable(Level.FINEST)) {
+				log.finest(MessageFormat.format("{0} - should refresh? {1}", this, shouldRefresh));
+			}
+			return shouldRefresh;
+		}
+	}
+	
+	@Override
+	public boolean isExpired(long paramLong) {
+		return super.isExpired(paramLong);
 	}
 	
 	public RuntimeFileSystem getRuntimeFileSystem() {
@@ -129,10 +204,14 @@ public class NSFJakartaModule extends ComponentModule {
 	// These are called by AdapterInvoker
 	
 	@Override
-	public ServletMatch getServlet(String paramString) throws ServletException {
-		// TODO Auto-generated method stub
-		System.out.println(mapping + " - getServlet for " + paramString);
-		return super.getServlet(paramString);
+	public ServletMatch getServlet(String path) throws ServletException {
+		for(JakartaIServletFactory fac : this.servletFactories) {
+			ServletMatch servletMatch = fac.getServletMatch("", path); //$NON-NLS-1$
+			if(servletMatch != null) {
+				return servletMatch;
+			}
+		}
+		return null;
 	}
 	
 	// Called if getServlet returns null
@@ -147,40 +226,90 @@ public class NSFJakartaModule extends ComponentModule {
 	@Override
 	protected void invokeServlet(Servlet paramServlet, HttpServletRequest paramHttpServletRequest,
 			HttpServletResponse paramHttpServletResponse) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		super.invokeServlet(paramServlet, paramHttpServletRequest, paramHttpServletResponse);
+		if(log.isLoggable(Level.FINE)) {
+			log.fine(MessageFormat.format("Invoking Servlet {0}", paramServlet));
+		}
+		try {
+			super.invokeServlet(paramServlet, paramHttpServletRequest, paramHttpServletResponse);
+		} catch(Throwable t) {
+			if(log.isLoggable(Level.WARNING)) {
+				log.log(Level.WARNING, MessageFormat.format("Encountered exception invoking Servlet {0} in {1}", paramServlet, this), t);
+			}
+			throw t;
+		}
 	}
 	
 	// Called if there's no ServletMatch
 	@Override
 	public boolean hasBundleResource() {
-		return delegate.hasBundleResource();
+		return true;
 	}
 	
 	// Called by writeResource to see if it should cache resources
 	@Override
 	public boolean isResourcesCache() {
-		return delegate.isResourcesCache();
+		return true;
 	}
 	
 	// Called when isResourcesCache() == true
 	@Override
 	public boolean isResourcesModifiedSince(String res, long t) {
-		System.out.println("asking for isResourcesModifiedSince " + res);
-		return delegate.isResourcesModifiedSince(res, t);
+		// TODO consider making this fine-grained, though it's probably speedy as-is
+		return delegate.getRuntimeFileSystem().getLastModificationDate() > t;
 	}
 	
 	// Called when isResourcesCache() == true
 	@Override
 	public long getResourcesExpireTime(String res) {
-		return delegate.getResourcesExpireTime(res);
+		// TODO look for xsp.expires app property
+		// TODO check for image types like normal NSFComponentModule
+		return 864000000L;
 	}
 
 	// Called to serve resource - returns false if it doesn't exist
 	@Override
 	public boolean getResourceAsStream(OutputStream os, String res) {
-		System.out.println("asking for resourceAsStream " + res);
-		return delegate.getResourceAsStream(os, res);
+		try(WithContext ctx = withContext()) {
+			try(InputStream is = getResourceAsStream(res)) {
+				if(is != null) {
+					is.transferTo(os);
+				}
+			} catch (IOException e) {
+				throw new UncheckedIOException(e);
+			}
+			return false;
+		}
+	}
+	
+	@Override
+	public String toString() {
+		return MessageFormat.format("{0}: {1}", getClass().getSimpleName(), mapping);
+	}
+	
+	public WithContext withContext() {
+		if(NotesContext.contextThreadLocal.get() == null) {
+			NotesContext notesContext = new NotesContext(delegate);
+			NotesContext.initThread(notesContext);
+			return new WithContextImpl(notesContext);
+		} else {
+			return new WithContextNop();
+		}
+	}
+	
+	public interface WithContext extends AutoCloseable {
+		void close();
 	}
 
+	public record WithContextImpl(NotesContext notesContext) implements WithContext {
+		@Override
+		public void close() {
+			NotesContext.termThread();
+		}
+	}
+	
+	public record WithContextNop() implements WithContext {
+		@Override
+		public void close() {
+		}
+	}
 }

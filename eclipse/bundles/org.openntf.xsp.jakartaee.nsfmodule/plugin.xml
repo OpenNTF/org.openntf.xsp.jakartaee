@@ -25,6 +25,11 @@
 	
 	<!-- Framework support for NSF modules -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleProcessor" class=""/>
+		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleProcessor" class="org.openntf.xsp.jakartaee.nsfmodule.NSFJakartaModuleProcessor"/>
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleLocator" class="org.openntf.xsp.jakartaee.nsfmodule.NSFJakartaModuleLocator"/>
+	</extension>
+	
+	
 </plugin>

@@ -16,6 +16,7 @@
 package org.openntf.xsp.jakartaee.servlet;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Enumeration;
 
 import jakarta.servlet.Servlet;
@@ -113,5 +114,10 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 		} catch (ServletException e) {
 			throw new javax.servlet.ServletException(e);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return MessageFormat.format("[{0}: delegate={1}]", getClass().getSimpleName(), delegate); //$NON-NLS-1$
 	}
 }

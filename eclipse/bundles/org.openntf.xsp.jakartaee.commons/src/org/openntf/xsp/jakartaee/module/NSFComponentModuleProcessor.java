@@ -44,5 +44,14 @@ public class NSFComponentModuleProcessor implements ComponentModuleProcessor<NSF
 	public String getModuleId(final NSFComponentModule module) {
 		return module.getDatabasePath();
 	}
+	
+	@Override
+	public String getXspPrefix(final NSFComponentModule module) {
+		return "/xsp"; //$NON-NLS-1$
+	}
 
+	@Override
+	public boolean hasXPages(NSFComponentModule module) {
+		return true;
+	}
 }

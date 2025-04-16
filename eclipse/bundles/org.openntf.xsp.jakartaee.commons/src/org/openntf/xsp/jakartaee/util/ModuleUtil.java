@@ -148,16 +148,50 @@ public enum ModuleUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static String getModuleId(final ComponentModule module) {
-		if(module == null) {
-			throw new NullPointerException("module cannot be null");
-		} else {
-			return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-				.stream()
-				.filter(proc -> proc.canProcess(module))
-				.findFirst()
-				.map(proc -> proc.getModuleId(module))
-				.orElseGet(() -> Integer.toHexString(System.identityHashCode(module)));
-		}
+		Objects.requireNonNull(module, "module cannot be null");
+		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
+			.stream()
+			.filter(proc -> proc.canProcess(module))
+			.findFirst()
+			.map(proc -> proc.getModuleId(module))
+			.orElseGet(() -> Integer.toHexString(System.identityHashCode(module)));
+	}
+	
+	/**
+	 * Determines the expected "forced" prefix for URLs that are routed
+	 * to the Jakarta-ready domain.
+	 * 
+	 * @param module the module to check
+	 * @return the forced prefix if applicable, or an empty string if not
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static String getXspPrefix(final ComponentModule module) {
+		Objects.requireNonNull(module, "module cannot be null");
+		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
+			.stream()
+			.filter(proc -> proc.canProcess(module))
+			.findFirst()
+			.map(proc -> proc.getXspPrefix(module))
+			.orElse(""); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Determines the provides module is expected to process XPage requests.
+	 * 
+	 * @param module the module to check
+	 * @return the {@code true} if the module has an XPages Servlet; {@code false} otherwise
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean hasXPages(final ComponentModule module) {
+		Objects.requireNonNull(module, "module cannot be null");
+		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
+			.stream()
+			.filter(proc -> proc.canProcess(module))
+			.findFirst()
+			.map(proc -> proc.hasXPages(module))
+			.orElse(false);
 	}
 
 	/**
