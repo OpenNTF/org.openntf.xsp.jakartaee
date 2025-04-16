@@ -229,7 +229,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
-					<executionEnvironment>JavaSE-17</executionEnvironment>
+					<executionEnvironment>JavaSE-21</executionEnvironment>
 					<pomDependencies>consider</pomDependencies>
 					<dependency-resolution>
 						<extraRequirements>
@@ -347,7 +347,7 @@
 									<version>3.0.1</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
-									<version>17</version>
+									<version>21</version>
 								</requireJavaVersion>
 							</rules>
 						</configuration>

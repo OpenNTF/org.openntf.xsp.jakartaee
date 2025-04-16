@@ -36,6 +36,7 @@ import java.util.Set;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
+import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
@@ -72,12 +73,14 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 		if("true".equalsIgnoreCase(contextParams.get(FacesServlet.AUTOMATIC_EXTENSIONLESS_MAPPING_PARAM_NAME))) { //$NON-NLS-1$
 			// If so, look for .xhtml and .jsf files and push them to known extensions
 			Set<String> exts = getExtensions();
+			String xspPrefix = ModuleUtil.getXspPrefix(module);
 			ModuleUtil.listFiles(module, null)
 				.filter(f -> !f.startsWith("WEB-INF/")) //$NON-NLS-1$
 				.forEach(f -> {
 					for(String ext : exts) {
 						if(f.endsWith(ext)) {
-							this.addExplicitEndpoint("/xsp/" + f.substring(0, f.length()-ext.length()), '/' + f); //$NON-NLS-1$
+							String path = PathUtil.concat(xspPrefix, f.substring(0, f.length()-ext.length()), '/');
+							this.addExplicitEndpoint(path, '/' + f);
 						}
 					}
 				});

@@ -2,6 +2,8 @@ package org.openntf.xsp.jakartaee.nsfmodule;
 
 import java.util.Optional;
 
+import com.hcl.domino.module.nsf.NotesContext;
+import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import jakarta.servlet.ServletContext;
@@ -33,7 +35,14 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 
 	@Override
 	public Optional<NotesDatabase> getNotesDatabase() {
-		// TODO Auto-generated method stub
+		NotesContext ctx = NotesContext.contextThreadLocal.get();
+		if(ctx != null) {
+			try {
+				return Optional.ofNullable(ctx.getNotesDatabase());
+			} catch (NotesAPIException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		return Optional.empty();
 	}
 

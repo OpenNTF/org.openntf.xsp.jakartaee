@@ -86,9 +86,13 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	private boolean initialized = false;
 	private final ComponentModule module;
 	private DesignerFacesServlet facesServlet;
+	private boolean doFaces;
+	private boolean doEvents;
 
 	public AbstractXspLifecycleServlet(final ComponentModule module) {
 		this.module = module;
+		this.doFaces = ModuleUtil.hasXPages(module);
+		this.doEvents = ModuleUtil.emulateServletEvents(module);
 	}
 
 	@Override
@@ -100,35 +104,48 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 		ServletUtil.populateWebXmlParams(module, config.getServletContext());
 
 		// Look for registered ServletContainerInitializers and emulate the behavior
-		List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class);
-		for(ServletContainerInitializer initializer : initializers) {
-			Set<Class<?>> classes = null;
-			if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
-				classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), module);
+		if(this.doEvents) {
+			List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class);
+			for(ServletContainerInitializer initializer : initializers) {
+				Set<Class<?>> classes = null;
+				if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
+					classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), module);
+				}
+				initializer.onStartup(classes, config.getServletContext());
 			}
-			initializer.onStartup(classes, config.getServletContext());
+		} else {
+			this.doInit(config, null);
 		}
 
 		// Kick off init early if needed
-		this.getFacesServlet(config);
+		if(this.doFaces) {
+			this.getFacesServlet(config);
+		}
 	}
 
 	@Override
 	protected void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		response.setBufferSize(0);
 
-		initializeSessionAsSigner();
+		if(this.doFaces) {
+			initializeSessionAsSigner();
+		}
 		FacesContext facesContext = null;
 		try {
-			if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
-				doInit(config, request);
-
-				initialized = true;
+			if(this.doEvents) {
+				if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
+					doInit(config, request);
+	
+					initialized = true;
+				}
 			}
 
-			facesContext = getFacesContext(request, response);
-	    	FacesContextEx exc = (FacesContextEx)facesContext;
-	    	ApplicationEx application = exc.getApplicationEx();
+			ApplicationEx application = null;
+			if(this.doFaces) {
+				facesContext = getFacesContext(request, response);
+		    	FacesContextEx exc = (FacesContextEx)facesContext;
+		    	application = exc.getApplicationEx();
+			}
 
 	    	this.doService(request, response, application);
 		} catch(NoAccessSignal t) {

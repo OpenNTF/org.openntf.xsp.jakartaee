@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public enum DominoPagesUtil {
 			.map(uri -> "jar:" + uri + "!/") //$NON-NLS-1$ //$NON-NLS-2$
 			.map(t -> {
 				try {
-					return new URL(t);
+					return URI.create(t).toURL();
 				} catch (MalformedURLException e) {
 					throw new UncheckedIOException(e);
 				}

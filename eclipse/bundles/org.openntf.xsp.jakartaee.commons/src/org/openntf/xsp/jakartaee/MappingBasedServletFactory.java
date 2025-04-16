@@ -26,15 +26,15 @@ import javax.servlet.ServletException;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 
+import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import jakarta.servlet.ServletContext;
 
-public abstract class MappingBasedServletFactory implements IServletFactory {
+public abstract class MappingBasedServletFactory implements JakartaIServletFactory {
 	private static final Map<String, Map<String, Servlet>> MODULE_SERVLETS = new ConcurrentHashMap<>();
 	private ComponentModule module;
 	private long lastUpdate;

@@ -8,6 +8,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,9 +23,10 @@ import com.hcl.domino.module.nsf.NSFComponentModule;
 import com.hcl.domino.module.nsf.NotesContext;
 import com.hcl.domino.module.nsf.RuntimeFileSystem;
 import com.hcl.domino.module.nsf.RuntimeFileSystem.NSFFile;
+import com.hcl.domino.module.nsf.RuntimeFileSystem.NSFFolder;
 import com.hcl.domino.module.nsf.RuntimeFileSystem.NSFResource;
 import com.ibm.commons.extension.ExtensionManager;
-import com.ibm.commons.util.NotImplementedException;
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
@@ -31,9 +34,11 @@ import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
-import com.ibm.domino.xsp.module.nsf.NotesURL;
 
+import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
+import org.openntf.xsp.jakartaee.nsfmodule.io.NSFJakartaURL;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 /**
  * @since 3.4.0
@@ -54,7 +59,7 @@ public class NSFJakartaModule extends ComponentModule {
 	private long lastRefresh;
 	
 	public NSFJakartaModule(LCDEnvironment env, NSFJakartaModuleService service, ModuleMap mapping) {
-		super(env, service, MessageFormat.format("{0} -> {1}", mapping.path(), mapping.nsfPath()), true);
+		super(env, service, MessageFormat.format("{0} - {1}", mapping.path(), mapping.nsfPath()), true);
 		this.mapping = mapping;
 	}
 	
@@ -133,10 +138,8 @@ public class NSFJakartaModule extends ComponentModule {
 		try(WithContext ctx = withContext()) {
 			RuntimeFileSystem fs = delegate.getRuntimeFileSystem();
 			if(fs.exists(res)) {
-				return NotesURL.createNSFUrl(mapping.nsfPath(), res);
+				return NSFJakartaURL.of(this.mapping.nsfPath(), res);
 			}
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
 		}
 		return null;
 	}
@@ -160,10 +163,23 @@ public class NSFJakartaModule extends ComponentModule {
 	public Set<String> getResourcePaths(String res) {
 		// This is looking for all resources strictly within the folder path,
 		//   with a trailing "/" if it's a subfolder of it
-//		for(String path : delegate.getRuntimeFileSystem().getAllResources().keySet()) {
-			// TODO implement
-//		}
-		throw new NotImplementedException();
+		Set<String> result = new HashSet<>();
+		for(Map.Entry<String, NSFResource> entry : delegate.getRuntimeFileSystem().getAllResources().entrySet()) {
+			String path = entry.getKey();
+			int slashIndex = path.lastIndexOf('/');
+			if(slashIndex > -1) {
+				String parentPath = path.substring(0, slashIndex);
+				if(StringUtil.equals(res, parentPath)) {
+					NSFResource nsfRes = entry.getValue();
+					if(nsfRes instanceof NSFFolder) {
+						result.add(path + '/');
+					} else {
+						result.add(path);
+					}
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -224,18 +240,21 @@ public class NSFJakartaModule extends ComponentModule {
 	
 	// Called by AdapterInvoker if getServlet or a ServletFactory returns a ServletMatch
 	@Override
-	protected void invokeServlet(Servlet paramServlet, HttpServletRequest paramHttpServletRequest,
-			HttpServletResponse paramHttpServletResponse) throws ServletException, IOException {
+	protected void invokeServlet(Servlet servlet, HttpServletRequest req,
+			HttpServletResponse resp) throws ServletException, IOException {
 		if(log.isLoggable(Level.FINE)) {
-			log.fine(MessageFormat.format("Invoking Servlet {0}", paramServlet));
+			log.fine(MessageFormat.format("Invoking Servlet {0}", servlet));
 		}
+		HttpContextBean.setThreadResponse(ServletUtil.oldToNew(resp));;
 		try {
-			super.invokeServlet(paramServlet, paramHttpServletRequest, paramHttpServletResponse);
+			super.invokeServlet(servlet, req, resp);
 		} catch(Throwable t) {
 			if(log.isLoggable(Level.WARNING)) {
-				log.log(Level.WARNING, MessageFormat.format("Encountered exception invoking Servlet {0} in {1}", paramServlet, this), t);
+				log.log(Level.WARNING, MessageFormat.format("Encountered exception invoking Servlet {0} in {1}", servlet, this), t);
 			}
 			throw t;
+		} finally {
+			HttpContextBean.setThreadResponse(null);
 		}
 	}
 	

@@ -47,5 +47,10 @@ public class NSFJakartaModuleProcessor implements ComponentModuleProcessor<NSFJa
 	public String getModuleId(NSFJakartaModule module) {
 		return module.getClass().getSimpleName() + "-" + module.getDelegate().getDatabasePath(); //$NON-NLS-1$
 	}
+	
+	@Override
+	public boolean emulateServletEvents(NSFJakartaModule module) {
+		return false;
+	}
 
 }

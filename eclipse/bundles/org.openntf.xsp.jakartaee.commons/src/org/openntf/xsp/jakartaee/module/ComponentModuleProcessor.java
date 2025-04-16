@@ -32,4 +32,8 @@ public interface ComponentModuleProcessor<T extends ComponentModule> {
 	default boolean hasXPages(final T module) {
 		return false;
 	}
+	
+	default boolean emulateServletEvents(final T module) {
+		return true;
+	}
 }

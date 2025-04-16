@@ -8,18 +8,19 @@ Import-Package: com.hcl.domino.module.nsf;resolution:=optional,
  com.ibm.commons.extension,
  com.ibm.commons.util,
  com.ibm.designer.domino.napi,
+ com.ibm.designer.domino.napi.design,
  com.ibm.designer.runtime.domino.adapter,
  com.ibm.designer.runtime.domino.bootstrap.adapter,
  com.ibm.domino.napi,
- com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.library,
  jakarta.servlet;version="5.0.0",
  jakarta.servlet.http;version="5.0.0",
  javax.servlet;version="[2.5.0,3.0.0)",
  javax.servlet.http;version="[2.5.0,3.0.0)",
  lotus.domino,
- lotus.notes.addins
+ lotus.notes.addins,
+ org.openntf.xsp.jakarta.cdi.bean;version="[3.4.0,4.0.0)"
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="3.4.0"
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy

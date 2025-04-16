@@ -102,7 +102,7 @@ public enum QueryConverter {
 			value = value.toString();
 		}
 		switch (condition.condition()) {
-			case EQUALS:
+			case EQUALS: {
 				if(value instanceof Number n) {
 					return DQL.item(name).isEqualTo(n.doubleValue());
 				} else if(value instanceof Temporal t) {
@@ -110,7 +110,8 @@ public enum QueryConverter {
 				} else {
 					return DQL.item(name).isEqualTo(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case LESSER_THAN:
+			}
+			case LESSER_THAN: {
 				if(value instanceof Number n) {
 					return DQL.item(name).isLessThan(n.doubleValue());
 				} else if(value instanceof Temporal t) {
@@ -118,7 +119,8 @@ public enum QueryConverter {
 				} else {
 					return DQL.item(name).isLessThan(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case LESSER_EQUALS_THAN:
+			}
+			case LESSER_EQUALS_THAN: {
 				if(value instanceof Number n) {
 					return DQL.item(name).isLessThanOrEqual(n.doubleValue());
 				} else if(value instanceof Temporal t) {
@@ -126,7 +128,8 @@ public enum QueryConverter {
 				} else {
 					return DQL.item(name).isLessThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case GREATER_THAN:
+			}
+			case GREATER_THAN: {
 				if(value instanceof Number n) {
 					return DQL.item(name).isGreaterThan(n.doubleValue());
 				} else if(value instanceof Temporal t) {
@@ -134,7 +137,8 @@ public enum QueryConverter {
 				} else {
 					return DQL.item(name).isGreaterThan(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case GREATER_EQUALS_THAN:
+			}
+			case GREATER_EQUALS_THAN: {
 				if(value instanceof Number n) {
 					return DQL.item(name).isGreaterThanOrEqual(n.doubleValue());
 				} else if(value instanceof Temporal t) {
@@ -142,13 +146,15 @@ public enum QueryConverter {
 				} else {
 					return DQL.item(name).isGreaterThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case LIKE:
+			}
+			case LIKE: {
 				if(value instanceof Number) {
 					throw new IllegalArgumentException("Unable to perform LIKE query on a number");
 				} else {
 					return DQL.item(name).contains(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case IN:
+			}
+			case IN: {
 				Object arr = toDqlArray(value);
 				if(arr instanceof int[] i) {
 					return DQL.item(name).in(i);
@@ -158,6 +164,7 @@ public enum QueryConverter {
 					// Guaranteed to be String[]
 					return DQL.item(name).in((String[])arr);
 				}
+			}
 			case AND: {
 				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});
 				return DQL.and(conditions
@@ -172,9 +179,10 @@ public enum QueryConverter {
 					.map(QueryConverter::getCondition)
 					.toArray(DQLTerm[]::new));
 			}
-			case NOT:
+			case NOT: {
 				CriteriaCondition dc = document.get(CriteriaCondition.class);
 				return DQL.not(getCondition(dc));
+			}
 			default:
 				throw new IllegalStateException("This condition is not supported in Domino: " + condition.condition()); //$NON-NLS-1$
 		}

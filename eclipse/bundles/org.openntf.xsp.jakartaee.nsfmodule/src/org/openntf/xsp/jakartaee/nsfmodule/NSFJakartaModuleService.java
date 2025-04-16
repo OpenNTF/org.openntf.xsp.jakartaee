@@ -32,6 +32,8 @@ import lotus.domino.Session;
 import lotus.domino.View;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
+import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 /**
  * @since 3.4.0
@@ -129,11 +131,7 @@ public class NSFJakartaModuleService extends HttpService {
 						module.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
 						return true;
 					} catch(RestartModuleSignal s) {
-						try {
-							module.refresh();
-						} catch(NullPointerException e) {
-							// Will likely throw an NPE because the Faces ApplicationFactory is not found
-						}
+						module.refresh();
 					}
 				}
 			} finally {

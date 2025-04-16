@@ -177,7 +177,7 @@ public enum ModuleUtil {
 	}
 	
 	/**
-	 * Determines the provides module is expected to process XPage requests.
+	 * Determines whether the provided module is expected to process XPage requests.
 	 * 
 	 * @param module the module to check
 	 * @return the {@code true} if the module has an XPages Servlet; {@code false} otherwise
@@ -191,6 +191,24 @@ public enum ModuleUtil {
 			.filter(proc -> proc.canProcess(module))
 			.findFirst()
 			.map(proc -> proc.hasXPages(module))
+			.orElse(false);
+	}
+	
+	/**
+	 * Determines whether the provided module requires emulation of Servlet events.
+	 * 
+	 * @param module the module to check
+	 * @return the {@code true} if requires event emulation; {@code false} otherwise
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean emulateServletEvents(final ComponentModule module) {
+		Objects.requireNonNull(module, "module cannot be null");
+		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
+			.stream()
+			.filter(proc -> proc.canProcess(module))
+			.findFirst()
+			.map(proc -> proc.emulateServletEvents(module))
 			.orElse(false);
 	}
 

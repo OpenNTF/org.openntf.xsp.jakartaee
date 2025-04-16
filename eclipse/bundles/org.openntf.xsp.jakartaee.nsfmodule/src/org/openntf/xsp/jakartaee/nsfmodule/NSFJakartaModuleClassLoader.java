@@ -2,7 +2,6 @@ package org.openntf.xsp.jakartaee.nsfmodule;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
@@ -20,10 +19,10 @@ import com.hcl.domino.module.nsf.RuntimeFileSystem;
 import com.ibm.commons.extension.ExtensionManager.ApplicationClassLoader;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
-import com.ibm.domino.xsp.module.nsf.NotesURL;
 import com.ibm.xsp.library.LibraryServiceLoader;
 import com.ibm.xsp.library.LibraryWrapper;
 import org.openntf.xsp.jakartaee.nsfmodule.NSFJakartaModule.WithContext;
+import org.openntf.xsp.jakartaee.nsfmodule.io.NSFJakartaURL;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 public class NSFJakartaModuleClassLoader extends URLClassLoader implements ApplicationClassLoader {
@@ -117,23 +116,17 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	}
 
 	private static URL[] createURLs(NSFJakartaModule module) {
-		String nsfPath = module.getMapping().nsfPath();
+		List<URL> result = new ArrayList<>();
 		
-		try {
-			List<URL> result = new ArrayList<>();
-			
-			result.add(NotesURL.createNSFUrl(nsfPath, "/WEB-INF/classes/")); //$NON-NLS-1$
-			
-			// Find all JARs
-			RuntimeFileSystem fs = module.getRuntimeFileSystem();
-			for(String path : fs.listJars().keySet()) {
-				URL url = NotesURL.createNSFUrl(nsfPath, '/' + path);
-				result.add(url);
-			}
-			
-			return result.toArray(new URL[result.size()]);
-		} catch (MalformedURLException e) {
-			throw new UncheckedIOException(e);
+		result.add(NSFJakartaURL.of(module.getMapping().nsfPath(), "/WEB-INF/classes/")); //$NON-NLS-1$
+		
+		// Find all JARs
+		RuntimeFileSystem fs = module.getRuntimeFileSystem();
+		for(String path : fs.listJars().keySet()) {
+			URL url = NSFJakartaURL.of(module.getMapping().nsfPath(), '/' + path);
+			result.add(url);
 		}
+		
+		return result.toArray(new URL[result.size()]);
 	}
 }
