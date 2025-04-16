@@ -102,7 +102,7 @@ public enum QueryConverter {
 			value = value.toString();
 		}
 		switch (condition.condition()) {
-			case EQUALS:
+			case EQUALS: {
 				if(value instanceof Number n) {
 					return DQL.item(name).isEqualTo(n.doubleValue());
 				} else if(value instanceof Temporal t) {
@@ -110,7 +110,8 @@ public enum QueryConverter {
 				} else {
 					return DQL.item(name).isEqualTo(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case LESSER_THAN:
+			}
+			case LESSER_THAN: {
 				if(value instanceof Number n) {
 					return DQL.item(name).isLessThan(n.doubleValue());
 				} else if(value instanceof Temporal t) {
@@ -118,7 +119,8 @@ public enum QueryConverter {
 				} else {
 					return DQL.item(name).isLessThan(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case LESSER_EQUALS_THAN:
+			}
+			case LESSER_EQUALS_THAN: {
 				if(value instanceof Number n) {
 					return DQL.item(name).isLessThanOrEqual(n.doubleValue());
 				} else if(value instanceof Temporal t) {
@@ -126,7 +128,8 @@ public enum QueryConverter {
 				} else {
 					return DQL.item(name).isLessThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case GREATER_THAN:
+			}
+			case GREATER_THAN: {
 				if(value instanceof Number n) {
 					return DQL.item(name).isGreaterThan(n.doubleValue());
 				} else if(value instanceof Temporal t) {
@@ -134,7 +137,8 @@ public enum QueryConverter {
 				} else {
 					return DQL.item(name).isGreaterThan(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case GREATER_EQUALS_THAN:
+			}
+			case GREATER_EQUALS_THAN: {
 				if(value instanceof Number n) {
 					return DQL.item(name).isGreaterThanOrEqual(n.doubleValue());
 				} else if(value instanceof Temporal t) {
@@ -142,12 +146,14 @@ public enum QueryConverter {
 				} else {
 					return DQL.item(name).isGreaterThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case LIKE:
+			}
+			case LIKE: {
 				if(value instanceof Number) {
 					throw new IllegalArgumentException("Unable to perform LIKE query on a number");
 				} else {
 					return DQL.item(name).contains(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
+			}
 			case IN:
 				Object arr = toDqlArray(value);
 				if(arr instanceof int[] i) {
