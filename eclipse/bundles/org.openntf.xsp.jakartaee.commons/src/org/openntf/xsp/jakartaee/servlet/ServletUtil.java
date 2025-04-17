@@ -411,8 +411,8 @@ public enum ServletUtil {
 		// Special handling for wrapped XSP responses
 		if(resp instanceof OldHttpServletResponseWrapper) {
 			javax.servlet.http.HttpServletResponse old = newToOld(resp);
-			if(old instanceof LCDAdapterHttpServletResponse) {
-				HttpServletResponseAdapter delegate = ((LCDAdapterHttpServletResponse)old).getDelegate();
+			if(old instanceof LCDAdapterHttpServletResponse lcdResp) {
+				HttpServletResponseAdapter delegate = lcdResp.getDelegate();
 				if(delegate instanceof XspCmdHttpServletResponse xspResp) {
 					try {
 						if(xspResp.writerInUse()) {
