@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
+import com.ibm.commons.util.NotImplementedException;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesNote;
@@ -17,7 +18,7 @@ public enum NSFAccess {
 	;
 	
 	public static URLConnection openConnection(String nsfPath, String res) {
-		return null;
+		throw new NotImplementedException("TODO implement openConnection");
 	}
 	
 	public static InputStream openStream(String nsfPath, String res) throws IOException {

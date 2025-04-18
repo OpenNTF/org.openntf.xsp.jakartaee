@@ -1,13 +1,18 @@
 package org.openntf.xsp.jakartaee.module.nsf;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
-import com.hcl.domino.module.nsf.RuntimeFileSystem.NSFFile;
 import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesCollectionEntry;
+import com.ibm.designer.domino.napi.NotesConstants;
+import com.ibm.designer.domino.napi.util.NotesUtils;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import org.openntf.xsp.jakartaee.module.ComponentModuleProcessor;
+import org.openntf.xsp.jakartaee.module.nsf.io.DesignCollectionIterator;
 
 /**
  * @since 3.4.0
@@ -31,11 +36,29 @@ public class NSFJakartaModuleProcessor implements ComponentModuleProcessor<NSFJa
 		if(!listAll && !path.endsWith("/")) { //$NON-NLS-1$
 			path += "/"; //$NON-NLS-1$
 		}
+		
+		List<String> result = new ArrayList<>();
+		try (DesignCollectionIterator nav = new DesignCollectionIterator(module.getNotesDatabase())) {
+			while (nav.hasNext()) {
+				NotesCollectionEntry entry = nav.next();
 
-		return module.getRuntimeFileSystem().getAllResources().entrySet().stream()
-			.filter(entry -> entry.getValue() instanceof NSFFile)
-			.map(Map.Entry::getKey)
-			.filter(key -> listAll || key.startsWith(basePath));
+				String flags = entry.getItemValueAsString(NotesConstants.DESIGN_FLAGS);
+				if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_FILE)) {
+					// In practice, we don't care about $ClassIndexItem
+					String name = entry.getItemValueAsString(NotesConstants.FIELD_TITLE);
+					if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_JAVAJAR)) {
+						name = "WEB-INF/lib/" + name; //$NON-NLS-1$
+					}
+					result.add(name);
+				}
+
+				entry.recycle();
+			}
+		} catch (NotesAPIException e) {
+			throw new RuntimeException(e);
+		}
+
+		return result.stream();
 	}
 	
 	@Override

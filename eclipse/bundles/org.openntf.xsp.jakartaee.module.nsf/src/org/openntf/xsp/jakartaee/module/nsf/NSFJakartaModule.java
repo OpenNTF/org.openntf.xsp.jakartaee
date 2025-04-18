@@ -271,10 +271,6 @@ public class NSFJakartaModule extends ComponentModule {
 		return super.isExpired(paramLong);
 	}
 	
-	public RuntimeFileSystem getRuntimeFileSystem() {
-		return delegate.getRuntimeFileSystem();
-	}
-	
 	// These are called by AdapterInvoker
 	
 	@Override
