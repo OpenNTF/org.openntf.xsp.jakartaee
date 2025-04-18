@@ -40,8 +40,6 @@ import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
-import jakarta.enterprise.context.control.RequestContextController;
-import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
@@ -280,11 +278,9 @@ public class NSFJakartaModule extends ComponentModule {
 			log.fine(MessageFormat.format("Invoking Servlet {0}", servlet));
 		}
 		
-//		RequestContextController requestController = ContainerUtil.getContainer(this).select(RequestContextController.class).get();
 		HttpContextBean.setThreadResponse(ServletUtil.oldToNew(resp));
 		// Update the active request with the "true" request object
 		NSFJakartaModuleService.setActiveRequest(new ActiveRequest(this, ServletUtil.oldToNew(getServletContext(), req)));
-//		requestController.activate();
 		try {
 			super.invokeServlet(servlet, req, resp);
 		} catch(Throwable t) {
@@ -293,7 +289,6 @@ public class NSFJakartaModule extends ComponentModule {
 			}
 			throw t;
 		} finally {
-//			requestController.deactivate();
 			HttpContextBean.setThreadResponse(null);
 		}
 	}
