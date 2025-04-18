@@ -125,13 +125,14 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 
 	@Override
 	protected void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-		response.setBufferSize(0);
-
-		if(this.doFaces) {
-			initializeSessionAsSigner();
-		}
 		FacesContext facesContext = null;
 		try {
+			response.setBufferSize(0);
+	
+			if(this.doFaces) {
+				initializeSessionAsSigner();
+			}
+			
 			if(this.doEvents) {
 				if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
 					doInit(config, request);

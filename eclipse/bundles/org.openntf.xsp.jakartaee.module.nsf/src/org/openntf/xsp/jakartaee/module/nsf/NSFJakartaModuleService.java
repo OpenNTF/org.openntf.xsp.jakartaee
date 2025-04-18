@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.nsfmodule;
+package org.openntf.xsp.jakartaee.module.nsf;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 
+import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule.RestartModuleSignal;
@@ -32,8 +33,6 @@ import lotus.domino.Session;
 import lotus.domino.View;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
-import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 /**
  * @since 3.4.0
@@ -49,6 +48,9 @@ public class NSFJakartaModuleService extends HttpService {
 	
 	public static Optional<ActiveRequest> getActiveRequest() {
 		return Optional.ofNullable(ACTIVE_REQUEST.get());
+	}
+	public static void setActiveRequest(ActiveRequest request) {
+		ACTIVE_REQUEST.set(request);
 	}
 	
 	private static final String PREFIX_WEBPATH = "webpath="; //$NON-NLS-1$
@@ -99,13 +101,13 @@ public class NSFJakartaModuleService extends HttpService {
 	}
 
 	@Override
-	public boolean doService(String arg0, String fullPath, HttpSessionAdapter httpSessionAdapter,
+	public boolean doService(String lcdContextPath, String pathInfo, HttpSessionAdapter httpSessionAdapter,
 			HttpServletRequestAdapter servletRequest, HttpServletResponseAdapter servletResponse) throws ServletException, IOException {
-		if (StringUtil.isEmpty(fullPath)) {
+		if (StringUtil.isEmpty(pathInfo)) {
 			return false;
 		}
 		
-		String chompedPath = getChompedPathInfo(fullPath);
+		String chompedPath = getChompedPathInfo(pathInfo);
 		Optional<NSFJakartaModule> target = this.modules.entrySet()
 			.stream()
 			.filter(entry -> chompedPath.equals(entry.getKey()) || chompedPath.startsWith(entry.getKey() + '/'))
@@ -117,10 +119,10 @@ public class NSFJakartaModuleService extends HttpService {
 				module.initModule();
 			}
 			
-			String contextPath = '/' + module.getMapping().path();
-			String pathInfo = fullPath.substring(contextPath.length());
+			String contextPath = PathUtil.concat(lcdContextPath, '/' + module.getMapping().path(), '/');
+			String internalPathInfo = pathInfo.substring(contextPath.length());
 			int i = 0;
-			ACTIVE_REQUEST.set(new ActiveRequest(module));
+			ACTIVE_REQUEST.set(new ActiveRequest(module, null));
 			try(NSFJakartaModule.WithContext c = module.withContext()) {
 				if(module.shouldRefresh()) {
 					module.refresh();
@@ -128,7 +130,7 @@ public class NSFJakartaModuleService extends HttpService {
 				
 				while(i++ < MAX_REFRESH_ATTEMPTS) {
 					try {
-						module.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
+						module.doService(contextPath, internalPathInfo, httpSessionAdapter, servletRequest, servletResponse);
 						return true;
 					} catch(RestartModuleSignal s) {
 						module.refresh();

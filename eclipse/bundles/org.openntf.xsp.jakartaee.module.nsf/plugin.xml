@@ -20,15 +20,15 @@
 <plugin>
 	<!-- HTTP Service for NSF modules -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakartaee.nsfmodule.NSFJakartaModuleServiceFactory"/>
+		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakartaee.module.nsf.NSFJakartaModuleServiceFactory"/>
 	</extension>
 	
 	<!-- Framework support for NSF modules -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleProcessor" class="org.openntf.xsp.jakartaee.nsfmodule.NSFJakartaModuleProcessor"/>
+		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleProcessor" class="org.openntf.xsp.jakartaee.module.nsf.NSFJakartaModuleProcessor"/>
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleLocator" class="org.openntf.xsp.jakartaee.nsfmodule.NSFJakartaModuleLocator"/>
+		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleLocator" class="org.openntf.xsp.jakartaee.module.nsf.NSFJakartaModuleLocator"/>
 	</extension>
 	
 	

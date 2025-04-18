@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.nsfmodule;
+package org.openntf.xsp.jakartaee.module.nsf;
 
 import java.util.Optional;
 
@@ -9,6 +9,7 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import lotus.domino.Database;
 import lotus.domino.Session;
@@ -72,14 +73,19 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 
 	@Override
 	public Optional<ServletContext> getServletContext() {
-		// TODO Auto-generated method stub
-		return Optional.empty();
+		return NSFJakartaModuleService.getActiveRequest()
+			.map(ActiveRequest::module)
+			.map(module -> {
+				javax.servlet.ServletContext oldCtx = module.getServletContext();
+				String contextPath = '/' + module.getMapping().path();
+				return ServletUtil.oldToNew(contextPath, oldCtx);
+			});
 	}
 
 	@Override
 	public Optional<HttpServletRequest> getServletRequest() {
-		// TODO Auto-generated method stub
-		return Optional.empty();
+		return NSFJakartaModuleService.getActiveRequest()
+			.map(ActiveRequest::request);
 	}
 
 }

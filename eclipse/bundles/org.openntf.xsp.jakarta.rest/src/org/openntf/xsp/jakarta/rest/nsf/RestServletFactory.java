@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakarta.rest;
+package org.openntf.xsp.jakarta.rest.nsf;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,25 +25,26 @@ import javax.servlet.ServletException;
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 
 import org.jboss.resteasy.cdi.CdiInjectorFactory;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
 import org.openntf.xsp.jakarta.rest.impl.JakartaRestServlet;
 import org.openntf.xsp.jakarta.rest.impl.NSFRestApplication;
+import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 /**
- * An {@link IServletFactory} implementation that provides a REST Servlet in the context
+ * An {@code IServletFactory} implementation that provides a REST Servlet in the context
  * of an NSF.
  *
  * @author Martin Pradny
  * @author Jesse Gallagher
  * @since 1.0.0
  */
-public class RestServletFactory implements IServletFactory {
+public class RestServletFactory implements JakartaIServletFactory {
 	public static final String SERVLET_PATH_DEFAULT = "app"; //$NON-NLS-1$
 	public static final String PROP_SERVLET_PATH = "org.openntf.xsp.jakarta.rest.path"; //$NON-NLS-1$
 	/**
@@ -58,7 +59,11 @@ public class RestServletFactory implements IServletFactory {
 		if(StringUtil.isEmpty(path)) {
 			path = SERVLET_PATH_DEFAULT;
 		}
-		path = PathUtil.concat("/xsp", path, '/'); //$NON-NLS-1$
+		String xspPrefix = ModuleUtil.getXspPrefix(module);
+		if(StringUtil.isEmpty(xspPrefix)) {
+			xspPrefix = "/"; //$NON-NLS-1$
+		}
+		path = PathUtil.concat(xspPrefix, path, '/');
 		if(!path.endsWith("/")) { //$NON-NLS-1$
 			path += "/"; //$NON-NLS-1$
 		}

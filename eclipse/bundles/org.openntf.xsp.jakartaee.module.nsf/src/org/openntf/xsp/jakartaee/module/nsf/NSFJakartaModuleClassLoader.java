@@ -1,11 +1,13 @@
-package org.openntf.xsp.jakartaee.nsfmodule;
+package org.openntf.xsp.jakartaee.module.nsf;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
@@ -21,8 +23,9 @@ import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.xsp.library.LibraryServiceLoader;
 import com.ibm.xsp.library.LibraryWrapper;
-import org.openntf.xsp.jakartaee.nsfmodule.NSFJakartaModule.WithContext;
-import org.openntf.xsp.jakartaee.nsfmodule.io.NSFJakartaURL;
+
+import org.openntf.xsp.jakartaee.module.nsf.NSFJakartaModule.WithContext;
+import org.openntf.xsp.jakartaee.module.nsf.io.NSFJakartaURL;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 public class NSFJakartaModuleClassLoader extends URLClassLoader implements ApplicationClassLoader {
@@ -49,7 +52,9 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			if(StringUtil.isNotEmpty(libName)) {
 				LibraryWrapper libWrapper = LibraryServiceLoader.getLibrary(libName);
 				Objects.requireNonNull(libWrapper, MessageFormat.format("Unable to find library {0}", libName));
-				extraDepends.add(libWrapper.getClassLoader());
+				if(!libWrapper.isGlobalScope()) {
+					extraDepends.add(libWrapper.getClassLoader());
+				}
 			}
 		}
 		
@@ -60,6 +65,45 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	public Enumeration<URL> findApplicationResources(String path) throws IOException {
 		// TODO figure out why DynamicClassLoader branches on hasJars - maybe performance?
 		return super.findResources(path);
+	}
+	
+	@Override
+	public Enumeration<URL> getResources(String name) throws IOException {
+		List<URL> result = new ArrayList<>(Collections.list(super.findResources(name)));
+		
+		for(ClassLoader cl : this.extraDepends) {
+			result.addAll(Collections.list(cl.getResources(name)));
+		}
+		
+		return Collections.enumeration(result);
+	}
+	
+	@Override
+	public URL getResource(String name) {
+		URL result = super.getResource(name);
+		if(result != null) {
+			return result;
+		}
+		
+		return this.extraDepends.stream()
+			.map(cl -> cl.getResource(name))
+			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
+	}
+	
+	@Override
+	public InputStream getResourceAsStream(String name) {
+		InputStream result = super.getResourceAsStream(name);
+		if(result != null) {
+			return result;
+		}
+		
+		return this.extraDepends.stream()
+			.map(cl -> cl.getResourceAsStream(name))
+			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
 	}
 	
 	@Override

@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta EE NSF Module
-Bundle-SymbolicName: org.openntf.xsp.jakartaee.nsfmodule;singleton:=true
-Automatic-Module-Name: org.openntf.xsp.jakartaee.nsfmodule
+Bundle-SymbolicName: org.openntf.xsp.jakartaee.module.nsf;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.jakartaee.module.nsf
 Bundle-Version: 3.4.0.qualifier
 Import-Package: com.hcl.domino.module.nsf;resolution:=optional,
  com.ibm.commons.extension,
@@ -10,16 +10,24 @@ Import-Package: com.hcl.domino.module.nsf;resolution:=optional,
  com.ibm.designer.domino.napi,
  com.ibm.designer.domino.napi.design,
  com.ibm.designer.runtime.domino.adapter,
+ com.ibm.designer.runtime.domino.adapter.servlet,
  com.ibm.designer.runtime.domino.bootstrap.adapter,
  com.ibm.domino.napi,
  com.ibm.xsp.library,
+ jakarta.enterprise.context.control;version="4.0.0",
+ jakarta.enterprise.inject;version="4.0.0",
+ jakarta.enterprise.inject.spi;version="4.0.0",
+ jakarta.inject;version="2.0.0",
  jakarta.servlet;version="5.0.0",
+ jakarta.servlet.annotation;version="5.0.0",
  jakarta.servlet.http;version="5.0.0",
  javax.servlet;version="[2.5.0,3.0.0)",
  javax.servlet.http;version="[2.5.0,3.0.0)",
  lotus.domino,
  lotus.notes.addins,
- org.openntf.xsp.jakarta.cdi.bean;version="[3.4.0,4.0.0)"
+ org.openntf.xsp.jakarta.cdi.bean;version="3.4.0",
+ org.openntf.xsp.jakarta.cdi.util;version="3.4.0",
+ org.osgi.framework
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="3.4.0"
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-21

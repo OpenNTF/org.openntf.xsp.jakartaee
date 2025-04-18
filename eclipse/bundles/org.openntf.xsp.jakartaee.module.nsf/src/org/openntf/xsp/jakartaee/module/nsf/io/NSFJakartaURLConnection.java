@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.nsfmodule.io;
+package org.openntf.xsp.jakartaee.module.nsf.io;
 
 import java.io.IOException;
 import java.io.InputStream;

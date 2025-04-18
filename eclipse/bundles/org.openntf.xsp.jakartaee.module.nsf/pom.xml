@@ -7,7 +7,7 @@
 		<version>3.4.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-	<artifactId>org.openntf.xsp.jakartaee.nsfmodule</artifactId>
+	<artifactId>org.openntf.xsp.jakartaee.module.nsf</artifactId>
 	<packaging>eclipse-plugin</packaging>
 	
 	<build>

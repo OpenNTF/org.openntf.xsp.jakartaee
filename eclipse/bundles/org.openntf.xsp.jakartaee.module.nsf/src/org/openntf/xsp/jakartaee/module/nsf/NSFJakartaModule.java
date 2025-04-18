@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.nsfmodule;
+package org.openntf.xsp.jakartaee.module.nsf;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,15 +9,11 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.hcl.domino.module.nsf.NSFComponentModule;
 import com.hcl.domino.module.nsf.NotesContext;
@@ -31,14 +27,25 @@ import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
+import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpSession;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
 import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
+import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
-import org.openntf.xsp.jakartaee.nsfmodule.io.NSFJakartaURL;
+import org.openntf.xsp.jakartaee.module.nsf.io.NSFJakartaURL;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
+
+import jakarta.enterprise.context.control.RequestContextController;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.HandlesTypes;
 
 /**
  * @since 3.4.0
@@ -95,6 +102,24 @@ public class NSFJakartaModule extends ComponentModule {
 				.toList();
 		}
 		
+		// Fire ServletContainerInitializers
+		ServletContext servletContext = ServletUtil.oldToNew('/' + mapping.path(), getServletContext());
+		List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class);
+		for(ServletContainerInitializer initializer : initializers) {
+			Set<Class<?>> classes = null;
+			if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
+				classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), this);
+			}
+			try {
+				initializer.onStartup(classes, servletContext);
+			} catch (ServletException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		// CDI gets initialized immediately
+		ContainerUtil.getContainer(this);
+		
 		this.initialized = true;
 	}
 	
@@ -107,6 +132,16 @@ public class NSFJakartaModule extends ComponentModule {
 	protected void doDestroyModule() {
 		this.initialized = false;
 		
+		if(ContainerUtil.getContainer(this) instanceof AutoCloseable cdi) {
+			try {
+				cdi.close();
+			} catch(Exception e) {
+				if(log.isLoggable(Level.WARNING)) {
+					log.log(Level.WARNING, MessageFormat.format("Encountered exception closing CDI container for {0}", this), e);
+				}
+			}
+		}
+		
 		if(this.moduleClassLoader != null) {
 			this.moduleClassLoader.close();
 			this.moduleClassLoader = null;
@@ -115,7 +150,7 @@ public class NSFJakartaModule extends ComponentModule {
 	
 	@Override
 	public void doService(String contextPath, String pathInfo, HttpSessionAdapter httpSessionAdapter, HttpServletRequestAdapter servletRequest,
-			HttpServletResponseAdapter servletResponse) throws ServletException, IOException {
+			HttpServletResponseAdapter servletResponse) throws javax.servlet.ServletException, IOException {
 		if(log.isLoggable(Level.FINER)) {
 			log.finer(getClass().getSimpleName() + "#doService with contextPath=" + contextPath + ", pathInfo=" + pathInfo);
 		}
@@ -148,7 +183,6 @@ public class NSFJakartaModule extends ComponentModule {
 	public InputStream getResourceAsStream(String res) {
 		try(WithContext ctx = withContext()) {
 			RuntimeFileSystem fs = delegate.getRuntimeFileSystem();
-			// TODO check if the paths have the same symantics
 			NSFResource nsfRes = fs.getResource(res);
 			if(nsfRes instanceof NSFFile file) {
 				return fs.getFileContent(NotesContext.getCurrent().getNotesDatabase(), file);
@@ -220,9 +254,9 @@ public class NSFJakartaModule extends ComponentModule {
 	// These are called by AdapterInvoker
 	
 	@Override
-	public ServletMatch getServlet(String path) throws ServletException {
+	public ServletMatch getServlet(String path) throws javax.servlet.ServletException {
 		for(JakartaIServletFactory fac : this.servletFactories) {
-			ServletMatch servletMatch = fac.getServletMatch("", path); //$NON-NLS-1$
+			ServletMatch servletMatch = fac.getServletMatch('/' + mapping.path(), path);
 			if(servletMatch != null) {
 				return servletMatch;
 			}
@@ -240,12 +274,17 @@ public class NSFJakartaModule extends ComponentModule {
 	
 	// Called by AdapterInvoker if getServlet or a ServletFactory returns a ServletMatch
 	@Override
-	protected void invokeServlet(Servlet servlet, HttpServletRequest req,
-			HttpServletResponse resp) throws ServletException, IOException {
+	protected void invokeServlet(javax.servlet.Servlet servlet, javax.servlet.http.HttpServletRequest req,
+			javax.servlet.http.HttpServletResponse resp) throws javax.servlet.ServletException, IOException {
 		if(log.isLoggable(Level.FINE)) {
 			log.fine(MessageFormat.format("Invoking Servlet {0}", servlet));
 		}
-		HttpContextBean.setThreadResponse(ServletUtil.oldToNew(resp));;
+		
+//		RequestContextController requestController = ContainerUtil.getContainer(this).select(RequestContextController.class).get();
+		HttpContextBean.setThreadResponse(ServletUtil.oldToNew(resp));
+		// Update the active request with the "true" request object
+		NSFJakartaModuleService.setActiveRequest(new ActiveRequest(this, ServletUtil.oldToNew(getServletContext(), req)));
+//		requestController.activate();
 		try {
 			super.invokeServlet(servlet, req, resp);
 		} catch(Throwable t) {
@@ -254,8 +293,21 @@ public class NSFJakartaModule extends ComponentModule {
 			}
 			throw t;
 		} finally {
+//			requestController.deactivate();
 			HttpContextBean.setThreadResponse(null);
 		}
+	}
+	
+	@Override
+	public void addSession(String id, LCDAdapterHttpSession session) {
+		// TODO Init CDI session
+		super.addSession(id, session);
+	}
+	
+	@Override
+	public void removeSession(String id) {
+		// TODO Term CDI session
+		super.removeSession(id);
 	}
 	
 	// Called if there's no ServletMatch
