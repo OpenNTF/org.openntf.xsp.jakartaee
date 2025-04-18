@@ -18,12 +18,12 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 
 	@Override
 	public boolean isActive() {
-		return NSFJakartaModuleService.getActiveRequest().isPresent();
+		return ActiveRequest.get().isPresent();
 	}
 
 	@Override
 	public ComponentModule getActiveModule() {
-		return NSFJakartaModuleService.getActiveRequest()
+		return ActiveRequest.get()
 			.map(ActiveRequest::module)
 			.orElse(null);
 	}
@@ -73,7 +73,7 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 
 	@Override
 	public Optional<ServletContext> getServletContext() {
-		return NSFJakartaModuleService.getActiveRequest()
+		return ActiveRequest.get()
 			.map(ActiveRequest::module)
 			.map(module -> {
 				javax.servlet.ServletContext oldCtx = module.getServletContext();
@@ -84,7 +84,7 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 
 	@Override
 	public Optional<HttpServletRequest> getServletRequest() {
-		return NSFJakartaModuleService.getActiveRequest()
+		return ActiveRequest.get()
 			.map(ActiveRequest::request);
 	}
 

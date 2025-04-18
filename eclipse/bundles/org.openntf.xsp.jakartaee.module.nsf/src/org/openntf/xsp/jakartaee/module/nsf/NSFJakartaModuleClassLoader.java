@@ -9,39 +9,50 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.hcl.domino.module.nsf.NotesContext;
-import com.hcl.domino.module.nsf.RuntimeFileSystem;
 import com.ibm.commons.extension.ExtensionManager.ApplicationClassLoader;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesCollection;
+import com.ibm.designer.domino.napi.NotesCollectionEntry;
+import com.ibm.designer.domino.napi.NotesConstants;
+import com.ibm.designer.domino.napi.NotesNote;
+import com.ibm.designer.domino.napi.design.FileAccess;
+import com.ibm.designer.domino.napi.util.NotesIterator;
+import com.ibm.designer.domino.napi.util.NotesUtils;
 import com.ibm.xsp.library.LibraryServiceLoader;
 import com.ibm.xsp.library.LibraryWrapper;
 
-import org.openntf.xsp.jakartaee.module.nsf.NSFJakartaModule.WithContext;
 import org.openntf.xsp.jakartaee.module.nsf.io.NSFJakartaURL;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 public class NSFJakartaModuleClassLoader extends URLClassLoader implements ApplicationClassLoader {
+	private record JavaClassNote(int noteId, String fileItem) {};
+	
 	private static final Logger log = Logger.getLogger(NSFJakartaModuleClassLoader.class.getPackageName());
 	
 	private final NSFJakartaModule module;
 	private final List<ClassLoader> extraDepends = new ArrayList<>();
+	private final Map<String, JavaClassNote> javaClasses = new HashMap<>();
+	private final Map<String, Integer> jarFiles = new HashMap<>();
 
-	public NSFJakartaModuleClassLoader(NSFJakartaModule module) {
+	public NSFJakartaModuleClassLoader(NSFJakartaModule module) throws NotesAPIException {
 		super(MessageFormat.format("ClassLoader for {0}", module), createURLs(module), module.getClass().getClassLoader());
 		
 		this.module = module;
 		
 		// TODO build CodeSources for /WEB-INF/classes et al for defineClass calls
-		// TODO probably a good idea to have a cross-instance object that
-		//      keeps track of class names in "extraDepends" like the original ("libClasses")
+		
+		findJavaElements();
 		
 		// Glean extraDepends
 		Properties xspProperties = LibraryUtil.getXspProperties(module);
@@ -65,6 +76,10 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	public Enumeration<URL> findApplicationResources(String path) throws IOException {
 		// TODO figure out why DynamicClassLoader branches on hasJars - maybe performance?
 		return super.findResources(path);
+	}
+	
+	public Set<String> getClassNames() {
+		return this.javaClasses.keySet();
 	}
 	
 	@Override
@@ -109,16 +124,33 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
 		
-		try(WithContext ctx = module.withContext()) {
-			// Check the current NSF for a file
-			RuntimeFileSystem fs = this.module.getRuntimeFileSystem();
-			String classFileName = MessageFormat.format("WEB-INF/classes/{0}.class", name.replace('.', '/')); //$NON-NLS-1$
-			if(fs.exists(classFileName)) {
-				byte[] bytecode = fs.getFileContentAsByteArray(NotesContext.getCurrent().getNotesDatabase(), classFileName);
-				// TODO add CodeSource
+		try {
+			// Search for a Java file name to see if it has class data
+			JavaClassNote javaClassNote = this.javaClasses.get(name);
+			if(javaClassNote != null) {
+				NotesNote javaNote = module.getNotesDatabase().openNote(javaClassNote.noteId(), 0);
+				byte[] bytecode;
+				try(InputStream is = FileAccess.readFileContentAsInputStream(javaNote, javaClassNote.fileItem())) {
+					bytecode = is.readAllBytes();
+				}
+				// TODO add CodeSource?
 				Class<?> clazz = this.defineClass(name, bytecode, 0, bytecode.length);
 				return clazz;
 			}
+			
+			// Check the current NSF for a class file - e.g. custom source folder
+			String classFileName = String.format("WEB-INF/classes/%s.class", name.replace('.', '/')); //$NON-NLS-1$
+			NotesNote classNote = FileAccess.getFileByPath(module.getNotesDatabase(), classFileName);
+			if(classNote != null) {
+				byte[] bytecode;
+				try(InputStream is = FileAccess.readFileContentAsInputStream(classNote)) {
+					bytecode = is.readAllBytes();
+				}
+				// TODO add CodeSource?
+				Class<?> clazz = this.defineClass(name, bytecode, 0, bytecode.length);
+				return clazz;
+			}
+			
 			
 			// Next, check the parent ClassLoader
 			try {
@@ -164,13 +196,53 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 		
 		result.add(NSFJakartaURL.of(module.getMapping().nsfPath(), "/WEB-INF/classes/")); //$NON-NLS-1$
 		
-		// Find all JARs
-		RuntimeFileSystem fs = module.getRuntimeFileSystem();
-		for(String path : fs.listJars().keySet()) {
-			URL url = NSFJakartaURL.of(module.getMapping().nsfPath(), '/' + path);
-			result.add(url);
-		}
-		
 		return result.toArray(new URL[result.size()]);
+	}
+	
+	private void findJavaElements() throws NotesAPIException {
+		NotesCollection designCollection = this.module.getNotesDatabase().openCollection(-0xFFe0, 0);
+		try {
+			 NotesIterator nav = designCollection.readEntries(32775, 0, 32);
+			 while(nav.hasNext()) {
+				 NotesCollectionEntry entry = (NotesCollectionEntry)nav.next();
+				 String flags = entry.getItemValueAsString(NotesConstants.DESIGN_FLAGS);
+				 
+				 // Look for Java resources
+				 if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_JAVAFILE)) {
+					 String classNamesCat = entry.getItemValueAsString("$ClassIndexItem"); //$NON-NLS-1$
+					 String[] classNames = StringUtil.splitString(classNamesCat, '|');
+					 for(int i = 0; i < classNames.length; i++) {
+						 int prefixLen = 16; // "WEB-INF/classes/"
+						 int suffixLen = 6; // ".class"
+						 String className = classNames[i].substring(prefixLen, classNames[i].length()-suffixLen);
+						 className = className.replace('/', '.');
+						 this.javaClasses.put(className, new JavaClassNote(entry.getNoteID(), "$ClassData" + i)); //$NON-NLS-1$
+					 }
+				 } else if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_JAVAJAR)) {
+					 String title = entry.getItemValueAsString(NotesConstants.FIELD_TITLE);
+					 String jarPath = "WEB-INF/lib/" + title; //$NON-NLS-1$
+					 jarFiles.put(jarPath, entry.getNoteID());
+					 
+					 // Add it to our base ClassLoader while here
+					 URL url = NSFJakartaURL.of(module.getMapping().nsfPath(), '/' + jarPath);
+					 addURL(url);
+				 } else if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_FILE)) {
+					 String title = entry.getItemValueAsString(NotesConstants.FIELD_TITLE);
+					 // Assume anything in WEB-INF/classes ending with .class is fair game
+					 if(title.startsWith("WEB-INF/classes/") && title.endsWith(".class")) { //$NON-NLS-1$ //$NON-NLS-2$
+						 int prefixLen = 16; // "WEB-INF/classes/"
+						 int suffixLen = 6; // ".class"
+						 String className = title.substring(prefixLen, title.length()-suffixLen);
+						 className = className.replace('/', '.');
+						 this.javaClasses.put(className, new JavaClassNote(entry.getNoteID(), NotesConstants.ITEM_NAME_FILE_DATA));
+					 }
+				 }
+				 
+				 entry.recycle();
+			 }
+			 nav.recycle();
+		} finally {
+			designCollection.recycle();
+		}
 	}
 }

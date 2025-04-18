@@ -24,6 +24,8 @@ import com.hcl.domino.module.nsf.RuntimeFileSystem.NSFResource;
 import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesDatabase;
+import com.ibm.designer.domino.napi.NotesSession;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
@@ -44,6 +46,7 @@ import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.HandlesTypes;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @since 3.4.0
@@ -60,6 +63,8 @@ public class NSFJakartaModule extends ComponentModule {
 	private NSFComponentModule delegate;
 	private Collection<JakartaIServletFactory> servletFactories;
 	private boolean initialized;
+	private NotesSession notesSession;
+	private NotesDatabase notesDatabase;
 	private NSFJakartaModuleClassLoader moduleClassLoader;
 	private long lastRefresh;
 	
@@ -80,6 +85,14 @@ public class NSFJakartaModule extends ComponentModule {
 	public NSFComponentModule getDelegate() {
 		return this.delegate;
 	}
+	
+	public NotesSession getNotesSession() {
+		return notesSession;
+	}
+	
+	public NotesDatabase getNotesDatabase() {
+		return notesDatabase;
+	}
 
 	@Override
 	protected void doInitModule() {
@@ -91,6 +104,11 @@ public class NSFJakartaModule extends ComponentModule {
 			if(this.moduleClassLoader != null) {
 				this.moduleClassLoader.close();
 			}
+			
+			this.notesSession = new NotesSession();
+			this.notesDatabase = notesSession.getDatabase(this.mapping.nsfPath());
+			this.notesDatabase.open();
+			
 			this.moduleClassLoader = new NSFJakartaModuleClassLoader(this);
 			
 			this.servletFactories = ExtensionManager.findApplicationServices(getModuleClassLoader(), "com.ibm.xsp.adapter.servletFactory").stream() //$NON-NLS-1$
@@ -98,6 +116,8 @@ public class NSFJakartaModule extends ComponentModule {
 				.map(JakartaIServletFactory.class::cast)
 				.peek(fac -> fac.init(this))
 				.toList();
+		} catch (NotesAPIException e) {
+			throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
 		}
 		
 		// Fire ServletContainerInitializers
@@ -144,6 +164,12 @@ public class NSFJakartaModule extends ComponentModule {
 			this.moduleClassLoader.close();
 			this.moduleClassLoader = null;
 		}
+		
+		try {
+			this.notesSession.recycle();
+		} catch (NotesAPIException e) {
+			// Ignore
+		}
 	}
 	
 	@Override
@@ -162,7 +188,7 @@ public class NSFJakartaModule extends ComponentModule {
 	}
 
 	@Override
-	public ClassLoader getModuleClassLoader() {
+	public NSFJakartaModuleClassLoader getModuleClassLoader() {
 		return this.moduleClassLoader;
 	}
 
@@ -280,7 +306,8 @@ public class NSFJakartaModule extends ComponentModule {
 		
 		HttpContextBean.setThreadResponse(ServletUtil.oldToNew(resp));
 		// Update the active request with the "true" request object
-		NSFJakartaModuleService.setActiveRequest(new ActiveRequest(this, ServletUtil.oldToNew(getServletContext(), req)));
+		HttpServletRequest request = ServletUtil.oldToNew(getServletContext(), req);
+		ActiveRequest.pushRequest(request);
 		try {
 			super.invokeServlet(servlet, req, resp);
 		} catch(Throwable t) {

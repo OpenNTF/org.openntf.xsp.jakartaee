@@ -44,15 +44,6 @@ public class NSFJakartaModuleService extends HttpService {
 		log.setLevel(Level.FINEST);
 	}
 	
-	private static ThreadLocal<ActiveRequest> ACTIVE_REQUEST = new ThreadLocal<>();
-	
-	public static Optional<ActiveRequest> getActiveRequest() {
-		return Optional.ofNullable(ACTIVE_REQUEST.get());
-	}
-	public static void setActiveRequest(ActiveRequest request) {
-		ACTIVE_REQUEST.set(request);
-	}
-	
 	private static final String PREFIX_WEBPATH = "webpath="; //$NON-NLS-1$
 	private static final int MAX_REFRESH_ATTEMPTS = 10;
 	
@@ -122,8 +113,9 @@ public class NSFJakartaModuleService extends HttpService {
 			String contextPath = PathUtil.concat(lcdContextPath, '/' + module.getMapping().path(), '/');
 			String internalPathInfo = pathInfo.substring(contextPath.length());
 			int i = 0;
-			ACTIVE_REQUEST.set(new ActiveRequest(module, null));
 			try(NSFJakartaModule.WithContext c = module.withContext()) {
+				ActiveRequest.set(new ActiveRequest(module, null));
+				
 				if(module.shouldRefresh()) {
 					module.refresh();
 				}
@@ -137,7 +129,7 @@ public class NSFJakartaModuleService extends HttpService {
 					}
 				}
 			} finally {
-				ACTIVE_REQUEST.set(null);
+				ActiveRequest.set(null);
 			}
 			throw new IllegalStateException(MessageFormat.format("Module didn't refresh after {0} attempts", MAX_REFRESH_ATTEMPTS));
 		}
