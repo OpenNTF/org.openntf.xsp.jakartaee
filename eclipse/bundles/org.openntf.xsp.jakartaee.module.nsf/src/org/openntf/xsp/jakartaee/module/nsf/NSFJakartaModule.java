@@ -98,6 +98,9 @@ public class NSFJakartaModule extends ComponentModule {
 				if(this.moduleClassLoader != null) {
 					this.moduleClassLoader.close();
 				}
+				if(this.notesSession != null) {
+					this.notesSession.recycle();
+				}
 				
 				this.notesSession = new NotesSession();
 				this.notesDatabase = notesSession.getDatabase(this.mapping.nsfPath());
@@ -164,6 +167,8 @@ public class NSFJakartaModule extends ComponentModule {
 		
 		try {
 			this.notesSession.recycle();
+			this.notesSession = null;
+			this.notesDatabase = null;
 		} catch (NotesAPIException e) {
 			// Ignore
 		}
@@ -218,6 +223,7 @@ public class NSFJakartaModule extends ComponentModule {
 		if(log.isLoggable(Level.FINE)) {
 			log.fine(MessageFormat.format("Refreshing module {0}", this));
 		}
+		doDestroyModule();
 		doInitModule();
 		this.lastRefresh = System.currentTimeMillis();
 		return true;
