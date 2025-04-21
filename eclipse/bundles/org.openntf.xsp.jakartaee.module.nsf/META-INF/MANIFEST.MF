@@ -4,14 +4,15 @@ Bundle-Name: XPages Jakarta EE NSF Module
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.module.nsf;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.module.nsf
 Bundle-Version: 3.4.0.qualifier
-Import-Package: com.hcl.domino.module.nsf;resolution:=optional,
- com.ibm.commons.extension,
+Import-Package: com.ibm.commons.extension,
  com.ibm.commons.util,
+ com.ibm.commons.util.io,
  com.ibm.designer.domino.napi,
  com.ibm.designer.domino.napi.design,
  com.ibm.designer.domino.napi.util,
  com.ibm.designer.runtime.domino.adapter,
  com.ibm.designer.runtime.domino.adapter.servlet,
+ com.ibm.designer.runtime.domino.adapter.util,
  com.ibm.designer.runtime.domino.bootstrap.adapter,
  com.ibm.domino.napi,
  com.ibm.xsp.library,

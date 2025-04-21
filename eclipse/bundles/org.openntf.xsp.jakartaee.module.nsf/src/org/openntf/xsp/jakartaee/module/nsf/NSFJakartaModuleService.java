@@ -29,6 +29,7 @@ import lotus.domino.Database;
 import lotus.domino.Document;
 import lotus.domino.NotesException;
 import lotus.domino.NotesFactory;
+import lotus.domino.NotesThread;
 import lotus.domino.Session;
 import lotus.domino.View;
 import lotus.domino.ViewEntry;
@@ -105,33 +106,39 @@ public class NSFJakartaModuleService extends HttpService {
 			.map(Map.Entry::getValue)
 			.findFirst();
 		if (target.isPresent()) {
-			NSFJakartaModule module = target.get();
-			if(!module.isInitialized()) {
-				module.initModule();
-			}
-			
-			String contextPath = PathUtil.concat(lcdContextPath, '/' + module.getMapping().path(), '/');
-			String internalPathInfo = pathInfo.substring(contextPath.length());
-			int i = 0;
-			try(NSFJakartaModule.WithContext c = module.withContext()) {
-				ActiveRequest.set(new ActiveRequest(module, null));
-				
-				if(module.shouldRefresh()) {
-					module.refresh();
+			NotesThread.sinitThread();
+			try {
+				NSFJakartaModule module = target.get();
+				if(!module.isInitialized()) {
+					module.initModule();
 				}
 				
-				while(i++ < MAX_REFRESH_ATTEMPTS) {
-					try {
-						module.doService(contextPath, internalPathInfo, httpSessionAdapter, servletRequest, servletResponse);
-						return true;
-					} catch(RestartModuleSignal s) {
+				String contextPath = PathUtil.concat(lcdContextPath, '/' + module.getMapping().path(), '/');
+				String internalPathInfo = pathInfo.substring(contextPath.length());
+				int i = 0;
+				try {
+					ActiveRequest.set(new ActiveRequest(module, null));
+					
+					if(module.shouldRefresh()) {
 						module.refresh();
 					}
+					
+					while(i++ < MAX_REFRESH_ATTEMPTS) {
+						try {
+							module.doService(contextPath, internalPathInfo, httpSessionAdapter, servletRequest, servletResponse);
+							return true;
+						} catch(RestartModuleSignal s) {
+							module.refresh();
+						}
+					}
+				} finally {
+					ActiveRequest.set(null);
 				}
+				throw new IllegalStateException(MessageFormat.format("Module didn't refresh after {0} attempts", MAX_REFRESH_ATTEMPTS));
 			} finally {
 				ActiveRequest.set(null);
+				NotesThread.stermThread();
 			}
-			throw new IllegalStateException(MessageFormat.format("Module didn't refresh after {0} attempts", MAX_REFRESH_ATTEMPTS));
 		}
 		return false;
 	}

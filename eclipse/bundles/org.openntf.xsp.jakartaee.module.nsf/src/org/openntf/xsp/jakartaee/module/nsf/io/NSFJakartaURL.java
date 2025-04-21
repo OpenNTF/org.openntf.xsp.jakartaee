@@ -19,7 +19,7 @@ public enum NSFJakartaURL {
 	
 	public static URL of(String nsfPath, String path) {
 		try {
-			URI uri = new URI(SCHEME, null, path, null, null);
+			URI uri = new URI(SCHEME, null, "//" + path, null, null); //$NON-NLS-1$
 			return URL.of(uri, new NSFJakartaURLStreamHandler(nsfPath, path));
 		} catch(URISyntaxException e) {
 			throw new RuntimeException(e);
