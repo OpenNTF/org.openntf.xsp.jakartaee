@@ -320,8 +320,7 @@ public class NSFJakartaModule extends ComponentModule {
 	// Called by writeResource to see if it should cache resources
 	@Override
 	public boolean isResourcesCache() {
-		// TODO mark true
-		return false;
+		return true;
 	}
 	
 	// Called when isResourcesCache() == true
