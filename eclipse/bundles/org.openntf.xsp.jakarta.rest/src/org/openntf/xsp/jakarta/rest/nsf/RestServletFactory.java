@@ -36,6 +36,8 @@ import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
+import jakarta.annotation.Priority;
+
 /**
  * An {@code IServletFactory} implementation that provides a REST Servlet in the context
  * of an NSF.
@@ -44,6 +46,8 @@ import org.openntf.xsp.jakartaee.util.ModuleUtil;
  * @author Jesse Gallagher
  * @since 1.0.0
  */
+// Mark low priority so it comes last, for the case when an app wants it to be the root path
+@Priority(-1)
 public class RestServletFactory implements JakartaIServletFactory {
 	public static final String SERVLET_PATH_DEFAULT = "app"; //$NON-NLS-1$
 	public static final String PROP_SERVLET_PATH = "org.openntf.xsp.jakarta.rest.path"; //$NON-NLS-1$

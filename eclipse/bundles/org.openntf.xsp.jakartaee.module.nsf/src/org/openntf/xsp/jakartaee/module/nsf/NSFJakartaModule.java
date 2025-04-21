@@ -41,6 +41,7 @@ import org.openntf.xsp.jakartaee.module.nsf.io.NSFAccess;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
+import org.openntf.xsp.jakartaee.util.PriorityComparator;
 
 import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.ServletContext;
@@ -111,8 +112,9 @@ public class NSFJakartaModule extends ComponentModule {
 				this.servletFactories = ExtensionManager.findApplicationServices(getModuleClassLoader(), "com.ibm.xsp.adapter.servletFactory").stream() //$NON-NLS-1$
 					.filter(JakartaIServletFactory.class::isInstance)
 					.map(JakartaIServletFactory.class::cast)
-					.peek(fac -> fac.init(this))
+					.sorted(PriorityComparator.DESCENDING)
 					.toList();
+				this.servletFactories.forEach(fac -> fac.init(this));
 			} catch (NotesAPIException e) {
 				throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
 			}
