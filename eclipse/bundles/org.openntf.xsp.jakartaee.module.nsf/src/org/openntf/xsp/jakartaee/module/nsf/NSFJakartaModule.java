@@ -232,8 +232,10 @@ public class NSFJakartaModule extends ComponentModule {
 	public boolean shouldRefresh() {
 		try {
 			long lastRefresh = getLastRefresh();
-			long designMod = this.notesDatabase.getLastNonDataModificationDate();
-			return designMod > lastRefresh;
+			long designMod = this.notesDatabase.getLastNonDataModificationDate() * 1000;
+			// Fuzz by a second to account for lack of precision in designMod
+			long diff = designMod - lastRefresh;
+			return diff > 1000;
 		} catch(NotesAPIException e) {
 			throw new RuntimeException(e);
 		}
