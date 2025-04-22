@@ -110,7 +110,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>3.0.5</tycho-version>
+		<tycho-version>4.0.12</tycho-version>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
@@ -119,7 +119,7 @@
 		<repository>
 			<id>notes</id>
 			<layout>p2</layout>
-			<url>${notes-platform14}</url>
+			<url>${notes-platform145}</url>
 		</repository>
 		<repository>
 			<id>osgi-deps</id>
@@ -250,35 +250,6 @@
 							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
-
-					<environments>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86_64</arch>
-						</environment>
-					</environments>
-					<resolver>p2</resolver>
 				</configuration>
 			</plugin>
 			
