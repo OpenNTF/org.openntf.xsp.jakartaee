@@ -24,6 +24,11 @@ import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
+import com.ibm.domino.napi.c.xsp.XSPNative;
+
+import org.openntf.xsp.jakartaee.module.nsf.util.ActiveRequest;
+import org.openntf.xsp.jakartaee.module.nsf.util.LSXBEHolder;
+import org.openntf.xsp.jakartaee.module.nsf.util.ModuleMap;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
@@ -116,8 +121,9 @@ public class NSFJakartaModuleService extends HttpService {
 				String contextPath = PathUtil.concat(lcdContextPath, '/' + module.getMapping().path(), '/');
 				String internalPathInfo = pathInfo.substring(contextPath.length());
 				int i = 0;
-				try {
-					ActiveRequest.set(new ActiveRequest(module, null));
+				
+				try(LSXBEHolder lsxbe = module.withSessions(servletRequest)) {
+					ActiveRequest.set(new ActiveRequest(module, lsxbe, null));
 					
 					if(module.shouldRefresh()) {
 						module.refresh();

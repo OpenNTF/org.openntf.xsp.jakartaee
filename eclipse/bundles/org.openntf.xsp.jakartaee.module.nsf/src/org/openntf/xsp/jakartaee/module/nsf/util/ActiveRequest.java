@@ -1,10 +1,12 @@
-package org.openntf.xsp.jakartaee.module.nsf;
+package org.openntf.xsp.jakartaee.module.nsf.util;
 
 import java.util.Optional;
 
+import org.openntf.xsp.jakartaee.module.nsf.NSFJakartaModule;
+
 import jakarta.servlet.http.HttpServletRequest;
 
-public record ActiveRequest(NSFJakartaModule module, HttpServletRequest request) {
+public record ActiveRequest(NSFJakartaModule module, LSXBEHolder lsxbe, HttpServletRequest request) {
 
 	private static ThreadLocal<ActiveRequest> ACTIVE_REQUEST = new ThreadLocal<>();
 	
@@ -20,6 +22,6 @@ public record ActiveRequest(NSFJakartaModule module, HttpServletRequest request)
 	}
 	
 	public ActiveRequest withRequest(HttpServletRequest request) {
-		return new ActiveRequest(module, request);
+		return new ActiveRequest(module, lsxbe, request);
 	}
 }

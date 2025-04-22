@@ -2,13 +2,13 @@ package org.openntf.xsp.jakartaee.module.nsf;
 
 import java.util.Optional;
 
-import com.hcl.domino.module.nsf.NotesContext;
-import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.module.nsf.util.ActiveRequest;
+import org.openntf.xsp.jakartaee.module.nsf.util.LSXBEHolder;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import lotus.domino.Database;
@@ -36,39 +36,37 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 
 	@Override
 	public Optional<NotesDatabase> getNotesDatabase() {
-		NotesContext ctx = NotesContext.contextThreadLocal.get();
-		if(ctx != null) {
-			try {
-				return Optional.ofNullable(ctx.getNotesDatabase());
-			} catch (NotesAPIException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return Optional.empty();
+		return ActiveRequest.get()
+			.map(ActiveRequest::module)
+			.map(NSFJakartaModule::getNotesDatabase);
 	}
 
 	@Override
 	public Optional<Database> getUserDatabase() {
-		// TODO Auto-generated method stub
-		return Optional.empty();
+		return ActiveRequest.get()
+			.map(ActiveRequest::lsxbe)
+			.map(LSXBEHolder::database);
 	}
 
 	@Override
 	public Optional<Session> getUserSession() {
-		// TODO Auto-generated method stub
-		return Optional.empty();
+		return ActiveRequest.get()
+			.map(ActiveRequest::lsxbe)
+			.map(LSXBEHolder::session);
 	}
 
 	@Override
 	public Optional<Session> getSessionAsSigner() {
-		// TODO Auto-generated method stub
-		return Optional.empty();
+		return ActiveRequest.get()
+			.map(ActiveRequest::lsxbe)
+			.map(LSXBEHolder::sessionAsSigner);
 	}
 
 	@Override
 	public Optional<Session> getSessionAsSignerWithFullAccess() {
-		// TODO Auto-generated method stub
-		return Optional.empty();
+		return ActiveRequest.get()
+			.map(ActiveRequest::lsxbe)
+			.map(LSXBEHolder::sessionAsSignerFullAccess);
 	}
 
 	@Override

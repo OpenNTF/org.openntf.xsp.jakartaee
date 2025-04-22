@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,22 +23,33 @@ import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesCollectionEntry;
 import com.ibm.designer.domino.napi.NotesConstants;
 import com.ibm.designer.domino.napi.NotesDatabase;
+import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.NotesSession;
+import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.domino.napi.util.NotesUtils;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpSession;
 import com.ibm.designer.runtime.domino.adapter.util.PageNotFoundException;
+import com.ibm.designer.runtime.domino.bootstrap.adapter.DominoHttpXspNativeContext;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
+import com.ibm.domino.napi.NException;
+import com.ibm.domino.napi.c.NotesUtil;
+import com.ibm.domino.napi.c.xsp.XSPNative;
+import com.ibm.xsp.acl.NoAccessSignal;
 
 import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.module.nsf.io.DesignCollectionIterator;
 import org.openntf.xsp.jakartaee.module.nsf.io.NSFAccess;
+import org.openntf.xsp.jakartaee.module.nsf.util.ActiveRequest;
+import org.openntf.xsp.jakartaee.module.nsf.util.LSXBEHolder;
+import org.openntf.xsp.jakartaee.module.nsf.util.ModuleMap;
+import org.openntf.xsp.jakartaee.module.nsf.util.UncheckedNotesException;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
@@ -48,7 +60,10 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.HandlesTypes;
 import jakarta.servlet.http.HttpServletRequest;
+import lotus.domino.Database;
+import lotus.domino.NotesException;
 import lotus.domino.NotesThread;
+import lotus.domino.Session;
 
 /**
  * @since 3.4.0
@@ -68,6 +83,7 @@ public class NSFJakartaModule extends ComponentModule {
 	private NotesDatabase notesDatabase;
 	private NSFJakartaModuleClassLoader moduleClassLoader;
 	private long lastRefresh;
+	private String xspSigner;
 	
 	public NSFJakartaModule(LCDEnvironment env, NSFJakartaModuleService service, ModuleMap mapping) {
 		super(env, service, MessageFormat.format("{0} - {1}", mapping.path(), mapping.nsfPath()), true);
@@ -106,6 +122,19 @@ public class NSFJakartaModule extends ComponentModule {
 				this.notesSession = new NotesSession();
 				this.notesDatabase = notesSession.getDatabase(this.mapping.nsfPath());
 				this.notesDatabase.open();
+				
+				NotesNote xspProperties = FileAccess.getFileByPath(this.notesDatabase, "WEB-INF/xsp.properties");
+				if(xspProperties != null) {
+					List<String> updatedBy = xspProperties.getItemAsTextList(NotesConstants.FIELD_UPDATED_BY);
+					if(!updatedBy.isEmpty()) {
+						this.xspSigner = updatedBy.getLast();
+					} else {
+						this.xspSigner = this.notesDatabase.getUserName();
+					}
+					xspProperties.recycle();
+				} else {
+					this.xspSigner = this.notesDatabase.getUserName();
+				}
 				
 				this.moduleClassLoader = new NSFJakartaModuleClassLoader(this);
 				
@@ -405,5 +434,36 @@ public class NSFJakartaModule extends ComponentModule {
 	@Override
 	public String toString() {
 		return MessageFormat.format("{0}: {1}", getClass().getSimpleName(), mapping);
+	}
+	
+	public LSXBEHolder withSessions(HttpServletRequestAdapter req) {
+		if(req instanceof DominoHttpXspNativeContext nativeCtx) {
+			try {
+				Principal principal = req.getUserPrincipal();
+				String name = principal == null ? "Anonymous" : principal.getName(); //$NON-NLS-1$
+				Session session = XSPNative.createXPageSession(name, nativeCtx.getUserListHandle(), nativeCtx.getEnforceAccess(), nativeCtx.getPreviewServer());
+				Database database = session.getDatabase("", this.mapping.nsfPath()); //$NON-NLS-1$
+				XSPNative.setContextDatabase(session, XSPNative.getDBHandle(database));
+				
+				// Use the signer of xsp.properties - failing that, the server
+				long hSigner = NotesUtil.createUserNameList(this.xspSigner);
+				Session sessionAsSigner = XSPNative.createXPageSessionExt(this.xspSigner, hSigner, false, nativeCtx.getPreviewServer(), false);
+				Session sessAsSignerFullAccess = XSPNative.createXPageSessionExt(this.xspSigner, hSigner, false, nativeCtx.getPreviewServer(), false);
+				
+				return new LSXBEHolder(session, database, sessionAsSigner, sessAsSignerFullAccess, hSigner);
+			} catch(NException e) {
+				throw new RuntimeException(e);
+			} catch(NotesException e) {
+				if(e.id == 0x0FDC) {
+					// User X cannot open database
+					NoAccessSignal signal = new NoAccessSignal(e.text);
+					signal.setStackTrace(new StackTraceElement[0]);
+					throw signal;
+				}
+				throw new UncheckedNotesException(e);
+			}
+		} else {
+			throw new IllegalArgumentException(MessageFormat.format("Request must be an instance of DominoHttpXspNativeContext: {0}", req));
+		}
 	}
 }
