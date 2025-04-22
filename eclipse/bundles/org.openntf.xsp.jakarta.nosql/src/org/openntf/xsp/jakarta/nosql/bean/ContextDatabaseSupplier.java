@@ -15,10 +15,9 @@
  */
 package org.openntf.xsp.jakarta.nosql.bean;
 
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.SessionSupplier;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
@@ -28,12 +27,16 @@ public class ContextDatabaseSupplier {
 
 	@Produces
 	public DatabaseSupplier getDatabaseSupplier() {
-		return () -> NotesContext.getCurrent().getCurrentDatabase();
+		return () -> ComponentModuleLocator.getDefault()
+				.flatMap(ComponentModuleLocator::getUserDatabase)
+				.orElse(null);
 	}
 
 	@Produces
 	public SessionSupplier getSessionAsSignerSupplier() {
-		return () -> NotesContext.getCurrent().getSessionAsSigner();
+		return () -> ComponentModuleLocator.getDefault()
+				.flatMap(ComponentModuleLocator::getSessionAsSigner)
+				.orElse(null);
 	}
 
 }
