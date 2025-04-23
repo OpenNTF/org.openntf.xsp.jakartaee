@@ -209,11 +209,13 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 					String classNamesCat = entry.getItemValueAsString("$ClassIndexItem"); //$NON-NLS-1$
 					String[] classNames = StringUtil.splitString(classNamesCat, '|');
 					for (int i = 0; i < classNames.length; i++) {
-						int prefixLen = 16; // "WEB-INF/classes/"
-						int suffixLen = 6; // ".class"
-						String className = classNames[i].substring(prefixLen, classNames[i].length() - suffixLen);
-						className = className.replace('/', '.');
-						this.javaClasses.put(className, new JavaClassNote(entry.getNoteID(), "$ClassData" + i)); //$NON-NLS-1$
+						if(classNames[0].length() > 7) {
+							int prefixLen = 16; // "WEB-INF/classes/"
+							int suffixLen = 6; // ".class"
+							String className = classNames[i].substring(prefixLen, classNames[i].length() - suffixLen);
+							className = className.replace('/', '.');
+							this.javaClasses.put(className, new JavaClassNote(entry.getNoteID(), "$ClassData" + i)); //$NON-NLS-1$
+						}
 					}
 				} else if (NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_JAVAJAR)) {
 					String title = entry.getItemValueAsString(NotesConstants.FIELD_TITLE);
