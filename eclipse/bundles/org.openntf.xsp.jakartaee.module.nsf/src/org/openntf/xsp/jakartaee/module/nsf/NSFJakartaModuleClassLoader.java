@@ -2,14 +2,20 @@ package org.openntf.xsp.jakartaee.module.nsf;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,6 +49,7 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	private final List<ClassLoader> extraDepends = new ArrayList<>();
 	private final Map<String, JavaClassNote> javaClasses = new HashMap<>();
 	private final Map<String, Integer> jarFiles = new HashMap<>();
+	private final Set<Path> cleanup = new HashSet<>();
 
 	public NSFJakartaModuleClassLoader(NSFJakartaModule module) throws NotesAPIException {
 		super(MessageFormat.format("ClassLoader for {0}", module), createURLs(module), module.getClass().getClassLoader());
@@ -50,8 +57,11 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 		this.module = module;
 		
 		// TODO build CodeSources for /WEB-INF/classes et al for defineClass calls
-		
-		findJavaElements();
+		try {
+			findJavaElements();
+		} catch(IOException e) {
+			throw new UncheckedIOException(e);
+		}
 		
 		// Glean extraDepends
 		Properties xspProperties = LibraryUtil.getXspProperties(module);
@@ -183,6 +193,10 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	public void close() {
 		try {
 			super.close();
+			
+			for(Path path : this.cleanup) {
+				Files.deleteIfExists(path);
+			}
 		} catch (IOException e) {
 			if(log.isLoggable(Level.WARNING)) {
 				log.log(Level.WARNING, MessageFormat.format("Encountered exception closing class loader for {0}", this.module), e);
@@ -198,7 +212,7 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 		return result.toArray(new URL[result.size()]);
 	}
 	
-	private void findJavaElements() throws NotesAPIException {
+	private void findJavaElements() throws NotesAPIException, IOException {
 		try (DesignCollectionIterator nav = new DesignCollectionIterator(this.module.getNotesDatabase())) {
 			while (nav.hasNext()) {
 				NotesCollectionEntry entry = (NotesCollectionEntry) nav.next();
@@ -223,8 +237,17 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 					jarFiles.put(jarPath, entry.getNoteID());
 
 					// Add it to our base ClassLoader while here
-					URL url = NSFJakartaURL.of(module.getMapping().nsfPath(), '/' + jarPath);
-					addURL(url);
+					// TODO see if we can keep these in-memory only
+					Path tempJar = Files.createTempFile(getClass().getSimpleName(), ".jar"); //$NON-NLS-1$
+					NotesNote note = this.module.getNotesDatabase().openNote(entry.getNoteID(), 0);
+					try(OutputStream os = Files.newOutputStream(tempJar, StandardOpenOption.TRUNCATE_EXISTING)) {
+						FileAccess.readFileContent(note, os);
+					} finally {
+						note.recycle();
+					}
+					addURL(URI.create("jar:" + tempJar.toUri() + "!/").toURL());; //$NON-NLS-1$ //$NON-NLS-2$
+//					URL url = NSFJakartaURL.of(module.getMapping().nsfPath(), '/' + jarPath);
+//					addURL(url);
 				} else if (NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_FILE)) {
 					String title = entry.getItemValueAsString(NotesConstants.FIELD_TITLE);
 					// Assume anything in WEB-INF/classes ending with .class is fair game
