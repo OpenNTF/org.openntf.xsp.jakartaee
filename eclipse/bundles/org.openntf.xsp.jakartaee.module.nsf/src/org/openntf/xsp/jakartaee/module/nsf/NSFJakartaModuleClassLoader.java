@@ -37,7 +37,6 @@ import com.ibm.xsp.library.LibraryServiceLoader;
 import com.ibm.xsp.library.LibraryWrapper;
 
 import org.openntf.xsp.jakartaee.module.nsf.io.DesignCollectionIterator;
-import org.openntf.xsp.jakartaee.module.nsf.io.NSFJakartaURL;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 public class NSFJakartaModuleClassLoader extends URLClassLoader implements ApplicationClassLoader {
@@ -52,7 +51,7 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	private final Set<Path> cleanup = new HashSet<>();
 
 	public NSFJakartaModuleClassLoader(NSFJakartaModule module) throws NotesAPIException {
-		super(MessageFormat.format("ClassLoader for {0}", module), createURLs(module), module.getClass().getClassLoader());
+		super(MessageFormat.format("ClassLoader for {0}", module), new URL[0], module.getClass().getClassLoader());
 		
 		this.module = module;
 		
@@ -93,7 +92,19 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	
 	@Override
 	public Enumeration<URL> getResources(String name) throws IOException {
-		List<URL> result = new ArrayList<>(Collections.list(super.findResources(name)));
+		List<URL> result = new ArrayList<>();
+		
+		URL modRes = module.getResource(name);
+		if(modRes != null) {
+			result.add(modRes);
+		}
+		// TODO determine if this is ever needed
+//		modRes = module.getResource(PathUtil.concat("WEB-INF/classes", name, '/')); //$NON-NLS-1$
+//		if(modRes != null) {
+//			result.add(modRes);
+//		}
+		
+		result.addAll(Collections.list(super.findResources(name)));
 		
 		for(ClassLoader cl : this.extraDepends) {
 			result.addAll(Collections.list(cl.getResources(name)));
@@ -197,19 +208,12 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			for(Path path : this.cleanup) {
 				Files.deleteIfExists(path);
 			}
+			this.cleanup.clear();
 		} catch (IOException e) {
 			if(log.isLoggable(Level.WARNING)) {
 				log.log(Level.WARNING, MessageFormat.format("Encountered exception closing class loader for {0}", this.module), e);
 			}
 		}
-	}
-
-	private static URL[] createURLs(NSFJakartaModule module) {
-		List<URL> result = new ArrayList<>();
-		
-		result.add(NSFJakartaURL.of(module.getMapping().nsfPath(), "/WEB-INF/classes/")); //$NON-NLS-1$
-		
-		return result.toArray(new URL[result.size()]);
 	}
 	
 	private void findJavaElements() throws NotesAPIException, IOException {

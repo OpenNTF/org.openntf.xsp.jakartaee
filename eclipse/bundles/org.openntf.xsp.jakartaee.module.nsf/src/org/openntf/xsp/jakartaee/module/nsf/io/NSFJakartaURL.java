@@ -39,7 +39,7 @@ public enum NSFJakartaURL {
 
 		@Override
 		protected URLConnection openConnection(URL u) throws IOException {
-			return NSFAccess.openConnection(nsfPath, path);
+			return NSFAccess.openConnection(u, nsfPath, path);
 		}
 		
 	}

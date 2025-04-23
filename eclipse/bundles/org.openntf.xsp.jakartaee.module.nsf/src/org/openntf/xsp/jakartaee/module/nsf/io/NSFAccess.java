@@ -6,7 +6,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Optional;
 
-import com.ibm.commons.util.NotImplementedException;
 import com.ibm.commons.util.io.ByteStreamCache;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
@@ -41,8 +40,8 @@ public enum NSFAccess {
 		return Optional.ofNullable(NSFJakartaURL.of(nsfPath, res));
 	}
 	
-	public static URLConnection openConnection(String nsfPath, String res) {
-		throw new NotImplementedException("TODO implement openConnection");
+	public static URLConnection openConnection(URL u, String nsfPath, String res) {
+		return new NSFJakartaURLConnection(u, nsfPath, res);
 	}
 	
 	public static InputStream openStream(String nsfPath, String res) throws IOException {
