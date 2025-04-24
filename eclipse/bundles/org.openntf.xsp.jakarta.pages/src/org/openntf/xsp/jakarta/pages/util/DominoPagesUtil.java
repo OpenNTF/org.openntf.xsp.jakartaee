@@ -89,6 +89,12 @@ public enum DominoPagesUtil {
 		result.put("http://java.sun.com/jsp/jstl/sql", new String[] { jstl, "META-INF/sql.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
 		result.put("http://java.sun.com/jsp/jstl/xml", new String[] { jstl, "META-INF/x.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
 
+		result.put("jakarta.tags.functions", new String[] { jstl, "META-INF/fn.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("jakarta.tags.core", new String[] { jstl, "META-INF/c.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("jakarta.tags.fmt", new String[] { jstl, "META-INF/fmt.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("jakarta.tags.sql", new String[] { jstl, "META-INF/sql.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("jakarta.tags.xml", new String[] { jstl, "META-INF/x.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+
 		return result;
 	}
 
