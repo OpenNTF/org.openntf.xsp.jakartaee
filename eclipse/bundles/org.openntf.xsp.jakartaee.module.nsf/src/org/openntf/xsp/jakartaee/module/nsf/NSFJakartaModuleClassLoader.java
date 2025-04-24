@@ -125,7 +125,7 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			// TODO ignore
 		}
 		
-		URL result = super.getResource(name);
+		URL result = getJarResource(name);
 		if(result != null) {
 			return result;
 		}
@@ -137,6 +137,10 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			.orElse(null);
 	}
 	
+	public URL getJarResource(String name) {
+		return super.getResource(name);
+	}
+	
 	@Override
 	public InputStream getResourceAsStream(String name) {
 		InputStream modRes = module.getResourceAsStream(name);
@@ -144,7 +148,7 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			return modRes;
 		}
 		
-		InputStream result = super.getResourceAsStream(name);
+		InputStream result = getJarResourceAsStream(name);
 		if(result != null) {
 			return result;
 		}
@@ -154,6 +158,10 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			.filter(Objects::nonNull)
 			.findFirst()
 			.orElse(null);
+	}
+	
+	public InputStream getJarResourceAsStream(String name) {
+		return super.getResourceAsStream(name);
 	}
 	
 	@Override

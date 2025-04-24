@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.ibm.commons.extension.ExtensionManager;
+import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesCollectionEntry;
@@ -232,15 +233,25 @@ public class NSFJakartaModule extends ComponentModule {
 
 	@Override
 	public URL getResource(String res) throws MalformedURLException {
-		// TODO use a file list cache
 		return NSFAccess.getUrl(this.mapping.nsfPath(), trimResourcePath(res))
-			.orElse(null);
+			.orElseGet(() -> {
+				// Check for META-INF/resources in embedded JARs
+				String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
+				return this.moduleClassLoader.getJarResource(metaResPath);
+			});
 	}
 
 	@Override
 	public InputStream getResourceAsStream(String res) {
 		try {
-			return NSFAccess.openStream(this.mapping.nsfPath(), trimResourcePath(res));
+			InputStream is = NSFAccess.openStream(this.mapping.nsfPath(), trimResourcePath(res));
+			if(is != null) {
+				return is;
+			}
+			
+			// Check for META-INF/resources in embedded JARs
+			String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
+			return this.moduleClassLoader.getJarResourceAsStream(metaResPath);
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
@@ -379,7 +390,7 @@ public class NSFJakartaModule extends ComponentModule {
 	@Override
 	protected void writeResource(ServletInvoker invoker, String res) throws IOException {
 		// Do an early check here since otherwise the parent implementation will set a status of 200
-		if(!NSFAccess.getUrl(this.mapping.nsfPath(), res).isPresent()) {
+		if(getResource(res) == null) {
 			// TODO consider handling this differently, to avoid just "Item Not Found Exception" and a console log entry
 			throw new PageNotFoundException(MessageFormat.format("No resource found at path {0}", res));
 		} else {
