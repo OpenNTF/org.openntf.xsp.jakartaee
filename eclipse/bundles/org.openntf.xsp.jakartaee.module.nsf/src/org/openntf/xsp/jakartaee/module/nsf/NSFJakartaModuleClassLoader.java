@@ -52,7 +52,7 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	private final Set<Path> cleanup = new HashSet<>();
 
 	public NSFJakartaModuleClassLoader(NSFJakartaModule module) throws NotesAPIException {
-		super(MessageFormat.format("ClassLoader for {0}", module), new URL[0], module.getClass().getClassLoader());
+		super(MessageFormat.format("{0}:{1}", NSFJakartaModuleClassLoader.class.getName(), module.getMapping()), new URL[0], module.getClass().getClassLoader());
 		
 		this.module = module;
 		
