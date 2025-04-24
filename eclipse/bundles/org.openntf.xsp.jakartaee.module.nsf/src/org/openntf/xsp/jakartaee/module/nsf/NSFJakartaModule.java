@@ -232,14 +232,14 @@ public class NSFJakartaModule extends ComponentModule {
 
 	@Override
 	public URL getResource(String res) throws MalformedURLException {
-		return NSFAccess.getUrl(this.mapping.nsfPath(), res)
+		return NSFAccess.getUrl(this.mapping.nsfPath(), trimResourcePath(res))
 			.orElse(null);
 	}
 
 	@Override
 	public InputStream getResourceAsStream(String res) {
 		try {
-			return NSFAccess.openStream(this.mapping.nsfPath(), res);
+			return NSFAccess.openStream(this.mapping.nsfPath(), trimResourcePath(res));
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
@@ -250,8 +250,11 @@ public class NSFJakartaModule extends ComponentModule {
 		// This is looking for all resources strictly within the folder path,
 		//   with a trailing "/" if it's a subfolder of it
 		// TODO look for subfolders?
-		return this.listFiles(res)
-			.collect(Collectors.toSet());
+		Stream<String> matches = this.listFiles(res);
+		if(res.charAt(0) == '/') {
+			matches = matches.map(p -> '/' + p);
+		}
+		return matches.collect(Collectors.toSet());
 	}
 
 	@Override
@@ -398,15 +401,13 @@ public class NSFJakartaModule extends ComponentModule {
 	}
 	
 	public Stream<String> listFiles(String basePath) {
-		String path = basePath;
-		if(basePath != null && basePath.startsWith("/")) { //$NON-NLS-1$
-			basePath = basePath.substring(1);
-		}
-		boolean listAll = StringUtil.isEmpty(basePath);
+		String path = trimResourcePath(basePath);
+		boolean listAll = StringUtil.isEmpty(path);
 		if(!listAll && !path.endsWith("/")) { //$NON-NLS-1$
 			path += "/"; //$NON-NLS-1$
 		}
 		
+		// TODO cache this list and destroy on refresh
 		List<String> result = new ArrayList<>();
 		try (DesignCollectionIterator nav = new DesignCollectionIterator(notesDatabase)) {
 			while (nav.hasNext()) {
@@ -431,7 +432,8 @@ public class NSFJakartaModule extends ComponentModule {
 		Stream<String> pathStream = result.stream();
 		if(!listAll) {
 			String fPath = path;
-			pathStream = pathStream.filter(p -> p.startsWith(fPath) && p.indexOf('/', fPath.length()+1) == -1);
+			pathStream = pathStream
+				.filter(p -> p.startsWith(fPath) && p.indexOf('/', fPath.length()+1) == -1);
 		}
 		return pathStream;
 	}
@@ -469,6 +471,16 @@ public class NSFJakartaModule extends ComponentModule {
 			}
 		} else {
 			throw new IllegalArgumentException(MessageFormat.format("Request must be an instance of DominoHttpXspNativeContext: {0}", req));
+		}
+	}
+	
+	private String trimResourcePath(String path) {
+		if(path == null) {
+			return null;
+		} else if(path.length() > 1 && path.startsWith("/")) { //$NON-NLS-1$
+			return path.substring(1);
+		} else {
+			return path;
 		}
 	}
 }

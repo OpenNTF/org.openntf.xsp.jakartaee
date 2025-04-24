@@ -107,7 +107,6 @@ public class NSFPagesServlet extends AbstractXspLifecycleServlet {
 				throw new ServletException(e);
 			}
 		} catch(Throwable t) {
-			t.printStackTrace();
 			throw t;
 		} finally {
 			// Looks like Wasp doesn't flush this on its own

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -115,6 +116,15 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	
 	@Override
 	public URL getResource(String name) {
+		try {
+			URL modRes = module.getResource(name);
+			if(modRes != null) {
+				return modRes;
+			}
+		} catch (MalformedURLException e) {
+			// TODO ignore
+		}
+		
 		URL result = super.getResource(name);
 		if(result != null) {
 			return result;
@@ -129,6 +139,11 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	
 	@Override
 	public InputStream getResourceAsStream(String name) {
+		InputStream modRes = module.getResourceAsStream(name);
+		if(modRes != null) {
+			return modRes;
+		}
+		
 		InputStream result = super.getResourceAsStream(name);
 		if(result != null) {
 			return result;
