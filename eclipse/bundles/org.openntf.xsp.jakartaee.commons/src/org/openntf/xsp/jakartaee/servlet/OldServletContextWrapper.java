@@ -317,8 +317,8 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public String getRealPath(final String arg0) {
-		return delegate.getRealPath(arg0);
+	public String getRealPath(final String path) {
+		return delegate.getRealPath(path);
 	}
 
 	@Override
