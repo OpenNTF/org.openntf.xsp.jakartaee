@@ -232,6 +232,7 @@ public class NSFJakartaModule extends ComponentModule {
 
 	@Override
 	public URL getResource(String res) throws MalformedURLException {
+		// TODO use a file list cache
 		return NSFAccess.getUrl(this.mapping.nsfPath(), trimResourcePath(res))
 			.orElse(null);
 	}

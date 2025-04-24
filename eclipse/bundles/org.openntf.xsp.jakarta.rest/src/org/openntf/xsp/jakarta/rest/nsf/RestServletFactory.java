@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jakarta.rest.nsf;
 
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -51,6 +52,7 @@ import jakarta.annotation.Priority;
 public class RestServletFactory implements JakartaIServletFactory {
 	public static final String SERVLET_PATH_DEFAULT = "app"; //$NON-NLS-1$
 	public static final String PROP_SERVLET_PATH = "org.openntf.xsp.jakarta.rest.path"; //$NON-NLS-1$
+	public static final String PROP_DEFER_TO_FILES = "org.openntf.xsp.jakarta.rest.deferToFiles"; //$NON-NLS-1$
 	/**
 	 * Determines the effective base servlet path for the provided module.
 	 *
@@ -77,11 +79,14 @@ public class RestServletFactory implements JakartaIServletFactory {
 	private ComponentModule module;
 	private Servlet servlet;
 	private long lastUpdate;
+	private boolean deferToFiles;
 
 	@Override
 	public void init(final ComponentModule module) {
 		this.module = module;
 		this.lastUpdate = module.getLastRefresh();
+		Properties props = LibraryUtil.getXspProperties(module);
+		this.deferToFiles = "true".equals(props.getProperty(PROP_DEFER_TO_FILES, null)); //$NON-NLS-1$
 	}
 
 	@Override
@@ -91,6 +96,18 @@ public class RestServletFactory implements JakartaIServletFactory {
 			// Match either a resource within the path or the specific base path without the trailing "/"
 			String trimmedBaseServletPath = baseServletPath.substring(0, baseServletPath.length()-1);
 			if (path.startsWith(baseServletPath) || path.equals(trimmedBaseServletPath)) {
+				// If we defer to files, make sure there isn't a matching resource here
+				if(this.deferToFiles) {
+					String resPath = path.substring(1);
+					try {
+						if(module.getResource(resPath) != null) {
+							return null;
+						}
+					} catch (MalformedURLException e) {
+						// Ignore
+					}
+				}
+				
 				int len = baseServletPath.length()-1;
 				String servletPath = path.substring(0, len);
 				if(servletPath.endsWith("/")) { //$NON-NLS-1$
