@@ -24,7 +24,6 @@ import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
-import com.ibm.domino.napi.c.xsp.XSPNative;
 
 import org.openntf.xsp.jakartaee.module.nsf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.nsf.util.LSXBEHolder;
@@ -114,8 +113,15 @@ public class NSFJakartaModuleService extends HttpService {
 			NotesThread.sinitThread();
 			try {
 				NSFJakartaModule module = target.get();
+				// TODO consider pushing up initialization to an early phase, ideally in an ExecutorService
 				if(!module.isInitialized()) {
-					module.initModule();
+					// Provide this module for NSFJakartaModuleLocator
+					ActiveRequest.set(new ActiveRequest(module, null, null));
+					try {
+						module.initModule();
+					} finally {
+						ActiveRequest.set(null);
+					}
 				}
 				
 				String contextPath = PathUtil.concat(lcdContextPath, '/' + module.getMapping().path(), '/');
@@ -137,8 +143,6 @@ public class NSFJakartaModuleService extends HttpService {
 							module.refresh();
 						}
 					}
-				} finally {
-					ActiveRequest.set(null);
 				}
 				throw new IllegalStateException(MessageFormat.format("Module didn't refresh after {0} attempts", MAX_REFRESH_ATTEMPTS));
 			} finally {

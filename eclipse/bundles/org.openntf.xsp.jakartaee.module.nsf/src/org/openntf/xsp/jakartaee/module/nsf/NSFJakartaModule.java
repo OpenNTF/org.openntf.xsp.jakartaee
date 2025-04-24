@@ -28,6 +28,7 @@ import com.ibm.designer.domino.napi.NotesSession;
 import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.domino.napi.util.NotesUtils;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpSession;
@@ -123,7 +124,8 @@ public class NSFJakartaModule extends ComponentModule {
 				this.notesDatabase = notesSession.getDatabase(this.mapping.nsfPath());
 				this.notesDatabase.open();
 				
-				NotesNote xspProperties = FileAccess.getFileByPath(this.notesDatabase, "WEB-INF/xsp.properties");
+				// Use xsp.properties as our signer if available
+				NotesNote xspProperties = FileAccess.getFileByPath(this.notesDatabase, "WEB-INF/xsp.properties"); //$NON-NLS-1$
 				if(xspProperties != null) {
 					List<String> updatedBy = xspProperties.getItemAsTextList(NotesConstants.FIELD_UPDATED_BY);
 					if(!updatedBy.isEmpty()) {
@@ -150,7 +152,7 @@ public class NSFJakartaModule extends ComponentModule {
 			
 			// Fire ServletContainerInitializers
 			ServletContext servletContext = ServletUtil.oldToNew('/' + mapping.path(), getServletContext());
-			List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class);
+			List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class, this);
 			for(ServletContainerInitializer initializer : initializers) {
 				Set<Class<?>> classes = null;
 				if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
@@ -172,6 +174,9 @@ public class NSFJakartaModule extends ComponentModule {
 		}
 	}
 	
+	public Collection<? extends IServletFactory> getServletFactories() {
+		return servletFactories;
+	}
 	
 	public boolean isInitialized() {
 		return initialized;
@@ -311,7 +316,7 @@ public class NSFJakartaModule extends ComponentModule {
 		if(log.isLoggable(Level.FINE)) {
 			log.fine(MessageFormat.format("Invoking Servlet {0}", servlet));
 		}
-		
+
 		HttpContextBean.setThreadResponse(ServletUtil.oldToNew(resp));
 		// Update the active request with the "true" request object
 		HttpServletRequest request = ServletUtil.oldToNew(getServletContext(), req);

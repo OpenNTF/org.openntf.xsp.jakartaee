@@ -1,9 +1,12 @@
 package org.openntf.xsp.jakartaee.module.nsf;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.IServletFactory;
+
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
@@ -86,4 +89,11 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 			.map(ActiveRequest::request);
 	}
 
+	@Override
+	public Collection<? extends IServletFactory> getServletFactories() {
+		return ActiveRequest.get()
+			.map(ActiveRequest::module)
+			.map(NSFJakartaModule::getServletFactories)
+			.orElse(null);
+	}
 }

@@ -122,6 +122,7 @@ public class ServiceLoader {
 		}
 
 		// TODO support OSGi NotesContext
+		// TODO support other providers
 
 		return result.stream()
 			.sorted(ClassPriorityComparator.DESCENDING)
