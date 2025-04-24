@@ -64,7 +64,7 @@ import jakarta.servlet.descriptor.TaglibDescriptor;
 class OldServletContextWrapper implements ServletContext {
 	private static final String UNAVAILABLE_MESSAGE = "Unable to call method on Servlet 2.5 delegate"; //$NON-NLS-1$
 	final javax.servlet.ServletContext delegate;
-	private final String contextPath;
+	private String contextPath;
 	private int majorVersion = 2;
 	private int minorVersion = 5;
 	private ClassLoader classLoader;
@@ -198,6 +198,17 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public String getContextPath() {
+		String contextPath = this.contextPath;
+		if(contextPath == null) {
+			// We might have an active context path - if so, use that
+			contextPath = ComponentModuleLocator.getDefault()
+				.flatMap(ComponentModuleLocator::getServletContext)
+				.map(ServletContext::getContextPath)
+				.orElse(null);
+			if(contextPath != null) {
+				this.contextPath = contextPath;
+			}
+		}
 		return Objects.requireNonNull(contextPath, "Context path requested but not initialized");
 	}
 
