@@ -233,9 +233,13 @@ public class NSFJakartaModule extends ComponentModule {
 
 	@Override
 	public URL getResource(String res) throws MalformedURLException {
-		return NSFAccess.getUrl(this.mapping.nsfPath(), trimResourcePath(res))
+		// TODO cache, since some parts request the same file many, many times.
+		//   This was observed particularly with META-INF/validation.xml
+		
+		return NSFAccess.getUrl(this.notesDatabase, trimResourcePath(res))
 			.orElseGet(() -> {
 				// Check for META-INF/resources in embedded JARs
+				// TODO skip check if the incoming path has META-INF or WEB-INF in it already
 				String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
 				return this.moduleClassLoader.getJarResource(metaResPath);
 			});

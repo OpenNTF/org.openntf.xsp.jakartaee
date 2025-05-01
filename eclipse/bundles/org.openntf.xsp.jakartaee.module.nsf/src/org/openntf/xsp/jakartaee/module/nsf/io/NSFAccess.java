@@ -19,25 +19,23 @@ import com.ibm.designer.domino.napi.design.FileAccess;
 public enum NSFAccess {
 	;
 	
-	public static Optional<URL> getUrl(String nsfPath, String res) {
+	public static Optional<URL> getUrl(NotesDatabase db, String res) {
 		try {
-			NotesSession session = new NotesSession();
-			NotesDatabase db = session.getDatabase(nsfPath);
-			db.open();
-			try {
-				NotesNote note = FileAccess.getFileByPath(db, res);
-				if(note != null) {
-					Optional.ofNullable(NSFJakartaURL.of(nsfPath, res));
-				} else {
-					return Optional.empty();
+			// TODO handle "\" in resource name as "/".
+			//   Probably best to cache this in the ClassLoader instead of using FileAccess for this
+			NotesNote note = FileAccess.getFileByPath(db, res);
+			if(note != null) {
+				try {
+					return Optional.ofNullable(NSFJakartaURL.of(db.getDatabasePath(), res));
+				} finally {
+					note.recycle();
 				}
-			} finally {
-				session.recycle();
+			} else {
+				return Optional.empty();
 			}
 		} catch (NotesAPIException e) {
 			throw new RuntimeException(e);
 		}
-		return Optional.ofNullable(NSFJakartaURL.of(nsfPath, res));
 	}
 	
 	public static URLConnection openConnection(URL u, String nsfPath, String res) {
