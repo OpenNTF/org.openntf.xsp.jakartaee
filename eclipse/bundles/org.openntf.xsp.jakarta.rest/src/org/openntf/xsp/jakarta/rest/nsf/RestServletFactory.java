@@ -97,7 +97,7 @@ public class RestServletFactory implements JakartaIServletFactory {
 			String trimmedBaseServletPath = baseServletPath.substring(0, baseServletPath.length()-1);
 			if (path.startsWith(baseServletPath) || path.equals(trimmedBaseServletPath)) {
 				// If we defer to files, make sure there isn't a matching resource here
-				if(StringUtil.isNotEmpty(path) && !"/".equals(path) && this.deferToFiles) { //$NON-NLS-1$
+				if(this.deferToFiles && StringUtil.isNotEmpty(path) && !"/".equals(path)) { //$NON-NLS-1$
 					String resPath = path.substring(1);
 					try {
 						if(module.getResource(resPath) != null) {
