@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee.bridge.jasapi.module;
+package org.openntf.xsp.jakartaee.module.xspnsf.jasapi;
 
 import java.util.ServiceLoader;
 import java.util.function.Function;
@@ -31,6 +31,7 @@ import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFService;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
+import org.openntf.xsp.jakartaee.bridge.jasapi.impl.DelegatingJavaSapiContext;
 import org.openntf.xsp.jakartaee.jasapi.JavaSapiExtension;
 import org.openntf.xsp.jakartaee.util.PriorityComparator;
 

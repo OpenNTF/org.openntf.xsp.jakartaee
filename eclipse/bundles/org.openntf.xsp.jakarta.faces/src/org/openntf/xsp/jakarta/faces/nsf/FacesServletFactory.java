@@ -141,7 +141,7 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 						.toArray(URL[]::new);
 					Thread.currentThread().setContextClassLoader(new URLClassLoader(urls, current));
 
-					return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFFacesServlet(module)), "XSP JSF Servlet", params); //$NON-NLS-1$
+					return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFFacesServlet(module)), "Jakarta Faces Servlet", params); //$NON-NLS-1$
 				} finally {
 					Thread.currentThread().setContextClassLoader(current);
 				}

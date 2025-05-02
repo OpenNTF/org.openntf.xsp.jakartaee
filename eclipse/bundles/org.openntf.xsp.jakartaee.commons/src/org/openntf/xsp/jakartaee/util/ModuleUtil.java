@@ -39,6 +39,7 @@ import com.ibm.domino.xsp.module.nsf.NSFService;
 import org.openntf.xsp.jakartaee.module.ComponentModuleProcessor;
 import org.osgi.framework.Bundle;
 
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.annotation.HandlesTypes;
 
 /**
@@ -210,6 +211,44 @@ public enum ModuleUtil {
 			.findFirst()
 			.map(proc -> proc.emulateServletEvents(module))
 			.orElse(false);
+	}
+	
+	/**
+	 * Attempts to initialize the XPages FacesServlet for the given module.
+	 * 
+	 * <p>This should only be called if {@link #hasXPages(ComponentModule)} returns
+	 * {@code true}.</p>
+	 * 
+	 * @param module the module to initialize
+	 * @return an {@link Optional} describing the Servlet if initialized; otherwise,
+	 *         an empty one
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static Optional<javax.servlet.Servlet> initXPagesServlet(final ComponentModule module, final ServletConfig servletConfig) {
+		Objects.requireNonNull(module, "module cannot be null");
+		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
+			.stream()
+			.filter(proc -> proc.canProcess(module))
+			.findFirst()
+			.map(proc -> proc.initXPagesServlet(module, servletConfig))
+			.orElseGet(Optional::empty);
+	}
+	
+	/**
+	 * Attempts to initialize the sessionAsSigner variable if needed for the module.
+	 * 
+	 * @param module the module to initialize
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static void initializeSessionAsSigner(final ComponentModule module) {
+		Objects.requireNonNull(module, "module cannot be null");
+		LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
+			.stream()
+			.filter(proc -> proc.canProcess(module))
+			.findFirst()
+			.ifPresent(proc -> proc.initializeSessionAsSigner(module));
 	}
 
 	/**

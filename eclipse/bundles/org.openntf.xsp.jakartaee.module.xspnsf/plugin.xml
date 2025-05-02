@@ -47,4 +47,8 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.events.JakartaApplicationListener" class="org.openntf.xsp.jakartaee.module.xspnsf.concurrency.ConcurrencyApplicationListener" />
 	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.bridge.jasapi.JasapiServiceFactory" class="org.openntf.xsp.jakartaee.module.xspnsf.jasapi.ComponentModuleJasapiFactory"/>
+	</extension>
 </plugin>

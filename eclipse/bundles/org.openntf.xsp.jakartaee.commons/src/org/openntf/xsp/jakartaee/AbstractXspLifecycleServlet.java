@@ -17,22 +17,21 @@ package org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.faces.context.FacesContext;
+import javax.servlet.Servlet;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem;
 import com.ibm.xsp.acl.NoAccessSignal;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.context.FacesContextEx;
@@ -85,7 +84,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	private ServletConfig config;
 	private boolean initialized = false;
 	private final ComponentModule module;
-	private DesignerFacesServlet facesServlet;
+	private javax.servlet.Servlet facesServlet;
 	private boolean doFaces;
 	private boolean doEvents;
 
@@ -128,13 +127,13 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 		FacesContext facesContext = null;
 		try {
 			response.setBufferSize(0);
-	
-			if(this.doFaces) {
-				initializeSessionAsSigner();
-			}
+
+			ModuleUtil.initializeSessionAsSigner(module);
 			
 			if(this.doEvents) {
-				if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
+				if (!initialized) {
+					// For legacy modules, initialization has do be done after NotesContext is
+					//   initialized with session to support sessionAsSigner operations
 					doInit(config, request);
 	
 					initialized = true;
@@ -201,15 +200,10 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	// * Internal implementation methods
 	// *******************************************************************************
 
-	private synchronized FacesServlet getFacesServlet(final ServletConfig config) {
+	private synchronized Servlet getFacesServlet(final ServletConfig config) {
 		if(this.facesServlet == null) {
-			try {
-				this.facesServlet = (DesignerFacesServlet)module.getServlet("/foo.xsp").getServlet(); //$NON-NLS-1$
-				// This should be functionally a NOP when already initialized
-				this.facesServlet.init(ServletUtil.newToOld(config));
-			} catch (javax.servlet.ServletException e) {
-				throw new RuntimeException(e);
-			}
+			this.facesServlet = ModuleUtil.initXPagesServlet(this.module, getServletConfig())
+				.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to initialize XPages FacesServlet for {0}", this.module)));
 		}
 		return this.facesServlet;
 	}
@@ -231,37 +225,4 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 			// Not important - ignore
 		}
     }
-
-	private void initializeSessionAsSigner() {
-		NotesContext nc = NotesContext.getCurrentUnchecked();
-
-		// This originally worked as below, but is now done reflectively to avoid trouble seen on 12.0.1
-    	//String javaClassValue = "plugin.Activator"; //$NON-NLS-1$
-		//String str = "WEB-INF/classes/" + javaClassValue.replace('.', '/') + ".class"; //$NON-NLS-1$ //$NON-NLS-2$
-		//nc.setSignerSessionRights(str);
-
-		// Use xsp.properties because it should exist in DBs built with NSF ODP Tooling
-		String str = "WEB-INF/xsp.properties"; //$NON-NLS-1$
-		RuntimeFileSystem.NSFFile res = (RuntimeFileSystem.NSFFile)nc.getModule().getRuntimeFileSystem().getResource(str);
-		String signer = res.getUpdatedBy();
-
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
-			try {
-				Field checkedSignersField = NotesContext.class.getDeclaredField("checkedSigners"); //$NON-NLS-1$
-				checkedSignersField.setAccessible(true);
-				@SuppressWarnings("unchecked")
-				Set<String> checkedSigners = (Set<String>)checkedSignersField.get(nc);
-				checkedSigners.clear();
-				checkedSigners.add(signer);
-
-				Field topLevelSignerField = NotesContext.class.getDeclaredField("toplevelXPageSigner"); //$NON-NLS-1$
-				topLevelSignerField.setAccessible(true);
-				topLevelSignerField.set(nc, signer);
-
-				return null;
-			} catch(Exception e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
 }

@@ -1,8 +1,11 @@
 package org.openntf.xsp.jakartaee.module;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+
+import jakarta.servlet.ServletConfig;
 
 /**
  * This service interface represents a processor able to handle common operations
@@ -35,5 +38,13 @@ public interface ComponentModuleProcessor<T extends ComponentModule> {
 	
 	default boolean emulateServletEvents(final T module) {
 		return true;
+	}
+	
+	default Optional<javax.servlet.Servlet> initXPagesServlet(final T module, final ServletConfig servletConfig) {
+		return Optional.empty();
+	}
+	
+	default void initializeSessionAsSigner(final T module) {
+		// NOP
 	}
 }
