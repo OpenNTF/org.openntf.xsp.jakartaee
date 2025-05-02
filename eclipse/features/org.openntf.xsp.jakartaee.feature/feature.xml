@@ -357,6 +357,7 @@
 	
 	<!-- Component Modules -->
 	<plugin id="org.openntf.xsp.jakartaee.module.xspnsf" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakartaee.module.osgi" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakartaee.module.jakartansf" version="0.0.0" unpack="false"/>
 	
 	<!-- Misc. Support -->

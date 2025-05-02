@@ -89,6 +89,7 @@
  		
  		<!-- Component Modules -->
  		<module>bundles/org.openntf.xsp.jakartaee.module.xspnsf</module>
+ 		<module>bundles/org.openntf.xsp.jakartaee.module.osgi</module>
  		<module>bundles/org.openntf.xsp.jakartaee.module.jakartansf</module>
 		
 		<!-- Integration test support and examples -->

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee.module;
+package org.openntf.xsp.jakartaee.module.osgi;
 
 import java.lang.reflect.Field;
 import java.security.AccessController;
@@ -28,6 +28,7 @@ import com.ibm.domino.osgi.core.context.ContextInfo;
 import com.ibm.domino.xsp.adapter.osgi.AbstractOSGIModule;
 import com.ibm.domino.xsp.adapter.osgi.NotesContext;
 
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import jakarta.annotation.Priority;
