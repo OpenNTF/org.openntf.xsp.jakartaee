@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakarta.cdi.bean;
+package org.openntf.xsp.jakartaee.module.xspnsf.cdi;
 
-import org.openntf.xsp.jakarta.cdi.concurrency.NSFSessionClonerSetupParticipant;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.module.xspnsf.cdi.concurrency.NSFSessionClonerSetupParticipant;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;

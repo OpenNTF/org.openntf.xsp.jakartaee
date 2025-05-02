@@ -18,12 +18,12 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-	<!-- HTTP Service for NSF modules -->
+	<!-- HTTP Service for Jakarta NSF modules -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModuleServiceFactory"/>
 	</extension>
 	
-	<!-- Framework support for NSF modules -->
+	<!-- Framework support for Jakarta NSF modules -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleProcessor" class="org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModuleProcessor"/>
 	</extension>

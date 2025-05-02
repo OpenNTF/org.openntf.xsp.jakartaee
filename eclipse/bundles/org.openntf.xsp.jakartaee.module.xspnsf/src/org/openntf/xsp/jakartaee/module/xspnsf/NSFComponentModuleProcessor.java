@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.module;
+package org.openntf.xsp.jakartaee.module.xspnsf;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -8,6 +8,7 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem.NSFFile;
 
+import org.openntf.xsp.jakartaee.module.ComponentModuleProcessor;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 public class NSFComponentModuleProcessor implements ComponentModuleProcessor<NSFComponentModule> {

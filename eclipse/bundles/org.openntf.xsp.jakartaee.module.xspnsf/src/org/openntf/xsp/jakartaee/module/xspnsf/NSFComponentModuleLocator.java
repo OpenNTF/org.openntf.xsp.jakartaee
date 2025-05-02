@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee.module;
+package org.openntf.xsp.jakartaee.module.xspnsf;
 
 import java.lang.reflect.Field;
 import java.security.AccessController;
@@ -31,6 +31,7 @@ import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import jakarta.annotation.Priority;

@@ -356,6 +356,7 @@
 	<plugin id="org.antlr.antlr4-runtime" version="0.0.0" unpack="false"/>
 	
 	<!-- Component Modules -->
+	<plugin id="org.openntf.xsp.jakartaee.module.xspnsf" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakartaee.module.jakartansf" version="0.0.0" unpack="false"/>
 	
 	<!-- Misc. Support -->

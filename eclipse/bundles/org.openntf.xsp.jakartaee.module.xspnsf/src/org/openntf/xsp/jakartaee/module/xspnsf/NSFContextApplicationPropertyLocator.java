@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee.discovery.impl;
+package org.openntf.xsp.jakartaee.module.xspnsf;
 
 import java.util.Optional;
 import java.util.Properties;
