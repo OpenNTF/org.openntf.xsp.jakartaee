@@ -41,9 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-
+import org.openntf.xsp.jakartaee.osgiresourceloader.ContextServiceLoader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -61,7 +59,7 @@ import jakarta.annotation.Priority;
 public class ServiceLoader {
 	private static final Logger LOGGER = Logger.getLogger(ServiceLoader.class.getName());
 
-	private static final String SERVICE_LOCATION = "META-INF/services"; //$NON-NLS-1$
+	public static final String SERVICE_LOCATION = "META-INF/services"; //$NON-NLS-1$
 	private static final String COMMENT_PATTERN = "#"; //$NON-NLS-1$
 	private static final Map<Bundle, Set<String>> OSGI_PROVIDERS = new HashMap<>();
 	@SuppressWarnings("rawtypes")
@@ -114,15 +112,10 @@ public class ServiceLoader {
 
 		Iterable<Class> osgi = computeIfAbsent(OSGI_INSTANCES, serviceClass, ServiceLoader::resolveBundleServices);
 		osgi.forEach(result::add);
-
-		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
-		if(nsfContext != null) {
-			Iterable<Class> nsf = resolveModuleServices(nsfContext.getModule(), serviceClass);
-			nsf.forEach(result::add);
-		}
-
-		// TODO support OSGi NotesContext
-		// TODO support other providers
+		
+		Activator.findExtensions(ContextServiceLoader.class).forEach(l -> {
+			l.resolveModuleServices(serviceClass).forEach(result::add);
+		});
 
 		return result.stream()
 			.sorted(ClassPriorityComparator.DESCENDING)
@@ -187,33 +180,7 @@ public class ServiceLoader {
 			.collect(Collectors.toList());
     }
 
-    @SuppressWarnings("rawtypes")
-	private static Iterable<Class> resolveModuleServices(final ComponentModule module, final Class<?> serviceClass) {
-    	String serviceName = serviceClass.getName();
-    	try {
-    		URL url = module.getResource(SERVICE_LOCATION + '/' + serviceName);
-    		if(url != null) {
-	    		return parseServiceClassNames(url)
-	    			.map(className -> {
-	    				try {
-							return Class.forName(className, true, module.getModuleClassLoader());
-						} catch (Exception e) {
-							String msg = MessageFormat.format("Encountered exception loading class {0} from module {1}", serviceName, module);
-							LOGGER.log(Level.SEVERE, msg, e);
-							return null;
-						}
-	    			})
-	    			.filter(Objects::nonNull)
-	    			.collect(Collectors.toList());
-    		} else {
-    			return Collections.emptyList();
-    		}
-    	} catch(IOException e) {
-    		throw new UncheckedIOException(e);
-    	}
-    }
-
-    private static Stream<String> parseServiceClassNames(final URL url) {
+    public static Stream<String> parseServiceClassNames(final URL url) {
     	List<String> result = new ArrayList<>();
     	try(
     		InputStream is = url.openStream();
