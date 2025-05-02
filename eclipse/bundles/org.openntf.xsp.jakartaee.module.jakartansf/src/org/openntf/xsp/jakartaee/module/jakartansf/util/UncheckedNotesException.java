@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.module.nsf.util;
+package org.openntf.xsp.jakartaee.module.jakartansf.util;
 
 import java.text.MessageFormat;
 

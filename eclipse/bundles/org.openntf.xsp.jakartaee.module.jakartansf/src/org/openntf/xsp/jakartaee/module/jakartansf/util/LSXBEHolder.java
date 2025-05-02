@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.module.nsf.util;
+package org.openntf.xsp.jakartaee.module.jakartansf.util;
 
 import com.ibm.domino.napi.NException;
 import com.ibm.domino.napi.c.Os;

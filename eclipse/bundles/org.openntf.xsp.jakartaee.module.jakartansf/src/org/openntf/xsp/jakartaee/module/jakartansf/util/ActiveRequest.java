@@ -1,8 +1,8 @@
-package org.openntf.xsp.jakartaee.module.nsf.util;
+package org.openntf.xsp.jakartaee.module.jakartansf.util;
 
 import java.util.Optional;
 
-import org.openntf.xsp.jakartaee.module.nsf.NSFJakartaModule;
+import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModule;
 
 import jakarta.servlet.http.HttpServletRequest;
 

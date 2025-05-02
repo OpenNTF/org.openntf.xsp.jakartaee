@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.module.nsf;
+package org.openntf.xsp.jakartaee.module.jakartansf;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +37,7 @@ import com.ibm.designer.domino.napi.util.NotesUtils;
 import com.ibm.xsp.library.LibraryServiceLoader;
 import com.ibm.xsp.library.LibraryWrapper;
 
-import org.openntf.xsp.jakartaee.module.nsf.io.DesignCollectionIterator;
+import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 public class NSFJakartaModuleClassLoader extends URLClassLoader implements ApplicationClassLoader {

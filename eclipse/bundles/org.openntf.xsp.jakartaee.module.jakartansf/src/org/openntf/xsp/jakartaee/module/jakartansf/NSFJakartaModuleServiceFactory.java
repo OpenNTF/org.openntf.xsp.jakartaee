@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.module.nsf;
+package org.openntf.xsp.jakartaee.module.jakartansf;
 
 import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.IServiceFactory;

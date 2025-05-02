@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.module.nsf;
+package org.openntf.xsp.jakartaee.module.jakartansf;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,12 +46,12 @@ import com.ibm.xsp.acl.NoAccessSignal;
 import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
-import org.openntf.xsp.jakartaee.module.nsf.io.DesignCollectionIterator;
-import org.openntf.xsp.jakartaee.module.nsf.io.NSFAccess;
-import org.openntf.xsp.jakartaee.module.nsf.util.ActiveRequest;
-import org.openntf.xsp.jakartaee.module.nsf.util.LSXBEHolder;
-import org.openntf.xsp.jakartaee.module.nsf.util.ModuleMap;
-import org.openntf.xsp.jakartaee.module.nsf.util.UncheckedNotesException;
+import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator;
+import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFAccess;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.ModuleMap;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.UncheckedNotesException;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;

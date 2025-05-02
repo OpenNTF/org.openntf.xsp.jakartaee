@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.module.nsf;
+package org.openntf.xsp.jakartaee.module.jakartansf;
 
 import java.util.stream.Stream;
 

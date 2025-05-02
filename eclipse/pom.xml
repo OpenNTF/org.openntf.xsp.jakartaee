@@ -88,7 +88,7 @@
  		<module>bundles/org.openntf.xsp.microprofile.library</module>
  		
  		<!-- Component Modules -->
- 		<module>bundles/org.openntf.xsp.jakartaee.module.nsf</module>
+ 		<module>bundles/org.openntf.xsp.jakartaee.module.jakartansf</module>
 		
 		<!-- Integration test support and examples -->
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>

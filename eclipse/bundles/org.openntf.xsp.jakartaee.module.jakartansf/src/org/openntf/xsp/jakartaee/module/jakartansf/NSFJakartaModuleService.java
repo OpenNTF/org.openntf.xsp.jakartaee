@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.module.nsf;
+package org.openntf.xsp.jakartaee.module.jakartansf;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -25,9 +25,9 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapt
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
-import org.openntf.xsp.jakartaee.module.nsf.util.ActiveRequest;
-import org.openntf.xsp.jakartaee.module.nsf.util.LSXBEHolder;
-import org.openntf.xsp.jakartaee.module.nsf.util.ModuleMap;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.ModuleMap;
 
 import lotus.domino.Database;
 import lotus.domino.Document;

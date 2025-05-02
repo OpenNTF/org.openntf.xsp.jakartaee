@@ -1,4 +1,4 @@
-package org.openntf.xsp.jakartaee.module.nsf;
+package org.openntf.xsp.jakartaee.module.jakartansf;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -10,8 +10,8 @@ import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
-import org.openntf.xsp.jakartaee.module.nsf.util.ActiveRequest;
-import org.openntf.xsp.jakartaee.module.nsf.util.LSXBEHolder;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import lotus.domino.Database;
