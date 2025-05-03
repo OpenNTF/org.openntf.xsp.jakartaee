@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee.module.xspnsf.cdi.concurrency;
+package org.openntf.xsp.jakartaee.module.xspnsf.concurrency;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
