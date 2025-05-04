@@ -29,10 +29,6 @@
 		<service type="org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator" class="org.openntf.xsp.jakartaee.module.xspnsf.NSFContextApplicationPropertyLocator"/>
 	</extension>
 	
-	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.jakartaee.module.xspnsf.cdi.XSPCDIClassContributor" />
-	</extension>
-	
 	<!-- Concurrency CDI thread assistant -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant" class="org.openntf.xsp.jakartaee.module.xspnsf.concurrency.NSFSessionClonerSetupParticipant" />

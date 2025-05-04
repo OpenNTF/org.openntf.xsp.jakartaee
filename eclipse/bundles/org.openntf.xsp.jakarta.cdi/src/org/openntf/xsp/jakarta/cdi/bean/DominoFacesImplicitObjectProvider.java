@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee.module.xspnsf.cdi;
+package org.openntf.xsp.jakarta.cdi.bean;
 
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
-import org.openntf.xsp.jakartaee.module.xspnsf.concurrency.NSFSessionClonerSetupParticipant;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
@@ -56,11 +55,6 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("dominoSessionAsSigner")
 	public Session produceSessionAsSigner() {
-		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSIONASSIGNER.get();
-		if(threadSession != null) {
-			return threadSession;
-		}
-
 		return ComponentModuleLocator.getDefault()
 			.flatMap(ComponentModuleLocator::getSessionAsSigner)
 			.orElse(null);
@@ -70,11 +64,6 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("dominoSessionAsSignerWithFullAccess")
 	public Session produceSessionAsSignerWithFullAccess() {
-		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSIONASSIGNER.get();
-		if(threadSession != null) {
-			return threadSession;
-		}
-
 		return ComponentModuleLocator.getDefault()
 			.flatMap(ComponentModuleLocator::getSessionAsSignerWithFullAccess)
 			.orElse(null);

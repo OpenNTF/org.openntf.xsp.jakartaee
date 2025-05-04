@@ -7,6 +7,7 @@ Bundle-Version: 3.4.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: com.ibm.pvc.servlet;bundle-version="2.5.0",
+ com.ibm.domino.xsp.adapter;bundle-version="12.0.2";visibility:=reexport,
  com.ibm.designer.lib.jsf;bundle-version="9.0.0",
  com.ibm.xsp.designer;bundle-version="9.0.1",
  org.openntf.xsp.jakartaee.osgiresourcelocator;bundle-version="2.6.0";visibility:=reexport,

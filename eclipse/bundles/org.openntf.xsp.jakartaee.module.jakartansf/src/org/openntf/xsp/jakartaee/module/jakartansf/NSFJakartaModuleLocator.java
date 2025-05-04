@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import lotus.domino.Database;
 import lotus.domino.Session;
@@ -76,11 +75,7 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 	public Optional<ServletContext> getServletContext() {
 		return ActiveRequest.get()
 			.map(ActiveRequest::module)
-			.map(module -> {
-				javax.servlet.ServletContext oldCtx = module.getServletContext();
-				String contextPath = '/' + module.getMapping().path();
-				return ServletUtil.oldToNew(contextPath, oldCtx);
-			});
+			.map(NSFJakartaModule::getJakartaServletContext);
 	}
 
 	@Override

@@ -89,22 +89,30 @@ public class NSFFacesServlet extends HttpServlet {
 	private FacesServlet delegate;
 	private boolean initialized;
 	private final Collection<Path> tempFiles = Collections.synchronizedList(new ArrayList<>());
+	private boolean doFaces;
+	private boolean doEvents;
 
 	public NSFFacesServlet(final ComponentModule module) {
 		this.module = module;
+		this.doFaces = ModuleUtil.hasXPages(module);
+		this.doEvents = ModuleUtil.emulateServletEvents(module);
 	}
 
 	public void doInit(final HttpServletRequest req, final ServletConfig config) throws ServletException {
 		CDI<Object> cdi = CDI.current();
 		ServletContext context = config.getServletContext();
-		context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+		if(this.doEvents) {
+			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+		}
 
 		Properties props = LibraryUtil.getXspProperties(module);
 		String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
 		context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
 
-		// Look for a web.xml file and populate init params
-		ServletUtil.populateWebXmlParams(module, config.getServletContext());
+		if(this.doEvents) {
+			// Look for a web.xml file and populate init params
+			ServletUtil.populateWebXmlParams(module, config.getServletContext());
+		}
 
 		Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
 		Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
@@ -118,7 +126,7 @@ public class NSFFacesServlet extends HttpServlet {
 			initializer.onStartup(classes, getServletContext());
 		}
 
-		{
+		if(this.doEvents) {
 			// Re-wrap the ServletContext to provide the context path
 			javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
 			ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
@@ -150,23 +158,25 @@ public class NSFFacesServlet extends HttpServlet {
 
 					//ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
 					AbstractProxyingContext.setThreadContextRequest(req);
-					ServletUtil.getListeners(ctx, ServletRequestListener.class)
+					if(this.doEvents) {
+						ServletUtil.getListeners(ctx, ServletRequestListener.class)
 							.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), req)));
-
-					// Fire the session listener if needed
-					if (!"1".equals(session.getAttribute(PROP_SESSIONINIT))) { //$NON-NLS-1$
-						ServletUtil.getListeners(ctx, HttpSessionListener.class)
+	
+						// Fire the session listener if needed
+						if (!"1".equals(session.getAttribute(PROP_SESSIONINIT))) { //$NON-NLS-1$
+							ServletUtil.getListeners(ctx, HttpSessionListener.class)
 								.forEach(l -> l.sessionCreated(new HttpSessionEvent(session)));
-						session.setAttribute(PROP_SESSIONINIT, "1"); //$NON-NLS-1$
-						// TODO add a hook for session expiration?
+							session.setAttribute(PROP_SESSIONINIT, "1"); //$NON-NLS-1$
+							// TODO add a hook for session expiration?
+						}
 					}
-
 
 					delegate.service(req, resp);
 				} finally {
-
+					if(this.doEvents) {
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
-							.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
+						.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
+					}
 					Thread.currentThread().setContextClassLoader(current);
 					//ContainerUtil.setThreadContextDatabasePath(null);
 					AbstractProxyingContext.setThreadContextRequest(null);
@@ -197,8 +207,10 @@ public class NSFFacesServlet extends HttpServlet {
 	@Override
 	public void destroy() {
 		ServletContext ctx = getServletContext();
-		ServletUtil.getListeners(ctx, ServletContextListener.class)
+		if(this.doEvents) {
+			ServletUtil.getListeners(ctx, ServletContextListener.class)
 				.forEach(l -> l.contextDestroyed(new ServletContextEvent(ctx)));
+		}
 
 		synchronized(tempFiles) {
 			tempFiles.forEach(path -> {

@@ -99,11 +99,11 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 		super.init(config);
 		this.config = config;
 
-		// Look for a web.xml file and populate init params
-		ServletUtil.populateWebXmlParams(module, config.getServletContext());
-
-		// Look for registered ServletContainerInitializers and emulate the behavior
 		if(this.doEvents) {
+			// Look for a web.xml file and populate init params
+			ServletUtil.populateWebXmlParams(module, config.getServletContext());
+			
+			// Look for registered ServletContainerInitializers and emulate the behavior
 			List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class);
 			for(ServletContainerInitializer initializer : initializers) {
 				Set<Class<?>> classes = null;

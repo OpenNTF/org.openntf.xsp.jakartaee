@@ -32,6 +32,7 @@ import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.module.xspnsf.concurrency.NSFSessionClonerSetupParticipant;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 
 import jakarta.annotation.Priority;
@@ -198,6 +199,11 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 
 	@Override
 	public Optional<Session> getSessionAsSigner() {
+		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSIONASSIGNER.get();
+		if(threadSession != null) {
+			return Optional.of(threadSession);
+		}
+		
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
 		if(nsfContext != null) {
 			return Optional.ofNullable(nsfContext.getSessionAsSigner());
@@ -207,6 +213,11 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 
 	@Override
 	public Optional<Session> getSessionAsSignerWithFullAccess() {
+		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSIONASSIGNER.get();
+		if(threadSession != null) {
+			return Optional.of(threadSession);
+		}
+
 		NotesContext nsfContext = NotesContext.getCurrentUnchecked();
 		if(nsfContext != null) {
 			return Optional.ofNullable(nsfContext.getSessionAsSignerFullAdmin());

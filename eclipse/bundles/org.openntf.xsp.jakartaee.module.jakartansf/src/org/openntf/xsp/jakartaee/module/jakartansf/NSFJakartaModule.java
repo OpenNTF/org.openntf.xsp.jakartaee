@@ -10,6 +10,7 @@ import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EventListener;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -43,11 +44,13 @@ import com.ibm.domino.napi.c.NotesUtil;
 import com.ibm.domino.napi.c.xsp.XSPNative;
 import com.ibm.xsp.acl.NoAccessSignal;
 
+import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
+import org.openntf.xsp.jakartaee.module.jakartansf.concurrency.NSFJakartaModuleConcurrencyListener;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator;
-import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFAccess;
+import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ModuleMap;
@@ -57,11 +60,17 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.openntf.xsp.jakartaee.util.PriorityComparator;
 
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
 import jakarta.servlet.annotation.HandlesTypes;
+import jakarta.servlet.annotation.WebListener;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
 import lotus.domino.Database;
 import lotus.domino.NotesException;
 import lotus.domino.NotesThread;
@@ -84,8 +93,10 @@ public class NSFJakartaModule extends ComponentModule {
 	private NotesSession notesSession;
 	private NotesDatabase notesDatabase;
 	private NSFJakartaModuleClassLoader moduleClassLoader;
+	private NSFJakartaFileSystem fileSystem;
 	private long lastRefresh;
 	private String xspSigner;
+	private ServletContext servletContext;
 	
 	public NSFJakartaModule(LCDEnvironment env, NSFJakartaModuleService service, ModuleMap mapping) {
 		super(env, service, MessageFormat.format("{0} - {1}", mapping.path(), mapping.nsfPath()), true);
@@ -109,8 +120,11 @@ public class NSFJakartaModule extends ComponentModule {
 		return notesDatabase;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void doInitModule() {
+		this.servletContext = ServletUtil.oldToNew('/' + this.mapping.path(), getServletContext());
+		
 		NotesThread.sinitThread();
 		try {
 			try {
@@ -138,21 +152,14 @@ public class NSFJakartaModule extends ComponentModule {
 				} else {
 					this.xspSigner = this.notesDatabase.getUserName();
 				}
-				
+
+				this.fileSystem = new NSFJakartaFileSystem(this);
 				this.moduleClassLoader = new NSFJakartaModuleClassLoader(this);
-				
-				this.servletFactories = ExtensionManager.findApplicationServices(getModuleClassLoader(), "com.ibm.xsp.adapter.servletFactory").stream() //$NON-NLS-1$
-					.filter(JakartaIServletFactory.class::isInstance)
-					.map(JakartaIServletFactory.class::cast)
-					.sorted(PriorityComparator.DESCENDING)
-					.toList();
-				this.servletFactories.forEach(fac -> fac.init(this));
 			} catch (NotesAPIException e) {
 				throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
 			}
-			
+
 			// Fire ServletContainerInitializers
-			ServletContext servletContext = ServletUtil.oldToNew('/' + mapping.path(), getServletContext());
 			List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class, this);
 			for(ServletContainerInitializer initializer : initializers) {
 				Set<Class<?>> classes = null;
@@ -166,13 +173,51 @@ public class NSFJakartaModule extends ComponentModule {
 				}
 			}
 			
+			// Find any declared or annotated listeners
+			WebXml webXml = ServletUtil.getWebXml(this);
+			if(webXml != null) {
+				for(String listenerClassName : webXml.getListeners()) {
+					try {
+						Class<? extends EventListener> c = (Class<? extends EventListener>) Class.forName(listenerClassName, true, this.moduleClassLoader);
+						servletContext.addListener(c);
+					} catch (ClassNotFoundException e) {
+						if(log.isLoggable(Level.WARNING)) {
+							log.log(Level.WARNING, MessageFormat.format("Encountered exception loading listener class \"{0}\"", listenerClassName), e);
+						}
+					}
+				}
+			}
+			
+			ModuleUtil.getClasses(this)
+				.filter(c -> c.isAnnotationPresent(WebListener.class))
+				.map(c -> (Class<? extends EventListener>)c)
+				.forEach(servletContext::addListener);
+			
+			// Built-in support for concurrency
+			servletContext.addListener(NSFJakartaModuleConcurrencyListener.class);
+			
+			ServletUtil.populateWebXmlParams(this, servletContext);
+			ServletUtil.contextInitialized(servletContext);
+			
+			this.servletFactories = ExtensionManager.findApplicationServices(getModuleClassLoader(), "com.ibm.xsp.adapter.servletFactory").stream() //$NON-NLS-1$
+				.filter(JakartaIServletFactory.class::isInstance)
+				.map(JakartaIServletFactory.class::cast)
+				.sorted(PriorityComparator.DESCENDING)
+				.toList();
+			this.servletFactories.forEach(fac -> fac.init(this));
+			
 			// CDI gets initialized immediately
-			ContainerUtil.getContainer(this);
+			CDI<Object> cdi = ContainerUtil.getContainer(this);
+			servletContext.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
 			
 			this.initialized = true;
 		} finally {
 			NotesThread.stermThread();
 		}
+	}
+	
+	public ServletContext getJakartaServletContext() {
+		return servletContext;
 	}
 	
 	public Collection<? extends IServletFactory> getServletFactories() {
@@ -186,6 +231,8 @@ public class NSFJakartaModule extends ComponentModule {
 	@Override
 	protected void doDestroyModule() {
 		this.initialized = false;
+		
+		ServletUtil.contextDestroyed(servletContext);
 		
 		if(ContainerUtil.getContainer(this) instanceof AutoCloseable cdi) {
 			try {
@@ -233,10 +280,7 @@ public class NSFJakartaModule extends ComponentModule {
 
 	@Override
 	public URL getResource(String res) throws MalformedURLException {
-		// TODO cache, since some parts request the same file many, many times.
-		//   This was observed particularly with META-INF/validation.xml
-		
-		return NSFAccess.getUrl(this.notesDatabase, trimResourcePath(res))
+		return this.fileSystem.getUrl(trimResourcePath(res))
 			.orElseGet(() -> {
 				// Check for META-INF/resources in embedded JARs
 				// TODO skip check if the incoming path has META-INF or WEB-INF in it already
@@ -247,18 +291,11 @@ public class NSFJakartaModule extends ComponentModule {
 
 	@Override
 	public InputStream getResourceAsStream(String res) {
-		try {
-			InputStream is = NSFAccess.openStream(this.mapping.nsfPath(), trimResourcePath(res));
-			if(is != null) {
-				return is;
-			}
-			
-			// Check for META-INF/resources in embedded JARs
-			String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
-			return this.moduleClassLoader.getJarResourceAsStream(metaResPath);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
+		return this.fileSystem.openStream(trimResourcePath(res))
+			.orElseGet(() -> {
+				String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
+				return this.moduleClassLoader.getJarResourceAsStream(metaResPath);
+			});
 	}
 
 	@Override
@@ -340,6 +377,9 @@ public class NSFJakartaModule extends ComponentModule {
 		// Update the active request with the "true" request object
 		HttpServletRequest request = ServletUtil.oldToNew(getServletContext(), req);
 		ActiveRequest.pushRequest(request);
+
+		ServletUtil.getListeners(this.servletContext, ServletRequestListener.class)
+			.forEach(l -> l.requestInitialized(new ServletRequestEvent(this.servletContext, request)));
 		try {
 			super.invokeServlet(servlet, req, resp);
 		} catch(Throwable t) {
@@ -348,20 +388,30 @@ public class NSFJakartaModule extends ComponentModule {
 			}
 			throw t;
 		} finally {
+			ServletUtil.getListeners(this.servletContext, ServletRequestListener.class)
+				.forEach(l -> l.requestDestroyed(new ServletRequestEvent(this.servletContext, request)));
 			HttpContextBean.setThreadResponse(null);
 		}
 	}
 	
 	@Override
-	public void addSession(String id, LCDAdapterHttpSession session) {
+	public void notifySessionAdded(LCDAdapterHttpSession session) {
+		super.notifySessionAdded(session);
+		
 		// TODO Init CDI session
-		super.addSession(id, session);
+
+		ServletUtil.getListeners(this.servletContext, HttpSessionListener.class)
+			.forEach(l -> l.sessionDestroyed(new HttpSessionEvent(ServletUtil.oldToNew(session))));
 	}
 	
 	@Override
-	public void removeSession(String id) {
+	public void notifySessionRemoved(LCDAdapterHttpSession session) {
 		// TODO Term CDI session
-		super.removeSession(id);
+		
+		ServletUtil.getListeners(this.servletContext, HttpSessionListener.class)
+			.forEach(l -> l.sessionDestroyed(new HttpSessionEvent(ServletUtil.oldToNew(session))));
+		
+		super.notifySessionRemoved(session);
 	}
 	
 	// Called if there's no ServletMatch
@@ -386,8 +436,8 @@ public class NSFJakartaModule extends ComponentModule {
 	// Called when isResourcesCache() == true
 	@Override
 	public long getResourcesExpireTime(String res) {
-		// TODO look for xsp.expires app property
-		// TODO check for image types like normal NSFComponentModule
+		// TODO look for xsp.expires app property?
+		// TODO check for image types like NSFComponentModule?
 		return 864000000L;
 	}
 	
@@ -473,7 +523,7 @@ public class NSFJakartaModule extends ComponentModule {
 				Session sessionAsSigner = XSPNative.createXPageSessionExt(this.xspSigner, hSigner, false, nativeCtx.getPreviewServer(), false);
 				Session sessAsSignerFullAccess = XSPNative.createXPageSessionExt(this.xspSigner, hSigner, false, nativeCtx.getPreviewServer(), false);
 				
-				return new LSXBEHolder(session, database, sessionAsSigner, sessAsSignerFullAccess, hSigner);
+				return new LSXBEHolder(session, database, sessionAsSigner, sessAsSignerFullAccess, hSigner, 0);
 			} catch(NException e) {
 				throw new RuntimeException(e);
 			} catch(NotesException e) {

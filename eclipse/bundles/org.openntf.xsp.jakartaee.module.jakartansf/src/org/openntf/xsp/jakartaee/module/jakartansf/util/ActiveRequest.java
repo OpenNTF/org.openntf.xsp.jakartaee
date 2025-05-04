@@ -24,4 +24,9 @@ public record ActiveRequest(NSFJakartaModule module, LSXBEHolder lsxbe, HttpServ
 	public ActiveRequest withRequest(HttpServletRequest request) {
 		return new ActiveRequest(module, lsxbe, request);
 	}
+	
+	public ActiveRequest cloneSessions() {
+		LSXBEHolder clone = lsxbe.cloneSessions();
+		return new ActiveRequest(module, clone, request);
+	}
 }

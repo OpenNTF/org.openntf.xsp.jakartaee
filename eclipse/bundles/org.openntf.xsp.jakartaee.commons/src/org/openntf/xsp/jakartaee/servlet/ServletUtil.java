@@ -397,6 +397,15 @@ public enum ServletUtil {
 			context.setAttribute(ATTR_CONTEXTINITIALIZED, Boolean.TRUE);
 		}
 	}
+	
+	public static void contextDestroyed(final jakarta.servlet.ServletContext context) {
+		if(Boolean.TRUE.equals(context.getAttribute(ATTR_CONTEXTINITIALIZED))) {
+			getListeners(context, ServletContextListener.class)
+				.forEach(l -> l.contextDestroyed(new ServletContextEvent(context)));
+			
+			context.removeAttribute(ATTR_CONTEXTINITIALIZED);
+		}
+	}
 
 	/**
 	 * Attempts to close the writer or stream associated with this response.

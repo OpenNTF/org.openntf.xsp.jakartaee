@@ -16,7 +16,7 @@
 package org.openntf.xsp.jakarta.cdi.bean;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 
@@ -30,7 +30,10 @@ public class BuiltinBeanClassContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		return Collections.singleton(HttpContextBean.class);
+		return List.of(
+			HttpContextBean.class,
+			DominoFacesImplicitObjectProvider.class
+		);
 	}
 
 }
