@@ -21,12 +21,11 @@ public record ActiveRequest(NSFJakartaModule module, LSXBEHolder lsxbe, HttpServ
 		set(active);
 	}
 	
-	public ActiveRequest withRequest(HttpServletRequest request) {
+	private ActiveRequest withRequest(HttpServletRequest request) {
 		return new ActiveRequest(module, lsxbe, request);
 	}
 	
-	public ActiveRequest cloneSessions() {
-		LSXBEHolder clone = lsxbe.cloneSessions();
-		return new ActiveRequest(module, clone, request);
+	public ActiveRequestCloner createCloner() {
+		return new ActiveRequestCloner(module, request);
 	}
 }

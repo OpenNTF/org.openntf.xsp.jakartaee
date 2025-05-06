@@ -19,12 +19,14 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.glassfish.concurro.spi.ContextHandle;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequestCloner;
 
 import jakarta.annotation.Priority;
 
@@ -38,14 +40,16 @@ import jakarta.annotation.Priority;
 @Priority(100)
 public class NSFJakartaModuleContextParticipant implements ContextSetupParticipant {
 	public static final String ATTR_CLASSLOADER = NSFJakartaModuleContextParticipant.class.getName() + "_classLoader"; //$NON-NLS-1$
-	public static final String ATTR_REQUEST = NSFJakartaModuleContextParticipant.class.getName() + "_request"; //$NON-NLS-1$
+	public static final String ATTR_CLONER = NSFJakartaModuleContextParticipant.class.getName() + "_cloner"; //$NON-NLS-1$
 
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle ach) {
-			ActiveRequest.get().ifPresent(req -> {
-				ach.setAttribute(ATTR_REQUEST, req.cloneSessions());
-			});
+			if(ach.getAttribute(ATTR_CLONER) == null) {
+				ActiveRequest.get().ifPresent(req -> {
+					ach.setAttribute(ATTR_CLONER, req.createCloner());
+				});
+			}
 		}
 	}
 
@@ -61,8 +65,9 @@ public class NSFJakartaModuleContextParticipant implements ContextSetupParticipa
 		}
 
 		if(contextHandle instanceof AttributedContextHandle ach) {
-			ActiveRequest req = ach.getAttribute(ATTR_REQUEST);
-			if(req != null) {
+			ActiveRequestCloner cloner = ach.getAttribute(ATTR_CLONER);
+			if(cloner != null) {
+				ActiveRequest req = cloner.cloneRequest();
 				ActiveRequest.set(req);
 				
 				req.module().updateLastModuleAccess();
@@ -80,8 +85,9 @@ public class NSFJakartaModuleContextParticipant implements ContextSetupParticipa
 	@Override
 	public void reset(final ContextHandle contextHandle) {
 		if(contextHandle instanceof AttributedContextHandle ach) {
-			ActiveRequest req = ach.getAttribute(ATTR_REQUEST);
-			if(req != null) {
+			// Only operate on Jakarta requests
+			Optional<ActiveRequest> req = ActiveRequest.get();
+			if(req.isPresent()) {
 				ClassLoader tccc = ach.getAttribute(ATTR_CLASSLOADER);
 				if(tccc != null) {
 					AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
@@ -90,7 +96,7 @@ public class NSFJakartaModuleContextParticipant implements ContextSetupParticipa
 					});
 				}
 
-				req.lsxbe().close();
+				req.get().lsxbe().close();
 				ActiveRequest.set(null);
 			}
 		}

@@ -40,6 +40,7 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapt
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 import com.ibm.domino.napi.NException;
+import com.ibm.domino.napi.c.BackendBridge;
 import com.ibm.domino.napi.c.NotesUtil;
 import com.ibm.domino.napi.c.xsp.XSPNative;
 import com.ibm.xsp.acl.NoAccessSignal;
@@ -222,6 +223,10 @@ public class NSFJakartaModule extends ComponentModule {
 	
 	public Collection<? extends IServletFactory> getServletFactories() {
 		return servletFactories;
+	}
+	
+	public String getXspSigner() {
+		return xspSigner;
 	}
 	
 	public boolean isInitialized() {
@@ -515,15 +520,19 @@ public class NSFJakartaModule extends ComponentModule {
 				Principal principal = req.getUserPrincipal();
 				String name = principal == null ? "Anonymous" : principal.getName(); //$NON-NLS-1$
 				Session session = XSPNative.createXPageSession(name, nativeCtx.getUserListHandle(), nativeCtx.getEnforceAccess(), nativeCtx.getPreviewServer());
+				BackendBridge.setNoRecycle(session, session, true);
 				Database database = session.getDatabase("", this.mapping.nsfPath()); //$NON-NLS-1$
+				BackendBridge.setNoRecycle(session, database, true);
 				XSPNative.setContextDatabase(session, XSPNative.getDBHandle(database));
 				
 				// Use the signer of xsp.properties - failing that, the server
 				long hSigner = NotesUtil.createUserNameList(this.xspSigner);
 				Session sessionAsSigner = XSPNative.createXPageSessionExt(this.xspSigner, hSigner, false, nativeCtx.getPreviewServer(), false);
+				BackendBridge.setNoRecycle(sessionAsSigner, sessionAsSigner, true);
 				Session sessAsSignerFullAccess = XSPNative.createXPageSessionExt(this.xspSigner, hSigner, false, nativeCtx.getPreviewServer(), false);
+				BackendBridge.setNoRecycle(sessAsSignerFullAccess, sessAsSignerFullAccess, true);
 				
-				return new LSXBEHolder(session, database, sessionAsSigner, sessAsSignerFullAccess, hSigner, 0);
+				return new LSXBEHolder(session, database, sessionAsSigner, sessAsSignerFullAccess, hSigner);
 			} catch(NException e) {
 				throw new RuntimeException(e);
 			} catch(NotesException e) {
