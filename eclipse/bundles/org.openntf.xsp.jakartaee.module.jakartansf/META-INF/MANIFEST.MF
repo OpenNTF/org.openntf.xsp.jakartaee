@@ -37,8 +37,10 @@ Import-Package: com.ibm.commons.extension,
  org.openntf.xsp.jakarta.cdi.bean;version="3.4.0",
  org.openntf.xsp.jakarta.cdi.util;version="3.4.0",
  org.openntf.xsp.jakarta.concurrency;version="3.4.0",
- org.osgi.framework
+ org.osgi.framework,
+ org.osgi.service.url;version="[1.0.0,2.0.0)"
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="3.4.0"
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModuleActivator

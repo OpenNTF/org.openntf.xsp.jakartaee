@@ -15,14 +15,11 @@
  */
 package org.openntf.xsp.jakartaee.module.jakartansf.io;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,8 +105,9 @@ public class NSFJakartaFileSystem {
 	public Optional<URL> getUrl(String res) {
 		if(this.fileMap.containsKey(res)) {
 			try {
-				URI uri = new URI(URLSCHEME, null, "//" + res, null, null); //$NON-NLS-1$
-				return Optional.of(URL.of(uri, new NSFJakartaURLStreamHandler(res)));
+				// String scheme, String userInfo, String host, int port, String path, String query, String fragment
+				URI uri = new URI(URLSCHEME, null, "localhost", 1352, '/' + module.getMapping().path() + '!' + res, null, null); //$NON-NLS-1$
+				return Optional.of(uri.toURL());
 			} catch(URISyntaxException | MalformedURLException e) {
 				throw new RuntimeException(MessageFormat.format("Encountered exception constructing URL for resource \"{0}\" in {1}", res, module.getMapping().nsfPath()), e);
 			}
@@ -141,40 +139,5 @@ public class NSFJakartaFileSystem {
 	
 	private static String sanitizeTitle(String title) {
 		return title.replace('\\', '/');
-	}
-	
-	private class NSFJakartaURLStreamHandler extends URLStreamHandler {
-		private final String path;
-		
-		public NSFJakartaURLStreamHandler(String path) {
-			this.path = path;
-		}
-
-		@Override
-		protected URLConnection openConnection(URL u) throws IOException {
-			return new NSFJakartaURLConnection(u, path);
-		}
-		
-	}
-	
-	private class NSFJakartaURLConnection extends URLConnection {
-		private final String res;
-
-		protected NSFJakartaURLConnection(URL url, String res) {
-			super(url);
-			this.res = res;
-		}
-
-		@Override
-		public void connect() throws IOException {
-			// NOP
-		}
-		
-		@Override
-		public InputStream getInputStream() throws IOException {
-			return openStream(res)
-				.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to find resource \"{0}\" in {1}", res, module.getMapping().nsfPath())));
-		}
-
 	}
 }

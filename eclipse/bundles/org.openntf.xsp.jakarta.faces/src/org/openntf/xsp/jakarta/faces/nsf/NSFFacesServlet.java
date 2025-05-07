@@ -101,7 +101,8 @@ public class NSFFacesServlet extends HttpServlet {
 	public void doInit(final HttpServletRequest req, final ServletConfig config) throws ServletException {
 		CDI<Object> cdi = CDI.current();
 		ServletContext context = config.getServletContext();
-		if(this.doEvents) {
+		Object beanManager = context.getAttribute("jakarta.enterprise.inject.spi.BeanManager"); //$NON-NLS-1$
+		if(beanManager == null) {
 			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
 		}
 
@@ -112,21 +113,19 @@ public class NSFFacesServlet extends HttpServlet {
 		if(this.doEvents) {
 			// Look for a web.xml file and populate init params
 			ServletUtil.populateWebXmlParams(module, config.getServletContext());
-		}
 
-		Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
-		Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
-		{
-			ServletContainerInitializer initializer = new MyFacesContainerInitializer();
-			Set<Class<?>> classes = null;
-			HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
-			if (types != null) {
-				classes = ModuleUtil.buildMatchingClasses(types, module, b, b2);
+			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
+			Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
+			{
+				ServletContainerInitializer initializer = new MyFacesContainerInitializer();
+				Set<Class<?>> classes = null;
+				HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
+				if (types != null) {
+					classes = ModuleUtil.buildMatchingClasses(types, module, b, b2);
+				}
+				initializer.onStartup(classes, getServletContext());
 			}
-			initializer.onStartup(classes, getServletContext());
-		}
-
-		if(this.doEvents) {
+			
 			// Re-wrap the ServletContext to provide the context path
 			javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
 			ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
@@ -250,37 +249,43 @@ public class NSFFacesServlet extends HttpServlet {
 	@SuppressWarnings("deprecation")
 	private synchronized ClassLoader buildJsfClassLoader(final ServletContext context, final HttpSession session, final ClassLoader delegate)
 			throws BundleException, IOException {
-		if (context.getAttribute(PROP_CLASSLOADER) == null) {
-
-			// If the app was refreshed, we'll still have a lingering classloader here
-			String id = ModuleUtil.getModuleId(module);
-			FacesBlockingClassLoader old = cached.get(id);
-			if(old != null) {
-				destroyOldContext(old, session);
+		if(this.doFaces) {
+			if (context.getAttribute(PROP_CLASSLOADER) == null) {
+	
+				// If the app was refreshed, we'll still have a lingering classloader here
+				String id = ModuleUtil.getModuleId(module);
+				FacesBlockingClassLoader old = cached.get(id);
+				if(old != null) {
+					destroyOldContext(old, session);
+				}
+	
+				List<URL> urls = new ArrayList<>();
+				urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(FactoryFinder.class)).toURI().toURL());
+				urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(MyFacesContainerInitializer.class)).toURI().toURL());
+	
+				if(this.doFaces) {
+					// Look for JARs in WEB-INF/lib-jakarta
+					ModuleUtil.listFiles(module, "WEB-INF/jakarta/lib") //$NON-NLS-1$
+						.filter(file -> file.toLowerCase().endsWith(".jar")) //$NON-NLS-1$
+						.map(jarName -> {
+							try {
+								return module.getResource("/" + jarName); //$NON-NLS-1$
+							} catch (MalformedURLException e) {
+								throw new UncheckedIOException(e);
+							}
+						})
+						.forEach(urls::add);
+				}
+	
+				FacesBlockingClassLoader cl = new FacesBlockingClassLoader(urls.toArray(new URL[urls.size()]), delegate);
+	
+				context.setAttribute(PROP_CLASSLOADER, cl);
+				cached.put(id, cl);
 			}
-
-			List<URL> urls = new ArrayList<>();
-			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(FactoryFinder.class)).toURI().toURL());
-			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(MyFacesContainerInitializer.class)).toURI().toURL());
-
-			// Look for JARs in WEB-INF/lib-jakarta
-			ModuleUtil.listFiles(module, "WEB-INF/jakarta/lib") //$NON-NLS-1$
-				.filter(file -> file.toLowerCase().endsWith(".jar")) //$NON-NLS-1$
-				.map(jarName -> {
-					try {
-						return module.getResource("/" + jarName); //$NON-NLS-1$
-					} catch (MalformedURLException e) {
-						throw new UncheckedIOException(e);
-					}
-				})
-				.forEach(urls::add);
-
-			FacesBlockingClassLoader cl = new FacesBlockingClassLoader(urls.toArray(new URL[urls.size()]), delegate);
-
-			context.setAttribute(PROP_CLASSLOADER, cl);
-			cached.put(id, cl);
+			return (ClassLoader) context.getAttribute(PROP_CLASSLOADER);
+		} else {
+			return delegate;
 		}
-		return (ClassLoader) context.getAttribute(PROP_CLASSLOADER);
 	}
 
 	private void destroyOldContext(final FacesBlockingClassLoader old, final HttpSession session) throws IOException {

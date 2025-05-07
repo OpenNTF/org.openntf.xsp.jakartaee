@@ -270,7 +270,7 @@ public enum ContainerUtil {
 			}
 
 			String id = ModuleUtil.getModuleId(module);
-
+			
 			return withLock(id, () -> {
 				WeldContainer instance = WeldContainer.instance(id);
 

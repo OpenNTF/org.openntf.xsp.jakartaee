@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,6 +65,7 @@ import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
+import org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider;
 import org.openntf.xsp.jakartaee.module.jakartansf.concurrency.NSFJakartaModuleConcurrencyListener;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
@@ -175,18 +177,42 @@ public class NSFJakartaModule extends ComponentModule {
 				throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
 			}
 
+			// Register Servlet factories early, since initial
+			this.servletFactories = ExtensionManager.findApplicationServices(getModuleClassLoader(), "com.ibm.xsp.adapter.servletFactory").stream() //$NON-NLS-1$
+				.filter(JakartaIServletFactory.class::isInstance)
+				.map(JakartaIServletFactory.class::cast)
+				.sorted(PriorityComparator.DESCENDING)
+				.toList();
+			
+			// Set lastRefresh, as used by ContainerUtil, before initializing CDI
+			this.lastRefresh = System.currentTimeMillis();
+			
+			// CDI gets initialized immediately
+			CDI<Object> cdi = ContainerUtil.getContainer(this);
+			servletContext.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+
 			// Fire ServletContainerInitializers
-			List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class, this);
-			for(ServletContainerInitializer initializer : initializers) {
-				Set<Class<?>> classes = null;
-				if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
-					classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), this);
+			List<ServletContainerInitializer> initializers = new ArrayList<>(LibraryUtil.findExtensions(ServletContainerInitializer.class, this));
+			LibraryUtil.findExtensions(ServletContainerInitializerProvider.class).stream()
+				.map(p -> p.provide(this))
+				.filter(Objects::nonNull)
+				.forEach(initializers::addAll);
+			ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(this.getModuleClassLoader());
+			try {
+				for(ServletContainerInitializer initializer : initializers) {
+					Set<Class<?>> classes = null;
+					if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
+						classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), this);
+					}
+					try {
+						initializer.onStartup(classes, servletContext);
+					} catch (ServletException e) {
+						throw new RuntimeException(e);
+					}
 				}
-				try {
-					initializer.onStartup(classes, servletContext);
-				} catch (ServletException e) {
-					throw new RuntimeException(e);
-				}
+			} finally {
+				Thread.currentThread().setContextClassLoader(tccl);
 			}
 			
 			// Find any declared or annotated listeners
@@ -213,18 +239,15 @@ public class NSFJakartaModule extends ComponentModule {
 			servletContext.addListener(NSFJakartaModuleConcurrencyListener.class);
 			
 			ServletUtil.populateWebXmlParams(this, servletContext);
-			ServletUtil.contextInitialized(servletContext);
 			
-			this.servletFactories = ExtensionManager.findApplicationServices(getModuleClassLoader(), "com.ibm.xsp.adapter.servletFactory").stream() //$NON-NLS-1$
-				.filter(JakartaIServletFactory.class::isInstance)
-				.map(JakartaIServletFactory.class::cast)
-				.sorted(PriorityComparator.DESCENDING)
-				.toList();
-			this.servletFactories.forEach(fac -> fac.init(this));
-			
-			// CDI gets initialized immediately
-			CDI<Object> cdi = ContainerUtil.getContainer(this);
-			servletContext.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+			Thread.currentThread().setContextClassLoader(this.getModuleClassLoader());
+			try {
+				ServletUtil.contextInitialized(servletContext);
+				
+				this.servletFactories.forEach(fac -> fac.init(this));
+			} finally {
+				Thread.currentThread().setContextClassLoader(tccl);
+			}
 			
 			this.initialized = true;
 		} finally {
@@ -297,6 +320,10 @@ public class NSFJakartaModule extends ComponentModule {
 	public NSFJakartaModuleClassLoader getModuleClassLoader() {
 		return this.moduleClassLoader;
 	}
+	
+	public NSFJakartaFileSystem getRuntimeFileSystem() {
+		return fileSystem;
+	}
 
 	@Override
 	public URL getResource(String res) throws MalformedURLException {
@@ -337,7 +364,6 @@ public class NSFJakartaModule extends ComponentModule {
 		}
 		doDestroyModule();
 		doInitModule();
-		this.lastRefresh = System.currentTimeMillis();
 		return true;
 	}
 	
@@ -357,11 +383,6 @@ public class NSFJakartaModule extends ComponentModule {
 		} catch(NotesAPIException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-	@Override
-	public boolean isExpired(long paramLong) {
-		return super.isExpired(paramLong);
 	}
 	
 	// These are called by AdapterInvoker

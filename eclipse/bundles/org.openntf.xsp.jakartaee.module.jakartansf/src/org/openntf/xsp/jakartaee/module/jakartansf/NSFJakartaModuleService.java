@@ -99,6 +99,11 @@ public class NSFJakartaModuleService extends HttpService {
 		env.addAll(this.modules.values());
 	}
 	
+	public Optional<NSFJakartaModule> getModule(String mappingPath) {
+		NSFJakartaModule module = this.modules.get(mappingPath);
+		return Optional.ofNullable(module);
+	}
+	
 	@Override
 	public void destroyService() {
 	}
