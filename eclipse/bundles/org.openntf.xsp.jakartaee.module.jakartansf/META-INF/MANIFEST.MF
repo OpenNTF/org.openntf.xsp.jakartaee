@@ -41,6 +41,6 @@ Import-Package: com.ibm.commons.extension,
  org.osgi.service.url;version="[1.0.0,2.0.0)"
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="3.4.0"
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-21
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModuleActivator

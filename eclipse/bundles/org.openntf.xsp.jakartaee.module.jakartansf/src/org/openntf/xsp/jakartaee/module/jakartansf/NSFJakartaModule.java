@@ -162,7 +162,7 @@ public class NSFJakartaModule extends ComponentModule {
 				if(xspProperties != null) {
 					List<String> updatedBy = xspProperties.getItemAsTextList(NotesConstants.FIELD_UPDATED_BY);
 					if(!updatedBy.isEmpty()) {
-						this.xspSigner = updatedBy.getLast();
+						this.xspSigner = updatedBy.get(updatedBy.size()-1);
 					} else {
 						this.xspSigner = this.notesDatabase.getUserName();
 					}
