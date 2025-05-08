@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -52,6 +54,8 @@ import com.ibm.designer.domino.napi.util.NotesUtils;
 import com.ibm.xsp.library.LibraryServiceLoader;
 import com.ibm.xsp.library.LibraryWrapper;
 
+import org.openntf.xsp.jakartaee.module.ModuleClassLoaderExtender;
+import org.openntf.xsp.jakartaee.module.ModuleClassLoaderExtender.ClassLoaderExtension;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
@@ -65,6 +69,7 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	private final Map<String, JavaClassNote> javaClasses = new HashMap<>();
 	private final Map<String, Integer> jarFiles = new HashMap<>();
 	private final Set<Path> cleanup = new HashSet<>();
+	private final List<ClassLoaderExtension> extensions;
 
 	public NSFJakartaModuleClassLoader(NSFJakartaModule module) throws NotesAPIException {
 		super(MessageFormat.format("{0}:{1}", NSFJakartaModuleClassLoader.class.getName(), module.getMapping()), new URL[0], module.getClass().getClassLoader());
@@ -92,6 +97,12 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 				}
 			}
 		}
+		
+		this.extensions = LibraryUtil.findExtensions(ModuleClassLoaderExtender.class).stream()
+			.map(l -> l.provide(module))
+			.filter(Objects::nonNull)
+			.flatMap(Collection::stream)
+			.toList();
 		
 		// TODO Add some things like IBM Commons and other frequently-used libraries?
 	}
@@ -126,6 +137,10 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			result.addAll(Collections.list(cl.getResources(name)));
 		}
 		
+		for(ClassLoaderExtension extension : this.extensions) {
+			result.addAll(extension.getResources(name));
+		}
+		
 		return Collections.enumeration(result);
 	}
 	
@@ -145,9 +160,20 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			return result;
 		}
 		
-		return this.extraDepends.stream()
+		result = this.extraDepends.stream()
 			.map(cl -> cl.getResource(name))
 			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
+		
+		if(result != null) {
+			return result;
+		}
+		
+		return this.extensions.stream()
+			.map(ext -> ext.getResource(name))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.findFirst()
 			.orElse(null);
 	}
@@ -168,9 +194,21 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			return result;
 		}
 		
-		return this.extraDepends.stream()
+		result = this.extraDepends.stream()
 			.map(cl -> cl.getResourceAsStream(name))
 			.filter(Objects::nonNull)
+			.findFirst()
+			.orElse(null);
+		
+		if(result != null) {
+			return result;
+		}
+		
+
+		return this.extensions.stream()
+			.map(ext -> ext.getResourceAsStream(name))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.findFirst()
 			.orElse(null);
 	}

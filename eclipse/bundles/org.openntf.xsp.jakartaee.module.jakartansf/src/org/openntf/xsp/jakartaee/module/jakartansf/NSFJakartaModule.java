@@ -141,6 +141,10 @@ public class NSFJakartaModule extends ComponentModule {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void doInitModule() {
+		// TODO stash super-set attribute names on it and clear all others on reset
+		//   Alternatively, make a separate Map for ServletContext attrs and populate
+		//   with getAttributes() on reset
+		
 		this.servletContext = ServletUtil.oldToNew('/' + this.mapping.path(), getServletContext());
 		
 		NotesThread.sinitThread();
