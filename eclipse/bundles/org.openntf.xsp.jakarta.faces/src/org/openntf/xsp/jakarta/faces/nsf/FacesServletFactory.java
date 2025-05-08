@@ -80,6 +80,9 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 					for(String ext : exts) {
 						if(f.endsWith(ext)) {
 							String path = PathUtil.concat(xspPrefix, f.substring(0, f.length()-ext.length()), '/');
+							if(path.charAt(0) != '/') {
+								path = '/' + path;
+							}
 							this.addExplicitEndpoint(path, '/' + f);
 						}
 					}
