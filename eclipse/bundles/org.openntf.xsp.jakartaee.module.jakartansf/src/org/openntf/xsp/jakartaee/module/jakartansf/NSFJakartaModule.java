@@ -78,6 +78,7 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.openntf.xsp.jakartaee.util.PriorityComparator;
 
+import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.ServletContext;
@@ -193,7 +194,7 @@ public class NSFJakartaModule extends ComponentModule {
 			
 			// CDI gets initialized immediately
 			CDI<Object> cdi = ContainerUtil.getContainer(this);
-			servletContext.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+			servletContext.setAttribute(BeanManager.class.getName(), ContainerUtil.getBeanManager(cdi));
 
 			// Fire ServletContainerInitializers
 			List<ServletContainerInitializer> initializers = new ArrayList<>(LibraryUtil.findExtensions(ServletContainerInitializer.class, this));

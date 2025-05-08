@@ -244,16 +244,22 @@ public enum ContainerUtil {
 			}
 		}
 
+		boolean doEvents = ModuleUtil.emulateServletEvents(module);
 		long refresh = module.getLastRefresh();
 
 		Map<String, Object> attributes = module.getAttributes();
 		if(attributes != null) {
 			WeldContainer existing = (WeldContainer)attributes.get(ATTR_CONTEXTCONTAINER);
 			if(existing != null && existing.isRunning()) {
-				Long lastRefresh = ID_REFRESH_CACHE.get(existing.getId());
-				if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
-					existing.close();
+				if(doEvents) {
+					Long lastRefresh = ID_REFRESH_CACHE.get(existing.getId());
+					if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
+						existing.close();
+					} else {
+						return existing;
+					}
 				} else {
+					// Otherwise, assume the module handles CDI expiration
 					return existing;
 				}
 			}
@@ -274,12 +280,14 @@ public enum ContainerUtil {
 			return withLock(id, () -> {
 				WeldContainer instance = WeldContainer.instance(id);
 
-				// If the instance exists, we may have to invalidate it from an
-				//   app refresh
-				if(instance != null && instance.isRunning()) {
-					Long lastRefresh = ID_REFRESH_CACHE.get(id);
-					if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
-						instance.close();
+				if(doEvents) {
+					// If the instance exists, we may have to invalidate it from an
+					//   app refresh
+					if(instance != null && instance.isRunning()) {
+						Long lastRefresh = ID_REFRESH_CACHE.get(id);
+						if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
+							instance.close();
+						}
 					}
 				}
 

@@ -52,6 +52,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
+import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.faces.FactoryFinder;
 import jakarta.faces.application.ProjectStage;
@@ -101,9 +102,9 @@ public class NSFFacesServlet extends HttpServlet {
 	public void doInit(final HttpServletRequest req, final ServletConfig config) throws ServletException {
 		CDI<Object> cdi = CDI.current();
 		ServletContext context = config.getServletContext();
-		Object beanManager = context.getAttribute("jakarta.enterprise.inject.spi.BeanManager"); //$NON-NLS-1$
+		Object beanManager = context.getAttribute(BeanManager.class.getName());
 		if(beanManager == null) {
-			context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+			context.setAttribute(BeanManager.class.getName(), ContainerUtil.getBeanManager(cdi));
 		}
 
 		Properties props = LibraryUtil.getXspProperties(module);

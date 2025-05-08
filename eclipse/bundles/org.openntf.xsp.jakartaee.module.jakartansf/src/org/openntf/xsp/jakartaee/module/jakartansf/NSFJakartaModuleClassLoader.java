@@ -219,6 +219,12 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
+		for(var ext : this.extensions) {
+			Optional<Class<?>> c = ext.loadClass(name);
+			if(c.isPresent()) {
+				return c.get();
+			}
+		}
 		
 		try {
 			// Search for a Java file name to see if it has class data
