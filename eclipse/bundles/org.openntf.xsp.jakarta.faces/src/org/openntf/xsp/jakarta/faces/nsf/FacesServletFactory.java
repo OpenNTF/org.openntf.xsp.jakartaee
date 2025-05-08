@@ -97,7 +97,7 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 
 	@Override
 	public Set<String> getExtensions() {
-		return new HashSet<>(Arrays.asList(".xhtml", ".jsf", ".faces")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return new HashSet<>(Arrays.asList(".xhtml", ".jsf")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
