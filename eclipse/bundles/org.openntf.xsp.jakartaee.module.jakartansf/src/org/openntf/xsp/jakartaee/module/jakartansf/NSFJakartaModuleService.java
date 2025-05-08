@@ -151,7 +151,6 @@ public class NSFJakartaModuleService extends HttpService {
 				try(LSXBEHolder lsxbe = module.withSessions(servletRequest)) {
 					ActiveRequest.set(new ActiveRequest(module, lsxbe, null));
 					
-					// TODO figure out why module.shouldRefresh() doesn't return true when design changed
 					if(module.shouldRefresh()) {
 						module.refresh();
 					}

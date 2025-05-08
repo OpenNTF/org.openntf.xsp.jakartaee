@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
@@ -145,6 +146,12 @@ public class NSFJakartaModule extends ComponentModule {
 		// TODO stash super-set attribute names on it and clear all others on reset
 		//   Alternatively, make a separate Map for ServletContext attrs and populate
 		//   with getAttributes() on reset
+		// Clear all attributes except temp dir
+		Map<String, Object> attrs = this.getAttributes();
+		Object tempDir = attrs.get("javax.servlet.context.tempdir"); //$NON-NLS-1$
+		attrs.clear();
+		attrs.put("javax.servlet.context.tempdir", tempDir); //$NON-NLS-1$
+		attrs.put("jakarta.servlet.context.tempdir", tempDir); //$NON-NLS-1$
 		
 		this.servletContext = ServletUtil.oldToNew('/' + this.mapping.path(), getServletContext());
 		
@@ -279,8 +286,18 @@ public class NSFJakartaModule extends ComponentModule {
 	@Override
 	protected void doDestroyModule() {
 		this.initialized = false;
-		
-		ServletUtil.contextDestroyed(servletContext);
+
+		ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(this.getModuleClassLoader());
+		try {
+			ServletUtil.contextDestroyed(servletContext);
+		} catch(Exception e) {
+			if(log.isLoggable(Level.WARNING)) {
+				log.log(Level.WARNING, MessageFormat.format("Encountered exception destroying ServletContext for {0}", this), e);
+			}
+		} finally {
+			Thread.currentThread().setContextClassLoader(tccl);
+		}
 		
 		if(ContainerUtil.getContainer(this) instanceof AutoCloseable cdi) {
 			try {
