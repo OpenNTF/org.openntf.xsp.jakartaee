@@ -13,6 +13,7 @@ import java.util.Optional;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import org.openntf.xsp.jakartaee.module.ModuleClassLoaderExtender;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import jakarta.faces.context.FacesContext;
@@ -28,7 +29,7 @@ public class FacesModuleClassLoaderExtender implements ModuleClassLoaderExtender
 	@Override
 	public Collection<ClassLoaderExtension> provide(ComponentModule module) {
 		// XPages-having modules already use FacesBlockingClassLoader
-		if(!ModuleUtil.hasXPages(module)) {
+		if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_UI, module) && !ModuleUtil.hasXPages(module)) {
 			return Collections.singleton(new FacesBlockingExtension());
 		} else {
 			return Collections.emptyList();
