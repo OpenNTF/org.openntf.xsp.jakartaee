@@ -411,6 +411,8 @@ public class NSFJakartaModule extends ComponentModule {
 	
 	@Override
 	public ServletMatch getServlet(String path) throws javax.servlet.ServletException {
+		// TODO cache matched Servlets?
+		// TODO handle the work of the ServletServletFactory at init?
 		for(JakartaIServletFactory fac : this.servletFactories) {
 			ServletMatch servletMatch = fac.getServletMatch('/' + mapping.path(), path);
 			if(servletMatch != null) {
