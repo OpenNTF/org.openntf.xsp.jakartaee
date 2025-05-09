@@ -151,10 +151,6 @@ public class NSFJakartaModuleService extends HttpService {
 				try(LSXBEHolder lsxbe = module.withSessions(servletRequest)) {
 					ActiveRequest.set(new ActiveRequest(module, lsxbe, null));
 					
-					if(module.shouldRefresh()) {
-						module.refresh();
-					}
-					
 					while(i++ < MAX_REFRESH_ATTEMPTS) {
 						try {
 							module.doService(contextPath, internalPathInfo, httpSessionAdapter, servletRequest, servletResponse);
