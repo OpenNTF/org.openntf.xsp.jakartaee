@@ -344,5 +344,22 @@ public enum ModuleUtil {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	/**
+	 * Removes any leading slash from the provided path.
+	 * 
+	 * @param path the path to trim
+	 * @return the trimmed path
+	 * @since 3.4.0
+	 */
+	public static String trimResourcePath(String path) {
+		if(path == null) {
+			return null;
+		} else if(path.length() > 1 && path.startsWith("/")) { //$NON-NLS-1$
+			return path.substring(1);
+		} else {
+			return path;
+		}
+	}
 
 }

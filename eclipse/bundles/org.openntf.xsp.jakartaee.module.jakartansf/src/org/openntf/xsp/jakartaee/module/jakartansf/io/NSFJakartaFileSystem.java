@@ -26,7 +26,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.ByteStreamCache;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesCollectionEntry;
@@ -36,6 +38,7 @@ import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.domino.napi.util.NotesUtils;
 
 import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModule;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 public class NSFJakartaFileSystem {
 	private static final Logger log = Logger.getLogger(NSFJakartaFileSystem.class.getPackageName());
@@ -135,6 +138,22 @@ public class NSFJakartaFileSystem {
 		} else {
 			return Optional.empty();
 		}
+	}
+	
+	public Stream<String> listFiles(String basePath) {
+		String path = ModuleUtil.trimResourcePath(basePath);
+		boolean listAll = StringUtil.isEmpty(path);
+		if(!listAll && !path.endsWith("/")) { //$NON-NLS-1$
+			path += "/"; //$NON-NLS-1$
+		}
+
+		Stream<String> pathStream = fileMap.keySet().stream();
+		if(!listAll) {
+			String fPath = path;
+			pathStream = pathStream
+				.filter(p -> p.startsWith(fPath) && p.indexOf('/', fPath.length()+1) == -1);
+		}
+		return pathStream;
 	}
 	
 	private static String sanitizeTitle(String title) {

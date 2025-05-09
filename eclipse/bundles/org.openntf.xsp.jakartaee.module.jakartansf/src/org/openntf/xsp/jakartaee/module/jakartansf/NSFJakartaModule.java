@@ -39,13 +39,11 @@ import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
-import com.ibm.designer.domino.napi.NotesCollectionEntry;
 import com.ibm.designer.domino.napi.NotesConstants;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.NotesSession;
 import com.ibm.designer.domino.napi.design.FileAccess;
-import com.ibm.designer.domino.napi.util.NotesUtils;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
@@ -68,7 +66,6 @@ import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider;
 import org.openntf.xsp.jakartaee.module.jakartansf.concurrency.NSFJakartaModuleConcurrencyListener;
-import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
@@ -402,7 +399,7 @@ public class NSFJakartaModule extends ComponentModule {
 
 	@Override
 	public URL getResource(String res) throws MalformedURLException {
-		return this.fileSystem.getUrl(trimResourcePath(res))
+		return this.fileSystem.getUrl(ModuleUtil.trimResourcePath(res))
 			.orElseGet(() -> {
 				// Check for META-INF/resources in embedded JARs
 				// TODO skip check if the incoming path has META-INF or WEB-INF in it already
@@ -418,7 +415,7 @@ public class NSFJakartaModule extends ComponentModule {
 
 	@Override
 	public InputStream getResourceAsStream(String res) {
-		return this.fileSystem.openStream(trimResourcePath(res))
+		return this.fileSystem.openStream(ModuleUtil.trimResourcePath(res))
 			.orElseGet(() -> {
 				String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
 				return this.moduleClassLoader.getJarResourceAsStream(metaResPath);
@@ -430,7 +427,7 @@ public class NSFJakartaModule extends ComponentModule {
 		// This is looking for all resources strictly within the folder path,
 		//   with a trailing "/" if it's a subfolder of it
 		// TODO look for subfolders?
-		Stream<String> matches = this.listFiles(res);
+		Stream<String> matches = this.getRuntimeFileSystem().listFiles(res);
 		if(res.charAt(0) == '/') {
 			matches = matches.map(p -> '/' + p);
 		}
@@ -589,44 +586,6 @@ public class NSFJakartaModule extends ComponentModule {
 		return false;
 	}
 	
-	public Stream<String> listFiles(String basePath) {
-		String path = trimResourcePath(basePath);
-		boolean listAll = StringUtil.isEmpty(path);
-		if(!listAll && !path.endsWith("/")) { //$NON-NLS-1$
-			path += "/"; //$NON-NLS-1$
-		}
-		
-		// TODO cache this list and destroy on refresh
-		List<String> result = new ArrayList<>();
-		try (DesignCollectionIterator nav = new DesignCollectionIterator(notesDatabase)) {
-			while (nav.hasNext()) {
-				NotesCollectionEntry entry = nav.next();
-
-				String flags = entry.getItemValueAsString(NotesConstants.DESIGN_FLAGS);
-				if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_FILE)) {
-					// In practice, we don't care about $ClassIndexItem
-					String name = entry.getItemValueAsString(NotesConstants.FIELD_TITLE);
-					if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_JAVAJAR)) {
-						name = "WEB-INF/lib/" + name; //$NON-NLS-1$
-					}
-					result.add(name);
-				}
-
-				entry.recycle();
-			}
-		} catch (NotesAPIException e) {
-			throw new RuntimeException(e);
-		}
-
-		Stream<String> pathStream = result.stream();
-		if(!listAll) {
-			String fPath = path;
-			pathStream = pathStream
-				.filter(p -> p.startsWith(fPath) && p.indexOf('/', fPath.length()+1) == -1);
-		}
-		return pathStream;
-	}
-	
 	@Override
 	public String toString() {
 		return MessageFormat.format("{0}: {1}", getClass().getSimpleName(), mapping);
@@ -664,16 +623,6 @@ public class NSFJakartaModule extends ComponentModule {
 			}
 		} else {
 			throw new IllegalArgumentException(MessageFormat.format("Request must be an instance of DominoHttpXspNativeContext: {0}", req));
-		}
-	}
-	
-	private String trimResourcePath(String path) {
-		if(path == null) {
-			return null;
-		} else if(path.length() > 1 && path.startsWith("/")) { //$NON-NLS-1$
-			return path.substring(1);
-		} else {
-			return path;
 		}
 	}
 }

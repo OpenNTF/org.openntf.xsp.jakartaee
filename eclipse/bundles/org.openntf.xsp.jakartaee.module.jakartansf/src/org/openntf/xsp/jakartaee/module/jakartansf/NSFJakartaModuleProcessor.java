@@ -38,7 +38,7 @@ public class NSFJakartaModuleProcessor implements ComponentModuleProcessor<NSFJa
 
 	@Override
 	public Stream<String> listFiles(NSFJakartaModule module, String basePath) {
-		return module.listFiles(basePath);
+		return module.getRuntimeFileSystem().listFiles(basePath);
 	}
 	
 	@Override
