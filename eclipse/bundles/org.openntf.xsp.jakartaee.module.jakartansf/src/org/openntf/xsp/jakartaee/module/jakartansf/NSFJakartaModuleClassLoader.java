@@ -72,7 +72,7 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	private final List<ClassLoaderExtension> extensions;
 
 	public NSFJakartaModuleClassLoader(NSFJakartaModule module) throws NotesAPIException {
-		super(MessageFormat.format("{0}:{1}", NSFJakartaModuleClassLoader.class.getName(), module.getMapping()), new URL[0], module.getClass().getClassLoader());
+		super(MessageFormat.format("{0}:{1}", NSFJakartaModule.class.getSimpleName(), module.getMapping().path()), new URL[0], module.getClass().getClassLoader());
 		
 		this.module = module;
 		
@@ -324,16 +324,8 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 
 					// Add it to our base ClassLoader while here
 					// TODO see if we can keep these in-memory only
-					Path tempJar = Files.createTempFile(getClass().getSimpleName(), ".jar"); //$NON-NLS-1$
-					NotesNote note = this.module.getNotesDatabase().openNote(entry.getNoteID(), 0);
-					try(OutputStream os = Files.newOutputStream(tempJar, StandardOpenOption.TRUNCATE_EXISTING)) {
-						FileAccess.readFileContent(note, os);
-					} finally {
-						note.recycle();
-					}
-					addURL(URI.create("jar:" + tempJar.toUri() + "!/").toURL());; //$NON-NLS-1$ //$NON-NLS-2$
-//					URL url = NSFJakartaURL.of(module.getMapping().nsfPath(), '/' + jarPath);
-//					addURL(url);
+					Path tempJar = extractJar(entry);
+					addURL(URI.create("jar:" + tempJar.toUri() + "!/").toURL()); //$NON-NLS-1$ //$NON-NLS-2$
 				} else if (NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_FILE)) {
 					String title = entry.getItemValueAsString(NotesConstants.FIELD_TITLE);
 					// Assume anything in WEB-INF/classes ending with .class is fair game
@@ -343,11 +335,27 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 						String className = title.substring(prefixLen, title.length() - suffixLen);
 						className = className.replace('/', '.');
 						this.javaClasses.put(className, new JavaClassNote(entry.getNoteID(), NotesConstants.ITEM_NAME_FILE_DATA));
+					} else if(title.startsWith("WEB-INF/lib/") && title.endsWith(".jar")) { //$NON-NLS-1$ //$NON-NLS-2$
+						// There may also be "loose" JARs in the conceptual WEB-INF/lib
+						Path tempJar = extractJar(entry);
+						addURL(URI.create("jar:" + tempJar.toUri() + "!/").toURL()); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
 
 				entry.recycle();
 			}
 		}
+	}
+	
+	private Path extractJar(NotesCollectionEntry entry) throws IOException, NotesAPIException {
+		Path tempJar = Files.createTempFile(getClass().getSimpleName(), ".jar"); //$NON-NLS-1$
+		cleanup.add(tempJar);
+		NotesNote note = this.module.getNotesDatabase().openNote(entry.getNoteID(), 0);
+		try(OutputStream os = Files.newOutputStream(tempJar, StandardOpenOption.TRUNCATE_EXISTING)) {
+			FileAccess.readFileContent(note, os);
+		} finally {
+			note.recycle();
+		}
+		return tempJar;
 	}
 }
