@@ -59,10 +59,6 @@ import lotus.domino.ViewNavigator;
  */
 public class NSFJakartaModuleService extends HttpService {
 	private static final Logger log = Logger.getLogger(NSFJakartaModuleService.class.getPackageName());
-	static {
-		// TODO remove
-		log.setLevel(Level.FINEST);
-	}
 	
 	private static final String PREFIX_WEBPATH = "webpath="; //$NON-NLS-1$
 	private static final int MAX_REFRESH_ATTEMPTS = 10;

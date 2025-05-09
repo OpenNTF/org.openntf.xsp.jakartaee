@@ -100,11 +100,6 @@ import lotus.domino.Session;
 public class NSFJakartaModule extends ComponentModule {
 	private static final Logger log = Logger.getLogger(NSFJakartaModule.class.getPackageName());
 	
-	static {
-		// TODO switch back
-		log.setLevel(Level.FINEST);
-	}
-	
 	private final ModuleMap mapping;
 	private Collection<JakartaIServletFactory> servletFactories;
 	private boolean initialized;
