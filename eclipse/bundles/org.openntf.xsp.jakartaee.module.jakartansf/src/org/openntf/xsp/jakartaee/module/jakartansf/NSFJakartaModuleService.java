@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,10 +68,12 @@ public class NSFJakartaModuleService extends HttpService {
 	
 	private final String catalogNsfPath;
 	private final Map<String, NSFJakartaModule> modules;
+	private final ExecutorService exec;
 
 	public NSFJakartaModuleService(LCDEnvironment env) {
 		super(env);
 		
+		this.exec = Executors.newCachedThreadPool(NotesThread::new);
 		this.catalogNsfPath = findCatalogNsfPath();
 		
 		try {
@@ -78,9 +83,24 @@ public class NSFJakartaModuleService extends HttpService {
 				.filter(Objects::nonNull)
 				.collect(Collectors.toMap(mod -> mod.getMapping().path(), Function.identity()));
 			
-			if(log.isLoggable(Level.INFO)) {
-				log.info(MessageFormat.format("Initialized {0} with mappings {1}", getClass().getSimpleName(), matches));
-			}
+			this.modules.values().stream()
+				.map(module -> (Runnable)() -> {
+					log.fine(() -> MessageFormat.format("Initializing module {0}", module));
+					ActiveRequest.set(new ActiveRequest(module, null, null));
+					try {
+						module.initModule();
+					} catch(Exception e) {
+						if(log.isLoggable(Level.WARNING)) {
+							log.log(Level.WARNING, MessageFormat.format("Encountered exception initializing module {0}", module), e);
+						}
+					} finally {
+						ActiveRequest.set(null);
+					}
+					log.fine(() -> MessageFormat.format("Finished initializing module {0}", module));
+				})
+				.forEach(exec::submit);
+			
+			log.info(() -> MessageFormat.format("Initialized {0} with mappings {1}", getClass().getSimpleName(), matches));
 		} catch(Throwable t) {
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered exception initializing NSFJakartaModuleService", t);
@@ -102,6 +122,16 @@ public class NSFJakartaModuleService extends HttpService {
 	
 	@Override
 	public void destroyService() {
+		exec.shutdown();
+		try {
+			if(!exec.awaitTermination(3, TimeUnit.MINUTES)) {
+				if(log.isLoggable(Level.WARNING)) {
+					log.warning(MessageFormat.format("{0} executor did not terminate in a reasonable amount of time", getClass().getSimpleName()));
+				}
+			}
+		} catch (InterruptedException e) {
+			// Ignore
+		}
 	}
 	
 	@Override

@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -102,6 +104,7 @@ public class NSFJakartaModule extends ComponentModule {
 	
 	private final ModuleMap mapping;
 	private Collection<JakartaIServletFactory> servletFactories;
+	private CountDownLatch initLatch = new CountDownLatch(1);
 	private boolean initialized;
 	private NotesSession notesSession;
 	private NotesDatabase notesDatabase;
@@ -252,6 +255,7 @@ public class NSFJakartaModule extends ComponentModule {
 			}
 			
 			this.initialized = true;
+			this.initLatch.countDown();
 		} finally {
 			NotesThread.stermThread();
 		}
@@ -363,6 +367,21 @@ public class NSFJakartaModule extends ComponentModule {
 		}
 		
 		try {
+			// TODO consider making this value configurable
+			if(!this.initLatch.await(1, TimeUnit.MINUTES)) {
+				if(log.isLoggable(Level.WARNING)) {
+					log.warning(MessageFormat.format("Request for {0} in {1} timed out waiting for initialization", pathInfo, this));
+				}
+				return;
+			}
+		} catch (InterruptedException e) {
+			if(log.isLoggable(Level.WARNING)) {
+				log.warning(MessageFormat.format("Request for {0} in {1} interrupted waiting for initialization", pathInfo, this));
+			}
+			return;
+		}
+		
+		try {
 			super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
 		} catch(PageNotFoundException e) {
 			if(pathInfo.isEmpty() || "/".equals(pathInfo)) { //$NON-NLS-1$
@@ -461,8 +480,7 @@ public class NSFJakartaModule extends ComponentModule {
 	
 	@Override
 	public ServletMatch getServlet(String path) throws javax.servlet.ServletException {
-		// TODO cache matched Servlets?
-		// TODO handle the work of the ServletServletFactory at init?
+		// TODO init Servlets at startup, at least those marked with an interface
 		for(JakartaIServletFactory fac : this.servletFactories) {
 			ServletMatch servletMatch = fac.getServletMatch('/' + mapping.path(), path);
 			if(servletMatch != null) {
