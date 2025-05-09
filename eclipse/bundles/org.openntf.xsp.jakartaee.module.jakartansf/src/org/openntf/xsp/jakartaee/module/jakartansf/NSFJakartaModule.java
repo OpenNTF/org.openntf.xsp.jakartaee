@@ -74,6 +74,7 @@ import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ModuleMap;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.UncheckedNotesException;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.WelcomePageRequestAdapter;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
@@ -143,9 +144,6 @@ public class NSFJakartaModule extends ComponentModule {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void doInitModule() {
-		// TODO stash super-set attribute names on it and clear all others on reset
-		//   Alternatively, make a separate Map for ServletContext attrs and populate
-		//   with getAttributes() on reset
 		// Clear all attributes except temp dir
 		Map<String, Object> attrs = this.getAttributes();
 		Object tempDir = attrs.get("javax.servlet.context.tempdir"); //$NON-NLS-1$
@@ -282,6 +280,48 @@ public class NSFJakartaModule extends ComponentModule {
 	public boolean isInitialized() {
 		return initialized;
 	}
+	
+	@Override
+	public String getWelcomePage() {
+		Set<String> files = ServletUtil.getWebXml(this).getWelcomeFiles();
+		if(!files.isEmpty()) {
+			ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(this.moduleClassLoader);
+			try {
+				return files.stream()
+					.filter(StringUtil::isNotEmpty)
+					.map(p -> {
+						String pathP = p;
+						if(pathP.charAt(0) != '/') {
+							pathP = '/' + pathP;
+						}
+						return pathP;
+					})
+					.filter(p -> {
+						try {
+							ServletMatch match = this.getServlet(p);
+							if(match != null) {
+								return true;
+							}
+							URL res = this.getResource(p);
+							if(res != null) {
+								return true;
+							}
+							
+							return false;
+						} catch(javax.servlet.ServletException | IOException e) {
+							throw new RuntimeException(e);
+						}
+					})
+					.findFirst()
+					.orElse(null);
+			} finally {
+				Thread.currentThread().setContextClassLoader(tccl);
+			}
+		} else {
+			return null;
+		}
+	}
 
 	@Override
 	protected void doDestroyModule() {
@@ -330,7 +370,20 @@ public class NSFJakartaModule extends ComponentModule {
 			log.finer(getClass().getSimpleName() + "#doService with contextPath=" + contextPath + ", pathInfo=" + pathInfo);
 		}
 		
-		super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
+		try {
+			super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
+		} catch(PageNotFoundException e) {
+			if(pathInfo.isEmpty() || "/".equals(pathInfo)) { //$NON-NLS-1$
+				// Check for a welcome page and re-run the request with that
+				String welcomePage = this.getWelcomePage();
+				if(StringUtil.isNotEmpty(welcomePage)) {
+					HttpServletRequestAdapter welcomeReq = new WelcomePageRequestAdapter(servletRequest, welcomePage);
+					super.doService(contextPath, welcomePage, httpSessionAdapter, welcomeReq, servletResponse);
+					return;
+				}
+			}
+			throw e;
+		}
 	}
 
 	@Override
