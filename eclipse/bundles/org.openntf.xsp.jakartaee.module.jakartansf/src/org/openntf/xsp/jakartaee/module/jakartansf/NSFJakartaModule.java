@@ -353,8 +353,13 @@ public class NSFJakartaModule extends ComponentModule {
 			.orElseGet(() -> {
 				// Check for META-INF/resources in embedded JARs
 				// TODO skip check if the incoming path has META-INF or WEB-INF in it already
-				String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
-				return this.moduleClassLoader.getJarResource(metaResPath);
+				// moduleClassLoader may be null when it itself is being initialized and the JVM calls getResources
+				if(this.moduleClassLoader != null) {
+					String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
+					return this.moduleClassLoader.getJarResource(metaResPath);
+				} else {
+					return null;
+				}
 			});
 	}
 
