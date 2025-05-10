@@ -36,7 +36,6 @@ import java.util.logging.Logger;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.xsp.adapter.osgi.AbstractOSGIModule;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
@@ -235,7 +234,7 @@ public enum ContainerUtil {
 	public static CDI<Object> getContainer(final ComponentModule module) {
 		// OSGi Servlets use their containing bundle, and we have to assume
 		//   that it's from the current thread
-		if(module instanceof AbstractOSGIModule) {
+		if(ModuleUtil.usesBundleClassLoader(module)) {
 
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();
 			Optional<Bundle> bundle = DiscoveryUtil.getBundleForClassLoader(cl);
@@ -266,7 +265,7 @@ public enum ContainerUtil {
 		}
 
 
-		if(module instanceof AbstractOSGIModule || LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module)) {
+		if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module) || ModuleUtil.hasImplicitCdi(module)) {
 			String bundleId = getApplicationCDIBundle(module);
 			if(StringUtil.isNotEmpty(bundleId)) {
 				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);

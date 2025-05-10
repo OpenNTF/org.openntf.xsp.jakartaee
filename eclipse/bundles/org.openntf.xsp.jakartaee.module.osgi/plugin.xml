@@ -24,4 +24,7 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator" class="org.openntf.xsp.jakartaee.module.osgi.OSGiServletComponentEnabledLocator"/>
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleProcessor" class="org.openntf.xsp.jakartaee.module.osgi.OSGiComponentModuleProcessor"/>
+	</extension>
 </plugin>

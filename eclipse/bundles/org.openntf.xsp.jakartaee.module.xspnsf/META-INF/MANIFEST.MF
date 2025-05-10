@@ -26,6 +26,8 @@ Import-Package: com.ibm.commons.util,
  org.glassfish.concurro.spi;version="3.1.0",
  org.openntf.xsp.jakarta.cdi.concurrency;version="3.4.0",
  org.openntf.xsp.jakarta.cdi.discovery;version="3.4.0",
+ org.openntf.xsp.jakarta.cdi.ext;version="[3.4.0,4.0.0)",
+ org.openntf.xsp.jakarta.cdi.util;version="[3.4.0,4.0.0)",
  org.openntf.xsp.jakarta.concurrency;version="3.4.0",
  org.openntf.xsp.jakartaee.bridge.jasapi;version="[3.4.0,4.0.0)",
  org.openntf.xsp.jakartaee.bridge.jasapi.impl

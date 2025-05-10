@@ -29,19 +29,20 @@
 		<service type="org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator" class="org.openntf.xsp.jakartaee.module.xspnsf.NSFContextApplicationPropertyLocator"/>
 	</extension>
 	
-	<!-- Concurrency CDI thread assistant -->
+	<!-- CDI support -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.events.JakartaApplicationListener" class="org.openntf.xsp.jakartaee.module.xspnsf.concurrency.ConcurrencyApplicationListener" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.jakartaee.module.xspnsf.cdi.ThreadContextDatabasePathCDIContainerLocator" />
+	</extension>
+	
+	<!-- Concurrency support -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant" class="org.openntf.xsp.jakartaee.module.xspnsf.concurrency.NSFSessionClonerSetupParticipant" />
 	</extension>
-	
-	<!-- ContextSetupParticipant to propagate NotesContext information for NSFService requests -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant" class="org.openntf.xsp.jakartaee.module.xspnsf.concurrency.NSFNotesContextParticipant" />
-	</extension>
-	
-	<!-- The ApplicationListener to manage the CDI context -->
-	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.events.JakartaApplicationListener" class="org.openntf.xsp.jakartaee.module.xspnsf.concurrency.ConcurrencyApplicationListener" />
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">

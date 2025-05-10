@@ -62,4 +62,12 @@ public interface ComponentModuleProcessor<T extends ComponentModule> {
 	default void initializeSessionAsSigner(final T module) {
 		// NOP
 	}
+	
+	default boolean usesBundleClassLoader(final T module) {
+		return false;
+	}
+	
+	default boolean hasImplicitCdi(final T module) {
+		return false;
+	}
 }

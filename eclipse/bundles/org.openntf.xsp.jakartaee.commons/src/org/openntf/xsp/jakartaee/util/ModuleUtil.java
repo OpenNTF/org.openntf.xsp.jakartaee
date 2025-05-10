@@ -29,12 +29,8 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import javax.servlet.ServletException;
-
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
-import com.ibm.domino.xsp.module.nsf.NSFService;
 
 import org.openntf.xsp.jakartaee.module.ComponentModuleProcessor;
 import org.osgi.framework.Bundle;
@@ -321,29 +317,6 @@ public enum ModuleUtil {
 			return null;
 		}
 	}
-
-	/**
-	 * Attempts to find or load the {@link ComponentModule} for the given
-	 * NSF path.
-	 *
-	 * @param nsfPath the NSF path to load, e.g. {@code "foo/bar.nsf"}
-	 * @return an {@link Optional} describing the {@link ComponentModule}
-	 *         if available, or an empty one if there is no such NSF
-	 * @since 2.13.0
-	 */
-	public static Optional<ComponentModule> getComponentModule(final String nsfPath) {
-		LCDEnvironment lcd = LCDEnvironment.getInstance();
-		NSFService nsfService = lcd.getServices().stream()
-			.filter(NSFService.class::isInstance)
-			.map(NSFService.class::cast)
-			.findFirst()
-			.orElseThrow(() -> new IllegalStateException("Unable to locate active NSFService"));
-		try {
-			return Optional.ofNullable(nsfService.loadModule(nsfPath));
-		} catch(ServletException e) {
-			throw new RuntimeException(e);
-		}
-	}
 	
 	/**
 	 * Removes any leading slash from the provided path.
@@ -360,6 +333,47 @@ public enum ModuleUtil {
 		} else {
 			return path;
 		}
+	}
+	
+	/**
+	 * Determines whether the provided module is expected to use a related
+	 * bundle from the thread ClassLoader rather than its own provided
+	 * ClassLoader (i.e. an OSGi Servlet).
+	 * 
+	 * @param module the module to check
+	 * @return {@code true} if the module should use a Bundle context;
+	 *         {@code false} otherwise
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean usesBundleClassLoader(ComponentModule module) {
+		Objects.requireNonNull(module, "module cannot be null");
+		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
+			.stream()
+			.filter(proc -> proc.canProcess(module))
+			.findFirst()
+			.map(proc -> proc.usesBundleClassLoader(module))
+			.orElse(false);
+	}
+	
+	/**
+	 * Determines whether the provided module should implicitly use CDI
+	 * (i.e. an OSGi Webapp).
+	 *  
+	 * @param module the module to check
+	 * @return {@code true} if the module should use CDI regardless of settings;
+	 *         {@code false} otherwise
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean hasImplicitCdi(ComponentModule module) {
+		Objects.requireNonNull(module, "module cannot be null");
+		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
+			.stream()
+			.filter(proc -> proc.canProcess(module))
+			.findFirst()
+			.map(proc -> proc.hasImplicitCdi(module))
+			.orElse(false);
 	}
 
 }
