@@ -44,7 +44,7 @@ public class JsfEarlyInitFactory implements IServiceFactory {
 	}
 
 	/**
-	 * Adds JSP support to NSFs.
+	 * Adds Faces support to NSFs.
 	 */
 	private void initNsf() {
 		// Register ".xhtml" with the NSF service, which will then pass along to FacesServletFactory
