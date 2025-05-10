@@ -30,8 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -104,7 +105,7 @@ public class NSFJakartaModule extends ComponentModule {
 	
 	private final ModuleMap mapping;
 	private Collection<JakartaIServletFactory> servletFactories;
-	private CountDownLatch initLatch = new CountDownLatch(1);
+	private Phaser initPhase = new Phaser(1);
 	private boolean initialized;
 	private NotesSession notesSession;
 	private NotesDatabase notesDatabase;
@@ -139,125 +140,129 @@ public class NSFJakartaModule extends ComponentModule {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void doInitModule() {
-		// Clear all attributes except temp dir
-		Map<String, Object> attrs = this.getAttributes();
-		Object tempDir = attrs.get("javax.servlet.context.tempdir"); //$NON-NLS-1$
-		attrs.clear();
-		attrs.put("javax.servlet.context.tempdir", tempDir); //$NON-NLS-1$
-		attrs.put("jakarta.servlet.context.tempdir", tempDir); //$NON-NLS-1$
-		
-		this.servletContext = ServletUtil.oldToNew('/' + this.mapping.path(), getServletContext());
-		
-		NotesThread.sinitThread();
+		this.initPhase.register();
 		try {
+			// Clear all attributes except temp dir
+			Map<String, Object> attrs = this.getAttributes();
+			Object tempDir = attrs.get("javax.servlet.context.tempdir"); //$NON-NLS-1$
+			attrs.clear();
+			attrs.put("javax.servlet.context.tempdir", tempDir); //$NON-NLS-1$
+			attrs.put("jakarta.servlet.context.tempdir", tempDir); //$NON-NLS-1$
+			
+			this.servletContext = ServletUtil.oldToNew('/' + this.mapping.path(), getServletContext());
+			
+			NotesThread.sinitThread();
 			try {
-				if(this.moduleClassLoader != null) {
-					this.moduleClassLoader.close();
-				}
-				if(this.notesSession != null) {
-					this.notesSession.recycle();
-				}
-				
-				this.notesSession = new NotesSession();
-				this.notesDatabase = notesSession.getDatabase(this.mapping.nsfPath());
-				this.notesDatabase.open();
-				
-				// Use xsp.properties as our signer if available
-				NotesNote xspProperties = FileAccess.getFileByPath(this.notesDatabase, "WEB-INF/xsp.properties"); //$NON-NLS-1$
-				if(xspProperties != null) {
-					List<String> updatedBy = xspProperties.getItemAsTextList(NotesConstants.FIELD_UPDATED_BY);
-					if(!updatedBy.isEmpty()) {
-						this.xspSigner = updatedBy.get(updatedBy.size()-1);
+				try {
+					if(this.moduleClassLoader != null) {
+						this.moduleClassLoader.close();
+					}
+					if(this.notesSession != null) {
+						this.notesSession.recycle();
+					}
+					
+					this.notesSession = new NotesSession();
+					this.notesDatabase = notesSession.getDatabase(this.mapping.nsfPath());
+					this.notesDatabase.open();
+					
+					// Use xsp.properties as our signer if available
+					NotesNote xspProperties = FileAccess.getFileByPath(this.notesDatabase, "WEB-INF/xsp.properties"); //$NON-NLS-1$
+					if(xspProperties != null) {
+						List<String> updatedBy = xspProperties.getItemAsTextList(NotesConstants.FIELD_UPDATED_BY);
+						if(!updatedBy.isEmpty()) {
+							this.xspSigner = updatedBy.get(updatedBy.size()-1);
+						} else {
+							this.xspSigner = this.notesDatabase.getUserName();
+						}
+						xspProperties.recycle();
 					} else {
 						this.xspSigner = this.notesDatabase.getUserName();
 					}
-					xspProperties.recycle();
-				} else {
-					this.xspSigner = this.notesDatabase.getUserName();
+	
+					this.fileSystem = new NSFJakartaFileSystem(this);
+					this.moduleClassLoader = new NSFJakartaModuleClassLoader(this);
+				} catch (NotesAPIException e) {
+					throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
 				}
-
-				this.fileSystem = new NSFJakartaFileSystem(this);
-				this.moduleClassLoader = new NSFJakartaModuleClassLoader(this);
-			} catch (NotesAPIException e) {
-				throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
-			}
-
-			// Register Servlet factories early, since initial
-			this.servletFactories = ExtensionManager.findApplicationServices(getModuleClassLoader(), "com.ibm.xsp.adapter.servletFactory").stream() //$NON-NLS-1$
-				.filter(JakartaIServletFactory.class::isInstance)
-				.map(JakartaIServletFactory.class::cast)
-				.sorted(PriorityComparator.DESCENDING)
-				.toList();
-			
-			// Set lastRefresh, as used by ContainerUtil, before initializing CDI
-			this.lastRefresh = System.currentTimeMillis();
-			
-			// CDI gets initialized immediately
-			CDI<Object> cdi = ContainerUtil.getContainer(this);
-			servletContext.setAttribute(BeanManager.class.getName(), ContainerUtil.getBeanManager(cdi));
-
-			// Fire ServletContainerInitializers
-			List<ServletContainerInitializer> initializers = new ArrayList<>(LibraryUtil.findExtensions(ServletContainerInitializer.class, this));
-			LibraryUtil.findExtensions(ServletContainerInitializerProvider.class).stream()
-				.map(p -> p.provide(this))
-				.filter(Objects::nonNull)
-				.forEach(initializers::addAll);
-			ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-			Thread.currentThread().setContextClassLoader(this.getModuleClassLoader());
-			try {
-				for(ServletContainerInitializer initializer : initializers) {
-					Set<Class<?>> classes = null;
-					if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
-						classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), this);
+	
+				// Register Servlet factories early, since initial
+				this.servletFactories = ExtensionManager.findApplicationServices(getModuleClassLoader(), "com.ibm.xsp.adapter.servletFactory").stream() //$NON-NLS-1$
+					.filter(JakartaIServletFactory.class::isInstance)
+					.map(JakartaIServletFactory.class::cast)
+					.sorted(PriorityComparator.DESCENDING)
+					.toList();
+				
+				// Set lastRefresh, as used by ContainerUtil, before initializing CDI
+				this.lastRefresh = System.currentTimeMillis();
+				
+				// CDI gets initialized immediately
+				CDI<Object> cdi = ContainerUtil.getContainer(this);
+				servletContext.setAttribute(BeanManager.class.getName(), ContainerUtil.getBeanManager(cdi));
+	
+				// Fire ServletContainerInitializers
+				List<ServletContainerInitializer> initializers = new ArrayList<>(LibraryUtil.findExtensions(ServletContainerInitializer.class, this));
+				LibraryUtil.findExtensions(ServletContainerInitializerProvider.class).stream()
+					.map(p -> p.provide(this))
+					.filter(Objects::nonNull)
+					.forEach(initializers::addAll);
+				ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+				Thread.currentThread().setContextClassLoader(this.getModuleClassLoader());
+				try {
+					for(ServletContainerInitializer initializer : initializers) {
+						Set<Class<?>> classes = null;
+						if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
+							classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), this);
+						}
+						try {
+							initializer.onStartup(classes, servletContext);
+						} catch (ServletException e) {
+							throw new RuntimeException(e);
+						}
 					}
-					try {
-						initializer.onStartup(classes, servletContext);
-					} catch (ServletException e) {
-						throw new RuntimeException(e);
-					}
+				} finally {
+					Thread.currentThread().setContextClassLoader(tccl);
 				}
-			} finally {
-				Thread.currentThread().setContextClassLoader(tccl);
-			}
-			
-			// Find any declared or annotated listeners
-			WebXml webXml = ServletUtil.getWebXml(this);
-			if(webXml != null) {
-				for(String listenerClassName : webXml.getListeners()) {
-					try {
-						Class<? extends EventListener> c = (Class<? extends EventListener>) Class.forName(listenerClassName, true, this.moduleClassLoader);
-						servletContext.addListener(c);
-					} catch (ClassNotFoundException e) {
-						if(log.isLoggable(Level.WARNING)) {
-							log.log(Level.WARNING, MessageFormat.format("Encountered exception loading listener class \"{0}\"", listenerClassName), e);
+				
+				// Find any declared or annotated listeners
+				WebXml webXml = ServletUtil.getWebXml(this);
+				if(webXml != null) {
+					for(String listenerClassName : webXml.getListeners()) {
+						try {
+							Class<? extends EventListener> c = (Class<? extends EventListener>) Class.forName(listenerClassName, true, this.moduleClassLoader);
+							servletContext.addListener(c);
+						} catch (ClassNotFoundException e) {
+							if(log.isLoggable(Level.WARNING)) {
+								log.log(Level.WARNING, MessageFormat.format("Encountered exception loading listener class \"{0}\"", listenerClassName), e);
+							}
 						}
 					}
 				}
-			}
-			
-			ModuleUtil.getClasses(this)
-				.filter(c -> c.isAnnotationPresent(WebListener.class))
-				.map(c -> (Class<? extends EventListener>)c)
-				.forEach(servletContext::addListener);
-			
-			// Built-in support for concurrency
-			servletContext.addListener(NSFJakartaModuleConcurrencyListener.class);
-			
-			ServletUtil.populateWebXmlParams(this, servletContext);
-			
-			Thread.currentThread().setContextClassLoader(this.getModuleClassLoader());
-			try {
-				ServletUtil.contextInitialized(servletContext);
 				
-				this.servletFactories.forEach(fac -> fac.init(this));
+				ModuleUtil.getClasses(this)
+					.filter(c -> c.isAnnotationPresent(WebListener.class))
+					.map(c -> (Class<? extends EventListener>)c)
+					.forEach(servletContext::addListener);
+				
+				// Built-in support for concurrency
+				servletContext.addListener(NSFJakartaModuleConcurrencyListener.class);
+				
+				ServletUtil.populateWebXmlParams(this, servletContext);
+				
+				Thread.currentThread().setContextClassLoader(this.getModuleClassLoader());
+				try {
+					ServletUtil.contextInitialized(servletContext);
+					
+					this.servletFactories.forEach(fac -> fac.init(this));
+				} finally {
+					Thread.currentThread().setContextClassLoader(tccl);
+				}
+				
+				this.initialized = true;
 			} finally {
-				Thread.currentThread().setContextClassLoader(tccl);
+				NotesThread.stermThread();
 			}
-			
-			this.initialized = true;
-			this.initLatch.countDown();
 		} finally {
-			NotesThread.stermThread();
+			this.initPhase.arriveAndDeregister();
 		}
 	}
 	
@@ -368,17 +373,21 @@ public class NSFJakartaModule extends ComponentModule {
 		
 		try {
 			// TODO consider making this value configurable
-			if(!this.initLatch.await(1, TimeUnit.MINUTES)) {
-				if(log.isLoggable(Level.WARNING)) {
-					log.warning(MessageFormat.format("Request for {0} in {1} timed out waiting for initialization", pathInfo, this));
-				}
-				return;
+			this.initPhase.awaitAdvanceInterruptibly(this.initPhase.arrive(), 5, TimeUnit.MINUTES);
+		} catch(TimeoutException e) {
+			if(log.isLoggable(Level.WARNING)) {
+				log.warning(MessageFormat.format("Request for {0} in {1} timed out waiting for initialization", pathInfo, this));
 			}
+			return;
 		} catch (InterruptedException e) {
 			if(log.isLoggable(Level.WARNING)) {
 				log.warning(MessageFormat.format("Request for {0} in {1} interrupted waiting for initialization", pathInfo, this));
 			}
 			return;
+		}
+		
+		if(!this.initialized) {
+			throw new IllegalStateException(MessageFormat.format("Module {0} was not properly initialized", this));
 		}
 		
 		try {
