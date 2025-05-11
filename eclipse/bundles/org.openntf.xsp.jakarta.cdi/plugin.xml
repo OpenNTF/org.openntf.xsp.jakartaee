@@ -35,9 +35,6 @@
 		<service type="org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.jakarta.cdi.provider.ComponentModuleCDIContainerLocator" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.jakarta.cdi.provider.ThreadContextDatabasePathCDIContainerLocator" />
-	</extension>
-	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator" class="org.openntf.xsp.jakarta.cdi.concurrency.ConcurrencyCDIContainerLocator" />
 	</extension>
 	
