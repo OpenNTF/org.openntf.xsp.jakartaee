@@ -155,19 +155,11 @@ public class NSFJakartaModuleService extends HttpService {
 			.map(Map.Entry::getValue)
 			.findFirst();
 		if (target.isPresent()) {
+			// TODO consider running requests in the ExecutorService to allow for forced shutdown
+			
 			NotesThread.sinitThread();
 			try {
 				NSFJakartaModule module = target.get();
-				// TODO consider pushing up initialization to an early phase, ideally in an ExecutorService
-				if(!module.isInitialized()) {
-					// Provide this module for NSFJakartaModuleLocator
-					ActiveRequest.set(new ActiveRequest(module, null, null));
-					try {
-						module.initModule();
-					} finally {
-						ActiveRequest.set(null);
-					}
-				}
 				
 				String contextPath = PathUtil.concat(lcdContextPath, '/' + module.getMapping().path(), '/');
 				String internalPathInfo = pathInfo.substring(contextPath.length());
