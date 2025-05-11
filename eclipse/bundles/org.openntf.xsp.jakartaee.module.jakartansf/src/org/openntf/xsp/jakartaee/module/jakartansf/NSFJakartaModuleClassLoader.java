@@ -203,7 +203,6 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 		if(result != null) {
 			return result;
 		}
-		
 
 		return this.extensions.stream()
 			.map(ext -> ext.getResourceAsStream(name))
@@ -239,20 +238,6 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 				Class<?> clazz = this.defineClass(name, bytecode, 0, bytecode.length);
 				return clazz;
 			}
-			
-			// Check the current NSF for a class file - e.g. custom source folder
-			String classFileName = String.format("WEB-INF/classes/%s.class", name.replace('.', '/')); //$NON-NLS-1$
-			NotesNote classNote = FileAccess.getFileByPath(module.getNotesDatabase(), classFileName);
-			if(classNote != null) {
-				byte[] bytecode;
-				try(InputStream is = FileAccess.readFileContentAsInputStream(classNote)) {
-					bytecode = is.readAllBytes();
-				}
-				// TODO add CodeSource?
-				Class<?> clazz = this.defineClass(name, bytecode, 0, bytecode.length);
-				return clazz;
-			}
-			
 			
 			// Next, check the parent ClassLoader
 			try {
