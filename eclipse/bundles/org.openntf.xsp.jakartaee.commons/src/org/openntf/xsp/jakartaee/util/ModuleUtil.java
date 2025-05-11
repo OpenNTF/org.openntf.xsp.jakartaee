@@ -21,6 +21,7 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -62,10 +63,7 @@ public enum ModuleUtil {
 		if(module == null) {
 			return Stream.empty();
 		} else {
-			return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-				.stream()
-				.filter(proc -> proc.canProcess(module))
-				.findFirst()
+			return getProcessor(module)
 				.map(proc -> proc.getClassNames(module))
 				.orElseGet(() -> {
 					if(log.isLoggable(Level.WARNING)) {
@@ -119,10 +117,7 @@ public enum ModuleUtil {
 		if(module == null) {
 			return Stream.empty();
 		} else {
-			return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-				.stream()
-				.filter(proc -> proc.canProcess(module))
-				.findFirst()
+			return getProcessor(module)
 				.map(proc -> proc.listFiles(module, basePath))
 				.orElseGet(() -> {
 					if(log.isLoggable(Level.WARNING)) {
@@ -145,11 +140,7 @@ public enum ModuleUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static String getModuleId(final ComponentModule module) {
-		Objects.requireNonNull(module, "module cannot be null");
-		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-			.stream()
-			.filter(proc -> proc.canProcess(module))
-			.findFirst()
+		return getProcessor(module)
 			.map(proc -> proc.getModuleId(module))
 			.orElseGet(() -> Integer.toHexString(System.identityHashCode(module)));
 	}
@@ -164,11 +155,7 @@ public enum ModuleUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static String getXspPrefix(final ComponentModule module) {
-		Objects.requireNonNull(module, "module cannot be null");
-		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-			.stream()
-			.filter(proc -> proc.canProcess(module))
-			.findFirst()
+		return getProcessor(module)
 			.map(proc -> proc.getXspPrefix(module))
 			.orElse(""); //$NON-NLS-1$
 	}
@@ -182,11 +169,7 @@ public enum ModuleUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean hasXPages(final ComponentModule module) {
-		Objects.requireNonNull(module, "module cannot be null");
-		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-			.stream()
-			.filter(proc -> proc.canProcess(module))
-			.findFirst()
+		return getProcessor(module)
 			.map(proc -> proc.hasXPages(module))
 			.orElse(false);
 	}
@@ -200,11 +183,7 @@ public enum ModuleUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean emulateServletEvents(final ComponentModule module) {
-		Objects.requireNonNull(module, "module cannot be null");
-		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-			.stream()
-			.filter(proc -> proc.canProcess(module))
-			.findFirst()
+		return getProcessor(module)
 			.map(proc -> proc.emulateServletEvents(module))
 			.orElse(false);
 	}
@@ -222,11 +201,7 @@ public enum ModuleUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static Optional<javax.servlet.Servlet> initXPagesServlet(final ComponentModule module, final ServletConfig servletConfig) {
-		Objects.requireNonNull(module, "module cannot be null");
-		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-			.stream()
-			.filter(proc -> proc.canProcess(module))
-			.findFirst()
+		return getProcessor(module)
 			.map(proc -> proc.initXPagesServlet(module, servletConfig))
 			.orElseGet(Optional::empty);
 	}
@@ -239,11 +214,7 @@ public enum ModuleUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void initializeSessionAsSigner(final ComponentModule module) {
-		Objects.requireNonNull(module, "module cannot be null");
-		LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-			.stream()
-			.filter(proc -> proc.canProcess(module))
-			.findFirst()
+		getProcessor(module)
 			.ifPresent(proc -> proc.initializeSessionAsSigner(module));
 	}
 
@@ -347,11 +318,7 @@ public enum ModuleUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean usesBundleClassLoader(ComponentModule module) {
-		Objects.requireNonNull(module, "module cannot be null");
-		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-			.stream()
-			.filter(proc -> proc.canProcess(module))
-			.findFirst()
+		return getProcessor(module)
 			.map(proc -> proc.usesBundleClassLoader(module))
 			.orElse(false);
 	}
@@ -367,13 +334,22 @@ public enum ModuleUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static boolean hasImplicitCdi(ComponentModule module) {
-		Objects.requireNonNull(module, "module cannot be null");
-		return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-			.stream()
-			.filter(proc -> proc.canProcess(module))
-			.findFirst()
+		return getProcessor(module)
 			.map(proc -> proc.hasImplicitCdi(module))
 			.orElse(false);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static Optional<ComponentModuleProcessor> getProcessor(ComponentModule module) {
+		Objects.requireNonNull(module, "module cannot be null");
+		
+		Map<String, Object> attrs = module.getAttributes();
+		String key = ComponentModuleProcessor.class.getName();
+		return (Optional<ComponentModuleProcessor>)LibraryUtil.computeIfAbsent(attrs, key, k -> 
+			LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
+				.stream()
+				.filter(proc -> proc.canProcess(module))
+				.findFirst()
+		);
+	}
 }
