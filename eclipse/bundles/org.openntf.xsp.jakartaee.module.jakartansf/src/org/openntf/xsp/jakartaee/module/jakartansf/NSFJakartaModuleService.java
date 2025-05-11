@@ -44,7 +44,6 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdap
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
-import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ModuleMap;
 
 import lotus.domino.Database;
@@ -174,7 +173,7 @@ public class NSFJakartaModuleService extends HttpService {
 				String internalPathInfo = pathInfo.substring(contextPath.length());
 				int i = 0;
 				
-				try(LSXBEHolder lsxbe = module.withSessions(servletRequest)) {
+				try(var lsxbe = module.withSessions(servletRequest)) {
 					ActiveRequest.set(new ActiveRequest(module, lsxbe, null));
 					
 					while(i++ < MAX_REFRESH_ATTEMPTS) {

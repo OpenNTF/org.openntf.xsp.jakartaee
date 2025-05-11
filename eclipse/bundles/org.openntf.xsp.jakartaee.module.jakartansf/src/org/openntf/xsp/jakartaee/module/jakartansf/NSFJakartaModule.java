@@ -193,34 +193,13 @@ public class NSFJakartaModule extends ComponentModule {
 				
 				// Set lastRefresh, as used by ContainerUtil, before initializing CDI
 				this.lastRefresh = System.currentTimeMillis();
-				
-				// CDI gets initialized immediately
-				CDI<Object> cdi = ContainerUtil.getContainer(this);
-				servletContext.setAttribute(BeanManager.class.getName(), ContainerUtil.getBeanManager(cdi));
 
-				// Fire ServletContainerInitializers
+				// Find ServletContainerInitializers
 				List<ServletContainerInitializer> initializers = new ArrayList<>(LibraryUtil.findExtensions(ServletContainerInitializer.class, this));
 				LibraryUtil.findExtensions(ServletContainerInitializerProvider.class).stream()
 					.map(p -> p.provide(this))
 					.filter(Objects::nonNull)
 					.forEach(initializers::addAll);
-				ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-				Thread.currentThread().setContextClassLoader(this.getModuleClassLoader());
-				try {
-					for(ServletContainerInitializer initializer : initializers) {
-						Set<Class<?>> classes = null;
-						if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
-							classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), this);
-						}
-						try {
-							initializer.onStartup(classes, servletContext);
-						} catch (ServletException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				} finally {
-					Thread.currentThread().setContextClassLoader(tccl);
-				}
 				
 				// Find any declared or annotated listeners
 				WebXml webXml = ServletUtil.getWebXml(this);
@@ -247,13 +226,34 @@ public class NSFJakartaModule extends ComponentModule {
 				
 				ServletUtil.populateWebXmlParams(this, servletContext);
 				
-				Thread.currentThread().setContextClassLoader(this.getModuleClassLoader());
-				try {
+				try(
+					var withCl = new WithClassLoader();
+					var lsxbe = this.withSession(this.xspSigner);
+				) {
+					ActiveRequest.set(new ActiveRequest(this, lsxbe, null));
+					
+					// Initialize CDI early
+					CDI<Object> cdi = ContainerUtil.getContainer(this);
+					servletContext.setAttribute(BeanManager.class.getName(), ContainerUtil.getBeanManager(cdi));
+					
+					// Run through any container initializers
+					for(ServletContainerInitializer initializer : initializers) {
+						Set<Class<?>> classes = null;
+						if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
+							classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), this);
+						}
+						try {
+							initializer.onStartup(classes, servletContext);
+						} catch (ServletException e) {
+							throw new RuntimeException(e);
+						}
+					}
+					
 					ServletUtil.contextInitialized(servletContext);
 					
 					this.servletFactories.forEach(fac -> fac.init(this));
 				} finally {
-					Thread.currentThread().setContextClassLoader(tccl);
+					ActiveRequest.set(null);
 				}
 				
 				this.initialized = true;
@@ -285,9 +285,7 @@ public class NSFJakartaModule extends ComponentModule {
 	public String getWelcomePage() {
 		Set<String> files = ServletUtil.getWebXml(this).getWelcomeFiles();
 		if(!files.isEmpty()) {
-			ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-			Thread.currentThread().setContextClassLoader(this.moduleClassLoader);
-			try {
+			try(var withCl = new WithClassLoader()) {
 				return files.stream()
 					.filter(StringUtil::isNotEmpty)
 					.map(p -> {
@@ -315,8 +313,6 @@ public class NSFJakartaModule extends ComponentModule {
 					})
 					.findFirst()
 					.orElse(null);
-			} finally {
-				Thread.currentThread().setContextClassLoader(tccl);
 			}
 		} else {
 			return null;
@@ -327,16 +323,12 @@ public class NSFJakartaModule extends ComponentModule {
 	protected void doDestroyModule() {
 		this.initialized = false;
 
-		ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(this.getModuleClassLoader());
-		try {
+		try(var withCl = new WithClassLoader()) {
 			ServletUtil.contextDestroyed(servletContext);
 		} catch(Exception e) {
 			if(log.isLoggable(Level.WARNING)) {
 				log.log(Level.WARNING, MessageFormat.format("Encountered exception destroying ServletContext for {0}", this), e);
 			}
-		} finally {
-			Thread.currentThread().setContextClassLoader(tccl);
 		}
 		
 		if(ContainerUtil.getContainer(this) instanceof AutoCloseable cdi) {
@@ -651,6 +643,49 @@ public class NSFJakartaModule extends ComponentModule {
 			}
 		} else {
 			throw new IllegalArgumentException(MessageFormat.format("Request must be an instance of DominoHttpXspNativeContext: {0}", req));
+		}
+	}
+	
+	public LSXBEHolder withSession(String name) {
+		try {
+			Session session = XSPNative.createXPageSession(name, 0, false, true);
+			BackendBridge.setNoRecycle(session, session, true);
+			Database database = session.getDatabase("", this.mapping.nsfPath()); //$NON-NLS-1$
+			BackendBridge.setNoRecycle(session, database, true);
+			XSPNative.setContextDatabase(session, XSPNative.getDBHandle(database));
+			
+			// Use the signer of xsp.properties - failing that, the server
+			long hSigner = NotesUtil.createUserNameList(this.xspSigner);
+			Session sessionAsSigner = XSPNative.createXPageSessionExt(this.xspSigner, hSigner, false, false, false);
+			BackendBridge.setNoRecycle(sessionAsSigner, sessionAsSigner, true);
+			Session sessAsSignerFullAccess = XSPNative.createXPageSessionExt(this.xspSigner, hSigner, false, false, false);
+			BackendBridge.setNoRecycle(sessAsSignerFullAccess, sessAsSignerFullAccess, true);
+			
+			return new LSXBEHolder(session, database, sessionAsSigner, sessAsSignerFullAccess, hSigner);
+		} catch(NException e) {
+			throw new RuntimeException(e);
+		} catch(NotesException e) {
+			if(e.id == 0x0FDC) {
+				// User X cannot open database
+				NoAccessSignal signal = new NoAccessSignal(e.text);
+				signal.setStackTrace(new StackTraceElement[0]);
+				throw signal;
+			}
+			throw new UncheckedNotesException(e);
+		}
+	}
+	
+	private class WithClassLoader implements AutoCloseable {
+		private final ClassLoader tccl;
+		
+		public WithClassLoader() {
+			this.tccl = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(getModuleClassLoader());
+		}
+		
+		@Override
+		public void close() {
+			Thread.currentThread().setContextClassLoader(tccl);
 		}
 	}
 }

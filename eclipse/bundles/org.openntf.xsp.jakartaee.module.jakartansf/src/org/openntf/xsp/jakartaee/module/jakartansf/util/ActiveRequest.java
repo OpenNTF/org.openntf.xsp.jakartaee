@@ -32,12 +32,8 @@ public record ActiveRequest(NSFJakartaModule module, LSXBEHolder lsxbe, HttpServ
 		ACTIVE_REQUEST.set(request);
 	}
 	public static void pushRequest(HttpServletRequest request) {
-		ActiveRequest active = get().map(req -> req.withRequest(request)).orElse(null);
+		ActiveRequest active = get().map(req -> new ActiveRequest(req.module, req.lsxbe, request)).orElse(null);
 		set(active);
-	}
-	
-	private ActiveRequest withRequest(HttpServletRequest request) {
-		return new ActiveRequest(module, lsxbe, request);
 	}
 	
 	public ActiveRequestCloner createCloner() {
