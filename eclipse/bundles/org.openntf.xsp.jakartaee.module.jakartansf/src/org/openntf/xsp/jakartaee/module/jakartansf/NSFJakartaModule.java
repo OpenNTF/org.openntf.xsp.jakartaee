@@ -30,9 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -105,7 +104,7 @@ public class NSFJakartaModule extends ComponentModule {
 	
 	private final ModuleMap mapping;
 	private Collection<JakartaIServletFactory> servletFactories;
-	private Phaser initPhase = new Phaser(1);
+	private ReentrantReadWriteLock initLock = new ReentrantReadWriteLock();
 	private boolean initialized;
 	private NotesSession notesSession;
 	private NotesDatabase notesDatabase;
@@ -140,7 +139,7 @@ public class NSFJakartaModule extends ComponentModule {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void doInitModule() {
-		this.initPhase.register();
+		this.initLock.writeLock().lock();
 		try {
 			// Clear all attributes except temp dir
 			Map<String, Object> attrs = this.getAttributes();
@@ -178,13 +177,13 @@ public class NSFJakartaModule extends ComponentModule {
 					} else {
 						this.xspSigner = this.notesDatabase.getUserName();
 					}
-	
+
 					this.fileSystem = new NSFJakartaFileSystem(this);
 					this.moduleClassLoader = new NSFJakartaModuleClassLoader(this);
 				} catch (NotesAPIException e) {
 					throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
 				}
-	
+
 				// Register Servlet factories early, since initial
 				this.servletFactories = ExtensionManager.findApplicationServices(getModuleClassLoader(), "com.ibm.xsp.adapter.servletFactory").stream() //$NON-NLS-1$
 					.filter(JakartaIServletFactory.class::isInstance)
@@ -198,7 +197,7 @@ public class NSFJakartaModule extends ComponentModule {
 				// CDI gets initialized immediately
 				CDI<Object> cdi = ContainerUtil.getContainer(this);
 				servletContext.setAttribute(BeanManager.class.getName(), ContainerUtil.getBeanManager(cdi));
-	
+
 				// Fire ServletContainerInitializers
 				List<ServletContainerInitializer> initializers = new ArrayList<>(LibraryUtil.findExtensions(ServletContainerInitializer.class, this));
 				LibraryUtil.findExtensions(ServletContainerInitializerProvider.class).stream()
@@ -262,7 +261,7 @@ public class NSFJakartaModule extends ComponentModule {
 				NotesThread.stermThread();
 			}
 		} finally {
-			this.initPhase.arriveAndDeregister();
+			this.initLock.writeLock().unlock();
 		}
 	}
 	
@@ -373,12 +372,12 @@ public class NSFJakartaModule extends ComponentModule {
 		
 		try {
 			// TODO consider making this value configurable
-			this.initPhase.awaitAdvanceInterruptibly(this.initPhase.arrive(), 5, TimeUnit.MINUTES);
-		} catch(TimeoutException e) {
-			if(log.isLoggable(Level.WARNING)) {
-				log.warning(MessageFormat.format("Request for {0} in {1} timed out waiting for initialization", pathInfo, this));
+			if(!this.initLock.readLock().tryLock(5, TimeUnit.MINUTES)) {
+				if(log.isLoggable(Level.WARNING)) {
+					log.warning(MessageFormat.format("Request for {0} in {1} timed out waiting for initialization", pathInfo, this));
+				}
+				return;
 			}
-			return;
 		} catch (InterruptedException e) {
 			if(log.isLoggable(Level.WARNING)) {
 				log.warning(MessageFormat.format("Request for {0} in {1} interrupted waiting for initialization", pathInfo, this));
@@ -386,11 +385,11 @@ public class NSFJakartaModule extends ComponentModule {
 			return;
 		}
 		
-		if(!this.initialized) {
-			throw new IllegalStateException(MessageFormat.format("Module {0} was not properly initialized", this));
-		}
-		
 		try {
+			if(!this.initialized) {
+				throw new IllegalStateException(MessageFormat.format("Module {0} was not properly initialized", this));
+			}
+			
 			super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
 		} catch(PageNotFoundException e) {
 			if(pathInfo.isEmpty() || "/".equals(pathInfo)) { //$NON-NLS-1$
@@ -403,6 +402,8 @@ public class NSFJakartaModule extends ComponentModule {
 				}
 			}
 			throw e;
+		} finally {
+			this.initLock.readLock().unlock();
 		}
 	}
 
@@ -462,9 +463,14 @@ public class NSFJakartaModule extends ComponentModule {
 		if(log.isLoggable(Level.FINE)) {
 			log.fine(MessageFormat.format("Refreshing module {0}", this));
 		}
-		doDestroyModule();
-		doInitModule();
-		return true;
+		this.initLock.writeLock().lock();
+		try {
+			doDestroyModule();
+			doInitModule();
+			return true;
+		} finally {
+			this.initLock.writeLock().unlock();
+		}
 	}
 	
 	@Override
