@@ -128,7 +128,7 @@ public class RestServletFactory implements JakartaIServletFactory {
 			params.put(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX, getServletPath(module));
 			params.put("resteasy.use.deployment.sensitive.factory", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
-			servlet = module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new JakartaRestServlet(module)), "XSP JAX-RS Servlet", params); //$NON-NLS-1$
+			servlet = module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new JakartaRestServlet(module)), "Jakarta REST Servlet", params); //$NON-NLS-1$
 			lastUpdate = this.module.getLastRefresh();
 		}
 		return servlet;
