@@ -31,7 +31,7 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<xsp-stubs-version>1.1.0-SNAPSHOT</xsp-stubs-version>
+		<xsp-stubs-version>1.1.0</xsp-stubs-version>
 	</properties>
 	
 	<build>
