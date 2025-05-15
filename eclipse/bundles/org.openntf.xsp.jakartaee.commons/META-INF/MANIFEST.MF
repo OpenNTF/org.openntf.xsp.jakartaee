@@ -6,10 +6,8 @@ Automatic-Module-Name: org.openntf.xsp.jakartaee.commons
 Bundle-Version: 3.4.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: com.ibm.pvc.servlet;bundle-version="2.5.0",
- com.ibm.domino.xsp.adapter;bundle-version="12.0.2";visibility:=reexport,
- com.ibm.designer.lib.jsf;bundle-version="9.0.0",
- com.ibm.xsp.designer;bundle-version="9.0.1",
+Require-Bundle: com.ibm.domino.xsp.adapter;visibility:=reexport,
+ com.ibm.xsp.designer,
  org.openntf.xsp.jakartaee.osgiresourcelocator;bundle-version="2.6.0";visibility:=reexport,
  jakarta.activation-api;bundle-version="2.0.0";visibility:=reexport,
  org.openntf.org.eclipse.angus.jakarta.mail;bundle-version="1.0.0";visibility:=reexport,
@@ -44,6 +42,9 @@ Import-Package: com.ibm.commons.extension,
  jakarta.servlet.http;version="5.0.0",
  jakarta.xml.bind;version="3.0.0",
  javassist;version="3.0.0",
+ javax.faces.context,
+ javax.servlet;version="[2.4.0,3.0.0)",
+ javax.servlet.http;version="[2.4.0,3.0.0)",
  lotus.domino,
  org.apache.tomcat.util.descriptor.web;version="9.0.0",
  org.eclipse.core.runtime;version="3.5.0",

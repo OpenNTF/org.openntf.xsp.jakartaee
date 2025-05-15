@@ -35,9 +35,7 @@ public class JakartaCoreLibrary extends AbstractXspLibrary {
 
 	@Override
 	public String[] getDependencies() {
-		return new String[] {
-			CoreLibrary.LIBRARY_ID
-		};
+		return CoreLibrary.DEPEND_ON_CORE;
 	}
 
 	@Override
