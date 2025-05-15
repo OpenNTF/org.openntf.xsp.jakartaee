@@ -112,16 +112,18 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>4.0.12</tycho-version>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
+		
+		<tycho-version>4.0.12</tycho-version>
+		<xsp-bundles-range>0.0.0</xsp-bundles-range>
 	</properties>
 
 	<repositories>
 		<repository>
-			<id>notes</id>
+			<id>xsp-deps</id>
 			<layout>p2</layout>
-			<url>${notes-platform145}</url>
+			<url>${notes-platform14}</url>
 		</repository>
 		<repository>
 			<id>osgi-deps</id>
@@ -142,15 +144,6 @@
 			<url>https://artifactory.openntf.org/openntf</url>
 		</pluginRepository>
     </pluginRepositories>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.openntf.domino</groupId>
-			<artifactId>org.openntf.domino.java.api.corba.patch</artifactId>
-			<version>1.0.0</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
 
 	<build>
 		<plugins>
@@ -232,7 +225,6 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
 					<executionEnvironment>JavaSE-17</executionEnvironment>
-					<pomDependencies>consider</pomDependencies>
 					<dependency-resolution>
 						<extraRequirements>
 							<requirement>
@@ -242,13 +234,25 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
-								<id>org.openntf.domino.java.api.corba.patch</id>
+								<id>com.ibm.domino.napi.impl</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.core.runtime</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.core.runtime</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
-								<id>com.ibm.domino.napi.impl</id>
-								<versionRange>0.0.0</versionRange>
+								<id>com.ibm.xsp.core</id>
+								<versionRange>${xsp-bundles-range}</versionRange>
 							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
@@ -320,7 +324,7 @@
 									<version>3.0.1</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
-									<version>21</version>
+									<version>17</version>
 								</requireJavaVersion>
 							</rules>
 						</configuration>
@@ -502,6 +506,20 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		
+		<profile>
+			<id>xsp-build-stubs</id>
+			<activation>
+				<property>
+					<name>!notes-platform14</name>
+				</property>
+			</activation>
+			
+			<properties>				
+				<xsp-bundles-range>[1.0.0,2.0.0)</xsp-bundles-range>
+				<notes-platform14>${project.baseUri}../../../xsp-deps/target/repository</notes-platform14>
+			</properties>
 		</profile>
 	</profiles>
 </project>

@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.openntf.xsp</groupId>
+	<artifactId>xspcdi-xsp-deps</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	
+	<description>
+		This project exists to generate a local p2 site for use as part of the OSGi
+		target platform during compilation, containing XPages build stubs
+	</description>
+	
+	
+	<repositories>
+		<repository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+		</pluginRepository>
+	</pluginRepositories>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<xsp-stubs-version>1.1.0-SNAPSHOT</xsp-stubs-version>
+	</properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+			    <groupId>org.openntf.maven</groupId>
+				<artifactId>p2-maven-plugin</artifactId>
+				<version>3.0.0</version>
+				<extensions>true</extensions>
+				
+				<executions>
+					<execution>
+						<id>generate-p2-site</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<!-- Compatible implementations -->
+								<artifact><id>org.eclipse.platform:org.eclipse.core.runtime:3.24.0</id></artifact>
+								<artifact><id>com.ibm.sbt:com.ibm.commons:9.0.0</id></artifact>
+								<artifact><id>com.hcl.domino:NCSO:12.0.2</id></artifact>
+								<!-- Package to look enough like Domino's version -->
+								<artifact>
+									<id>org.mnode.ical4j:ical4j:4.1.1</id>
+									<source>true</source>
+									<override>true</override>
+									<instructions>
+										<Bundle-SymbolicName>net.fortuna.ical4j</Bundle-SymbolicName>
+									</instructions>
+								</artifact>
+								
+								<!-- XPages stubs -->
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.pvc.jndi.provider.java:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.pvc.servlet:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.napi:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.xsp.bootstrap:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.xsp.bridge.http:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.core:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.extsn:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.designer:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.domino:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.extlib.core:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.extlib.controls:${xsp-stubs-version}</id></artifact>
+								
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>3.0.0-M1</version>
+				<executions>
+					<execution>
+						<id>enforce-maven-and-java</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>3.0.1</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>17</version>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
