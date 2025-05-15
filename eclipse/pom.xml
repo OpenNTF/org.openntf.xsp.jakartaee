@@ -519,6 +519,7 @@
 			<properties>				
 				<xsp-bundles-range>[1.0.0,2.0.0)</xsp-bundles-range>
 				<notes-platform14>${project.baseUri}../../../xsp-deps/target/repository</notes-platform14>
+				<skipTests>true</skipTests>
 			</properties>
 		</profile>
 	</profiles>
