@@ -17,7 +17,6 @@ package org.openntf.xsp.jakartaee.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
@@ -37,7 +36,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 
@@ -66,7 +64,7 @@ import jakarta.servlet.descriptor.TaglibDescriptor;
 class OldServletContextWrapper implements ServletContext {
 	private static final String UNAVAILABLE_MESSAGE = "Unable to call method on Servlet 2.5 delegate"; //$NON-NLS-1$
 	final javax.servlet.ServletContext delegate;
-	private final String contextPath;
+	private String contextPath;
 	private int majorVersion = 2;
 	private int minorVersion = 5;
 	private ClassLoader classLoader;
@@ -200,6 +198,17 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public String getContextPath() {
+		String contextPath = this.contextPath;
+		if(contextPath == null) {
+			// We might have an active context path - if so, use that
+			contextPath = ComponentModuleLocator.getDefault()
+				.flatMap(ComponentModuleLocator::getServletContext)
+				.map(ServletContext::getContextPath)
+				.orElse(null);
+			if(contextPath != null) {
+				this.contextPath = contextPath;
+			}
+		}
 		return Objects.requireNonNull(contextPath, "Context path requested but not initialized");
 	}
 
@@ -319,8 +328,8 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public String getRealPath(final String arg0) {
-		return delegate.getRealPath(arg0);
+	public String getRealPath(final String path) {
+		return delegate.getRealPath(path);
 	}
 
 	@Override
@@ -566,23 +575,9 @@ class OldServletContextWrapper implements ServletContext {
 		return new UnsupportedOperationException(UNAVAILABLE_MESSAGE);
 	}
 
-	private List<IServletFactory> getServletFactories() {
+	private Collection<? extends IServletFactory> getServletFactories() {
 		return ComponentModuleLocator.getDefault()
-			.map(ComponentModuleLocator::getActiveModule)
-			.map(module -> AccessController.doPrivileged((PrivilegedAction<List<IServletFactory>>)() -> {
-				try {
-					Field servletFactoriesField = ComponentModule.class.getDeclaredField("servletFactories"); //$NON-NLS-1$
-					servletFactoriesField.setAccessible(true);
-					List<IServletFactory> factories = (List<IServletFactory>) servletFactoriesField.get(module);
-					if(factories != null) {
-						return factories;
-					} else {
-						return Collections.emptyList();
-					}
-				} catch(Exception e) {
-					throw new RuntimeException(e);
-				}
-			}))
+			.map(ComponentModuleLocator::getServletFactories)
 			.orElseGet(Collections::emptyList);
 	}
 

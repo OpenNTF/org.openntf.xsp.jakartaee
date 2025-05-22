@@ -6,9 +6,10 @@ Automatic-Module-Name: org.openntf.xsp.jakartaee.osgiresourcelocator
 Bundle-Version: 3.4.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Export-Package: org.glassfish.hk2.osgiresourcelocator
-Import-Package: com.ibm.designer.runtime.domino.adapter,
- com.ibm.domino.xsp.module.nsf,
+Export-Package: org.glassfish.hk2.osgiresourcelocator,
+ org.openntf.xsp.jakartaee.osgiresourceloader;version="3.4.0"
+Import-Package: com.ibm.commons.extension,
+ com.ibm.designer.runtime.domino.adapter,
  jakarta.annotation;version="2.1.0",
  org.osgi.framework;version="1.8.0"
 Bundle-ActivationPolicy: lazy

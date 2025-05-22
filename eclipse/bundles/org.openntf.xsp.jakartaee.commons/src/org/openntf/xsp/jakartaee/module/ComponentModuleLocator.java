@@ -15,11 +15,18 @@
  */
 package org.openntf.xsp.jakartaee.module;
 
+import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
@@ -152,4 +159,22 @@ public interface ComponentModuleLocator {
 	 * @since 2.10.0
 	 */
 	Optional<Session> getSessionAsSignerWithFullAccess();
+	
+	default Collection<? extends IServletFactory> getServletFactories() {
+		return AccessController.doPrivileged((PrivilegedAction<List<IServletFactory>>)() -> {
+			try {
+				Field servletFactoriesField = ComponentModule.class.getDeclaredField("servletFactories"); //$NON-NLS-1$
+				servletFactoriesField.setAccessible(true);
+				@SuppressWarnings("unchecked")
+				List<IServletFactory> factories = (List<IServletFactory>) servletFactoriesField.get(getActiveModule());
+				if(factories != null) {
+					return factories;
+				} else {
+					return Collections.emptyList();
+				}
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+	}
 }

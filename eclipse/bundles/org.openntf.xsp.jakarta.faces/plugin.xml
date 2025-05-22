@@ -35,4 +35,12 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="jakarta.servlet.ServletContextListener" class="org.openntf.xsp.jakarta.faces.JsfServletContextListener" />
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider" class="org.openntf.xsp.jakarta.faces.JsfServletContainerInitializerProvider" />
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.module.ModuleClassLoaderExtender" class="org.openntf.xsp.jakarta.faces.module.FacesModuleClassLoaderExtender" />
+	</extension>
+	
 </plugin>

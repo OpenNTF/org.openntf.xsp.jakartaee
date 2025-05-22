@@ -331,24 +331,25 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
-
-			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.getString("unid"));
-			
-			assertEquals("I am outer title", jsonObject.getString("title"));
-			assertEquals("<p>I am body HTML</p>", jsonObject.getString("body"));
 			try {
+				JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+				
+				assertEquals(unid, jsonObject.getString("unid"));
+				
+				assertEquals("I am outer title", jsonObject.getString("title"));
+				assertEquals("<p>I am body HTML</p>", jsonObject.getString("body"));
+				
 				JsonObject jsonGuy = jsonObject.getJsonObject("jsonpGuy");
 				assertEquals(jsonpGuy, jsonGuy);
-			} catch(ClassCastException e) {
+
+				// Make sure all the types are what we'd expect
+				String dxl = jsonObject.getString("dxl");
+				assertNotNull(dxl);
+				assertFalse(dxl.isEmpty());
+			} catch(Exception e) {
 				fail("Received unexpected JSON: " + json, e);
 			}
-
-			// Make sure all the types are what we'd expect
-			String dxl = jsonObject.getString("dxl");
-			assertNotNull(dxl);
-			assertFalse(dxl.isEmpty());
 		}
 	}
 	

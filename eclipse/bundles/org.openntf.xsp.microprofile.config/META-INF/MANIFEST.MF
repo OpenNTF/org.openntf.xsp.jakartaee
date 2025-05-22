@@ -6,8 +6,7 @@ Automatic-Module-Name: org.openntf.xsp.microprofile.config
 Bundle-Version: 3.4.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
- org.openntf.org.eclipse.microprofile.config;bundle-version="3.0.0";visibility:=reexport,
+Require-Bundle: org.openntf.org.eclipse.microprofile.config;bundle-version="3.0.0";visibility:=reexport,
  io.smallrye.config.smallrye-config;bundle-version="3.0.0",
  io.smallrye.config.smallrye-config-common;bundle-version="3.0.0",
  io.smallrye.config.smallrye-config-core;bundle-version="3.0.0",
@@ -16,7 +15,6 @@ Import-Package: com.ibm.commons.util,
  com.ibm.designer.runtime.domino.adapter,
  com.ibm.domino.napi,
  com.ibm.domino.napi.c,
- com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.application,
  com.ibm.xsp.library,
  jakarta.annotation;version="2.0.0",

@@ -15,9 +15,12 @@
  */
 package org.openntf.xsp.jakartaee.module;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+
+import jakarta.servlet.ServletConfig;
 
 /**
  * This service interface represents a processor able to handle common operations
@@ -34,5 +37,37 @@ public interface ComponentModuleProcessor<T extends ComponentModule> {
 
 	default String getModuleId(final T module) {
 		return Integer.toHexString(System.identityHashCode(module));
+	}
+	
+	default String getXspPrefix(final T module) {
+		return ""; //$NON-NLS-1$
+	}
+	
+	default boolean isJakartaModule(final T module) {
+		return false;
+	}
+	
+	default boolean hasXPages(final T module) {
+		return false;
+	}
+	
+	default boolean emulateServletEvents(final T module) {
+		return true;
+	}
+	
+	default Optional<javax.servlet.Servlet> initXPagesServlet(final T module, final ServletConfig servletConfig) {
+		return Optional.empty();
+	}
+	
+	default void initializeSessionAsSigner(final T module) {
+		// NOP
+	}
+	
+	default boolean usesBundleClassLoader(final T module) {
+		return false;
+	}
+	
+	default boolean hasImplicitCdi(final T module) {
+		return false;
 	}
 }

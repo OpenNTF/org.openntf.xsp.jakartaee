@@ -25,7 +25,6 @@ import com.ibm.commons.util.StringUtil;
 import org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
 
 import jakarta.enterprise.inject.spi.CDI;
@@ -51,17 +50,6 @@ public class DominoCDIProvider implements CDIProvider {
 				if(container != null) {
 					return (CDI<Object>)container;
 				}
-
-				String nsfPath = locator.getNsfPath();
-				if(StringUtil.isNotEmpty(nsfPath)) {
-					container = ModuleUtil.getComponentModule(nsfPath)
-						.map(ContainerUtil::getContainer)
-						.orElse(null);
-					if(container != null) {
-						return (CDI<Object>)container;
-					}
-				}
-
 
 				String bundleId = locator.getBundleId();
 				if(StringUtil.isNotEmpty(bundleId)) {

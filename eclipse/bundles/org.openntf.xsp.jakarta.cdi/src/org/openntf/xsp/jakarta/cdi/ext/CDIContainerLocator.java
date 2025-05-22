@@ -26,16 +26,6 @@ public interface CDIContainerLocator {
 	static final String EXTENSION_POINT = CDIContainerLocator.class.getName();
 
 	/**
-	 * Indicates that the CDI container should be loaded based on the configuration
-	 * of the provided NSF.
-	 *
-	 * @return an API path to an NSF, or {@code null} to skip providing this information
-	 */
-	default String getNsfPath() {
-		return null;
-	}
-
-	/**
 	 * Indicates that the CDI container should be loaded based on a given OSGi bundle.
 	 *
 	 * @return a symbolic name of a bundle, or {@code null} to skip providing this information

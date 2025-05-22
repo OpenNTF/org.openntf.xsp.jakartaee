@@ -627,7 +627,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					// Special handling here for RT -> HTML
 					String html = ((RichTextItem)item).convertToHTML(DominoConstants.HTML_CONVERSION_OPTIONS);
 					docMap.put(itemName, html);
-				} else if(item.getType() == Item.MIME_PART) {
+				} else if(item.getType() == DominoConstants.TYPE_MIME_PART) {
 					MIMEEntity entity = doc.getMIMEEntity(itemName);
 
 					// See if this is expected to be MIMEBean
@@ -1047,7 +1047,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							item.setEncrypted(itemFlags.encrypted());
 							item.setProtected(itemFlags.protectedItem());
 							item.setSigned(itemFlags.signed());
-							if(!(item instanceof RichTextItem) && item.getType() != Item.MIME_PART) {
+							if(!(item instanceof RichTextItem) && item.getType() != DominoConstants.TYPE_MIME_PART) {
 								item.setSummary(itemFlags.summary());
 							}
 							item.setSaveToDisk(itemFlags.saveToDisk());

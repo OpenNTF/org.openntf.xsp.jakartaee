@@ -19,8 +19,7 @@ import java.security.ProtectionDomain;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.ibm.domino.xsp.module.nsf.ModuleClassLoader;
+import com.ibm.commons.extension.ExtensionManager.ApplicationClassLoader;
 
 import org.jboss.weld.bean.proxy.util.WeldDefaultProxyServices;
 
@@ -42,7 +41,7 @@ public class NSFProxyServices extends WeldDefaultProxyServices {
 	public Class<?> defineClass(final Class<?> originalClass, final String className, final byte[] classBytes, final int off, final int len)
 			throws ClassFormatError {
 		Class<?> result = super.defineClass(originalClass, className, classBytes, off, len);
-		if(result != null && !(originalClass.getClassLoader() instanceof ModuleClassLoader)) {
+		if(result != null && !(originalClass.getClassLoader() instanceof ApplicationClassLoader)) {
 			classCache.put(className + originalClass.hashCode(), result);
 		}
 		return result;
@@ -52,7 +51,7 @@ public class NSFProxyServices extends WeldDefaultProxyServices {
 	public Class<?> defineClass(final Class<?> originalClass, final String className, final byte[] classBytes, final int off, final int len,
 			final ProtectionDomain protectionDomain) throws ClassFormatError {
 		Class<?> result = super.defineClass(originalClass, className, classBytes, off, len, protectionDomain);
-		if(result != null && !(originalClass.getClassLoader() instanceof ModuleClassLoader)) {
+		if(result != null && !(originalClass.getClassLoader() instanceof ApplicationClassLoader)) {
 			classCache.put(className + originalClass.hashCode(), result);
 		}
 		return result;

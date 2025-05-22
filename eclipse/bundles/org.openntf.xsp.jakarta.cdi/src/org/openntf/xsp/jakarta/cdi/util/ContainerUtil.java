@@ -36,7 +36,6 @@ import java.util.logging.Logger;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.xsp.adapter.osgi.AbstractOSGIModule;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
@@ -235,7 +234,7 @@ public enum ContainerUtil {
 	public static CDI<Object> getContainer(final ComponentModule module) {
 		// OSGi Servlets use their containing bundle, and we have to assume
 		//   that it's from the current thread
-		if(module instanceof AbstractOSGIModule) {
+		if(ModuleUtil.usesBundleClassLoader(module)) {
 
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();
 			Optional<Bundle> bundle = DiscoveryUtil.getBundleForClassLoader(cl);
@@ -244,23 +243,29 @@ public enum ContainerUtil {
 			}
 		}
 
+		boolean doEvents = ModuleUtil.emulateServletEvents(module);
 		long refresh = module.getLastRefresh();
 
 		Map<String, Object> attributes = module.getAttributes();
 		if(attributes != null) {
 			WeldContainer existing = (WeldContainer)attributes.get(ATTR_CONTEXTCONTAINER);
 			if(existing != null && existing.isRunning()) {
-				Long lastRefresh = ID_REFRESH_CACHE.get(existing.getId());
-				if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
-					existing.close();
+				if(doEvents) {
+					Long lastRefresh = ID_REFRESH_CACHE.get(existing.getId());
+					if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
+						existing.close();
+					} else {
+						return existing;
+					}
 				} else {
+					// Otherwise, assume the module handles CDI expiration
 					return existing;
 				}
 			}
 		}
 
 
-		if(module instanceof AbstractOSGIModule || LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module)) {
+		if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module) || ModuleUtil.hasImplicitCdi(module)) {
 			String bundleId = getApplicationCDIBundle(module);
 			if(StringUtil.isNotEmpty(bundleId)) {
 				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
@@ -270,16 +275,18 @@ public enum ContainerUtil {
 			}
 
 			String id = ModuleUtil.getModuleId(module);
-
+			
 			return withLock(id, () -> {
 				WeldContainer instance = WeldContainer.instance(id);
 
-				// If the instance exists, we may have to invalidate it from an
-				//   app refresh
-				if(instance != null && instance.isRunning()) {
-					Long lastRefresh = ID_REFRESH_CACHE.get(id);
-					if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
-						instance.close();
+				if(doEvents) {
+					// If the instance exists, we may have to invalidate it from an
+					//   app refresh
+					if(instance != null && instance.isRunning()) {
+						Long lastRefresh = ID_REFRESH_CACHE.get(id);
+						if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
+							instance.close();
+						}
 					}
 				}
 
@@ -315,8 +322,6 @@ public enum ContainerUtil {
 
 					Weld fweld = weld;
 					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
-						// Special case for using an ComponentModule when there's no available NotesContext,
-						//   such as when the first request in is a service
 
 						for(Extension extension : LibraryUtil.findExtensions(Extension.class, module)) {
 							fweld.addExtension(extension);

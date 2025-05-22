@@ -20,7 +20,7 @@
 <plugin>
 	<!-- The REST servlet factory -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jakarta.rest.RestServletFactory" />
+		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jakarta.rest.nsf.RestServletFactory" />
 	</extension>
 	
 	<!-- Standard extension to provide security information -->

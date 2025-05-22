@@ -91,6 +91,9 @@ public class PagesServletFactory extends MappingBasedServletFactory {
 				if(StringUtil.isEmpty(moduleName)) {
 					moduleName = Integer.toString(System.identityHashCode(module));
 				}
+				moduleName = moduleName.replace('/', '_')
+					.replace('\\', '_')
+					.replace(' ', '_');
 				tempDir = tempDir.resolve(moduleName);
 				Files.createDirectories(tempDir);
 				params.put("scratchdir", tempDir.toString()); //$NON-NLS-1$

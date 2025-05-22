@@ -21,6 +21,7 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -29,16 +30,13 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import javax.servlet.ServletException;
-
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
-import com.ibm.domino.xsp.module.nsf.NSFService;
 
 import org.openntf.xsp.jakartaee.module.ComponentModuleProcessor;
 import org.osgi.framework.Bundle;
 
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.annotation.HandlesTypes;
 
 /**
@@ -65,10 +63,7 @@ public enum ModuleUtil {
 		if(module == null) {
 			return Stream.empty();
 		} else {
-			return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-				.stream()
-				.filter(proc -> proc.canProcess(module))
-				.findFirst()
+			return getProcessor(module)
 				.map(proc -> proc.getClassNames(module))
 				.orElseGet(() -> {
 					if(log.isLoggable(Level.WARNING)) {
@@ -122,10 +117,7 @@ public enum ModuleUtil {
 		if(module == null) {
 			return Stream.empty();
 		} else {
-			return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-				.stream()
-				.filter(proc -> proc.canProcess(module))
-				.findFirst()
+			return getProcessor(module)
 				.map(proc -> proc.listFiles(module, basePath))
 				.orElseGet(() -> {
 					if(log.isLoggable(Level.WARNING)) {
@@ -148,16 +140,82 @@ public enum ModuleUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static String getModuleId(final ComponentModule module) {
-		if(module == null) {
-			throw new NullPointerException("module cannot be null");
-		} else {
-			return LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
-				.stream()
-				.filter(proc -> proc.canProcess(module))
-				.findFirst()
-				.map(proc -> proc.getModuleId(module))
-				.orElseGet(() -> Integer.toHexString(System.identityHashCode(module)));
-		}
+		return getProcessor(module)
+			.map(proc -> proc.getModuleId(module))
+			.orElseGet(() -> Integer.toHexString(System.identityHashCode(module)));
+	}
+	
+	/**
+	 * Determines the expected "forced" prefix for URLs that are routed
+	 * to the Jakarta-ready domain.
+	 * 
+	 * @param module the module to check
+	 * @return the forced prefix if applicable, or an empty string if not
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static String getXspPrefix(final ComponentModule module) {
+		return getProcessor(module)
+			.map(proc -> proc.getXspPrefix(module))
+			.orElse(""); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Determines whether the provided module is expected to process XPage requests.
+	 * 
+	 * @param module the module to check
+	 * @return the {@code true} if the module has an XPages Servlet; {@code false} otherwise
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean hasXPages(final ComponentModule module) {
+		return getProcessor(module)
+			.map(proc -> proc.hasXPages(module))
+			.orElse(false);
+	}
+	
+	/**
+	 * Determines whether the provided module requires emulation of Servlet events.
+	 * 
+	 * @param module the module to check
+	 * @return the {@code true} if requires event emulation; {@code false} otherwise
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean emulateServletEvents(final ComponentModule module) {
+		return getProcessor(module)
+			.map(proc -> proc.emulateServletEvents(module))
+			.orElse(false);
+	}
+	
+	/**
+	 * Attempts to initialize the XPages FacesServlet for the given module.
+	 * 
+	 * <p>This should only be called if {@link #hasXPages(ComponentModule)} returns
+	 * {@code true}.</p>
+	 * 
+	 * @param module the module to initialize
+	 * @return an {@link Optional} describing the Servlet if initialized; otherwise,
+	 *         an empty one
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static Optional<javax.servlet.Servlet> initXPagesServlet(final ComponentModule module, final ServletConfig servletConfig) {
+		return getProcessor(module)
+			.map(proc -> proc.initXPagesServlet(module, servletConfig))
+			.orElseGet(Optional::empty);
+	}
+	
+	/**
+	 * Attempts to initialize the sessionAsSigner variable if needed for the module.
+	 * 
+	 * @param module the module to initialize
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static void initializeSessionAsSigner(final ComponentModule module) {
+		getProcessor(module)
+			.ifPresent(proc -> proc.initializeSessionAsSigner(module));
 	}
 
 	/**
@@ -230,28 +288,68 @@ public enum ModuleUtil {
 			return null;
 		}
 	}
-
+	
 	/**
-	 * Attempts to find or load the {@link ComponentModule} for the given
-	 * NSF path.
-	 *
-	 * @param nsfPath the NSF path to load, e.g. {@code "foo/bar.nsf"}
-	 * @return an {@link Optional} describing the {@link ComponentModule}
-	 *         if available, or an empty one if there is no such NSF
-	 * @since 2.13.0
+	 * Removes any leading slash from the provided path.
+	 * 
+	 * @param path the path to trim
+	 * @return the trimmed path
+	 * @since 3.4.0
 	 */
-	public static Optional<ComponentModule> getComponentModule(final String nsfPath) {
-		LCDEnvironment lcd = LCDEnvironment.getInstance();
-		NSFService nsfService = lcd.getServices().stream()
-			.filter(NSFService.class::isInstance)
-			.map(NSFService.class::cast)
-			.findFirst()
-			.orElseThrow(() -> new IllegalStateException("Unable to locate active NSFService"));
-		try {
-			return Optional.ofNullable(nsfService.loadModule(nsfPath));
-		} catch(ServletException e) {
-			throw new RuntimeException(e);
+	public static String trimResourcePath(String path) {
+		if(path == null) {
+			return null;
+		} else if(path.length() > 1 && path.startsWith("/")) { //$NON-NLS-1$
+			return path.substring(1);
+		} else {
+			return path;
 		}
 	}
+	
+	/**
+	 * Determines whether the provided module is expected to use a related
+	 * bundle from the thread ClassLoader rather than its own provided
+	 * ClassLoader (i.e. an OSGi Servlet).
+	 * 
+	 * @param module the module to check
+	 * @return {@code true} if the module should use a Bundle context;
+	 *         {@code false} otherwise
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean usesBundleClassLoader(ComponentModule module) {
+		return getProcessor(module)
+			.map(proc -> proc.usesBundleClassLoader(module))
+			.orElse(false);
+	}
+	
+	/**
+	 * Determines whether the provided module should implicitly use CDI
+	 * (i.e. an OSGi Webapp).
+	 *  
+	 * @param module the module to check
+	 * @return {@code true} if the module should use CDI regardless of settings;
+	 *         {@code false} otherwise
+	 * @since 3.4.0
+	 */
+	@SuppressWarnings("unchecked")
+	public static boolean hasImplicitCdi(ComponentModule module) {
+		return getProcessor(module)
+			.map(proc -> proc.hasImplicitCdi(module))
+			.orElse(false);
+	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static Optional<ComponentModuleProcessor> getProcessor(ComponentModule module) {
+		Objects.requireNonNull(module, "module cannot be null");
+		
+		Map<String, Object> attrs = module.getAttributes();
+		String key = ComponentModuleProcessor.class.getName();
+		return (Optional<ComponentModuleProcessor>)LibraryUtil.computeIfAbsent(attrs, key, k -> 
+			LibraryUtil.findExtensionsSorted(ComponentModuleProcessor.class, false)
+				.stream()
+				.filter(proc -> proc.canProcess(module))
+				.findFirst()
+		);
+	}
 }

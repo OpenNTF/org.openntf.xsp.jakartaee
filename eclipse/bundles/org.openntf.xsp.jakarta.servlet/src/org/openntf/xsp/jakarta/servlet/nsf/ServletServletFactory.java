@@ -29,12 +29,12 @@ import java.util.regex.Pattern;
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 
 import org.apache.tomcat.util.descriptor.web.ServletDef;
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.jakarta.cdi.util.DiscoveryUtil;
+import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
@@ -50,7 +50,7 @@ import jakarta.servlet.annotation.WebServlet;
  * @author Jesse Gallagher
  * @since 2.5.0
  */
-public class ServletServletFactory implements IServletFactory {
+public class ServletServletFactory implements JakartaIServletFactory {
 	private static final Logger log = Logger.getLogger(ServletServletFactory.class.getName());
 
 	private ComponentModule module;
@@ -79,6 +79,10 @@ public class ServletServletFactory implements IServletFactory {
 			}
 		} catch (UncheckedIOException e) {
 			throw new javax.servlet.ServletException(e);
+		} catch(Throwable t) {
+			if(log.isLoggable(Level.SEVERE)) {
+				log.log(Level.SEVERE, MessageFormat.format("Encountered unexpected exception finding Servlet match for {0} in {1}", path, module), t);
+			}
 		}
 		return null;
 	}
@@ -87,7 +91,8 @@ public class ServletServletFactory implements IServletFactory {
 		// Context path is like /some/db.nsf
 		// Path is like /xsp/someservlet (no query string)
 
-		if(path == null || path.length() < 5) {
+		String xspPrefix = ModuleUtil.getXspPrefix(module);
+		if(path == null || path.length() < xspPrefix.length()+1) {
 			return null;
 		}
 
@@ -102,7 +107,7 @@ public class ServletServletFactory implements IServletFactory {
 					} else if(pattern.endsWith("/*")) { //$NON-NLS-1$
 						// Path-matching pattern
 						String prefix = pattern.substring(0, pattern.length()-2);
-						String effectivePrefix = PathUtil.concat("/xsp", prefix, '/'); //$NON-NLS-1$
+						String effectivePrefix = PathUtil.concat(xspPrefix, prefix, '/');
 						if(path.startsWith(effectivePrefix)) {
 							return pattern;
 						}
@@ -114,7 +119,7 @@ public class ServletServletFactory implements IServletFactory {
 						}
 					} else {
 						// Exact match pattern
-						String effectivePath = PathUtil.concat("/xsp", pattern, '/'); //$NON-NLS-1$
+						String effectivePath = PathUtil.concat(xspPrefix, pattern, '/');
 						if(path.equals(effectivePath)) {
 							return pattern;
 						}
@@ -127,10 +132,11 @@ public class ServletServletFactory implements IServletFactory {
 	}
 
 	private String findPathInfo(final String path, final String pattern) {
+		String xspPrefix = ModuleUtil.getXspPrefix(module);
 		if(pattern.endsWith("/*")) { //$NON-NLS-1$
 			// Path-matching pattern
 			String prefix = pattern.substring(0, pattern.length()-2);
-			String effectivePrefix = PathUtil.concat("/xsp", prefix, '/'); //$NON-NLS-1$
+			String effectivePrefix = PathUtil.concat(xspPrefix, prefix, '/');
 			if(path.startsWith(effectivePrefix)) {
 				return path.substring(effectivePrefix.length());
 			}
@@ -155,11 +161,13 @@ public class ServletServletFactory implements IServletFactory {
 				} else {
 					delegate = c.getConstructor().newInstance();
 				}
-				Servlet wrapper = new XspServletWrapper(module, delegate);
+				if(ModuleUtil.hasXPages(module)) {
+					delegate = new XspServletWrapper(module, delegate);
+				}
 
 				Map<String, String> params = mapping.def.getParameterMap();
 
-				return module.createServlet(ServletUtil.newToOld(wrapper), mapping.def.getServletName(), params);
+				return module.createServlet(ServletUtil.newToOld(delegate), mapping.def.getServletName(), params);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -188,9 +196,7 @@ public class ServletServletFactory implements IServletFactory {
 
 				Map<String, ServletDef> defs = webXml.getServlets();
 				nameToPattern.forEach((name, patterns) -> {
-					ServletInfo info = new ServletInfo();
-					info.def = defs.get(name);
-					info.patterns = patterns;
+					ServletInfo info = new ServletInfo(defs.get(name), patterns);
 
 					try {
 						result.put(info, (Class<? extends Servlet>)cl.loadClass(info.def.getServletClass()));
@@ -242,19 +248,13 @@ public class ServletServletFactory implements IServletFactory {
 			def.addInitParameter(param.name(), param.value());
 		}
 
-		ServletInfo info = new ServletInfo();
-		info.def = def;
 		String[] patterns = annotation.value();
 		if(patterns == null || patterns.length == 0) {
 			patterns = annotation.urlPatterns();
 		}
-		info.patterns = new ArrayList<>(Arrays.asList(patterns));
-		return info;
+		return new ServletInfo(def, List.of(patterns));
 	}
 
-	private static class ServletInfo {
-		private ServletDef def;
-		private List<String> patterns;
-	}
+	private record ServletInfo(ServletDef def, List<String> patterns) {}
 
 }

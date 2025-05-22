@@ -86,6 +86,11 @@
  		<module>bundles/org.openntf.xsp.jakartaee.core.library</module>
  		<module>bundles/org.openntf.xsp.jakartaee.ui.library</module>
  		<module>bundles/org.openntf.xsp.microprofile.library</module>
+ 		
+ 		<!-- Component Modules -->
+ 		<module>bundles/org.openntf.xsp.jakartaee.module.xspnsf</module>
+ 		<module>bundles/org.openntf.xsp.jakartaee.module.osgi</module>
+ 		<module>bundles/org.openntf.xsp.jakartaee.module.jakartansf</module>
 		
 		<!-- Integration test support and examples -->
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
@@ -107,14 +112,16 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>3.0.5</tycho-version>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
+		
+		<tycho-version>4.0.12</tycho-version>
+		<xsp-bundles-range>0.0.0</xsp-bundles-range>
 	</properties>
 
 	<repositories>
 		<repository>
-			<id>notes</id>
+			<id>xsp-deps</id>
 			<layout>p2</layout>
 			<url>${notes-platform14}</url>
 		</repository>
@@ -137,15 +144,6 @@
 			<url>https://artifactory.openntf.org/openntf</url>
 		</pluginRepository>
     </pluginRepositories>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.openntf.domino</groupId>
-			<artifactId>org.openntf.domino.java.api.corba.patch</artifactId>
-			<version>1.0.0</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
 
 	<build>
 		<plugins>
@@ -227,7 +225,6 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
 					<executionEnvironment>JavaSE-17</executionEnvironment>
-					<pomDependencies>consider</pomDependencies>
 					<dependency-resolution>
 						<extraRequirements>
 							<requirement>
@@ -237,45 +234,28 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
-								<id>org.openntf.domino.java.api.corba.patch</id>
+								<id>com.ibm.domino.napi.impl</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.core.runtime</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.core.runtime</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
-								<id>com.ibm.domino.napi.impl</id>
-								<versionRange>0.0.0</versionRange>
+								<id>com.ibm.xsp.core</id>
+								<versionRange>${xsp-bundles-range}</versionRange>
 							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
-
-					<environments>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86_64</arch>
-						</environment>
-					</environments>
-					<resolver>p2</resolver>
 				</configuration>
 			</plugin>
 			
@@ -473,6 +453,8 @@
 			<id>odpcompiler</id>
 			
 			<modules>
+				<module>nsfs/nsf-jakartaconfig</module>
+				
 				<module>nsfs/nsf-jakartaee-example</module>
 				<module>nsfs/nsf-jakartaee-bundle-example</module>
 				<module>nsfs/nsf-jakartaee-bundlebase-example</module>
@@ -526,6 +508,21 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		
+		<profile>
+			<id>xsp-build-stubs</id>
+			<activation>
+				<property>
+					<name>!notes-platform14</name>
+				</property>
+			</activation>
+			
+			<properties>				
+				<xsp-bundles-range>[1.0.0,2.0.0)</xsp-bundles-range>
+				<notes-platform14>${project.baseUri}../../../xsp-deps/target/repository</notes-platform14>
+				<skipTests>true</skipTests>
+			</properties>
 		</profile>
 	</profiles>
 </project>

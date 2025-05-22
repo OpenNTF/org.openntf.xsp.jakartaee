@@ -154,7 +154,7 @@ public enum QueryConverter {
 					return DQL.item(name).contains(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
 			}
-			case IN:
+			case IN: {
 				Object arr = toDqlArray(value);
 				if(arr instanceof int[] i) {
 					return DQL.item(name).in(i);
@@ -164,6 +164,7 @@ public enum QueryConverter {
 					// Guaranteed to be String[]
 					return DQL.item(name).in((String[])arr);
 				}
+			}
 			case AND: {
 				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});
 				return DQL.and(conditions
@@ -178,9 +179,10 @@ public enum QueryConverter {
 					.map(QueryConverter::getCondition)
 					.toArray(DQLTerm[]::new));
 			}
-			case NOT:
+			case NOT: {
 				CriteriaCondition dc = document.get(CriteriaCondition.class);
 				return DQL.not(getCondition(dc));
+			}
 			default:
 				throw new IllegalStateException("This condition is not supported in Domino: " + condition.condition()); //$NON-NLS-1$
 		}

@@ -17,17 +17,14 @@ package org.openntf.xsp.jakarta.faces.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
-import jakarta.faces.context.FacesContext;
+import org.openntf.xsp.jakarta.faces.module.FacesModuleClassLoaderExtender.FacesBlockingExtension;
 
 /**
  * This {@link ClassLoader} implementation blocks access from a JSF environment
@@ -39,19 +36,20 @@ import jakarta.faces.context.FacesContext;
  * @since 2.12.0
  */
 public class FacesBlockingClassLoader extends URLClassLoader {
-	private final Collection<ClassLoader> facesCl;
+	private final FacesBlockingExtension extension = new FacesBlockingExtension();
 
 	public FacesBlockingClassLoader(final URL[] urls, final ClassLoader parent) {
 		super(urls, parent);
-		this.facesCl = Arrays.asList(FacesContext.class.getClassLoader(), getClass().getClassLoader());
 	}
 
 	@Override
 	public Class<?> loadClass(final String name) throws ClassNotFoundException {
-		if (name != null && name.startsWith("com.sun.faces.")) { //$NON-NLS-1$
-			throw new ClassNotFoundException();
+		Optional<Class<?>> c = extension.loadClass(name);
+		if(c.isPresent()) {
+			return c.get();
+		} else {
+			return super.loadClass(name);
 		}
-		return super.loadClass(name);
 	}
 
 	// The Faces API will already be on the classpath, but its resources won't be.
@@ -63,11 +61,7 @@ public class FacesBlockingClassLoader extends URLClassLoader {
 		if(parent != null) {
 			return parent;
 		}
-		return facesCl.stream()
-			.map(cl -> cl.getResource(name))
-			.filter(Objects::nonNull)
-			.findFirst()
-			.orElse(null);
+		return extension.getResource(name).orElse(null);
 	}
 
 	@Override
@@ -76,26 +70,13 @@ public class FacesBlockingClassLoader extends URLClassLoader {
 		if(parent != null) {
 			return parent;
 		}
-		return facesCl.stream()
-			.map(cl -> cl.getResourceAsStream(name))
-			.filter(Objects::nonNull)
-			.findFirst()
-			.orElse(null);
+		return extension.getResourceAsStream(name).orElse(null);
 	}
 
 	@Override
 	public Enumeration<URL> getResources(final String name) throws IOException {
 		List<URL> parent = Collections.list(super.getResources(name));
-		facesCl.stream()
-			.map(cl -> {
-				try {
-					return cl.getResources(name);
-				} catch (IOException e) {
-					throw new UncheckedIOException(e);
-				}
-			})
-			.map(Collections::list)
-			.forEach(parent::addAll);
+		parent.addAll(extension.getResources(name));
 		return Collections.enumeration(parent);
 	}
 
