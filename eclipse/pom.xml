@@ -453,6 +453,8 @@
 			<id>odpcompiler</id>
 			
 			<modules>
+				<module>nsfs/nsf-jakartaconfig</module>
+				
 				<module>nsfs/nsf-jakartaee-example</module>
 				<module>nsfs/nsf-jakartaee-bundle-example</module>
 				<module>nsfs/nsf-jakartaee-bundlebase-example</module>

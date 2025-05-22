@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="view" xmlns="http://www.lotus.com/dxl">
+  <item name="$FormatNote" summary="true">
+    <rawitemdata type="4">
+AQCU7G6FoWlsP/FjaADvdyWF
+</rawitemdata>
+  </item>
+  <item name="$FormulaClass" sign="true">
+    <text>1</text>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>Modules\Jakarta NSF</text>
+  </item>
+  <item name="$Index" sign="true">
+    <text/>
+  </item>
+  <item name="$Formula" sign="true" summary="true">
+    <formula compiled="true">
+aAAFADQAMAAFAAcABwAHAAkABABXZWJQYXRoTlNGUGF0aFNlcnZlcnMkQ29uZmxpY3QkUkVGBAAE
+AAAAJAAFAAQARm9ybQEAEABKYWthcnRhTlNGTW9kdWxlCgIDAAcACgAEAAlMMVM=
+</formula>
+  </item>
+  <item name="$Collation" summary="true">
+    <rawitemdata type="2">
+FAABAABEgGYAAAAHAFdlYlBhdGg=
+</rawitemdata>
+  </item>
+  <item name="$ViewFormat" sign="true" summary="true">
+    <rawitemdata type="5">
+AQADAAUAiEAAAFZDAQAHAAgAAAAAAHsAAQAACgAAAAAAAAAAAAICAAAAVkMAAAcACAAAAAAAfgAB
+AAAKAAAAAAAAAAAAAgIAAABWQwAABwAHAAAAAADGAAEAAAoAAAAAAAAAAAACAgAAAFdlYlBhdGhX
+ZWIgUGF0aE5TRlBhdGhOU0YgUGF0aFNlcnZlcnNTZXJ2ZXJzJgABAAAAAQEACQEAAAoBAQ4KAAA/
+AK0rAQABAAEAAAAAAAAAAABXQwEFAAkAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAD//wAAAAAAAAAA
+AAAAAAAAV0MBAQAJAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAA//8AAAAAAAAAAAAAAAAAAFdDAQEA
+CQAAAAAAAAAAAAAAAAAAAAAAAAQIAAAAAP//AAAAAAAAAAAAAAAAAABCABEAAAABAP///wABAO/v
+7wABAP///wAAAAAAAAAAAAEA////AAEA////AAAAAQAAAAAAAQAAAAAAAQAAAAAAAAAIAAAAAAAB
+AGBDHAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$Flags">
+    <text>PY</text>
+  </item>
+  <item name="$DesignerBuild">
+    <text>Build V1450_05142025</text>
+  </item>
+  <item name="$V5ACTIONS" sign="true">
+    <rawitemdata type="1">
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/2IAAAABAB4AnwEAABkAAAAAAAAAQ3JlYXRlXEpha2Fy
+dGEgTlNGIE1vZHVsZQkyAAAAJgACAOgDAAAAAAAAAQAQAEpha2FydGFOU0ZNb2R1bGXtAgMABwAK
+AAMACTRTAA==
+</rawitemdata>
+  </item>
+</note>

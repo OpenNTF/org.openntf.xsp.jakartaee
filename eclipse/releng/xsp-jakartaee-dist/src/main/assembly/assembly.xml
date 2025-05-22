@@ -57,6 +57,16 @@
 		</fileSet>
 	</fileSets>
 	
+	<dependencySets>
+		<dependencySet>
+			<includes>
+				<include>${project.groupId}:nsf-jakartaconfig:nsf</include>
+			</includes>
+			<outputDirectory>.</outputDirectory>
+			<outputFileNameMapping>jakartaconfig.ntf</outputFileNameMapping>
+		</dependencySet>
+	</dependencySets>
+	
 	<moduleSets>
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>

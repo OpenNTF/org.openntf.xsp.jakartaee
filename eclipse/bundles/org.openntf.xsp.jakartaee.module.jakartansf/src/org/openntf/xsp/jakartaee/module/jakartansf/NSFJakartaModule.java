@@ -70,6 +70,7 @@ import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ModuleMap;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.NSFModuleUtil;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.UncheckedNotesException;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.WelcomePageRequestAdapter;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
@@ -595,7 +596,7 @@ public class NSFJakartaModule extends ComponentModule {
 				String name = principal == null ? "Anonymous" : principal.getName(); //$NON-NLS-1$
 				Session session = XSPNative.createXPageSession(name, nativeCtx.getUserListHandle(), nativeCtx.getEnforceAccess(), nativeCtx.getPreviewServer());
 				BackendBridge.setNoRecycle(session, session, true);
-				Database database = session.getDatabase("", this.mapping.nsfPath()); //$NON-NLS-1$
+				Database database = NSFModuleUtil.openDatabase(session, this.mapping.nsfPath());
 				BackendBridge.setNoRecycle(session, database, true);
 				XSPNative.setContextDatabase(session, XSPNative.getDBHandle(database));
 				
@@ -627,7 +628,7 @@ public class NSFJakartaModule extends ComponentModule {
 		try {
 			Session session = XSPNative.createXPageSession(name, 0, false, true);
 			BackendBridge.setNoRecycle(session, session, true);
-			Database database = session.getDatabase("", this.mapping.nsfPath()); //$NON-NLS-1$
+			Database database = NSFModuleUtil.openDatabase(session, this.mapping.nsfPath());
 			BackendBridge.setNoRecycle(session, database, true);
 			XSPNative.setContextDatabase(session, XSPNative.getDBHandle(database));
 			

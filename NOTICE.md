@@ -16,6 +16,7 @@ The project contains the following third-party code:
 - Code derived from the Darwino JNoSQL driver, available from https://github.com/darwino/diana-driver and licensed under Apache 2.0
 - Code derived from the SmallRye Metrics implementation, available from https://github.com/smallrye/smallrye-metrics and licensed under Apache 2.0
 - Code derived from jacocotogo, available from https://github.com/mattcj/jacocotogo and licensed under Apache 2.0
+- Icons from the Tango Desktop Project, which are available from https://commons.wikimedia.org/wiki/Tango_icons and are available as Public Domain
 
 The binary distribution contains the following 3rd party code:
 

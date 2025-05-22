@@ -18,6 +18,7 @@ package org.openntf.xsp.jakartaee.module.jakartansf;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,16 +46,16 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ModuleMap;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.NSFModuleUtil;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
+import lotus.domino.DocumentCollection;
+import lotus.domino.DominoQuery;
 import lotus.domino.NotesException;
 import lotus.domino.NotesFactory;
 import lotus.domino.NotesThread;
 import lotus.domino.Session;
-import lotus.domino.View;
-import lotus.domino.ViewEntry;
-import lotus.domino.ViewNavigator;
 
 /**
  * @since 3.4.0
@@ -62,10 +63,15 @@ import lotus.domino.ViewNavigator;
 public class NSFJakartaModuleService extends HttpService {
 	private static final Logger log = Logger.getLogger(NSFJakartaModuleService.class.getPackageName());
 	
-	private static final String PREFIX_WEBPATH = "webpath="; //$NON-NLS-1$
+	private static final String ENV_NSF_PATH = "Jakarta_ConfigNSF"; //$NON-NLS-1$
+	private static final String NSF_PATH_DEFAULT = "jakartaconfig.nsf"; //$NON-NLS-1$
+	private static final String FORM_MODULE = "JakartaNSFModule"; //$NON-NLS-1$
+	private static final String ITEM_WEBPATH = "WebPath"; //$NON-NLS-1$
+	private static final String ITEM_NSFPATH = "NSFPath"; //$NON-NLS-1$
+	private static final String ITEM_SERVERS = "Servers"; //$NON-NLS-1$
+	
 	private static final int MAX_REFRESH_ATTEMPTS = 10;
 	
-	private final String catalogNsfPath;
 	private final Map<String, NSFJakartaModule> modules;
 	private final ExecutorService exec;
 
@@ -73,7 +79,6 @@ public class NSFJakartaModuleService extends HttpService {
 		super(env);
 		
 		this.exec = Executors.newCachedThreadPool(NotesThread::new);
-		this.catalogNsfPath = findCatalogNsfPath();
 		
 		try {
 			List<ModuleMap> matches = findMappings();
@@ -210,60 +215,64 @@ public class NSFJakartaModuleService extends HttpService {
 			Session session = NotesFactory.createSession();
 			try {
 				String serverName = session.getServerName();
+				Collection<String> namesList = getNamesList(serverName);
 				
-				Database catalog = session.getDatabase("", this.catalogNsfPath); //$NON-NLS-1$
-				View byCategory = catalog.getView("ByCategory"); //$NON-NLS-1$
-				byCategory.setAutoUpdate(false);
+				String configPath = session.getEnvironmentString(ENV_NSF_PATH, true);
+				if(StringUtil.isEmpty(configPath)) {
+					configPath = NSF_PATH_DEFAULT;
+				}
 				
-				ViewNavigator nav = byCategory.createViewNav();
-				ViewEntry categoryEntry = nav.getFirst();
-				while(categoryEntry != null) {
-					if(categoryEntry.isCategory()) {
-						List<?> columnValues = categoryEntry.getColumnValues();
-						String catName = (String)columnValues.get(0);
-						if(catName.toLowerCase().startsWith(PREFIX_WEBPATH)) {
-							// Then look through its children to find the first that applies to this server
-							ViewEntry childEntry = nav.getChild(categoryEntry);
-							while(childEntry != null) {
-							
-								// We have to open the document because the category is proper-cased
-								//   and the server name is CN only
-								Document doc = childEntry.getDocument();
-								if(serverName.equals(doc.getItemValueString("Server"))) { //$NON-NLS-1$
-									@SuppressWarnings("unchecked")
-									List<String> categories = doc.getItemValue("Categories"); //$NON-NLS-1$
-									categories.stream()
-										.filter(cat -> cat.startsWith(PREFIX_WEBPATH))
-										.map(cat -> cat.substring(PREFIX_WEBPATH.length()))
-										.filter(cat -> !cat.isEmpty() && !"/".equals(cat)) //$NON-NLS-1$
-										.forEach(path -> {
-											String barePath = path;
-											if(barePath.indexOf('/') == 0) {
-												barePath = barePath.substring(1);
-											}
-											
-											String nsfPath;
-											try {
-												nsfPath = doc.getItemValueString("Pathname"); //$NON-NLS-1$
-											} catch (NotesException e) {
-												throw new RuntimeException(e);
-											}
-											
-											result.add(new ModuleMap(nsfPath, barePath));
-										});
-								}
-								doc.recycle();
-							
-								ViewEntry tempChild = childEntry;
-								childEntry = nav.getNextSibling(childEntry);
-								tempChild.recycle();
+				Database configDb = NSFModuleUtil.openDatabase(session, configPath);
+				if(configDb == null || !configDb.isOpen()) {
+					// Exit early with a note
+					if(log.isLoggable(Level.FINE)) {
+						log.fine(MessageFormat.format("{0}: Unable to open Jakarta config NSF at path {1}; skipping module initialization", getClass().getSimpleName(), configPath));
+					}
+					
+					return result;
+				}
+				
+				DominoQuery query = configDb.createDominoQuery();
+				query.setNamedVariable("form", FORM_MODULE); //$NON-NLS-1$
+				DocumentCollection moduleDocs = query.execute("Form = ?form"); //$NON-NLS-1$
+				
+				Document moduleDoc = moduleDocs.getFirstDocument();
+				while(moduleDoc != null) {
+					List<?> servers = moduleDoc.getItemValue(ITEM_SERVERS);
+					boolean isValid = servers.stream()
+						.anyMatch(server -> namesList.contains(server));
+					
+					String webPath = moduleDoc.getItemValueString(ITEM_WEBPATH);
+					if(isValid) {
+						if(!webPath.isEmpty() && !"/".equals(webPath)) { //$NON-NLS-1$
+							String barePath = webPath;
+							if(barePath.indexOf('/') == 0) {
+								barePath = barePath.substring(1);
 							}
+							
+							String nsfPath = moduleDoc.getItemValueString(ITEM_NSFPATH);
+							if(StringUtil.isNotEmpty(nsfPath)) {
+								result.add(new ModuleMap(nsfPath, barePath));
+							} else {
+								if(log.isLoggable(Level.WARNING)) {
+									log.warning(MessageFormat.format("{0}: Skipping invalid NSF path for module \"{1}\"", getClass().getSimpleName(), webPath));
+								}
+							}
+							
+						} else {
+							if(log.isLoggable(Level.WARNING)) {
+								log.warning(MessageFormat.format("{0}: Skipping invalid module path \"{1}\"", getClass().getSimpleName(), webPath));
+							}
+						}
+					} else {
+						if(log.isLoggable(Level.FINEST)) {
+							log.finest(MessageFormat.format("{0}: Skipping module {1} for non-matching servers", getClass().getSimpleName(), webPath));
 						}
 					}
 					
-					ViewEntry tempEntry = categoryEntry;
-					categoryEntry = nav.getNextSibling(categoryEntry);
-					tempEntry.recycle();
+					Document tempDoc = moduleDoc;
+					moduleDoc = moduleDocs.getNextDocument();
+					tempDoc.recycle();
 				}
 			} finally {
 				session.recycle();
@@ -279,14 +288,12 @@ public class NSFJakartaModuleService extends HttpService {
 		}
 	}
 	
-	private String findCatalogNsfPath() {
+	@SuppressWarnings("unchecked")
+	private Collection<String> getNamesList(String userName) {
 		try {
 			// DominoServer is blocked by our normal ClassLoader, so use the root one reflectively
 			Object server = Class.forName("lotus.notes.addins.DominoServer", true, ClassLoader.getSystemClassLoader()).getConstructor().newInstance(); //$NON-NLS-1$
-			Class<?> serverInfo = Class.forName("lotus.notes.addins.ServerInfo", true, ClassLoader.getSystemClassLoader()); //$NON-NLS-1$
-			Object catalogInfo = serverInfo.getField("CATALOG").get(null); //$NON-NLS-1$
-			List<?> info = (List<?>)server.getClass().getMethod("getInfo", serverInfo).invoke(server, catalogInfo); //$NON-NLS-1$
-			return (String)info.get(0);
+			return (Collection<String>)server.getClass().getMethod("getNamesList", String.class).invoke(server, userName); //$NON-NLS-1$
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
