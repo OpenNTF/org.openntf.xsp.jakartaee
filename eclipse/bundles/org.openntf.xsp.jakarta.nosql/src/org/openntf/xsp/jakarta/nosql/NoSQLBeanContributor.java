@@ -32,7 +32,7 @@ import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakarta.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakarta.nosql.bean.ContextDatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.bean.ContextDocumentCollectionManagerProducer;
-import org.openntf.xsp.jakarta.nosql.bean.DominoReflectionEntityMetadataExtension;
+import org.openntf.xsp.jakarta.nosql.bean.DominoReflectionEntityMetadata;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoReflections;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.impl.DefaultDominoTemplate;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.impl.DominoExtension;
@@ -71,7 +71,7 @@ public class NoSQLBeanContributor implements CDIClassContributor {
 		result.add(DominoReflections.class);
 
 		result.add(Converters.class);
-		result.add(DominoReflectionEntityMetadataExtension.class);
+		result.add(DominoReflectionEntityMetadata.class);
 
 		return result;
 	}

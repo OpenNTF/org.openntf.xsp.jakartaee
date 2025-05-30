@@ -28,21 +28,21 @@ import jakarta.interceptor.Interceptor;
 @ApplicationScoped
 @Alternative
 @Priority(Interceptor.Priority.APPLICATION)
-public class DominoReflectionEntityMetadataExtension implements GroupEntityMetadata {
+public class DominoReflectionEntityMetadata implements GroupEntityMetadata {
 
-    private static final Logger LOGGER = Logger.getLogger(DominoReflectionEntityMetadataExtension.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DominoReflectionEntityMetadata.class.getName());
 
-    private final Map<Class<?>, EntityMetadata> ENTITY_METADATA_BY_CLASS = new ConcurrentHashMap<>();
-    private final Map<String, EntityMetadata> ENTITY_METADATA_BY_ENTITY_NAME = new ConcurrentHashMap<>();
+    private final Map<Class<?>, EntityMetadata> entityMetadataByClass = new ConcurrentHashMap<>();
+    private final Map<String, EntityMetadata> entityMetadataByEntityName = new ConcurrentHashMap<>();
     
     @Override
     public Map<String, EntityMetadata> mappings() {
-        return ENTITY_METADATA_BY_ENTITY_NAME;
+        return entityMetadataByEntityName;
     }
 
     @Override
     public Map<Class<?>, EntityMetadata> classes() {
-        return ENTITY_METADATA_BY_CLASS;
+        return entityMetadataByClass;
     }
 
     @PostConstruct
@@ -54,21 +54,21 @@ public class DominoReflectionEntityMetadataExtension implements GroupEntityMetad
                 .forEach(entity -> {
                     EntityMetadata entityMetadata = converter.apply(entity);
                     if (entityMetadata.hasEntityName()) {
-                        ENTITY_METADATA_BY_ENTITY_NAME.put(entityMetadata.name(), entityMetadata);
+                    	entityMetadataByEntityName.put(entityMetadata.name(), entityMetadata);
                     }
-                    ENTITY_METADATA_BY_CLASS.put(entity, entityMetadata);
+                    entityMetadataByClass.put(entity, entityMetadata);
                 });
 
         scanner.embeddables()
                 .forEach(embeddable -> {
                     EntityMetadata entityMetadata = converter.apply(embeddable);
-                    ENTITY_METADATA_BY_CLASS.put(embeddable, entityMetadata);
+                    entityMetadataByClass.put(embeddable, entityMetadata);
                 });
 
         ofNullable(LOGGER)
                 .filter(l -> l.isLoggable(Level.FINEST))
                 .ifPresent(l -> l.fine("Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
-                        .formatted(ENTITY_METADATA_BY_CLASS.size(), ENTITY_METADATA_BY_ENTITY_NAME.size())));
+                        .formatted(entityMetadataByClass.size(), entityMetadataByEntityName.size())));
 
     }
 }
