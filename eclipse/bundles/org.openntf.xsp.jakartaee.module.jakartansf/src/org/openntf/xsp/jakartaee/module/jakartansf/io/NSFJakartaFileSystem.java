@@ -31,8 +31,8 @@ import java.util.stream.Stream;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.ByteStreamCache;
 import com.ibm.designer.domino.napi.NotesAPIException;
-import com.ibm.designer.domino.napi.NotesCollectionEntry;
 import com.ibm.designer.domino.napi.NotesConstants;
+import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.domino.napi.util.NotesUtils;
@@ -52,56 +52,52 @@ public class NSFJakartaFileSystem {
 		
 		try (DesignCollectionIterator nav = new DesignCollectionIterator(module.getNotesDatabase())) {
 			while (nav.hasNext()) {
-				NotesCollectionEntry entry = nav.next();
+				try(var entry = nav.next()) {
 
-				String flags = entry.getItemValueAsString(NotesConstants.DESIGN_FLAGS);
-				if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_FILE_WEB)) {
-					// In practice, we don't care about $ClassIndexItem
-					String name = sanitizeTitle(entry.getItemValueAsString(NotesConstants.FIELD_TITLE));
-					if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_JAVAJAR)) {
-						name = "WEB-INF/lib/" + name; //$NON-NLS-1$
+					if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_FILE_WEB)) {
+						// In practice, we don't care about $ClassIndexItem
+						String name = sanitizeTitle(entry.title());
+						if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_JAVAJAR)) {
+							name = "WEB-INF/lib/" + name; //$NON-NLS-1$
+						}
+						int noteId = entry.noteId();
+						if(log.isLoggable(Level.FINEST)) {
+							log.finest(MessageFormat.format("Adding file element \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+						}
+						fileMap.put(name, noteId);
+					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_SCRIPTLIB_JS)) {
+						String name = sanitizeTitle(entry.title());
+						int noteId = entry.noteId();
+						if(log.isLoggable(Level.FINEST)) {
+							log.finest(MessageFormat.format("Adding JavaScript library \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+						}
+						fileMap.put(name, noteId);
+					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_IMAGE_RES_WEB)) {
+						String name = sanitizeTitle(entry.title());
+						int noteId = entry.noteId();
+						if(log.isLoggable(Level.FINEST)) {
+							log.finest(MessageFormat.format("Adding image resource \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+						}
+						fileMap.put(name, noteId);
+					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_STYLE_SHEETS_WEB)) {
+						String name = sanitizeTitle(entry.title());
+						int noteId = entry.noteId();
+						if(log.isLoggable(Level.FINEST)) {
+							log.finest(MessageFormat.format("Adding stylesheet \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+						}
+						fileMap.put(name, noteId);
 					}
-					int noteId = entry.getNoteID();
-					if(log.isLoggable(Level.FINEST)) {
-						log.finest(MessageFormat.format("Adding file element \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
-					}
-					fileMap.put(name, noteId);
-				} else if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_JS)) {
-					String name = sanitizeTitle(entry.getItemValueAsString(NotesConstants.FIELD_TITLE));
-					int noteId = entry.getNoteID();
-					if(log.isLoggable(Level.FINEST)) {
-						log.finest(MessageFormat.format("Adding JavaScript library \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
-					}
-					fileMap.put(name, noteId);
-				} else if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_IMAGE_RES_WEB)) {
-					String name = sanitizeTitle(entry.getItemValueAsString(NotesConstants.FIELD_TITLE));
-					int noteId = entry.getNoteID();
-					if(log.isLoggable(Level.FINEST)) {
-						log.finest(MessageFormat.format("Adding image resource \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
-					}
-					fileMap.put(name, noteId);
-				} else if(NotesUtils.CmemflagTestMultiple(flags, NotesConstants.DFLAGPAT_STYLE_SHEETS_WEB)) {
-					String name = sanitizeTitle(entry.getItemValueAsString(NotesConstants.FIELD_TITLE));
-					int noteId = entry.getNoteID();
-					if(log.isLoggable(Level.FINEST)) {
-						log.finest(MessageFormat.format("Adding stylesheet \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
-					}
-					fileMap.put(name, noteId);
+					// TODO Re-add when figuring out how to read the value, or handle elsewhere
+	//				else if(entry.getNoteClass() == NotesConstants.NOTE_CLASS_ICON) {
+	//					int noteId = entry.getNoteID();
+	//					if(log.isLoggable(Level.FINEST)) {
+	//						log.finest(MessageFormat.format("Adding Icon note \"$Icon\", note ID 0x{0}", Integer.toHexString(noteId)));
+	//					}
+	//					fileMap.put("$Icon", noteId); //$NON-NLS-1$
+	//				}
+
 				}
-				// TODO Re-add when figuring out how to read the value, or handle elsewhere
-//				else if(entry.getNoteClass() == NotesConstants.NOTE_CLASS_ICON) {
-//					int noteId = entry.getNoteID();
-//					if(log.isLoggable(Level.FINEST)) {
-//						log.finest(MessageFormat.format("Adding Icon note \"$Icon\", note ID 0x{0}", Integer.toHexString(noteId)));
-//					}
-//					fileMap.put("$Icon", noteId); //$NON-NLS-1$
-//				}
-
-				entry.recycle();
 			}
-			
-		} catch (NotesAPIException e) {
-			throw new RuntimeException(e);
 		}
 	}
 	
@@ -123,8 +119,12 @@ public class NSFJakartaFileSystem {
 		Integer noteId = this.fileMap.get(res);
 		if(noteId != null) {
 			try {
-				NotesNote note = module.getNotesDatabase().openNote(noteId, 0);
-				if(note != null) {
+				NotesDatabase db = module.getNotesDatabase();
+				if(!db.isValidHandle()) {
+					throw new RuntimeException(MessageFormat.format("Unable to open database {0}", db.getDatabasePath()));
+				}
+				NotesNote note = db.openNote(noteId, 0);
+				if(note != null && note.isValidHandle()) {
 					// TODO special handling for icon note
 					ByteStreamCache cache = new ByteStreamCache();
 					FileAccess.readFileContent(note, cache.getOutputStream());

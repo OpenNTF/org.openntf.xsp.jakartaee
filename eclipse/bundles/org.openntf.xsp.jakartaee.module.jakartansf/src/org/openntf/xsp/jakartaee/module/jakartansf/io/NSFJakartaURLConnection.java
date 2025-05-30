@@ -6,8 +6,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.MessageFormat;
 
-import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
-
 import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModule;
 import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModuleService;
 
@@ -32,12 +30,7 @@ public class NSFJakartaURLConnection extends URLConnection {
 		}
 		
 		String mappingPath = path.substring(1, bangIndex);
-		NSFJakartaModuleService service = LCDEnvironment.getInstance()
-			.getServices().stream()
-			.filter(NSFJakartaModuleService.class::isInstance)
-			.map(NSFJakartaModuleService.class::cast)
-			.findFirst()
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not locate running {0}", NSFJakartaModuleService.class.getName())));
+		NSFJakartaModuleService service = NSFJakartaModuleService.getInstance(null);
 		
 		// Now find our module
 		NSFJakartaModule module = service.getModule(mappingPath)

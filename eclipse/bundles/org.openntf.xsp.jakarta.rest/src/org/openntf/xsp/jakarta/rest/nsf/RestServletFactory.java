@@ -91,7 +91,7 @@ public class RestServletFactory implements JakartaIServletFactory {
 
 	@Override
 	public ServletMatch getServletMatch(final String contextPath, final String path) throws ServletException {
-		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_CORE)) {
+		if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module)) {
 			String baseServletPath = getServletPath(module);
 			// Match either a resource within the path or the specific base path without the trailing "/"
 			String trimmedBaseServletPath = baseServletPath.substring(0, baseServletPath.length()-1);

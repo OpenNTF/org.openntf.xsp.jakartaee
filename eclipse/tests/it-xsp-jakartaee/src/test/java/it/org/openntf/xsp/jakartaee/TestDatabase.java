@@ -35,7 +35,13 @@ public enum TestDatabase {
 			return "/jeeExample";
 		}
 	},
-	PRIMEFACES_SHOWCASE("nsf-jakartaee-primefaces-showcase", "primefaces-showcase", "XPages JEE PrimeFaces Showcase")
+	PRIMEFACES_SHOWCASE("nsf-jakartaee-primefaces-showcase", "primefaces-showcase", "XPages JEE PrimeFaces Showcase"),
+	MAIN_MODULE(null, null, "Jakarta NSF Module") {
+		@Override
+		public String getContextPath() {
+			return "/moduleapp";
+		}
+	}
 	;
 	
 	private final String artifactId;

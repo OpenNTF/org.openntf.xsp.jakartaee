@@ -15,6 +15,7 @@ Import-Package: com.ibm.commons.util,
  jakarta.servlet.http;version="5.0.0",
  javax.servlet;version="2.5.0",
  javax.servlet.http;version="2.5.0",
+ org.openntf.xsp.jakartaee.events;version="3.4.0",
  org.openntf.xsp.jakartaee.jasapi;version="3.0.0",
  org.openntf.xsp.jakartaee.servlet;version="3.0.0",
  org.openntf.xsp.jakartaee.util;version="3.0.0"

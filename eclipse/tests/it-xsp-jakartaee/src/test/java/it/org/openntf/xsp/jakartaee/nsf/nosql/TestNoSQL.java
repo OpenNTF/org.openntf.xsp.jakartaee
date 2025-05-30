@@ -90,21 +90,25 @@ public class TestNoSQL extends AbstractWebClientTest {
 			Response response = target.request().get();
 			
 			String json = response.readEntity(String.class);
-			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-			
-			JsonArray byQueryLastName = jsonObject.getJsonArray("byQueryLastName"); //$NON-NLS-1$
-			assertFalse(byQueryLastName.isEmpty());
-			JsonObject entry = byQueryLastName.getJsonObject(0);
-			assertEquals("CreatedUnitTest", entry.getString("lastName")); //$NON-NLS-1$ //$NON-NLS-2$
-			{
-				JsonObject customProp = entry.getJsonObject("customProperty"); //$NON-NLS-1$
-				String val = customProp.getString("value"); //$NON-NLS-1$
-				assertEquals("i am custom property", val); //$NON-NLS-1$
+			try {
+				JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+				
+				JsonArray byQueryLastName = jsonObject.getJsonArray("byQueryLastName"); //$NON-NLS-1$
+				assertFalse(byQueryLastName.isEmpty());
+				JsonObject entry = byQueryLastName.getJsonObject(0);
+				assertEquals("CreatedUnitTest", entry.getString("lastName")); //$NON-NLS-1$ //$NON-NLS-2$
+				{
+					JsonObject customProp = entry.getJsonObject("customProperty"); //$NON-NLS-1$
+					String val = customProp.getString("value"); //$NON-NLS-1$
+					assertEquals("i am custom property", val); //$NON-NLS-1$
+				}
+				assertFalse(entry.getString("unid").isEmpty()); //$NON-NLS-1$
+				
+				int size = entry.getInt("size"); //$NON-NLS-1$
+				assertTrue(size > 0);
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + json, e);
 			}
-			assertFalse(entry.getString("unid").isEmpty()); //$NON-NLS-1$
-			
-			int size = entry.getInt("size"); //$NON-NLS-1$
-			assertTrue(size > 0);
 		}
 	}
 	

@@ -18,12 +18,12 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-	<!-- Faux HTTP Service provider to add hooks for JSF handling to the environment -->
+	<!-- Listener to add hooks for Faces handling to the environment -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakarta.faces.JsfEarlyInitFactory"/>
+		<service type="org.openntf.xsp.jakartaee.events.JakartaHttpInitListener" class="org.openntf.xsp.jakarta.faces.FacesHttpInitListener"/>
 	</extension>
 	
-	<!-- Handle in-NSF JSF files -->
+	<!-- Handle in-NSF Faces files -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jakarta.faces.nsf.FacesServletFactory" />
 	</extension>

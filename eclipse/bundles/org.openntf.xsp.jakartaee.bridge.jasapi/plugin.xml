@@ -19,7 +19,7 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakartaee.bridge.jasapi.init.JasapiEarlyInitFactory"/>
+		<service type="org.openntf.xsp.jakartaee.events.JakartaHttpInitListener" class="org.openntf.xsp.jakartaee.bridge.jasapi.init.JasapiHttpInitListener"/>
 	</extension>
 	
 </plugin>

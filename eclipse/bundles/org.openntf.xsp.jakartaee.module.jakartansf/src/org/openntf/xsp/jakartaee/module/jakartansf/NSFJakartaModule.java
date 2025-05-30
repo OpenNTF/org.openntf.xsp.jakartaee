@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -92,6 +94,7 @@ import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
 import lotus.domino.Database;
 import lotus.domino.NotesException;
+import lotus.domino.NotesFactory;
 import lotus.domino.NotesThread;
 import lotus.domino.Session;
 
@@ -111,10 +114,12 @@ public class NSFJakartaModule extends ComponentModule {
 	private long lastRefresh;
 	private String xspSigner;
 	private ServletContext servletContext;
+	private CountDownLatch initLatch;
 	
 	public NSFJakartaModule(LCDEnvironment env, NSFJakartaModuleService service, ModuleMap mapping) {
 		super(env, service, MessageFormat.format("{0} - {1}", mapping.path(), mapping.nsfPath()), true);
 		this.mapping = mapping;
+		this.initLatch = new CountDownLatch(1);
 	}
 	
 	@Override
@@ -137,17 +142,17 @@ public class NSFJakartaModule extends ComponentModule {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void doInitModule() {
-		// Clear all attributes except temp dir
-		Map<String, Object> attrs = this.getAttributes();
-		Object tempDir = attrs.get("javax.servlet.context.tempdir"); //$NON-NLS-1$
-		attrs.clear();
-		attrs.put("javax.servlet.context.tempdir", tempDir); //$NON-NLS-1$
-		attrs.put("jakarta.servlet.context.tempdir", tempDir); //$NON-NLS-1$
-		
-		this.servletContext = ServletUtil.oldToNew('/' + this.mapping.path(), getServletContext());
-		
 		NotesThread.sinitThread();
 		try {
+			// Clear all attributes except temp dir
+			Map<String, Object> attrs = this.getAttributes();
+			Object tempDir = attrs.get("javax.servlet.context.tempdir"); //$NON-NLS-1$
+			attrs.clear();
+			attrs.put("javax.servlet.context.tempdir", tempDir); //$NON-NLS-1$
+			attrs.put("jakarta.servlet.context.tempdir", tempDir); //$NON-NLS-1$
+			
+			this.servletContext = ServletUtil.oldToNew('/' + this.mapping.path(), getServletContext());
+			
 			try {
 				if(this.moduleClassLoader != null) {
 					this.moduleClassLoader.close();
@@ -157,8 +162,22 @@ public class NSFJakartaModule extends ComponentModule {
 				}
 				
 				this.notesSession = new NotesSession();
-				this.notesDatabase = notesSession.getDatabase(this.mapping.nsfPath());
+				this.notesDatabase = notesSession.getDatabaseByPath(this.mapping.nsfPath());
 				this.notesDatabase.open();
+				if(!this.notesDatabase.isValidHandle()) {
+					throw new RuntimeException(MessageFormat.format("Unable to open database {0}", this.mapping.nsfPath()));
+				}
+				
+				// Try opening any view with LSXBE first to make sure the design collection is initialized
+				Session session = NotesFactory.createSession();
+				try {
+					Database db = NSFModuleUtil.openDatabase(session, this.mapping.nsfPath());
+					db.recycle(db.getViews());
+				} finally {
+					session.recycle();
+				}
+				
+				this.fileSystem = new NSFJakartaFileSystem(this);
 				
 				// Use xsp.properties as our signer if available
 				NotesNote xspProperties = FileAccess.getFileByPath(this.notesDatabase, "WEB-INF/xsp.properties"); //$NON-NLS-1$
@@ -174,9 +193,14 @@ public class NSFJakartaModule extends ComponentModule {
 					this.xspSigner = this.notesDatabase.getUserName();
 				}
 
-				this.fileSystem = new NSFJakartaFileSystem(this);
 				this.moduleClassLoader = new NSFJakartaModuleClassLoader(this);
 			} catch (NotesAPIException e) {
+				e.printStackTrace();
+				throw new RuntimeException(MessageFormat.format("Encountered exception 0x{0} initializing module {1}", Integer.toHexString(e.getNativeErrorCode()), this), e);
+			} catch(NotesException e) {
+				e.printStackTrace();
+				throw new RuntimeException(MessageFormat.format("Encountered exception 0x{0} initializing module {1}", Integer.toHexString(e.id), this), e);
+			} catch(Exception e) {
 				throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
 			}
 
@@ -253,6 +277,7 @@ public class NSFJakartaModule extends ComponentModule {
 			this.initialized = true;
 		} finally {
 			NotesThread.stermThread();
+			this.initLatch.countDown();
 		}
 	}
 	
@@ -350,13 +375,13 @@ public class NSFJakartaModule extends ComponentModule {
 	public void doService(String contextPath, String pathInfo, HttpSessionAdapter httpSessionAdapter, HttpServletRequestAdapter servletRequest,
 			HttpServletResponseAdapter servletResponse) throws javax.servlet.ServletException, IOException {
 		if(log.isLoggable(Level.FINER)) {
-			log.finer(getClass().getSimpleName() + "#doService with contextPath=" + contextPath + ", pathInfo=" + pathInfo);
+			log.finer(MessageFormat.format("{0}#doService with contextPath={1}, pathInfo={2}", getClass().getSimpleName(), contextPath, pathInfo));
 		}
 		
+		awaitInit();
+		
 		try {
-			if(!this.initialized) {
-				throw new IllegalStateException(MessageFormat.format("Module {0} was not properly initialized", this));
-			}
+			
 			
 			super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
 		} catch(PageNotFoundException e) {
@@ -500,7 +525,7 @@ public class NSFJakartaModule extends ComponentModule {
 			.forEach(l -> l.requestInitialized(new ServletRequestEvent(this.servletContext, request)));
 		try {
 			super.invokeServlet(servlet, req, resp);
-		} catch(Throwable t) {
+		} catch(Exception t) {
 			if(log.isLoggable(Level.WARNING)) {
 				log.log(Level.WARNING, MessageFormat.format("Encountered exception invoking Servlet {0} in {1}", servlet, this), t);
 			}
@@ -590,6 +615,8 @@ public class NSFJakartaModule extends ComponentModule {
 	}
 	
 	public LSXBEHolder withSessions(HttpServletRequestAdapter req) {
+		awaitInit();
+		
 		if(req instanceof DominoHttpXspNativeContext nativeCtx) {
 			try {
 				Principal principal = req.getUserPrincipal();
@@ -650,6 +677,19 @@ public class NSFJakartaModule extends ComponentModule {
 				throw signal;
 			}
 			throw new UncheckedNotesException(e);
+		}
+	}
+	
+	private void awaitInit() {
+		try {
+			if(!this.initLatch.await(3, TimeUnit.MINUTES)) {
+				throw new IllegalStateException("Timed out waiting for module initialization");
+			}
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		if(!this.initialized) {
+			throw new IllegalStateException(MessageFormat.format("Module {0} was not properly initialized", this));
 		}
 	}
 	

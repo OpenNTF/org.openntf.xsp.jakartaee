@@ -20,7 +20,7 @@
 <plugin>
 	<!-- Faux HTTP Service provider to ensure that the activator launches early -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakartaee.weaving.WeavingEarlyInitFactory"/>
+		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakartaee.JakartaEarlyInitFactory"/>
 	</extension>
 	
 	<!-- Standard ComponentEnableLocator implementations -->

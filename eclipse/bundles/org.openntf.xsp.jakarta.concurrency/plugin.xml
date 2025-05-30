@@ -18,8 +18,7 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-	<!-- Faux HTTP Service provider to ensure that the activator launches early -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakarta.concurrency.EarlyInitServiceFactory"/>
+		<service type="org.openntf.xsp.jakartaee.events.JakartaHttpInitListener" class="org.openntf.xsp.jakarta.concurrency.ConcurrencyHttpInitListener"/>
 	</extension>
 </plugin>

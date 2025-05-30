@@ -14,6 +14,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaconfig</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>nsf-jakartaee-example</artifactId>
 			<version>${project.version}</version>
 			<type>nsf</type>

@@ -26,13 +26,13 @@ import org.eclipse.jnosql.mapping.core.Converters;
 import org.eclipse.jnosql.mapping.document.DocumentTemplate;
 import org.eclipse.jnosql.mapping.document.spi.DocumentExtension;
 import org.eclipse.jnosql.mapping.reflection.ConstructorException;
-import org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension;
 import org.eclipse.jnosql.mapping.semistructured.EntityConverter;
 import org.eclipse.jnosql.mapping.validation.MappingValidator;
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakarta.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakarta.nosql.bean.ContextDatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.bean.ContextDocumentCollectionManagerProducer;
+import org.openntf.xsp.jakarta.nosql.bean.DominoReflectionEntityMetadataExtension;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoReflections;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.impl.DefaultDominoTemplate;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.impl.DominoExtension;
@@ -71,6 +71,7 @@ public class NoSQLBeanContributor implements CDIClassContributor {
 		result.add(DominoReflections.class);
 
 		result.add(Converters.class);
+		result.add(DominoReflectionEntityMetadataExtension.class);
 
 		return result;
 	}
@@ -80,9 +81,7 @@ public class NoSQLBeanContributor implements CDIClassContributor {
 		return Set.of(
 			DocumentExtension.class,
 
-			DominoExtension.class,
-			
-			ReflectionEntityMetadataExtension.class
+			DominoExtension.class
 		);
 	}
 

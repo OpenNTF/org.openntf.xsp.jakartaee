@@ -23,7 +23,7 @@
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.microprofile.config.ConfigInitFactory"/>
+		<service type="org.openntf.xsp.jakartaee.events.JakartaHttpInitListener" class="org.openntf.xsp.microprofile.config.ConfigHttpInitListener"/>
 	</extension>
 	
 	<!-- CORS filter -->

@@ -89,7 +89,8 @@ public abstract class AbstractWebClientTest {
 	
 	public String getRestUrl(WebDriver driver, TestDatabase db) {
 		String root = getRootUrl(driver, db);
-		return PathUtil.concat(root, "xsp/app", '/');
+		String path = db.isNsf() ? "xsp/app" : "app";
+		return PathUtil.concat(root, path, '/');
 	}
 
 	public String getServletRestUrl(WebDriver driver) {

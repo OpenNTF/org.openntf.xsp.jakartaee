@@ -26,7 +26,7 @@ public class NSFJakartaModuleServiceFactory implements IServiceFactory {
 
 	@Override
 	public HttpService[] getServices(LCDEnvironment env) {
-		return new HttpService[] { new NSFJakartaModuleService(env) };
+		return new HttpService[] { NSFJakartaModuleService.getInstance(env) };
 	}
 
 }

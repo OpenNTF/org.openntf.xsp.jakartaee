@@ -1,18 +1,3 @@
-/**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.openntf.xsp.jakarta.pages;
 
 import java.io.IOException;
@@ -29,15 +14,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.runtime.domino.adapter.HttpService;
-import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
-import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.domino.napi.NException;
 import com.ibm.domino.napi.c.Os;
 import com.ibm.domino.xsp.module.nsf.NSFService;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.glassfish.wasp.servlet.WaspLoader;
+import org.openntf.xsp.jakartaee.events.JakartaHttpInitListener;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -45,38 +28,23 @@ import org.osgi.framework.FrameworkUtil;
 import jakarta.servlet.Servlet;
 
 /**
- * This {@link IServiceFactory} doesn't provide any HTTP services, but is used to
- * enable hooks very early in the HTTP init process.
- *
- * @author Jesse Gallagher
- * @since 2.1.0
+ * @since 3.4.0
  */
-public class EarlyInitFactory implements IServiceFactory {
+public class PagesHttpInitListener implements JakartaHttpInitListener {
 	/**
 	 * notes.ini property that can be set to specify a DTD output directory.
 	 * @since 3.1.0
 	 */
 	public static final String PROP_OVERRIDEDTDDIR = "Jakarta_DTDDir"; //$NON-NLS-1$
 
-	private static final Logger log = Logger.getLogger(EarlyInitFactory.class.getPackageName());
-
+	private static final Logger log = Logger.getLogger(PagesHttpInitListener.class.getPackageName());
+	
 	@Override
-	public HttpService[] getServices(final LCDEnvironment env) {
-		try {
-			initNsf();
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-		try {
-			deployServletDtds();
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-
-
-		return null;
+	public void httpInit() throws Exception {
+		initNsf();
+		deployServletDtds();
 	}
-
+	
 	/**
 	 * Adds Jakarta Pages support to NSFs.
 	 */
@@ -144,5 +112,4 @@ public class EarlyInitFactory implements IServiceFactory {
 		Path dataDir = Paths.get(data);
 		return dataDir.resolve("domino").resolve("jakarta").resolve("dtd"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
-
 }

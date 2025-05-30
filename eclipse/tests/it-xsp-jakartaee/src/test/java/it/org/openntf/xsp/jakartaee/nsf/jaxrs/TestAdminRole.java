@@ -23,7 +23,8 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
@@ -34,12 +35,13 @@ public class TestAdminRole extends AbstractWebClientTest {
 	 * Tests rest.AdminRoleExample, which uses {@code @RolesAllowed} to
 	 * require [Admin].
 	 */
-	@Test
-	public void testAdminRole() {
+	@ParameterizedTest
+	@EnumSource(value=TestDatabase.class, names = {"MAIN", "MAIN_MODULE"})
+	public void testAdminRole(TestDatabase db) {
 		// Anonymous should get a login form
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);
@@ -49,7 +51,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 		// Admin should get basic text
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);
@@ -62,27 +64,28 @@ public class TestAdminRole extends AbstractWebClientTest {
 	 * Tests rest.AdminRoleExample, which uses {@code @RolesAllowed} to
 	 * require an invalid user. 
 	 */
-	@Test
-	public void testInvalidUser() {
+	@ParameterizedTest
+	@EnumSource(value=TestDatabase.class, names = {"MAIN", "MAIN_MODULE"})
+	public void testInvalidUser(TestDatabase db) {
 		// Anonymous should get a login form
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/invaliduser");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/invaliduser");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
-			assertTrue(html.contains("/names.nsf?Login"));
+			assertTrue(html.contains("/names.nsf?Login"), () -> "Received unexpected HTML " + html);
 		}
 		// Admin should also get a login form
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/invaliduser");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/invaliduser");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
-			assertTrue(html.contains("/names.nsf?Login"));
+			assertTrue(html.contains("/names.nsf?Login"), () -> "Received unexpected HTML " + html);
 		}
 	}
 	
@@ -90,12 +93,13 @@ public class TestAdminRole extends AbstractWebClientTest {
 	 * Tests rest.AdminRoleExample#getLoginRole, which uses {@code @RolesAllowed} to
 	 * require any authenticated user
 	 */
-	@Test
-	public void testLoginRole() {
+	@ParameterizedTest
+	@EnumSource(value=TestDatabase.class, names = {"MAIN", "MAIN_MODULE"})
+	public void testLoginRole(TestDatabase db) {
 		// Anonymous should get a login form
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/login");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/login");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);
@@ -105,7 +109,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 		// Admin should get basic text
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/login");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/login");
 			Response response = target.request().get();
 			
 			String html = response.readEntity(String.class);

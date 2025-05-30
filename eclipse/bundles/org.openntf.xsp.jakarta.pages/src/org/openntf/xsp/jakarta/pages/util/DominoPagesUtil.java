@@ -33,7 +33,7 @@ import com.ibm.commons.util.StringUtil;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.osgi.util.ManifestElement;
-import org.openntf.xsp.jakarta.pages.EarlyInitFactory;
+import org.openntf.xsp.jakarta.pages.PagesHttpInitListener;
 import org.openntf.xsp.jakarta.pages.nsf.PagesServletFactory;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
@@ -79,7 +79,7 @@ public enum DominoPagesUtil {
 	// It's a map of URI to [JAR file path, resource name]
 	// See also TagLibraryInfoImpl
 	public static HashMap<String, String[]> buildJstlDtdMap() throws IOException {
-		String jstl = EarlyInitFactory.getDeployedJstlBundle().toUri().toString();
+		String jstl = PagesHttpInitListener.getDeployedJstlBundle().toUri().toString();
 
 		HashMap<String, String[]> result = new HashMap<>();
 

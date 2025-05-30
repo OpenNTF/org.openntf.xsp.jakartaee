@@ -41,7 +41,7 @@ public class NSFProxyServices extends WeldDefaultProxyServices {
 	public Class<?> defineClass(final Class<?> originalClass, final String className, final byte[] classBytes, final int off, final int len)
 			throws ClassFormatError {
 		Class<?> result = super.defineClass(originalClass, className, classBytes, off, len);
-		if(result != null && !(originalClass.getClassLoader() instanceof ApplicationClassLoader)) {
+		if(result != null && !isAppLoader(originalClass.getClassLoader())) {
 			classCache.put(className + originalClass.hashCode(), result);
 		}
 		return result;
@@ -51,7 +51,7 @@ public class NSFProxyServices extends WeldDefaultProxyServices {
 	public Class<?> defineClass(final Class<?> originalClass, final String className, final byte[] classBytes, final int off, final int len,
 			final ProtectionDomain protectionDomain) throws ClassFormatError {
 		Class<?> result = super.defineClass(originalClass, className, classBytes, off, len, protectionDomain);
-		if(result != null && !(originalClass.getClassLoader() instanceof ApplicationClassLoader)) {
+		if(result != null && !isAppLoader(originalClass.getClassLoader())) {
 			classCache.put(className + originalClass.hashCode(), result);
 		}
 		return result;
@@ -64,5 +64,15 @@ public class NSFProxyServices extends WeldDefaultProxyServices {
 			return classCache.get(key);
 		}
 		return super.loadClass(originalClass, classBinaryName);
+	}
+	
+	private boolean isAppLoader(ClassLoader cl) {
+		if(cl instanceof ApplicationClassLoader) {
+			return true;
+		}
+		if("com.ibm.domino.xsp.module.nsf.ModuleClassLoader$DynamicClassLoader".equals(cl.getClass().getName())) { //$NON-NLS-1$
+			return true;
+		}
+		return false;
 	}
 }

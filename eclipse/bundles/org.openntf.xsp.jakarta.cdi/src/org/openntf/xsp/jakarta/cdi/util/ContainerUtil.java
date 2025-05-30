@@ -40,7 +40,6 @@ import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
 import org.jboss.weld.config.ConfigurationKey;
-import org.jboss.weld.environment.deployment.discovery.jandex.Jandex;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.manager.BeanManagerImpl;
@@ -293,6 +292,10 @@ public enum ContainerUtil {
 				if(instance == null || !instance.isRunning()) {
 					Weld weld = constructWeld(id)
 						.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
+					if(module.getModuleClassLoader() != null) {
+						weld.setClassLoader(module.getModuleClassLoader());
+					}
+					
 					String baseBundleId = getApplicationCDIBundleBase(module);
 					Bundle bundle = null;
 					if(StringUtil.isNotEmpty(baseBundleId)) {
@@ -442,8 +445,6 @@ public enum ContainerUtil {
 			// Disable concurrent deployment to avoid Notes thread init trouble
 			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
 			.property(ConfigurationKey.EXECUTOR_THREAD_POOL_TYPE.get(), "SINGLE_THREAD") //$NON-NLS-1$
-			// Disable Jandex, as it causes problems in D14
-			.property(Jandex.DISABLE_JANDEX_DISCOVERY_STRATEGY, true)
 			.addExtension(new CDIScopesExtension())
 			.addServices(new ExpressionLanguageSupport() {
 				@Override

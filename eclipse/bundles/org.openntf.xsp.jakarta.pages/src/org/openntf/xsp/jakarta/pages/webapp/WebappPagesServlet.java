@@ -31,7 +31,7 @@ import com.ibm.xsp.extlib.util.ExtLibUtil;
 import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.servlet.JspServlet;
 import org.glassfish.wasp.xmlparser.ParserUtils;
-import org.openntf.xsp.jakarta.pages.EarlyInitFactory;
+import org.openntf.xsp.jakarta.pages.PagesHttpInitListener;
 import org.openntf.xsp.jakarta.pages.util.DominoPagesUtil;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -116,7 +116,7 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 				ServletUtil.getListeners(context, ServletRequestListener.class)
 					.forEach(l -> l.requestInitialized(new ServletRequestEvent(context, request)));
 				try {
-					ParserUtils.setDtdResourcePrefix(EarlyInitFactory.getServletDtdPath().toUri().toString());
+					ParserUtils.setDtdResourcePrefix(PagesHttpInitListener.getServletDtdPath().toUri().toString());
 					delegate.service(request, response);
 				} finally {
 					ServletUtil.getListeners(context, ServletRequestListener.class)

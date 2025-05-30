@@ -88,16 +88,19 @@ public class NSFJakartaModuleContextParticipant implements ContextSetupParticipa
 			// Only operate on Jakarta requests
 			Optional<ActiveRequest> req = ActiveRequest.get();
 			if(req.isPresent()) {
-				ClassLoader tccc = ach.getAttribute(ATTR_CLASSLOADER);
-				if(tccc != null) {
-					AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
-						Thread.currentThread().setContextClassLoader(tccc);
-						return null;
-					});
+				try {
+					ClassLoader tccc = ach.getAttribute(ATTR_CLASSLOADER);
+					if(tccc != null) {
+						AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+							Thread.currentThread().setContextClassLoader(tccc);
+							return null;
+						});
+					}
+	
+					req.get().lsxbe().close();
+				} finally {
+					ActiveRequest.set(null);
 				}
-
-				req.get().lsxbe().close();
-				ActiveRequest.set(null);
 			}
 		}
 	}

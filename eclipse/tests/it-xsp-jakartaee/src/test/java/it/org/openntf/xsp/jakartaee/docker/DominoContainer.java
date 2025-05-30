@@ -152,6 +152,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 					}
 					JsonPatchBuilder patch = Json.createPatchBuilder();
 					
+					// Handle the configured test databases
 					for(TestDatabase db : TestDatabase.values()) {
 						if(db.isNsf()) {
 							Path ntf = findLocalMavenArtifact("org.openntf.xsp", db.getArtifactId(), version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -167,6 +168,10 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 							patch.add("/appConfiguration/databases/-", dbConfig); //$NON-NLS-1$
 						}
 					}
+					
+					// Copy in the Jakarta Config NTF
+					Path configNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaconfig", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					withFileFromPath("staging/ntf/jakartaconfig.ntf", configNtf); //$NON-NLS-1$
 					
 					json = patch.build().apply(json);
 					withFileFromTransferable("staging/domino-config.json", Transferable.of(json.toString())); //$NON-NLS-1$
