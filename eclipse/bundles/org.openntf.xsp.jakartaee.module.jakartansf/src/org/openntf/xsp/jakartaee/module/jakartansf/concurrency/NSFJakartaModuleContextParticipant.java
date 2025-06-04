@@ -68,7 +68,7 @@ public class NSFJakartaModuleContextParticipant implements ContextSetupParticipa
 			ActiveRequestCloner cloner = ach.getAttribute(ATTR_CLONER);
 			if(cloner != null) {
 				ActiveRequest req = cloner.cloneRequest();
-				ActiveRequest.set(req);
+				ActiveRequest.push(req);
 				
 				req.module().updateLastModuleAccess();
 				
@@ -99,7 +99,7 @@ public class NSFJakartaModuleContextParticipant implements ContextSetupParticipa
 	
 					req.get().lsxbe().close();
 				} finally {
-					ActiveRequest.set(null);
+					ActiveRequest.pop();
 				}
 			}
 		}

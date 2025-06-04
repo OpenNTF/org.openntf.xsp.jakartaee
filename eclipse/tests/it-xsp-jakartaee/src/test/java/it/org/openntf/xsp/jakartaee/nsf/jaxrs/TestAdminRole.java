@@ -43,6 +43,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 			Client client = getAnonymousClient();
 			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole");
 			Response response = target.request().get();
+			checkResponse(401, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
@@ -53,6 +54,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 			Client client = getAdminClient();
 			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole");
 			Response response = target.request().get();
+			checkResponse(200, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
@@ -72,6 +74,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 			Client client = getAnonymousClient();
 			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/invaliduser");
 			Response response = target.request().get();
+			checkResponse(401, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
@@ -82,6 +85,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 			Client client = getAdminClient();
 			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/invaliduser");
 			Response response = target.request().get();
+			checkResponse(401, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
@@ -101,6 +105,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 			Client client = getAnonymousClient();
 			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/login");
 			Response response = target.request().get();
+			checkResponse(401, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
@@ -111,6 +116,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 			Client client = getAdminClient();
 			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/login");
 			Response response = target.request().get();
+			checkResponse(200, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);

@@ -133,7 +133,7 @@ public class NSFJakartaModuleService extends HttpService {
 				int i = 0;
 				
 				try(var lsxbe = module.withSessions(servletRequest)) {
-					ActiveRequest.set(new ActiveRequest(module, lsxbe, null));
+					ActiveRequest.push(new ActiveRequest(module, lsxbe, null));
 					
 					while(i++ < MAX_REFRESH_ATTEMPTS) {
 						try {
@@ -143,11 +143,17 @@ public class NSFJakartaModuleService extends HttpService {
 							module.refresh();
 						}
 					}
+				} finally {
+					ActiveRequest.pop();
 				}
 				throw new IllegalStateException(MessageFormat.format("Module didn't refresh after {0} attempts", MAX_REFRESH_ATTEMPTS));
 			} finally {
-				ActiveRequest.set(null);
 				NotesThread.stermThread();
+				
+				// Sanity check
+				if(ActiveRequest.get().isPresent()) {
+					throw new IllegalStateException("Finished doService with an ActiveRequest still on the stack");
+				}
 			}
 		}
 		return false;

@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakartaee.module.jakartansf.util;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Optional;
 
 import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModule;
@@ -23,17 +25,24 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public record ActiveRequest(NSFJakartaModule module, LSXBEHolder lsxbe, HttpServletRequest request) {
 
-	private static ThreadLocal<ActiveRequest> ACTIVE_REQUEST = new ThreadLocal<>();
+	private static ThreadLocal<Deque<ActiveRequest>> ACTIVE_REQUEST = ThreadLocal.withInitial(ArrayDeque::new);
 	
 	public static Optional<ActiveRequest> get() {
-		return Optional.ofNullable(ACTIVE_REQUEST.get());
+		return Optional.ofNullable(ACTIVE_REQUEST.get().peek());
 	}
-	public static void set(ActiveRequest request) {
-		ACTIVE_REQUEST.set(request);
+	public static void push(ActiveRequest request) {
+		ACTIVE_REQUEST.get().push(request);
+	}
+	public static void pop() {
+		ACTIVE_REQUEST.get().pop();
 	}
 	public static void pushRequest(HttpServletRequest request) {
-		ActiveRequest active = get().map(req -> new ActiveRequest(req.module, req.lsxbe, request)).orElse(null);
-		set(active);
+		ActiveRequest active = ACTIVE_REQUEST.get().pop();
+		if(active == null) {
+			throw new IllegalStateException("Attempted to push a request on a non-active thread");
+		}
+		ACTIVE_REQUEST.get().push(new ActiveRequest(active.module, active.lsxbe, request));
+		
 	}
 	
 	public ActiveRequestCloner createCloner() {

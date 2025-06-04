@@ -51,9 +51,6 @@ import jakarta.ws.rs.ext.Providers;
 public class NSFRestApplication extends Application {
 	private static final Logger log = Logger.getLogger(NSFRestApplication.class.getPackage().getName());
 
-	public NSFRestApplication() {
-	}
-
 	@Override
 	public Set<Object> getSingletons() {
 		Set<Object> result = new HashSet<>();

@@ -248,7 +248,7 @@ public class NSFJakartaModule extends ComponentModule {
 				var withCl = new WithClassLoader();
 				var lsxbe = this.withSession(this.xspSigner);
 			) {
-				ActiveRequest.set(new ActiveRequest(this, lsxbe, null));
+				ActiveRequest.push(new ActiveRequest(this, lsxbe, null));
 				
 				// Initialize CDI early
 				CDI<Object> cdi = ContainerUtil.getContainer(this);
@@ -271,7 +271,7 @@ public class NSFJakartaModule extends ComponentModule {
 				
 				this.servletFactories.forEach(fac -> fac.init(this));
 			} finally {
-				ActiveRequest.set(null);
+				ActiveRequest.pop();
 			}
 			
 			this.initialized = true;
@@ -380,9 +380,7 @@ public class NSFJakartaModule extends ComponentModule {
 		
 		awaitInit();
 		
-		try {
-			
-			
+		try {			
 			super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
 		} catch(PageNotFoundException e) {
 			if(pathInfo.isEmpty() || "/".equals(pathInfo)) { //$NON-NLS-1$

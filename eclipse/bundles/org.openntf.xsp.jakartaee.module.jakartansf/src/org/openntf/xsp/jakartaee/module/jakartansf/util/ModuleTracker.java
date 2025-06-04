@@ -59,7 +59,7 @@ public enum ModuleTracker {
 					.map(module -> (Runnable)() -> {
 						log.fine(() -> MessageFormat.format("Initializing module {0}", module));
 						
-						ActiveRequest.set(new ActiveRequest(module, null, null));
+						ActiveRequest.push(new ActiveRequest(module, null, null));
 						try {
 							module.initModule();
 						} catch(Exception e) {
@@ -68,7 +68,7 @@ public enum ModuleTracker {
 								log.log(Level.SEVERE, MessageFormat.format("Encountered exception initializing module {0}", module), e);
 							}
 						} finally {
-							ActiveRequest.set(null);
+							ActiveRequest.pop();
 						}
 						log.fine(() -> MessageFormat.format("Finished initializing module {0}", module));
 					})

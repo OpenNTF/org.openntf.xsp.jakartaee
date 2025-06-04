@@ -87,6 +87,8 @@ public class RestServletFactory implements JakartaIServletFactory {
 		this.lastUpdate = module.getLastRefresh();
 		Properties props = LibraryUtil.getXspProperties(module);
 		this.deferToFiles = "true".equals(props.getProperty(PROP_DEFER_TO_FILES, null)); //$NON-NLS-1$
+		// TODO see if we can do the usesLibrary check below here - will need to see if init
+		//   is called after each design change
 	}
 
 	@Override
