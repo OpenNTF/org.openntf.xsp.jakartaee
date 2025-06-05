@@ -26,8 +26,8 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.WebDriver;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.BrowserArgumentsProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;

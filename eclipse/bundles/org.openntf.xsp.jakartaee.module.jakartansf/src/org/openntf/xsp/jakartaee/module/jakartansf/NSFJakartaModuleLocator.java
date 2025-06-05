@@ -15,9 +15,15 @@
  */
 package org.openntf.xsp.jakartaee.module.jakartansf;
 
+import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
@@ -29,9 +35,14 @@ import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
 
 import lotus.domino.Database;
+import lotus.domino.DateTime;
+import lotus.domino.Document;
+import lotus.domino.NoteCollection;
+import lotus.domino.NotesException;
 import lotus.domino.Session;
 
 public class NSFJakartaModuleLocator implements ComponentModuleLocator {
+	private static final Logger log = Logger.getLogger(NSFJakartaModuleLocator.class.getPackageName());
 
 	@Override
 	public boolean isActive() {
@@ -47,8 +58,37 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 
 	@Override
 	public Optional<String> getVersion() {
-		// TODO Auto-generated method stub
-		return Optional.empty();
+		return ActiveRequest.get()
+			.map(req -> {
+				try {
+					Database database = req.lsxbe().database();
+					Session sessionAsSigner = req.lsxbe().sessionAsSigner();
+					Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
+
+					NoteCollection noteCollection = databaseAsSigner.createNoteCollection(true);
+					noteCollection.setSelectSharedFields(true);
+					noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\""); //$NON-NLS-1$
+					noteCollection.buildCollection();
+					String noteID = noteCollection.getFirstNoteID();
+					if(StringUtil.isNotEmpty(noteID)) {
+						Document designDoc = databaseAsSigner.getDocumentByID(noteID);
+
+						if (null != designDoc) {
+							String buildVersion = designDoc.getItemValueString("$TemplateBuild"); //$NON-NLS-1$
+							Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate(); //$NON-NLS-1$
+							String buildDateFormatted = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT).format(buildDate);
+							return MessageFormat.format("{0} ({1})", buildVersion, buildDateFormatted); //$NON-NLS-1$
+						}
+					}
+
+					return null;
+				} catch(NotesException e) {
+					if(log.isLoggable(Level.SEVERE)) {
+						log.log(Level.SEVERE, "Encountered exception trying to read the database template version", e);
+					}
+					return null;
+				}
+			});
 	}
 
 	@Override
@@ -105,5 +145,18 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 			.map(ActiveRequest::module)
 			.map(NSFJakartaModule::getServletFactories)
 			.orElse(null);
+	}
+	
+	@Override
+	public String getTitle() {
+		return getUserDatabase()
+			.map(db -> {
+				try {
+					return db.getTitle();
+				} catch (NotesException e) {
+					throw new RuntimeException(e);
+				}
+			})
+			.orElseGet(ComponentModuleLocator.super::getTitle);
 	}
 }

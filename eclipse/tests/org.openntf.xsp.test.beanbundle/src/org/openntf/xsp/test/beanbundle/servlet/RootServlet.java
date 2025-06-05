@@ -42,11 +42,6 @@ public class RootServlet extends HttpServlet {
 	private ServletConfig config;
 	
 	@Override
-	public void init() throws ServletException {
-		super.init();
-	}
-	
-	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {
 		this.config = servletConfig;
 		this.context = servletConfig.getServletContext();
@@ -61,7 +56,10 @@ public class RootServlet extends HttpServlet {
 		try {
 			delegate.init(ServletUtil.oldToNew(this.config));
 		} catch (jakarta.servlet.ServletException e) {
+			e.printStackTrace();
 			throw new ServletException(e);
+		} catch(Exception e) {
+			e.printStackTrace();
 		} finally {
 			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
 				Thread.currentThread().setContextClassLoader(cl);

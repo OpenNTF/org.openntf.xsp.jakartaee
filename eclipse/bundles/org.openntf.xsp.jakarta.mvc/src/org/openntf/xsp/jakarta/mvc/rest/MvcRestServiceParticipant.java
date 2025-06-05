@@ -27,6 +27,7 @@ import java.util.List;
 import org.eclipse.krazo.bootstrap.DefaultConfigProvider;
 import org.openntf.xsp.jakarta.rest.ServiceParticipant;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ShimmingClassLoader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
@@ -68,7 +69,7 @@ public class MvcRestServiceParticipant implements ServiceParticipant {
 	// * Internal implementation utilities
 	// *******************************************************************************
 
-	private static class KrazoClassLoader extends ClassLoader {
+	private static class KrazoClassLoader extends ClassLoader implements ShimmingClassLoader {
 		private static final Bundle krazo;
 
 		static {

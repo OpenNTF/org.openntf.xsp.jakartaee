@@ -22,19 +22,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestConcurrency extends AbstractWebClientTest {
-	@Test
-	public void testBasics() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testBasics(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency");
+		WebTarget target = client.target(getRestUrl(null, db) + "/concurrency");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -46,10 +50,11 @@ public class TestConcurrency extends AbstractWebClientTest {
 		assertTrue(output.contains("applicationGuy is: I'm application guy"), () -> "Received unexpected output: " + output);
 	}
 
-	@Test
-	public void testBasicsAuthenticated() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testBasicsAuthenticated(TestDatabase db) {
 		Client client = getAdminClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency");
+		WebTarget target = client.target(getRestUrl(null, db) + "/concurrency");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -60,9 +65,10 @@ public class TestConcurrency extends AbstractWebClientTest {
 		assertTrue(output.contains("Database is: dev"), () -> "Received unexpected output: " + output);
 		assertTrue(output.contains("applicationGuy is: I'm application guy"), () -> "Received unexpected output: " + output);
 	}
-	
-	@Test
-	public void testScheduled() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testScheduled(TestDatabase db) {
 		Client client = getAnonymousClient();
 		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency/scheduled");
 		Response response = target.request().get();
@@ -82,11 +88,12 @@ public class TestConcurrency extends AbstractWebClientTest {
 		
 		assertTrue(output.contains("bean says: Hello from executor"), () -> "Received unexpected output: " + output);
 	}
-	
-	@Test
-	public void testAsyncLookup() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAsyncLookup(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency/asyncLookup");
+		WebTarget target = client.target(getRestUrl(null, db) + "/concurrency/asyncLookup");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -94,11 +101,12 @@ public class TestConcurrency extends AbstractWebClientTest {
 		assertTrue(output.startsWith("I looked up: "), () -> "Received unexpected output: " + output);
 		assertTrue(output.contains("ManagedExecutorService"), () -> "Received unexpected output: " + output);
 	}
-	
-	@Test
-	public void testDoubleAsyncLookup() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testDoubleAsyncLookup(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency/doubleAsyncLookup");
+		WebTarget target = client.target(getRestUrl(null, db) + "/concurrency/doubleAsyncLookup");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -106,11 +114,12 @@ public class TestConcurrency extends AbstractWebClientTest {
 		assertTrue(output.startsWith("I looked up: "), () -> "Received unexpected output: " + output);
 		assertTrue(output.contains("ManagedExecutorService"), () -> "Received unexpected output: " + output);
 	}
-	
-	@Test
-	public void testAsyncMethod() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAsyncMethod(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/concurrency/asyncMethod");
+		WebTarget target = client.target(getRestUrl(null, db) + "/concurrency/asyncMethod");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);

@@ -20,30 +20,34 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestFaultTolerance extends AbstractWebClientTest {
-	@Test
-	public void testRetry() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testRetry(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/faultTolerance/retry");
+		WebTarget target = client.target(getRestUrl(null, db) + "/faultTolerance/retry");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
 		assertEquals("I am the fallback response.", result);
 	}
-	
-	@Test
-	public void testTimeout() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testTimeout(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/faultTolerance/timeout");
+		WebTarget target = client.target(getRestUrl(null, db) + "/faultTolerance/timeout");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
@@ -51,11 +55,12 @@ public class TestFaultTolerance extends AbstractWebClientTest {
 		
 		assertTrue(result.startsWith("org.eclipse.microprofile.faulttolerance.exceptions.TimeoutException: bean.FaultToleranceBean#getTimeout timed out"), () -> "Actual: " + result);
 	}
-	
-	@Test
-	public void testCircuitBreaker() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testCircuitBreaker(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/faultTolerance/circuitBreaker");
+		WebTarget target = client.target(getRestUrl(null, db) + "/faultTolerance/circuitBreaker");
 		
 		// First try
 		{

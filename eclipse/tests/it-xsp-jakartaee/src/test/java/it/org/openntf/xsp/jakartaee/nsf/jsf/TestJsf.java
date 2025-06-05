@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,8 +38,9 @@ import org.openqa.selenium.WebElement;
 import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -49,25 +49,24 @@ import jakarta.ws.rs.core.Response;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestJsf extends AbstractWebClientTest {
 	
-	public static class BrowserAndHelloProvider implements ArgumentsProvider {
-
+	public static class EnumBrowserAndHelloProvider implements ArgumentsProvider {
 		@Override
 		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-			return new BrowserArgumentsProvider().provideArguments(context)
-				.map(arg -> arg.get()[0])
-				.flatMap(browser ->
-					Stream.of("/hello.xhtml", "/xsp/helloForExtensionless")
-						.map(page -> Arguments.of(browser, page))
+			
+			return new MainAndModuleProvider.EnumAndBrowser().provideArguments(context)
+				.map(args -> args.get())
+				.flatMap(enumAndBrowser ->
+					Stream.of("/hello.xhtml", ((TestDatabase)enumAndBrowser[0]).getXspPrefix() + "/helloForExtensionless")
+						.map(page -> Arguments.of(enumAndBrowser[0], enumAndBrowser[1], page))
 				);
 		}
-		
 	}
 	
 	@ParameterizedTest
-	@ArgumentsSource(BrowserAndHelloProvider.class)
+	@ArgumentsSource(EnumBrowserAndHelloProvider.class)
 	@Order(1)
-	public void testHelloPage(WebDriver driver, String page) {
-		driver.get(getRootUrl(driver, TestDatabase.MAIN) + page);
+	public void testHelloPage(TestDatabase db, WebDriver driver, String page) {
+		driver.get(getRootUrl(driver, db) + page);
 		
 		try {
 			String expected = "inputValue" + System.currentTimeMillis();
@@ -164,11 +163,12 @@ public class TestJsf extends AbstractWebClientTest {
 	 * Tests to ensure that a JSF file that doesn't exist leads to a
 	 * non-empty 404 page.
 	 */
-	@Test
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	@Order(2)
-	public void testNotFound() {
+	public void testNotFound(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/somefakepage.xhtml");
+		WebTarget target = client.target(getRootUrl(null, db) + "/somefakepage.xhtml");
 		Response response = target.request().get();
 		
 		checkResponse(404, response);
@@ -180,11 +180,12 @@ public class TestJsf extends AbstractWebClientTest {
 	/**
 	 * Tests to ensure that the jsf.js resource can be properly loaded.
 	 */
-	@Test
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	@Order(3)
-	public void testJsfJs() {
+	public void testJsfJs(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/jakarta.faces.resource/faces.js.xhtml?ln=jakarta.faces");
+		WebTarget target = client.target(getRootUrl(null, db) + "/jakarta.faces.resource/faces.js.xhtml?ln=jakarta.faces");
 		Response response = target.request().get();
 		assertEquals(200, response.getStatus());
 
@@ -220,11 +221,11 @@ public class TestJsf extends AbstractWebClientTest {
 	}
 	
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
 	@Order(5)
-	public void testProgrammaticFacelet(WebDriver driver) {
+	public void testProgrammaticFacelet(TestDatabase db, WebDriver driver) {
 		String expected = "foo" + System.currentTimeMillis();
-		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/programmaticFacelet.xhtml?foo=" + expected);
+		driver.get(getRootUrl(driver, db) + "/programmaticFacelet.xhtml?foo=" + expected);
 
 		try {
 			WebElement output = driver.findElement(By.cssSelector(".param-output"));

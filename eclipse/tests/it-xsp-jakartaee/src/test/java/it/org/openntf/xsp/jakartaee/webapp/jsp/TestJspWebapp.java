@@ -25,8 +25,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.BrowserArgumentsProvider;
 
 @SuppressWarnings("nls")
 public class TestJspWebapp extends AbstractWebClientTest {

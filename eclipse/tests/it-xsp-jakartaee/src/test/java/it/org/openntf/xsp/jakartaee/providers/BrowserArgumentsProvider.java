@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.org.openntf.xsp.jakartaee;
+package it.org.openntf.xsp.jakartaee.providers;
 
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
+import it.org.openntf.xsp.jakartaee.JakartaTestContainers;
 
 public class BrowserArgumentsProvider implements ArgumentsProvider {
-	private final static ThreadLocal<WebDriver> HTMLUNIT_DRIVER = ThreadLocal.withInitial(() -> new HtmlUnitDriver(BrowserVersion.FIREFOX, true));
-
 	@Override
-	public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-		// Just HtmlUnit for now
+	public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
 		return Stream.of(
 			JakartaTestContainers.instance.firefox.getWebDriver()
 		)

@@ -26,15 +26,15 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestJspRecords extends AbstractWebClientTest {
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
-	public void testResolution(WebDriver driver) {
-		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/recordExample.jsp");
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
+	public void testResolution(TestDatabase db, WebDriver driver) {
+		driver.get(getRootUrl(driver, db) + "/recordExample.jsp");
 		
 		try {
 			{

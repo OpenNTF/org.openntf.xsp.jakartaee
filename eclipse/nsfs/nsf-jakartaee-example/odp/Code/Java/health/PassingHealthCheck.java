@@ -15,27 +15,32 @@
  */
 package health;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Liveness;
 
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import lotus.domino.Database;
 import lotus.domino.NoteCollection;
 import lotus.domino.NotesException;
 
-@ApplicationScoped
+@RequestScoped
 @Liveness
 public class PassingHealthCheck implements HealthCheck {
+	
+	@Inject
+	private Database database;
 
 	@Override
 	public HealthCheckResponse call() {
 		HealthCheckResponseBuilder response = HealthCheckResponse.named("I am the liveliness check");
 		try {
-			Database database = NotesContext.getCurrent().getCurrentDatabase();
 			NoteCollection notes = database.createNoteCollection(true);
 			notes.buildCollection();
 			return response
@@ -43,9 +48,15 @@ public class PassingHealthCheck implements HealthCheck {
 				.withData("noteCount", notes.getCount())
 				.build();
 		} catch(NotesException e) {
+			String stackTrace = null;
+			try(StringWriter w = new StringWriter(); PrintWriter pw = new PrintWriter(w)) {
+				e.printStackTrace(pw);
+				stackTrace = w.toString();
+			} catch(IOException ignore) { }
 			return response
 				.status(false)
 				.withData("exception", e.text)
+				.withData("stackTrace", stackTrace)
 				.build();
 		}
 	}

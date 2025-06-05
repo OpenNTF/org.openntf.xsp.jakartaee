@@ -31,8 +31,8 @@ import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.AdminUserAuthenticator;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.BrowserArgumentsProvider;
 
 @SuppressWarnings("nls")
 public class TestNoSQLJSF extends AbstractWebClientTest {

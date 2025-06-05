@@ -24,10 +24,11 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestAdminRole extends AbstractWebClientTest {
@@ -36,7 +37,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 	 * require [Admin].
 	 */
 	@ParameterizedTest
-	@EnumSource(value=TestDatabase.class, names = {"MAIN", "MAIN_MODULE"})
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	public void testAdminRole(TestDatabase db) {
 		// Anonymous should get a login form
 		{
@@ -67,7 +68,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 	 * require an invalid user. 
 	 */
 	@ParameterizedTest
-	@EnumSource(value=TestDatabase.class, names = {"MAIN", "MAIN_MODULE"})
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	public void testInvalidUser(TestDatabase db) {
 		// Anonymous should get a login form
 		{
@@ -98,7 +99,7 @@ public class TestAdminRole extends AbstractWebClientTest {
 	 * require any authenticated user
 	 */
 	@ParameterizedTest
-	@EnumSource(value=TestDatabase.class, names = {"MAIN", "MAIN_MODULE"})
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	public void testLoginRole(TestDatabase db) {
 		// Anonymous should get a login form
 		{

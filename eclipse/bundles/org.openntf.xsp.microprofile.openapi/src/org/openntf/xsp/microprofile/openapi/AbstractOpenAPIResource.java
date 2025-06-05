@@ -35,7 +35,6 @@ import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import io.smallrye.openapi.api.OpenApiConfig;
-import io.smallrye.openapi.api.OpenApiConfigImpl;
 import io.smallrye.openapi.api.models.servers.ServerImpl;
 import io.smallrye.openapi.runtime.OpenApiProcessor;
 import jakarta.enterprise.inject.spi.CDI;
@@ -73,7 +72,7 @@ public abstract class AbstractOpenAPIResource {
 		Index index = Index.of(classes);
 
 		Config mpConfig = CDI.current().select(Config.class).get();
-		OpenApiConfig config = OpenApiConfigImpl.fromConfig(mpConfig);
+		OpenApiConfig config = OpenApiConfig.fromConfig(mpConfig);
 		ClassLoader cl = new DelegatingClassLoader(OpenApiProcessor.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
 		OpenAPI openapi;
 		synchronized(OpenApiProcessor.class) {

@@ -30,16 +30,20 @@ import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestRestClient extends AbstractWebClientTest {
-	@Test
-	public void testRestClient() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testRestClient(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient");
+		WebTarget target = client.target(getRestUrl(null, db) + "/restClient");
 		Response response = target.request()
 			.header("Host", "localhost:80")
 			.get();
@@ -50,10 +54,11 @@ public class TestRestClient extends AbstractWebClientTest {
 		assertEquals("bar", responseObj.getString("foo"), () -> json);
 	}
 
-	@Test
-	public void testRestClientAsync() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testRestClientAsync(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient/async");
+		WebTarget target = client.target(getRestUrl(null, db) + "/restClient/async");
 		Response response = target.request()
 			.header("Host", "localhost:80")
 			.get();
@@ -64,11 +69,12 @@ public class TestRestClient extends AbstractWebClientTest {
 		assertNotNull(responseObj, () -> json);
 		assertEquals("bar", responseObj.getString("foo"), () -> json);
 	}
-	
-	@Test
-	public void testJaxRsRestClient() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testJaxRsRestClient(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient/jaxRsClient");
+		WebTarget target = client.target(getRestUrl(null, db) + "/restClient/jaxRsClient");
 		Response response = target.request()
 			.header("Host", "localhost:80")
 			.get();
@@ -163,12 +169,13 @@ public class TestRestClient extends AbstractWebClientTest {
 			}
 		}
 	}
-	
-	@Test
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	@Disabled("Useful to see the 'Cannot create a session from an agent' output, but the remote network call is time-consuming")
-	public void testGoogleHomePage() {
+	public void testGoogleHomePage(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/restClient/googleHomePage");
+		WebTarget target = client.target(getRestUrl(null, db) + "/restClient/googleHomePage");
 		Response response = target.request().get();
 		checkResponse(200, response);
 		

@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
 
+@SuppressWarnings("nls")
 public class TestServletRest extends AbstractWebClientTest {
 	@Test
 	public void testSample() {
@@ -35,17 +36,17 @@ public class TestServletRest extends AbstractWebClientTest {
 		
 		String output = response.readEntity(String.class);
 		
-		assertEquals("I am root resource.", output); //$NON-NLS-1$
+		assertEquals("I am root resource.", output);
 	}
 
 	@Test
 	public void testNsfPathSample() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null, TestDatabase.BUNDLE) + "/exampleservlet"); //$NON-NLS-1$
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.BUNDLE) + "/exampleservlet");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
 		
-		assertEquals("I am root resource.", output); //$NON-NLS-1$
+		assertEquals("I am root resource.", output, () -> "Encountered unexpected output for " + target.getUri() + ":\n");
 	}
 }

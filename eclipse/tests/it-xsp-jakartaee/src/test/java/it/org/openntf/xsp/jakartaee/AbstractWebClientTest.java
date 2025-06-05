@@ -45,7 +45,7 @@ public abstract class AbstractWebClientTest {
 	
 	public static class AnonymousClientProvider implements ArgumentsProvider {
 		@Override
-		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
 			Client client = ClientBuilder.newClient();
 			anonymousClients.add(client);
 			return Stream.of(Arguments.of(client));

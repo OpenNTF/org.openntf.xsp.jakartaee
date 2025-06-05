@@ -47,6 +47,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ibm.commons.extension.ExtensionManager.ApplicationClassLoader;
+import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesConstants;
@@ -70,6 +71,7 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 	private final NSFJakartaModule module;
 	private final List<ClassLoader> extraDepends = new ArrayList<>();
 	private final Map<String, JavaClassNote> javaClasses = new HashMap<>();
+	private final Map<String, JavaClassNote> javaClassFiles = new HashMap<>();
 	private final Map<String, Integer> jarFiles = new HashMap<>();
 	private final Set<Path> cleanup = new HashSet<>();
 	private final List<ClassLoaderExtension> extensions;
@@ -196,6 +198,21 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			return modRes;
 		}
 		
+		// The above won't serve up .class files, but we should
+		JavaClassNote javaClassNote = javaClassFiles.get(PathUtil.concat("WEB-INF/classes", name, '/')); //$NON-NLS-1$
+		if(javaClassNote != null) {
+			try {
+				NotesNote javaNote = module.getNotesDatabase().openNote(javaClassNote.noteId(), 0);
+				try {
+					return FileAccess.readFileContentAsInputStream(javaNote, javaClassNote.fileItem());
+				} finally {
+					javaNote.recycle();
+				}
+			} catch(NotesAPIException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
 		InputStream result = getJarResourceAsStream(name);
 		if(result != null) {
 			return result;
@@ -238,8 +255,12 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			if(javaClassNote != null) {
 				NotesNote javaNote = module.getNotesDatabase().openNote(javaClassNote.noteId(), 0);
 				byte[] bytecode;
-				try(InputStream is = FileAccess.readFileContentAsInputStream(javaNote, javaClassNote.fileItem())) {
-					bytecode = is.readAllBytes();
+				try {
+					try(InputStream is = FileAccess.readFileContentAsInputStream(javaNote, javaClassNote.fileItem())) {
+						bytecode = is.readAllBytes();
+					}
+				} finally {
+					javaNote.recycle();
 				}
 				return this.defineClass(name, bytecode, 0, bytecode.length, this.nsfCodeSource);
 			}
@@ -297,12 +318,15 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 						String classNamesCat = entry.classIndexItem();
 						String[] classNames = StringUtil.splitString(classNamesCat, '|');
 						for (int i = 0; i < classNames.length; i++) {
-							if(classNames[0].length() > 7) {
+							if(classNames[i].length() > 7) {
 								int prefixLen = 16; // "WEB-INF/classes/"
 								int suffixLen = 6; // ".class"
 								String className = classNames[i].substring(prefixLen, classNames[i].length() - suffixLen);
 								className = className.replace('/', '.');
-								this.javaClasses.put(className, new JavaClassNote(entry.noteId(), "$ClassData" + i)); //$NON-NLS-1$
+								JavaClassNote javaNote = new JavaClassNote(entry.noteId(), "$ClassData" + i); //$NON-NLS-1$
+								this.javaClasses.put(className, javaNote);
+								this.javaClassFiles.put(classNames[i], javaNote);
+								
 							}
 						}
 					} else if (NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_JAVAJAR)) {

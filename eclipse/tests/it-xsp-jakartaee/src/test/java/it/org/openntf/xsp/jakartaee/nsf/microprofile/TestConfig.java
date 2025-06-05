@@ -27,17 +27,20 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestConfig extends AbstractWebClientTest {
-	@Test
-	public void testConfig() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testConfig(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/config");
+		WebTarget target = client.target(getRestUrl(null, db) + "/config");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -47,11 +50,12 @@ public class TestConfig extends AbstractWebClientTest {
 		assertEquals("/local/notesdata", jsonObject.getString("Directory"));
 		assertEquals("foo", jsonObject.getString("mpconfig.example.setting"));
 	}
-	
-	@Test
-	public void testConfigNsfSources() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testConfigNsfSources(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/config");
+		WebTarget target = client.target(getRestUrl(null, db) + "/config");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);

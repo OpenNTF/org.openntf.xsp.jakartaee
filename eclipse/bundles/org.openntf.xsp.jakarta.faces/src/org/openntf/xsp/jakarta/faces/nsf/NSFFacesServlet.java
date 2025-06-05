@@ -48,6 +48,7 @@ import org.openntf.xsp.jakarta.faces.util.FacesBlockingClassLoader;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
+import org.openntf.xsp.jakartaee.util.ShimmingClassLoader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
@@ -285,7 +286,13 @@ public class NSFFacesServlet extends HttpServlet {
 			}
 			return (ClassLoader) context.getAttribute(PROP_CLASSLOADER);
 		} else {
-			return delegate;
+			// We may be in e.g. a Krazo context with a fake ClassLoader, so
+			//   go to its parent because jakarta.faces.Factory is CL-specific
+			if(delegate instanceof ShimmingClassLoader) {
+				return delegate.getParent();
+			} else {
+				return delegate;
+			}
 		}
 	}
 

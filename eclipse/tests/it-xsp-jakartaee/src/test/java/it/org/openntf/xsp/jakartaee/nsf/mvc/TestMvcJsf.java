@@ -29,17 +29,17 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestMvcJsf extends AbstractWebClientTest {
-	
+
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
 	@Order(1)
-	public void testHelloPage(WebDriver driver) {
-		driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvcjsf");
+	public void testHelloPage(TestDatabase db, WebDriver driver) {
+		driver.get(getRestUrl(driver, db) + "/mvcjsf");
 
 		try {
 			String expected = "inputValue" + System.currentTimeMillis();

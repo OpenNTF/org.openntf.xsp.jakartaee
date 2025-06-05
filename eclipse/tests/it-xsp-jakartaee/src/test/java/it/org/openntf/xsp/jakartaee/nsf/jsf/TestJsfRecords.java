@@ -27,16 +27,16 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestJsfRecords extends AbstractWebClientTest {
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
 	@Disabled("Disable until JEE 11 and official records support")
-	public void testResolution(WebDriver driver) {
-		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/recordExample.xhtml");
+	public void testResolution(TestDatabase db, WebDriver driver) {
+		driver.get(getRootUrl(driver, db) + "/recordExample.xhtml");
 		
 		try {
 			{

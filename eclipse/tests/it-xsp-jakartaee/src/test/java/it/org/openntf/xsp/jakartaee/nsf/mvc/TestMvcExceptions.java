@@ -19,12 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.Test;
-
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Response;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
@@ -32,16 +26,19 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestMvcExceptions extends AbstractWebClientTest {
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
-	public void testHtml(WebDriver driver) {
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
+	public void testHtml(TestDatabase db, WebDriver driver) {
 		try {
-			driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc/exception");
+			driver.get(getRestUrl(driver, db) + "/mvc/exception");
 			
 			WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
 			assertEquals("I am an exception from an MVC resource", span.getText());
@@ -54,18 +51,18 @@ public class TestMvcExceptions extends AbstractWebClientTest {
 	 * Tests that a fake endpoint ends up with a 404 and standard error page
 	 */
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
-	public void testNotFound(WebDriver driver) {
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
+	public void testNotFound(TestDatabase db, WebDriver driver) {
 		try {
 			{
-				driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc/notFound");
+				driver.get(getRestUrl(driver, db) + "/mvc/notFound");
 				
 				WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
 				assertTrue(span.getText().startsWith("I am a programmatic not-found exception from MVC"), () -> "Received unexpected page content: " + driver.getPageSource());
 			}
 			{
 				Client client = getAnonymousClient();
-				WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mvc/notFound");
+				WebTarget target = client.target(getRestUrl(null, db) + "/mvc/notFound");
 				Response response = target.request().get();
 				assertEquals(404, response.getStatus());
 			}
@@ -77,11 +74,12 @@ public class TestMvcExceptions extends AbstractWebClientTest {
 	/**
 	 * Tests that a an endpoint throwing ForbiddenException gets an appropriate error
 	 */
-	@Test
-	public void testForbidden() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
+	public void testForbidden(TestDatabase db) {
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mvc/forbidden");
+			WebTarget target = client.target(getRestUrl(null, db) + "/mvc/forbidden");
 			Response response = target.request().get();
 			assertEquals(401, response.getStatus());
 			
@@ -90,7 +88,7 @@ public class TestMvcExceptions extends AbstractWebClientTest {
 		}
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mvc/forbidden");
+			WebTarget target = client.target(getRestUrl(null, db) + "/mvc/forbidden");
 			Response response = target.request().get();
 			assertEquals(401, response.getStatus());
 			

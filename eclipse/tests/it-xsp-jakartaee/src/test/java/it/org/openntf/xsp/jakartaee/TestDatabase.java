@@ -41,6 +41,11 @@ public enum TestDatabase {
 		public String getContextPath() {
 			return "/moduleapp";
 		}
+		
+		@Override
+		public String getXspPrefix() {
+			return "";
+		}
 	}
 	;
 	
@@ -72,5 +77,9 @@ public enum TestDatabase {
 	
 	public String getContextPath() {
 		return "/dev/" + fileName + ".nsf";
+	}
+	
+	public String getXspPrefix() {
+		return "/xsp";
 	}
 }
