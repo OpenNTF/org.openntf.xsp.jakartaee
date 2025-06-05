@@ -15,6 +15,7 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.nosql;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -28,9 +29,21 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+
+import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -43,21 +56,14 @@ import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-
-import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.TestDatabase;
-
 @SuppressWarnings("nls")
 public class TestNoSQL extends AbstractWebClientTest {
-	@Test
-	public void testNoSql() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testNoSql(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql?lastName=CreatedUnitTest"); //$NON-NLS-1$
+		String lastName = "CreatedUnitTest" + System.currentTimeMillis();
+		WebTarget target = client.target(getRestUrl(null, db) + "/nosql?lastName=" + lastName); //$NON-NLS-1$
 		
 		{
 			Response response = target.request().get();
@@ -65,8 +71,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			String json = response.readEntity(String.class);
 			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			try {
-				JsonArray byQueryLastName = jsonObject.getJsonArray("byQueryLastName"); //$NON-NLS-1$
-				assertTrue(byQueryLastName.isEmpty(), () -> String.valueOf(jsonObject));
+				JsonArray existing = jsonObject.getJsonArray("byQueryLastName");
+				assertTrue(existing.isEmpty());
 			} catch(Exception e) {
 				fail("Encounted unexpected JSON: " + jsonObject, e);
 			}
@@ -76,9 +82,9 @@ public class TestNoSQL extends AbstractWebClientTest {
 		{
 			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
 			payload.putSingle("firstName", "foo"); //$NON-NLS-1$ //$NON-NLS-2$
-			payload.putSingle("lastName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
+			payload.putSingle("lastName", lastName); //$NON-NLS-1$ //$NON-NLS-2$
 			payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 			Response response = postTarget.request()
 				.accept(MediaType.TEXT_HTML_TYPE) // Ensure that it routes to MVC
 				.post(Entity.form(payload));
@@ -95,8 +101,13 @@ public class TestNoSQL extends AbstractWebClientTest {
 				
 				JsonArray byQueryLastName = jsonObject.getJsonArray("byQueryLastName"); //$NON-NLS-1$
 				assertFalse(byQueryLastName.isEmpty());
-				JsonObject entry = byQueryLastName.getJsonObject(0);
-				assertEquals("CreatedUnitTest", entry.getString("lastName")); //$NON-NLS-1$ //$NON-NLS-2$
+				Optional<JsonObject> optEntry = byQueryLastName.stream()
+					.map(JsonValue::asJsonObject)
+					.filter(o -> lastName.equals(o.getString("lastName")))
+					.findFirst();
+				assertFalse(optEntry.isEmpty(), "Should have found an entry with the expected last name");
+				JsonObject entry = optEntry.get();
+				assertEquals(lastName, entry.getString("lastName")); //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					JsonObject customProp = entry.getJsonObject("customProperty"); //$NON-NLS-1$
 					String val = customProp.getString("value"); //$NON-NLS-1$
@@ -115,14 +126,15 @@ public class TestNoSQL extends AbstractWebClientTest {
 	/**
 	 * Tests to make sure a missing firstName is caught, which is enforced at the JAX-RS level.
 	 */
-	@Test
-	public void testMissingFirstName() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testMissingFirstName(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
 		payload.putSingle("lastName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
 		payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
-		WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+		WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 		Response response = postTarget.request().post(Entity.form(payload));
 		String html = response.readEntity(String.class);
 		assertEquals(400, response.getStatus(), () -> "Unexpected response code " + response.getStatus() + " with content: " + html);
@@ -131,24 +143,25 @@ public class TestNoSQL extends AbstractWebClientTest {
 	/**
 	 * Tests to make sure a missing lastName is caught, which is enforced at the JNoSQL level.
 	 */
-	@Test
-	public void testMissingLastName() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testMissingLastName(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
 		payload.putSingle("firstName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
 		payload.putSingle("customProperty", "i am custom property"); //$NON-NLS-1$ //$NON-NLS-2$
-		WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+		WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 		Response response = postTarget.request().post(Entity.form(payload));
 		// NB: this currently throws a 500 due to the exception being UndeclaredThrowableException (Issue #211)
 		assertTrue(response.getStatus() >= 400, () -> "Response code should be an error; got " + response.getStatus()); //$NON-NLS-1$
 	}
-	
-	@Test
-	@Disabled("QRP#executeToView is currently broken on Linux (12.0.1IF2)")
-	public void testNoSqlNames() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testNoSqlNames(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/servers"); //$NON-NLS-1$
+		WebTarget target = client.target(getRestUrl(null, db) + "/nosql/servers"); //$NON-NLS-1$
 		
 		Response response = target.request().get();
 		
@@ -163,15 +176,16 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertFalse(entry.getString("unid").isEmpty(), () -> json); //$NON-NLS-1$
 		assertEquals(1d, jsonObject.getJsonNumber("totalCount").doubleValue(), () -> json); //$NON-NLS-1$
 	}
-	
-	@Test
-	public void testQueryNoteID() throws UnsupportedEncodingException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testQueryNoteID(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		String lastName;
 		String unid;
 		{
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 			
 			lastName = "Fooson" + System.nanoTime();
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
@@ -193,7 +207,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		int noteId;
 		// Fetch it again to get the note ID
 		{
-			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
+			WebTarget getTarget = client.target(getRestUrl(null, db) + "/nosql/" + unid);
 			
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -209,7 +223,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		// Find by note ID
-		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byNoteId/" + Integer.toHexString(noteId));
+		WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/byNoteId/" + Integer.toHexString(noteId));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -221,16 +235,17 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertEquals(noteId, result.getInt("noteId"));
 		assertEquals(lastName, result.getString("lastName"));
 	}
-	
-	@Test
-	public void testQueryEmail() throws UnsupportedEncodingException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testQueryEmail(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		String lastName;
 		String email;
 		String unid;
 		{
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 			
 			lastName = "Fooson" + System.nanoTime();
 			email = "foo" + System.nanoTime() + "@foo.com";
@@ -254,7 +269,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		// Find by note ID
-		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byEmail/" + URLEncoder.encode(email, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/byEmail/" + URLEncoder.encode(email, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -266,15 +281,16 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertEquals(email, result.getString("email"));
 		assertEquals(lastName, result.getString("lastName"));
 	}
-	
-	@Test
-	public void testQueryNoteIDInt() throws UnsupportedEncodingException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testQueryNoteIDInt(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		String lastName;
 		String unid;
 		{
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 			
 			lastName = "Fooson" + System.nanoTime();
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
@@ -296,7 +312,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		int noteId;
 		// Fetch it again to get the note ID
 		{
-			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
+			WebTarget getTarget = client.target(getRestUrl(null, db) + "/nosql/" + unid);
 			
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -312,7 +328,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		// Find by note ID
-		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byNoteIdInt/" + noteId);
+		WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/byNoteIdInt/" + noteId);
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -324,16 +340,17 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertEquals(noteId, result.getInt("noteId"));
 		assertEquals(lastName, result.getString("lastName"));
 	}
-	
-	@Test
-	public void testQueryModTime() throws UnsupportedEncodingException, InterruptedException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testQueryModTime(TestDatabase db) throws UnsupportedEncodingException, InterruptedException {
 		Client client = getAdminClient();
 		
 		String lastName;
 		String firstName;
 		String unid;
 		{
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 			
 			lastName = "Fooson" + System.nanoTime();
 			firstName = "Foo" + System.nanoTime();
@@ -357,7 +374,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		{
 			TimeUnit.SECONDS.sleep(1);
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/" + unid);
 			
 			JsonObject payload = Json.createObjectBuilder()
 					.add("firstName", firstName)
@@ -377,7 +394,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		String modified;
 		// Fetch it again to get the mod time
 		{
-			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
+			WebTarget getTarget = client.target(getRestUrl(null, db) + "/nosql/" + unid);
 			
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -412,7 +429,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		// Find by modified
-		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/modifiedSince/" + URLEncoder.encode(modified, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/modifiedSince/" + URLEncoder.encode(modified, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -429,25 +446,27 @@ public class TestNoSQL extends AbstractWebClientTest {
 		// Test to make sure the modification actually worked, too
 		assertEquals(lastName + "_mod", person.getString("lastName"));
 	}
-	
-	@Test
-	public void testQueryByNoteIdNotFound() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testQueryByNoteIdNotFound(TestDatabase db) {
 		Client client = getAdminClient();
-		WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byNoteId/doesNotExist");
+		WebTarget getTarget = client.target(getRestUrl(null, db) + "/nosql/byNoteId/doesNotExist");
 		
 		Response response = getTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
 			.get();
 		assertEquals(404, response.getStatus());
 	}
-	
-	@Test
-	public void testMultipartCreate() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testMultipartCreate(TestDatabase db) {
 		Client client = getAnonymousClient();
 		String unid;
 		String lastName = "Fooson" + System.nanoTime();
 		{
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 			
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
 			payload.addFormData("firstName", "Foo", MediaType.TEXT_PLAIN_TYPE);
@@ -467,7 +486,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Fetch the doc by UNID
 		{
-			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
+			WebTarget getTarget = client.target(getRestUrl(null, db) + "/nosql/" + unid);
 			
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -489,14 +508,15 @@ public class TestNoSQL extends AbstractWebClientTest {
 			Instant.parse(jsonObject.getString("accessed"));
 		}
 	}
-	
-	@Test
-	public void testAttachmentCreate() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAttachmentCreate(TestDatabase db) {
 		Client client = getAnonymousClient();
 		String unid;
 		String lastName = "Fooson" + System.nanoTime();
 		{
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 			
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
 			payload.addFormData("firstName", "Foo", MediaType.TEXT_PLAIN_TYPE);
@@ -517,7 +537,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Fetch the doc by UNID
 		{
-			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid);
+			WebTarget getTarget = client.target(getRestUrl(null, db) + "/nosql/" + unid);
 			
 			Response response = getTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -538,13 +558,25 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Fetch the attachment
 		{
-			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid + "/attachment/foo.html");
+			WebTarget getTarget = client.target(getRestUrl(null, db) + "/nosql/" + unid + "/attachment/foo.html");
 
 			Response response = getTarget.request().get();
 			checkResponse(200, response);
 
 			String html = response.readEntity(String.class);
 			assertEquals("<p>I am foo HTML</p>", html);
+		}
+	}
+	
+	public static class EnumAndFolderPathsProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return new MainAndModuleProvider.EnumAndBrowser().provideArguments(context)
+				.map(args -> args.get()[0])
+				.flatMap(e ->
+					Stream.of("inFolder", "inFolderManual")
+						.map(page -> Arguments.of(e, page))
+				);
 		}
 	}
 	
@@ -556,13 +588,13 @@ public class TestNoSQL extends AbstractWebClientTest {
 	 * @param endpoint the endpoint tested in this run
 	 */
 	@ParameterizedTest
-	@ValueSource(strings = { "inFolder", "inFolderManual" })
-	public void testFolderOperations(String endpoint) {
+	@ArgumentsSource(EnumAndFolderPathsProvider.class)
+	public void testFolderOperations(TestDatabase db, String endpoint) {
 		Client client = getAdminClient();
 		String unid;
 		String lastName = "Fooson" + System.nanoTime();
 		{
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 			
 			MultipartFormDataOutput payload = new MultipartFormDataOutput();
 			payload.addFormData("firstName", "Foo", MediaType.TEXT_PLAIN_TYPE);
@@ -581,7 +613,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		}
 		
 		Predicate<String> isInFolder = documentId -> {
-			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + endpoint); //$NON-NLS-1$
+			WebTarget getTarget = client.target(getRestUrl(null, db) + "/nosql/" + endpoint); //$NON-NLS-1$
 			
 			Response response = getTarget.request().get();
 			String json = response.readEntity(String.class);
@@ -597,7 +629,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Add it to the folder
 		{
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid + "/putInFolder");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/" + unid + "/putInFolder");
 
 			Response response = postTarget.request().post(Entity.form(new MultivaluedHashMap<>()));
 			String json = response.readEntity(String.class);
@@ -609,7 +641,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 		
 		// Remove it from the folder
 		{
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + unid + "/removeFromFolder");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/" + unid + "/removeFromFolder");
 
 			Response response = postTarget.request().post(Entity.form(new MultivaluedHashMap<>()));
 			String json = response.readEntity(String.class);
@@ -620,15 +652,27 @@ public class TestNoSQL extends AbstractWebClientTest {
 		assertFalse(isInFolder.test(unid));
 	}
 	
+	public static class EnumAndEmailPathsProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return new MainAndModuleProvider.EnumAndBrowser().provideArguments(context)
+				.map(args -> args.get()[0])
+				.flatMap(e ->
+					Stream.of("queryByEmail", "queryByEmailEntries", "queryByEmailOneKey", "queryByEmailOneKey?resort=true")
+						.map(page -> Arguments.of(e, page))
+				);
+		}
+	}
+	
 	/**
 	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/463">Issue #463</a>
 	 */
 	@ParameterizedTest
-	@ValueSource(strings = { "queryByEmail", "queryByEmailEntries", "queryByEmailOneKey", "queryByEmailOneKey?resort=true" })
-	public void testListByKey(String endpoint) throws UnsupportedEncodingException {
+	@ArgumentsSource(EnumAndEmailPathsProvider.class)
+	public void testListByKey(TestDatabase db, String endpoint) throws UnsupportedEncodingException {
 		Client client = getAnonymousClient();
 		String email = "Foo" + System.currentTimeMillis();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + endpoint + (endpoint.contains("?") ? "&" : "?") + "q=" + URLEncoder.encode(email, "UTF-8")); //$NON-NLS-1$
+		WebTarget target = client.target(getRestUrl(null, db) + "/nosql/" + endpoint + (endpoint.contains("?") ? "&" : "?") + "q=" + URLEncoder.encode(email, "UTF-8")); //$NON-NLS-1$
 		
 		{
 			Response response = target.request().get();
@@ -649,7 +693,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 			payload.putSingle("firstName", "foo"); //$NON-NLS-1$ //$NON-NLS-2$
 			payload.putSingle("lastName", "CreatedUnitTest"); //$NON-NLS-1$ //$NON-NLS-2$
 			payload.putSingle("email", email); //$NON-NLS-1$ //$NON-NLS-2$
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 			Response response = postTarget.request()
 				.accept(MediaType.TEXT_HTML_TYPE) // Ensure that it routes to MVC
 				.post(Entity.form(payload));

@@ -63,6 +63,7 @@ public class HtmlExceptionHandler implements RestExceptionHandler {
 			.entity((StreamingOutput)out -> {
 				try {
 					// Check for an error page in the DB
+					// TODO account for non-XPages modules
 					FacesContext facesContext = FacesContext.getCurrentInstance();
 					if(facesContext != null) {
 						ApplicationEx app = (ApplicationEx)facesContext.getApplication();

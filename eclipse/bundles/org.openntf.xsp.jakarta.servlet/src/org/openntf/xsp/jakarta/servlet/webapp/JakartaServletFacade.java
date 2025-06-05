@@ -66,7 +66,7 @@ public class JakartaServletFacade extends javax.servlet.http.HttpServlet {
 				this.delegate = delegateClass.getConstructor().newInstance();
 			}
 		} catch (Exception e) {
-			throw new javax.servlet.ServletException(MessageFormat.format("Encountered exception loading Servlet of class {0}", className), e);
+			throw new javax.servlet.ServletException(MessageFormat.format("Encountered exception loading Servlet of class {0} with ClassLoader {1}", className, Thread.currentThread().getContextClassLoader()), e);
 		}
 
 		try {

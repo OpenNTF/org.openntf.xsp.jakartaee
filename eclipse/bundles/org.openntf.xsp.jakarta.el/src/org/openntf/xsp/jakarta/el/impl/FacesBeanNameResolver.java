@@ -38,20 +38,24 @@ public class FacesBeanNameResolver extends BeanNameResolver {
 	@Override
 	public Object getBean(final String beanName) {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
-		VariableResolver vr = facesContext.getApplication().getVariableResolver();
-		Object result = vr.resolveVariable(facesContext, beanName);
-
-		// Check for known "environmental" beans that may not exist in edge cases
-		if(result == null) {
-			switch(beanName) {
-			case "compositeData": //$NON-NLS-1$
-				return Collections.emptyMap();
-			default:
-				break;
+		if(facesContext != null) {
+			VariableResolver vr = facesContext.getApplication().getVariableResolver();
+			Object result = vr.resolveVariable(facesContext, beanName);
+	
+			// Check for known "environmental" beans that may not exist in edge cases
+			if(result == null) {
+				switch(beanName) {
+				case "compositeData": //$NON-NLS-1$
+					return Collections.emptyMap();
+				default:
+					break;
+				}
 			}
+	
+			return result;
+		} else {
+			return null;
 		}
-
-		return result;
 	}
 
 }

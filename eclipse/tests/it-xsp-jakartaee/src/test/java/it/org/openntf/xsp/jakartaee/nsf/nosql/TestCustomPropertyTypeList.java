@@ -18,10 +18,12 @@ package it.org.openntf.xsp.jakartaee.nsf.nosql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -32,10 +34,11 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestCustomPropertyTypeList extends AbstractWebClientTest {
-	@Test
-	public void testCustomPropertyList() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testCustomPropertyList(TestDatabase db) {
 		Client client = getAdminClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/customPropertyList"); //$NON-NLS-1$
+		WebTarget target = client.target(getRestUrl(null, db) + "/nosql/customPropertyList"); //$NON-NLS-1$
 		
 		JsonArray expected = Json.createArrayBuilder()
 			.add(Json.createObjectBuilder().add("value", "foo"))
@@ -61,7 +64,7 @@ public class TestCustomPropertyTypeList extends AbstractWebClientTest {
 		}
 		
 		{
-			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/customPropertyList/" + id);
+			WebTarget getTarget = client.target(getRestUrl(null, db) + "/nosql/customPropertyList/" + id);
 			Response response = getTarget.request().get();
 			
 			JsonObject responseJson = response.readEntity(JsonObject.class);
@@ -73,11 +76,12 @@ public class TestCustomPropertyTypeList extends AbstractWebClientTest {
 			}
 		}
 	}
-	
-	@Test
-	public void testJsonArrayStorage() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testJsonArrayStorage(TestDatabase db) {
 		Client client = getAdminClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/customPropertyList"); //$NON-NLS-1$
+		WebTarget target = client.target(getRestUrl(null, db) + "/nosql/customPropertyList"); //$NON-NLS-1$
 		
 		JsonArray expected = Json.createArrayBuilder()
 			.add(Json.createObjectBuilder().add("value", "foo"))
@@ -104,7 +108,7 @@ public class TestCustomPropertyTypeList extends AbstractWebClientTest {
 		}
 		
 		{
-			WebTarget getTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/customPropertyList/" + id);
+			WebTarget getTarget = client.target(getRestUrl(null, db) + "/nosql/customPropertyList/" + id);
 			Response response = getTarget.request().get();
 			
 			JsonObject responseJson = response.readEntity(JsonObject.class);

@@ -93,7 +93,7 @@ public abstract class AbstractWebClientTest {
 		return PathUtil.concat(root, path, '/');
 	}
 
-	public String getServletRestUrl(WebDriver driver) {
+	public String getServletRestUrl(WebDriver driver, String context) {
 		String host;
 		int port;
 		if(driver instanceof RemoteWebDriver) {
@@ -104,7 +104,6 @@ public abstract class AbstractWebClientTest {
 			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
-		String context = "/exampleservlet";
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	

@@ -16,6 +16,8 @@ Import-Package: com.ibm.xsp.designer.context,
  jakarta.enterprise.context;version="3.0.0",
  jakarta.enterprise.inject;version="3.0.0",
  jakarta.enterprise.inject.spi;version="3.0.0",
+ jakarta.servlet;version="5.0.0",
+ jakarta.servlet.http;version="5.0.0",
  javax.faces.context,
  org.openntf.xsp.jakarta.cdi.discovery;version="2.3.0",
  org.osgi.framework;version="1.8.0"

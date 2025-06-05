@@ -22,27 +22,31 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestRestValidation extends AbstractWebClientTest {
-	@Test
-	public void testValid() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testValid(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/requestValidation?requiredField=hello");
+		WebTarget target = client.target(getRestUrl(null, db) + "/validation/requestValidation?requiredField=hello");
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);
 		assertEquals("Required field is: hello", body);
 	}
-	
-	@Test
-	public void testInvalid() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testInvalid(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/requestValidation");
+		WebTarget target = client.target(getRestUrl(null, db) + "/validation/requestValidation");
 		Response response = target.request("text/html","application/xhtml+xml","application/xml","*/*").get();
 		
 		String body = response.readEntity(String.class);
@@ -55,11 +59,12 @@ public class TestRestValidation extends AbstractWebClientTest {
 				+ "</parameterViolations>"
 				+ "</violationReport>"), () -> "Unexpected result: " + body);
 	}
-	
-	@Test
-	public void testInvalidXml() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testInvalidXml(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/requestValidation");
+		WebTarget target = client.target(getRestUrl(null, db) + "/validation/requestValidation");
 		Response response = target.request("application/xml").get();
 		
 		String body = response.readEntity(String.class);
@@ -72,11 +77,12 @@ public class TestRestValidation extends AbstractWebClientTest {
 				+ "</parameterViolations>"
 				+ "</violationReport>"), () -> "Unexpected result: " + body);
 	}
-	
-	@Test
-	public void testInvalidJson() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testInvalidJson(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/requestValidation");
+		WebTarget target = client.target(getRestUrl(null, db) + "/validation/requestValidation");
 		Response response = target.request("application/json").get();
 		
 		String body = response.readEntity(String.class);

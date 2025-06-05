@@ -31,12 +31,23 @@ public class TestServletRest extends AbstractWebClientTest {
 	@Test
 	public void testSample() {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getServletRestUrl(null));
+		WebTarget target = client.target(getServletRestUrl(null, "/exampleservlet"));
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
 		
 		assertEquals("I am root resource.", output);
+	}
+	
+	@Test
+	public void testOldServlet() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getServletRestUrl(null, "/oldhelloservlet"));
+		Response response = target.request().get();
+		
+		String output = response.readEntity(String.class);
+		
+		assertEquals("I am so very old.", output);
 	}
 
 	@Test
@@ -48,5 +59,16 @@ public class TestServletRest extends AbstractWebClientTest {
 		String output = response.readEntity(String.class);
 		
 		assertEquals("I am root resource.", output, () -> "Encountered unexpected output for " + target.getUri() + ":\n");
+	}
+
+	@Test
+	public void testNsfPathOldServlet() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRootUrl(null, TestDatabase.BUNDLE) + "/oldhelloservlet");
+		Response response = target.request().get();
+		
+		String output = response.readEntity(String.class);
+		
+		assertEquals("I am so very old.", output, () -> "Encountered unexpected output for " + target.getUri() + ":\n");
 	}
 }

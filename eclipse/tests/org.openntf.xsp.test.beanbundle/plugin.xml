@@ -18,6 +18,12 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
+	<!-- Basic Servlet for troubleshooting -->
+	<extension name="exampleservlet" point="org.eclipse.equinox.http.registry.servlets">
+		<servlet alias="/oldhelloservlet" class="org.openntf.xsp.test.beanbundle.servlet.OldHelloServlet" load-on-startup="true">
+		</servlet>
+	</extension>
+	
 	<!-- REST API example -->
 	<extension name="exampleservlet" point="org.eclipse.equinox.http.registry.servlets">
 		<servlet alias="/exampleservlet" class="org.openntf.xsp.test.beanbundle.servlet.RootServlet" load-on-startup="true">

@@ -163,6 +163,8 @@ public class ServletServletFactory implements JakartaIServletFactory {
 				}
 				if(ModuleUtil.hasXPages(module)) {
 					delegate = new XspServletWrapper(module, delegate);
+				} else {
+					delegate = new ErrorHandlingServletWrapper(delegate);
 				}
 
 				Map<String, String> params = mapping.def.getParameterMap();

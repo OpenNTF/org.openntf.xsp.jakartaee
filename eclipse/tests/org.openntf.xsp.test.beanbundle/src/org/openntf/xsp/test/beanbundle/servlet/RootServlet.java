@@ -20,17 +20,15 @@ import java.io.PrintWriter;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
+
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-
-import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 
 public class RootServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -38,33 +36,27 @@ public class RootServlet extends HttpServlet {
 	private boolean initialized;
 
 	private final HttpServletDispatcher delegate = new HttpServletDispatcher();
-	private ServletContext context;
-	private ServletConfig config;
-	
-	@Override
-	public void init(ServletConfig servletConfig) throws ServletException {
-		this.config = servletConfig;
-		this.context = servletConfig.getServletContext();
-	}
 	
 	private void initDelegate() throws ServletException {
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-			Thread.currentThread().setContextClassLoader(RootServlet.class.getClassLoader());
-			return null;
-		});
 		try {
-			delegate.init(ServletUtil.oldToNew(this.config));
+			ClassLoader cl = Thread.currentThread().getContextClassLoader();
+			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+				Thread.currentThread().setContextClassLoader(RootServlet.class.getClassLoader());
+				return null;
+			});
+			try {
+				delegate.init(ServletUtil.oldToNew(this.getServletConfig()));
+			} finally {
+				AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+					Thread.currentThread().setContextClassLoader(cl);
+					return null;
+				});
+			}
 		} catch (jakarta.servlet.ServletException e) {
 			e.printStackTrace();
 			throw new ServletException(e);
 		} catch(Exception e) {
 			e.printStackTrace();
-		} finally {
-			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-				Thread.currentThread().setContextClassLoader(cl);
-				return null;
-			});
 		}
 		
 		this.initialized = true;
@@ -73,7 +65,7 @@ public class RootServlet extends HttpServlet {
 	@Override
 	public void service(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
-		jakarta.servlet.http.HttpServletRequest newReq = ServletUtil.oldToNew(this.context, request);
+		jakarta.servlet.http.HttpServletRequest newReq = ServletUtil.oldToNew(this.getServletContext(), request);
 
 		ClassLoader cl = Thread.currentThread().getContextClassLoader();
 		try {
@@ -81,7 +73,6 @@ public class RootServlet extends HttpServlet {
 			if(!initialized) {
 				initDelegate();
 			}
-			
 			
 			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
 				Thread.currentThread().setContextClassLoader(RootServlet.class.getClassLoader());
@@ -91,6 +82,7 @@ public class RootServlet extends HttpServlet {
 
 			delegate.service(newReq, ServletUtil.oldToNew(response));
 		} catch(Throwable t) {
+			t.printStackTrace();
 			try(PrintWriter w = response.getWriter()) {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				XSPErrorPage.handleException(w, t, null, false);

@@ -15,31 +15,31 @@
  */
 package bean;
 
-import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
-import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
-
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.inject.Produces;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
+import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
+import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
 import lotus.domino.NotesException;
 
-@RequestScoped
+@Dependent
 public class NamesRepositoryBean {
 	@Produces
 	@Database(value = DatabaseType.DOCUMENT, provider = "names")
 	public DominoDocumentManager getNamesManager() {
+			
 		return new DefaultDominoDocumentCollectionManager(
 			() -> {
 				try {
-					return NotesContext.getCurrent().getSessionAsSigner().getDatabase("", "names.nsf");
+					return ComponentModuleLocator.getDefault().flatMap(ComponentModuleLocator::getSessionAsSigner).get().getDatabase("", "names.nsf");
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
 			},
-			() -> NotesContext.getCurrent().getSessionAsSigner()
+			() -> ComponentModuleLocator.getDefault().flatMap(ComponentModuleLocator::getSessionAsSigner).get()
 		);
 	}
 }
