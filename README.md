@@ -21,7 +21,7 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 - [Persistence 3.2](#persistence-jpa)
 - [Pages 4.0](#jakarta-pages-and-jstl)
 - [Faces 4.1](#jakarta-faces)
-- [MVC 2.1](#mvc)
+- [MVC 3.0](#mvc)
 
 It also provides components from [MicroProfile](https://microprofile.io/):
 
