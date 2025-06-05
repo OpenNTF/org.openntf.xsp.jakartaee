@@ -41,6 +41,7 @@ import jakarta.annotation.Priority;
 public class NSFJakartaModuleContextParticipant implements ContextSetupParticipant {
 	public static final String ATTR_CLASSLOADER = NSFJakartaModuleContextParticipant.class.getName() + "_classLoader"; //$NON-NLS-1$
 	public static final String ATTR_CLONER = NSFJakartaModuleContextParticipant.class.getName() + "_cloner"; //$NON-NLS-1$
+	public static final String ATTR_CONTEXT = NSFJakartaModuleContextParticipant.class.getName() + "_context"; //$NON-NLS-1$
 
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
@@ -68,7 +69,7 @@ public class NSFJakartaModuleContextParticipant implements ContextSetupParticipa
 			ActiveRequestCloner cloner = ach.getAttribute(ATTR_CLONER);
 			if(cloner != null) {
 				ActiveRequest req = cloner.cloneRequest();
-				ActiveRequest.push(req);
+				ach.setAttribute(ATTR_CONTEXT, ActiveRequest.with(req));
 				
 				req.module().updateLastModuleAccess();
 				
@@ -99,7 +100,7 @@ public class NSFJakartaModuleContextParticipant implements ContextSetupParticipa
 	
 					req.get().lsxbe().close();
 				} finally {
-					ActiveRequest.pop();
+					((ActiveRequest.WithContext)ach.getAttribute(ATTR_CONTEXT)).close();
 				}
 			}
 		}

@@ -24,14 +24,21 @@ import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModule;
 import jakarta.servlet.http.HttpServletRequest;
 
 public record ActiveRequest(NSFJakartaModule module, LSXBEHolder lsxbe, HttpServletRequest request) {
+	public record WithContext() implements AutoCloseable {
+		@Override
+		public void close(){
+			ActiveRequest.pop();
+		}
+	}
 
 	private static ThreadLocal<Deque<ActiveRequest>> ACTIVE_REQUEST = ThreadLocal.withInitial(ArrayDeque::new);
 	
 	public static Optional<ActiveRequest> get() {
 		return Optional.ofNullable(ACTIVE_REQUEST.get().peek());
 	}
-	public static void push(ActiveRequest request) {
+	public static WithContext with(ActiveRequest request) {
 		ACTIVE_REQUEST.get().push(request);
+		return new WithContext();
 	}
 	public static void pop() {
 		ACTIVE_REQUEST.get().pop();

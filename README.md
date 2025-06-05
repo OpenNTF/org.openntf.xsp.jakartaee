@@ -1141,7 +1141,7 @@ grant {
 
 If this is unset, problems with NoSQL will manifest with root exceptions like `jakarta.nosql.ProviderNotFoundException: Provider not found: interface jakarta.nosql.document.DocumentQueryParser`.
 
-To use Jakarta Modules, configure the Jakarta Config NSF as described in [docs/JakartaModules.md](docs/JakartaModules.md).
+To use NSF Jakarta Modules, configure the Jakarta Config NSF as described in [docs/NSFJakartaModules.md](docs/JakartaModules.md).
 
 ## Building
 

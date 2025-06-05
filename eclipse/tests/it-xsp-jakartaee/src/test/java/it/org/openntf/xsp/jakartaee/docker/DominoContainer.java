@@ -128,15 +128,21 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				}
 				withFileFromTransferable("staging/jacoco.jar", Transferable.of(agentData)); //$NON-NLS-1$
 				
-				String jacocoLine = "-javaagent:/local/jacoco.jar=output=tcpserver,address=*,port=" + JACOCO_PORT; //$NON-NLS-1$
+				StringBuilder javaOptions = new StringBuilder();
+				
+				// Configure the JaCoCo listener
+				javaOptions.append("-javaagent:/local/jacoco.jar=output=tcpserver,address=*,port=" + JACOCO_PORT); //$NON-NLS-1$
+				
+				// Loosen the OSGi init timeout to account for having a large bundle footprint
+				javaOptions.append("\n-Dosgi.module.lock.timeout=30"); //$NON-NLS-1$
 				
 				// Add a Java options file for Apple Silicon compatibility
 				String arch = DockerClientFactory.instance().getInfo().getArchitecture();
 				if(!"x86_64".equals(arch)) { //$NON-NLS-1$
-					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of(jacocoLine + "\n-Djava.compiler=NONE")); //$NON-NLS-1$ //$NON-NLS-2$
-				} else {
-					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of(jacocoLine)); //$NON-NLS-1$
+					javaOptions.append("\n-Djava.compiler=NONE"); //$NON-NLS-1$
 				}
+				
+				withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of(javaOptions.toString())); //$NON-NLS-1$
 				
 				// Add the Postgres driver to jvm/lib/ext
 				{

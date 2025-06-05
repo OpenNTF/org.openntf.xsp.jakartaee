@@ -179,6 +179,10 @@ public class NSFJakartaModule extends ComponentModule {
 				
 				this.fileSystem = new NSFJakartaFileSystem(this);
 				
+				if(!LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, this)) {
+					throw new IllegalStateException(MessageFormat.format("Module {0} is not configured for library {1}", this, LibraryUtil.LIBRARY_CORE));
+				}
+				
 				// Use xsp.properties as our signer if available
 				NotesNote xspProperties = FileAccess.getFileByPath(this.notesDatabase, "WEB-INF/xsp.properties"); //$NON-NLS-1$
 				if(xspProperties != null) {
@@ -247,9 +251,8 @@ public class NSFJakartaModule extends ComponentModule {
 			try(
 				var withCl = new WithClassLoader();
 				var lsxbe = this.withSession(this.xspSigner);
+				var ctx = ActiveRequest.with(new ActiveRequest(this, lsxbe, null))
 			) {
-				ActiveRequest.push(new ActiveRequest(this, lsxbe, null));
-				
 				// Initialize CDI early
 				CDI<Object> cdi = ContainerUtil.getContainer(this);
 				servletContext.setAttribute(BeanManager.class.getName(), ContainerUtil.getBeanManager(cdi));
@@ -270,8 +273,6 @@ public class NSFJakartaModule extends ComponentModule {
 				ServletUtil.contextInitialized(servletContext);
 				
 				this.servletFactories.forEach(fac -> fac.init(this));
-			} finally {
-				ActiveRequest.pop();
 			}
 			
 			this.initialized = true;

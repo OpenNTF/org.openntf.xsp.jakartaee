@@ -132,9 +132,10 @@ public class NSFJakartaModuleService extends HttpService {
 				String internalPathInfo = pathInfo.substring(contextPath.length());
 				int i = 0;
 				
-				try(var lsxbe = module.withSessions(servletRequest)) {
-					ActiveRequest.push(new ActiveRequest(module, lsxbe, null));
-					
+				try(
+					var lsxbe = module.withSessions(servletRequest);
+					var xtx = ActiveRequest.with(new ActiveRequest(module, lsxbe, null));
+				) {
 					while(i++ < MAX_REFRESH_ATTEMPTS) {
 						try {
 							module.doService(contextPath, internalPathInfo, httpSessionAdapter, servletRequest, servletResponse);
@@ -143,8 +144,6 @@ public class NSFJakartaModuleService extends HttpService {
 							module.refresh();
 						}
 					}
-				} finally {
-					ActiveRequest.pop();
 				}
 				throw new IllegalStateException(MessageFormat.format("Module didn't refresh after {0} attempts", MAX_REFRESH_ATTEMPTS));
 			} finally {
