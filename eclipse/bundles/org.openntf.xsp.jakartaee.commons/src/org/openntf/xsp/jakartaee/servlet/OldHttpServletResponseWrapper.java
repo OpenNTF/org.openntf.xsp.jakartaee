@@ -138,11 +138,13 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	@Override
 	public void sendError(final int sc, final String msg) throws IOException {
 		delegate.sendError(sc, msg);
+		this.status = sc;
 	}
 
 	@Override
 	public void sendError(final int sc) throws IOException {
 		delegate.sendError(sc);
+		this.status = sc;
 	}
 
 	@Override
