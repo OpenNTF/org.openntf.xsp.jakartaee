@@ -222,6 +222,16 @@
 							"NSFPath": "dev/jakartaee.nsf",
 							"Servers": "*"
 						}
+					},
+					{
+						"action": "create",
+						"items": {
+							"Form": "JakartaNSFModule",
+							"WebPath": "/moduleappdisabled",
+							"NSFPath": "dev/jakartaee.nsf",
+							"Servers": "*",
+							"Disabled": "Y"
+						}
 					}
 				]
 			}
