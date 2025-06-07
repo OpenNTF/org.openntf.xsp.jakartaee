@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import com.ibm.xsp.extlib.util.ExtLibUtil;
 import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.servlet.JspServlet;
 import org.glassfish.wasp.xmlparser.ParserUtils;
-import org.openntf.xsp.jakarta.pages.EarlyInitFactory;
+import org.openntf.xsp.jakarta.pages.PagesHttpInitListener;
 import org.openntf.xsp.jakarta.pages.util.DominoPagesUtil;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -116,7 +116,7 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 				ServletUtil.getListeners(context, ServletRequestListener.class)
 					.forEach(l -> l.requestInitialized(new ServletRequestEvent(context, request)));
 				try {
-					ParserUtils.setDtdResourcePrefix(EarlyInitFactory.getServletDtdPath().toUri().toString());
+					ParserUtils.setDtdResourcePrefix(PagesHttpInitListener.getServletDtdPath().toUri().toString());
 					delegate.service(request, response);
 				} finally {
 					ServletUtil.getListeners(context, ServletRequestListener.class)
@@ -132,10 +132,10 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 		} catch(PrivilegedActionException e) {
 			e.printStackTrace();
 			Throwable cause = e.getCause();
-			if(cause instanceof ServletException) {
-				throw ServletUtil.newToOld((ServletException)cause);
-			} else if(cause instanceof IOException) {
-				throw (IOException)cause;
+			if(cause instanceof ServletException e2) {
+				throw ServletUtil.newToOld(e2);
+			} else if(cause instanceof IOException e2) {
+				throw e2;
 			} else {
 				throw new javax.servlet.ServletException(e);
 			}

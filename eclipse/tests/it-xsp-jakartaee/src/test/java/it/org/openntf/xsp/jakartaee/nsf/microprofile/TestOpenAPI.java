@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
+import java.util.stream.Stream;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -29,20 +30,49 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
 import it.org.openntf.xsp.jakartaee.docker.DominoContainer;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestOpenAPI extends AbstractWebClientTest {
+	public static class EnumAndYamlProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return new MainAndModuleProvider.EnumAndBrowser().provideArguments(context)
+				.map(args -> args.get()[0])
+				.flatMap(e ->
+					Stream.of("openapi", "openapi.yaml")
+						.map(page -> Arguments.of(e, page))
+				);
+		}
+	}
+	
+	public static class EnumAndJsonProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return new MainAndModuleProvider.EnumAndBrowser().provideArguments(context)
+				.map(args -> args.get()[0])
+				.flatMap(e ->
+					Stream.of("openapi", "openapi.json")
+						.map(page -> Arguments.of(e, page))
+				);
+		}
+	}
+	
 	@ParameterizedTest
-	@ValueSource(strings = { "openapi", "openapi.yaml" })
-	public void testOpenAPIYaml(String path) {
+	@ArgumentsSource(EnumAndYamlProvider.class)
+	public void testOpenAPIYaml(TestDatabase db, String path) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + path);
+		WebTarget target = client.target(getRestUrl(null, db) + "/" + path);
 		Response response = target.request().get();
 		
 		String yaml = response.readEntity(String.class);
@@ -51,12 +81,12 @@ public class TestOpenAPI extends AbstractWebClientTest {
 	}
 	
 	@ParameterizedTest
-	@ValueSource(strings = { "openapi", "openapi.json" })
-	public void testOpenAPIJson(String path) {
+	@ArgumentsSource(EnumAndJsonProvider.class)
+	public void testOpenAPIJson(TestDatabase db, String path) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + path);
+		WebTarget target = client.target(getRestUrl(null, db) + "/" + path);
 		Response response = target.request()
-			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.accept(MediaType.APPLICATION_JSON)
 			.get();
 		
 		String json = response.readEntity(String.class);
@@ -83,7 +113,7 @@ public class TestOpenAPI extends AbstractWebClientTest {
 			
 			JsonArray servers = obj.getJsonArray("servers");
 			JsonObject server0 = servers.getJsonObject(0);
-			assertEquals(getRestUrl(null, TestDatabase.MAIN), server0.getString("url"));
+			assertEquals(getRestUrl(null, db), server0.getString("url"));
 		} catch(Exception e) {
 			fail("Encountered exception with JSON " + json, e);
 		}

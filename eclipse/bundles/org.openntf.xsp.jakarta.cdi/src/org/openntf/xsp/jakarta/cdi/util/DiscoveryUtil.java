@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,8 +182,8 @@ public enum DiscoveryUtil {
 
 	public static Optional<Bundle> getBundleForClassLoader(final ClassLoader cl) {
 		// Equinox Servlets
-		if(cl instanceof BundleReference) {
-			return Optional.of(((BundleReference) cl).getBundle());
+		if(cl instanceof BundleReference br) {
+			return Optional.of(br.getBundle());
 		}
 
 		// Bundle webapps

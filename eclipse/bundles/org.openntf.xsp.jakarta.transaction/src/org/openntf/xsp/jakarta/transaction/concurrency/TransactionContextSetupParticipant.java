@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package org.openntf.xsp.jakarta.transaction.concurrency;
 
-import org.glassfish.enterprise.concurrent.spi.ContextHandle;
+import org.glassfish.concurro.spi.ContextHandle;
+import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
 import org.openntf.xsp.jakarta.transaction.DominoTransaction;
 import org.openntf.xsp.jakarta.transaction.cdi.DominoTransactionProducer;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ContextNotActiveException;
@@ -36,38 +38,30 @@ import jakarta.enterprise.inject.spi.CDI;
 @Priority(0)
 public class TransactionContextSetupParticipant implements ContextSetupParticipant {
 	private static final String PROP_TRANSACTION = TransactionContextSetupParticipant.class.getName() + "_transaction"; //$NON-NLS-1$
-	private static final String PROP_CDI = TransactionContextSetupParticipant.class.getName() + "_cdi"; //$NON-NLS-1$
 
 	@Override
 	public void saveContext(final ContextHandle contextHandle) {
-		if(contextHandle instanceof AttributedContextHandle) {
-			try {
-				CDI<Object> cdi = CDI.current();
-				((AttributedContextHandle)contextHandle).setAttribute(PROP_CDI, cdi);
-				Instance<DominoTransactionProducer> producer = cdi.select(DominoTransactionProducer.class);
-				if(producer.isResolvable()) {
-					DominoTransaction transaction = producer.get().peekTransaction();
-					((AttributedContextHandle)contextHandle).setAttribute(PROP_TRANSACTION, transaction);
-				}
-			} catch(ContextNotActiveException e) {
-				// Scheduled during something other than an active request - ignore
-			} catch(IllegalStateException e) {
-				// Oddly, this is sometimes called from an existing managed thread,
-				//   which will not have a CDI available yet. If so, ignore
+		if(contextHandle instanceof AttributedContextHandle ach) {
+			DominoTransactionProducer producer = DominoTransactionProducer.INSTANCE.get();
+			if(producer != null) {
+				DominoTransaction transaction = producer.peekTransaction();
+				ach.setAttribute(PROP_TRANSACTION, transaction);
 			}
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void setup(final ContextHandle contextHandle) throws IllegalStateException {
-		if(contextHandle instanceof AttributedContextHandle) {
+		if(contextHandle instanceof AttributedContextHandle ach) {
 			try {
-				CDI<Object> cdi = (CDI<Object>)((AttributedContextHandle)contextHandle).getAttribute(PROP_CDI);
+				CDI<Object> cdi = ComponentModuleLocator.getDefault()
+					.map(ComponentModuleLocator::getActiveModule)
+					.map(ContainerUtil::getContainerUnchecked)
+					.orElse(null);
 				if(cdi != null) {
 					Instance<DominoTransactionProducer> producer = cdi.select(DominoTransactionProducer.class);
 					if(producer.isResolvable()) {
-						DominoTransaction transaction = ((AttributedContextHandle)contextHandle).getAttribute(PROP_TRANSACTION);
+						DominoTransaction transaction = ach.getAttribute(PROP_TRANSACTION);
 						producer.get().setTransaction(transaction);
 					}
 				}
@@ -77,11 +71,13 @@ public class TransactionContextSetupParticipant implements ContextSetupParticipa
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void reset(final ContextHandle contextHandle) {
 		try {
-			CDI<Object> cdi = (CDI<Object>)((AttributedContextHandle)contextHandle).getAttribute(PROP_CDI);
+			CDI<Object> cdi = ComponentModuleLocator.getDefault()
+				.map(ComponentModuleLocator::getActiveModule)
+				.map(ContainerUtil::getContainerUnchecked)
+				.orElse(null);
 			if(cdi != null) {
 				Instance<DominoTransactionProducer> producer = cdi.select(DominoTransactionProducer.class);
 				if(producer.isResolvable()) {

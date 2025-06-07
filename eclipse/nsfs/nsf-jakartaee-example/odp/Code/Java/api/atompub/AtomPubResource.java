@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022-2024 Contributors to the OpenNTF Home App Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ import api.atompub.model.AtomPubCollection;
 import api.atompub.model.AtomPubService;
 import api.atompub.model.Workspace;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.UriInfo;
 
 @Path(AtomPubResource.BASE_PATH)
@@ -40,11 +40,11 @@ public class AtomPubResource {
 
 	public static final String BLOG_ID = "openntf";
 
-	@Context
+	@Inject
 	ServletContext servletContext;
-	@Context
+	@Inject
 	HttpServletRequest servletRequest;
-	@Context
+	@Inject
 	UriInfo uriInfo;
 
 	// This only supports the one active blog

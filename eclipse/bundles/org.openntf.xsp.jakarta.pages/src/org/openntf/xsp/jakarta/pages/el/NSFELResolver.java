@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,41 @@
  */
 package org.openntf.xsp.jakarta.pages.el;
 
-import org.openntf.xsp.jakarta.el.impl.RecordPropertyELResolver;
+import java.util.Collection;
+import java.util.List;
+
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+
+import org.openntf.xsp.jakarta.el.ext.ELResolverProvider;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.el.BeanNameELResolver;
 import jakarta.el.BeanNameResolver;
 import jakarta.el.CompositeELResolver;
+import jakarta.el.ELResolver;
+import jakarta.el.OptionalELResolver;
+import jakarta.el.RecordELResolver;
 import jakarta.enterprise.inject.literal.NamedLiteral;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.jsp.el.ImplicitObjectELResolver;
 
 public class NSFELResolver extends CompositeELResolver {
-	public static final NSFELResolver instance = new NSFELResolver();
+	public NSFELResolver(final ComponentModule module) {
 
-	public NSFELResolver() {
+		// Add any other available resolvers
+		List<ELResolverProvider> providers = LibraryUtil.findExtensions(ELResolverProvider.class, module);
+
+		for(ELResolverProvider provider : providers) {
+			Collection<ELResolver> resolvers = provider.provide();
+			if(resolvers != null) {
+				resolvers.forEach(this::add);
+			}
+		}
+
 		add(new ImplicitObjectELResolver());
 		add(new BeanNameELResolver(new CDIBeanResolver()));
-		add(new RecordPropertyELResolver());
+		add(new RecordELResolver());
+		add(new OptionalELResolver());
 	}
 
 	public static class CDIBeanResolver extends BeanNameResolver {

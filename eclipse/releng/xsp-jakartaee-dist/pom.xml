@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openntf.xsp</groupId>
 		<artifactId>xsp-jakartaee</artifactId>
-		<version>3.3.0</version>
+		<version>3.4.0</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>xsp-jakartaee-dist</artifactId>
@@ -18,6 +18,12 @@
 			<artifactId>org.openntf.xsp.jakartaee.updatesite</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaconfig</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
 		</dependency>
 	</dependencies>
 

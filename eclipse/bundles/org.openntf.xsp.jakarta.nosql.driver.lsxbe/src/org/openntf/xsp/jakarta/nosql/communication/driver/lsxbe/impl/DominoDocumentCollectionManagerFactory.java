@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,19 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl;
 
+import java.util.function.Supplier;
+
 import org.eclipse.jnosql.communication.semistructured.DatabaseManagerFactory;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
-import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
-import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.SessionSupplier;
+
+import lotus.domino.Database;
+import lotus.domino.Session;
 
 public class DominoDocumentCollectionManagerFactory implements DatabaseManagerFactory {
-	private final DatabaseSupplier databaseSupplier;
-	private final SessionSupplier sessionSupplier;
+	private final Supplier<Database> databaseSupplier;
+	private final Supplier<Session> sessionSupplier;
 
-	public DominoDocumentCollectionManagerFactory(final DatabaseSupplier databaseSupplier, final SessionSupplier sessionSupplier) {
+	public DominoDocumentCollectionManagerFactory(final Supplier<Database> databaseSupplier, final Supplier<Session> sessionSupplier) {
 		this.databaseSupplier = databaseSupplier;
 		this.sessionSupplier = sessionSupplier;
 	}

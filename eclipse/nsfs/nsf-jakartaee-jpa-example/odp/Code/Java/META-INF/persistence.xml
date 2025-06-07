@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
     limitations under the License.
 
 -->
-<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence"
+<persistence version="3.2" xmlns="https://jakarta.ee/xml/ns/persistence"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd">
 	<persistence-unit name="JPATestProj" transaction-type="JTA">
-		<class>model.Company</class>
 		<jta-data-source>java:comp/env/jdbc/postgresql</jta-data-source>
+		<class>model.Company</class>
 		<properties>
 			<property name="jakarta.persistence.jdbc.url" value="java:comp/env/jdbc/postgresql" />
 		</properties>

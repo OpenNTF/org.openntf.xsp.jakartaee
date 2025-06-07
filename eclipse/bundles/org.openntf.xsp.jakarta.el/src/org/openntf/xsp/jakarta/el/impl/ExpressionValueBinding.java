@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,14 +58,14 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)() -> exp.getType(elContext));
 		} catch (PrivilegedActionException e) {
 			Throwable t = e.getCause();
-			if(t instanceof EvaluationException) {
-				throw (EvaluationException)t;
-			} else if(t instanceof PropertyNotFoundException) {
-				throw (PropertyNotFoundException)t;
-			} else if(t instanceof Error) {
-				throw (Error)t;
-			} else if(t instanceof RuntimeException) {
-				throw (RuntimeException)t;
+			if(t instanceof EvaluationException e2) {
+				throw e2;
+			} else if(t instanceof PropertyNotFoundException e2) {
+				throw  e2;
+			} else if(t instanceof Error e2) {
+				throw  e2;
+			} else if(t instanceof RuntimeException e2) {
+				throw e2;
 			} else if(t != null) {
 				throw new RuntimeException(t);
 			} else {
@@ -104,14 +104,14 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() -> exp.isReadOnly(elContext));
 		} catch (PrivilegedActionException e) {
 			Throwable t = e.getCause();
-			if(t instanceof EvaluationException) {
-				throw (EvaluationException)t;
-			} else if(t instanceof PropertyNotFoundException) {
-				throw (PropertyNotFoundException)t;
-			} else if(t instanceof Error) {
-				throw (Error)t;
-			} else if(t instanceof RuntimeException) {
-				throw (RuntimeException)t;
+			if(t instanceof EvaluationException e2) {
+				throw e2;
+			} else if(t instanceof PropertyNotFoundException e2) {
+				throw e2;
+			} else if(t instanceof Error e2) {
+				throw e2;
+			} else if(t instanceof RuntimeException e2) {
+				throw e2;
 			} else if(t != null) {
 				throw new RuntimeException(t);
 			} else {
@@ -134,14 +134,14 @@ public class ExpressionValueBinding extends ValueBinding implements StateHolder 
 			});
 		} catch (PrivilegedActionException e) {
 			Throwable t = e.getCause();
-			if(t instanceof EvaluationException) {
-				throw (EvaluationException)t;
-			} else if(t instanceof PropertyNotFoundException) {
-				throw (PropertyNotFoundException)t;
-			} else if(t instanceof Error) {
-				throw (Error)t;
-			} else if(t instanceof RuntimeException) {
-				throw (RuntimeException)t;
+			if(t instanceof EvaluationException e2) {
+				throw e2;
+			} else if(t instanceof PropertyNotFoundException e2) {
+				throw e2;
+			} else if(t instanceof Error e2) {
+				throw e2;
+			} else if(t instanceof RuntimeException e2) {
+				throw e2;
 			} else if(t != null) {
 				throw new RuntimeException(t);
 			} else {

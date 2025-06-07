@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.util.Collections;
 
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.microprofile.metrics.MetricsResourceContributor;
 
 import io.smallrye.faulttolerance.FaultToleranceExtension;
 import jakarta.enterprise.inject.spi.Extension;
@@ -36,11 +35,7 @@ public class FaultToleranceCDIContributor implements CDIClassContributor {
 	public Collection<Extension> getExtensions() {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			// SmallRye Fault Tolerance has an implicit dependency on Metrics
-			if(!"false".equals(LibraryUtil.getApplicationProperty(MetricsResourceContributor.PROP_ENABLED, "true"))) { //$NON-NLS-1$ //$NON-NLS-2$
-				return Collections.singleton(new FaultToleranceExtension());
-			} else {
-				return Collections.emptySet();
-			}
+			return Collections.singleton(new FaultToleranceExtension());
 		} else {
 			return Collections.emptyList();
 		}

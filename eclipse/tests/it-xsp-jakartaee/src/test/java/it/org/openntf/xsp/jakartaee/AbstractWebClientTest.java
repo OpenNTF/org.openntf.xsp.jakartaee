@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,14 @@ import jakarta.ws.rs.core.Response;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
@@ -44,31 +45,31 @@ public abstract class AbstractWebClientTest {
 	
 	public static class AnonymousClientProvider implements ArgumentsProvider {
 		@Override
-		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-			return Stream.of(Arguments.of(anonymousClient));
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+			Client client = ClientBuilder.newClient();
+			anonymousClients.add(client);
+			return Stream.of(Arguments.of(client));
 		}
 	}
 	
-	private static Client anonymousClient;
-	private static Client adminClient;
-	
-	@BeforeAll
-	public static void buildClients() {
-		anonymousClient = ClientBuilder.newBuilder().build();
-		adminClient = ClientBuilder.newBuilder().register(AdminUserAuthenticator.class).build();
-	}
+	private static List<Client> anonymousClients = new ArrayList<>();
+	private static List<Client> adminClients = new ArrayList<>();
 	
 	@AfterAll
 	public static void tearDownClients() {
-		anonymousClient.close();
-		adminClient.close();
+		anonymousClients.forEach(Client::close);
+		adminClients.forEach(Client::close);
 	}
 
 	public Client getAnonymousClient() {
-		return anonymousClient;
+		Client client = ClientBuilder.newClient();
+		anonymousClients.add(client);
+		return client;
 	}
 	public Client getAdminClient() {
-		return adminClient;
+		Client client = ClientBuilder.newBuilder().register(AdminUserAuthenticator.class).build();
+		adminClients.add(client);
+		return client;
 	}
 	
 	public String getRootUrl(WebDriver driver, TestDatabase db) {
@@ -88,10 +89,11 @@ public abstract class AbstractWebClientTest {
 	
 	public String getRestUrl(WebDriver driver, TestDatabase db) {
 		String root = getRootUrl(driver, db);
-		return PathUtil.concat(root, "xsp/app", '/');
+		String path = db.isNsf() ? "xsp/app" : "app";
+		return PathUtil.concat(root, path, '/');
 	}
 
-	public String getServletRestUrl(WebDriver driver) {
+	public String getServletRestUrl(WebDriver driver, String context) {
 		String host;
 		int port;
 		if(driver instanceof RemoteWebDriver) {
@@ -102,7 +104,6 @@ public abstract class AbstractWebClientTest {
 			port = JakartaTestContainers.instance.domino.getMappedPort(80);
 		}
 		
-		String context = "/exampleservlet";
 		return PathUtil.concat("http://" + host + ":" + port, context, '/');
 	}
 	

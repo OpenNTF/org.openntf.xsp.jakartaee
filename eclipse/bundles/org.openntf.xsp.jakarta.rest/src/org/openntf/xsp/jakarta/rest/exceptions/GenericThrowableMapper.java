@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,8 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 	@Override
 	public Response toResponse(final Throwable t) {
 		// Depending on the container, this may be called for exceptions better handled by more-specialized classes
-		if(t instanceof NotFoundException) {
-			return NotFoundMapper.INSTANCE.toResponse((NotFoundException)t, request, uriInfo);
+		if(t instanceof NotFoundException nfe) {
+			return NotFoundMapper.INSTANCE.toResponse(nfe, request, uriInfo);
 		}
 
 		if (t instanceof WebApplicationException e) {
@@ -67,7 +67,7 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 			if (r != null) {
 				// The response will likely be empty
 				Object entity = r.getEntity();
-				if(entity == null || entity instanceof CharSequence && ((CharSequence)entity).length() == 0) {
+				if(entity == null || entity instanceof CharSequence s && s.length() == 0) {
 					return createResponseFromException(t, r.getStatus(), resourceInfo, req);
 				} else {
 					return e.getResponse();

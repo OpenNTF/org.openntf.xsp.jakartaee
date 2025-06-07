@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.openntf.xsp.jakarta.validation.jndi;
 
 import java.util.Set;
@@ -13,28 +28,28 @@ import jakarta.validation.metadata.BeanDescriptor;
 public class DelegatingValidator implements Validator {
 
 	@Override
-	public <T> Set<ConstraintViolation<T>> validate(T object, Class<?>... groups) {
+	public <T> Set<ConstraintViolation<T>> validate(final T object, final Class<?>... groups) {
 		return delegate().validate(object, groups);
 	}
 
 	@Override
-	public <T> Set<ConstraintViolation<T>> validateProperty(T object, String propertyName, Class<?>... groups) {
+	public <T> Set<ConstraintViolation<T>> validateProperty(final T object, final String propertyName, final Class<?>... groups) {
 		return delegate().validateProperty(object, propertyName, groups);
 	}
 
 	@Override
-	public <T> Set<ConstraintViolation<T>> validateValue(Class<T> beanType, String propertyName, Object value,
-			Class<?>... groups) {
+	public <T> Set<ConstraintViolation<T>> validateValue(final Class<T> beanType, final String propertyName, final Object value,
+			final Class<?>... groups) {
 		return delegate().validateValue(beanType, propertyName, value, groups);
 	}
 
 	@Override
-	public BeanDescriptor getConstraintsForClass(Class<?> clazz) {
+	public BeanDescriptor getConstraintsForClass(final Class<?> clazz) {
 		return delegate().getConstraintsForClass(clazz);
 	}
 
 	@Override
-	public <T> T unwrap(Class<T> type) {
+	public <T> T unwrap(final Class<T> type) {
 		return delegate().unwrap(type);
 	}
 

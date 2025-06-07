@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.AdminUserAuthenticator;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
@@ -48,9 +49,9 @@ import jakarta.ws.rs.core.Response;
 public class TestRestJson extends AbstractWebClientTest {
 	
 	@ParameterizedTest
-	@ArgumentsSource(AnonymousClientProvider.class)
-	public void testJsonp(Client client) {
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jsonExample/jsonp");
+	@ArgumentsSource(MainAndModuleProvider.EnumAndAnonymousClient.class)
+	public void testJsonp(TestDatabase db, Client client) {
+		WebTarget target = client.target(getRestUrl(null, db) + "/jsonExample/jsonp");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -59,9 +60,9 @@ public class TestRestJson extends AbstractWebClientTest {
 	}
 	
 	@ParameterizedTest
-	@ArgumentsSource(AnonymousClientProvider.class)
-	public void testJsonb(Client client) {
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jsonExample");
+	@ArgumentsSource(MainAndModuleProvider.EnumAndAnonymousClient.class)
+	public void testJsonb(TestDatabase db, Client client) {
+		WebTarget target = client.target(getRestUrl(null, db) + "/jsonExample");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -70,9 +71,9 @@ public class TestRestJson extends AbstractWebClientTest {
 	}
 	
 	@ParameterizedTest
-	@ArgumentsSource(AnonymousClientProvider.class)
-	public void testJsonbCdi(Client client) {
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jsonExample/jsonb");
+	@ArgumentsSource(MainAndModuleProvider.EnumAndAnonymousClient.class)
+	public void testJsonbCdi(TestDatabase db, Client client) {
+		WebTarget target = client.target(getRestUrl(null, db) + "/jsonExample/jsonb");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -94,25 +95,31 @@ public class TestRestJson extends AbstractWebClientTest {
 			List<Throwable> failures = Collections.synchronizedList(new ArrayList<>());
 			for(int i = 0; i < runCount; i++) {
 				exec.submit(() -> {
-					ThreadLocalRandom rand = ThreadLocalRandom.current();
-					ClientBuilder builder = ClientBuilder.newBuilder();
-					if(rand.nextBoolean()) {
-						builder.register(AdminUserAuthenticator.class);
-					}
-					Client client = builder.build();
 					try {
-						testJsonp(client);
-						TimeUnit.MILLISECONDS.sleep(rand.nextInt(500));
-						testJsonb(client);
-						TimeUnit.MILLISECONDS.sleep(rand.nextInt(500));
-						testJsonbCdi(client);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					} catch(Throwable t) {
-						failures.add(t);
+						for(TestDatabase db : MainAndModuleProvider.VALS) {
+							ThreadLocalRandom rand = ThreadLocalRandom.current();
+							ClientBuilder builder = ClientBuilder.newBuilder();
+							if(rand.nextBoolean()) {
+								builder.register(AdminUserAuthenticator.class);
+							}
+							
+							Client client = builder.build();
+							try {
+								testJsonp(db, client);
+								TimeUnit.MILLISECONDS.sleep(rand.nextInt(500));
+								testJsonb(db, client);
+								TimeUnit.MILLISECONDS.sleep(rand.nextInt(500));
+								testJsonbCdi(db, client);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							} catch(Throwable t) {
+								failures.add(t);
+							} finally {
+								client.close();
+							}
+						}
 					} finally {
 						latch.countDown();
-						client.close();
 					}
 				});
 			}

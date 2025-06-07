@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,13 @@
 package org.openntf.xsp.jakarta.nosql;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.DatabaseQualifier;
 import org.eclipse.jnosql.mapping.core.Converters;
-import org.eclipse.jnosql.mapping.core.spi.EntityMetadataExtension;
 import org.eclipse.jnosql.mapping.document.DocumentTemplate;
 import org.eclipse.jnosql.mapping.document.spi.DocumentExtension;
 import org.eclipse.jnosql.mapping.reflection.ConstructorException;
@@ -34,6 +32,7 @@ import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakarta.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakarta.nosql.bean.ContextDatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.bean.ContextDocumentCollectionManagerProducer;
+import org.openntf.xsp.jakarta.nosql.bean.DominoReflectionEntityMetadata;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoReflections;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.impl.DefaultDominoTemplate;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.impl.DominoExtension;
@@ -72,19 +71,14 @@ public class NoSQLBeanContributor implements CDIClassContributor {
 		result.add(DominoReflections.class);
 
 		result.add(Converters.class);
-		result.add(EntityMetadataExtension.class);
+		result.add(DominoReflectionEntityMetadata.class);
 
 		return result;
 	}
 
 	@Override
-	public Collection<Extension> getExtensions() {
-		return Collections.singleton(new EntityMetadataExtension());
-	}
-
-	@Override
 	public Collection<Class<? extends Extension>> getExtensionClasses() {
-		return Arrays.asList(
+		return Set.of(
 			DocumentExtension.class,
 
 			DominoExtension.class

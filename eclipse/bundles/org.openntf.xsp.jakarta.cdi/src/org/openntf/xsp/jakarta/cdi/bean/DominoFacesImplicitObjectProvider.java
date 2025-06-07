@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.jakarta.cdi.bean;
 
-import org.openntf.xsp.jakarta.cdi.concurrency.NSFSessionClonerSetupParticipant;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -56,11 +55,6 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("dominoSessionAsSigner")
 	public Session produceSessionAsSigner() {
-		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSIONASSIGNER.get();
-		if(threadSession != null) {
-			return threadSession;
-		}
-
 		return ComponentModuleLocator.getDefault()
 			.flatMap(ComponentModuleLocator::getSessionAsSigner)
 			.orElse(null);
@@ -70,11 +64,6 @@ public class DominoFacesImplicitObjectProvider {
 	@Dependent
 	@Named("dominoSessionAsSignerWithFullAccess")
 	public Session produceSessionAsSignerWithFullAccess() {
-		Session threadSession = NSFSessionClonerSetupParticipant.THREAD_SESSIONASSIGNER.get();
-		if(threadSession != null) {
-			return threadSession;
-		}
-
 		return ComponentModuleLocator.getDefault()
 			.flatMap(ComponentModuleLocator::getSessionAsSignerWithFullAccess)
 			.orElse(null);

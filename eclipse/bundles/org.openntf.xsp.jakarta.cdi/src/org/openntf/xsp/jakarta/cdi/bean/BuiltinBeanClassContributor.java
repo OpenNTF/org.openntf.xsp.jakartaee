@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.openntf.xsp.jakarta.cdi.bean;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 
@@ -30,9 +30,9 @@ public class BuiltinBeanClassContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		return Arrays.asList(
-			DominoFacesImplicitObjectProvider.class,
-			HttpContextBean.class
+		return List.of(
+			HttpContextBean.class,
+			DominoFacesImplicitObjectProvider.class
 		);
 	}
 

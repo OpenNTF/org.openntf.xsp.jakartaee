@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ import com.ibm.xsp.designer.context.XSPContext;
 
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
-
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.MessageInterpolator;
 import jakarta.validation.Validation;
@@ -118,9 +119,19 @@ public enum XPagesValidationUtil {
 	private static class XSPLocaleResourceBundleMessageInterpolator extends ResourceBundleMessageInterpolator {
 		@Override
 		public String interpolate(final String message, final MessageInterpolator.Context context) {
-			XSPContext xspContext = XSPContext.getXSPContext(FacesContext.getCurrentInstance());
-			Locale locale = xspContext.getLocale();
-			return interpolate(message, context, locale);
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			if(facesContext != null) {
+				XSPContext xspContext = XSPContext.getXSPContext(FacesContext.getCurrentInstance());
+				Locale locale = xspContext.getLocale();
+				return interpolate(message, context, locale);
+			} else {
+				// Failing that, try to locate an active HttpServletRequest
+				return ComponentModuleLocator.getDefault()
+					.flatMap(ComponentModuleLocator::getServletRequest)
+					.map(HttpServletRequest::getLocale)
+					.map(locale -> interpolate(message, context, locale))
+					.orElseGet(() -> super.interpolate(message, context));
+			}
 		}
 	}
 }

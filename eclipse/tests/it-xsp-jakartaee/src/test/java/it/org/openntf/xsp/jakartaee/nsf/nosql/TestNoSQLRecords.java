@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,41 @@ public class TestNoSQLRecords extends AbstractWebClientTest {
 			assertEquals(unid, jsonObject.getString("unid"));
 			assertEquals(name, jsonObject.getString("name", null));
 			assertEquals(4, jsonObject.getInt("index", 0));
+		}
+	}
+	
+	// Tests to make sure that default values from docs with primitives work
+	@Test
+	public void testPartialRecordDoc() throws UnsupportedEncodingException {
+		Client client = getAnonymousClient();
+		
+		// Create a new doc
+		String name;
+		{
+			JsonObject payload = Json.createObjectBuilder().build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosqlRecordDocs/createPartial");
+			Response response = postTarget.request().post(Entity.json(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			name = jsonObject.getString("name", null);
+			assertNotNull(name);
+			assertFalse(name.isEmpty());
+		}
+		
+		// Fetch the doc
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosqlRecordDocs/byName/" + URLEncoder.encode(name, "UTF-8"));
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(name, jsonObject.getString("name", null));
+			assertEquals(0, jsonObject.getInt("index", -1));
 		}
 	}
 }

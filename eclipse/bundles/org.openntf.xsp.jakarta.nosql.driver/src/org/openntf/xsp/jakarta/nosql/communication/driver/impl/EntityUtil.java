@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.reflection.DefaultFieldMetadata;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DocumentConfig;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.Column;
@@ -103,6 +104,15 @@ public enum EntityUtil {
 			return (Field)fieldField.get(fieldMapping);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	public static String getFormName(final EntityMetadata classMapping) {
+		DocumentConfig ann = classMapping.type().getAnnotation(DocumentConfig.class);
+		if(ann != null) {
+			return ann.formName();
+		} else {
+			return classMapping.name();
 		}
 	}
 }

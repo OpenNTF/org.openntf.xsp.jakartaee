@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import com.ibm.commons.util.StringUtil;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.osgi.util.ManifestElement;
-import org.openntf.xsp.jakarta.pages.EarlyInitFactory;
+import org.openntf.xsp.jakarta.pages.PagesHttpInitListener;
 import org.openntf.xsp.jakarta.pages.nsf.PagesServletFactory;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
@@ -65,7 +66,7 @@ public enum DominoPagesUtil {
 			.map(uri -> "jar:" + uri + "!/") //$NON-NLS-1$ //$NON-NLS-2$
 			.map(t -> {
 				try {
-					return new URL(t);
+					return URI.create(t).toURL();
 				} catch (MalformedURLException e) {
 					throw new UncheckedIOException(e);
 				}
@@ -78,7 +79,7 @@ public enum DominoPagesUtil {
 	// It's a map of URI to [JAR file path, resource name]
 	// See also TagLibraryInfoImpl
 	public static HashMap<String, String[]> buildJstlDtdMap() throws IOException {
-		String jstl = EarlyInitFactory.getDeployedJstlBundle().toUri().toString();
+		String jstl = PagesHttpInitListener.getDeployedJstlBundle().toUri().toString();
 
 		HashMap<String, String[]> result = new HashMap<>();
 
@@ -87,6 +88,12 @@ public enum DominoPagesUtil {
 		result.put("http://java.sun.com/jsp/jstl/fmt", new String[] { jstl, "META-INF/fmt.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
 		result.put("http://java.sun.com/jsp/jstl/sql", new String[] { jstl, "META-INF/sql.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
 		result.put("http://java.sun.com/jsp/jstl/xml", new String[] { jstl, "META-INF/x.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+
+		result.put("jakarta.tags.functions", new String[] { jstl, "META-INF/fn.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("jakarta.tags.core", new String[] { jstl, "META-INF/c.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("jakarta.tags.fmt", new String[] { jstl, "META-INF/fmt.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("jakarta.tags.sql", new String[] { jstl, "META-INF/sql.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("jakarta.tags.xml", new String[] { jstl, "META-INF/x.tld" }); //$NON-NLS-1$ //$NON-NLS-2$
 
 		return result;
 	}

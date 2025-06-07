@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,8 +83,8 @@ public class ProxyingHttpServletResponse implements HttpServletResponse {
 	}
 
 	@Override
-	public void sendRedirect(final String location) throws IOException {
-		delegate().sendRedirect(location);
+	public void sendRedirect(final String location, final int sc, final boolean clearBuffer) throws IOException {
+		delegate().sendRedirect(location, sc, clearBuffer);
 	}
 
 	@Override

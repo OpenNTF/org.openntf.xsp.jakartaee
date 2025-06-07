@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,28 @@
  */
 package org.openntf.xsp.jakarta.nosql.bean;
 
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.SessionSupplier;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 
-@ApplicationScoped
+@Dependent
 public class ContextDatabaseSupplier {
 
 	@Produces
 	public DatabaseSupplier getDatabaseSupplier() {
-		return () -> NotesContext.getCurrent().getCurrentDatabase();
+		return () -> ComponentModuleLocator.getDefault()
+				.flatMap(ComponentModuleLocator::getUserDatabase)
+				.orElse(null);
 	}
 
 	@Produces
 	public SessionSupplier getSessionAsSignerSupplier() {
-		return () -> NotesContext.getCurrent().getSessionAsSigner();
+		return () -> ComponentModuleLocator.getDefault()
+				.flatMap(ComponentModuleLocator::getSessionAsSigner)
+				.orElse(null);
 	}
 
 }

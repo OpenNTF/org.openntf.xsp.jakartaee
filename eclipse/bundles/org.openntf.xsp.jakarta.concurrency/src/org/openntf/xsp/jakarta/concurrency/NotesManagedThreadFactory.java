@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.openntf.xsp.jakarta.concurrency;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import org.glassfish.enterprise.concurrent.AbstractManagedThread;
-import org.glassfish.enterprise.concurrent.ContextServiceImpl;
-import org.glassfish.enterprise.concurrent.ManagedThreadFactoryImpl;
-import org.glassfish.enterprise.concurrent.spi.ContextHandle;
+import org.glassfish.concurro.AbstractManagedThread;
+import org.glassfish.concurro.ContextServiceImpl;
+import org.glassfish.concurro.ManagedThreadFactoryImpl;
+import org.glassfish.concurro.spi.ContextHandle;
 
 import lotus.domino.NotesThread;
 

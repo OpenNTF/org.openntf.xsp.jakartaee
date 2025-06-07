@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xp:view xmlns:xp="http://www.ibm.com/xsp/core">
 	<xp:text styleClass="text-output" value="#{ex:RecordProducer.recordExample.name}"/>
+	<xp:text styleClass="text-output2" value="#{ex:RecordProducer.optionalEmpty.name}"/>
+	<xp:text styleClass="text-output3" value="#{ex:RecordProducer.optionalFull.name}"/>
 </xp:view>

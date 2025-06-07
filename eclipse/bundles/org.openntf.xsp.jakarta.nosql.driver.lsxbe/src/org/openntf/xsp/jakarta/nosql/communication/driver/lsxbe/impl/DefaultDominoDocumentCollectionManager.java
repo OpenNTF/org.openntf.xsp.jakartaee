@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Vector;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -100,14 +101,18 @@ import lotus.domino.ViewNavigator;
 public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocumentCollectionManager {
 	private final Logger log = Logger.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
 
-	private final DatabaseSupplier supplier;
-	private final SessionSupplier sessionSupplier;
+	private final Supplier<Database> supplier;
+	private final Supplier<Session> sessionSupplier;
 	private final LSXBEEntityConverter entityConverter;
 
-	public DefaultDominoDocumentCollectionManager(final DatabaseSupplier supplier, final SessionSupplier sessionSupplier) {
+	public DefaultDominoDocumentCollectionManager(final Supplier<Database> supplier, final Supplier<Session> sessionSupplier) {
 		this.supplier = supplier;
 		this.sessionSupplier = sessionSupplier;
 		this.entityConverter = new LSXBEEntityConverter(supplier);
+	}
+
+	public DefaultDominoDocumentCollectionManager(final DatabaseSupplier supplier, final SessionSupplier sessionSupplier) {
+		this((Supplier<Database>)supplier, (Supplier<Session>)sessionSupplier);
 	}
 
 	@Override
@@ -227,7 +232,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			String entityName = query.name();
 			EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
 
-			QueryConverterResult queryResult = QueryConverter.select(query);
+			QueryConverterResult queryResult = QueryConverter.select(query, mapping);
 
 			long skip = queryResult.getSkip();
 			long limit = queryResult.getLimit();
@@ -326,8 +331,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 				Vector<Object> vecKeys;
-				if(keys instanceof List) {
-					vecKeys = (Vector<Object>)keys;
+				if(keys instanceof Vector v) {
+					vecKeys = v;
 				} else {
 					vecKeys = new Vector<>(Arrays.asList(keys));
 				}
@@ -344,10 +349,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
 			(nav, limit, didSkip, didKey) -> {
 				try {
-					if(nav instanceof ViewNavigator) {
-						return entityConverter.convertViewEntries(entityName, (ViewNavigator)nav, didSkip, didKey, limit, docsOnly, mapping);
-					} else if(nav instanceof ViewEntryCollection) {
-						return entityConverter.convertViewEntries(entityName, (ViewEntryCollection)nav, didSkip, didKey, limit, docsOnly, mapping);
+					if(nav instanceof ViewNavigator vn) {
+						return entityConverter.convertViewEntries(entityName, vn, didSkip, didKey, limit, docsOnly, mapping);
+					} else if(nav instanceof ViewEntryCollection vec) {
+						return entityConverter.convertViewEntries(entityName, vec, didSkip, didKey, limit, docsOnly, mapping);
 					} else {
 						throw new IllegalStateException("Cannot process " + nav);
 					}
@@ -373,8 +378,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 				Vector<Object> vecKeys;
-				if(keys instanceof List) {
-					vecKeys = (Vector<Object>)keys;
+				if(keys instanceof Vector v) {
+					vecKeys = v;
 				} else {
 					vecKeys = new Vector<>(Arrays.asList(keys));
 				}
@@ -392,10 +397,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
 			(nav, limit, didSkip, didKey) -> {
 				try {
-					if(nav instanceof ViewNavigator) {
-						return entityConverter.convertViewDocuments(entityName, (ViewNavigator)nav, didSkip, didKey, limit, distinct, mapping);
-					} else if(nav instanceof ViewEntryCollection) {
-						return entityConverter.convertViewDocuments(entityName, (ViewEntryCollection)nav, didSkip, didKey, limit, distinct, mapping);
+					if(nav instanceof ViewNavigator vn) {
+						return entityConverter.convertViewDocuments(entityName, vn, didSkip, didKey, limit, distinct, mapping);
+					} else if(nav instanceof ViewEntryCollection vec) {
+						return entityConverter.convertViewDocuments(entityName, vec, didSkip, didKey, limit, distinct, mapping);
 					} else {
 						throw new IllegalStateException("Cannot process " + nav);
 					}
@@ -455,7 +460,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			beginTransaction(database);
 			DominoQuery dominoQuery = database.createDominoQuery();
-			DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(documentCollection);
+
+			EntityMetadata mapping = EntityUtil.getClassMapping(documentCollection);
+			String formName = EntityUtil.getFormName(mapping);
+			DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName);
 			DocumentCollection result = dominoQuery.execute(dql.toString());
 			return result.getCount();
 		} catch(NotesException e) {
@@ -762,8 +770,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				if(viewQuery != null && viewQuery.getKey() != null) {
 					Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
 					Vector<Object> vecKeys;
-					if(keys instanceof List) {
-						vecKeys = (Vector<Object>)keys;
+					if(keys instanceof Vector v) {
+						vecKeys = v;
 					} else {
 						vecKeys = new Vector<>(Arrays.asList(keys));
 					}
@@ -853,9 +861,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 	private static void recycle(final Object... objects) {
 		for(Object obj : objects) {
-			if(obj instanceof Base) {
+			if(obj instanceof Base b) {
 				try {
-					((Base)obj).recycle();
+					b.recycle();
 				} catch (NotesException e) {
 					// Ignore
 				}
@@ -913,15 +921,15 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 			// Look for special values and map back
 			itemName = switch (itemName) {
-				case DominoConstants.FIELD_SIZE -> formulaToItemName(view, "@DocLength", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_CDATE -> formulaToItemName(view, "@Created", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_MDATE -> formulaToItemName(view, "@Modified", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_ADATE -> formulaToItemName(view, "@Accessed", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_NOTEID -> formulaToItemName(view, "@NoteID", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_ADDED -> formulaToItemName(view, "@AddedToThisFile", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_MODIFIED_IN_THIS_FILE -> formulaToItemName(view, "@ModifiedInThisFile", itemName); //$NON-NLS-1$
-				case DominoConstants.FIELD_ATTACHMENTS -> formulaToItemName(view, "@AttachmentNames", itemName); //$NON-NLS-1$
-				default -> formulaToItemName(view, itemName, itemName);
+				case DominoConstants.FIELD_SIZE -> formulaToItemName(view, "@DocLength", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_CDATE -> formulaToItemName(view, "@Created", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_MDATE -> formulaToItemName(view, "@Modified", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_ADATE -> formulaToItemName(view, "@Accessed", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_NOTEID -> formulaToItemName(view, "@NoteID", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_ADDED -> formulaToItemName(view, "@AddedToThisFile", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_MODIFIED_IN_THIS_FILE -> formulaToItemName(view, "@ModifiedInThisFile", sorts.property()); //$NON-NLS-1$
+				case DominoConstants.FIELD_ATTACHMENTS -> formulaToItemName(view, "@AttachmentNames", sorts.property()); //$NON-NLS-1$
+				default -> formulaToItemName(view, itemName, sorts.property());
 			};
 
 			if(ftSearch != null && !ftSearch.isEmpty()) {
@@ -974,7 +982,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 					} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
 						if(log.isLoggable(Level.SEVERE)) {
-							if(e instanceof NotesException && ((NotesException)e).id == 4864) {
+							if(e instanceof NotesException ne && ne.id == 4864) {
 								// "Transactional Logging must be enabled for this function"
 								log.log(Level.SEVERE, "Transactional logging is not enabled for this server; skipping transaction registration", e);
 								if(res != null) {
@@ -1012,13 +1020,19 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		try {
 			for(ViewColumn col : columns) {
 				if(col.getColumnValuesIndex() != ViewColumn.VC_NOT_PRESENT) {
+					String colItemName = col.getItemName();
+
+					if(formula.equalsIgnoreCase(colItemName)) {
+						return colItemName;
+					}
+
 					String colFormula = col.getFormula();
 					if(StringUtil.isEmpty(colFormula)) {
-						colFormula = col.getItemName();
+						colFormula = colItemName;
 					}
 
 					if(formula.equalsIgnoreCase(colFormula)) {
-						return col.getItemName();
+						return colItemName;
 					}
 				}
 			}

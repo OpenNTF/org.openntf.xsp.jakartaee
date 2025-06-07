@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ public class JakartaServletFacade extends javax.servlet.http.HttpServlet {
 				this.delegate = delegateClass.getConstructor().newInstance();
 			}
 		} catch (Exception e) {
-			throw new javax.servlet.ServletException(MessageFormat.format("Encountered exception loading Servlet of class {0}", className), e);
+			throw new javax.servlet.ServletException(MessageFormat.format("Encountered exception loading Servlet of class {0} with ClassLoader {1}", className, Thread.currentThread().getContextClassLoader()), e);
 		}
 
 		try {

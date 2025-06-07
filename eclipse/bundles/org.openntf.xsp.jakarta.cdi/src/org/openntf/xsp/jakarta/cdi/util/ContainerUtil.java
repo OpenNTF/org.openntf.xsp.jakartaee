@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,10 @@ import java.util.logging.Logger;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.domino.xsp.adapter.osgi.AbstractOSGIModule;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.ManifestElement;
 import org.jboss.weld.config.ConfigurationKey;
-import org.jboss.weld.environment.deployment.discovery.jandex.Jandex;
 import org.jboss.weld.environment.se.Weld;
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.manager.BeanManagerImpl;
@@ -235,7 +233,7 @@ public enum ContainerUtil {
 	public static CDI<Object> getContainer(final ComponentModule module) {
 		// OSGi Servlets use their containing bundle, and we have to assume
 		//   that it's from the current thread
-		if(module instanceof AbstractOSGIModule) {
+		if(ModuleUtil.usesBundleClassLoader(module)) {
 
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();
 			Optional<Bundle> bundle = DiscoveryUtil.getBundleForClassLoader(cl);
@@ -244,23 +242,29 @@ public enum ContainerUtil {
 			}
 		}
 
+		boolean doEvents = ModuleUtil.emulateServletEvents(module);
 		long refresh = module.getLastRefresh();
 
 		Map<String, Object> attributes = module.getAttributes();
 		if(attributes != null) {
 			WeldContainer existing = (WeldContainer)attributes.get(ATTR_CONTEXTCONTAINER);
 			if(existing != null && existing.isRunning()) {
-				Long lastRefresh = ID_REFRESH_CACHE.get(existing.getId());
-				if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
-					existing.close();
+				if(doEvents) {
+					Long lastRefresh = ID_REFRESH_CACHE.get(existing.getId());
+					if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
+						existing.close();
+					} else {
+						return existing;
+					}
 				} else {
+					// Otherwise, assume the module handles CDI expiration
 					return existing;
 				}
 			}
 		}
 
 
-		if(module instanceof AbstractOSGIModule || LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module)) {
+		if(LibraryUtil.usesLibrary(LibraryUtil.LIBRARY_CORE, module) || ModuleUtil.hasImplicitCdi(module)) {
 			String bundleId = getApplicationCDIBundle(module);
 			if(StringUtil.isNotEmpty(bundleId)) {
 				Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
@@ -270,22 +274,28 @@ public enum ContainerUtil {
 			}
 
 			String id = ModuleUtil.getModuleId(module);
-
+			
 			return withLock(id, () -> {
 				WeldContainer instance = WeldContainer.instance(id);
 
-				// If the instance exists, we may have to invalidate it from an
-				//   app refresh
-				if(instance != null && instance.isRunning()) {
-					Long lastRefresh = ID_REFRESH_CACHE.get(id);
-					if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
-						instance.close();
+				if(doEvents) {
+					// If the instance exists, we may have to invalidate it from an
+					//   app refresh
+					if(instance != null && instance.isRunning()) {
+						Long lastRefresh = ID_REFRESH_CACHE.get(id);
+						if(lastRefresh != null && lastRefresh < refresh || module.isExpired(System.currentTimeMillis())) {
+							instance.close();
+						}
 					}
 				}
 
 				if(instance == null || !instance.isRunning()) {
 					Weld weld = constructWeld(id)
 						.property(Weld.SCAN_CLASSPATH_ENTRIES_SYSTEM_PROPERTY, true);
+					if(module.getModuleClassLoader() != null) {
+						weld.setClassLoader(module.getModuleClassLoader());
+					}
+					
 					String baseBundleId = getApplicationCDIBundleBase(module);
 					Bundle bundle = null;
 					if(StringUtil.isNotEmpty(baseBundleId)) {
@@ -315,8 +325,6 @@ public enum ContainerUtil {
 
 					Weld fweld = weld;
 					instance = AccessController.doPrivileged((PrivilegedAction<WeldContainer>)() -> {
-						// Special case for using an NSFComponentModule when there's no available NotesContext,
-						//   such as when the first request in is a service
 
 						for(Extension extension : LibraryUtil.findExtensions(Extension.class, module)) {
 							fweld.addExtension(extension);
@@ -381,10 +389,10 @@ public enum ContainerUtil {
 	 */
 	public static BeanManagerImpl getBeanManager(final CDI<Object> container) {
 		BeanManager manager = container.getBeanManager();
-		if(manager instanceof BeanManagerImpl) {
-			return (BeanManagerImpl)manager;
-		} else if(manager instanceof ForwardingBeanManager) {
-			return (BeanManagerImpl) ((ForwardingBeanManager)manager).delegate();
+		if(manager instanceof BeanManagerImpl bmi) {
+			return bmi;
+		} else if(manager instanceof ForwardingBeanManager fbm) {
+			return (BeanManagerImpl) fbm.delegate();
 		} else {
 			throw new IllegalStateException("Cannot find BeanManagerImpl in " + manager); //$NON-NLS-1$
 		}
@@ -437,8 +445,6 @@ public enum ContainerUtil {
 			// Disable concurrent deployment to avoid Notes thread init trouble
 			.property(ConfigurationKey.CONCURRENT_DEPLOYMENT.get(), false)
 			.property(ConfigurationKey.EXECUTOR_THREAD_POOL_TYPE.get(), "SINGLE_THREAD") //$NON-NLS-1$
-			// Disable Jandex, as it causes problems in D14
-			.property(Jandex.DISABLE_JANDEX_DISCOVERY_STRATEGY, true)
 			.addExtension(new CDIScopesExtension())
 			.addServices(new ExpressionLanguageSupport() {
 				@Override

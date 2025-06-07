@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,15 +68,15 @@ public class JsonExceptionHandler implements RestExceptionHandler {
 					String message = ""; //$NON-NLS-1$
 					Throwable t = throwable;
 					while ((message == null || message.length() == 0) && t != null) {
-						if (t instanceof NotesException) {
-							message = ((NotesException) t).text;
-						} else if (t instanceof ConstraintViolationException) {
+						if (t instanceof NotesException ne) {
+							message = ne.text;
+						} else if (t instanceof ConstraintViolationException cve) {
 							message = t.getMessage();
 
 							if (message == null || message.isEmpty()) {
 								List<String> cvMsgList = new ArrayList<>();
 								for (@SuppressWarnings("rawtypes")
-								ConstraintViolation cv : ((ConstraintViolationException) t).getConstraintViolations()) {
+								ConstraintViolation cv : cve.getConstraintViolations()) {
 									String cvMsg = cv.getPropertyPath() + ": " + cv.getMessage(); //$NON-NLS-1$
 									cvMsgList.add(cvMsg);
 								}

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.function.Supplier;
 
 import com.ibm.commons.util.StringUtil;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
-import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
 
 import jakarta.activation.MimetypesFileTypeMap;
 import lotus.domino.Database;
@@ -31,14 +31,14 @@ import lotus.domino.EmbeddedObject;
 import lotus.domino.NotesException;
 
 public class DominoDocumentAttachment implements EntityAttachment {
-	private final DatabaseSupplier databaseSupplier;
+	private final Supplier<Database> databaseSupplier;
 	private final String unid;
 	private final String attachmentName;
 	private Long lastModified;
 	private String contentType;
 	private Long length;
 
-	public DominoDocumentAttachment(final DatabaseSupplier databaseSupplier, final String unid, final String attachmentName) {
+	public DominoDocumentAttachment(final Supplier<Database> databaseSupplier, final String unid, final String attachmentName) {
 		this.databaseSupplier = databaseSupplier;
 		this.unid = unid;
 		this.attachmentName = attachmentName;

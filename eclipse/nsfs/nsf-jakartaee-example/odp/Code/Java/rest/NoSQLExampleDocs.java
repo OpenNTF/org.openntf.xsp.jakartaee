@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoTemplate;
 
 import bean.TransactionBean;
+import jakarta.data.Sort;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.transaction.HeuristicMixedException;
@@ -271,6 +272,13 @@ public class NoSQLExampleDocs {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ExampleDoc> getAllSorted() {
 		return repository.findAllSorted().toList();
+	}
+	
+	@Path("allSortedCustom")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getAllSortedCustom() {
+		return repository.getViewEntriesCustom(Sort.asc("customSort")).toList();
 	}
 	
 	/**

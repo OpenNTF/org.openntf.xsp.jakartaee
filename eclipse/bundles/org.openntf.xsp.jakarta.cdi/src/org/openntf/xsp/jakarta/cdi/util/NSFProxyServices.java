@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@ import java.security.ProtectionDomain;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.ibm.domino.xsp.module.nsf.ModuleClassLoader;
+import com.ibm.commons.extension.ExtensionManager.ApplicationClassLoader;
 
 import org.jboss.weld.bean.proxy.util.WeldDefaultProxyServices;
 
@@ -42,7 +41,7 @@ public class NSFProxyServices extends WeldDefaultProxyServices {
 	public Class<?> defineClass(final Class<?> originalClass, final String className, final byte[] classBytes, final int off, final int len)
 			throws ClassFormatError {
 		Class<?> result = super.defineClass(originalClass, className, classBytes, off, len);
-		if(result != null && !(originalClass.getClassLoader() instanceof ModuleClassLoader)) {
+		if(result != null && !isAppLoader(originalClass.getClassLoader())) {
 			classCache.put(className + originalClass.hashCode(), result);
 		}
 		return result;
@@ -52,7 +51,7 @@ public class NSFProxyServices extends WeldDefaultProxyServices {
 	public Class<?> defineClass(final Class<?> originalClass, final String className, final byte[] classBytes, final int off, final int len,
 			final ProtectionDomain protectionDomain) throws ClassFormatError {
 		Class<?> result = super.defineClass(originalClass, className, classBytes, off, len, protectionDomain);
-		if(result != null && !(originalClass.getClassLoader() instanceof ModuleClassLoader)) {
+		if(result != null && !isAppLoader(originalClass.getClassLoader())) {
 			classCache.put(className + originalClass.hashCode(), result);
 		}
 		return result;
@@ -65,5 +64,15 @@ public class NSFProxyServices extends WeldDefaultProxyServices {
 			return classCache.get(key);
 		}
 		return super.loadClass(originalClass, classBinaryName);
+	}
+	
+	private boolean isAppLoader(ClassLoader cl) {
+		if(cl instanceof ApplicationClassLoader) {
+			return true;
+		}
+		if("com.ibm.domino.xsp.module.nsf.ModuleClassLoader$DynamicClassLoader".equals(cl.getClass().getName())) { //$NON-NLS-1$
+			return true;
+		}
+		return false;
 	}
 }

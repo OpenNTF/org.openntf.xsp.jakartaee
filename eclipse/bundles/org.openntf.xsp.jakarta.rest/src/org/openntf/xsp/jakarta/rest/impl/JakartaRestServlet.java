@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakarta.rest.ServiceParticipant;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.ServletConfig;
@@ -76,8 +77,7 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 	@Override
 	protected void doService(final HttpServletRequest request, final HttpServletResponse response, final ApplicationEx application) throws ServletException, IOException {
 		initCdi(request);
-		@SuppressWarnings("unchecked")
-		List<ServiceParticipant> participants = application.findServices(ServiceParticipant.EXTENSION_POINT);
+		List<ServiceParticipant> participants = LibraryUtil.findExtensions(ServiceParticipant.class, getModule());
 		for(ServiceParticipant participant : participants) {
     		participant.doBeforeService(request, response);
     	}
@@ -106,7 +106,7 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 	}
 
 	private void initCdi(final HttpServletRequest request) {
-		if(request.getAttribute(KEY_CDI_STORAGE) == null) {
+		if(request != null && request.getAttribute(KEY_CDI_STORAGE) == null) {
 			CDI<Object> cdi = ContainerUtil.getContainer(this.getModule());
 			BoundRequestContext context = (BoundRequestContext)cdi.select(RequestContext.class, BoundLiteral.INSTANCE).get();
 			Map<String, Object> cdiScope = new HashMap<>();
@@ -117,10 +117,12 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 	}
 	@SuppressWarnings("unchecked")
 	private void termCdi(final HttpServletRequest request) {
-		CDI<Object> cdi = ContainerUtil.getContainer(this.getModule());
-		BoundRequestContext context = (BoundRequestContext)cdi.select(RequestContext.class, BoundLiteral.INSTANCE).get();
-		context.invalidate();
-		context.deactivate();
-		context.dissociate((Map<String, Object>)request.getAttribute(KEY_CDI_STORAGE));
+		if(request != null) {
+			CDI<Object> cdi = ContainerUtil.getContainer(this.getModule());
+			BoundRequestContext context = (BoundRequestContext)cdi.select(RequestContext.class, BoundLiteral.INSTANCE).get();
+			context.invalidate();
+			context.deactivate();
+			context.dissociate((Map<String, Object>)request.getAttribute(KEY_CDI_STORAGE));
+		}
 	}
 }

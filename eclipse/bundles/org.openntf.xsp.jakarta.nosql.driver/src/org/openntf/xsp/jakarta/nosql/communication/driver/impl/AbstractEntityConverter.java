@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,14 +84,14 @@ public abstract class AbstractEntityConverter {
 	}
 
 	public static Object applyPrecision(final Object dominoVal, final int precision) {
-		if(dominoVal instanceof Number) {
-			BigDecimal decimal = BigDecimal.valueOf(((Number)dominoVal).doubleValue());
+		if(dominoVal instanceof Number n) {
+			BigDecimal decimal = BigDecimal.valueOf(n.doubleValue());
 			return decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue();
-		} else if(dominoVal instanceof Collection && !((Collection<?>)dominoVal).isEmpty()) {
-			Vector<Object> result = new Vector<>(((Collection<?>)dominoVal).size());
-			for(Object obj : (Collection<?>)dominoVal) {
-				if(obj instanceof Number) {
-					BigDecimal decimal = BigDecimal.valueOf(((Number)obj).doubleValue());
+		} else if(dominoVal instanceof Collection c && !c.isEmpty()) {
+			Vector<Object> result = new Vector<>(c.size());
+			for(Object obj : c) {
+				if(obj instanceof Number n) {
+					BigDecimal decimal = BigDecimal.valueOf(n.doubleValue());
 					result.add(decimal.setScale(precision, RoundingMode.HALF_UP).doubleValue());
 				} else {
 					result.add(obj);

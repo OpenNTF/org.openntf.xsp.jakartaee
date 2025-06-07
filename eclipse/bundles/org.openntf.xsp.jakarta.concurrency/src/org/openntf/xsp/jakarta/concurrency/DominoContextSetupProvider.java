@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.glassfish.enterprise.concurrent.spi.ContextHandle;
-import org.glassfish.enterprise.concurrent.spi.ContextSetupProvider;
+import org.glassfish.concurro.spi.ContextHandle;
+import org.glassfish.concurro.spi.ContextSetupProvider;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.enterprise.concurrent.ContextService;

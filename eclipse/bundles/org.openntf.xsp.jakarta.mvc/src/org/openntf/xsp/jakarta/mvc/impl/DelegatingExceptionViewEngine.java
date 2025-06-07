@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,9 @@ public class DelegatingExceptionViewEngine implements ViewEngine {
 		Models models = context.getModels();
 		Response sup = (Response)models.get("response"); //$NON-NLS-1$
 		Object entity = sup.getEntity();
-		if(entity instanceof StreamingOutput) {
+		if(entity instanceof StreamingOutput so) {
 			try {
-				((StreamingOutput)entity).write(context.getOutputStream());
+				so.write(context.getOutputStream());
 			} catch (WebApplicationException | IOException e) {
 				throw new ViewEngineException(e);
 			}

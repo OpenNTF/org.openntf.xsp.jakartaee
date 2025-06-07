@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 class OldHttpServletResponseWrapper implements HttpServletResponse {
 	final javax.servlet.http.HttpServletResponse delegate;
+
+	private int status = 200;
 
 	public OldHttpServletResponseWrapper(final javax.servlet.http.HttpServletResponse delegate) {
 		this.delegate = delegate;
@@ -138,16 +140,27 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	@Override
 	public void sendError(final int sc, final String msg) throws IOException {
 		delegate.sendError(sc, msg);
+		this.status = sc;
 	}
 
 	@Override
 	public void sendError(final int sc) throws IOException {
 		delegate.sendError(sc);
+		this.status = sc;
 	}
 
 	@Override
 	public void sendRedirect(final String location) throws IOException {
 		delegate.sendRedirect(location);
+		this.status = SC_FOUND;
+	}
+
+	@Override
+	public void sendRedirect(final String location, final int sc, final boolean clearBuffer) throws IOException {
+		// clearBuffer is soft unsupported
+		delegate.sendRedirect(location);
+		delegate.setStatus(sc);
+		this.status = sc;
 	}
 
 	@Override
@@ -179,8 +192,6 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	public void addIntHeader(final String name, final int value) {
 		delegate.addIntHeader(name, value);
 	}
-
-	int status = 200;
 
 	@Override
 	public void setStatus(final int sc) {

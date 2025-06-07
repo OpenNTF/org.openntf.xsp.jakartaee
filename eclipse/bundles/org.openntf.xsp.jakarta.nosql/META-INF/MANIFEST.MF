@@ -3,11 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta NoSQL Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.nosql;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.nosql
-Bundle-Version: 3.3.0.qualifier
+Bundle-Version: 3.4.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
- jakarta.data.jakarta.data-api;bundle-version="1.0.0";visibility:=reexport,
+Require-Bundle: jakarta.data.jakarta.data-api;bundle-version="1.0.0";visibility:=reexport,
  jakarta.nosql.jakarta.nosql-api;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.org.eclipse.jnosql.mapping.api.core;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.org.eclipse.jnosql.mapping.semistructured;bundle-version="1.1.0",
@@ -23,14 +22,16 @@ Import-Package: com.ibm.commons.util,
  com.ibm.designer.domino.napi,
  com.ibm.designer.runtime.domino.adapter,
  com.ibm.domino.napi.c,
- com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.application,
  com.ibm.xsp.library,
  jakarta.annotation;version="2.0.0",
  jakarta.enterprise.context;version="3.0.0",
+ jakarta.enterprise.event;version="[4.1.0,5.0.0)",
  jakarta.enterprise.inject;version="3.0.0",
  jakarta.enterprise.inject.spi;version="3.0.0",
+ jakarta.enterprise.inject.spi.configurator;version="[4.1.0,5.0.0)",
  jakarta.inject;version="2.0.0",
+ jakarta.interceptor;version="2.0.0",
  javassist;version="3.28.0.GA",
  lotus.domino,
  org.eclipse.core.runtime,

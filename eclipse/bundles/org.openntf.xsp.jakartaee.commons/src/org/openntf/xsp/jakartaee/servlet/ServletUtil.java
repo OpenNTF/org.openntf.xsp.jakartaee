@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -397,6 +397,15 @@ public enum ServletUtil {
 			context.setAttribute(ATTR_CONTEXTINITIALIZED, Boolean.TRUE);
 		}
 	}
+	
+	public static void contextDestroyed(final jakarta.servlet.ServletContext context) {
+		if(Boolean.TRUE.equals(context.getAttribute(ATTR_CONTEXTINITIALIZED))) {
+			getListeners(context, ServletContextListener.class)
+				.forEach(l -> l.contextDestroyed(new ServletContextEvent(context)));
+			
+			context.removeAttribute(ATTR_CONTEXTINITIALIZED);
+		}
+	}
 
 	/**
 	 * Attempts to close the writer or stream associated with this response.
@@ -411,8 +420,8 @@ public enum ServletUtil {
 		// Special handling for wrapped XSP responses
 		if(resp instanceof OldHttpServletResponseWrapper) {
 			javax.servlet.http.HttpServletResponse old = newToOld(resp);
-			if(old instanceof LCDAdapterHttpServletResponse) {
-				HttpServletResponseAdapter delegate = ((LCDAdapterHttpServletResponse)old).getDelegate();
+			if(old instanceof LCDAdapterHttpServletResponse lcdResp) {
+				HttpServletResponseAdapter delegate = lcdResp.getDelegate();
 				if(delegate instanceof XspCmdHttpServletResponse xspResp) {
 					try {
 						if(xspResp.writerInUse()) {

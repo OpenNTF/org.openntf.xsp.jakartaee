@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@
 <feature
       id="org.openntf.xsp.microprofile.feature"
       label="XPages MicroProfile Feature"
-      version="3.3.0.qualifier">
+      version="3.4.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       [Enter Feature Description here.]
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018-2024 Contributors to the XPages Jakarta EE Support Project
+      Copyright 2018-2025 Contributors to the XPages Jakarta EE Support Project
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">
@@ -218,7 +218,7 @@
       same &quot;printed page&quot; as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2018-2024 Contributors to the XPages Jakarta EE Support Project
+   Copyright 2018-2025 Contributors to the XPages Jakarta EE Support Project
 
    Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -255,6 +255,7 @@
 	<plugin id="org.openntf.org.eclipse.microprofile.fault.tolerance" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.io.smallrye.fault-tolerance" version="0.0.0" unpack="false"/>
 	<plugin id="io.smallrye.fault-tolerance-api" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.fault-tolerance-apiimpl" version="0.0.0" unpack="false"/>
 	<plugin id="io.smallrye.fault-tolerance-core" version="0.0.0" unpack="false"/>
 	<plugin id="io.smallrye.fault-tolerance-autoconfig-core" version="0.0.0" unpack="false"/>
 	
@@ -270,21 +271,6 @@
 	<plugin id="org.openntf.org.eclipse.microprofile.rest.client" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client-base" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.microprofile.rest-client" version="0.0.0" fragment="true" unpack="false"/>
-	
-	<!-- Metrics -->
-	<plugin id="org.openntf.xsp.microprofile.metrics" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.org.eclipse.microprofile.metrics" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.io.smallrye.metrics" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.io.micrometer-commons" version="0.0.0" unpack="false"/>
-	<plugin id="org.openntf.io.micrometer-core" version="0.0.0" unpack="false"/>
-	<plugin id="micrometer-observation" version="0.0.0" unpack="false"/>
-	<plugin id="micrometer-registry-prometheus" version="0.0.0" unpack="false"/>
-	<plugin id="io.prometheus.simpleclient" version="0.0.0" unpack="false"/>
-	<plugin id="io.prometheus.simpleclient_common" version="0.0.0" unpack="false"/>
-	<plugin id="io.prometheus.simpleclient_tracer_common" version="0.0.0" unpack="false"/>
-	<plugin id="io.prometheus.simpleclient_tracer_otel" version="0.0.0" unpack="false"/>
-	<plugin id="io.prometheus.simpleclient_tracer_otel_agent" version="0.0.0" unpack="false"/>
-	<plugin id="org.hdrhistogram.HdrHistogram" version="0.0.0" unpack="false"/>
 
 	<!-- OpenAPI -->
 	<plugin id="org.openntf.xsp.microprofile.openapi" version="0.0.0" fragment="true" unpack="false"/>

@@ -5,15 +5,13 @@ Bundle-SymbolicName: org.openntf.xsp.jakarta.concurrency;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.concurrency
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakarta.concurrency.ConcurrencyActivator
-Bundle-Version: 3.3.0.qualifier
+Bundle-Version: 3.4.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: jakarta.enterprise.concurrent-api;bundle-version="2.0.0";visibility:=reexport,
- org.glassfish.jakarta.enterprise.concurrent;bundle-version="2.0.0",
- com.ibm.xsp.core;bundle-version="9.0.1",
+Require-Bundle: jakarta.enterprise.concurrent-api;bundle-version="3.1.0";visibility:=reexport,
+ org.openntf.org.glassfish.concurro;bundle-version="3.1.0",
  org.openntf.xsp.jakartaee.commons;bundle-version="2.7.0"
 Import-Package: com.ibm.designer.runtime.domino.adapter,
- com.ibm.domino.xsp.module.nsf,
  com.ibm.pvc.jndi.provider.java,
  jakarta.annotation;version="2.1.1",
  jakarta.servlet;version="5.0.0",
@@ -21,6 +19,5 @@ Import-Package: com.ibm.designer.runtime.domino.adapter,
  lotus.domino,
  lotus.notes.internal,
  org.osgi.framework;version="1.8.0"
-Export-Package: org.openntf.xsp.jakarta.concurrency;version="3.3.0",
- org.openntf.xsp.jakarta.concurrency.jndi;version="3.3.0",
- org.openntf.xsp.jakarta.concurrency.nsf;version="3.3.0"
+Export-Package: org.openntf.xsp.jakarta.concurrency;version="3.4.0",
+ org.openntf.xsp.jakarta.concurrency.jndi;version="3.4.0"

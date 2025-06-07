@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl.DominoDocumentConfiguration;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
 
-@RequestScoped
+@Dependent
 public class ContextDocumentCollectionManagerProducer {
 	private DominoDocumentConfiguration configuration;
 	private DatabaseManagerFactory managerFactory;

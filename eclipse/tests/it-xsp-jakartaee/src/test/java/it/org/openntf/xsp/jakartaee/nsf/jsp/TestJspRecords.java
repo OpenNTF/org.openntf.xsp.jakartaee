@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,19 +26,38 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestJspRecords extends AbstractWebClientTest {
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
-	public void testResolution(WebDriver driver) {
-		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/recordExample.jsp");
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
+	public void testResolution(TestDatabase db, WebDriver driver) {
+		driver.get(getRootUrl(driver, db) + "/recordExample.jsp");
 		
 		try {
-			WebElement dd = driver.findElement(By.cssSelector(".text-output"));
-			assertEquals("I am the example", dd.getText());
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output"));
+				assertEquals("I am the example", dd.getText());
+			}
+			
+			// Chained empty Optional in EL
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output2"));
+				assertEquals("", dd.getText());
+			}
+			// Chained full Optional in EL
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output3"));
+				assertEquals("I am the optional example", dd.getText());
+			}
+			// Traditional bean-style getter method
+			{
+				WebElement dd = driver.findElement(By.cssSelector(".text-output4"));
+				assertEquals("I am the message for I am the example", dd.getText());
+			}
+			
 		} catch(NoSuchElementException e) {
 			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
 		}

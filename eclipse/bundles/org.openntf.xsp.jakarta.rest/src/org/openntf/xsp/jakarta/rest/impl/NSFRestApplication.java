@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,9 +50,6 @@ import jakarta.ws.rs.ext.Providers;
  */
 public class NSFRestApplication extends Application {
 	private static final Logger log = Logger.getLogger(NSFRestApplication.class.getPackage().getName());
-
-	public NSFRestApplication() {
-	}
 
 	@Override
 	public Set<Object> getSingletons() {

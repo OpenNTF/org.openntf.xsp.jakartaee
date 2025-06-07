@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,10 @@ public class TransactionRequestCustomizerFactory extends RequestCustomizerFactor
 
 	@Override
 	public void initializeParameters(final FacesContext facesContext, final RequestParameters requestParameters) {
-		if(facesContext instanceof FacesContextEx) {
+		if(facesContext instanceof FacesContextEx fce) {
 			pushTransaction();
 
-			((FacesContextEx)facesContext).addRequestListener(new FacesContextListener() {
+			fce.addRequestListener(new FacesContextListener() {
 				@Override
 				public void beforeRenderingPhase(final FacesContext paramFacesContext) {
 					// NOP

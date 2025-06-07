@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -415,8 +415,8 @@ public enum LibraryUtil {
 			Throwable t = e.getCause();
 			if(t == null) {
 				throw new RuntimeException(e);
-			} else if(t instanceof RuntimeException) {
-				throw (RuntimeException)t;
+			} else if(t instanceof RuntimeException e2) {
+				throw e2;
 			} else {
 				throw new RuntimeException(t);
 			}

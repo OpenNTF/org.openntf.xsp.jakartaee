@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
@@ -27,8 +29,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
@@ -39,11 +41,11 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestMvcJsp extends AbstractWebClientTest {
-	
+
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
-	public void testHelloPage(WebDriver driver) {
-		driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/mvc?foo=bar");
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
+	public void testHelloPage(TestDatabase db, WebDriver driver) {
+		driver.get(getRestUrl(driver, db) + "/mvc?foo=bar");
 		try {
 			{
 				WebElement p = driver.findElement(By.xpath("//p[1]"));
@@ -83,6 +85,24 @@ public class TestMvcJsp extends AbstractWebClientTest {
 		String html = response.readEntity(String.class);
 		assertEquals(200, response.getStatus(), () -> "Invalid response code with HTML: " + html);
 		assertTrue(html.contains("Last name: " + lastName), () -> "Unexpected HTML: " + html);
+		
+	}
+	
+	@Disabled("Pending fix in issue #579")
+	@Test
+	public void testBeanParamInvalid() {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/mvc/beanParam"); //$NON-NLS-1$
+		
+		String firstName = "testBeanParamInvalid" + System.currentTimeMillis();
+		MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+		payload.putSingle("lastName", firstName);
+		Response response = target.request()
+			.accept(MediaType.TEXT_HTML_TYPE) // Ensure that it routes to MVC
+			.post(Entity.form(payload));
+		String html = response.readEntity(String.class);
+		assertEquals(400, response.getStatus(), () -> "Invalid response code with HTML: " + html);
+		System.out.println("testBeanParamInvalid html is " + html);
 		
 	}
 }

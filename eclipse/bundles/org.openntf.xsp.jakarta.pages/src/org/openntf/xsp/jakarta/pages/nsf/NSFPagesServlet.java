@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.servlet.JspServlet;
 import org.glassfish.wasp.xmlparser.ParserUtils;
 import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
-import org.openntf.xsp.jakarta.pages.EarlyInitFactory;
+import org.openntf.xsp.jakarta.pages.PagesHttpInitListener;
 import org.openntf.xsp.jakarta.pages.el.NSFELResolver;
 import org.openntf.xsp.jakarta.pages.util.DominoPagesUtil;
 import org.openntf.xsp.jakartaee.AbstractXspLifecycleServlet;
@@ -78,7 +78,7 @@ public class NSFPagesServlet extends AbstractXspLifecycleServlet {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 
 				ServletContext context = request.getServletContext();
-				context.setAttribute("org.glassfish.jsp.beanManagerELResolver", NSFELResolver.instance); //$NON-NLS-1$
+				context.setAttribute("org.glassfish.jsp.beanManagerELResolver", new NSFELResolver(getModule())); //$NON-NLS-1$
 				context.setAttribute(Constants.JSP_TLD_URI_TO_LOCATION_MAP, DominoPagesUtil.buildJstlDtdMap());
 
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
@@ -86,7 +86,7 @@ public class NSFPagesServlet extends AbstractXspLifecycleServlet {
 				ServletUtil.getListeners(context, ServletRequestListener.class)
 					.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), request)));
 				try {
-					ParserUtils.setDtdResourcePrefix(EarlyInitFactory.getServletDtdPath().toUri().toString());
+					ParserUtils.setDtdResourcePrefix(PagesHttpInitListener.getServletDtdPath().toUri().toString());
 					delegate.service(request, response);
 				} finally {
 					ServletUtil.getListeners(context, ServletRequestListener.class)
@@ -99,15 +99,14 @@ public class NSFPagesServlet extends AbstractXspLifecycleServlet {
 			});
 		} catch(PrivilegedActionException e) {
 			Throwable cause = e.getCause();
-			if(cause instanceof ServletException) {
-				throw (ServletException)cause;
-			} else if(cause instanceof IOException) {
-				throw (IOException)cause;
+			if(cause instanceof ServletException e2) {
+				throw e2;
+			} else if(cause instanceof IOException e2) {
+				throw e2;
 			} else {
 				throw new ServletException(e);
 			}
 		} catch(Throwable t) {
-			t.printStackTrace();
 			throw t;
 		} finally {
 			// Looks like Wasp doesn't flush this on its own

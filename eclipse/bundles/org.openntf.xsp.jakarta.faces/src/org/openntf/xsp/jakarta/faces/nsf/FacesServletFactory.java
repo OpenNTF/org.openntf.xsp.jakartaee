@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import java.util.Set;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
+import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
@@ -72,12 +73,17 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 		if("true".equalsIgnoreCase(contextParams.get(FacesServlet.AUTOMATIC_EXTENSIONLESS_MAPPING_PARAM_NAME))) { //$NON-NLS-1$
 			// If so, look for .xhtml and .jsf files and push them to known extensions
 			Set<String> exts = getExtensions();
+			String xspPrefix = ModuleUtil.getXspPrefix(module);
 			ModuleUtil.listFiles(module, null)
 				.filter(f -> !f.startsWith("WEB-INF/")) //$NON-NLS-1$
 				.forEach(f -> {
 					for(String ext : exts) {
 						if(f.endsWith(ext)) {
-							this.addExplicitEndpoint("/xsp/" + f.substring(0, f.length()-ext.length()), '/' + f); //$NON-NLS-1$
+							String path = PathUtil.concat(xspPrefix, f.substring(0, f.length()-ext.length()), '/');
+							if(path.charAt(0) != '/') {
+								path = '/' + path;
+							}
+							this.addExplicitEndpoint(path, '/' + f);
 						}
 					}
 				});
@@ -91,7 +97,7 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 
 	@Override
 	public Set<String> getExtensions() {
-		return new HashSet<>(Arrays.asList(".xhtml", ".jsf", ".faces")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return new HashSet<>(Arrays.asList(".xhtml", ".jsf")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -138,7 +144,7 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 						.toArray(URL[]::new);
 					Thread.currentThread().setContextClassLoader(new URLClassLoader(urls, current));
 
-					return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFFacesServlet(module)), "XSP JSF Servlet", params); //$NON-NLS-1$
+					return module.createServlet(ServletUtil.newToOld((jakarta.servlet.Servlet)new NSFFacesServlet(module)), "Jakarta Faces Servlet", params); //$NON-NLS-1$
 				} finally {
 					Thread.currentThread().setContextClassLoader(current);
 				}

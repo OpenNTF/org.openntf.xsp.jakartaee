@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,12 +55,12 @@ public class ExpressionMethodBinding extends MethodBinding implements StateHolde
 			return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>)() -> exp.getMethodInfo(elContext).getReturnType());
 		} catch (PrivilegedActionException e) {
 			Throwable t = e.getCause();
-			if(t instanceof MethodNotFoundException) {
-				throw (MethodNotFoundException)t;
-			} else if(t instanceof Error) {
-				throw (Error)t;
-			} else if(t instanceof RuntimeException) {
-				throw (RuntimeException)t;
+			if(t instanceof MethodNotFoundException mnfe) {
+				throw mnfe;
+			} else if(t instanceof Error err) {
+				throw err;
+			} else if(t instanceof RuntimeException re) {
+				throw re;
 			} else if(t != null) {
 				throw new RuntimeException(t);
 			} else {

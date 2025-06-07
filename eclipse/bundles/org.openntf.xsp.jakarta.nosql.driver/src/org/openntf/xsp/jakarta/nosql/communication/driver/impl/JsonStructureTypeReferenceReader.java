@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ public class JsonStructureTypeReferenceReader implements TypeReferenceReader {
 
 	@Override
 	public boolean test(final TypeSupplier<?> t) {
-		if(t.get() instanceof Class) {
-			return JsonStructure.class.isAssignableFrom((Class<?>)t.get());
+		if(t.get() instanceof Class c) {
+			return JsonStructure.class.isAssignableFrom(c);
 		}
 		return false;
 	}
@@ -42,8 +42,8 @@ public class JsonStructureTypeReferenceReader implements TypeReferenceReader {
 		if(value instanceof JsonArray) {
 			return (T)value;
 		}
-		if(value instanceof List && ((List<?>)value).size() == 1) {
-			value = ((List<?>)value).get(0);
+		if(value instanceof List l && l.size() > 0) {
+			value = l.get(0);
 		}
 		return (T)value;
 	}

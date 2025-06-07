@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.openntf.xsp.jakartaee.servlet;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Enumeration;
 
 import jakarta.servlet.Servlet;
@@ -113,5 +114,10 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 		} catch (ServletException e) {
 			throw new javax.servlet.ServletException(e);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return MessageFormat.format("[{0}: delegate={1}]", getClass().getSimpleName(), delegate); //$NON-NLS-1$
 	}
 }

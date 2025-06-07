@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.glassfish.enterprise.concurrent.AbstractManagedExecutorService.RejectPolicy;
-import org.glassfish.enterprise.concurrent.ContextServiceImpl;
-import org.glassfish.enterprise.concurrent.ManagedExecutorServiceImpl;
-import org.glassfish.enterprise.concurrent.ManagedScheduledExecutorServiceImpl;
-import org.glassfish.enterprise.concurrent.spi.ContextSetupProvider;
+import org.glassfish.concurro.AbstractManagedExecutorService.RejectPolicy;
+import org.glassfish.concurro.ContextServiceImpl;
+import org.glassfish.concurro.ManagedExecutorServiceImpl;
+import org.glassfish.concurro.ManagedScheduledExecutorServiceImpl;
+import org.glassfish.concurro.spi.ContextSetupProvider;
 
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
@@ -77,57 +77,62 @@ public abstract class AbstractServletConcurrencyContainer {
 	 */
 	public void initializeConcurrencyContainer(final BiFunction<String, String, String> configFetcher) {
 		getServletContext().ifPresent(ctx -> {
-			ContextSetupProvider provider = new DominoContextSetupProvider();
-
-			String name = ctx.getServletContextName();
-			if(name == null || name.isEmpty()) {
-				name = String.valueOf(System.identityHashCode(ctx));
+			try {
+				ContextSetupProvider provider = new DominoContextSetupProvider();
+	
+				String name = ctx.getServletContextName();
+				if(name == null || name.isEmpty()) {
+					name = String.valueOf(System.identityHashCode(ctx));
+				}
+	
+				int hungTaskThreshold = Integer.parseInt(configFetcher.apply(PROP_HUNGTASKTHRESHOLD, "0")); //$NON-NLS-1$
+				boolean longRunningTasks = Boolean.parseBoolean(configFetcher.apply(PROP_LONGRUNNINGTASKS, "true")); //$NON-NLS-1$
+				int corePoolSize = Integer.parseInt(configFetcher.apply(PROP_COREPOOLSIZE, "5")); //$NON-NLS-1$
+				int maxPoolSize = Integer.parseInt(configFetcher.apply(PROP_MAXPOOLSIZE, "10")); //$NON-NLS-1$
+				int keepAliveTime = Integer.parseInt(configFetcher.apply(PROP_KEEPALIVESECONDS, "1800")); //$NON-NLS-1$
+				int threadLifeTime = Integer.parseInt(configFetcher.apply(PROP_THREADLIFETIMESECONDS, "1800")); //$NON-NLS-1$
+				int queueCapacity = Integer.parseInt(configFetcher.apply(PROP_QUEUECAPACITY, "0")); //$NON-NLS-1$
+				RejectPolicy rejectPolicy = RejectPolicy.valueOf(configFetcher.apply(PROP_REJECTPOLICY, RejectPolicy.ABORT.name()));
+	
+				ContextServiceImpl contextService = new ContextServiceImpl("contextService-" + name, provider); //$NON-NLS-1$
+				NotesManagedThreadFactory factory = new NotesManagedThreadFactory("threadFactory-" + name, contextService); //$NON-NLS-1$
+				ctx.setAttribute(ATTR_THREADFACTORY, factory);
+	
+				ManagedExecutorService exec = new ManagedExecutorServiceImpl(
+					"executor-" + name, //$NON-NLS-1$
+					factory,
+					hungTaskThreshold,
+					longRunningTasks,
+					corePoolSize,
+					maxPoolSize,
+					keepAliveTime,
+					TimeUnit.SECONDS,
+					threadLifeTime,
+					queueCapacity,
+					contextService,
+					rejectPolicy
+				);
+				ctx.setAttribute(ConcurrencyActivator.ATTR_EXECUTORSERVICE, exec);
+				ExecutorHolder.INSTANCE.register(exec);
+	
+				ManagedScheduledExecutorService scheduledExec = new ManagedScheduledExecutorServiceImpl(
+					"scheduledExecutor-" + name, //$NON-NLS-1$
+					factory,
+					hungTaskThreshold,
+					longRunningTasks,
+					corePoolSize,
+					keepAliveTime,
+					TimeUnit.SECONDS,
+					threadLifeTime,
+					contextService,
+					rejectPolicy
+				);
+				ctx.setAttribute(ConcurrencyActivator.ATTR_SCHEDULEDEXECUTORSERVICE, scheduledExec);
+				ExecutorHolder.INSTANCE.register(scheduledExec);
+			} catch(Exception e) {
+				e.printStackTrace();
+				throw e;
 			}
-
-			int hungTaskThreshold = Integer.parseInt(configFetcher.apply(PROP_HUNGTASKTHRESHOLD, "0")); //$NON-NLS-1$
-			boolean longRunningTasks = Boolean.parseBoolean(configFetcher.apply(PROP_LONGRUNNINGTASKS, "true")); //$NON-NLS-1$
-			int corePoolSize = Integer.parseInt(configFetcher.apply(PROP_COREPOOLSIZE, "5")); //$NON-NLS-1$
-			int maxPoolSize = Integer.parseInt(configFetcher.apply(PROP_MAXPOOLSIZE, "10")); //$NON-NLS-1$
-			int keepAliveTime = Integer.parseInt(configFetcher.apply(PROP_KEEPALIVESECONDS, "1800")); //$NON-NLS-1$
-			int threadLifeTime = Integer.parseInt(configFetcher.apply(PROP_THREADLIFETIMESECONDS, "1800")); //$NON-NLS-1$
-			int queueCapacity = Integer.parseInt(configFetcher.apply(PROP_QUEUECAPACITY, "0")); //$NON-NLS-1$
-			RejectPolicy rejectPolicy = RejectPolicy.valueOf(configFetcher.apply(PROP_REJECTPOLICY, RejectPolicy.ABORT.name()));
-
-			ContextServiceImpl contextService = new ContextServiceImpl("contextService-" + name, provider); //$NON-NLS-1$
-			NotesManagedThreadFactory factory = new NotesManagedThreadFactory("threadFactory-" + name, contextService); //$NON-NLS-1$
-			ctx.setAttribute(ATTR_THREADFACTORY, factory);
-
-			ManagedExecutorService exec = new ManagedExecutorServiceImpl(
-				"executor-" + name, //$NON-NLS-1$
-				factory,
-				hungTaskThreshold,
-				longRunningTasks,
-				corePoolSize,
-				maxPoolSize,
-				keepAliveTime,
-				TimeUnit.SECONDS,
-				threadLifeTime,
-				queueCapacity,
-				contextService,
-				rejectPolicy
-			);
-			ctx.setAttribute(ConcurrencyActivator.ATTR_EXECUTORSERVICE, exec);
-			ExecutorHolder.INSTANCE.register(exec);
-
-			ManagedScheduledExecutorService scheduledExec = new ManagedScheduledExecutorServiceImpl(
-				"scheduledExecutor-" + name, //$NON-NLS-1$
-				factory,
-				hungTaskThreshold,
-				longRunningTasks,
-				corePoolSize,
-				keepAliveTime,
-				TimeUnit.SECONDS,
-				threadLifeTime,
-				contextService,
-				rejectPolicy
-			);
-			ctx.setAttribute(ConcurrencyActivator.ATTR_SCHEDULEDEXECUTORSERVICE, scheduledExec);
-			ExecutorHolder.INSTANCE.register(scheduledExec);
 		});
 	}
 

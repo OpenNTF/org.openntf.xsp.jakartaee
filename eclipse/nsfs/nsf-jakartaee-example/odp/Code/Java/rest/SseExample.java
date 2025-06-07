@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package rest;
 
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -111,7 +112,11 @@ public class SseExample {
 			}catch(InterruptedException e) {
 				// Closing
 			}
-			sseEventSink.close();
+			try {
+				sseEventSink.close();
+			} catch (IOException e) {
+				// Ignore
+			}
 		});
 	}
 	

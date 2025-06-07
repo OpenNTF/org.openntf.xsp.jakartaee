@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,15 +128,21 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				}
 				withFileFromTransferable("staging/jacoco.jar", Transferable.of(agentData)); //$NON-NLS-1$
 				
-				String jacocoLine = "-javaagent:/local/jacoco.jar=output=tcpserver,address=*,port=" + JACOCO_PORT; //$NON-NLS-1$
+				StringBuilder javaOptions = new StringBuilder();
+				
+				// Configure the JaCoCo listener
+				javaOptions.append("-javaagent:/local/jacoco.jar=output=tcpserver,address=*,port=" + JACOCO_PORT); //$NON-NLS-1$
+				
+				// Loosen the OSGi init timeout to account for having a large bundle footprint
+				javaOptions.append("\n-Dosgi.module.lock.timeout=30"); //$NON-NLS-1$
 				
 				// Add a Java options file for Apple Silicon compatibility
 				String arch = DockerClientFactory.instance().getInfo().getArchitecture();
 				if(!"x86_64".equals(arch)) { //$NON-NLS-1$
-					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of(jacocoLine + "\n-Djava.compiler=NONE")); //$NON-NLS-1$ //$NON-NLS-2$
-				} else {
-					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of(jacocoLine)); //$NON-NLS-1$
+					javaOptions.append("\n-Djava.compiler=NONE"); //$NON-NLS-1$
 				}
+				
+				withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of(javaOptions.toString())); //$NON-NLS-1$
 				
 				// Add the Postgres driver to jvm/lib/ext
 				{
@@ -152,6 +158,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 					}
 					JsonPatchBuilder patch = Json.createPatchBuilder();
 					
+					// Handle the configured test databases
 					for(TestDatabase db : TestDatabase.values()) {
 						if(db.isNsf()) {
 							Path ntf = findLocalMavenArtifact("org.openntf.xsp", db.getArtifactId(), version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -167,6 +174,10 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 							patch.add("/appConfiguration/databases/-", dbConfig); //$NON-NLS-1$
 						}
 					}
+					
+					// Copy in the Jakarta Config NTF
+					Path configNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaconfig", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					withFileFromPath("staging/ntf/jakartaconfig.ntf", configNtf); //$NON-NLS-1$
 					
 					json = patch.build().apply(json);
 					withFileFromTransferable("staging/domino-config.json", Transferable.of(json.toString())); //$NON-NLS-1$

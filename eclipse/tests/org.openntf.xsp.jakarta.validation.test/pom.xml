@@ -4,7 +4,7 @@
     <parent>
 		<groupId>org.openntf.xsp</groupId>
 		<artifactId>xsp-jakartaee</artifactId>
-		<version>3.3.0</version>
+		<version>3.4.0</version>
 		<relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>org.openntf.xsp.jakarta.validation.test</artifactId>
@@ -52,11 +52,6 @@
 							<requirement>
 								<type>eclipse-plugin</type>
 								<id>org.openntf.domino.java.api.corba.patch</id>
-								<versionRange>0.0.0</versionRange>
-							</requirement>
-							<requirement>
-								<type>eclipse-plugin</type>
-								<id>javax.annotation</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
 						</extraRequirements>

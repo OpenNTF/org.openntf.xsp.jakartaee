@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,14 @@ import java.util.Collection;
 import java.util.List;
 
 import org.openntf.xsp.jakarta.el.ext.ELResolverProvider;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.el.BeanNameELResolver;
 import jakarta.el.ELResolver;
 import jakarta.el.ExpressionFactory;
+import jakarta.el.OptionalELResolver;
+import jakarta.el.RecordELResolver;
 import jakarta.el.StandardELContext;
 
 /**
@@ -40,7 +43,10 @@ public class FacesELContext extends StandardELContext {
 		super(factory);
 
 		// Add any other available resolvers
-		List<ELResolverProvider> providers = LibraryUtil.findExtensions(ELResolverProvider.class);
+		List<ELResolverProvider> providers = LibraryUtil.findExtensions(
+			ELResolverProvider.class,
+			ComponentModuleLocator.getDefault().map(ComponentModuleLocator::getActiveModule).orElse(null)
+		);
 
 		if(providers != null) {
 			for(ELResolverProvider provider : providers) {
@@ -52,8 +58,9 @@ public class FacesELContext extends StandardELContext {
 		}
 
 		addELResolver(new BeanNameELResolver(new FacesBeanNameResolver()));
+		addELResolver(new RecordELResolver());
+		addELResolver(new OptionalELResolver());
 		addELResolver(new XSPELResolver());
-		addELResolver(new RecordPropertyELResolver());
 	}
 
 	@Override

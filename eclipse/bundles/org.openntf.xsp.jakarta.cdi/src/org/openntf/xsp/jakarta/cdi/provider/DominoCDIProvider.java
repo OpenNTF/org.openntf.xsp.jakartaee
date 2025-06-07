@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.ibm.commons.util.StringUtil;
 import org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
 
 import jakarta.enterprise.inject.spi.CDI;
@@ -52,22 +51,11 @@ public class DominoCDIProvider implements CDIProvider {
 					return (CDI<Object>)container;
 				}
 
-				String nsfPath = locator.getNsfPath();
-				if(StringUtil.isNotEmpty(nsfPath)) {
-					container = ModuleUtil.getNSFComponentModule(nsfPath)
-						.map(ContainerUtil::getContainer)
-						.orElse(null);
-					if(container != null) {
-						return (CDI<Object>)container;
-					}
-				}
-
-
 				String bundleId = locator.getBundleId();
 				if(StringUtil.isNotEmpty(bundleId)) {
 					Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
 					if(bundle.isPresent()) {
-						return (CDI<Object>)ContainerUtil.getContainer(bundle.get());
+						return ContainerUtil.getContainer(bundle.get());
 					}
 				}
 			}

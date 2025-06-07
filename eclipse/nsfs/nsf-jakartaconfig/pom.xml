@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.openntf.xsp</groupId>
+		<artifactId>xsp-jakartaee</artifactId>
+		<version>3.4.0</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
+	<artifactId>nsf-jakartaconfig</artifactId>
+	<packaging>domino-nsf</packaging>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.openntf.maven</groupId>
+				<artifactId>nsfodp-maven-plugin</artifactId>
+				<configuration>
+					<templateName>JakartaConfig</templateName>
+					<acl>
+						<entries>
+							<entry>
+								<name>-Default-</name>
+								<defaultEntry>true</defaultEntry>
+								<level>manager</level>
+								<deleteDocs>true</deleteDocs>
+							</entry>
+							<entry>
+								<name>[-Default-]</name>
+								<level>noaccess</level>
+							</entry>
+							<entry>
+								<name>[OtherDomainServers]</name>
+								<level>noaccess</level>
+							</entry>
+							<entry>
+								<name>[LocalDomainAdmins]</name>
+								<level>manager</level>
+								<deleteDocs>true</deleteDocs>
+								<noReplicate>false</noReplicate>
+							</entry>
+							<entry>
+								<name>[LocalDomainServers]</name>
+								<level>manager</level>
+								<deleteDocs>true</deleteDocs>
+								<noReplicate>false</noReplicate>
+							</entry>
+							<entry>
+								<name>LocalDomainAdmins</name>
+								<level>manager</level>
+								<deleteDocs>true</deleteDocs>
+								<noReplicate>false</noReplicate>
+							</entry>
+						</entries>
+					</acl>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

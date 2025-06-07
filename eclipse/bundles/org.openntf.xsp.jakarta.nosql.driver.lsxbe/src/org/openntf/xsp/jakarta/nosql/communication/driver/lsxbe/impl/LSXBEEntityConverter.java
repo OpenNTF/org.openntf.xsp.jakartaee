@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,7 +60,6 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
-import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.LoaderObjectInputStream;
@@ -99,10 +99,10 @@ import lotus.domino.ViewNavigator;
  */
 public class LSXBEEntityConverter extends AbstractEntityConverter {
 
-	private final DatabaseSupplier databaseSupplier;
+	private final Supplier<Database> databaseSupplier;
 	private final Jsonb jsonb;
 
-	public LSXBEEntityConverter(final DatabaseSupplier databaseSupplier) {
+	public LSXBEEntityConverter(final Supplier<Database> databaseSupplier) {
 		this.databaseSupplier = databaseSupplier;
 		this.jsonb = JsonbBuilder.create();
 	}
@@ -130,7 +130,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						lotus.domino.Document doc = database.getDocumentByID(noteId.substring(2));
 						if(DominoNoSQLUtil.isValid(doc)) {
 							List<Element> documents = convertDominoDocument(doc, classMapping, itemTypes);
-							String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
+							String name = EntityUtil.getFormName(classMapping);
 							return CommunicationEntity.of(name, documents);
 						} else {
 							return null;
@@ -356,7 +356,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			.map(doc -> {
 				try {
 					List<Element> documents = convertDominoDocument(doc, classMapping, itemTypes);
-					String name = doc.getItemValueString(DominoConstants.FIELD_NAME);
+					String name = EntityUtil.getFormName(classMapping);
 					return CommunicationEntity.of(name, documents);
 				} catch(NotesException e) {
 					throw new RuntimeException(e);
@@ -627,7 +627,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					// Special handling here for RT -> HTML
 					String html = ((RichTextItem)item).convertToHTML(DominoConstants.HTML_CONVERSION_OPTIONS);
 					docMap.put(itemName, html);
-				} else if(item.getType() == Item.MIME_PART) {
+				} else if(item.getType() == DominoConstants.TYPE_MIME_PART) {
 					MIMEEntity entity = doc.getMIMEEntity(itemName);
 
 					// See if this is expected to be MIMEBean
@@ -1047,7 +1047,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							item.setEncrypted(itemFlags.encrypted());
 							item.setProtected(itemFlags.protectedItem());
 							item.setSigned(itemFlags.signed());
-							if(!(item instanceof RichTextItem) && item.getType() != Item.MIME_PART) {
+							if(!(item instanceof RichTextItem) && item.getType() != DominoConstants.TYPE_MIME_PART) {
 								item.setSummary(itemFlags.summary());
 							}
 							item.setSaveToDisk(itemFlags.saveToDisk());
@@ -1069,8 +1069,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						// Ignore
 					}
 				});
-
-			target.replaceItemValue(DominoConstants.FIELD_NAME, entity.name());
+			
+			target.replaceItemValue(DominoConstants.FIELD_NAME, EntityUtil.getFormName(classMapping));
 
 			target.closeMIMEEntities(true);
 		} catch(Exception e) {

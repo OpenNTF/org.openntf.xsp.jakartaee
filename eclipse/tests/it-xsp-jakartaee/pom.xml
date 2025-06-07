@@ -5,13 +5,19 @@
 	<parent>
 		<groupId>org.openntf.xsp</groupId>
 		<artifactId>xsp-jakartaee</artifactId>
-		<version>3.3.0</version>
+		<version>3.4.0</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>it-xsp-jakartaee</artifactId>
 	<packaging>bundle</packaging>
 	
 	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>nsf-jakartaconfig</artifactId>
+			<version>${project.version}</version>
+			<type>nsf</type>
+		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>nsf-jakartaee-example</artifactId>
@@ -59,19 +65,19 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-client</artifactId>
-            <version>6.0.0.Final</version>
+            <version>6.2.3.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-multipart-provider</artifactId>
-            <version>6.0.0.Final</version>
+            <version>6.2.3.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-json-p-provider</artifactId>
-            <version>6.0.0.Final</version>
+            <version>6.2.3.Final</version>
             <scope>test</scope>
         </dependency>
 		
@@ -84,12 +90,6 @@
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-remote-driver</artifactId>
-			<version>4.9.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>htmlunit-driver</artifactId>
 			<version>4.9.1</version>
 			<scope>test</scope>
 		</dependency>

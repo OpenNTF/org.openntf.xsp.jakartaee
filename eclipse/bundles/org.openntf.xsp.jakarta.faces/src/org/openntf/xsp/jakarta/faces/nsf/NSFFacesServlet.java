@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,10 +48,12 @@ import org.openntf.xsp.jakarta.faces.util.FacesBlockingClassLoader;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
+import org.openntf.xsp.jakartaee.util.ShimmingClassLoader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 
+import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.faces.FactoryFinder;
 import jakarta.faces.application.ProjectStage;
@@ -89,36 +91,43 @@ public class NSFFacesServlet extends HttpServlet {
 	private FacesServlet delegate;
 	private boolean initialized;
 	private final Collection<Path> tempFiles = Collections.synchronizedList(new ArrayList<>());
+	private boolean doFaces;
+	private boolean doEvents;
 
 	public NSFFacesServlet(final ComponentModule module) {
 		this.module = module;
+		this.doFaces = ModuleUtil.hasXPages(module);
+		this.doEvents = ModuleUtil.emulateServletEvents(module);
 	}
 
 	public void doInit(final HttpServletRequest req, final ServletConfig config) throws ServletException {
 		CDI<Object> cdi = CDI.current();
 		ServletContext context = config.getServletContext();
-		context.setAttribute("jakarta.enterprise.inject.spi.BeanManager", ContainerUtil.getBeanManager(cdi)); //$NON-NLS-1$
+		Object beanManager = context.getAttribute(BeanManager.class.getName());
+		if(beanManager == null) {
+			context.setAttribute(BeanManager.class.getName(), ContainerUtil.getBeanManager(cdi));
+		}
 
 		Properties props = LibraryUtil.getXspProperties(module);
 		String projectStage = props.getProperty(ProjectStage.PROJECT_STAGE_PARAM_NAME, ""); //$NON-NLS-1$
 		context.setInitParameter(ProjectStage.PROJECT_STAGE_PARAM_NAME, projectStage);
 
-		// Look for a web.xml file and populate init params
-		ServletUtil.populateWebXmlParams(module, config.getServletContext());
+		if(this.doEvents) {
+			// Look for a web.xml file and populate init params
+			ServletUtil.populateWebXmlParams(module, config.getServletContext());
 
-		Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
-		Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
-		{
-			ServletContainerInitializer initializer = new MyFacesContainerInitializer();
-			Set<Class<?>> classes = null;
-			HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
-			if (types != null) {
-				classes = ModuleUtil.buildMatchingClasses(types, module, b, b2);
+			Bundle b = FrameworkUtil.getBundle(FacesServlet.class);
+			Bundle b2 = FrameworkUtil.getBundle(MyFacesContainerInitializer.class);
+			{
+				ServletContainerInitializer initializer = new MyFacesContainerInitializer();
+				Set<Class<?>> classes = null;
+				HandlesTypes types = initializer.getClass().getAnnotation(HandlesTypes.class);
+				if (types != null) {
+					classes = ModuleUtil.buildMatchingClasses(types, module, b, b2);
+				}
+				initializer.onStartup(classes, getServletContext());
 			}
-			initializer.onStartup(classes, getServletContext());
-		}
-
-		{
+			
 			// Re-wrap the ServletContext to provide the context path
 			javax.servlet.ServletContext oldCtx = ServletUtil.newToOld(getServletContext());
 			ServletContext ctx = ServletUtil.oldToNew(req.getContextPath(), oldCtx, 5, 0);
@@ -150,23 +159,25 @@ public class NSFFacesServlet extends HttpServlet {
 
 					//ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
 					AbstractProxyingContext.setThreadContextRequest(req);
-					ServletUtil.getListeners(ctx, ServletRequestListener.class)
+					if(this.doEvents) {
+						ServletUtil.getListeners(ctx, ServletRequestListener.class)
 							.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), req)));
-
-					// Fire the session listener if needed
-					if (!"1".equals(session.getAttribute(PROP_SESSIONINIT))) { //$NON-NLS-1$
-						ServletUtil.getListeners(ctx, HttpSessionListener.class)
+	
+						// Fire the session listener if needed
+						if (!"1".equals(session.getAttribute(PROP_SESSIONINIT))) { //$NON-NLS-1$
+							ServletUtil.getListeners(ctx, HttpSessionListener.class)
 								.forEach(l -> l.sessionCreated(new HttpSessionEvent(session)));
-						session.setAttribute(PROP_SESSIONINIT, "1"); //$NON-NLS-1$
-						// TODO add a hook for session expiration?
+							session.setAttribute(PROP_SESSIONINIT, "1"); //$NON-NLS-1$
+							// TODO add a hook for session expiration?
+						}
 					}
-
 
 					delegate.service(req, resp);
 				} finally {
-
+					if(this.doEvents) {
 					ServletUtil.getListeners(ctx, ServletRequestListener.class)
-							.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
+						.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
+					}
 					Thread.currentThread().setContextClassLoader(current);
 					//ContainerUtil.setThreadContextDatabasePath(null);
 					AbstractProxyingContext.setThreadContextRequest(null);
@@ -197,8 +208,10 @@ public class NSFFacesServlet extends HttpServlet {
 	@Override
 	public void destroy() {
 		ServletContext ctx = getServletContext();
-		ServletUtil.getListeners(ctx, ServletContextListener.class)
+		if(this.doEvents) {
+			ServletUtil.getListeners(ctx, ServletContextListener.class)
 				.forEach(l -> l.contextDestroyed(new ServletContextEvent(ctx)));
+		}
 
 		synchronized(tempFiles) {
 			tempFiles.forEach(path -> {
@@ -212,9 +225,9 @@ public class NSFFacesServlet extends HttpServlet {
 		}
 
 		ClassLoader cl = (ClassLoader)ctx.getAttribute(PROP_CLASSLOADER);
-		if(cl != null && cl instanceof Closeable) {
+		if(cl != null && cl instanceof Closeable c) {
 			try {
-				((Closeable)cl).close();
+				c.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -238,37 +251,49 @@ public class NSFFacesServlet extends HttpServlet {
 	@SuppressWarnings("deprecation")
 	private synchronized ClassLoader buildJsfClassLoader(final ServletContext context, final HttpSession session, final ClassLoader delegate)
 			throws BundleException, IOException {
-		if (context.getAttribute(PROP_CLASSLOADER) == null) {
-
-			// If the app was refreshed, we'll still have a lingering classloader here
-			String id = ModuleUtil.getModuleId(module);
-			FacesBlockingClassLoader old = cached.get(id);
-			if(old != null) {
-				destroyOldContext(old, session);
+		if(this.doFaces) {
+			if (context.getAttribute(PROP_CLASSLOADER) == null) {
+	
+				// If the app was refreshed, we'll still have a lingering classloader here
+				String id = ModuleUtil.getModuleId(module);
+				FacesBlockingClassLoader old = cached.get(id);
+				if(old != null) {
+					destroyOldContext(old, session);
+				}
+	
+				List<URL> urls = new ArrayList<>();
+				urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(FactoryFinder.class)).toURI().toURL());
+				urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(MyFacesContainerInitializer.class)).toURI().toURL());
+	
+				if(this.doFaces) {
+					// Look for JARs in WEB-INF/lib-jakarta
+					ModuleUtil.listFiles(module, "WEB-INF/jakarta/lib") //$NON-NLS-1$
+						.filter(file -> file.toLowerCase().endsWith(".jar")) //$NON-NLS-1$
+						.map(jarName -> {
+							try {
+								return module.getResource("/" + jarName); //$NON-NLS-1$
+							} catch (MalformedURLException e) {
+								throw new UncheckedIOException(e);
+							}
+						})
+						.forEach(urls::add);
+				}
+	
+				FacesBlockingClassLoader cl = new FacesBlockingClassLoader(urls.toArray(new URL[urls.size()]), delegate);
+	
+				context.setAttribute(PROP_CLASSLOADER, cl);
+				cached.put(id, cl);
 			}
-
-			List<URL> urls = new ArrayList<>();
-			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(FactoryFinder.class)).toURI().toURL());
-			urls.add(FileLocator.getBundleFile(FrameworkUtil.getBundle(MyFacesContainerInitializer.class)).toURI().toURL());
-
-			// Look for JARs in WEB-INF/lib-jakarta
-			ModuleUtil.listFiles(module, "WEB-INF/jakarta/lib") //$NON-NLS-1$
-				.filter(file -> file.toLowerCase().endsWith(".jar")) //$NON-NLS-1$
-				.map(jarName -> {
-					try {
-						return module.getResource("/" + jarName); //$NON-NLS-1$
-					} catch (MalformedURLException e) {
-						throw new UncheckedIOException(e);
-					}
-				})
-				.forEach(urls::add);
-
-			FacesBlockingClassLoader cl = new FacesBlockingClassLoader(urls.toArray(new URL[urls.size()]), delegate);
-
-			context.setAttribute(PROP_CLASSLOADER, cl);
-			cached.put(id, cl);
+			return (ClassLoader) context.getAttribute(PROP_CLASSLOADER);
+		} else {
+			// We may be in e.g. a Krazo context with a fake ClassLoader, so
+			//   go to its parent because jakarta.faces.Factory is CL-specific
+			if(delegate instanceof ShimmingClassLoader) {
+				return delegate.getParent();
+			} else {
+				return delegate;
+			}
 		}
-		return (ClassLoader) context.getAttribute(PROP_CLASSLOADER);
 	}
 
 	private void destroyOldContext(final FacesBlockingClassLoader old, final HttpSession session) throws IOException {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,16 @@
 package org.openntf.xsp.jakarta.el;
 
 import com.ibm.xsp.application.ApplicationEx;
-import com.ibm.xsp.application.events.ApplicationListener2;
 import com.ibm.xsp.factory.FactoryLookup;
 
 import org.openntf.xsp.jakarta.el.impl.RecordPropertyResolverFactory;
+import org.openntf.xsp.jakartaee.events.JakartaApplicationListener;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-public class ELApplicationListener implements ApplicationListener2 {
+import jakarta.annotation.Priority;
+
+@Priority(2)
+public class ELApplicationListener implements JakartaApplicationListener {
 	public static final String PROP_PREFIX =  "org.openntf.xsp.jakarta.el.prefix"; //$NON-NLS-1$
 
 	@Override

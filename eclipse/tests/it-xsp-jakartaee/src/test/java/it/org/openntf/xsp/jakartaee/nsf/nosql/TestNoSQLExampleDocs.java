@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -331,24 +331,25 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
-
-			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.getString("unid"));
-			
-			assertEquals("I am outer title", jsonObject.getString("title"));
-			assertEquals("<p>I am body HTML</p>", jsonObject.getString("body"));
 			try {
+				JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+				
+				assertEquals(unid, jsonObject.getString("unid"));
+				
+				assertEquals("I am outer title", jsonObject.getString("title"));
+				assertEquals("<p>I am body HTML</p>", jsonObject.getString("body"));
+				
 				JsonObject jsonGuy = jsonObject.getJsonObject("jsonpGuy");
 				assertEquals(jsonpGuy, jsonGuy);
-			} catch(ClassCastException e) {
+
+				// Make sure all the types are what we'd expect
+				String dxl = jsonObject.getString("dxl");
+				assertNotNull(dxl);
+				assertFalse(dxl.isEmpty());
+			} catch(Exception e) {
 				fail("Received unexpected JSON: " + json, e);
 			}
-
-			// Make sure all the types are what we'd expect
-			String dxl = jsonObject.getString("dxl");
-			assertNotNull(dxl);
-			assertFalse(dxl.isEmpty());
 		}
 	}
 	
@@ -1348,6 +1349,70 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		// Fetch the first two values, which should include both
 		{
 			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/allSorted");
+			Response response = target.request().get();
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
+				assertTrue(entities.size() > 2, "Received unexpected count " + entities.size());
+				
+				int index1 = -1;
+				int index2 = -1; 
+				for(int i = 0; i < entities.size(); i++) {
+					JsonObject entity = entities.getJsonObject(i);
+					if(unids[0].equals(entity.getString("unid"))) {
+						index1 = i;
+					} else if(unids[1].equals(entity.getString("unid"))) {
+						index2 = i;
+					}
+				}
+				if(index1 == -1) {
+					fail("Did not find first UNID");
+				} else if(index2 == -1) {
+					fail("Did not find second UNID");
+				} else if(index1 <= index2) {
+					fail("index1 should not be less than index2");
+				}
+				
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + json, e);
+			}
+		}
+	}
+	
+
+	
+	@Test
+	public void testExampleDocAllSortedCustom() {
+		Client client = getAnonymousClient();
+		
+		String prefix = "allsortedcustom";
+		String[] unids = new String[2];
+		
+		// Create two docs with the same title but different numberGuy to test sorting
+		for(int i = 0; i < 2; i++) {
+			JsonObject payload = Json.createObjectBuilder()
+				.add("title", prefix)
+				.add("numberGuy", 2-i)
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unids[i] = jsonObject.getString("unid");
+			assertNotNull(unids[i]);
+			assertFalse(unids[i].isEmpty());
+		}
+		
+		// Fetch the list and make sure that the second UNID is before the first
+		
+		// Fetch the first two values, which should include both
+		{
+			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/allSortedCustom");
 			Response response = target.request().get();
 			checkResponse(200, response);
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@ package org.openntf.xsp.jakarta.rest.security;
 
 import java.security.Principal;
 import java.util.Collection;
+import java.util.HashSet;
 
 import com.ibm.commons.util.StringUtil;
-import com.ibm.xsp.extlib.util.ExtLibUtil;
 
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.SecurityContext;
-import lotus.domino.Database;
 import lotus.domino.NotesException;
 
 public class RestSecurityContext implements SecurityContext {
@@ -76,14 +76,18 @@ public class RestSecurityContext implements SecurityContext {
 		@SuppressWarnings("unchecked")
 		Collection<String> roles = (Collection<String>)this.req.getAttribute(ATTR_ROLES);
 		if(roles == null) {
-			// TODO handle cases when there's no current database
-			Database database = ExtLibUtil.getCurrentDatabase();
-			try {
-				roles = LibraryUtil.getUserNamesList(database);
-				this.req.setAttribute(ATTR_ROLES, roles);
-			} catch(NotesException e) {
-				throw new RuntimeException(e);
-			}
+			Collection<String> result = new HashSet<>();
+			ComponentModuleLocator.getDefault()
+				.flatMap(ComponentModuleLocator::getUserDatabase)
+				.ifPresent(database -> {
+					try {
+						result.addAll(LibraryUtil.getUserNamesList(database));
+						this.req.setAttribute(ATTR_ROLES, result);
+					} catch(NotesException e) {
+						throw new RuntimeException(e);
+					}
+				});
+			roles = result;
 		}
 		return roles;
 	}

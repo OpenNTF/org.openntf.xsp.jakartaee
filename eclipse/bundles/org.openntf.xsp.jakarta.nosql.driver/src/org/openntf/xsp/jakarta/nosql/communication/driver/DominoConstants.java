@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -234,6 +234,13 @@ public enum DominoConstants {
 	 * @since 2.6.0
 	 */
 	public static final String MIME_TYPE_SERIALIZED_OBJECT = "application/x-java-serialized-object"; //$NON-NLS-1$
+	
+	/**
+	 * Local constant for Item.MIME_PART to avoid problems with different compilers
+	 * 
+	 * @since 3.4.0
+	 */
+	public static final int TYPE_MIME_PART = 0x19;
 
 	public static final Collection<String> SYSTEM_FIELDS;
 	public static final Collection<String> SKIP_WRITING_FIELDS;

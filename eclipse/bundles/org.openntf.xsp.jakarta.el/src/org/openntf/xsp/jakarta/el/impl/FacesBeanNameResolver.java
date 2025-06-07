@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,20 +38,24 @@ public class FacesBeanNameResolver extends BeanNameResolver {
 	@Override
 	public Object getBean(final String beanName) {
 		FacesContext facesContext = FacesContext.getCurrentInstance();
-		VariableResolver vr = facesContext.getApplication().getVariableResolver();
-		Object result = vr.resolveVariable(facesContext, beanName);
-
-		// Check for known "environmental" beans that may not exist in edge cases
-		if(result == null) {
-			switch(beanName) {
-			case "compositeData": //$NON-NLS-1$
-				return Collections.emptyMap();
-			default:
-				break;
+		if(facesContext != null) {
+			VariableResolver vr = facesContext.getApplication().getVariableResolver();
+			Object result = vr.resolveVariable(facesContext, beanName);
+	
+			// Check for known "environmental" beans that may not exist in edge cases
+			if(result == null) {
+				switch(beanName) {
+				case "compositeData": //$NON-NLS-1$
+					return Collections.emptyMap();
+				default:
+					break;
+				}
 			}
+	
+			return result;
+		} else {
+			return null;
 		}
-
-		return result;
 	}
 
 }

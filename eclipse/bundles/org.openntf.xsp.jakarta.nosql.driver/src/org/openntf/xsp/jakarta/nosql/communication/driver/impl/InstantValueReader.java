@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,16 +33,16 @@ public class InstantValueReader implements ValueReader {
 	public <T> T read(final Class<T> clazz, final Object value) {
 		if(value == null) {
 			return null;
-		} else if(value instanceof TemporalAccessor) {
-			return (T)Instant.from((TemporalAccessor)value);
-		} else if(value instanceof String) {
-			if(((String)value).isEmpty()) {
+		} else if(value instanceof TemporalAccessor t) {
+			return (T)Instant.from(t);
+		} else if(value instanceof String s) {
+			if(s.isEmpty()) {
 				return null;
 			} else {
-				return (T)Instant.parse((String)value);
+				return (T)Instant.parse(s);
 			}
-		} else if(value instanceof Date) {
-			return (T)((Date)value).toInstant();
+		} else if(value instanceof Date d) {
+			return (T)d.toInstant();
 		}
 		throw new UnsupportedOperationException("Unable to convert value of type " + value.getClass().getName() + " to Instant");
 	}

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,9 @@ public class PagesServletFactory extends MappingBasedServletFactory {
 				if(StringUtil.isEmpty(moduleName)) {
 					moduleName = Integer.toString(System.identityHashCode(module));
 				}
+				moduleName = moduleName.replace('/', '_')
+					.replace('\\', '_')
+					.replace(' ', '_');
 				tempDir = tempDir.resolve(moduleName);
 				Files.createDirectories(tempDir);
 				params.put("scratchdir", tempDir.toString()); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,8 +110,8 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 		try {
 			Object obj = t;
 			// It may be a CDI proxy - try to unwrap it if so
-			if(obj instanceof WeldClientProxy) {
-				Metadata meta = ((WeldClientProxy)obj).getMetadata();
+			if(obj instanceof WeldClientProxy proxy) {
+				Metadata meta = proxy.getMetadata();
 				obj = meta.getContextualInstance();
 			}
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,24 @@ public enum TestDatabase {
 			return "/jeeExample";
 		}
 	},
-	PRIMEFACES_SHOWCASE("nsf-jakartaee-primefaces-showcase", "primefaces-showcase", "XPages JEE PrimeFaces Showcase")
+	PRIMEFACES_SHOWCASE("nsf-jakartaee-primefaces-showcase", "primefaces-showcase", "XPages JEE PrimeFaces Showcase"),
+	MAIN_MODULE(null, null, "Jakarta NSF Module") {
+		@Override
+		public String getContextPath() {
+			return "/moduleapp";
+		}
+		
+		@Override
+		public String getXspPrefix() {
+			return "";
+		}
+	},
+	DISABLED_MODULE(null, null, "Disabled Jakarta NSF Module") {
+		@Override
+		public String getContextPath() {
+			return "/moduleappdisabled";
+		}
+	}
 	;
 	
 	private final String artifactId;
@@ -66,5 +83,9 @@ public enum TestDatabase {
 	
 	public String getContextPath() {
 		return "/dev/" + fileName + ".nsf";
+	}
+	
+	public String getXspPrefix() {
+		return "/xsp";
 	}
 }

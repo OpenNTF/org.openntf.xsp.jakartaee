@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.eclipse.jnosql.communication.TypeReference;
 import org.eclipse.jnosql.communication.semistructured.CriteriaCondition;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.communication.semistructured.SelectQuery;
+import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL.DQLTerm;
 
@@ -42,7 +43,7 @@ public enum QueryConverter {
 
 	private static final String[] EMPTY_STRING_ARRAY = {};
 
-	public static QueryConverterResult select(final SelectQuery query) {
+	public static QueryConverterResult select(final SelectQuery query, final EntityMetadata mapping) {
 		String[] documents = query.columns().toArray(new String[0]);
 		if (documents.length == 0) {
 			documents = ALL_SELECT;
@@ -52,12 +53,14 @@ public enum QueryConverter {
 		long skip = query.skip();
 		long limit = query.limit();
 
+		String formName = EntityUtil.getFormName(mapping);
+
 		if (query.condition().isPresent()) {
 			statement = getCondition(query.condition().get());
 			// Add in the form property if needed
-			statement = applyFormName(statement, query.name());
+			statement = applyFormName(statement, formName);
 		} else {
-			statement = applyFormName(null, query.name());
+			statement = applyFormName(null, formName);
 		}
 		return new QueryConverterResult(documents, statement, skip, limit);
 	}
@@ -99,53 +102,59 @@ public enum QueryConverter {
 			value = value.toString();
 		}
 		switch (condition.condition()) {
-			case EQUALS:
-				if(value instanceof Number) {
-					return DQL.item(name).isEqualTo(((Number)value).doubleValue());
-				} else if(value instanceof Temporal) {
-					return DQL.item(name).isEqualTo((Temporal)value);
+			case EQUALS: {
+				if(value instanceof Number n) {
+					return DQL.item(name).isEqualTo(n.doubleValue());
+				} else if(value instanceof Temporal t) {
+					return DQL.item(name).isEqualTo(t);
 				} else {
 					return DQL.item(name).isEqualTo(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case LESSER_THAN:
-				if(value instanceof Number) {
-					return DQL.item(name).isLessThan(((Number)value).doubleValue());
-				} else if(value instanceof Temporal) {
-					return DQL.item(name).isLessThan((Temporal)value);
+			}
+			case LESSER_THAN: {
+				if(value instanceof Number n) {
+					return DQL.item(name).isLessThan(n.doubleValue());
+				} else if(value instanceof Temporal t) {
+					return DQL.item(name).isLessThan(t);
 				} else {
 					return DQL.item(name).isLessThan(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case LESSER_EQUALS_THAN:
-				if(value instanceof Number) {
-					return DQL.item(name).isLessThanOrEqual(((Number)value).doubleValue());
-				} else if(value instanceof Temporal) {
-					return DQL.item(name).isLessThanOrEqual((Temporal)value);
+			}
+			case LESSER_EQUALS_THAN: {
+				if(value instanceof Number n) {
+					return DQL.item(name).isLessThanOrEqual(n.doubleValue());
+				} else if(value instanceof Temporal t) {
+					return DQL.item(name).isLessThanOrEqual(t);
 				} else {
 					return DQL.item(name).isLessThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case GREATER_THAN:
-				if(value instanceof Number) {
-					return DQL.item(name).isGreaterThan(((Number)value).doubleValue());
-				} else if(value instanceof Temporal) {
-					return DQL.item(name).isGreaterThan((Temporal)value);
+			}
+			case GREATER_THAN: {
+				if(value instanceof Number n) {
+					return DQL.item(name).isGreaterThan(n.doubleValue());
+				} else if(value instanceof Temporal t) {
+					return DQL.item(name).isGreaterThan(t);
 				} else {
 					return DQL.item(name).isGreaterThan(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case GREATER_EQUALS_THAN:
-				if(value instanceof Number) {
-					return DQL.item(name).isGreaterThanOrEqual(((Number)value).doubleValue());
-				} else if(value instanceof Temporal) {
-					return DQL.item(name).isGreaterThanOrEqual((Temporal)value);
+			}
+			case GREATER_EQUALS_THAN: {
+				if(value instanceof Number n) {
+					return DQL.item(name).isGreaterThanOrEqual(n.doubleValue());
+				} else if(value instanceof Temporal t) {
+					return DQL.item(name).isGreaterThanOrEqual(t);
 				} else {
 					return DQL.item(name).isGreaterThanOrEqual(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case LIKE:
+			}
+			case LIKE: {
 				if(value instanceof Number) {
 					throw new IllegalArgumentException("Unable to perform LIKE query on a number");
 				} else {
 					return DQL.item(name).contains(value == null ? "" : value.toString()); //$NON-NLS-1$
 				}
-			case IN:
+			}
+			case IN: {
 				Object arr = toDqlArray(value);
 				if(arr instanceof int[] i) {
 					return DQL.item(name).in(i);
@@ -155,6 +164,7 @@ public enum QueryConverter {
 					// Guaranteed to be String[]
 					return DQL.item(name).in((String[])arr);
 				}
+			}
 			case AND: {
 				List<CriteriaCondition> conditions = document.get(new TypeReference<List<CriteriaCondition>>() {});
 				return DQL.and(conditions
@@ -169,9 +179,10 @@ public enum QueryConverter {
 					.map(QueryConverter::getCondition)
 					.toArray(DQLTerm[]::new));
 			}
-			case NOT:
+			case NOT: {
 				CriteriaCondition dc = document.get(CriteriaCondition.class);
 				return DQL.not(getCondition(dc));
+			}
 			default:
 				throw new IllegalStateException("This condition is not supported in Domino: " + condition.condition()); //$NON-NLS-1$
 		}

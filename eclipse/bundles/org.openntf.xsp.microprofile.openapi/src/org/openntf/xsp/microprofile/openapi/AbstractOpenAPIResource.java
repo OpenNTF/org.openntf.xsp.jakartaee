@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2024 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,12 @@ import org.eclipse.microprofile.openapi.models.OpenAPI;
 import org.eclipse.microprofile.openapi.models.info.Info;
 import org.eclipse.microprofile.openapi.models.servers.Server;
 import org.jboss.jandex.Index;
-import org.openntf.xsp.jakarta.rest.RestServletFactory;
+import org.openntf.xsp.jakarta.rest.nsf.RestServletFactory;
 import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import io.smallrye.openapi.api.OpenApiConfig;
-import io.smallrye.openapi.api.OpenApiConfigImpl;
 import io.smallrye.openapi.api.models.servers.ServerImpl;
 import io.smallrye.openapi.runtime.OpenApiProcessor;
 import jakarta.enterprise.inject.spi.CDI;
@@ -73,7 +72,7 @@ public abstract class AbstractOpenAPIResource {
 		Index index = Index.of(classes);
 
 		Config mpConfig = CDI.current().select(Config.class).get();
-		OpenApiConfig config = OpenApiConfigImpl.fromConfig(mpConfig);
+		OpenApiConfig config = OpenApiConfig.fromConfig(mpConfig);
 		ClassLoader cl = new DelegatingClassLoader(OpenApiProcessor.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
 		OpenAPI openapi;
 		synchronized(OpenApiProcessor.class) {
