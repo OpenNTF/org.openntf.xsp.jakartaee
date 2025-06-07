@@ -4,7 +4,7 @@ Bundle-Name: nsf-jakartaconfig
 Bundle-SymbolicName: org.openntf.xsp.nsf-jakartaconfig
 Automatic-Module-Name: org.openntf.xsp.nsf-jakartaconfig
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-Version: 3.4.0.qualifier
+Bundle-Version: 3.4.0
 Require-Bundle: org.eclipse.ui;resolution:=optional,org.eclipse.core.run
  time,com.ibm.commons;resolution:=optional,com.ibm.commons.xml;resolutio
  n:=optional,com.ibm.commons.vfs;resolution:=optional,com.ibm.jscript;re
