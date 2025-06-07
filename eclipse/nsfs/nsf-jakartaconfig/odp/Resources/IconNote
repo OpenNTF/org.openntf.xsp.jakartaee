@@ -16,29 +16,28 @@ L2ZvgAAACMZmZmZmZmZmZmZmbIAAAACMZmZmZmZmZmZmZsgAAAAACMZmZmZmZmZmZmyAAAAAAACM
 AAAAUEECICABAAD/////+A4DgA==
 </rawitemdata>
   </item>
-  <item name="$DefaultFrameset">
-    <text>Outer Frame</text>
-  </item>
   <item name="$DefaultXPage">
     <text>Lists.xsp</text>
   </item>
-  <item name="$LargeSummary">
+  <item name="$LaunchXPageRunOnServer">
     <text>0</text>
   </item>
   <item name="$Daos">
     <text>1</text>
   </item>
-  <item name="$TITLE">
-    <text>Jakarta Config
-</text>
-  </item>
-  <item name="$Flags">
-    <text>J7FKzNZ4q8</text>
-  </item>
-  <item name="$LaunchXPageRunOnServer">
+  <item name="$LargeSummary">
     <text>0</text>
   </item>
+  <item name="$DefaultFrameset">
+    <text>Outer Frame</text>
+  </item>
+  <item name="$TITLE">
+    <text>Jakarta Config</text>
+  </item>
+  <item name="$Flags">
+    <text>Jz478qNZFK</text>
+  </item>
   <item name="$FlagsNoRefresh">
-    <text/>
+    <text>rv</text>
   </item>
 </note>
