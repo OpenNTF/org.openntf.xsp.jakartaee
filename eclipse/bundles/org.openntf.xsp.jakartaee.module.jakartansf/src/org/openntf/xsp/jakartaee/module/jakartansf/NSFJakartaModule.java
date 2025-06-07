@@ -381,7 +381,7 @@ public class NSFJakartaModule extends ComponentModule {
 		
 		awaitInit();
 		
-		try {			
+		try {
 			super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
 		} catch(PageNotFoundException e) {
 			if(pathInfo.isEmpty() || "/".equals(pathInfo)) { //$NON-NLS-1$
@@ -514,6 +514,8 @@ public class NSFJakartaModule extends ComponentModule {
 		if(log.isLoggable(Level.FINE)) {
 			log.fine(MessageFormat.format("Invoking Servlet {0}", servlet));
 		}
+		
+		req.getSession(true);
 
 		HttpContextBean.setThreadResponse(ServletUtil.oldToNew(resp));
 		// Update the active request with the "true" request object
