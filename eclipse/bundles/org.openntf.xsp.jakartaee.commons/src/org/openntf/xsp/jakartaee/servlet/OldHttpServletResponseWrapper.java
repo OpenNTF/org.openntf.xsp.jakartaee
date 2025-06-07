@@ -28,6 +28,8 @@ import jakarta.servlet.http.HttpServletResponse;
 class OldHttpServletResponseWrapper implements HttpServletResponse {
 	final javax.servlet.http.HttpServletResponse delegate;
 
+	private int status = 200;
+
 	public OldHttpServletResponseWrapper(final javax.servlet.http.HttpServletResponse delegate) {
 		this.delegate = delegate;
 	}
@@ -150,13 +152,15 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	@Override
 	public void sendRedirect(final String location) throws IOException {
 		delegate.sendRedirect(location);
+		this.status = SC_FOUND;
 	}
 
 	@Override
 	public void sendRedirect(final String location, final int sc, final boolean clearBuffer) throws IOException {
 		// clearBuffer is soft unsupported
-		delegate.setStatus(sc);
 		delegate.sendRedirect(location);
+		delegate.setStatus(sc);
+		this.status = sc;
 	}
 
 	@Override
@@ -188,8 +192,6 @@ class OldHttpServletResponseWrapper implements HttpServletResponse {
 	public void addIntHeader(final String name, final int value) {
 		delegate.addIntHeader(name, value);
 	}
-
-	int status = 200;
 
 	@Override
 	public void setStatus(final int sc) {
