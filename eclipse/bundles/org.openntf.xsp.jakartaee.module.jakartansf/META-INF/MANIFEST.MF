@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta EE NSF Module Implementation
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.module.jakartansf;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.module.jakartansf
-Bundle-Version: 3.4.0.qualifier
+Bundle-Version: 3.5.0.qualifier
 Import-Package: com.ibm.commons.extension,
  com.ibm.commons.util,
  com.ibm.commons.util.io,

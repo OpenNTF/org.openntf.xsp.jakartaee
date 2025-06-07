@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Jakarta EE UI XPages Library
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.ui.library;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.ui.library
-Bundle-Version: 3.4.0.qualifier
+Bundle-Version: 3.5.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.ibm.xsp.library,

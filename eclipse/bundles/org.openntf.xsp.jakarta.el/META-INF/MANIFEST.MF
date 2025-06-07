@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta Expression Language Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.el;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.el
-Bundle-Version: 3.4.0.qualifier
+Bundle-Version: 3.5.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: jakarta.el-api;bundle-version="4.0.0";visibility:=reexport,
@@ -31,6 +31,6 @@ Import-Package: com.ibm.commons.util,
  javax.faces.context,
  javax.faces.el,
  lotus.domino
-Export-Package: org.openntf.xsp.jakarta.el;version="3.4.0",
- org.openntf.xsp.jakarta.el.ext;version="3.4.0",
- org.openntf.xsp.jakarta.el.impl;version="3.4.0"
+Export-Package: org.openntf.xsp.jakarta.el;version="3.5.0",
+ org.openntf.xsp.jakarta.el.ext;version="3.5.0",
+ org.openntf.xsp.jakarta.el.impl;version="3.5.0"
