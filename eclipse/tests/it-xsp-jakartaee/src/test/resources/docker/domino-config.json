@@ -230,7 +230,7 @@
 							"WebPath": "/moduleappdisabled",
 							"NSFPath": "dev/jakartaee.nsf",
 							"Servers": "*",
-							"Disabled": "Y"
+							"Enabled": "N"
 						}
 					}
 				]

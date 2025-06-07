@@ -125,8 +125,8 @@ public enum ModuleTracker {
 				
 				DominoQuery query = configDb.createDominoQuery();
 				query.setNamedVariable("form", FORM_MODULE); //$NON-NLS-1$
-				query.setNamedVariable("disabled", "Y"); //$NON-NLS-1$ //$NON-NLS-2$
-				DocumentCollection moduleDocs = query.execute("Form = ?form and not Disabled = ?disabled"); //$NON-NLS-1$
+				query.setNamedVariable("disabled", "N"); //$NON-NLS-1$ //$NON-NLS-2$
+				DocumentCollection moduleDocs = query.execute("Form = ?form and not Enabled = ?disabled"); //$NON-NLS-1$
 				
 				Document moduleDoc = moduleDocs.getFirstDocument();
 				while(moduleDoc != null) {
