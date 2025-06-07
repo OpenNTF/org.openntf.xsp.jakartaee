@@ -46,6 +46,12 @@ public enum TestDatabase {
 		public String getXspPrefix() {
 			return "";
 		}
+	},
+	DISABLED_MODULE(null, null, "Disabled Jakarta NSF Module") {
+		@Override
+		public String getContextPath() {
+			return "/moduleappdisabled";
+		}
 	}
 	;
 	
