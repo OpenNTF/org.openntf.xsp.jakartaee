@@ -29,3 +29,4 @@ There are several techniques that are useful when developing apps of this type.
 - Similarly, though `ExtLibUtil`, `FacesContext`, etc. won't function, CDI can (and should) be used to `@Inject` beans, Servlet, REST, and Domino objects in both types of apps
 - `servletContext.getContextPath()` will return an appropriate base value for both types of apps (e.g. "/apps/foo.nsf" in a traditional context or "/foo" in a Jakarta module)
 - When using Jakarta MVC, `${mvc.basePath}` can be used in Pages to retrieve the REST base path, avoiding the need to assume the "/xsp" prefix in view code
+- Jakarta Modules don't use the "WEB-INF/jakarta" workarounds present for Faces in normal apps, since there is no XPages environment to conflict with
