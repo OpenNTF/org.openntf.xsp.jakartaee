@@ -37,4 +37,8 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.rest.exceptions.handler.RestExceptionHandler" class="org.openntf.xsp.jakarta.mvc.rest.MvcExceptionHandler" />
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.jakarta.mvc.rest.MvcRestClassContributor" />
+	</extension>
+	
 </plugin>
