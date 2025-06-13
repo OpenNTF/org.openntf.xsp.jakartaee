@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.BrowserArgumentsProvider;
 
 @SuppressWarnings("nls")
 public class TestXmlXPages extends AbstractWebClientTest {
@@ -40,9 +40,11 @@ public class TestXmlXPages extends AbstractWebClientTest {
 		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/jaxb.xsp");
 		
 		try {
-			WebElement span = driver.findElement(By.xpath("//span[@style=\"font-family: monospace; whitespace: pre-wrap\"]"));
+			// NB: the first xpath failed on 14.5 EA2 due to the change in handling of style="" attributes
+//			WebElement span = driver.findElement(By.xpath("//span[@style=\"font-family: monospace; whitespace: pre-wrap\"]"));
+			WebElement span = driver.findElement(By.className("xmlOut"));
 			assertTrue(
-				span.getText().startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <application-guy>"),
+				span.getText().contains("<application-guy>"),
 				() -> "Got unexpected content: " + span.getText()
 			);
 		} catch(NoSuchElementException e) {

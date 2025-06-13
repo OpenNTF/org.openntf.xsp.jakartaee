@@ -1,6 +1,6 @@
 XPages Jakarta EE Support
 
-Portions (c) Copyright 2018-2023 Jesse Gallagher
+Portions (c) Copyright 2018-2025 Jesse Gallagher
 Portions (c) Copyright 2018 Martin Pradny
 Portions (c) Copyright 2022 Per Lausten
 
@@ -15,55 +15,55 @@ The project contains the following third-party code:
 - Portions of Domino JNA, available from https://github.com/klehmann/domino-jna and licensed under Apache 2.0
 - Code derived from the Darwino JNoSQL driver, available from https://github.com/darwino/diana-driver and licensed under Apache 2.0
 - Code derived from the SmallRye Metrics implementation, available from https://github.com/smallrye/smallrye-metrics and licensed under Apache 2.0
+- Code derived from jacocotogo, available from https://github.com/mattcj/jacocotogo and licensed under Apache 2.0
+- Icons from the Tango Desktop Project, which are available from https://commons.wikimedia.org/wiki/Tango_icons and are available as Public Domain
 
 The binary distribution contains the following 3rd party code:
 
-- The Jakarta EL API, available from https://github.com/eclipse-ee4j/el-ri/tree/master/api and licensed under the EPL 2.0
-- The Jakarta Bean Validation API, available from https://github.com/eclipse-ee4j/beanvalidation-api and licensed under the EPL 2.0
-- The Jakarta JSON Binding API, available from https://github.com/eclipse-ee4j/jsonb-api and licensed under the EPL 2.0
-- The Jakarta JSON processing API, available from https://github.com/eclipse-ee4j/jsonp and licensed under the EPL 2.0
-- The Jakarta CDI API, available from https://github.com/eclipse-ee4j/cdi and licensed under the EPL 2.0
-- The Jakarta RESTful Web Services API, available from https://github.com/eclipse-ee4j/jaxrs-api and licensed under the EPL 2.0
-- The Jakarta XML Binding API, available from https://github.com/eclipse-ee4j/jaxb-api and licensed under the EPL 2.0
-- The Jakarta Activation API, available from https://github.com/eclipse-ee4j/jaf and licensed under the EPL 2.0
-- The Jakarta Mail API, available from https://github.com/eclipse-ee4j/mail and licensed under the Eclipse Public License 2.0. See "LICENSE-mail.md" and "LICENSE-mail.md" in the "legal" directory
-- The Jakarta Annotations API, available from https://github.com/eclipse-ee4j/common-annotations-api and licensed under the EPL 2.0
-- The Jakarta Server Pages API, available from https://github.com/eclipse-ee4j/jsp-api and licensed under the EPL 2.0
-- The Jakarta Standard Tag Library API, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/api and licensed under the EPL 2.0
+- The Jakarta Servlet API, available from https://github.com/jakartaee/servlet and licensed under the EPL 2.0
+- The Jakarta Expression Language API, available from https://github.com/jakartaee/expression-language and licensed under the EPL 2.0
+- The Jakarta Validation API, available from https://github.com/jakartaee/validation and licensed under the EPL 2.0
+- The Jakarta JSON Binding API, available from https://github.com/jakartaee/jsonb-api and licensed under the EPL 2.0
+- The Jakarta JSON processing API, available from https://github.com/jakartaee/jsonp-api and licensed under the EPL 2.0
+- The Jakarta CDI API, available from https://github.com/jakartaee/cdi and licensed under the EPL 2.0
+- The Jakarta RESTful Web Services API, available from https://github.com/jakartaee/rest and licensed under the EPL 2.0
+- The Jakarta XML Binding API, available from https://github.com/jakartaee/jaxb-api and licensed under the EPL 2.0
+- The Jakarta Activation API, available from https://github.com/jakartaee/jaf-api and licensed under the EPL 2.0
+- The Jakarta Mail API, available from https://github.com/jakartaee/mail-api and licensed under the Eclipse Public License 2.0
+- The Jakarta Annotations API, available from https://github.com/jakartaee/common-annotations-api and licensed under the EPL 2.0
+- The Jakarta Pages API, available from https://github.com/jakartaee/pages and licensed under the EPL 2.0
+- The Jakarta Tags API, available from https://github.com/jakartaee/tags and licensed under the EPL 2.0
 - The Jakarta Server Faces API, MyFaces variant, available from https://myfaces.apache.org/ and licensed under Apache 2.0
 	- See legal/NOTICE-myfaces.txt for downstream third-party components, which are licensed under Apache 2.0 and the Dojo modified BSD license
 - The Jakarta Concurrency API, available from https://github.com/jakartaee/concurrency and licensed under the EPL 2.0
 - The Jakarta Transactions API, available from https://github.com/jakartaee/transactions and licensed under the EPL 2.0
-- The Jakarta MVC API, available from https://github.com/eclipse-ee4j/mvc-api and licensed under the EPL 2.0
-- The Jakarta NoSQL API, available from https://github.com/eclipse-ee4j/nosql and licensed under the EPL 2.0
+- The Jakarta MVC API, available from https://github.com/jakartaee/mvc and licensed under the EPL 2.0
+- The Jakarta NoSQL API, available from https://github.com/jakartaee/nosql and licensed under the EPL 2.0
 - The Jakarta Persistence API, available from https://github.com/jakartaee/persistence and licensed under the EPL 2.0
 - The MicroProfile OpenAPI API, available from https://github.com/eclipse/microprofile-open-api and licensed under the EPL 2.0
 - The MicroProfile Config API, available from https://github.com/eclipse/microprofile-config and licensed under the EPL 2.0
-- The MicroProfile Metrics API, available from https://github.com/eclipse/microprofile-metrics and licensed under the EPL 2.0
 - The MicroProfile Rest Client API, available from https://github.com/eclipse/microprofile-rest-client and licensed under the EPL 2.0
 - The MicroProfile Fault Tolerance API, available from https://github.com/eclipse/microprofile-fault-tolerance and licensed under the EPL 2.0
 - The MicroProfile Health API, available from https://github.com/eclipse/microprofile-health and licensed under the EPL 2.0
 - Weld, available from http://weld.cdi-spec.org/ and licensed under Apache 2.0
-- GlassFish EL, available from https://github.com/eclipse-ee4j/el-ri/tree/master/impl and licensed under the EPL 2.0
+- Expressly, available from https://github.com/eclipse-ee4j/expressly and licensed under the EPL 2.0
 - JBoss RESTEasy, available from https://resteasy.github.io/ and licensed under Apache 2.0
 - ClassMate, available from https://github.com/FasterXML/java-classmate and licensed under Apache 2.0
 - Hibernate Validator, available from http://hibernate.org/validator/ and licensed under Apache 2.0
 - Eclipse Yasson, available from https://github.com/eclipse-ee4j/yasson and licensed under the EPL 2.0
-- GlassFish JSON-P Provider, available from https://projects.eclipse.org/projects/ee4j.jsonp and licensed under the EPL 2.0
+- Eclipse Parsson, available from https://github.com/eclipse-ee4j/parsson and licensed under the EPL 2.0
 - The Eclipse Implementation of JAXB, available from https://github.com/eclipse-ee4j/jaxb-ri and licensed under the EPL 2.0
 - The Eclipse Angus Activation implementation, available from https://github.com/eclipse-ee4j/angus-activation and licensed under the EPL 2.0
-- The Eclipse Angus Mail implementation, available from https://github.com/eclipse-ee4j/angus-mail and licensed under the Eclipse Public License 2.0. See "LICENSE-angus.md" and "LICENSE-angus.md" in the "legal" directory
+- The Eclipse Angus Mail implementation, available from https://github.com/eclipse-ee4j/angus-mail and licensed under the Eclipse Public License 2.0
 - Reactive Streams, available from https://github.com/reactive-streams/reactive-streams-jvm and licensed under MIT No Attribution
-- GlassFish/Jasper JSP, available from https://mvnrepository.com/artifact/org.glassfish.web/jakarta.servlet.jsp/3.0.0 and licensed under the EPL 2.0
-- The GlassFish JSTL implementation, available from https://github.com/eclipse-ee4j/jstl-api/tree/master/impl and licensed under the EPL 2.0
-- Apache MyFaces 3.0.1, available from https://myfaces.apache.org/ and licensed under Apache 2.0
+- Eclipse WaSP, available from https://github.com/eclipse-ee4j/wasp and licensed under the EPL 2.0
+- Apache MyFaces, available from https://myfaces.apache.org/ and licensed under Apache 2.0
 	- See legal/NOTICE-myfaces.txt for downstream third-party components, which are licensed under Apache 2.0 and the CDDL
 - Eclipse Krazo, available from https://github.com/eclipse-ee4j/krazo and licensed under the EPL 2.0
 - Eclipse JNoSQL, available from https://github.com/eclipse/jnosql and licensed under the EPL 1.0
 - EclipseLink, available from https://www.eclipse.org/eclipselink and licensed under the EPL 2.0
-- The GlassFish Concurrency implementation, available from https://github.com/eclipse-ee4j/concurrency-ri and licensed under the EPL 2.0
+- Eclipse Concurro, available from https://github.com/eclipse-ee4j/glassfish-concurro and licensed under the EPL 2.0
 - The SmallRye OpenAPI implementation, available from https://github.com/smallrye/smallrye-open-api and licensed under Apache 2.0
-- The SmallRye Metrics implementation, available from https://github.com/smallrye/smallrye-metrics and licensed under Apache 2.0
 - The SmallRye Config implementation, available from https://github.com/smallrye/smallrye-config and licensed under Apache 2.0
 - The SmallRye Fault Tolerance implementation, available from https://github.com/smallrye/smallrye-fault-tolerance and licensed under Apache 2.0
 - The SmallRye Health implementation, available from https://github.com/smallrye/smallrye-health and licensed under Apache 2.0
@@ -77,7 +77,6 @@ The binary distribution contains the following 3rd party code:
 - Apache Commons Codec, available from https://commons.apache.org/proper/commons-codec/ and licensed under Apache 2.0
 - Apache Commons IO, available from https://commons.apache.org/io and licensed under Apache 2.0
 - Apache Commons Logging, available from https://commons.apache.org/proper/commons-logging/ and licensed under Apache 2.0
-- Apache HttpComponents Client and HttpComponents Core, available from https://hc.apache.org/ and licensed under Apache 2.0
 - SmallRye Reactive Converters, available from https://github.com/smallrye/smallrye-reactive-converters and licensed under Apache 2.0
 - SmallRye Mutiny, available from https://github.com/smallrye/smallrye-mutiny and licensed under Apache 2.0
 - SmallRye Common utilities, available from https://github.com/smallrye/smallrye-common and licensed under Apache 2.0

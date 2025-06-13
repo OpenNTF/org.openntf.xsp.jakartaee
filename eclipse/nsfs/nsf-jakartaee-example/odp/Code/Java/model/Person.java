@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,16 @@ import java.time.LocalTime;
 import java.util.List;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
-import org.openntf.xsp.nosql.communication.driver.DominoConstants;
-import org.openntf.xsp.nosql.mapping.extension.EntryType;
+import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.EntryType;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemStorage;
 
 import java.time.Instant;
 
 import jakarta.mvc.binding.MvcBinding;
-import jakarta.nosql.mapping.Column;
-import jakarta.nosql.mapping.Entity;
-import jakarta.nosql.mapping.Id;
+import jakarta.nosql.Column;
+import jakarta.nosql.Entity;
+import jakarta.nosql.Id;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.FormParam;
 
@@ -56,6 +57,10 @@ public class Person {
 	
 	@Column("CustomProperty")
 	private CustomPropertyType customProperty;
+	
+	@Column("CustomPropertyListJSON")
+	@ItemStorage(type=ItemStorage.Type.JSON)
+	private List<CustomPropertyType> customTypeList;
 	
 	@Column(DominoConstants.FIELD_ATTACHMENTS)
 	private List<EntityAttachment> attachments;

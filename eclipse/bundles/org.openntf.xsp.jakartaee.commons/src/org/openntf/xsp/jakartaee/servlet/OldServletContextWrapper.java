@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.openntf.xsp.jakartaee.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
@@ -37,12 +36,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
-import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
-
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
+
+import org.openntf.xsp.jakartaee.MappingBasedServletFactory;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterRegistration;
@@ -66,22 +64,24 @@ import jakarta.servlet.descriptor.TaglibDescriptor;
 class OldServletContextWrapper implements ServletContext {
 	private static final String UNAVAILABLE_MESSAGE = "Unable to call method on Servlet 2.5 delegate"; //$NON-NLS-1$
 	final javax.servlet.ServletContext delegate;
-	private final String contextPath;
+	private String contextPath;
 	private int majorVersion = 2;
 	private int minorVersion = 5;
-	
-	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate) {
+	private ClassLoader classLoader;
+
+	public OldServletContextWrapper(final String contextPath, final javax.servlet.ServletContext delegate) {
 		this.delegate = delegate;
 		this.contextPath = contextPath;
+		this.classLoader = AccessController.doPrivileged((PrivilegedAction<ClassLoader>)() -> Thread.currentThread().getContextClassLoader());
 	}
 
-	public OldServletContextWrapper(String contextPath, javax.servlet.ServletContext delegate, int majorVersion, int minorVersion) {
+	public OldServletContextWrapper(final String contextPath, final javax.servlet.ServletContext delegate, final int majorVersion, final int minorVersion) {
 		this(contextPath, delegate);
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
 	}
-	
-	<T extends EventListener> List<T> getListeners(Class<?> listenerClass) {
+
+	<T extends EventListener> List<T> getListeners(final Class<?> listenerClass) {
 		List<T> result = new ArrayList<>();
 		for(Object listener : getOtherListeners()) {
 			if(listenerClass.isInstance(listener)) {
@@ -92,32 +92,32 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public Dynamic addFilter(String arg0, String arg1) {
+	public Dynamic addFilter(final String arg0, final String arg1) {
 		throw unavailable();
 	}
 
 	@Override
-	public Dynamic addFilter(String arg0, Filter arg1) {
+	public Dynamic addFilter(final String arg0, final Filter arg1) {
 		throw unavailable();
 	}
 
 	@Override
-	public Dynamic addFilter(String arg0, Class<? extends Filter> arg1) {
+	public Dynamic addFilter(final String arg0, final Class<? extends Filter> arg1) {
 		throw unavailable();
 	}
 
 	@Override
-	public jakarta.servlet.ServletRegistration.Dynamic addJspFile(String arg0, String arg1) {
+	public jakarta.servlet.ServletRegistration.Dynamic addJspFile(final String arg0, final String arg1) {
 		throw unavailable();
 	}
 
 	@Override
-	public void addListener(String arg0) {
+	public void addListener(final String arg0) {
 		throw unavailable();
 	}
 
 	@Override
-	public <T extends EventListener> void addListener(T listener) {
+	public <T extends EventListener> void addListener(final T listener) {
 		Collection<EventListener> listeners = getOtherListeners();
 		if(!listeners.contains(listener)) {
 			listeners.add(listener);
@@ -125,7 +125,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public void addListener(Class<? extends EventListener> c) {
+	public void addListener(final Class<? extends EventListener> c) {
 		try {
 			// TODO bind this with CDI
 			getOtherListeners().add(c.newInstance());
@@ -135,42 +135,49 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public jakarta.servlet.ServletRegistration.Dynamic addServlet(String arg0, String arg1) {
+	public jakarta.servlet.ServletRegistration.Dynamic addServlet(final String arg0, final String arg1) {
 		throw unavailable();
 	}
 
 	@Override
-	public jakarta.servlet.ServletRegistration.Dynamic addServlet(String arg0, Servlet arg1) {
+	public jakarta.servlet.ServletRegistration.Dynamic addServlet(final String arg0, final Servlet arg1) {
 		throw unavailable();
 	}
 
 	@Override
-	public jakarta.servlet.ServletRegistration.Dynamic addServlet(String arg0, Class<? extends Servlet> arg1) {
+	public jakarta.servlet.ServletRegistration.Dynamic addServlet(final String arg0, final Class<? extends Servlet> arg1) {
 		throw unavailable();
 	}
 
 	@Override
-	public <T extends Filter> T createFilter(Class<T> arg0) throws ServletException {
+	public <T extends Filter> T createFilter(final Class<T> arg0) throws ServletException {
 		throw unavailable();
 	}
 
 	@Override
-	public <T extends EventListener> T createListener(Class<T> arg0) throws ServletException {
+	public <T extends EventListener> T createListener(final Class<T> arg0) throws ServletException {
 		throw unavailable();
 	}
 
 	@Override
-	public <T extends Servlet> T createServlet(Class<T> arg0) throws ServletException {
+	public <T extends Servlet> T createServlet(final Class<T> arg0) throws ServletException {
 		throw unavailable();
 	}
 
 	@Override
-	public void declareRoles(String... arg0) {
+	public void declareRoles(final String... arg0) {
 		throw unavailable();
 	}
 
 	@Override
-	public Object getAttribute(String arg0) {
+	public Object getAttribute(final String arg0) {
+		// Handle a common case of requesting the spec-defined temp directory
+		if(ServletContext.TEMPDIR.equals(arg0)) {
+			Object explicit = delegate.getAttribute(arg0);
+			if(explicit == null) {
+				return delegate.getAttribute("javax.servlet.context.tempdir"); //$NON-NLS-1$
+			}
+		}
 		return delegate.getAttribute(arg0);
 	}
 
@@ -181,16 +188,27 @@ class OldServletContextWrapper implements ServletContext {
 
 	@Override
 	public ClassLoader getClassLoader() {
-		return Thread.currentThread().getContextClassLoader();
+		return this.classLoader;
 	}
 
 	@Override
-	public ServletContext getContext(String arg0) {
+	public ServletContext getContext(final String arg0) {
 		return ServletUtil.oldToNew(contextPath, delegate.getContext(arg0));
 	}
 
 	@Override
 	public String getContextPath() {
+		String contextPath = this.contextPath;
+		if(contextPath == null) {
+			// We might have an active context path - if so, use that
+			contextPath = ComponentModuleLocator.getDefault()
+				.flatMap(ComponentModuleLocator::getServletContext)
+				.map(ServletContext::getContextPath)
+				.orElse(null);
+			if(contextPath != null) {
+				this.contextPath = contextPath;
+			}
+		}
 		return Objects.requireNonNull(contextPath, "Context path requested but not initialized");
 	}
 
@@ -215,7 +233,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public FilterRegistration getFilterRegistration(String arg0) {
+	public FilterRegistration getFilterRegistration(final String arg0) {
 		// Soft unavailable
 		return null;
 	}
@@ -227,7 +245,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public String getInitParameter(String name) {
+	public String getInitParameter(final String name) {
 		Map<String, String> params = getExtraInitParameters();
 		if(params.containsKey(name)) {
 			return params.get(name);
@@ -257,7 +275,7 @@ class OldServletContextWrapper implements ServletContext {
 			public Collection<JspPropertyGroupDescriptor> getJspPropertyGroups() {
 				return Collections.emptyList();
 			}
-			
+
 		};
 	}
 
@@ -267,7 +285,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public String getMimeType(String arg0) {
+	public String getMimeType(final String arg0) {
 		return delegate.getMimeType(arg0);
 	}
 
@@ -277,7 +295,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public RequestDispatcher getNamedDispatcher(String name) {
+	public RequestDispatcher getNamedDispatcher(final String name) {
 		// Unsupported on Domino, so try to replicate the behavior from the ComponentModule
 		// TODO consider implementing. This would require the RequestDispatcher to create
 		//   the Servlet anew for each request, parsing out the context and path
@@ -292,13 +310,13 @@ class OldServletContextWrapper implements ServletContext {
 //		if(factory != null) {
 //			// TODO figure out if this behavior should change
 //			return new RequestDispatcher() {
-//				
+//
 //				@Override
 //				public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
 //					Servlet servlet = ServletUtil.oldToNew(match.getServlet());
 //					servlet.service(request, response);
 //				}
-//				
+//
 //				@Override
 //				public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
 //					Servlet servlet = ServletUtil.oldToNew(match.getServlet());
@@ -310,8 +328,8 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public String getRealPath(String arg0) {
-		return delegate.getRealPath(arg0);
+	public String getRealPath(final String path) {
+		return delegate.getRealPath(path);
 	}
 
 	@Override
@@ -321,7 +339,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public RequestDispatcher getRequestDispatcher(String path) {
+	public RequestDispatcher getRequestDispatcher(final String path) {
 		// Unsupported on Domino, so try to replicate the behavior from the ComponentModule
 		ServletMatch match = getServletFactories()
 			.stream()
@@ -338,15 +356,15 @@ class OldServletContextWrapper implements ServletContext {
 		if(match != null) {
 			// TODO figure out if this behavior should change
 			return new RequestDispatcher() {
-				
+
 				@Override
-				public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+				public void include(final ServletRequest request, final ServletResponse response) throws ServletException, IOException {
 					Servlet servlet = ServletUtil.oldToNew(match.getServlet());
 					servlet.service(request, response);
 				}
-				
+
 				@Override
-				public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+				public void forward(final ServletRequest request, final ServletResponse response) throws ServletException, IOException {
 					Servlet servlet = ServletUtil.oldToNew(match.getServlet());
 					servlet.service(request, response);
 				}
@@ -356,7 +374,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public URL getResource(String path) throws MalformedURLException {
+	public URL getResource(final String path) throws MalformedURLException {
 		if("/WEB-INF/faces-config.xml".equals(path)) { //$NON-NLS-1$
 			URL alternative = delegate.getResource("/WEB-INF/jakarta/faces-config.xml"); //$NON-NLS-1$
 			if(alternative != null) {
@@ -367,7 +385,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public InputStream getResourceAsStream(String path) {
+	public InputStream getResourceAsStream(final String path) {
 		if("/WEB-INF/faces-config.xml".equals(path)) { //$NON-NLS-1$
 			InputStream alternative = delegate.getResourceAsStream("/WEB-INF/jakarta/faces-config.xml"); //$NON-NLS-1$
 			if(alternative != null) {
@@ -378,7 +396,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public Set<String> getResourcePaths(String path) {
+	public Set<String> getResourcePaths(final String path) {
 		return delegate.getResourcePaths(path);
 	}
 
@@ -393,28 +411,12 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public Servlet getServlet(String arg0) throws ServletException {
-		javax.servlet.Servlet result;
-		try {
-			result = delegate.getServlet(arg0);
-		} catch (javax.servlet.ServletException e) {
-			throw new ServletException(e);
-		}
-		return ServletUtil.oldToNew(result);
-	}
-
-	@Override
 	public String getServletContextName() {
 		return delegate.getServletContextName();
 	}
 
 	@Override
-	public Enumeration<String> getServletNames() {
-		return delegate.getServletNames();
-	}
-
-	@Override
-	public ServletRegistration getServletRegistration(String arg0) {
+	public ServletRegistration getServletRegistration(final String arg0) {
 		// Soft unavailable
 		return null;
 	}
@@ -436,7 +438,7 @@ class OldServletContextWrapper implements ServletContext {
 					}
 
 					@Override
-					public String getInitParameter(String param) {
+					public String getInitParameter(final String param) {
 						return null;
 					}
 
@@ -451,19 +453,19 @@ class OldServletContextWrapper implements ServletContext {
 					}
 
 					@Override
-					public boolean setInitParameter(String param, String value) {
+					public boolean setInitParameter(final String param, final String value) {
 						// NOP
 						return false;
 					}
 
 					@Override
-					public Set<String> setInitParameters(Map<String, String> params) {
+					public Set<String> setInitParameters(final Map<String, String> params) {
 						// NOP
 						return Collections.emptySet();
 					}
 
 					@Override
-					public Set<String> addMapping(String... urlPatterns) {
+					public Set<String> addMapping(final String... urlPatterns) {
 						// NOP
 						return fac.getExtensions();
 					}
@@ -480,31 +482,14 @@ class OldServletContextWrapper implements ServletContext {
 					public String getRunAsRole() {
 						return null;
 					}
-					
+
 				}
 			));
 	}
 
 	@Override
-	public Enumeration<Servlet> getServlets() {
-		Enumeration<javax.servlet.Servlet> result = delegate.getServlets();
-		if(result == null) {
-			return null;
-		} else {
-			return Collections.enumeration(
-				Collections.list(result)
-					.stream()
-					.map(ServletUtil::oldToNew)
-					.collect(Collectors.toList())
-			);
-		}
-	}
-
-	@Override
 	public SessionCookieConfig getSessionCookieConfig() {
-		// Soft unavailable
-		// TODO see if this can be gleaned from the server config
-		return null;
+		return new DummySessionCookieConfig();
 	}
 
 	@Override
@@ -520,22 +505,17 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public void log(String arg0) {
+	public void log(final String arg0) {
 		delegate.log(arg0);
 	}
 
 	@Override
-	public void log(Exception arg0, String arg1) {
+	public void log(final String arg0, final Throwable arg1) {
 		delegate.log(arg0, arg1);
 	}
 
 	@Override
-	public void log(String arg0, Throwable arg1) {
-		delegate.log(arg0, arg1);
-	}
-
-	@Override
-	public void removeAttribute(String name) {
+	public void removeAttribute(final String name) {
 		Object val = delegate.getAttribute(name);
 		delegate.removeAttribute(name);
 		this.getAttrListeners().forEach(listener ->
@@ -544,7 +524,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public void setAttribute(String name, Object value) {
+	public void setAttribute(final String name, final Object value) {
 		boolean exists = Collections.list(this.getAttributeNames()).contains(name);
 		Object oldVal = delegate.getAttribute(name);
 		delegate.setAttribute(name, value);
@@ -559,7 +539,7 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public boolean setInitParameter(String name, String value) {
+	public boolean setInitParameter(final String name, final String value) {
 		if(Collections.list(getInitParameterNames()).contains(name)) {
 			return false;
 		}
@@ -568,25 +548,25 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public void setRequestCharacterEncoding(String arg0) {
+	public void setRequestCharacterEncoding(final String arg0) {
 		throw unavailable();
 	}
 
 	@Override
-	public void setResponseCharacterEncoding(String arg0) {
+	public void setResponseCharacterEncoding(final String arg0) {
 		throw unavailable();
 	}
 
 	@Override
-	public void setSessionTimeout(int arg0) {
+	public void setSessionTimeout(final int arg0) {
 		// Soft unavailable
 	}
 
 	@Override
-	public void setSessionTrackingModes(Set<SessionTrackingMode> arg0) {
+	public void setSessionTrackingModes(final Set<SessionTrackingMode> arg0) {
 		// Soft unavailable
 	}
-	
+
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
@@ -594,37 +574,23 @@ class OldServletContextWrapper implements ServletContext {
 	private RuntimeException unavailable() {
 		return new UnsupportedOperationException(UNAVAILABLE_MESSAGE);
 	}
-	
-	private List<IServletFactory> getServletFactories() {
+
+	private Collection<? extends IServletFactory> getServletFactories() {
 		return ComponentModuleLocator.getDefault()
-			.map(ComponentModuleLocator::getActiveModule)
-			.map(module -> AccessController.doPrivileged((PrivilegedAction<List<IServletFactory>>)() -> {
-				try {
-					Field servletFactoriesField = ComponentModule.class.getDeclaredField("servletFactories"); //$NON-NLS-1$
-					servletFactoriesField.setAccessible(true);
-					List<IServletFactory> factories = (List<IServletFactory>) servletFactoriesField.get(module);
-					if(factories != null) {
-						return factories;
-					} else {
-						return Collections.emptyList();
-					}
-				} catch(Exception e) {
-					throw new RuntimeException(e);
-				}
-			}))
+			.map(ComponentModuleLocator::getServletFactories)
 			.orElseGet(Collections::emptyList);
 	}
-	
+
 	private static final String ATTR_LISTENERS = OldServletContextWrapper.class.getName() + "_listeners"; //$NON-NLS-1$
 	private static final String ATTR_INITPARAMS = OldServletContextWrapper.class.getName() + "_initParams"; //$NON-NLS-1$
-	
+
 	private Stream<ServletContextAttributeListener> getAttrListeners() {
 		return getOtherListeners()
 			.stream()
 			.filter(ServletContextAttributeListener.class::isInstance)
 			.map(ServletContextAttributeListener.class::cast);
 	}
-	
+
 	private List<EventListener> getOtherListeners() {
 		List<EventListener> result = (List<EventListener>)delegate.getAttribute(ATTR_LISTENERS);
 		if(result == null) {
@@ -633,7 +599,7 @@ class OldServletContextWrapper implements ServletContext {
 		}
 		return result;
 	}
-	
+
 	Map<String, String> getExtraInitParameters() {
 		Map<String, String> result = (Map<String, String>)delegate.getAttribute(ATTR_INITPARAMS);
 		if(result == null) {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
-import org.openntf.xsp.cdi.util.DiscoveryUtil;
+import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
+import org.openntf.xsp.jakarta.cdi.util.DiscoveryUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -33,11 +33,11 @@ import jakarta.enterprise.inject.spi.Extension;
  * @author Jesse Gallagher
  * @since 2.2.0
  */
-public class HealthBeanContributor implements WeldBeanClassContributor {
+public class HealthBeanContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		if(LibraryUtil.isLibraryActive(HealthLibrary.LIBRARY_ID)) {
+		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
 			// Look for annotated beans in io.smallrye.health
 			Bundle bundle = FrameworkUtil.getBundle(ResponseProvider.class);
 			try {

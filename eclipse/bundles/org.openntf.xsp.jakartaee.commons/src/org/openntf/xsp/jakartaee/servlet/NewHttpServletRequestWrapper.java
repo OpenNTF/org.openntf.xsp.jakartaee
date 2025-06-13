@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,20 +28,20 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
-@SuppressWarnings({ "rawtypes", "deprecation" })
+@SuppressWarnings({ "rawtypes" })
 class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequest {
 	final HttpServletRequest delegate;
-	
-	public NewHttpServletRequestWrapper(HttpServletRequest delegate) {
+
+	public NewHttpServletRequestWrapper(final HttpServletRequest delegate) {
 		this.delegate = delegate;
 	}
-	
-	public NewHttpServletRequestWrapper(ServletRequest delegate) {
+
+	public NewHttpServletRequestWrapper(final ServletRequest delegate) {
 		this.delegate = (HttpServletRequest)delegate;
 	}
 
 	@Override
-	public Object getAttribute(String arg0) {
+	public Object getAttribute(final String arg0) {
 		return delegate.getAttribute(arg0);
 	}
 
@@ -96,7 +96,7 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 	}
 
 	@Override
-	public String getParameter(String arg0) {
+	public String getParameter(final String arg0) {
 		return delegate.getParameter(arg0);
 	}
 
@@ -111,7 +111,7 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 	}
 
 	@Override
-	public String[] getParameterValues(String arg0) {
+	public String[] getParameterValues(final String arg0) {
 		return delegate.getParameterValues(arg0);
 	}
 
@@ -126,8 +126,9 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 	}
 
 	@Override
-	public String getRealPath(String arg0) {
-		return delegate.getRealPath(arg0);
+	public String getRealPath(final String arg0) {
+		// Removed in Servlet 6
+		return null;
 	}
 
 	@Override
@@ -146,7 +147,7 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 	}
 
 	@Override
-	public javax.servlet.RequestDispatcher getRequestDispatcher(String arg0) {
+	public javax.servlet.RequestDispatcher getRequestDispatcher(final String arg0) {
 		return ServletUtil.newToOld(delegate.getRequestDispatcher(arg0));
 	}
 
@@ -171,17 +172,17 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 	}
 
 	@Override
-	public void removeAttribute(String arg0) {
+	public void removeAttribute(final String arg0) {
 		delegate.removeAttribute(arg0);
 	}
 
 	@Override
-	public void setAttribute(String arg0, Object arg1) {
+	public void setAttribute(final String arg0, final Object arg1) {
 		delegate.setAttribute(arg0, arg1);
 	}
 
 	@Override
-	public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException {
+	public void setCharacterEncoding(final String arg0) throws UnsupportedEncodingException {
 		delegate.setCharacterEncoding(arg0);
 	}
 
@@ -203,17 +204,17 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 		} else {
 			return Arrays.stream(delegate.getCookies())
 				.map(ServletUtil::newToOld)
-				.toArray(javax.servlet.http.Cookie[]::new);	
+				.toArray(javax.servlet.http.Cookie[]::new);
 		}
 	}
 
 	@Override
-	public long getDateHeader(String arg0) {
+	public long getDateHeader(final String arg0) {
 		return delegate.getDateHeader(arg0);
 	}
 
 	@Override
-	public String getHeader(String arg0) {
+	public String getHeader(final String arg0) {
 		return delegate.getHeader(arg0);
 	}
 
@@ -223,12 +224,12 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 	}
 
 	@Override
-	public Enumeration getHeaders(String arg0) {
+	public Enumeration getHeaders(final String arg0) {
 		return delegate.getHeaders(arg0);
 	}
 
 	@Override
-	public int getIntHeader(String arg0) {
+	public int getIntHeader(final String arg0) {
 		return delegate.getIntHeader(arg0);
 	}
 
@@ -283,7 +284,7 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 	}
 
 	@Override
-	public javax.servlet.http.HttpSession getSession(boolean arg0) {
+	public javax.servlet.http.HttpSession getSession(final boolean arg0) {
 		return ServletUtil.newToOld(delegate.getSession(arg0));
 	}
 
@@ -304,7 +305,8 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 
 	@Override
 	public boolean isRequestedSessionIdFromUrl() {
-		return delegate.isRequestedSessionIdFromUrl();
+		// Duplicate removed in Servlet 6
+		return isRequestedSessionIdFromURL();
 	}
 
 	@Override
@@ -313,7 +315,7 @@ class NewHttpServletRequestWrapper implements javax.servlet.http.HttpServletRequ
 	}
 
 	@Override
-	public boolean isUserInRole(String arg0) {
+	public boolean isUserInRole(final String arg0) {
 		return delegate.isUserInRole(arg0);
 	}
 }

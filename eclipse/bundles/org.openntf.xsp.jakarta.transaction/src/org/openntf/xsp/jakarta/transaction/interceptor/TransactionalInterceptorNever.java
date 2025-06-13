@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import jakarta.transaction.TransactionalException;
 
 /**
  * Basic CDI implementation of the {@link Transactional @Transactional} annotation.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -37,7 +37,7 @@ import jakarta.transaction.TransactionalException;
 public class TransactionalInterceptorNever extends AbstractTransactionalInterceptor {
 
 	@AroundInvoke
-	public Object wrapMethod(InvocationContext ctx) throws Exception {
+	public Object wrapMethod(final InvocationContext ctx) throws Exception {
 		TransactionManager man = CDI.current().select(TransactionManager.class).get();
 		if(man.getTransaction() == null) {
 			// Then continue without a transaction

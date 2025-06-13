@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoTemplate;
+
 import bean.TransactionBean;
+import jakarta.data.Sort;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
 import jakarta.transaction.NotSupportedException;
@@ -40,6 +44,9 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import lotus.domino.Database;
+import lotus.domino.NotesException;
+import lotus.domino.Session;
 import model.ExampleDoc;
 import model.ExampleDocRepository;
 import model.Person;
@@ -58,6 +65,16 @@ public class NoSQLExampleDocs {
 	
 	@Inject
 	private TransactionBean transactionBean;
+	
+	@Inject
+	private DominoTemplate template;
+	
+	@Inject
+	@Named("dominoSessionAsSigner")
+	private Session sessionAsSigner;
+	
+	@Inject
+	private Database database;
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -203,5 +220,77 @@ public class NoSQLExampleDocs {
 		}
 		transaction.commit();
 		return Collections.singletonMap("created", true);
+	}
+	
+	/**
+	 * Used to test the use of the DQL "contains" operation with a list
+	 * 
+	 * @param titles the titles to include
+	 * @return the matching documents
+	 */
+	@Path("exampleDocsInTitle")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getTitles(@QueryParam("title") List<String> titles) {
+		return template.select(ExampleDoc.class)
+			.where("title").in(titles) //$NON-NLS-1$
+			.result();
+	}
+	
+	/**
+	 * Used to test the use of the DQL "contains" operation with a list
+	 * 
+	 * @param titles the titles to include
+	 * @return the matching documents
+	 */
+	@Path("exampleDocsInNumberGuy")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getInNumberGuy(@QueryParam("numberGuy") List<Double> numberGuy) {
+		return template.select(ExampleDoc.class)
+			.where("numberGuy").in(numberGuy) //$NON-NLS-1$
+			.result();
+	}
+	
+	/**
+	 * Used to test the use of the DQL "contains" operation with a list
+	 * 
+	 * @param titles the titles to include
+	 * @return the matching documents
+	 */
+	@Path("exampleDocsLikeTitle")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getTitles(@QueryParam("title") String title) {
+		return template.select(ExampleDoc.class)
+			.where("title").like(title) //$NON-NLS-1$
+			.result();
+	}
+	
+	@Path("allSorted")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getAllSorted() {
+		return repository.findAllSorted().toList();
+	}
+	
+	@Path("allSortedCustom")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<ExampleDoc> getAllSortedCustom() {
+		return repository.getViewEntriesCustom(Sort.asc("customSort")).toList();
+	}
+	
+	/**
+	 * Utility method to make sure that the FT index is updated for use with
+	 * DQL contains
+	 * 
+	 * @throws NotesException if there is a problem updating the FT index
+	 */
+	@Path("updateExampleDocFtIndex")
+	@POST
+	public void updateExampleDocFtIndex() throws NotesException {
+		Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
+		databaseAsSigner.updateFTIndex(true);
 	}
 }

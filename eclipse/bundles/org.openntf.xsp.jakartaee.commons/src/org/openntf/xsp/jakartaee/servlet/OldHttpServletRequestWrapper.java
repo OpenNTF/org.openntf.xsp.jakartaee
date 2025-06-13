@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConnection;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
@@ -46,15 +48,17 @@ import jakarta.servlet.http.Part;
 
 @SuppressWarnings("unchecked")
 class OldHttpServletRequestWrapper implements HttpServletRequest {
+	private static final String ATTR_REQUEST_ID = OldHttpServletRequestWrapper.class.getPackageName() + "_requestId"; //$NON-NLS-1$
+
 	final javax.servlet.ServletContext context;
 	final javax.servlet.http.HttpServletRequest delegate;
-	
-	public OldHttpServletRequestWrapper(javax.servlet.ServletContext context, javax.servlet.http.HttpServletRequest delegate) {
+
+	public OldHttpServletRequestWrapper(final javax.servlet.ServletContext context, final javax.servlet.http.HttpServletRequest delegate) {
 		this.context = context;
 		this.delegate = delegate;
 	}
-	
-	void addListener(ServletRequestAttributeListener listener) {
+
+	void addListener(final ServletRequestAttributeListener listener) {
 		this.getAttrListeners().add(listener);
 	}
 
@@ -64,7 +68,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public Object getAttribute(String arg0) {
+	public Object getAttribute(final String arg0) {
 		return delegate.getAttribute(arg0);
 	}
 
@@ -129,7 +133,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public String getParameter(String arg0) {
+	public String getParameter(final String arg0) {
 		return delegate.getParameter(arg0);
 	}
 
@@ -144,7 +148,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public String[] getParameterValues(String arg0) {
+	public String[] getParameterValues(final String arg0) {
 		return delegate.getParameterValues(arg0);
 	}
 
@@ -156,12 +160,6 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	@Override
 	public BufferedReader getReader() throws IOException {
 		return delegate.getReader();
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public String getRealPath(String arg0) {
-		return delegate.getRealPath(arg0);
 	}
 
 	@Override
@@ -180,7 +178,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public RequestDispatcher getRequestDispatcher(String arg0) {
+	public RequestDispatcher getRequestDispatcher(final String arg0) {
 		return ServletUtil.oldToNew(delegate.getRequestDispatcher(arg0));
 	}
 
@@ -221,7 +219,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public void removeAttribute(String name) {
+	public void removeAttribute(final String name) {
 		Object val = delegate.getAttribute(name);
 		delegate.removeAttribute(name);
 		this.getAttrListeners().forEach(listener ->
@@ -230,7 +228,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public void setAttribute(String name, Object value) {
+	public void setAttribute(final String name, final Object value) {
 		boolean exists = Collections.list(this.getAttributeNames()).contains(name);
 		Object oldVal = delegate.getAttribute(name);
 		delegate.setAttribute(name, value);
@@ -245,7 +243,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException {
+	public void setCharacterEncoding(final String arg0) throws UnsupportedEncodingException {
 		delegate.setCharacterEncoding(arg0);
 	}
 
@@ -255,12 +253,12 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public AsyncContext startAsync(ServletRequest arg0, ServletResponse arg1) throws IllegalStateException {
+	public AsyncContext startAsync(final ServletRequest arg0, final ServletResponse arg1) throws IllegalStateException {
 		throw new IllegalStateException("Async unsupported");
 	}
 
 	@Override
-	public boolean authenticate(HttpServletResponse arg0) throws IOException, ServletException {
+	public boolean authenticate(final HttpServletResponse arg0) throws IOException, ServletException {
 		// Soft unsupported
 		return false;
 	}
@@ -294,12 +292,12 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public long getDateHeader(String arg0) {
+	public long getDateHeader(final String arg0) {
 		return delegate.getDateHeader(arg0);
 	}
 
 	@Override
-	public String getHeader(String arg0) {
+	public String getHeader(final String arg0) {
 		return delegate.getHeader(arg0);
 	}
 
@@ -309,12 +307,12 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public Enumeration<String> getHeaders(String arg0) {
+	public Enumeration<String> getHeaders(final String arg0) {
 		return delegate.getHeaders(arg0);
 	}
 
 	@Override
-	public int getIntHeader(String arg0) {
+	public int getIntHeader(final String arg0) {
 		return delegate.getIntHeader(arg0);
 	}
 
@@ -324,7 +322,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public Part getPart(String arg0) throws IOException, ServletException {
+	public Part getPart(final String arg0) throws IOException, ServletException {
 		// Soft unsupported
 		return null;
 	}
@@ -381,7 +379,7 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public HttpSession getSession(boolean arg0) {
+	public HttpSession getSession(final boolean arg0) {
 		return ServletUtil.oldToNew(delegate.getSession(arg0));
 	}
 
@@ -400,24 +398,18 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 		return delegate.isRequestedSessionIdFromURL();
 	}
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public boolean isRequestedSessionIdFromUrl() {
-		return delegate.isRequestedSessionIdFromUrl();
-	}
-
 	@Override
 	public boolean isRequestedSessionIdValid() {
 		return delegate.isRequestedSessionIdValid();
 	}
 
 	@Override
-	public boolean isUserInRole(String arg0) {
+	public boolean isUserInRole(final String arg0) {
 		return delegate.isUserInRole(arg0);
 	}
 
 	@Override
-	public void login(String arg0, String arg1) throws ServletException {
+	public void login(final String arg0, final String arg1) throws ServletException {
 		throw new ServletException("Login unsupported");
 	}
 
@@ -427,14 +419,36 @@ class OldHttpServletRequestWrapper implements HttpServletRequest {
 	}
 
 	@Override
-	public <T extends HttpUpgradeHandler> T upgrade(Class<T> arg0) throws IOException, ServletException {
+	public <T extends HttpUpgradeHandler> T upgrade(final Class<T> arg0) throws IOException, ServletException {
 		throw new ServletException("Upgrade unsupported");
 	}
-	
+
+	@Override
+	public String getRequestId() {
+		// Shim one in
+		String id = (String)getAttribute(ATTR_REQUEST_ID);
+		if(id == null) {
+			id = UUID.randomUUID().toString();
+			setAttribute(ATTR_REQUEST_ID, id);
+		}
+
+		return id;
+	}
+
+	@Override
+	public String getProtocolRequestId() {
+		return ""; // Always HTTP/1.1 on Domino //$NON-NLS-1$
+	}
+
+	@Override
+	public ServletConnection getServletConnection() {
+		throw new UnsupportedOperationException();
+	}
+
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
-	
+
 	private List<ServletRequestAttributeListener> getAttrListeners() {
 		return ServletUtil.getListeners(getServletContext(), ServletRequestAttributeListener.class);
 	}

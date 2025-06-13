@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf.xsp</groupId>
 	<artifactId>xsp-jakartaee</artifactId>
-	<version>2.16.0-SNAPSHOT</version>
+	<version>3.5.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>XPages Jakarta EE Support</name>
@@ -40,81 +40,57 @@
 		<module>bundles/org.openntf.xsp.jakartaee.osgiresourcelocator</module>
 		<module>bundles/org.openntf.xsp.jakartaee.bridge.jasapi</module>
 		<module>bundles/org.openntf.xsp.jakarta.concurrency</module>
-		<module>features/org.openntf.xsp.jakartaee.feature</module>
 		
 		<!-- Servlet -->
 		<module>bundles/org.openntf.xsp.jakarta.servlet</module>
-		<module>features/org.openntf.xsp.jakarta.servlet.feature</module>
 		
-		<!-- CDI 3.0 -->
-		<module>bundles/org.openntf.xsp.cdi</module>
-		<module>bundles/org.openntf.xsp.cdi.extlib</module>
-		<module>bundles/org.openntf.xsp.cdi.jigsaw</module>
+		<!-- CDI-->
+		<module>bundles/org.openntf.xsp.jakarta.cdi</module>
+		<module>bundles/org.openntf.xsp.jakarta.cdi.extlib</module>
 		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
-		<module>features/org.openntf.xsp.cdi.feature</module>
 		
-		<!-- Expression Language 4.0 -->
-		<module>bundles/org.openntf.xsp.el</module>
-		<module>features/org.openntf.xsp.el.feature</module>
-		
-		<!-- JAX-RS 3.0, MicroProfile OpenAPI, and MicroProfile Metrics -->
-		<module>bundles/org.openntf.xsp.jaxrs</module>
-		<module>bundles/org.openntf.xsp.jaxrs.cdi</module>
-		<module>bundles/org.openntf.xsp.jaxrs.factory</module>
-		<module>bundles/org.openntf.xsp.jaxrs.providers</module>
-		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
-		<module>bundles/org.openntf.xsp.microprofile.metrics</module>
-		<module>features/org.openntf.xsp.jaxrs.feature</module>
+		<!-- Expression Language -->
+		<module>bundles/org.openntf.xsp.jakarta.el</module>
 		
 		<!-- Bean Validation 3.0 -->
-		<module>bundles/org.openntf.xsp.beanvalidation</module>
-		<module>features/org.openntf.xsp.beanvalidation.feature</module>
-		<module>tests/org.openntf.xsp.beanvalidation.test</module>
+		<module>bundles/org.openntf.xsp.jakarta.validation</module>
 		
-		<!-- JSON-P 2.0 and JSON-B 2.0 -->
-		<module>bundles/org.openntf.xsp.jsonapi</module>
-		<module>bundles/org.openntf.xsp.jsonapi.jaxrs</module>
-		<module>bundles/org.openntf.xsp.jsonapi.cdi</module>
-		<module>features/org.openntf.xsp.jsonapi.feature</module>
-		<module>tests/org.openntf.xsp.jsonapi.test</module>
+		<!-- JSON Processing and Binding -->
+		<module>bundles/org.openntf.xsp.jakarta.json</module>
 		
-		<!-- JSP -->
- 		<module>bundles/org.openntf.xsp.jsp</module>
- 		<module>features/org.openntf.xsp.jsp.feature</module>
-		
-		<!-- JSF -->
- 		<module>bundles/org.openntf.xsp.jsf</module>
- 		<module>features/org.openntf.xsp.jsf.feature</module>
-		 
-		<!-- MVC -->
- 		<module>bundles/org.openntf.xsp.mvc</module>
- 		<module>features/org.openntf.xsp.mvc.feature</module>
+		<!-- Jakarta REST -->
+		<module>bundles/org.openntf.xsp.jakarta.rest</module>
+		<module>bundles/org.openntf.xsp.jakarta.rest.factory</module>
 	
 		<!-- NoSQL -->
-		<module>bundles/org.openntf.xsp.nosql.driver</module>
-		<module>bundles/org.openntf.xsp.nosql.driver.lsxbe</module>
-		<module>bundles/org.openntf.xsp.nosql</module>
-		<module>features/org.openntf.xsp.nosql.feature</module>
+		<module>bundles/org.openntf.xsp.jakarta.nosql.driver</module>
+		<module>bundles/org.openntf.xsp.jakarta.nosql.driver.lsxbe</module>
+		<module>bundles/org.openntf.xsp.jakarta.nosql</module>
 		 
-		<!-- MVC -->
+		<!-- Persistence -->
  		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
- 		<module>features/org.openntf.xsp.jakarta.persistence.feature</module>
+ 		
+		<!-- UI -->
+ 		<module>bundles/org.openntf.xsp.jakarta.pages</module>
+ 		<module>bundles/org.openntf.xsp.jakarta.faces</module>
+ 		<module>bundles/org.openntf.xsp.jakarta.mvc</module>
 	
-		<!-- MicroProfile Config -->
+		<!-- MicroProfile -->
 		<module>bundles/org.openntf.xsp.microprofile.config</module>
-		<module>features/org.openntf.xsp.microprofile.config.feature</module>
-	
-		<!-- MicroProfile REST Client -->
-		<module>bundles/org.openntf.xsp.microprofile.rest.client</module>
-		<module>features/org.openntf.xsp.microprofile.rest.client.feature</module>
-	
-		<!-- MicroProfile Fault Tolerance -->
-		<module>bundles/org.openntf.xsp.microprofile.fault.tolerance</module>
-		<module>features/org.openntf.xsp.microprofile.fault.tolerance.feature</module>
-	
-		<!-- MicroProfile Health -->
+		<module>bundles/org.openntf.xsp.microprofile.restclient</module>
+		<module>bundles/org.openntf.xsp.microprofile.faulttolerance</module>
 		<module>bundles/org.openntf.xsp.microprofile.health</module>
-		<module>features/org.openntf.xsp.microprofile.health.feature</module>
+		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
+		
+ 		<!-- XPages libraries -->
+ 		<module>bundles/org.openntf.xsp.jakartaee.core.library</module>
+ 		<module>bundles/org.openntf.xsp.jakartaee.ui.library</module>
+ 		<module>bundles/org.openntf.xsp.microprofile.library</module>
+ 		
+ 		<!-- Component Modules -->
+ 		<module>bundles/org.openntf.xsp.jakartaee.module.xspnsf</module>
+ 		<module>bundles/org.openntf.xsp.jakartaee.module.osgi</module>
+ 		<module>bundles/org.openntf.xsp.jakartaee.module.jakartansf</module>
 		
 		<!-- Integration test support and examples -->
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
@@ -122,9 +98,18 @@
 		<module>tests/org.openntf.xsp.test.jasapi</module>
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		
+<<<<<<< HEAD
 		
 		<module>features/org.openntf.xsp.jakarta.designer.feature</module>
 		
+=======
+		<module>features/org.openntf.xsp.jakartaee.feature</module>
+		<module>features/org.openntf.xsp.jakartaee.ui.feature</module>
+		<module>features/org.openntf.xsp.microprofile.feature</module>
+		
+		<module>tests/org.openntf.xsp.jakarta.validation.test</module>
+		<module>tests/org.openntf.xsp.jakarta.json.test</module>
+>>>>>>> develop
 		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
 		<module>releng/org.openntf.xsp.jakartaee.designer.updatesite</module>
@@ -134,16 +119,18 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>2.7.5</tycho-version>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		
+		<tycho-version>4.0.12</tycho-version>
+		<xsp-bundles-range>0.0.0</xsp-bundles-range>
 	</properties>
 
 	<repositories>
 		<repository>
-			<id>notes</id>
+			<id>xsp-deps</id>
 			<layout>p2</layout>
-			<url>${notes-platform}</url>
+			<url>${notes-platform14}</url>
 		</repository>
 		<repository>
 			<id>osgi-deps</id>
@@ -182,15 +169,6 @@
 			<url>https://artifactory.openntf.org/openntf</url>
 		</pluginRepository>
     </pluginRepositories>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.openntf.domino</groupId>
-			<artifactId>org.openntf.domino.java.api.corba.patch</artifactId>
-			<version>1.0.0</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
 
 	<build>
 		<plugins>
@@ -233,67 +211,58 @@
 							<goal>plugin-source</goal>
 						</goals>
 					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho.extras</groupId>
-				<artifactId>tycho-source-feature-plugin</artifactId>
-				<version>${tycho-version}</version>
-		
-				<executions>
 					<execution>
-						<id>source-feature</id>
-						<phase>package</phase>
+						<id>feature-source</id>
 						<goals>
-							<goal>source-feature</goal>
+							<goal>feature-source</goal>
 						</goals>
+						<configuration>
+							<includeBinaryFeature>false</includeBinaryFeature>
+							<excludes>
+								<plugin id="org.openntf.xsp.jaxrs.factory"/>
+								<plugin id="org.openntf.xsp.jaxrs.providers"/>
+								<plugin id="jakarta.servlet.jsp-api"/>
+								<plugin id="org.eclipse.jdt.core"/>
+								<plugin id="org.antlr.antlr4-runtime.jakarta"/>
+								<plugin id="org.openntf.xsp.jsonapi.cdi"/>
+								<plugin id="org.apache.commons.codec"/>
+								<plugin id="org.apache.commons.logging"/>
+								
+								<plugin id="org.eclipse.jst.jsf.doc.user"/>
+								<plugin id="org.eclipse.jst.jsp.ui.infopop"/>
+								<plugin id="org.eclipse.jst.standard.schemas"/>
+								<plugin id="javax.mail"/>
+								<plugin id="javax.activation"/>
+								<plugin id="jakarta.xml.bind"/>
+								<plugin id="javax.xml.stream"/>
+								<plugin id="com.sun.xml.bind"/>
+								<plugin id="org.apache.log4j"/>
+								<plugin id="org.apache.commons.httpclient"/>
+								<plugin id="org.apache.commons.lang3"/>
+								<plugin id="org.apache.commons.exec"/>
+								<plugin id="org.eclipse.mylyn.commons.core"/>
+								<plugin id="org.eclipse.mylyn.commons.net"/>
+								<plugin id="org.eclipse.mylyn.commons.ui"/>
+								<plugin id="org.eclipse.mylyn.commons.screenshots"/>
+								<plugin id="com.google.guava"/>
+								<plugin id="org.apache.lucene.core"/>
+								<plugin id="org.apache.lucene.queries"/>
+								<plugin id="org.apache.lucene.queryparser"/>
+								<plugin id="org.apache.lucene.sandbox"/>
+								<plugin id="org.apache.lucene.analyzers-common"/>
+								<plugin id="org.apache.httpcomponents.httpclient"/>
+								<plugin id="org.apache.httpcomponents.httpcore"/>
+								<plugin id="org.apache.velocity"/>
+								<plugin id="org.jdom"/>
+								<plugin id="org.eclipse.datatools.connectivity.db.generic"/>
+								<plugin id="org.eclipse.datatools.connectivity.db.generic.ui"/>
+								<plugin id="java_cup.runtime"/>
+								<plugin id="org.eclipse.jst.servlet.ui.infopop"/>
+								<plugin id="javax.xml.bind"/>
+							</excludes>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<includeBinaryFeature>false</includeBinaryFeature>
-					<excludes>
-						<plugin id="org.openntf.xsp.jaxrs.factory"/>
-						<plugin id="org.openntf.xsp.jaxrs.providers"/>
-						<plugin id="jakarta.servlet.jsp-api"/>
-						<plugin id="org.eclipse.jdt.core"/>
-						<plugin id="org.antlr.antlr4-runtime.jakarta"/>
-						<plugin id="org.openntf.xsp.jsonapi.cdi"/>
-						
-						<plugin id="org.apache.commons.codec"/>
-						<plugin id="org.apache.commons.logging"/>
-						<plugin id="org.eclipse.jst.jsf.doc.user"/>
-						<plugin id="org.eclipse.jst.jsp.ui.infopop"/>
-						<plugin id="org.eclipse.jst.standard.schemas"/>
-						<plugin id="javax.mail"/>
-						<plugin id="javax.activation"/>
-						<plugin id="jakarta.xml.bind"/>
-						<plugin id="javax.xml.stream"/>
-						<plugin id="com.sun.xml.bind"/>
-						<plugin id="org.apache.log4j"/>
-						<plugin id="org.apache.commons.httpclient"/>
-						<plugin id="org.apache.commons.lang3"/>
-						<plugin id="org.apache.commons.exec"/>
-						<plugin id="org.eclipse.mylyn.commons.core"/>
-						<plugin id="org.eclipse.mylyn.commons.net"/>
-						<plugin id="org.eclipse.mylyn.commons.ui"/>
-						<plugin id="org.eclipse.mylyn.commons.screenshots"/>
-						<plugin id="com.google.guava"/>
-						<plugin id="org.apache.lucene.core"/>
-						<plugin id="org.apache.lucene.queries"/>
-						<plugin id="org.apache.lucene.queryparser"/>
-						<plugin id="org.apache.lucene.sandbox"/>
-						<plugin id="org.apache.lucene.analyzers-common"/>
-						<plugin id="org.apache.httpcomponents.httpclient"/>
-						<plugin id="org.apache.httpcomponents.httpcore"/>
-						<plugin id="org.apache.velocity"/>
-						<plugin id="org.jdom"/>
-						<plugin id="org.eclipse.datatools.connectivity.db.generic"/>
-						<plugin id="org.eclipse.datatools.connectivity.db.generic.ui"/>
-						<plugin id="java_cup.runtime"/>
-						<plugin id="org.eclipse.jst.servlet.ui.infopop"/>
-						<plugin id="javax.xml.bind"/>
-					</excludes>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -312,7 +281,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
-					<pomDependencies>consider</pomDependencies>
+					<executionEnvironment>JavaSE-17</executionEnvironment>
 					<dependency-resolution>
 						<extraRequirements>
 							<requirement>
@@ -322,45 +291,28 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
-								<id>org.openntf.domino.java.api.corba.patch</id>
+								<id>com.ibm.domino.napi.impl</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.core.runtime</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.core.runtime</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
-								<id>com.ibm.domino.napi.impl</id>
-								<versionRange>0.0.0</versionRange>
+								<id>com.ibm.xsp.core</id>
+								<versionRange>${xsp-bundles-range}</versionRange>
 							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
-
-					<environments>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86_64</arch>
-						</environment>
-					</environments>
-					<resolver>p2</resolver>
 				</configuration>
 			</plugin>
 			
@@ -402,11 +354,13 @@
 						<exclude>**/odp/WebContent/WEB-INF/jakarta/faces-config.xml</exclude>
 						<exclude>**/odp/plugin.xml</exclude>
 						<exclude>**/WeldDefaultProxyServices.java</exclude>
+						<exclude>**/org/eclipse/jnosql/**</exclude>
 						<exclude>**/nsfs/nsf-jakartaee-primefaces-showcase/**</exclude>
+						<exclude>**/org/helmetsrequired/**</exclude>
 					</excludes>
 					<properties>
 						<owner>Contributors to the XPages Jakarta EE Support Project</owner>
-						<copyrightYear>2023</copyrightYear>
+						<copyrightYear>2025</copyrightYear>
 					</properties>
 				</configuration>
 			</plugin>
@@ -427,7 +381,7 @@
 									<version>3.0.1</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
-									<version>11</version>
+									<version>17</version>
 								</requireJavaVersion>
 							</rules>
 						</configuration>
@@ -475,6 +429,7 @@
 					<configuration>
 						<providerHint>junit4</providerHint>
 						<trimStackTrace>false</trimStackTrace>
+						<useJDK>BREE</useJDK>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -506,7 +461,7 @@
 				<plugin>
 					<groupId>org.openntf.maven</groupId>
 					<artifactId>nsfodp-maven-plugin</artifactId>
-					<version>3.7.1</version>
+					<version>4.0.6</version>
 				</plugin>
 				
 				
@@ -555,6 +510,8 @@
 			<id>odpcompiler</id>
 			
 			<modules>
+				<module>nsfs/nsf-jakartaconfig</module>
+				
 				<module>nsfs/nsf-jakartaee-example</module>
 				<module>nsfs/nsf-jakartaee-bundle-example</module>
 				<module>nsfs/nsf-jakartaee-bundlebase-example</module>
@@ -608,6 +565,21 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		
+		<profile>
+			<id>xsp-build-stubs</id>
+			<activation>
+				<property>
+					<name>!notes-platform14</name>
+				</property>
+			</activation>
+			
+			<properties>				
+				<xsp-bundles-range>[1.0.0,2.0.0)</xsp-bundles-range>
+				<notes-platform14>${project.baseUri}../../../xsp-deps/target/repository</notes-platform14>
+				<skipTests>true</skipTests>
+			</properties>
 		</profile>
 	</profiles>
 </project>

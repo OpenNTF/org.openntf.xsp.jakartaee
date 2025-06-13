@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.openntf.xsp.jsonapi.JSONBindUtil;
+import org.openntf.xsp.jakarta.json.JSONBindUtil;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;

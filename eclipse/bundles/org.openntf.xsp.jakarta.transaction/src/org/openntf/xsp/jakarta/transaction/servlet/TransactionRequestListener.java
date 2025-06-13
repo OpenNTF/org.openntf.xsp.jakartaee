@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,12 @@ import jakarta.servlet.ServletRequestListener;
 public class TransactionRequestListener implements ServletRequestListener, AbstractTransactionJndiConfigurator {
 
 	@Override
-	public void requestInitialized(ServletRequestEvent sre) {
+	public void requestInitialized(final ServletRequestEvent sre) {
 		pushTransaction();
 	}
-	
+
 	@Override
-	public void requestDestroyed(ServletRequestEvent sre) {
+	public void requestDestroyed(final ServletRequestEvent sre) {
 		popTransaction();
 	}
 

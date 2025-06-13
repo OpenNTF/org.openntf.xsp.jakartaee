@@ -3,12 +3,13 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta Servlet Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.servlet;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.servlet
-Bundle-Version: 2.16.0.qualifier
+Bundle-Version: 3.5.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="2.5.0"
 Import-Package: com.ibm.commons.util,
  com.ibm.designer.runtime.domino.adapter,
+ com.ibm.xsp.acl,
  com.ibm.xsp.application,
  com.ibm.xsp.library,
  jakarta.enterprise.inject;version="3.0.0",
@@ -21,6 +22,8 @@ Import-Package: com.ibm.commons.util,
  javax.servlet;version="2.5.0",
  javax.servlet.http;version="2.5.0",
  org.apache.tomcat.util.descriptor.web;version="9.0.84",
- org.openntf.xsp.cdi;version="2.5.0",
+ org.openntf.xsp.jakarta.cdi;version="2.5.0",
+ org.openntf.xsp.jakarta.cdi.bean;version="[2.16.0,3.5.0]",
+ org.openntf.xsp.jakarta.cdi.util;version="[3.0.0,4.0.0)",
  org.osgi.framework;version="1.8.0"
-Export-Package: org.openntf.xsp.jakarta.servlet.webapp;version="2.16.0"
+Export-Package: org.openntf.xsp.jakarta.servlet.webapp;version="3.5.0"

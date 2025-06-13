@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.openntf.xsp.jakartaee.servlet;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Enumeration;
 
 import jakarta.servlet.Servlet;
@@ -26,10 +27,10 @@ import jakarta.servlet.http.HttpServlet;
 
 class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	final HttpServlet delegate;
-	
-	public NewHttpServletWrapper(Servlet delegate) {
+
+	public NewHttpServletWrapper(final Servlet delegate) {
 		if(!(delegate instanceof HttpServlet)) {
 			throw new IllegalArgumentException("Unsupported delegate: " + delegate);
 		}
@@ -52,7 +53,7 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	}
 
 	@Override
-	public void init(javax.servlet.ServletConfig arg0) throws javax.servlet.ServletException {
+	public void init(final javax.servlet.ServletConfig arg0) throws javax.servlet.ServletException {
 		try {
 			delegate.init(ServletUtil.oldToNew(arg0));
 		} catch (ServletException e) {
@@ -61,7 +62,7 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	}
 
 	@Override
-	public String getInitParameter(String name) {
+	public String getInitParameter(final String name) {
 		return delegate.getInitParameter(name);
 	}
 
@@ -77,7 +78,7 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	}
 
 	@Override
-	public void log(String msg) {
+	public void log(final String msg) {
 		delegate.log(msg);
 	}
 
@@ -96,12 +97,12 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 	}
 
 	@Override
-	public void log(String message, Throwable t) {
+	public void log(final String message, final Throwable t) {
 		delegate.log(message, t);
 	}
 
 	@Override
-	public void service(javax.servlet.ServletRequest arg0, javax.servlet.ServletResponse arg1) throws javax.servlet.ServletException, IOException {
+	public void service(final javax.servlet.ServletRequest arg0, final javax.servlet.ServletResponse arg1) throws javax.servlet.ServletException, IOException {
 		javax.servlet.http.HttpServletRequest req = (javax.servlet.http.HttpServletRequest)arg0;
 		javax.servlet.http.HttpServletResponse resp = (javax.servlet.http.HttpServletResponse)arg1;
 
@@ -113,5 +114,10 @@ class NewHttpServletWrapper extends javax.servlet.http.HttpServlet {
 		} catch (ServletException e) {
 			throw new javax.servlet.ServletException(e);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return MessageFormat.format("[{0}: delegate={1}]", getClass().getSimpleName(), delegate); //$NON-NLS-1$
 	}
 }

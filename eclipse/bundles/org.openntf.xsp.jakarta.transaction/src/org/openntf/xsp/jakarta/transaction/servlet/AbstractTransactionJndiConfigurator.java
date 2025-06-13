@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,16 @@ import javax.naming.NamingException;
 import org.openntf.xsp.jakarta.transaction.DominoUserTransaction;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
 public interface AbstractTransactionJndiConfigurator {
-	
+
 	public static final String JNDI_USERTRANSACTION = "java:comp/UserTransaction"; //$NON-NLS-1$
 
 	public static final String ATTR_EXECUTORSERVICE = AbstractTransactionJndiConfigurator.class.getName() + "_exec"; //$NON-NLS-1$
-	
+
 
 	default void pushTransaction() {
 		try {
@@ -41,11 +41,11 @@ public interface AbstractTransactionJndiConfigurator {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	default void popTransaction() {
 		try {
 			InitialContext jndi = new InitialContext();
-			
+
 			jndi.unbind(JNDI_USERTRANSACTION);
 		} catch(NameNotFoundException e) {
 			// Ignore - that's fine

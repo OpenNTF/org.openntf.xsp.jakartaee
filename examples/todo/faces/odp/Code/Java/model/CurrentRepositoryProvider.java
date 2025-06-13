@@ -1,14 +1,14 @@
 package model;
 
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
-import org.openntf.xsp.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
+import org.eclipse.jnosql.mapping.Database;
+import org.eclipse.jnosql.mapping.DatabaseType;
+import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
+import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
 
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.nosql.mapping.Database;
-import jakarta.nosql.mapping.DatabaseType;
 
 /**
  * Workaround for present lack of sessionAsSigner in JSF for
@@ -19,7 +19,7 @@ import jakarta.nosql.mapping.DatabaseType;
 public class CurrentRepositoryProvider {
 	@Produces
 	@Database(value = DatabaseType.DOCUMENT, provider = "current")
-	public DominoDocumentCollectionManager getCurrentManager() {
+	public DominoDocumentManager getCurrentManager() {
 		return new DefaultDominoDocumentCollectionManager(
 			() -> NotesContext.getCurrent().getCurrentDatabase(),
 			() -> NotesContext.getCurrent().getCurrentSession()

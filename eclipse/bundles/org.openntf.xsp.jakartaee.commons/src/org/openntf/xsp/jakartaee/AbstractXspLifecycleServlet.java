@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,32 +17,31 @@ package org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.faces.context.FacesContext;
-
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
-import org.openntf.xsp.jakartaee.util.ModuleUtil;
+import javax.servlet.Servlet;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-import com.ibm.domino.xsp.module.nsf.RuntimeFileSystem;
 import com.ibm.xsp.acl.NoAccessSignal;
 import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.context.FacesContextEx;
 import com.ibm.xsp.controller.FacesController;
 import com.ibm.xsp.webapp.DesignerFacesServlet;
 import com.ibm.xsp.webapp.FacesServlet;
+
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContainerInitializer;
@@ -55,16 +54,16 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * An {@link HttpServlet} subclass that provides a Faces context to a
  * servlet request.
- * 
+ *
  * @author Martin Pradny
  * @author Jesse Gallagher
  * @since 2.3.0
  */
 public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final Logger log = Logger.getLogger(AbstractXspLifecycleServlet.class.getName());
-	
+
 	private static Method getFacesContextMethod;
 	private static Method getContextFacesControllerMethod;
 	static {
@@ -74,7 +73,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 				getFacesContextMethod.setAccessible(true);
 				getContextFacesControllerMethod = DesignerFacesServlet.class.getDeclaredMethod("getContextFacesController"); //$NON-NLS-1$
 				getContextFacesControllerMethod.setAccessible(true);
-				
+
 				return null;
 			} catch (NoSuchMethodException | SecurityException e) {
 				throw new RuntimeException(e);
@@ -85,51 +84,69 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	private ServletConfig config;
 	private boolean initialized = false;
 	private final ComponentModule module;
-	private DesignerFacesServlet facesServlet;
+	private javax.servlet.Servlet facesServlet;
+	private boolean doFaces;
+	private boolean doEvents;
 
-	public AbstractXspLifecycleServlet(ComponentModule module) {
+	public AbstractXspLifecycleServlet(final ComponentModule module) {
 		this.module = module;
+		this.doFaces = ModuleUtil.hasXPages(module);
+		this.doEvents = ModuleUtil.emulateServletEvents(module);
 	}
-	
+
 	@Override
-	public void init(ServletConfig config) throws ServletException {
+	public void init(final ServletConfig config) throws ServletException {
 		super.init(config);
 		this.config = config;
-		
-		// Look for a web.xml file and populate init params
-		ServletUtil.populateWebXmlParams(module, config.getServletContext());
-		
-		// Look for registered ServletContainerInitializers and emulate the behavior
-		List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class);
-		for(ServletContainerInitializer initializer : initializers) {
-			Set<Class<?>> classes = null;
-			if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
-				classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), module);
+
+		if(this.doEvents) {
+			// Look for a web.xml file and populate init params
+			ServletUtil.populateWebXmlParams(module, config.getServletContext());
+			
+			// Look for registered ServletContainerInitializers and emulate the behavior
+			List<ServletContainerInitializer> initializers = LibraryUtil.findExtensions(ServletContainerInitializer.class);
+			for(ServletContainerInitializer initializer : initializers) {
+				Set<Class<?>> classes = null;
+				if(initializer.getClass().isAnnotationPresent(HandlesTypes.class)) {
+					classes = ModuleUtil.buildMatchingClasses(initializer.getClass().getAnnotation(HandlesTypes.class), module);
+				}
+				initializer.onStartup(classes, config.getServletContext());
 			}
-			initializer.onStartup(classes, config.getServletContext());
+		} else {
+			this.doInit(config, null);
 		}
 
 		// Kick off init early if needed
-		this.getFacesServlet(config);
+		if(this.doFaces) {
+			this.getFacesServlet(config);
+		}
 	}
-	
+
 	@Override
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setBufferSize(0);
-		
-		initializeSessionAsSigner();
+	protected void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		FacesContext facesContext = null;
 		try {
-			if (!initialized){ // initialization has do be done after NotesContext is initialized with session to support SessionAsSigner operations
-				doInit(config);
-				
-				initialized = true;
-			}
+			response.setBufferSize(0);
+
+			ModuleUtil.initializeSessionAsSigner(module);
 			
-			facesContext = getFacesContext(request, response);
-	    	FacesContextEx exc = (FacesContextEx)facesContext;
-	    	ApplicationEx application = exc.getApplicationEx();
-	    	
+			if(this.doEvents) {
+				if (!initialized) {
+					// For legacy modules, initialization has do be done after NotesContext is
+					//   initialized with session to support sessionAsSigner operations
+					doInit(config, request);
+	
+					initialized = true;
+				}
+			}
+
+			ApplicationEx application = null;
+			if(this.doFaces) {
+				facesContext = getFacesContext(request, response);
+		    	FacesContextEx exc = (FacesContextEx)facesContext;
+		    	application = exc.getApplicationEx();
+			}
+
 	    	this.doService(request, response, application);
 		} catch(NoAccessSignal t) {
 			throw t;
@@ -137,7 +154,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 			if(log.isLoggable(Level.SEVERE)) {
 				log.log(Level.SEVERE, "Encountered unhandled exception in Servlet", t);
 			}
-			
+
 			try(PrintWriter w = response.getWriter()) {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				XSPErrorPage.handleException(w, t, null, false);
@@ -153,92 +170,59 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 			}
 		}
 	}
-	
+
 	@Override
     public ServletConfig getServletConfig() {
     	return config;
     }
-	
+
 	/**
 	 * This method is called during the first request into the Servlet, to allow subclasses to
 	 * perform delegate initialization or other tasks.
-	 * 
+	 *
 	 * <p>This delayed initialization allows delegate init to run at a point when the
 	 * {@code NotesContext} is set up, which is not the case when calling
 	 * {@link #init(ServletConfig}}.</p>
-	 * 
+	 *
 	 * @param config the active {@link ServletConfig}
+	 * @param request the active {@link HttpServletRequest}
 	 * @throws ServletException if initialization encounters a problem
 	 */
-	protected abstract void doInit(ServletConfig config) throws ServletException;
-	
+	protected abstract void doInit(ServletConfig config, HttpServletRequest request) throws ServletException;
+
 	protected abstract void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application) throws ServletException, IOException;
+
+	public ComponentModule getModule() {
+		return module;
+	}
 
 	// *******************************************************************************
 	// * Internal implementation methods
 	// *******************************************************************************
-	
-	private synchronized FacesServlet getFacesServlet(ServletConfig config) {
+
+	private synchronized Servlet getFacesServlet(final ServletConfig config) {
 		if(this.facesServlet == null) {
-			try {
-				this.facesServlet = (DesignerFacesServlet)module.getServlet("/foo.xsp").getServlet(); //$NON-NLS-1$
-				// This should be functionally a NOP when already initialized
-				this.facesServlet.init(ServletUtil.newToOld(config));
-			} catch (javax.servlet.ServletException e) {
-				throw new RuntimeException(e);
-			}
+			this.facesServlet = ModuleUtil.initXPagesServlet(this.module, getServletConfig())
+				.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to initialize XPages FacesServlet for {0}", this.module)));
 		}
 		return this.facesServlet;
 	}
-	
-	private FacesContext getFacesContext(HttpServletRequest request, HttpServletResponse response) {
+
+	private FacesContext getFacesContext(final HttpServletRequest request, final HttpServletResponse response) {
 		try {
 			return (FacesContext)getFacesContextMethod.invoke(getFacesServlet(getServletConfig()), ServletUtil.newToOld(request, true), ServletUtil.newToOld(response));
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	private void releaseContext(FacesContext context) throws ServletException, IOException {
+
+	private void releaseContext(final FacesContext context) throws ServletException, IOException {
 		context.responseComplete();
 		try {
 			FacesController controller = (FacesController)getContextFacesControllerMethod.invoke(facesServlet);
 			controller.release(context);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new RuntimeException(e);
+			// Not important - ignore
 		}
     }
-	
-	private void initializeSessionAsSigner() {
-		NotesContext nc = NotesContext.getCurrentUnchecked();
-		
-		// This originally worked as below, but is now done reflectively to avoid trouble seen on 12.0.1
-    	//String javaClassValue = "plugin.Activator"; //$NON-NLS-1$
-		//String str = "WEB-INF/classes/" + javaClassValue.replace('.', '/') + ".class"; //$NON-NLS-1$ //$NON-NLS-2$
-		//nc.setSignerSessionRights(str);
-
-		// Use xsp.properties because it should exist in DBs built with NSF ODP Tooling
-		String str = "WEB-INF/xsp.properties"; //$NON-NLS-1$
-		RuntimeFileSystem.NSFFile res = (RuntimeFileSystem.NSFFile)nc.getModule().getRuntimeFileSystem().getResource(str);
-		String signer = res.getUpdatedBy();
-		
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
-			try {
-				Field checkedSignersField = NotesContext.class.getDeclaredField("checkedSigners"); //$NON-NLS-1$
-				checkedSignersField.setAccessible(true);
-				@SuppressWarnings("unchecked")
-				Set<String> checkedSigners = (Set<String>)checkedSignersField.get(nc);
-				checkedSigners.clear();
-				checkedSigners.add(signer);
-				
-				Field topLevelSignerField = NotesContext.class.getDeclaredField("toplevelXPageSigner"); //$NON-NLS-1$
-				topLevelSignerField.setAccessible(true);
-				topLevelSignerField.set(nc, signer);
-				
-				return null;
-			} catch(Exception e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
 }

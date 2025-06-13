@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ import jakarta.servlet.ServletContext;
 
 class OldServletConfigWrapper implements ServletConfig {
 	final javax.servlet.ServletConfig delegate;
-	
-	public OldServletConfigWrapper(javax.servlet.ServletConfig delegate) {
+
+	public OldServletConfigWrapper(final javax.servlet.ServletConfig delegate) {
 		this.delegate = delegate;
 	}
-	
+
 	@Override
 	public String getServletName() {
 		return delegate.getServletName();
@@ -39,10 +39,10 @@ class OldServletConfigWrapper implements ServletConfig {
 	}
 
 	@Override
-	public String getInitParameter(String name) {
+	public String getInitParameter(final String name) {
 		ServletContext context = getServletContext();
-		if(context instanceof OldServletContextWrapper) {
-			Map<String, String> params = ((OldServletContextWrapper)context).getExtraInitParameters();
+		if(context instanceof OldServletContextWrapper wrap) {
+			Map<String, String> params = wrap.getExtraInitParameters();
 			if(params.containsKey(name)) {
 				return params.get(name);
 			}

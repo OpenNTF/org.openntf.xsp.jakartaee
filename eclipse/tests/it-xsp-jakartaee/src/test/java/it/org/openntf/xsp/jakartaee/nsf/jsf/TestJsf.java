@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,18 @@ package it.org.openntf.xsp.jakartaee.nsf.jsf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -34,8 +38,9 @@ import org.openqa.selenium.WebElement;
 import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -44,12 +49,25 @@ import jakarta.ws.rs.core.Response;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestJsf extends AbstractWebClientTest {
 	
+	public static class EnumBrowserAndHelloProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			
+			return new MainAndModuleProvider.EnumAndBrowser().provideArguments(context)
+				.map(args -> args.get())
+				.flatMap(enumAndBrowser ->
+					Stream.of("/hello.xhtml", ((TestDatabase)enumAndBrowser[0]).getXspPrefix() + "/helloForExtensionless")
+						.map(page -> Arguments.of(enumAndBrowser[0], enumAndBrowser[1], page))
+				);
+		}
+	}
+	
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@ArgumentsSource(EnumBrowserAndHelloProvider.class)
 	@Order(1)
-	public void testHelloPage(WebDriver driver) {
-		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/hello.xhtml");
-
+	public void testHelloPage(TestDatabase db, WebDriver driver, String page) {
+		driver.get(getRootUrl(driver, db) + page);
+		
 		try {
 			String expected = "inputValue" + System.currentTimeMillis();
 			{
@@ -137,7 +155,7 @@ public class TestJsf extends AbstractWebClientTest {
 				assertTrue(dd.getText().isEmpty());
 			}
 		} catch(Exception e) {
-			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 	
@@ -145,11 +163,12 @@ public class TestJsf extends AbstractWebClientTest {
 	 * Tests to ensure that a JSF file that doesn't exist leads to a
 	 * non-empty 404 page.
 	 */
-	@Test
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	@Order(2)
-	public void testNotFound() {
+	public void testNotFound(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/somefakepage.xhtml");
+		WebTarget target = client.target(getRootUrl(null, db) + "/somefakepage.xhtml");
 		Response response = target.request().get();
 		
 		checkResponse(404, response);
@@ -161,11 +180,12 @@ public class TestJsf extends AbstractWebClientTest {
 	/**
 	 * Tests to ensure that the jsf.js resource can be properly loaded.
 	 */
-	@Test
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	@Order(3)
-	public void testJsfJs() {
+	public void testJsfJs(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/jakarta.faces.resource/jsf.js.xhtml?ln=jakarta.faces");
+		WebTarget target = client.target(getRootUrl(null, db) + "/jakarta.faces.resource/faces.js.xhtml?ln=jakarta.faces");
 		Response response = target.request().get();
 		assertEquals(200, response.getStatus());
 
@@ -196,7 +216,22 @@ public class TestJsf extends AbstractWebClientTest {
 			value = waitFor(() -> input.getAttribute("value"), "2"::equals);
 			assertEquals("2", value, () -> "Didn't received expected value with HTML: " + driver.getPageSource());
 		} catch(Exception e) {
-			throw new RuntimeException("Encountered exception with page source:\n" + driver.getPageSource(), e);
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
+		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
+	@Order(5)
+	public void testProgrammaticFacelet(TestDatabase db, WebDriver driver) {
+		String expected = "foo" + System.currentTimeMillis();
+		driver.get(getRootUrl(driver, db) + "/programmaticFacelet.xhtml?foo=" + expected);
+
+		try {
+			WebElement output = driver.findElement(By.cssSelector(".param-output"));
+			assertEquals(expected, output.getText());
+		} catch(Exception e) {
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
 }

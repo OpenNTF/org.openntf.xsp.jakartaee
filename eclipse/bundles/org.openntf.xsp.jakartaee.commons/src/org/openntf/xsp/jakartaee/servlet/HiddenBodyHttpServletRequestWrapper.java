@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,56 +31,56 @@ import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * This variant of {@link NewHttpServletRequestWrapper}
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.10.0
  */
 class HiddenBodyHttpServletRequestWrapper extends NewHttpServletRequestWrapper {
 
-	public HiddenBodyHttpServletRequestWrapper(HttpServletRequest delegate) {
+	public HiddenBodyHttpServletRequestWrapper(final HttpServletRequest delegate) {
 		super(delegate);
 	}
 
-	public HiddenBodyHttpServletRequestWrapper(ServletRequest delegate) {
+	public HiddenBodyHttpServletRequestWrapper(final ServletRequest delegate) {
 		super(delegate);
 	}
-	
+
 	@Override
 	public ServletInputStream getInputStream() throws IOException {
 		return new NOPServletInputStream();
 	}
-	
+
 	@Override
 	public BufferedReader getReader() throws IOException {
 		return new BufferedReader(new StringReader("")); //$NON-NLS-1$
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Map getParameterMap() {
 		return Collections.emptyMap();
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	public Enumeration getParameterNames() {
 		return Collections.emptyEnumeration();
 	}
-	
+
 	@Override
-	public String getParameter(String arg0) {
+	public String getParameter(final String arg0) {
 		return null;
 	}
-	
+
 	@Override
-	public String[] getParameterValues(String arg0) {
+	public String[] getParameterValues(final String arg0) {
 		return StringUtil.EMPTY_STRING_ARRAY;
 	}
 
 	private static class NOPServletInputStream extends ServletInputStream {
 
 		@Override
-		public int readLine(byte[] b, int off, int len) throws IOException {
+		public int readLine(final byte[] b, final int off, final int len) throws IOException {
 			return -1;
 		}
 
@@ -90,17 +90,17 @@ class HiddenBodyHttpServletRequestWrapper extends NewHttpServletRequestWrapper {
 		}
 
 		@Override
-		public int read(byte[] b) throws IOException {
+		public int read(final byte[] b) throws IOException {
 			return -1;
 		}
 
 		@Override
-		public int read(byte[] b, int off, int len) throws IOException {
+		public int read(final byte[] b, final int off, final int len) throws IOException {
 			return -1;
 		}
 
 		@Override
-		public long skip(long n) throws IOException {
+		public long skip(final long n) throws IOException {
 			return 0;
 		}
 
@@ -115,7 +115,7 @@ class HiddenBodyHttpServletRequestWrapper extends NewHttpServletRequestWrapper {
 		}
 
 		@Override
-		public synchronized void mark(int readlimit) {
+		public synchronized void mark(final int readlimit) {
 			super.mark(readlimit);
 		}
 
@@ -128,6 +128,6 @@ class HiddenBodyHttpServletRequestWrapper extends NewHttpServletRequestWrapper {
 		public boolean markSupported() {
 			return false;
 		}
-		
+
 	}
 }

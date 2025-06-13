@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,14 @@ package it.org.openntf.xsp.jakartaee.nsf.jsp;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
@@ -37,10 +39,11 @@ public class TestJsp extends AbstractWebClientTest {
 	 * Tests to ensure that a JSP file that doesn't exist leads to a
 	 * non-empty 404 page.
 	 */
-	@Test
-	public void testNotFound() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testNotFound(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRootUrl(null, TestDatabase.MAIN) + "/somefakepage.jsp");
+		WebTarget target = client.target(getRootUrl(null, db) + "/somefakepage.jsp");
 		Response response = target.request().get();
 		
 		checkResponse(404, response);

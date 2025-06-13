@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages CDI ExtLib Bean Contributor
+Bundle-SymbolicName: org.openntf.xsp.jakarta.cdi.extlib;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.jakarta.cdi.extlib
+Bundle-Version: 2.16.0.qualifier
+Import-Package: com.ibm.xsp.extlib.beans,
+ com.ibm.xsp.extlib.util,
+ jakarta.enterprise.context;version="3.0.0",
+ jakarta.enterprise.inject;version="3.0.0",
+ jakarta.inject;version="2.0.1",
+ javax.faces.context,
+ org.openntf.xsp.jakarta.cdi.discovery;version="2.13.0",
+ org.openntf.xsp.jakartaee.util;version="2.13.0"
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

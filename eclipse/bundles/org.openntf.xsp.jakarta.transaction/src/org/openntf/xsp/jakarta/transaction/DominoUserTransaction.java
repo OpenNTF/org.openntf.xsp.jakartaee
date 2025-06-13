@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import jakarta.transaction.Transaction;
 import jakarta.transaction.UserTransaction;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -44,7 +44,7 @@ import jakarta.transaction.UserTransaction;
 public class DominoUserTransaction implements UserTransaction, Serializable {
 	private static final long serialVersionUID = 1L;
 	private final Logger log = Logger.getLogger(DominoUserTransaction.class.getName());
-	
+
 	/**
 	 * This shared instance may be used in any context when CDI is not yet available.
 	 * All methods on this class are proxies for dynamically-looked-up CDI operations and
@@ -55,8 +55,8 @@ public class DominoUserTransaction implements UserTransaction, Serializable {
 	@Override
 	public void begin() throws NotSupportedException, SystemException {
 		Transaction transaction = CDI.current().select(Transaction.class).get();
-		if(transaction instanceof DominoTransaction) {
-			((DominoTransaction)transaction).begin();
+		if(transaction instanceof DominoTransaction dt) {
+			dt.begin();
 		}
 	}
 
@@ -86,10 +86,10 @@ public class DominoUserTransaction implements UserTransaction, Serializable {
 	}
 
 	@Override
-	public void setTransactionTimeout(int seconds) throws SystemException {
+	public void setTransactionTimeout(final int seconds) throws SystemException {
 		Transaction transaction = CDI.current().select(Transaction.class).get();
-		if(transaction instanceof DominoTransaction) {
-			Collection<XAResource> resources = ((DominoTransaction)transaction).getResources();
+		if(transaction instanceof DominoTransaction dt) {
+			Collection<XAResource> resources = dt.getResources();
 			for(XAResource res : new ArrayList<>(resources)) {
 				try {
 					res.setTransactionTimeout(seconds);

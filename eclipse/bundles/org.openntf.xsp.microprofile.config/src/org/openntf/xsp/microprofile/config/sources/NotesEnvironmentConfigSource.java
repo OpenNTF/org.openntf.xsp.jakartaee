@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@ package org.openntf.xsp.microprofile.config.sources;
 import java.util.Collections;
 import java.util.Set;
 
-import org.eclipse.microprofile.config.spi.ConfigSource;
-
 import com.ibm.domino.napi.NException;
 import com.ibm.domino.napi.c.Os;
+
+import org.eclipse.microprofile.config.spi.ConfigSource;
 
 /**
  * {@link ConfigSource} implementation that reads properties from the
  * active Notes environment's notes.ini values.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.2.0
  */
@@ -43,7 +43,7 @@ public class NotesEnvironmentConfigSource implements ConfigSource {
 	}
 
 	@Override
-	public String getValue(String propertyName) {
+	public String getValue(final String propertyName) {
 		try {
 			return Os.OSGetEnvironmentString(propertyName);
 		} catch (NException e) {

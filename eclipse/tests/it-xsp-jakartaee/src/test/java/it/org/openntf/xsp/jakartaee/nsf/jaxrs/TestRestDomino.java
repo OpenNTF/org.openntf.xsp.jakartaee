@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package it.org.openntf.xsp.jakartaee.nsf.jaxrs;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.StringReader;
@@ -43,19 +44,23 @@ public class TestRestDomino extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
-		JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-		
-		String database = jsonObject.getString("database");
-		assertTrue(database.contains("XPagesDatabase"), () -> "Received unexpected JSON: " + json);
-		
-		String dominoSession = jsonObject.getString("dominoSession");
-		assertTrue(dominoSession.startsWith("lotus.domino.local.Session"), () -> "Received unexpected JSON: " + json);
-
-		String sessionAsSigner = jsonObject.getString("dominoSessionAsSigner");
-		assertTrue(sessionAsSigner.startsWith("lotus.domino.local.Session"), () -> "Received unexpected JSON: " + json);
-
-		String sessionAsSignerWithFullAccess = jsonObject.getString("dominoSessionAsSignerWithFullAccess");
-		assertNotNull(sessionAsSignerWithFullAccess);
-		assertTrue(sessionAsSignerWithFullAccess.startsWith("lotus.domino.local.Session"), () -> "Received unexpected JSON: " + json);
+		try {
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			
+			String database = jsonObject.getString("database");
+			assertTrue(database.contains("XPagesDatabase"), () -> "Received unexpected JSON: " + json);
+			
+			String dominoSession = jsonObject.getString("dominoSession");
+			assertTrue(dominoSession.startsWith("lotus.domino.local.Session"), () -> "Received unexpected JSON: " + json);
+	
+			String sessionAsSigner = jsonObject.getString("dominoSessionAsSigner");
+			assertTrue(sessionAsSigner.startsWith("lotus.domino.local.Session"), () -> "Received unexpected JSON: " + json);
+	
+			String sessionAsSignerWithFullAccess = jsonObject.getString("dominoSessionAsSignerWithFullAccess");
+			assertNotNull(sessionAsSignerWithFullAccess);
+			assertTrue(sessionAsSignerWithFullAccess.startsWith("lotus.domino.local.Session"), () -> "Received unexpected JSON: " + json);
+		} catch(Throwable t) {
+			fail("Encountered exception with JSON: " + json, t);
+		}
 	}
 }

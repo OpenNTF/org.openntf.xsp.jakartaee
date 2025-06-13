@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import com.ibm.commons.util.StringUtil;
+
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -38,7 +40,6 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.eclipse.jetty.util.StringUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -48,8 +49,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.BrowserArgumentsProvider;
 
 @SuppressWarnings("nls")
 public class TestRestExceptions extends AbstractWebClientTest {
@@ -113,7 +114,7 @@ public class TestRestExceptions extends AbstractWebClientTest {
 			driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/fakeendpoint");
 			
 			WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
-			assertTrue(span.getText().startsWith("RESTEASY003210: Could not find resource for full path"));
+			assertTrue(span.getText().startsWith("RESTEASY003210: Could not find resource for full path"), () -> "Unexpected content: " + span.getText());
 		}
 		{
 			Client client = getAnonymousClient();

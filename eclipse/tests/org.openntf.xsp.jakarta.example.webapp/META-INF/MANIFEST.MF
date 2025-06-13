@@ -5,9 +5,9 @@ Bundle-SymbolicName: org.openntf.xsp.jakarta.example.webapp;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.example.webapp
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakarta.example.webapp.WebappActivator
-Bundle-Version: 2.16.0.qualifier
+Bundle-Version: 3.5.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.openntf.xsp.jsp;bundle-version="2.8.0",
+Require-Bundle: org.openntf.xsp.jakarta.pages;bundle-version="3.0.0",
  org.openntf.xsp.jakarta.servlet;bundle-version="2.8.0"
 Import-Package: com.ibm.designer.runtime.domino.adapter,
  jakarta.enterprise.context;version="3.0.0",
@@ -15,6 +15,6 @@ Import-Package: com.ibm.designer.runtime.domino.adapter,
  jakarta.enterprise.inject.spi;version="3.0.0",
  jakarta.inject;version="2.0.0",
  jakarta.json.bind;version="2.0.0",
- org.openntf.xsp.cdi.provider;version="2.13.0",
+ org.openntf.xsp.jakarta.cdi.provider;version="3.0.0",
  org.osgi.framework;version="1.8.0"
 DynamicImport-Package: *

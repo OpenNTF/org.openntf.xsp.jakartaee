@@ -8,7 +8,7 @@ import com.ibm.commons.util.StringUtil;
 import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
-import jakarta.nosql.mapping.Sorts;
+import jakarta.data.Sort;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
@@ -35,9 +35,9 @@ public class ToDosController {
 	@Produces(MediaType.TEXT_HTML)
 	public String get(@QueryParam("status") ToDo.State status) {
 		if(status == null) {
-			models.put("todos", repository.findAll(Sorts.sorts().asc("created")).collect(Collectors.toList()));
+			models.put("todos", repository.findAll(Sort.asc("created")).collect(Collectors.toList()));
 		} else {
-			models.put("todos", repository.findByStatus(status, Sorts.sorts().asc("created")).collect(Collectors.toList()));
+			models.put("todos", repository.findByStatus(status, Sort.asc("created")).collect(Collectors.toList()));
 		}
 		return "todos.jsp";
 	}

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import jakarta.transaction.UserTransaction;
 /**
  * CDI bean that produces a {@link UserTransaction} object for the current
  * thread, which is here considered largely synonymous with the request scope.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -46,34 +46,37 @@ import jakarta.transaction.UserTransaction;
 public class DominoTransactionProducer {
 	private final Logger log = Logger.getLogger(DominoTransactionProducer.class.getName());
 
+	// For use when opening the CDI environment is a problem
+	public static final ThreadLocal<DominoTransactionProducer> INSTANCE = new ThreadLocal<>();
 	private AtomicReference<DominoTransaction> transaction;
-	
+
 	@PostConstruct
 	public void postConstruct() {
 		this.transaction = new AtomicReference<>();
+		INSTANCE.set(this);
 	}
-	
+
 	@Produces
 	public Transaction produceTransaction() {
 		return getTransaction();
 	}
-	
+
 	public DominoTransaction peekTransaction() {
 		return this.transaction.get();
 	}
-	
-	public void setTransaction(DominoTransaction transaction) {
+
+	public void setTransaction(final DominoTransaction transaction) {
 		this.transaction.set(transaction);
 	}
-	
+
 	public void clearTransaction() {
 		setTransaction(null);
 	}
-	
+
 	private DominoTransaction getTransaction() {
 		return this.transaction.updateAndGet(existing -> existing == null ? createTransaction() : existing);
 	}
-	
+
 	private DominoTransaction createTransaction() {
 		Xid id = new DominoXid();
 		DominoTransaction result = new DominoTransaction(id);
@@ -83,9 +86,9 @@ public class DominoTransactionProducer {
 				public void beforeCompletion() {
 					// NOP
 				}
-				
+
 				@Override
-				public void afterCompletion(int status) {
+				public void afterCompletion(final int status) {
 					DominoTransactionProducer.this.transaction.set(null);
 				}
 			});
@@ -94,7 +97,7 @@ public class DominoTransactionProducer {
 		}
 		return result;
 	}
-	
+
 	@PreDestroy
 	public void preDestroy() {
 		DominoTransaction transaction = this.transaction.get();

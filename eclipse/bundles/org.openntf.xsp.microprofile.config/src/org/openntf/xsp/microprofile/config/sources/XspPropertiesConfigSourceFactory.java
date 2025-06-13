@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ package org.openntf.xsp.microprofile.config.sources;
 
 import java.util.Collections;
 
-import org.eclipse.microprofile.config.spi.ConfigSource;
-
 import com.ibm.xsp.application.ApplicationEx;
+
+import org.eclipse.microprofile.config.spi.ConfigSource;
 
 import io.smallrye.config.ConfigSourceContext;
 import io.smallrye.config.ConfigSourceFactory;
@@ -27,14 +27,14 @@ import io.smallrye.config.ConfigSourceFactory;
 /**
  * Factory for {@link XspPropertiesConfigSource} instances that use
  * the currently-active {@link ApplicationEx} instance.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.2.0
  */
 public class XspPropertiesConfigSourceFactory implements ConfigSourceFactory {
 
 	@Override
-	public Iterable<ConfigSource> getConfigSources(ConfigSourceContext context) {
+	public Iterable<ConfigSource> getConfigSources(final ConfigSourceContext context) {
 		return Collections.singleton(new XspPropertiesConfigSource());
 	}
 

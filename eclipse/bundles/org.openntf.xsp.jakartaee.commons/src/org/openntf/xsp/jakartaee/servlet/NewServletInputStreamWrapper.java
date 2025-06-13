@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import jakarta.servlet.ServletInputStream;
 
 class NewServletInputStreamWrapper extends javax.servlet.ServletInputStream {
 	final ServletInputStream delegate;
-	
-	public NewServletInputStreamWrapper(ServletInputStream delegate) {
+
+	public NewServletInputStreamWrapper(final ServletInputStream delegate) {
 		this.delegate = delegate;
 	}
 
@@ -32,7 +32,7 @@ class NewServletInputStreamWrapper extends javax.servlet.ServletInputStream {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		return delegate.equals(obj);
 	}
 
@@ -52,17 +52,17 @@ class NewServletInputStreamWrapper extends javax.servlet.ServletInputStream {
 	}
 
 	@Override
-	public int read(byte[] b) throws IOException {
+	public int read(final byte[] b) throws IOException {
 		return delegate.read(b);
 	}
 
 	@Override
-	public int read(byte[] b, int off, int len) throws IOException {
+	public int read(final byte[] b, final int off, final int len) throws IOException {
 		return delegate.read(b, off, len);
 	}
 
 	@Override
-	public void mark(int readlimit) {
+	public void mark(final int readlimit) {
 		delegate.mark(readlimit);
 	}
 
@@ -72,7 +72,7 @@ class NewServletInputStreamWrapper extends javax.servlet.ServletInputStream {
 	}
 
 	@Override
-	public int readLine(byte[] b, int off, int len) throws IOException {
+	public int readLine(final byte[] b, final int off, final int len) throws IOException {
 		return delegate.readLine(b, off, len);
 	}
 
@@ -82,7 +82,7 @@ class NewServletInputStreamWrapper extends javax.servlet.ServletInputStream {
 	}
 
 	@Override
-	public long skip(long n) throws IOException {
+	public long skip(final long n) throws IOException {
 		return delegate.skip(n);
 	}
 

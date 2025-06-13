@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,46 +20,10 @@
 	<feature id="org.openntf.xsp.jakartaee.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.cdi.feature.source">
+	<feature id="org.openntf.xsp.jakartaee.ui.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
-	<feature id="org.openntf.xsp.el.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jaxrs.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.beanvalidation.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jsonapi.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jsp.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.mvc.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.nosql.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jakarta.persistence.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.jakarta.servlet.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.microprofile.config.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.microprofile.rest.client.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.microprofile.fault.tolerance.feature.source">
-		<category name="XPages Jakarta EE"/>
-	</feature>
-	<feature id="org.openntf.xsp.microprofile.health.feature.source">
+	<feature id="org.openntf.xsp.microprofile.feature.source">
 		<category name="XPages Jakarta EE"/>
 	</feature>
    

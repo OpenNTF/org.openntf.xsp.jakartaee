@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package bean;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.Startup;
 import jakarta.inject.Named;
 import jakarta.json.bind.annotation.JsonbProperty;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -26,13 +28,27 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @ApplicationScoped
 @Named("applicationGuy")
 @XmlRootElement(name="application-guy")
+@SuppressWarnings("nls")
 public class ApplicationGuy {
 	@XmlElement(name="time")
 	private final long time = System.currentTimeMillis();
 	@XmlElement(name="postConstructSet")
 	private String postConstructSet;
-	
+	@XmlElement(name="startupSet")
+	private String startupSet;
 	private String beanProperty;
+	
+	@PostConstruct
+	public void postConstruct() {
+		System.out.println("Created applicationGuy!");
+		this.postConstructSet = "I was set by postConstruct";
+	}
+	@PreDestroy
+	public void preDestroy() { System.out.println("Destroying applicationGuy!");  }
+	
+	public void startup(@Observes Startup startup) {
+		this.startupSet = "I was set by startup";
+	}
 	
 	public String getBeanProperty() {
 		return beanProperty;
@@ -50,10 +66,4 @@ public class ApplicationGuy {
 	public String getMessageWithArg(String arg) {
 		return "I've been told " + arg;
 	}
-	@PostConstruct
-	public void postConstruct() {
-		System.out.println("Created applicationGuy!");
-	}
-	@PreDestroy
-	public void preDestroy() { System.out.println("Destroying applicationGuy!");  }
 }

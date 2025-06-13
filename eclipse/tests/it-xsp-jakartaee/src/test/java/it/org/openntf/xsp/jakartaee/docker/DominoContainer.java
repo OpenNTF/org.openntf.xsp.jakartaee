@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,19 +24,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.IOUtils;
+import org.helmetsrequired.jacocotogo.JaCoCoToGo;
+import org.jacoco.agent.AgentJar;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.images.builder.Transferable;
-import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.ibm.commons.util.PathUtil;
@@ -54,8 +59,15 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		"org.openntf.xsp.jakarta.example.webapp", //$NON-NLS-1$
 		"org.openntf.xsp.test.jasapi" //$NON-NLS-1$
 	};
+	public static final int JACOCO_PORT = 6300;
 	
 	public static final Set<Path> tempFiles = new HashSet<>();
+	
+	/**
+	 * Pattern used to attempt to identify 14.5 EA builds
+	 */
+	private static final Pattern EA_145_PATTERN = Pattern.compile("^domino-container:V1450_(\\d\\d)(\\d\\d)(\\d\\d\\d\\d)prod$"); //$NON-NLS-1$
+	private static final LocalDate DATE_145EA2 = LocalDate.of(2024, 12, 4);
 
 	private static class DominoImage extends ImageFromDockerfile {
 		
@@ -109,13 +121,28 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				// Next up, copy our Java policy to be the Notes home dir in the container
 				withFileFromClasspath("staging/.java.policy", "/docker/java.policy"); //$NON-NLS-1$ //$NON-NLS-2$
 				
+				// Copy in the Jacoco agent from our dependency tree
+				byte[] agentData;
+				try(InputStream is = AgentJar.getResourceAsStream()) {
+					agentData = IOUtils.toByteArray(is);
+				}
+				withFileFromTransferable("staging/jacoco.jar", Transferable.of(agentData)); //$NON-NLS-1$
+				
+				StringBuilder javaOptions = new StringBuilder();
+				
+				// Configure the JaCoCo listener
+				javaOptions.append("-javaagent:/local/jacoco.jar=output=tcpserver,address=*,port=" + JACOCO_PORT); //$NON-NLS-1$
+				
+				// Loosen the OSGi init timeout to account for having a large bundle footprint
+				javaOptions.append("\n-Dosgi.module.lock.timeout=30"); //$NON-NLS-1$
+				
 				// Add a Java options file for Apple Silicon compatibility
 				String arch = DockerClientFactory.instance().getInfo().getArchitecture();
 				if(!"x86_64".equals(arch)) { //$NON-NLS-1$
-					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of("-Djava.compiler=NONE")); //$NON-NLS-1$ //$NON-NLS-2$
-				} else {
-					withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of("")); //$NON-NLS-1$ //$NON-NLS-2$
+					javaOptions.append("\n-Djava.compiler=NONE"); //$NON-NLS-1$
 				}
+				
+				withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of(javaOptions.toString())); //$NON-NLS-1$
 				
 				// Add the Postgres driver to jvm/lib/ext
 				{
@@ -131,6 +158,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 					}
 					JsonPatchBuilder patch = Json.createPatchBuilder();
 					
+					// Handle the configured test databases
 					for(TestDatabase db : TestDatabase.values()) {
 						if(db.isNsf()) {
 							Path ntf = findLocalMavenArtifact("org.openntf.xsp", db.getArtifactId(), version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -146,6 +174,10 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 							patch.add("/appConfiguration/databases/-", dbConfig); //$NON-NLS-1$
 						}
 					}
+					
+					// Copy in the Jakarta Config NTF
+					Path configNtf = findLocalMavenArtifact("org.openntf.xsp", "nsf-jakartaconfig", version, "nsf"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					withFileFromPath("staging/ntf/jakartaconfig.ntf", configNtf); //$NON-NLS-1$
 					
 					json = patch.build().apply(json);
 					withFileFromTransferable("staging/domino-config.json", Transferable.of(json.toString())); //$NON-NLS-1$
@@ -168,24 +200,29 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		addEnv("TZ", "Etc/UTC"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		withImagePullPolicy(imageName -> false);
-		withExposedPorts(80);
-		withStartupTimeout(Duration.ofMinutes(4));
-		waitingFor(
-			new WaitAllStrategy()
-				.withStrategy(new LogMessageWaitStrategy()
-					.withRegEx(".*Adding sign bit to.*") //$NON-NLS-1$
-					.withTimes(4000)
-				)
-				.withStrategy(new LogMessageWaitStrategy()
-					.withRegEx(".*HTTP Server: Started.*") //$NON-NLS-1$
-				)
-				.withStrategy(new LogMessageWaitStrategy()
-					.withRegEx(".*Done with postinstall.*") //$NON-NLS-1$
-				)
-			.withStartupTimeout(Duration.ofMinutes(5))
-		);
+		withExposedPorts(80, JACOCO_PORT);
+		withStartupTimeout(Duration.ofMinutes(10));
 		
+		WaitAllStrategy strat = new WaitAllStrategy()
+			.withStrategy(new LogMessageWaitStrategy()
+				.withRegEx(".*HTTP Server: Started.*") //$NON-NLS-1$
+			)
+			.withStrategy(new LogMessageWaitStrategy()
+				.withRegEx(".*Done with postinstall.*") //$NON-NLS-1$
+			);
+		if(useNewEraAdminp()) {
+			strat = strat.withStrategy(new LogMessageWaitStrategy()
+				.withRegEx(".*Database signed by Adminp.*") //$NON-NLS-1$
+				.withTimes(8)
+			);
+		} else {
+			strat = strat.withStrategy(new LogMessageWaitStrategy()
+				.withRegEx(".*Adding sign bit to.*") //$NON-NLS-1$
+				.withTimes(4000)
+			);
+		}
 		
+		waitingFor(strat.withStartupTimeout(Duration.ofMinutes(5)));
 	}
 	
 	private static Path findLocalMavenArtifact(String groupId, String artifactId, String version, String type) {
@@ -224,8 +261,6 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	@SuppressWarnings("nls")
 	@Override
 	protected void containerIsStopping(InspectContainerResponse containerInfo) {
-		super.containerIsStopping(containerInfo);
-		
 		try {
 			// If we can see the target dir, copy log files
 			Path target = Paths.get(".").resolve("target"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -235,9 +270,34 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				
 				this.execInContainer("tar", "-czvf", "/tmp/workspace-logs.tar.gz", "/local/notesdata/domino/workspace/logs");
 				this.copyFileFromContainer("/tmp/workspace-logs.tar.gz", target.resolve("workspace-logs.tar.gz").toString());
+				
+				Path output = target.resolve("jacoco.exec");
+				int port = this.getMappedPort(JACOCO_PORT);
+				JaCoCoToGo.fetchJaCoCoDataOverTcp(this.getHost(), port, output, true);
 			}
 		} catch(IOException | UnsupportedOperationException | InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		super.containerIsStopping(containerInfo);
+	}
+	
+	/**
+	 * Attempts to glean whether the container uses the newer adminp DB-signing
+	 * output added in 14.5 EA2
+	 */
+	private boolean useNewEraAdminp() {
+		String explicitUse = System.getProperty("jakarta.newAdminp"); //$NON-NLS-1$
+		if("1".equals(explicitUse)) { //$NON-NLS-1$
+			return true;
+		}
+		
+		String baseImage = System.getProperty("jakarta.baseImage"); //$NON-NLS-1$
+		Matcher m;
+		if(baseImage != null && (m = EA_145_PATTERN.matcher(baseImage)).matches()) {
+			LocalDate buildDate = LocalDate.of(Integer.parseInt(m.group(3)), Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
+			return !buildDate.isBefore(DATE_145EA2);
+		}
+		return false;
 	}
 }

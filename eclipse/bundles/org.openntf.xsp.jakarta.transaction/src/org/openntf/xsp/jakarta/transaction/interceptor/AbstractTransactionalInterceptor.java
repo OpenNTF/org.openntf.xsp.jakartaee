@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,36 +26,36 @@ import jakarta.transaction.Transactional;
 
 /**
  * Basic CDI implementation of the {@link Transactional @Transactional} annotation.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
 public abstract class AbstractTransactionalInterceptor {
 
-	public Object doWrapMethod(InvocationContext ctx) throws Exception {
+	public Object doWrapMethod(final InvocationContext ctx) throws Exception {
 		Transactional transactional = ctx.getMethod().getAnnotation(Transactional.class);
 		// If it's not on the method, find it on superclasses
 		if(transactional == null) {
 			transactional = findAnnotation(ctx.getTarget().getClass());
 		}
 		Objects.requireNonNull(transactional, "Unable to find @Transactional annotation");
-		
+
 		Class<?>[] rollbackOn = transactional.rollbackOn();
 		Class<?>[] dontRollbackOn = transactional.dontRollbackOn();
-		
+
 		try {
 			return ctx.proceed();
 		} catch(RuntimeException | Error e) {
 			// Note: spec makes no mention of thrown Errors. Though it may be too late at this
 			//   point, I think it makes sense to treat them as RuntimeException. In Domino, it's
 			//   uncharacteristically likely to hit NoClassDefFoundError specifically
-			
+
 			// See if it's explicitly ignored
 			if(Arrays.stream(dontRollbackOn).anyMatch(c -> c.isAssignableFrom(e.getClass()))) {
 				// Skip the rollback
 				throw e;
 			}
-			
+
 			// Default for unchecked exceptions is to roll back
 			markRollback();
 			throw e;
@@ -66,13 +66,13 @@ public abstract class AbstractTransactionalInterceptor {
 				markRollback();
 				throw e;
 			}
-			
+
 			// Default for checked exceptions is to not roll back
 			throw e;
 		}
 	}
 
-	private Transactional findAnnotation(Class<?> clazz) {
+	private Transactional findAnnotation(final Class<?> clazz) {
 		Transactional transactional = clazz.getAnnotation(Transactional.class);
 		if(transactional != null) {
 			return transactional;
@@ -85,7 +85,7 @@ public abstract class AbstractTransactionalInterceptor {
 			}
 		}
 	}
-	
+
 	private void markRollback() throws IllegalStateException, SystemException {
 		TransactionManager man = CDI.current().select(TransactionManager.class).get();
 		if(man.getTransaction() != null) {

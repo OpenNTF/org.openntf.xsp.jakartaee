@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,28 +18,28 @@ package org.openntf.xsp.jakartaee.discovery.impl;
 import java.util.Optional;
 import java.util.Properties;
 
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+
 import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
-
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import jakarta.annotation.Priority;
 
 /**
  * Retrieves an application property from the currently-active {@link ComponentModule}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
-@Priority(2)
+@Priority(3)
 public class ComponentModuleApplicationPropertyLocator implements ApplicationPropertyLocator {
 
 	@Override
 	public boolean isActive() {
 		return ComponentModuleLocator.getDefault().isPresent();
 	}
-	
+
 	@Override
 	public Optional<Properties> getApplicationProperties() {
 		return ComponentModuleLocator.getDefault()
