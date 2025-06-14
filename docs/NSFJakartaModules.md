@@ -30,3 +30,24 @@ There are several techniques that are useful when developing apps of this type.
 - `servletContext.getContextPath()` will return an appropriate base value for both types of apps (e.g. "/apps/foo.nsf" in a traditional context or "/foo" in a Jakarta module)
 - When using Jakarta MVC, `${mvc.basePath}` can be used in Pages to retrieve the REST base path, avoiding the need to assume the "/xsp" prefix in view code
 - Jakarta Modules don't use the "WEB-INF/jakarta" workarounds present for Faces in normal apps, since there is no XPages environment to conflict with
+
+#### Special Note: MVC
+
+Current versions of Jakarta MVC enable CSRF by default for all requests, so all POST forms should include a value like `<input type="hidden" name="${mvc.csrf.name}" value="${mvc.csrf.token}"/>`. There is a special point to note with Jakarta Modules: since they don't always create the Servlet HttpSession for every request, these POSTs may fail even in the presence of this value. To work around this, you can ensure that the session is initialized for each request with a listener class in your application:
+
+```java
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
+import jakarta.servlet.annotation.WebListener;
+import jakarta.servlet.http.HttpServletRequest;
+
+@WebListener
+public class SessionInitListener implements ServletRequestListener {
+	@Override
+	public void requestInitialized(ServletRequestEvent sre) {
+		if(sre.getServletRequest() instanceof HttpServletRequest req) {
+			req.getSession(true);
+		}
+	}
+}
+```

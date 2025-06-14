@@ -514,8 +514,6 @@ public class NSFJakartaModule extends ComponentModule {
 		if(log.isLoggable(Level.FINE)) {
 			log.fine(MessageFormat.format("Invoking Servlet {0}", servlet));
 		}
-		
-		req.getSession(true);
 
 		HttpContextBean.setThreadResponse(ServletUtil.oldToNew(resp));
 		// Update the active request with the "true" request object

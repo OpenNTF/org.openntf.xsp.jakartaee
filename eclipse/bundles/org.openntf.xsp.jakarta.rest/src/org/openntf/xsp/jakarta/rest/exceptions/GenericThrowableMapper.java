@@ -70,7 +70,7 @@ public class GenericThrowableMapper implements ExceptionMapper<Throwable> {
 				if(entity == null || entity instanceof CharSequence s && s.length() == 0) {
 					return createResponseFromException(t, r.getStatus(), resourceInfo, req);
 				} else {
-					return e.getResponse();
+					return r;
 				}
 			} else {
 				return createResponseFromException(t, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resourceInfo, req);
