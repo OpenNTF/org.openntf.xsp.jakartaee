@@ -65,6 +65,7 @@ import com.ibm.xsp.acl.NoAccessSignal;
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.module.AbstractJakartaModule;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider;
 import org.openntf.xsp.jakartaee.module.jakartansf.concurrency.NSFJakartaModuleConcurrencyListener;
@@ -101,7 +102,7 @@ import lotus.domino.Session;
 /**
  * @since 3.4.0
  */
-public class NSFJakartaModule extends ComponentModule {
+public class NSFJakartaModule extends AbstractJakartaModule {
 	private static final Logger log = Logger.getLogger(NSFJakartaModule.class.getPackageName());
 	
 	private final ModuleMap mapping;

@@ -21,7 +21,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -37,10 +39,11 @@ import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.domino.napi.util.NotesUtils;
 
+import org.openntf.xsp.jakartaee.module.AbstractJakartaModule.ModuleFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModule;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
-public class NSFJakartaFileSystem {
+public class NSFJakartaFileSystem implements ModuleFileSystem {
 	private static final Logger log = Logger.getLogger(NSFJakartaFileSystem.class.getPackageName());
 	public static final String URLSCHEME = "jakartansf"; //$NON-NLS-1$
 	
@@ -56,36 +59,40 @@ public class NSFJakartaFileSystem {
 
 					if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_FILE_WEB)) {
 						// In practice, we don't care about $ClassIndexItem
-						String name = sanitizeTitle(entry.title());
-						if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_JAVAJAR)) {
-							name = "WEB-INF/lib/" + name; //$NON-NLS-1$
+						for(String name : sanitizeTitle(entry.title())) {
+							if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_JAVAJAR)) {
+								name = "WEB-INF/lib/" + name; //$NON-NLS-1$
+							}
+							int noteId = entry.noteId();
+							if(log.isLoggable(Level.FINEST)) {
+								log.finest(MessageFormat.format("Adding file element \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+							}
+							fileMap.put(name, noteId);
 						}
-						int noteId = entry.noteId();
-						if(log.isLoggable(Level.FINEST)) {
-							log.finest(MessageFormat.format("Adding file element \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
-						}
-						fileMap.put(name, noteId);
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_SCRIPTLIB_JS)) {
-						String name = sanitizeTitle(entry.title());
-						int noteId = entry.noteId();
-						if(log.isLoggable(Level.FINEST)) {
-							log.finest(MessageFormat.format("Adding JavaScript library \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+						for(String name : sanitizeTitle(entry.title())) {
+							int noteId = entry.noteId();
+							if(log.isLoggable(Level.FINEST)) {
+								log.finest(MessageFormat.format("Adding JavaScript library \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+							}
+							fileMap.put(name, noteId);
 						}
-						fileMap.put(name, noteId);
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_IMAGE_RES_WEB)) {
-						String name = sanitizeTitle(entry.title());
-						int noteId = entry.noteId();
-						if(log.isLoggable(Level.FINEST)) {
-							log.finest(MessageFormat.format("Adding image resource \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+						for(String name : sanitizeTitle(entry.title())) {
+							int noteId = entry.noteId();
+							if(log.isLoggable(Level.FINEST)) {
+								log.finest(MessageFormat.format("Adding image resource \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+							}
+							fileMap.put(name, noteId);
 						}
-						fileMap.put(name, noteId);
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_STYLE_SHEETS_WEB)) {
-						String name = sanitizeTitle(entry.title());
-						int noteId = entry.noteId();
-						if(log.isLoggable(Level.FINEST)) {
-							log.finest(MessageFormat.format("Adding stylesheet \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+						for(String name : sanitizeTitle(entry.title())) {
+							int noteId = entry.noteId();
+							if(log.isLoggable(Level.FINEST)) {
+								log.finest(MessageFormat.format("Adding stylesheet \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
+							}
+							fileMap.put(name, noteId);
 						}
-						fileMap.put(name, noteId);
 					}
 					// TODO Re-add when figuring out how to read the value, or handle elsewhere
 	//				else if(entry.getNoteClass() == NotesConstants.NOTE_CLASS_ICON) {
@@ -101,6 +108,7 @@ public class NSFJakartaFileSystem {
 		}
 	}
 	
+	@Override
 	public Optional<URL> getUrl(String res) {
 		if(this.fileMap.containsKey(res)) {
 			try {
@@ -114,7 +122,8 @@ public class NSFJakartaFileSystem {
 			return Optional.empty();
 		}
 	}
-	
+
+	@Override
 	public Optional<InputStream> openStream(String res) {
 		Integer noteId = this.fileMap.get(res);
 		if(noteId != null) {
@@ -140,6 +149,12 @@ public class NSFJakartaFileSystem {
 		}
 	}
 	
+	@Override
+	public Stream<String> listFiles() {
+		return listFiles(null);
+	}
+
+	@Override
 	public Stream<String> listFiles(String basePath) {
 		String path = ModuleUtil.trimResourcePath(basePath);
 		boolean listAll = StringUtil.isEmpty(path);
@@ -156,7 +171,9 @@ public class NSFJakartaFileSystem {
 		return pathStream;
 	}
 	
-	private static String sanitizeTitle(String title) {
-		return title.replace('\\', '/');
+	private static List<String> sanitizeTitle(String title) {
+		return Arrays.stream(StringUtil.splitString(title, '|'))
+			.map(t -> t.replace('\\', '/'))
+			.toList();
 	}
 }
