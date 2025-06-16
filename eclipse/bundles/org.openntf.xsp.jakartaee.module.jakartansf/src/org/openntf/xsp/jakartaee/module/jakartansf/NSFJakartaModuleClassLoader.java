@@ -30,7 +30,6 @@ import java.security.CodeSigner;
 import java.security.CodeSource;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -55,7 +54,6 @@ import com.ibm.designer.domino.napi.util.NotesUtils;
 import com.ibm.xsp.library.LibraryServiceLoader;
 import com.ibm.xsp.library.LibraryWrapper;
 
-import org.openntf.xsp.jakartaee.module.ModuleClassLoaderExtender;
 import org.openntf.xsp.jakartaee.module.ModuleClassLoaderExtender.ClassLoaderExtension;
 import org.openntf.xsp.jakartaee.module.jakarta.AbstractModuleClassLoader;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator;
@@ -67,19 +65,15 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 	
 	private static final Logger log = Logger.getLogger(NSFJakartaModuleClassLoader.class.getPackageName());
 	
-	private final NSFJakartaModule module;
 	private final List<ClassLoader> extraDepends = new ArrayList<>();
 	private final Map<String, JavaClassNote> javaClasses = new HashMap<>();
 	private final Map<String, JavaClassNote> javaClassFiles = new HashMap<>();
 	private final Map<String, Integer> jarFiles = new HashMap<>();
 	private final Set<Path> cleanup = new HashSet<>();
-	private final List<ClassLoaderExtension> extensions;
 	private final CodeSource nsfCodeSource;
 
 	public NSFJakartaModuleClassLoader(NSFJakartaModule module) throws NotesAPIException, URISyntaxException, MalformedURLException {
-		super(MessageFormat.format("{0}:{1}", NSFJakartaModule.class.getSimpleName(), module.getMapping().path()), new URL[0], module.getClass().getClassLoader());
-		
-		this.module = module;
+		super(module, MessageFormat.format("{0}:{1}", NSFJakartaModule.class.getSimpleName(), module.getMapping().path()), new URL[0], module.getClass().getClassLoader());
 		
 		// TODO build CodeSources for /WEB-INF/classes et al for defineClass calls
 		try {
@@ -103,16 +97,15 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 			}
 		}
 		
-		this.extensions = LibraryUtil.findExtensions(ModuleClassLoaderExtender.class).stream()
-			.map(l -> l.provide(module))
-			.filter(Objects::nonNull)
-			.flatMap(Collection::stream)
-			.toList();
-		
 		URI uri = new URI(NSFJakartaFileSystem.URLSCHEME, null, "localhost", 1352, '/' + module.getMapping().path() + "!/WEB-INF/classes", null, null); //$NON-NLS-1$ //$NON-NLS-2$
 		this.nsfCodeSource = new CodeSource(uri.toURL(), (CodeSigner[])null);
 		
 		// TODO Add some things like IBM Commons and other frequently-used libraries?
+	}
+	
+	@Override
+	public NSFJakartaModule getModule() {
+		return (NSFJakartaModule)super.getModule();
 	}
 	
 	@Override
@@ -124,7 +117,7 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 	public Enumeration<URL> getResources(String name) throws IOException {
 		List<URL> result = new ArrayList<>();
 		
-		URL modRes = module.getResource(name);
+		URL modRes = getModule().getResource(name);
 		if(modRes != null) {
 			result.add(modRes);
 		}
@@ -140,7 +133,7 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 			result.addAll(Collections.list(cl.getResources(name)));
 		}
 		
-		for(ClassLoaderExtension extension : this.extensions) {
+		for(ClassLoaderExtension extension : getExtensions()) {
 			result.addAll(extension.getResources(name));
 		}
 		
@@ -150,7 +143,7 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 	@Override
 	public URL getResource(String name) {
 		try {
-			URL modRes = module.getResource(name);
+			URL modRes = getModule().getResource(name);
 			if(modRes != null) {
 				return modRes;
 			}
@@ -173,7 +166,7 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 			return result;
 		}
 		
-		return this.extensions.stream()
+		return getExtensions().stream()
 			.map(ext -> ext.getResource(name))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
@@ -183,6 +176,7 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 	
 	@Override
 	public InputStream getResourceAsStream(String name) {
+		NSFJakartaModule module = getModule();
 		InputStream modRes = module.getResourceAsStream(name);
 		if(modRes != null) {
 			return modRes;
@@ -218,7 +212,7 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 			return result;
 		}
 
-		return this.extensions.stream()
+		return getExtensions().stream()
 			.map(ext -> ext.getResourceAsStream(name))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
@@ -228,7 +222,7 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 	
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
-		for(var ext : this.extensions) {
+		for(var ext : getExtensions()) {
 			Optional<Class<?>> c = ext.loadClass(name);
 			if(c.isPresent()) {
 				return c.get();
@@ -239,7 +233,7 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 			// Search for a Java file name to see if it has class data
 			JavaClassNote javaClassNote = this.javaClasses.get(name);
 			if(javaClassNote != null) {
-				NotesNote javaNote = module.getNotesDatabase().openNote(javaClassNote.noteId(), 0);
+				NotesNote javaNote = getModule().getNotesDatabase().openNote(javaClassNote.noteId(), 0);
 				byte[] bytecode;
 				try {
 					try(InputStream is = FileAccess.readFileContentAsInputStream(javaNote, javaClassNote.fileItem())) {
@@ -271,7 +265,7 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 			}
 			
 			// Finally, throw up our hands
-			throw new ClassNotFoundException(MessageFormat.format("Unable to locate class {0} in module {1}", name, module));
+			throw new ClassNotFoundException(MessageFormat.format("Unable to locate class {0} in module {1}", name, getModule()));
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		} catch (NotesAPIException e) {
@@ -290,13 +284,13 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 			this.cleanup.clear();
 		} catch (IOException e) {
 			if(log.isLoggable(Level.WARNING)) {
-				log.log(Level.WARNING, MessageFormat.format("Encountered exception closing class loader for {0}", this.module), e);
+				log.log(Level.WARNING, MessageFormat.format("Encountered exception closing class loader for {0}", this.getModule()), e);
 			}
 		}
 	}
 	
 	private void findJavaElements() throws NotesAPIException, IOException {
-		try (DesignCollectionIterator nav = new DesignCollectionIterator(this.module.getNotesDatabase())) {
+		try (DesignCollectionIterator nav = new DesignCollectionIterator(getModule().getNotesDatabase())) {
 			while (nav.hasNext()) {
 				try(var entry = nav.next()) {
 					// Look for Java resources
@@ -348,7 +342,7 @@ public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 	private Path extractJar(DesignCollectionIterator.DesignEntry entry) throws IOException, NotesAPIException {
 		Path tempJar = Files.createTempFile(getClass().getSimpleName(), ".jar"); //$NON-NLS-1$
 		cleanup.add(tempJar);
-		NotesNote note = this.module.getNotesDatabase().openNote(entry.noteId(), 0);
+		NotesNote note = getModule().getNotesDatabase().openNote(entry.noteId(), 0);
 		try(OutputStream os = Files.newOutputStream(tempJar, StandardOpenOption.TRUNCATE_EXISTING)) {
 			FileAccess.readFileContent(note, os);
 		} finally {
