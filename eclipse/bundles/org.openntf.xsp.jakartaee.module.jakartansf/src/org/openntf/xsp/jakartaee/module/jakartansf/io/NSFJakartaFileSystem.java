@@ -39,7 +39,7 @@ import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.domino.napi.util.NotesUtils;
 
-import org.openntf.xsp.jakartaee.module.AbstractJakartaModule.ModuleFileSystem;
+import org.openntf.xsp.jakartaee.module.jakarta.ModuleFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModule;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 

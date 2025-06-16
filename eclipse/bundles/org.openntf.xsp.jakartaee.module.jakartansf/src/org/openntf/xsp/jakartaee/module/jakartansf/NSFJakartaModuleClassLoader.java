@@ -23,7 +23,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -46,7 +45,6 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.ibm.commons.extension.ExtensionManager.ApplicationClassLoader;
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -59,11 +57,12 @@ import com.ibm.xsp.library.LibraryWrapper;
 
 import org.openntf.xsp.jakartaee.module.ModuleClassLoaderExtender;
 import org.openntf.xsp.jakartaee.module.ModuleClassLoaderExtender.ClassLoaderExtension;
+import org.openntf.xsp.jakartaee.module.jakarta.AbstractModuleClassLoader;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
-public class NSFJakartaModuleClassLoader extends URLClassLoader implements ApplicationClassLoader {
+public class NSFJakartaModuleClassLoader extends AbstractModuleClassLoader {
 	private record JavaClassNote(int noteId, String fileItem) {}
 	
 	private static final Logger log = Logger.getLogger(NSFJakartaModuleClassLoader.class.getPackageName());
@@ -115,13 +114,8 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 		
 		// TODO Add some things like IBM Commons and other frequently-used libraries?
 	}
-
-	@Override
-	public Enumeration<URL> findApplicationResources(String path) throws IOException {
-		// TODO figure out why DynamicClassLoader branches on hasJars - maybe performance?
-		return super.findResources(path);
-	}
 	
+	@Override
 	public Set<String> getClassNames() {
 		return this.javaClasses.keySet();
 	}
@@ -187,10 +181,6 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			.orElse(null);
 	}
 	
-	public URL getJarResource(String name) {
-		return super.getResource(name);
-	}
-	
 	@Override
 	public InputStream getResourceAsStream(String name) {
 		InputStream modRes = module.getResourceAsStream(name);
@@ -234,10 +224,6 @@ public class NSFJakartaModuleClassLoader extends URLClassLoader implements Appli
 			.map(Optional::get)
 			.findFirst()
 			.orElse(null);
-	}
-	
-	public InputStream getJarResourceAsStream(String name) {
-		return super.getResourceAsStream(name);
 	}
 	
 	@Override

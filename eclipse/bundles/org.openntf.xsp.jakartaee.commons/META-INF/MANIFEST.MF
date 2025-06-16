@@ -21,6 +21,7 @@ Export-Package: org.openntf.xsp.jakartaee;version="3.5.0",
  org.openntf.xsp.jakartaee.jasapi;version="3.5.0",
  org.openntf.xsp.jakartaee.metrics;version="3.5.0",
  org.openntf.xsp.jakartaee.module;version="3.5.0",
+ org.openntf.xsp.jakartaee.module.jakarta;version="3.5.0",
  org.openntf.xsp.jakartaee.servlet;version="3.5.0",
  org.openntf.xsp.jakartaee.util;version="3.5.0",
  org.openntf.xsp.jakartaee.xml;version="3.5.0"
