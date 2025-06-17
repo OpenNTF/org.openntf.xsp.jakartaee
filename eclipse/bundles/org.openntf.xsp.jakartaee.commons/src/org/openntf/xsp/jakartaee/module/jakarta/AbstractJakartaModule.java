@@ -6,9 +6,14 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +24,10 @@ import java.util.stream.Stream;
 
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
+import com.ibm.commons.util.io.StreamUtil;
+import com.ibm.commons.xml.DOMUtil;
+import com.ibm.commons.xml.XMLException;
+import com.ibm.commons.xml.XResult;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
@@ -29,9 +38,13 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapt
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
+import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequestEvent;
@@ -71,6 +84,77 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	protected void setInitialized(boolean initialized) {
 		this.initialized = initialized;
 	}
+	
+	// App Information
+	
+	/**
+	 * Retrieves an icon set for this module, if applicable.
+	 * 
+	 * @return a {@link ModuleIconSet} describing the module's icons,
+	 *         which may be empty
+	 */
+	public ModuleIconSet getModuleIcons() {
+		if(this.isInitialized()) {
+			// Read web.xml directly since Tomcat's doesn't include icon info
+			List<ModuleIcon> icons = new ArrayList<>();
+			ModuleFileSystem fs = this.getRuntimeFileSystem();
+			fs.openStream("WEB-INF/web.xml").ifPresent(is -> { //$NON-NLS-1$
+				try {
+					org.w3c.dom.Document webXml = DOMUtil.createDocument(is);
+					XResult icon = DOMUtil.evaluateXPath(webXml, "/web-app/icon"); //$NON-NLS-1$
+					if(!icon.isEmpty()) {
+						if(icon.getSingleNode() instanceof Element iconNode) {
+							NodeList largeIcons = iconNode.getElementsByTagName("large-icon"); //$NON-NLS-1$
+							if(largeIcons.getLength() > 0) {
+								String name = largeIcons.item(0).getTextContent();
+								this.readIcon(name, 32, 32).ifPresent(icons::add);
+							};
+							NodeList smallIcons = iconNode.getElementsByTagName("small-icon"); //$NON-NLS-1$
+							if(smallIcons.getLength() > 0) {
+								String name = smallIcons.item(0).getTextContent();
+								this.readIcon(name, 16, 16).ifPresent(icons::add);
+							}
+						}
+					}
+					
+				} catch (XMLException e) {
+					if(log.isLoggable(Level.WARNING)) {
+						log.log(Level.WARNING, MessageFormat.format("Encountered exception reading web.xml in {0}", this), e);
+					}
+				} finally {
+					StreamUtil.close(is);
+				}
+			});
+			return new ModuleIconSet(icons);
+		}
+		return new ModuleIconSet(Collections.emptySet());
+	}
+	
+	/**
+	 * Retrieves the path that this module is mounted to on the server,
+	 * if applicable.
+	 * 
+	 * @return an {@link Optional} describing the app mount path, or
+	 *         an empty one if that is not applicable
+	 */
+	public abstract Optional<String> getModulePath();
+	
+	/**
+	 * Retrieves a human-readable title for this module, which may be
+	 * distinct from {@link #getModuleName()}.
+	 * 
+	 * @return a human-readable module title
+	 */
+	public String getModuleTitle() {
+		if(this.isInitialized()) {
+			WebXml webXml = ServletUtil.getWebXml(this);
+			String displayName = webXml.getDisplayName();
+			if(StringUtil.isNotEmpty(displayName)) {
+				return displayName;
+			}
+		}
+		return this.getModuleName();
+	}
 
 	public abstract ModuleFileSystem getRuntimeFileSystem();
 	
@@ -83,9 +167,11 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 		this.moduleClassLoader = moduleClassLoader;
 	}
 	
-	public void setServletFactories(Collection<JakartaIServletFactory> servletFactories) {
+	protected void setServletFactories(Collection<JakartaIServletFactory> servletFactories) {
 		this.servletFactories = servletFactories;
 	}
+	
+	// ComponentModule implementation
 	
 	// Called if getServlet returns null
 	// We return false here because we don't want to interfere with
@@ -349,6 +435,27 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	
 	protected void setJakartaServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
+	}
+	
+	private Optional<ModuleIcon> readIcon(String name, int width, int height) {
+		if(StringUtil.isEmpty(name)) {
+			return Optional.empty();
+		}
+		
+		Optional<InputStream> iconIs = this.getRuntimeFileSystem().openStream(name);
+		if(iconIs.isPresent()) {
+			try(InputStream is = iconIs.get()) {
+				byte[] iconData = is.readAllBytes();
+				String mimeType = LibraryUtil.guessContentType(name);
+				return Optional.of(new ModuleIcon(mimeType, width, height, ByteBuffer.wrap(iconData)));
+			} catch (IOException e) {
+				if(log.isLoggable(Level.WARNING)) {
+					log.log(Level.WARNING, MessageFormat.format("Encountered exception reading icon {0} in {1}", name, this), e);
+				}
+			}
+		}
+		
+		return Optional.empty();
 	}
 	
 	protected void awaitInit() {

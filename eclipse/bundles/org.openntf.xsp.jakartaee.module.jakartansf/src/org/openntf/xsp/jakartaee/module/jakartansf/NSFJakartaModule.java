@@ -24,6 +24,7 @@ import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -109,6 +110,24 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 	
 	public NotesDatabase getNotesDatabase() {
 		return notesDatabase;
+	}
+	
+	@Override
+	public Optional<String> getModulePath() {
+		return Optional.of(mapping.path());
+	}
+	
+	@Override
+	public String getModuleTitle() {
+		if(this.isInitialized()) {
+			try(var lsxbe = withSession(xspSigner)) {
+				return lsxbe.database().getTitle();
+			} catch (NotesException e) {
+				return this.getModuleName();
+			}
+		} else {
+			return this.getModuleName();
+		}
 	}
 
 	@SuppressWarnings("unchecked")

@@ -18,6 +18,7 @@ package org.openntf.xsp.jakartaee.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
@@ -56,6 +57,7 @@ import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 import org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator;
 import org.osgi.framework.Bundle;
 
+import jakarta.activation.MimetypesFileTypeMap;
 import jakarta.annotation.Priority;
 import lotus.domino.Database;
 import lotus.domino.NotesException;
@@ -587,5 +589,27 @@ public enum LibraryUtil {
 			}
 			return result;
 		}
+	}
+	
+	/**
+	 * Attempts to determine a MIME type for the provided file name.
+	 * 
+	 * @param fileName the name to find a MIME type for
+	 * @return the guessed MIME type for the file
+	 * @since 3.5.0
+	 */
+	public static String guessContentType(final String fileName) {
+		String contentType = URLConnection.guessContentTypeFromName(fileName);
+		if(StringUtil.isNotEmpty(contentType)) {
+			return contentType;
+		}
+
+		MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
+	    contentType = fileTypeMap.getContentType(fileName);
+		if(StringUtil.isNotEmpty(contentType)) {
+			return contentType;
+		}
+
+		return "application/octet-stream"; //$NON-NLS-1$
 	}
 }
