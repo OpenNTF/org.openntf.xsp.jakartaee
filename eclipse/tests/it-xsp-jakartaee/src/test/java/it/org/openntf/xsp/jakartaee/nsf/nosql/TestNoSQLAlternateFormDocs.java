@@ -18,16 +18,20 @@ package it.org.openntf.xsp.jakartaee.nsf.nosql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringReader;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
@@ -35,8 +39,9 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestNoSQLAlternateFormDocs extends AbstractWebClientTest {
-	@Test
-	public void testAlternateFormDoc() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAlternateFormDoc(TestDatabase db) {
 		Client client = getAdminClient();
 		
 		// Create a new doc
@@ -47,7 +52,7 @@ public class TestNoSQLAlternateFormDocs extends AbstractWebClientTest {
 				.add("name", name)
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleAlternateFormDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleAlternateFormDocs");
 			Response response = postTarget.request().post(Entity.json(payload));
 			checkResponse(200, response);
 
@@ -61,26 +66,32 @@ public class TestNoSQLAlternateFormDocs extends AbstractWebClientTest {
 		
 		// Make sure it's in the view
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleAlternateFormDocs");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleAlternateFormDocs");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
 			JsonArray jsonArray = Json.createReader(new StringReader(json)).readArray();
-			assertEquals(1, jsonArray.size());
+			assertFalse(jsonArray.isEmpty());
 			
-			JsonObject jsonObject = jsonArray.getJsonObject(0);
+			JsonObject jsonObject = jsonArray.stream()
+				.map(JsonValue::asJsonObject)
+				.filter(o -> name.equals(o.getString("name")))
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("Did not find object in " + json));
 			assertEquals(unid, jsonObject.getString("unid"));
 			assertEquals(name, jsonObject.getString("name"));
 		}
 		
 		// Check the count
+		int count;
 		{
 			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleAlternateFormDocs/@count");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String countText = response.readEntity(String.class);
-			assertEquals("1", countText);
+			count = Integer.parseInt(countText);
+			assertTrue(count > 0);
 		}
 		
 		// Update it and make sure the UNID is the same
@@ -107,9 +118,13 @@ public class TestNoSQLAlternateFormDocs extends AbstractWebClientTest {
 			String json = response.readEntity(String.class);
 
 			JsonArray jsonArray = Json.createReader(new StringReader(json)).readArray();
-			assertEquals(1, jsonArray.size());
+			assertFalse(jsonArray.isEmpty());
 			
-			JsonObject jsonObject = jsonArray.getJsonObject(0);
+			JsonObject jsonObject = jsonArray.stream()
+				.map(JsonValue::asJsonObject)
+				.filter(o -> (name + "hi").equals(o.getString("name")))
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("Did not find object in " + json));
 			assertEquals(unid, jsonObject.getString("unid"));
 			assertEquals(name + "hi", jsonObject.getString("name"));
 		}
@@ -120,7 +135,7 @@ public class TestNoSQLAlternateFormDocs extends AbstractWebClientTest {
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String countText = response.readEntity(String.class);
-			assertEquals("1", countText);
+			assertEquals(Integer.toString(count), countText);
 		}
 		
 		// Create a second to ensure the count was true
@@ -145,7 +160,7 @@ public class TestNoSQLAlternateFormDocs extends AbstractWebClientTest {
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String countText = response.readEntity(String.class);
-			assertEquals("2", countText);
+			assertEquals(count+1, Integer.valueOf(countText));
 		}
 	}
 }

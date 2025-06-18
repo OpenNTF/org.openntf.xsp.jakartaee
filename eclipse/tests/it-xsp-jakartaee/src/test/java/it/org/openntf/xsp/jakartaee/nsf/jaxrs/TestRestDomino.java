@@ -27,20 +27,23 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestRestDomino extends AbstractWebClientTest {
 	/**
 	 * Tests rest.DominoObjectsSample, which uses JAX-RS and CDI with Domino context objects.
 	 */
-	@Test
-	public void testSample() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testSample(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/dominoObjects");
+		WebTarget target = client.target(getRestUrl(null, db) + "/dominoObjects");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -48,7 +51,7 @@ public class TestRestDomino extends AbstractWebClientTest {
 			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			
 			String database = jsonObject.getString("database");
-			assertTrue(database.contains("XPagesDatabase"), () -> "Received unexpected JSON: " + json);
+			assertTrue(database.contains("Database"), () -> "Received unexpected JSON: " + json);
 			
 			String dominoSession = jsonObject.getString("dominoSession");
 			assertTrue(dominoSession.startsWith("lotus.domino.local.Session"), () -> "Received unexpected JSON: " + json);

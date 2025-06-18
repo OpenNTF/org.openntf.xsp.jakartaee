@@ -32,15 +32,16 @@ import org.openqa.selenium.WebElement;
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.AdminUserAuthenticator;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
-import it.org.openntf.xsp.jakartaee.providers.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestNoSQLJSF extends AbstractWebClientTest {
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
 	@Order(1)
-	public void testCrudPage(WebDriver driver) {
+	public void testCrudPage(TestDatabase db, WebDriver driver) {
 		// First, log in to allow for CRUD
+		// Intentionally always MAIN for the login URL
 		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "?Open&Login");
 		{
 			WebElement form = driver.findElement(By.tagName("form"));
@@ -57,7 +58,7 @@ public class TestNoSQLJSF extends AbstractWebClientTest {
 			assertFalse(driver.manage().getCookies().isEmpty(), () -> driver.getPageSource());
 		}
 		
-		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/person-list.xhtml");
+		driver.get(getRootUrl(driver, db) + "/person-list.xhtml");
 
 		String firstName = "Foo";
 		String lastName = "Created By JSF " + System.currentTimeMillis();

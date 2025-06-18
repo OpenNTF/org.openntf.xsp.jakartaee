@@ -260,7 +260,19 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 							serverName = ""; //$NON-NLS-1$
 						}
 						long dataMod = NotesSession.getLastDataModificationDateByName(serverName, database.getFilePath());
-						if(dataMod > created.toJavaDate().getTime() / 1000) {
+						boolean modified = dataMod > created.toJavaDate().getTime() / 1000;
+						if(!modified) {
+							// Do another check this way, which is more expensive but more reliable in busy situations
+							DocumentCollection modDocs = database.getModifiedDocuments(created);
+							try {
+								if(modDocs.getCount() > 0) {
+									modified = true;
+								}
+							} finally {
+								recycle(modDocs);
+							}
+						}
+						if(modified) {
 							view.remove();
 							view.recycle();
 							view = null;
@@ -272,26 +284,26 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					}
 				}
 
-				if(view != null) {
-					result = entityConverter.convertQRPViewDocuments(database, view, mapping);
-				} else {
+				if(view == null) {
 					DominoQuery dominoQuery = database.createDominoQuery();
 					QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
 					try {
 						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
-						for(Sort sort : sorts) {
+						for(Sort<?> sort : sorts) {
 							String itemName = EntityUtil.findItemName(sort.property(), mapping);
 
-							int dir = sort.isDescending() ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
+							// QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
+							int dir = sort.isDescending() ? 2 : 1;
 							qrp.addColumn(itemName, itemName, null, dir, false, false);
 						}
 
 						view = qrp.executeToView(viewName, 24);
-						result = entityConverter.convertQRPViewDocuments(database, view, mapping);
 					} finally {
 						recycle(qrp, dominoQuery);
 					}
 				}
+				
+				result = entityConverter.convertQRPViewDocuments(database, view, mapping);
 
 			} else {
 				DominoQuery dominoQuery = database.createDominoQuery();

@@ -24,9 +24,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
@@ -36,8 +39,9 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestNoSQLRecords extends AbstractWebClientTest {
-	@Test
-	public void testRecordDoc() throws UnsupportedEncodingException {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testRecordDoc(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -50,7 +54,7 @@ public class TestNoSQLRecords extends AbstractWebClientTest {
 				.add("index", 4)
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosqlRecordDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosqlRecordDocs");
 			Response response = postTarget.request().post(Entity.json(payload));
 			checkResponse(200, response);
 
@@ -65,7 +69,7 @@ public class TestNoSQLRecords extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosqlRecordDocs/byName/" + URLEncoder.encode(name, "UTF-8"));
+			WebTarget target = client.target(getRestUrl(null, db) + "/nosqlRecordDocs/byName/" + URLEncoder.encode(name, "UTF-8"));
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -79,8 +83,9 @@ public class TestNoSQLRecords extends AbstractWebClientTest {
 	}
 	
 	// Tests to make sure that default values from docs with primitives work
-	@Test
-	public void testPartialRecordDoc() throws UnsupportedEncodingException {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testPartialRecordDoc(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -88,7 +93,7 @@ public class TestNoSQLRecords extends AbstractWebClientTest {
 		{
 			JsonObject payload = Json.createObjectBuilder().build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosqlRecordDocs/createPartial");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosqlRecordDocs/createPartial");
 			Response response = postTarget.request().post(Entity.json(payload));
 			checkResponse(200, response);
 
@@ -101,7 +106,7 @@ public class TestNoSQLRecords extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosqlRecordDocs/byName/" + URLEncoder.encode(name, "UTF-8"));
+			WebTarget target = client.target(getRestUrl(null, db) + "/nosqlRecordDocs/byName/" + URLEncoder.encode(name, "UTF-8"));
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
