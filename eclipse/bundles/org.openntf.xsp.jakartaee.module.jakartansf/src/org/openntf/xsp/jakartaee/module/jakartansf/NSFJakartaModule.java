@@ -52,6 +52,7 @@ import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider;
 import org.openntf.xsp.jakartaee.module.jakarta.AbstractJakartaModule;
+import org.openntf.xsp.jakartaee.module.jakarta.ModuleIconSet;
 import org.openntf.xsp.jakartaee.module.jakartansf.concurrency.NSFJakartaModuleConcurrencyListener;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
@@ -115,6 +116,12 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 	@Override
 	public Optional<String> getModulePath() {
 		return Optional.of(mapping.path());
+	}
+	
+	@Override
+	public ModuleIconSet getModuleIcons() {
+		// TODO read $DBIcon when present
+		return super.getModuleIcons();
 	}
 	
 	@Override

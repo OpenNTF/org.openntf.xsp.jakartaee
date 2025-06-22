@@ -9,11 +9,15 @@ import java.util.stream.Stream;
  * @since 3.5.0
  */
 public interface ModuleFileSystem {
+	public record FileEntry(String name, Object metadata) {}
+	
 	Optional<URL> getUrl(String res);
+
+	Optional<URL> getWebResourceUrl(String res);
 	
 	Optional<InputStream> openStream(String res);
 	
-	Stream<String> listFiles();
+	Stream<FileEntry> listFiles();
 	
-	Stream<String> listFiles(String basePath);
+	Stream<FileEntry> listFiles(String basePath);
 }

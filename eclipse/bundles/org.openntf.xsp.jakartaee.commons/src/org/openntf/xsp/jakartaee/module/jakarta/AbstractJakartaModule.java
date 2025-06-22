@@ -40,6 +40,7 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
+import org.openntf.xsp.jakartaee.module.jakarta.ModuleFileSystem.FileEntry;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
@@ -301,6 +302,11 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	@Override
 	public URL getResource(String res) throws MalformedURLException {
 		return getRuntimeFileSystem().getUrl(ModuleUtil.trimResourcePath(res))
+			.orElse(null);
+	}
+	
+	public URL getWebResource(String res) throws MalformedURLException {
+		return getRuntimeFileSystem().getWebResourceUrl(ModuleUtil.trimResourcePath(res))
 			.orElseGet(() -> {
 				// Check for META-INF/resources in embedded JARs
 				// TODO skip check if the incoming path has META-INF or WEB-INF in it already
@@ -320,7 +326,9 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 		// This is looking for all resources strictly within the folder path,
 		//   with a trailing "/" if it's a subfolder of it
 		// TODO look for subfolders?
-		Stream<String> matches = this.getRuntimeFileSystem().listFiles(res);
+		Stream<String> matches = this.getRuntimeFileSystem()
+			.listFiles(res)
+			.map(FileEntry::name);
 		if(res.charAt(0) == '/') {
 			matches = matches.map(p -> '/' + p);
 		}
@@ -330,7 +338,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	@Override
 	protected void writeResource(ServletInvoker invoker, String res) throws IOException {
 		// Do an early check here since otherwise the parent implementation will set a status of 200
-		if(getResource(res) == null) {
+		if(getWebResource(res) == null) {
 			// TODO consider handling this differently, to avoid just "Item Not Found Exception" and a console log entry
 			throw new PageNotFoundException(MessageFormat.format("No resource found at path {0}", res));
 		} else {

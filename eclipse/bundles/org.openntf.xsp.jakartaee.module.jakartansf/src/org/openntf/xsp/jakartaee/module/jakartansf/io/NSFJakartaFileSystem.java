@@ -41,13 +41,23 @@ import com.ibm.designer.domino.napi.util.NotesUtils;
 
 import org.openntf.xsp.jakartaee.module.jakarta.ModuleFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModule;
+import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator.DesignEntry;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 public class NSFJakartaFileSystem implements ModuleFileSystem {
+	public record NSFMetadata(int noteId, FileType fileType, String flags, String flagsExt, boolean webVisible) {
+		public NSFMetadata(DesignEntry entry, FileType fileType) {
+			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType));
+		}
+	}
+	public enum FileType {
+		FILE, JAVASCRIPT, IMAGE, STYLESHEET
+	}
+	
 	private static final Logger log = Logger.getLogger(NSFJakartaFileSystem.class.getPackageName());
 	public static final String URLSCHEME = "jakartansf"; //$NON-NLS-1$
 	
-	private final Map<String, Integer> fileMap = new HashMap<>();
+	private final Map<String, NSFMetadata> fileMap = new HashMap<>();
 	private final NSFJakartaModule module;
 	
 	public NSFJakartaFileSystem(NSFJakartaModule module) {
@@ -67,7 +77,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 							if(log.isLoggable(Level.FINEST)) {
 								log.finest(MessageFormat.format("Adding file element \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							}
-							fileMap.put(name, noteId);
+							fileMap.put(name, new NSFMetadata(entry, FileType.FILE));
 						}
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_SCRIPTLIB_JS)) {
 						for(String name : sanitizeTitle(entry.title())) {
@@ -75,7 +85,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 							if(log.isLoggable(Level.FINEST)) {
 								log.finest(MessageFormat.format("Adding JavaScript library \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							}
-							fileMap.put(name, noteId);
+							fileMap.put(name, new NSFMetadata(entry, FileType.JAVASCRIPT));
 						}
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_IMAGE_RES_WEB)) {
 						for(String name : sanitizeTitle(entry.title())) {
@@ -83,7 +93,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 							if(log.isLoggable(Level.FINEST)) {
 								log.finest(MessageFormat.format("Adding image resource \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							}
-							fileMap.put(name, noteId);
+							fileMap.put(name, new NSFMetadata(entry, FileType.IMAGE));
 						}
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_STYLE_SHEETS_WEB)) {
 						for(String name : sanitizeTitle(entry.title())) {
@@ -91,7 +101,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 							if(log.isLoggable(Level.FINEST)) {
 								log.finest(MessageFormat.format("Adding stylesheet \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							}
-							fileMap.put(name, noteId);
+							fileMap.put(name, new NSFMetadata(entry, FileType.STYLESHEET));
 						}
 					}
 					// TODO Re-add when figuring out how to read the value, or handle elsewhere
@@ -122,17 +132,27 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 			return Optional.empty();
 		}
 	}
+	
+	@Override
+	public Optional<URL> getWebResourceUrl(String res) {
+		NSFMetadata meta = this.fileMap.get(res);
+		if(meta != null && meta.webVisible()) {
+			return getUrl(res);
+		} else {
+			return Optional.empty();
+		}
+	}
 
 	@Override
 	public Optional<InputStream> openStream(String res) {
-		Integer noteId = this.fileMap.get(res);
-		if(noteId != null) {
+		NSFMetadata noteData = this.fileMap.get(res);
+		if(noteData != null) {
 			try {
 				NotesDatabase db = module.getNotesDatabase();
 				if(!db.isValidHandle()) {
 					throw new RuntimeException(MessageFormat.format("Unable to open database {0}", db.getDatabasePath()));
 				}
-				NotesNote note = db.openNote(noteId, 0);
+				NotesNote note = db.openNote(noteData.noteId(), 0);
 				if(note != null && note.isValidHandle()) {
 					// TODO special handling for icon note
 					ByteStreamCache cache = new ByteStreamCache();
@@ -150,30 +170,43 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 	}
 	
 	@Override
-	public Stream<String> listFiles() {
+	public Stream<FileEntry> listFiles() {
 		return listFiles(null);
 	}
 
 	@Override
-	public Stream<String> listFiles(String basePath) {
+	public Stream<FileEntry> listFiles(String basePath) {
 		String path = ModuleUtil.trimResourcePath(basePath);
 		boolean listAll = StringUtil.isEmpty(path);
 		if(!listAll && !path.endsWith("/")) { //$NON-NLS-1$
 			path += "/"; //$NON-NLS-1$
 		}
 
-		Stream<String> pathStream = fileMap.keySet().stream();
+		Stream<Map.Entry<String, NSFMetadata>> pathStream = fileMap.entrySet().stream();
 		if(!listAll) {
 			String fPath = path;
 			pathStream = pathStream
-				.filter(p -> p.startsWith(fPath) && p.indexOf('/', fPath.length()+1) == -1);
+				.filter(p -> p.getKey().startsWith(fPath) && p.getKey().indexOf('/', fPath.length()+1) == -1);
 		}
-		return pathStream;
+		return pathStream.map(p -> new FileEntry(p.getKey(), p.getValue()));
 	}
 	
 	private static List<String> sanitizeTitle(String title) {
 		return Arrays.stream(StringUtil.splitString(title, '|'))
 			.map(t -> t.replace('\\', '/'))
 			.toList();
+	}
+	
+	private static boolean isWebVisible(DesignEntry entry, FileType fileType) {
+		boolean result = switch(fileType) {
+			case FILE: {
+				yield entry.flagsExt().indexOf('w') > -1; // DESIGN_FLAGEXT_WEBCONTENTFILE
+			}
+			case IMAGE: yield true;
+			case JAVASCRIPT: yield true;
+			case STYLESHEET: yield true;
+			default: yield false;
+		};
+		return result;
 	}
 }
