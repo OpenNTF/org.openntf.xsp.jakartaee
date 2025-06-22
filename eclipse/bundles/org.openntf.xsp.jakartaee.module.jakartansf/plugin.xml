@@ -35,9 +35,11 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleLocator" class="org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModuleLocator"/>
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider" class="org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModuleListenerProvider"/>
+	</extension>
 	
 	<!-- Concurrency -->
-	
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant" class="org.openntf.xsp.jakartaee.module.jakartansf.concurrency.NSFJakartaModuleContextParticipant"/>
 	</extension>

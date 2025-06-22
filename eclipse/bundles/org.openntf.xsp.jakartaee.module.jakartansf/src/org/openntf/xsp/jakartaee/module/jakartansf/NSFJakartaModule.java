@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -37,7 +36,6 @@ import com.ibm.designer.domino.napi.NotesNote;
 import com.ibm.designer.domino.napi.NotesSession;
 import com.ibm.designer.domino.napi.design.FileAccess;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
-import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.DominoHttpXspNativeContext;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.domino.napi.NException;
@@ -53,7 +51,6 @@ import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider;
 import org.openntf.xsp.jakartaee.module.jakarta.AbstractJakartaModule;
 import org.openntf.xsp.jakartaee.module.jakarta.ModuleIconSet;
-import org.openntf.xsp.jakartaee.module.jakartansf.concurrency.NSFJakartaModuleConcurrencyListener;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
@@ -218,10 +215,16 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 
 			// Find ServletContainerInitializers
 			List<ServletContainerInitializer> initializers = new ArrayList<>(LibraryUtil.findExtensions(ServletContainerInitializer.class, this));
-			LibraryUtil.findExtensions(ServletContainerInitializerProvider.class).stream()
-				.map(p -> p.provide(this))
-				.filter(Objects::nonNull)
-				.forEach(initializers::addAll);
+			LibraryUtil.findExtensions(ServletContainerInitializerProvider.class).forEach(provider -> {
+				Collection<ServletContainerInitializer> inits = provider.provide(this);
+				if(inits != null) {
+					initializers.addAll(inits);
+				}
+				Collection<Class<? extends EventListener>> listeners = provider.provideListeners(this);
+				if(listeners != null) {
+					listeners.forEach(servletContext::addListener);
+				}
+			});
 			
 			// Find any declared or annotated listeners
 			WebXml webXml = ServletUtil.getWebXml(this);
@@ -240,9 +243,6 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 				.filter(c -> c.isAnnotationPresent(WebListener.class))
 				.map(c -> (Class<? extends EventListener>)c)
 				.forEach(servletContext::addListener);
-			
-			// Built-in support for concurrency
-			servletContext.addListener(NSFJakartaModuleConcurrencyListener.class);
 			
 			ServletUtil.populateWebXmlParams(this, servletContext);
 			
@@ -337,18 +337,6 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 	}
 	
 	// These are called by AdapterInvoker
-	
-	@Override
-	public ServletMatch getServlet(String path) throws javax.servlet.ServletException {
-		// TODO init Servlets at startup, at least those marked with an interface
-		for(JakartaIServletFactory fac : getServletFactories()) {
-			ServletMatch servletMatch = fac.getServletMatch('/' + mapping.path(), path);
-			if(servletMatch != null) {
-				return servletMatch;
-			}
-		}
-		return null;
-	}
 	
 	@Override
 	protected void invokeServlet(javax.servlet.Servlet servlet, javax.servlet.http.HttpServletRequest req,

@@ -273,6 +273,20 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 			throw e;
 		}
 	}
+
+	// These are called by AdapterInvoker
+	
+	@Override
+	public ServletMatch getServlet(String path) throws javax.servlet.ServletException {
+		// TODO init Servlets at startup, at least those marked with an interface
+		for(JakartaIServletFactory fac : getServletFactories()) {
+			ServletMatch servletMatch = fac.getServletMatch('/' + getModulePath().get(), path);
+			if(servletMatch != null) {
+				return servletMatch;
+			}
+		}
+		return null;
+	}
 	
 	// Called by AdapterInvoker if getServlet or a ServletFactory returns a ServletMatch
 	@Override

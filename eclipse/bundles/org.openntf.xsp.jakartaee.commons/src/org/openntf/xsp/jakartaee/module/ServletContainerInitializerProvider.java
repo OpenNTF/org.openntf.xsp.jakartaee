@@ -16,6 +16,8 @@
 package org.openntf.xsp.jakartaee.module;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.EventListener;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
@@ -29,4 +31,15 @@ import jakarta.servlet.ServletContainerInitializer;
  */
 public interface ServletContainerInitializerProvider {
 	Collection<ServletContainerInitializer> provide(ComponentModule module);
+
+	/**
+	 * Allows contribution of Servlet listeners to the module.
+	 * 
+	 * @param module the module being processed
+	 * @return a {@link Collection} of Servlet-compatible {@link EventListener} classes
+	 * @since 3.5.0
+	 */
+	default Collection<Class<? extends EventListener>> provideListeners(ComponentModule module) {
+		return Collections.emptySet();
+	}
 }
