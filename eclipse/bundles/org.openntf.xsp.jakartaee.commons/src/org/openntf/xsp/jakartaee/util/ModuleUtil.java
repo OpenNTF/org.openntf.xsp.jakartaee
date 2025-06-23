@@ -299,7 +299,7 @@ public enum ModuleUtil {
 	public static String trimResourcePath(String path) {
 		if(path == null) {
 			return null;
-		} else if(path.length() > 1 && path.startsWith("/")) { //$NON-NLS-1$
+		} else if(path.length() > 1 && path.charAt(0) == '/') {
 			return path.substring(1);
 		} else {
 			return path;
