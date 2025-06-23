@@ -77,7 +77,7 @@ import jakarta.servlet.http.HttpSessionListener;
 public abstract class AbstractJakartaModule extends ComponentModule {
 	private static final Logger log = Logger.getLogger(AbstractJakartaModule.class.getPackageName());
 	
-	private AbstractModuleClassLoader moduleClassLoader;
+	private DefaultModuleClassLoader moduleClassLoader;
 	private ServletContext servletContext;
 	private long lastRefresh;
 	private Collection<JakartaIServletFactory> servletFactories;
@@ -175,11 +175,11 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	public abstract ModuleFileSystem getRuntimeFileSystem();
 	
 	@Override
-	public AbstractModuleClassLoader getModuleClassLoader() {
+	public DefaultModuleClassLoader getModuleClassLoader() {
 		return this.moduleClassLoader;
 	}
 	
-	protected void setModuleClassLoader(AbstractModuleClassLoader moduleClassLoader) {
+	protected void setModuleClassLoader(DefaultModuleClassLoader moduleClassLoader) {
 		this.moduleClassLoader = moduleClassLoader;
 	}
 	
@@ -340,7 +340,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 				// Check for META-INF/resources in embedded JARs
 				// TODO skip check if the incoming path has META-INF or WEB-INF in it already
 				// moduleClassLoader may be null when it itself is being initialized and the JVM calls getResources
-				AbstractModuleClassLoader moduleClassLoader = getModuleClassLoader();
+				DefaultModuleClassLoader moduleClassLoader = getModuleClassLoader();
 				if(moduleClassLoader != null) {
 					String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
 					return moduleClassLoader.getJarResource(metaResPath);
@@ -455,13 +455,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	
 	protected void clearModuleClassLoader() {
 		if(this.moduleClassLoader != null) {
-			try {
-				this.moduleClassLoader.close();
-			} catch (IOException e) {
-				if(log.isLoggable(Level.WARNING)) {
-					log.log(Level.WARNING, MessageFormat.format("Encountered exception closing ClassLoader for {0}", this), e);
-				}
-			}
+			this.moduleClassLoader.close();
 			this.moduleClassLoader = null;
 		}
 	}

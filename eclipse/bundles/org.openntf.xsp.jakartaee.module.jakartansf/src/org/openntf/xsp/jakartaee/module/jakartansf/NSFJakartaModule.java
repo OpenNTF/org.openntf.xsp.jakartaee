@@ -51,7 +51,7 @@ import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider;
 import org.openntf.xsp.jakartaee.module.jakarta.AbstractJakartaModule;
 import org.openntf.xsp.jakartaee.module.jakarta.ModuleIconSet;
-import org.openntf.xsp.jakartaee.module.jakarta.DefaultJakartaModuleClassLoader;
+import org.openntf.xsp.jakartaee.module.jakarta.DefaultModuleClassLoader;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
@@ -192,7 +192,7 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 					this.xspSigner = this.notesDatabase.getUserName();
 				}
 
-				setModuleClassLoader(new DefaultJakartaModuleClassLoader(this));
+				setModuleClassLoader(new DefaultModuleClassLoader(this));
 			} catch (NotesAPIException e) {
 				e.printStackTrace();
 				throw new RuntimeException(MessageFormat.format("Encountered exception 0x{0} initializing module {1}", Integer.toHexString(e.getNativeErrorCode()), this), e);
