@@ -31,7 +31,6 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import com.ibm.commons.util.StringUtil;
-import com.ibm.commons.util.io.ByteStreamCache;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesConstants;
 import com.ibm.designer.domino.napi.NotesDatabase;
@@ -45,13 +44,16 @@ import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator.D
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 public class NSFJakartaFileSystem implements ModuleFileSystem {
-	public record NSFMetadata(int noteId, FileType fileType, String flags, String flagsExt, boolean webVisible) {
+	public record NSFMetadata(int noteId, FileType fileType, String flags, String flagsExt, boolean webVisible, String itemName) {
 		public NSFMetadata(DesignEntry entry, FileType fileType) {
-			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType));
+			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), null);
+		}
+		public NSFMetadata(DesignEntry entry, FileType fileType, String itemName) {
+			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), itemName);
 		}
 	}
 	public enum FileType {
-		FILE, JAVASCRIPT, IMAGE, STYLESHEET
+		FILE, JAVASCRIPT, IMAGE, STYLESHEET, JAVA_CLASS
 	}
 	
 	private static final Logger log = Logger.getLogger(NSFJakartaFileSystem.class.getPackageName());
@@ -68,7 +70,19 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 				try(var entry = nav.next()) {
 
 					if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_FILE_WEB)) {
-						// In practice, we don't care about $ClassIndexItem
+
+						// Add as a special class file entry as needed
+						if (NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_JAVAFILE)) {
+							String classNamesCat = entry.classIndexItem();
+							String[] classNames = StringUtil.splitString(classNamesCat, '|');
+							for (int i = 0; i < classNames.length; i++) {
+								if(classNames[i].length() > 7) {
+									fileMap.put(classNames[i], new NSFMetadata(entry, FileType.JAVA_CLASS, "$ClassData" + i)); //$NON-NLS-1$
+								}
+							}
+						}
+						
+						// Add as a normal file entry
 						for(String name : sanitizeTitle(entry.title())) {
 							if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_JAVAJAR)) {
 								name = "WEB-INF/lib/" + name; //$NON-NLS-1$
@@ -155,9 +169,12 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 				NotesNote note = db.openNote(noteData.noteId(), 0);
 				if(note != null && note.isValidHandle()) {
 					// TODO special handling for icon note
-					ByteStreamCache cache = new ByteStreamCache();
-					FileAccess.readFileContent(note, cache.getOutputStream());
-					return Optional.of(cache.getInputStream());
+					String itemName = noteData.itemName();
+					if(StringUtil.isNotEmpty(itemName)) {
+						return Optional.of(FileAccess.readFileContentAsInputStream(note, itemName));
+					} else {
+						return Optional.of(FileAccess.readFileContentAsInputStream(note));
+					}
 				} else {
 					return null;
 				}
@@ -189,6 +206,12 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 				.filter(p -> p.getKey().startsWith(fPath) && p.getKey().indexOf('/', fPath.length()+1) == -1);
 		}
 		return pathStream.map(p -> new FileEntry(p.getKey(), p.getValue()));
+	}
+	
+	@Override
+	public URI buildURI(String path) throws URISyntaxException {
+		String innerPath = path.startsWith("/") ? path : "/" + path; //$NON-NLS-1$ //$NON-NLS-2$
+		return new URI(NSFJakartaFileSystem.URLSCHEME, null, "localhost", 1352, '/' + module.getMapping().path() + "!" + innerPath, null, null); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	private static List<String> sanitizeTitle(String title) {

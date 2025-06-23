@@ -1,6 +1,8 @@
 package org.openntf.xsp.jakartaee.module.jakarta;
 
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -20,4 +22,13 @@ public interface ModuleFileSystem {
 	Stream<FileEntry> listFiles();
 	
 	Stream<FileEntry> listFiles(String basePath);
+	
+	/**
+	 * Builds a URI to the provided path, whether or not it exists in the module.
+	 * 
+	 * @param path the path to identify within the module
+	 * @return a URI for the path
+	 * @throws URISyntaxException if the URI cannot be built as specified
+	 */
+	URI buildURI(String path) throws URISyntaxException;
 }
