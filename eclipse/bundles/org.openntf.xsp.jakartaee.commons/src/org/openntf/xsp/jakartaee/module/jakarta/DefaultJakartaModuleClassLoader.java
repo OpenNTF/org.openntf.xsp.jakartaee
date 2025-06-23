@@ -24,7 +24,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.security.CodeSigner;
 import java.security.CodeSource;
 import java.text.MessageFormat;
@@ -268,19 +267,9 @@ public class DefaultJakartaModuleClassLoader extends AbstractModuleClassLoader {
 		fs.listFiles()
 			.map(FileEntry::name)
 			.filter(p -> p.length() > 16 && p.startsWith("WEB-INF/lib/") && p.endsWith(".jar")) //$NON-NLS-1$ //$NON-NLS-2$
-			.map(fs::openStream)
-			.forEach(optIs -> {
-				try(InputStream is = optIs.get()) {
-					Path tempJar = Files.createTempFile(getClass().getSimpleName(), ".jar"); //$NON-NLS-1$
-					cleanup.add(tempJar);
-					Files.copy(is, tempJar, StandardCopyOption.REPLACE_EXISTING);
-					addURL(URI.create("jar:" + tempJar.toUri() + "!/").toURL()); //$NON-NLS-1$ //$NON-NLS-2$
-				} catch (IOException e) {
-					if(log.isLoggable(Level.WARNING)) {
-						log.log(Level.WARNING, MessageFormat.format("Encountered exception processing JAR in {0}", this.getModule()), e);
-					}
-				}
-			});
+			.map(fs::getUrl)
+			.map(Optional::get)
+			.forEach(this::addURL);
 	}
 	
 	private static String toFileName(String className) {
