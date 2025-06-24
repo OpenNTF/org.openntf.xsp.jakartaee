@@ -63,7 +63,7 @@ public class DefaultModuleClassLoader extends URLClassLoader implements Applicat
 
 	protected final List<ClassLoader> extraDepends = new ArrayList<>();
 	private final Set<Path> cleanup = new HashSet<>();
-	protected final CodeSource nsfCodeSource;
+	protected final CodeSource codeSoruce;
 	private final AbstractJakartaModule module;
 	private final List<ClassLoaderExtension> extensions;
 
@@ -104,7 +104,7 @@ public class DefaultModuleClassLoader extends URLClassLoader implements Applicat
 		}
 
 		URI uri = module.getRuntimeFileSystem().buildURI("/WEB-INF/classes"); //$NON-NLS-1$
-		this.nsfCodeSource = new CodeSource(uri.toURL(), (CodeSigner[]) null);
+		this.codeSoruce = new CodeSource(uri.toURL(), (CodeSigner[]) null);
 
 		// TODO Add some things like IBM Commons and other frequently-used libraries?
 	}
@@ -254,7 +254,7 @@ public class DefaultModuleClassLoader extends URLClassLoader implements Applicat
 				try (InputStream is = javaClassStream.get()) {
 					bytecode = is.readAllBytes();
 				}
-				return this.defineClass(name, bytecode, 0, bytecode.length, this.nsfCodeSource);
+				return this.defineClass(name, bytecode, 0, bytecode.length, this.codeSoruce);
 			}
 
 			// Next, check the parent ClassLoader
