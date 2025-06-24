@@ -223,7 +223,9 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 	private static boolean isWebVisible(DesignEntry entry, FileType fileType) {
 		boolean result = switch(fileType) {
 			case FILE: {
-				yield entry.flagsExt().indexOf('w') > -1; // DESIGN_FLAGEXT_WEBCONTENTFILE
+				yield
+					entry.flags().indexOf('Q') > -1 // DESIGN_FLAG_QUERY_FILTER (used in web-visible file-like entities)
+					|| entry.flagsExt().indexOf('w') > -1; // DESIGN_FLAGEXT_WEBCONTENTFILE
 			}
 			case IMAGE: yield true;
 			case JAVASCRIPT: yield true;
