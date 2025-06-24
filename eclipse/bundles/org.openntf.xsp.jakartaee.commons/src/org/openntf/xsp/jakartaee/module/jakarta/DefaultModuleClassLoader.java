@@ -77,8 +77,6 @@ public class DefaultModuleClassLoader extends URLClassLoader implements Applicat
 			.filter(Objects::nonNull)
 			.flatMap(Collection::stream)
 			.toList();
-		
-		// TODO build CodeSources for /WEB-INF/classes et al for defineClass calls
 
 		ModuleFileSystem fs = this.getModule().getRuntimeFileSystem();
 		fs.listFiles()
