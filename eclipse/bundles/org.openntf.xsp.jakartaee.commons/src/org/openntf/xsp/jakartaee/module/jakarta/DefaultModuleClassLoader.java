@@ -68,7 +68,7 @@ public class DefaultModuleClassLoader extends URLClassLoader implements Applicat
 	private final List<ClassLoaderExtension> extensions;
 
 	public DefaultModuleClassLoader(AbstractJakartaModule module) throws URISyntaxException, MalformedURLException {
-		super(MessageFormat.format("{0}:{1}", AbstractJakartaModule.class.getSimpleName(), module.getModulePath().orElse("")), new URL[0], module.getClass().getClassLoader()); //$NON-NLS-1$
+		super(MessageFormat.format("{0}:{1}", module.getClass().getSimpleName(), module.getModulePath().orElse("")), new URL[0], module.getClass().getClassLoader()); //$NON-NLS-1$ //$NON-NLS-2$
 
 		this.module = module;
 
