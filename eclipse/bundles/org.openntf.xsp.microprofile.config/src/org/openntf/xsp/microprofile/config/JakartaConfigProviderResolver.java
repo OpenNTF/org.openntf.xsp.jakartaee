@@ -2,12 +2,11 @@ package org.openntf.xsp.microprofile.config;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
-import java.util.WeakHashMap;
+
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import org.eclipse.microprofile.config.Config;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
@@ -24,38 +23,13 @@ import io.smallrye.config.SysPropConfigSource;
 import jakarta.servlet.ServletContext;
 
 /**
- * This is a variant of {@code SmallRyeConfigProviderResolver} that uses a
- * weak-keyed
- * map for its ClassLoader-to-Config cache to avoid retaining ClassLoaders
- * indefinitely as apps are refreshed.
+ * This is a variant of {@code SmallRyeConfigProviderResolver} that stores
+ * configurations in active ComponentModules, ignoring ClassLoader parameters
  * 
  * @since 3.5.0
  */
 public class JakartaConfigProviderResolver extends SmallRyeConfigProviderResolver {
-	private final Map<ClassLoader, Config> configsForClassLoader = new WeakHashMap<>();
-
-	static final ClassLoader SYSTEM_CL;
-
-	static {
-		final SecurityManager sm = System.getSecurityManager();
-		if (sm != null) {
-			SYSTEM_CL = AccessController
-					.doPrivileged(
-							(PrivilegedAction<ClassLoader>) JakartaConfigProviderResolver::calculateSystemClassLoader);
-		} else {
-			SYSTEM_CL = calculateSystemClassLoader();
-		}
-	}
-
-	private static ClassLoader calculateSystemClassLoader() {
-		ClassLoader cl = ClassLoader.getSystemClassLoader();
-		if (cl == null) {
-			// non-null ref that delegates to the system
-			cl = new ClassLoader(null) {
-			};
-		}
-		return cl;
-	}
+	private static final String KEY_CONFIG = JakartaConfigProviderResolver.class.getName() + "_config"; //$NON-NLS-1$
 
 	@Override
 	public Config getConfig() {
@@ -64,38 +38,29 @@ public class JakartaConfigProviderResolver extends SmallRyeConfigProviderResolve
 
 	@Override
 	public Config getConfig(ClassLoader classLoader) {
-		final ClassLoader realClassLoader = getRealClassLoader(classLoader);
-		final Map<ClassLoader, Config> configsForClassLoader = this.configsForClassLoader;
-		synchronized (configsForClassLoader) {
-			Config config = configsForClassLoader.get(realClassLoader);
-			if (config == null) {
-				config = configsForClassLoader.get(realClassLoader);
-				if (config == null) {
-					config = getFactoryFor(realClassLoader, false).getConfigFor(this, classLoader);
-					// don't cache null, as that would leak class loaders
-					if (config == null) {
-						throw new IllegalStateException("No configuration is available for this class loader");
-					}
-					configsForClassLoader.put(realClassLoader, config);
-				}
-			}
-			return config;
+		// Ignore the ClassLoader and find the ComponentModule instead
+		ComponentModule module = ComponentModuleLocator.getDefault()
+			.map(ComponentModuleLocator::getActiveModule)
+			.orElse(null);
+		if(module == null) {
+			return null;
 		}
+		
+		Config config = (Config)module.getAttributes().get(KEY_CONFIG);
+		if (config == null) {
+			config = getFactoryFor().getConfigFor(this, classLoader);
+			// don't cache null, as that would leak class loaders
+			if (config == null) {
+				throw new IllegalStateException("No configuration is available for this class loader");
+			}
+			module.getAttributes().put(KEY_CONFIG, config);
+		}
+		return config;
 	}
 
-	SmallRyeConfigFactory getFactoryFor(final ClassLoader classLoader, final boolean privileged) {
-		final SecurityManager sm = System.getSecurityManager();
-		if (sm != null && !privileged) {
-			// run privileged so that the only things on the access control stack are us and
-			// the provider
-			return AccessController.doPrivileged(new PrivilegedAction<SmallRyeConfigFactory>() {
-				public SmallRyeConfigFactory run() {
-					return getFactoryFor(classLoader, true);
-				}
-			});
-		}
+	SmallRyeConfigFactory getFactoryFor() {
 		final ServiceLoader<SmallRyeConfigFactory> serviceLoader = ServiceLoader.load(SmallRyeConfigFactory.class,
-				classLoader);
+				getContextClassLoader());
 		final Iterator<SmallRyeConfigFactory> iterator = serviceLoader.iterator();
 		return iterator.hasNext() ? iterator.next() : DefaultFactory.INSTANCE;
 	}
@@ -129,43 +94,30 @@ public class JakartaConfigProviderResolver extends SmallRyeConfigProviderResolve
 	@Override
 	public void registerConfig(Config config, ClassLoader classLoader) {
 		Objects.requireNonNull(config, "config cannot be null");
-		final ClassLoader realClassLoader = getRealClassLoader(classLoader);
-		final Map<ClassLoader, Config> configsForClassLoader = this.configsForClassLoader;
-		synchronized (configsForClassLoader) {
-			final Config existing = configsForClassLoader.putIfAbsent(realClassLoader, config);
-			if (existing != null) {
-				throw new IllegalStateException("Configuration already registered for the given class loader");
-			}
+
+		ComponentModule module = ComponentModuleLocator.getDefault()
+			.map(ComponentModuleLocator::getActiveModule)
+			.orElse(null);
+		if(module == null) {
+			return;
+		}
+		
+		final Config existing = (Config)module.getAttributes().putIfAbsent(KEY_CONFIG, config);
+		if (existing != null) {
+			throw new IllegalStateException("Configuration already registered for the given class loader");
 		}
 	}
 
 	@Override
 	public void releaseConfig(Config config) {
-		// todo: see
-		// https://github.com/eclipse/microprofile-config/issues/136#issuecomment-535962313
-		// todo: see https://github.com/eclipse/microprofile-config/issues/471
-		final Map<ClassLoader, Config> configsForClassLoader = this.configsForClassLoader;
-		synchronized (configsForClassLoader) {
-			configsForClassLoader.values().removeIf(v -> v == config);
+		ComponentModule module = ComponentModuleLocator.getDefault()
+			.map(ComponentModuleLocator::getActiveModule)
+			.orElse(null);
+		if(module == null) {
+			return;
 		}
-	}
-
-	public void releaseConfig(ClassLoader classLoader) {
-		final ClassLoader realClassLoader = getRealClassLoader(classLoader);
-		final Map<ClassLoader, Config> configsForClassLoader = this.configsForClassLoader;
-		synchronized (configsForClassLoader) {
-			configsForClassLoader.remove(realClassLoader);
-		}
-	}
-
-	static ClassLoader getRealClassLoader(ClassLoader classLoader) {
-		if (classLoader == null) {
-			classLoader = getContextClassLoader();
-		}
-		if (classLoader == null) {
-			classLoader = SYSTEM_CL;
-		}
-		return classLoader;
+		
+		module.getAttributes().entrySet().removeIf(e -> config == e.getValue());
 	}
 
 	static final class DefaultFactory extends SmallRyeConfigFactory {
