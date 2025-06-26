@@ -15,7 +15,11 @@
  */
 package org.openntf.xsp.jakartaee.module.jakartansf;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URL;
+import java.nio.ByteBuffer;
 import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -28,7 +32,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
+
 import com.ibm.commons.extension.ExtensionManager;
+import com.ibm.commons.util.io.StreamUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesConstants;
 import com.ibm.designer.domino.napi.NotesDatabase;
@@ -52,6 +59,7 @@ import org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider;
 import org.openntf.xsp.jakartaee.module.jakarta.AbstractJakartaModule;
 import org.openntf.xsp.jakartaee.module.jakarta.ModuleIconSet;
 import org.openntf.xsp.jakartaee.module.jakarta.DefaultModuleClassLoader;
+import org.openntf.xsp.jakartaee.module.jakarta.ModuleIcon;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
@@ -118,8 +126,25 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 	
 	@Override
 	public ModuleIconSet getModuleIcons() {
-		// TODO read $DBIcon when present
-		return super.getModuleIcons();
+		ModuleIconSet result = super.getModuleIcons();
+		
+		this.getRuntimeFileSystem().openStream("$DBIcon").ifPresent(is -> { //$NON-NLS-1$
+			try {
+				byte[] data;
+				try {
+					 data = is.readAllBytes();
+				} finally {
+					StreamUtil.close(is);
+				}
+				
+				// Assume these are all 64x64, which was the case as of 12.0.0
+				result.icons().add(new ModuleIcon("image/png", 64, 64, ByteBuffer.wrap(data))); //$NON-NLS-1$
+			} catch(IOException e) {
+				throw new UncheckedIOException(e);
+			}
+		});
+		
+		return result;
 	}
 	
 	@Override
