@@ -406,16 +406,17 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	@Override
 	public InputStream getResourceAsStream(String res) {
 		return getRuntimeFileSystem().openStream(ModuleUtil.trimResourcePath(res))
-			.orElseGet(() -> {
-				String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
-				return getModuleClassLoader().getJarResourceAsStream(metaResPath);
-			});
+			.orElse(null);
 	}
 	
 	// Called to serve resource - returns false if it doesn't exist
 	@Override
 	public boolean getResourceAsStream(OutputStream os, String res) {
-		try(InputStream is = getResourceAsStream(res)) {
+		try(InputStream is = getRuntimeFileSystem().openStream(ModuleUtil.trimResourcePath(res))
+		.orElseGet(() -> {
+			String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
+			return getModuleClassLoader().getJarResourceAsStream(metaResPath);
+		})) {
 			if(is != null) {
 				is.transferTo(os);
 				return true;

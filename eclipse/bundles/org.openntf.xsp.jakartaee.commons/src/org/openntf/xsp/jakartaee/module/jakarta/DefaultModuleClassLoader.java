@@ -164,13 +164,18 @@ public class DefaultModuleClassLoader extends URLClassLoader implements Applicat
 
 	@Override
 	public URL getResource(String name) {
-		try {
-			URL modRes = getModule().getResource(name);
-			if (modRes != null) {
-				return modRes;
+		AbstractJakartaModule module = getModule();
+		Optional<URL> modRes = module.getRuntimeFileSystem().getUrl(ModuleUtil.trimResourcePath(name));
+		if (modRes.isPresent()) {
+			return modRes.get();
+		} else {
+			// It may be asking for a .class file or resource like a .properties file - try with the prefix
+			if (StringUtil.isNotEmpty(name)) {
+				modRes = module.getRuntimeFileSystem().getUrl(PathUtil.concat("WEB-INF/classes", name, '/')); //$NON-NLS-1$
+				if (modRes.isPresent()) {
+					return modRes.get();
+				}
 			}
-		} catch (MalformedURLException e) {
-			// TODO ignore
 		}
 
 		URL result = getJarResource(name);
@@ -203,8 +208,8 @@ public class DefaultModuleClassLoader extends URLClassLoader implements Applicat
 		if (modRes.isPresent()) {
 			return modRes.get();
 		} else {
-			// If it's asking for a .class file, try with the prefix
-			if (StringUtil.isNotEmpty(name) && name.endsWith(".class")) { //$NON-NLS-1$
+			// It may be asking for a .class file or resource like a .properties file - try with the prefix
+			if (StringUtil.isNotEmpty(name)) {
 				modRes = module.getRuntimeFileSystem().openStream(PathUtil.concat("WEB-INF/classes", name, '/')); //$NON-NLS-1$
 				if (modRes.isPresent()) {
 					return modRes.get();
