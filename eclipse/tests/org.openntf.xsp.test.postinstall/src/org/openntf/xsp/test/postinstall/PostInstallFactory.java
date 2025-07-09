@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,6 +97,8 @@ public class PostInstallFactory implements IServiceFactory {
 			} finally {
 				session.recycle();
 			}
+			
+			System.out.println("Postinstall successful on Java " + System.getProperty("java.version") + " and OSGi version " + System.getProperty("eclipse.buildId"));
 		} catch(Throwable e) {
 			e.printStackTrace();
 		} finally {

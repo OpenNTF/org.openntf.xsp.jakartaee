@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,14 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
@@ -48,8 +50,9 @@ import net.fortuna.ical4j.model.property.Uid;
 
 @SuppressWarnings("nls")
 public class TestNoSQLCalendar extends AbstractWebClientTest {
-	@Test
-	public void testCalendarLifecycle() throws IOException, ParserException {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testCalendarLifecycle(TestDatabase db) throws IOException, ParserException {
 		Client client = getAdminClient();
 		
 		OffsetDateTime start1 = OffsetDateTime.now();
@@ -58,7 +61,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		String uid2;
 		// Create some known entries
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar"); //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar"); //$NON-NLS-1$
 			
 			{
 				VEvent event = new VEvent(new DateTime(java.util.Date.from(start1.toInstant())), new DateTime(java.util.Date.from(start1.plus(1, ChronoUnit.HOURS).toInstant())), "Test Event 1")
@@ -84,7 +87,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		
 		// Try reading both entries
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/readEntries") //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/readEntries") //$NON-NLS-1$
 				.queryParam("start", start1.toLocalDate().minus(1, ChronoUnit.DAYS))
 				.queryParam("end", start1.toLocalDate().plus(2, ChronoUnit.DAYS));
 			String icsData = readString(target.request().get());
@@ -98,7 +101,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		
 		// Read one entry
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/readEntries") //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/readEntries") //$NON-NLS-1$
 				.queryParam("start", start1.toLocalDate().minus(1, ChronoUnit.DAYS))
 				.queryParam("end", start1.toLocalDate().plus(2, ChronoUnit.DAYS))
 				.queryParam("page","1")
@@ -113,7 +116,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		}
 		// Read second entry
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/readEntries") //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/readEntries") //$NON-NLS-1$
 				.queryParam("start", start1.toLocalDate().minus(1, ChronoUnit.DAYS))
 				.queryParam("end", start1.toLocalDate().plus(2, ChronoUnit.DAYS))
 				.queryParam("page","2")
@@ -128,13 +131,13 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		
 		// Delete the first entry
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8"));
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8"));
 			readString(target.request().delete());
 		}
 		
 		// Read all and expect only the second
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/readEntries") //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/readEntries") //$NON-NLS-1$
 					.queryParam("start", start1.toLocalDate().minus(1, ChronoUnit.DAYS))
 					.queryParam("end", start1.toLocalDate().plus(2, ChronoUnit.DAYS));
 			String icsData = readString(target.request().get());
@@ -148,30 +151,32 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		
 		// Delete the second entry
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/" + URLEncoder.encode(uid2, "UTF-8"));
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/" + URLEncoder.encode(uid2, "UTF-8"));
 			readString(target.request().delete());
 		}
 		
 		// Ensure that the result is empty
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/readEntries") //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/readEntries") //$NON-NLS-1$
 					.queryParam("start", start1.toLocalDate().minus(1, ChronoUnit.DAYS))
 					.queryParam("end", start1.toLocalDate().plus(2, ChronoUnit.DAYS));
 			String icsData = readString(target.request().get());
 			assertTrue(StringUtil.isEmpty(icsData), () -> "Received unexpected content: " + icsData);
 		}
 	}
-	
-	@Test
-	public void testGetFakeEntry() throws IOException, ParserException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testGetFakeEntry(TestDatabase db) throws IOException, ParserException {
 		Client client = getAdminClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/idonotexist"); //$NON-NLS-1$
+		WebTarget target = client.target(getRestUrl(null, db) + "/calendar/idonotexist"); //$NON-NLS-1$
 		Response resp = target.request().get();
 		assertEquals(404, resp.getStatus(), () -> "Unexpected status: " + resp.getStatus() + ", content: " + resp.readEntity(String.class));
 	}
-	
-	@Test
-	public void testGetEntry() throws IOException, ParserException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testGetEntry(TestDatabase db) throws IOException, ParserException {
 		Client client = getAdminClient();
 		
 		OffsetDateTime start1 = OffsetDateTime.now().plus(7, ChronoUnit.DAYS).truncatedTo(ChronoUnit.SECONDS);
@@ -179,7 +184,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		String uid1;
 		// Create the entry
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar"); //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar"); //$NON-NLS-1$
 			
 			{
 				VEvent event = new VEvent(new DateTime(java.util.Date.from(start1.toInstant())), new DateTime(java.util.Date.from(start1.plus(1, ChronoUnit.HOURS).toInstant())), "Test Event 1")
@@ -195,7 +200,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		
 		// Try to read it with GET
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8")); //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8")); //$NON-NLS-1$
 			String icsData = readString(target.request().get());
 			
 			Calendar cal = new CalendarBuilder().build(new StringReader(icsData));
@@ -206,13 +211,14 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		
 		// Try to clean up the entry
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8"));
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8"));
 			readString(target.request().delete());
 		}
 	}
-	
-	@Test
-	public void testQueryTimeOnly() throws IOException, ParserException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testQueryTimeOnly(TestDatabase db) throws IOException, ParserException {
 		Client client = getAdminClient();
 		
 		OffsetDateTime start1 = OffsetDateTime.now().plus(3, ChronoUnit.DAYS).truncatedTo(ChronoUnit.SECONDS);
@@ -220,7 +226,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		String uid1;
 		// Create the entry with the initial time
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar"); //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar"); //$NON-NLS-1$
 			
 			{
 				VEvent event = new VEvent(toDt(start1.toInstant()), toDt(start1.plus(1, ChronoUnit.HOURS).toInstant()), "Test Event 1")
@@ -244,7 +250,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 				startTime = endTime;
 				endTime = temp;
 			}
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/readEntries") //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/readEntries") //$NON-NLS-1$
 				.queryParam("start", startTime)
 				.queryParam("end", endTime);
 			String icsData = readString(target.request().get());
@@ -258,13 +264,14 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		
 		// Try to clean up the entry
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8"));
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8"));
 			readString(target.request().delete());
 		}
 	}
-	
-	@Test
-	public void testUpdateEntry() throws IOException, ParserException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testUpdateEntry(TestDatabase db) throws IOException, ParserException {
 		Client client = getAdminClient();
 		
 		OffsetDateTime start1 = OffsetDateTime.now().plus(10, ChronoUnit.DAYS);
@@ -273,7 +280,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		String uid1;
 		// Create the entry with the initial time
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar"); //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar"); //$NON-NLS-1$
 			
 			{
 				VEvent event = new VEvent(toDt(start1.toInstant()), toDt(start1.plus(1, ChronoUnit.HOURS).toInstant()), "Test Event 1")
@@ -289,7 +296,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		
 		// Ensure it was written properly
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/readEntries") //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/readEntries") //$NON-NLS-1$
 				.queryParam("start", start1.minus(1, ChronoUnit.DAYS))
 				.queryParam("end", start1.plus(2, ChronoUnit.DAYS));
 			String icsData = readString(target.request().get());
@@ -311,13 +318,13 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 				.getFluentTarget();
 			System.out.println("sending ics data " + icsCalendar.toString());
 				
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8"));
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8"));
 			readString(target.request().put(Entity.entity(icsCalendar.toString(), "text/calendar")));
 		}
 		
 		// Make sure it was updated
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/readEntries") //$NON-NLS-1$
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/readEntries") //$NON-NLS-1$
 				.queryParam("start", start1.minus(1, ChronoUnit.DAYS))
 				.queryParam("end", start1.plus(2, ChronoUnit.DAYS));
 			String icsData = readString(target.request().get());
@@ -334,7 +341,7 @@ public class TestNoSQLCalendar extends AbstractWebClientTest {
 		
 		// Try to clean up the entry
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8"));
+			WebTarget target = client.target(getRestUrl(null, db) + "/calendar/" + URLEncoder.encode(uid1, "UTF-8"));
 			readString(target.request().delete());
 		}
 	}

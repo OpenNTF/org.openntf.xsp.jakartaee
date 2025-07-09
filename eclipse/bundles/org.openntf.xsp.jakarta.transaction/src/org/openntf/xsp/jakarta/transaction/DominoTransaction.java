@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,26 +39,26 @@ import jakarta.transaction.UserTransaction;
  * Domino implementation of {@link UserTransaction}, which uses an IBM Commons
  * extension point for {@link TransactionParticipant} to hook into the
  * transaction process.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
 public class DominoTransaction implements Transaction {
 	private static final Logger log = Logger.getLogger(DominoTransaction.class.getName());
-	
+
 	private int status = Status.STATUS_NO_TRANSACTION;
 	private boolean rollbackOnly = false;
-	
+
 	private final Collection<XAResource> resources;
 	private final Collection<Synchronization> synchronizations;
 	private final Xid id;
-	
-	public DominoTransaction(Xid id) {
+
+	public DominoTransaction(final Xid id) {
 		this.resources = Collections.synchronizedList(new ArrayList<>());
 		this.synchronizations = Collections.synchronizedList(new ArrayList<>());
 		this.id = id;
 	}
-	
+
 	public void begin() {
 		for(XAResource res : new ArrayList<>(resources)) {
 			try {
@@ -67,7 +67,7 @@ public class DominoTransaction implements Transaction {
 				throw new RuntimeException(e);
 			}
 		}
-		
+
 		this.status = Status.STATUS_ACTIVE;
 	}
 
@@ -81,7 +81,7 @@ public class DominoTransaction implements Transaction {
 			rollback();
 			throw new RollbackException("Transaction was marked as rollback-only and rolled back");
 		}
-		
+
 		status = Status.STATUS_COMMITTING;
 		for(Synchronization sync : new ArrayList<>(this.synchronizations)) {
 			sync.beforeCompletion();
@@ -138,7 +138,7 @@ public class DominoTransaction implements Transaction {
 	}
 
 	@Override
-	public boolean delistResource(XAResource xaRes, int flag) throws IllegalStateException, SystemException {
+	public boolean delistResource(final XAResource xaRes, final int flag) throws IllegalStateException, SystemException {
 		if(xaRes != null) {
 			Iterator<XAResource> iter = this.resources.iterator();
 			while(iter.hasNext()) {
@@ -159,7 +159,7 @@ public class DominoTransaction implements Transaction {
 	}
 
 	@Override
-	public boolean enlistResource(XAResource xaRes) throws RollbackException, IllegalStateException, SystemException {
+	public boolean enlistResource(final XAResource xaRes) throws RollbackException, IllegalStateException, SystemException {
 		if(xaRes != null) {
 			if(this.resources.stream().anyMatch(res -> {
 				try {
@@ -181,15 +181,15 @@ public class DominoTransaction implements Transaction {
 	}
 
 	@Override
-	public void registerSynchronization(Synchronization sync)
+	public void registerSynchronization(final Synchronization sync)
 			throws RollbackException, IllegalStateException, SystemException {
 		this.synchronizations.add(sync);
 	}
-	
+
 	public Collection<XAResource> getResources() {
 		return Collections.unmodifiableCollection(resources);
 	}
-	
+
 	public Xid getId() {
 		return id;
 	}

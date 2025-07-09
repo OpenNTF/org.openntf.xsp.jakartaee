@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class OpenAPIYAMLResource extends AbstractOpenAPIResource {
 	@GET
 	@Operation(hidden=true)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String get(@Context HttpHeaders headers) throws IOException {
+	public String get(@Context final HttpHeaders headers) throws IOException {
 		OpenAPI openapi = buildOpenAPI();
 		return OpenApiSerializer.serialize(openapi, Format.YAML);
 	}

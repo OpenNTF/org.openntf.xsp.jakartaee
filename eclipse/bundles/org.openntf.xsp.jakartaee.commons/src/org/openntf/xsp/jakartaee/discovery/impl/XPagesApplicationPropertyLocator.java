@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,19 @@ package org.openntf.xsp.jakartaee.discovery.impl;
 import java.util.Optional;
 import java.util.Properties;
 
-import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
-
 import com.ibm.xsp.application.ApplicationEx;
+
+import org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator;
 
 import jakarta.annotation.Priority;
 
 /**
  * Retrieves the named property from an active XPages application.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
-@Priority(3)
+@Priority(2)
 public class XPagesApplicationPropertyLocator implements ApplicationPropertyLocator {
 
 	@Override
@@ -39,14 +39,14 @@ public class XPagesApplicationPropertyLocator implements ApplicationPropertyLoca
 	}
 
 	@Override
-	public String getApplicationProperty(String prop, String defaultValue) {
+	public String getApplicationProperty(final String prop, final String defaultValue) {
 		ApplicationEx app = ApplicationEx.getInstance();
 		if(app != null) {
 			return app.getApplicationProperty(prop, defaultValue);
 		}
 		return defaultValue;
 	}
-	
+
 	@Override
 	public Optional<Properties> getApplicationProperties() {
 		return Optional.empty();

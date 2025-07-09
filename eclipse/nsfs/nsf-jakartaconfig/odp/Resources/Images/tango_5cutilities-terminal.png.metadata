@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$Flags">
+    <text>34CiQP</text>
+  </item>
+  <item name="$FlagsExt">
+    <text>D</text>
+  </item>
+  <item name="$ImagesWide" sign="true">
+    <number>1</number>
+  </item>
+  <item name="$ImagesHigh" sign="true">
+    <number>1</number>
+  </item>
+  <item name="$ImagesColorize" sign="true">
+    <number>0</number>
+  </item>
+  <item name="$FileModDT" sign="true">
+    <datetime dst="true">20051018T175235,00-04</datetime>
+  </item>
+  <item name="$ImageNames" sign="true">
+    <text>utilities-terminal.png</text>
+  </item>
+  <item name="$TITLE" sign="true">
+    <textlist>
+      <text>tango\utilities-terminal.png</text>
+      <text>tango\utilities-terminal.gif</text>
+    </textlist>
+  </item>
+</note>

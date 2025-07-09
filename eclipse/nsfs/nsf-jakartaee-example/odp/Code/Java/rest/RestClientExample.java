@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import java.util.concurrent.ExecutionException;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.inject.Inject;
@@ -39,7 +41,6 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.ClientRequestContext;
 import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -111,11 +112,22 @@ public class RestClientExample {
 		}
 	}
 	
-	@Context
+	@RegisterRestClient(baseUri = "https://google.com")
+	public interface GoogleHomePage {
+		@Path("/")
+		@GET
+		public String getHomePage();
+	}
+	
+	@Inject
 	HttpServletRequest request;
 	
 	@Inject @Named("java:comp/DefaultManagedExecutorService")
 	ManagedExecutorService exec;
+	
+	@Inject
+	@RestClient
+	private GoogleHomePage googleHomePage;
 
 	@Path("echo")
 	@GET
@@ -214,5 +226,12 @@ public class RestClientExample {
 		result.put("called", serviceUri);
 		result.put("response", responseObj);
 		return result;
+	}
+	
+	@Path("googleHomePage")
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	public String getGoogleHomePage() {
+		return googleHomePage.getHomePage();
 	}
 }

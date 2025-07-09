@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
@@ -48,11 +50,12 @@ public class TestSse extends AbstractWebClientTest {
 	 * with timing.
 	 */
 	@SuppressWarnings("nls")
-	@Test
-	public void testChat() throws InterruptedException, ExecutionException {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testChat(TestDatabase db) throws InterruptedException, ExecutionException {
 		Client client = getAnonymousClient();
 
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sseChat");
+		WebTarget target = client.target(getRestUrl(null, db) + "/sseChat");
 		// Do an initial request to make sure the app is initialized
 		target.request().post(Entity.entity("message=placeholder", MediaType.APPLICATION_FORM_URLENCODED));
 

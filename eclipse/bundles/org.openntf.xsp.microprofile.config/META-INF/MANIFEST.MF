@@ -3,11 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile Config Support
 Bundle-SymbolicName: org.openntf.xsp.microprofile.config;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.config
-Bundle-Version: 2.16.0.qualifier
+Bundle-Version: 3.5.0.qualifier
 Bundle-Vendor: OpenNTF
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: com.ibm.designer.lib.jsf;bundle-version="9.0.0",
- org.openntf.org.eclipse.microprofile.config;bundle-version="3.0.0";visibility:=reexport,
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.openntf.org.eclipse.microprofile.config;bundle-version="3.0.0";visibility:=reexport,
  io.smallrye.config.smallrye-config;bundle-version="3.0.0",
  io.smallrye.config.smallrye-config-common;bundle-version="3.0.0",
  io.smallrye.config.smallrye-config-core;bundle-version="3.0.0",
@@ -16,7 +15,6 @@ Import-Package: com.ibm.commons.util,
  com.ibm.designer.runtime.domino.adapter,
  com.ibm.domino.napi,
  com.ibm.domino.napi.c,
- com.ibm.domino.xsp.module.nsf,
  com.ibm.xsp.application,
  com.ibm.xsp.library,
  jakarta.annotation;version="2.0.0",
@@ -25,12 +23,15 @@ Import-Package: com.ibm.commons.util,
  jakarta.servlet.http;version="5.0.0",
  org.eclipse.core.runtime;version="3.5.0",
  org.jboss.resteasy.plugins.interceptors;version="6.0.0",
- org.openntf.xsp.cdi;version="2.2.0",
- org.openntf.xsp.cdi.discovery;version="2.2.0",
+ org.openntf.xsp.jakarta.cdi;version="2.2.0",
+ org.openntf.xsp.jakarta.cdi.discovery;version="2.2.0",
+ org.openntf.xsp.jakarta.rest;version="2.5.0",
  org.openntf.xsp.jakartaee;version="2.2.0",
+ org.openntf.xsp.jakartaee.events;version="[3.4.0,4.0.0)",
  org.openntf.xsp.jakartaee.module;version="2.11.0",
  org.openntf.xsp.jakartaee.util;version="2.3.0",
- org.openntf.xsp.jaxrs;version="2.5.0",
  org.osgi.framework;version="1.8.0"
-Export-Package: org.openntf.xsp.microprofile.config;version="2.16.0",
- org.openntf.xsp.microprofile.config.ext;version="2.16.0"
+Export-Package: org.openntf.xsp.microprofile.config;version="3.5.0",
+ org.openntf.xsp.microprofile.config.ext;version="3.5.0"
+Provide-Capability: osgi.serviceloader; osgi.serviceloader=org.eclipse.microprofile.config.spi.ConfigProviderResolver,
+ osgi.contract; osgi.contract=JavaCDI; version:Version="2.0.0"

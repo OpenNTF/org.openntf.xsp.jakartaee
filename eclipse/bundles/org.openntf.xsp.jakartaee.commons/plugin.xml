@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 <plugin>
 	<!-- Faux HTTP Service provider to ensure that the activator launches early -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakartaee.weaving.WeavingEarlyInitFactory"/>
+		<service type="com.ibm.xsp.adapter.serviceFactory" class="org.openntf.xsp.jakartaee.JakartaEarlyInitFactory"/>
 	</extension>
 	
 	<!-- Standard ComponentEnableLocator implementations -->
@@ -28,16 +28,10 @@
 		<service type="org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator" class="org.openntf.xsp.jakartaee.discovery.impl.ComponentModuleComponentEnabledLocator"/>
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator" class="org.openntf.xsp.jakartaee.discovery.impl.OSGiServletComponentEnabledLocator"/>
-	</extension>
-	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.discovery.ComponentEnabledLocator" class="org.openntf.xsp.jakartaee.discovery.impl.XPagesComponentEnabledLocator"/>
 	</extension>
 	
 	<!-- Standard ApplicationPropertyLocator implementations -->
-	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator" class="org.openntf.xsp.jakartaee.discovery.impl.NSFContextApplicationPropertyLocator"/>
-	</extension>
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator" class="org.openntf.xsp.jakartaee.discovery.impl.ComponentModuleApplicationPropertyLocator"/>
 	</extension>
@@ -45,11 +39,11 @@
 		<service type="org.openntf.xsp.jakartaee.discovery.ApplicationPropertyLocator" class="org.openntf.xsp.jakartaee.discovery.impl.XPagesApplicationPropertyLocator"/>
 	</extension>
 	
-	<!-- Standard ComponentModuleLocator implementations -->
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleLocator" class="org.openntf.xsp.jakartaee.module.OSGiComponentModuleLocator"/>
+		<service type="com.ibm.xsp.core.events.ApplicationListener" class="org.openntf.xsp.jakartaee.events.impl.JakartaApplicationListenerImpl"/>
 	</extension>
+	
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.module.ComponentModuleLocator" class="org.openntf.xsp.jakartaee.module.NSFComponentModuleLocator"/>
+		<service type="org.openntf.xsp.jakartaee.osgiresourceloader.ContextServiceLoader" class="org.openntf.xsp.jakartaee.module.ActiveModuleServiceLoader"/>
 	</extension>
 </plugin>

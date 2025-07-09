@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class TestNoSQLNamedAndProfileDocs extends AbstractWebClientTest {
 		PART_NAMED + "," + NAME_NAMED + "," + USERNAME_NAMED + "," + USERNAME2_NAMED + "," + FIELD_NAMED,
 		PART_PROFILE + "," + NAME_PROFILE + "," + USERNAME_PROFILE + "," + USERNAME2_PROFILE + "," + FIELD_PROFILE
 	})
-	public void testNamedDoc(String part, String name, String username, String username2, String field) throws UnsupportedEncodingException {
+	public void testDoc(String part, String name, String username, String username2, String field) throws UnsupportedEncodingException {
 		Client client = getAnonymousClient();
 
 		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + part + "/" + name);
@@ -145,7 +145,7 @@ public class TestNoSQLNamedAndProfileDocs extends AbstractWebClientTest {
 		PART_NAMED + "," + NAME_NAMED + "," + USERNAME_NAMED + "," + USERNAME2_NAMED + "," + FIELD_NAMED,
 		PART_PROFILE + "," + NAME_PROFILE + "," + USERNAME_PROFILE + "," + USERNAME2_PROFILE + "," + FIELD_PROFILE
 	})
-	public void testNamedQualifiedDoc(String part, String name, String username, String username2, String field) throws UnsupportedEncodingException {
+	public void testQualifiedDoc(String part, String name, String username, String username2, String field) throws UnsupportedEncodingException {
 		Client client = getAnonymousClient();
 
 		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + part + "/" + name + "/" + URLEncoder.encode(username, "UTF-8"));

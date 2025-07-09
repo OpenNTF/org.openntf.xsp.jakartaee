@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.openntf.xsp.jakartaee.discovery;
 /**
  * This extension class allows contributions to the process of determining
  * whether a given XPages Jakarta EE component is enabled.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
@@ -27,7 +27,7 @@ public interface ComponentEnabledLocator {
 	 * @return {@code true} if the locator is in a context where it can run
 	 */
 	boolean isActive();
-	
+
 	/**
 	 * @param componentId the ID of the component to query
 	 * @return {@code true} if the given component is enabled

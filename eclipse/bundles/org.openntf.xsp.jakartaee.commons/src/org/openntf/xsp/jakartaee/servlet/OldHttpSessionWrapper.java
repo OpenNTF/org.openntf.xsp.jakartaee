@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,18 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionAttributeListener;
 import jakarta.servlet.http.HttpSessionBindingEvent;
-import jakarta.servlet.http.HttpSessionContext;
 
-@SuppressWarnings("deprecation")
 class OldHttpSessionWrapper implements HttpSession {
 	final javax.servlet.http.HttpSession delegate;
-	
-	public OldHttpSessionWrapper(javax.servlet.http.HttpSession delegate) {
+
+	public OldHttpSessionWrapper(final javax.servlet.http.HttpSession delegate) {
 		this.delegate = delegate;
 	}
-	
-	void addListener(HttpSessionAttributeListener listener) {
+
+	void addListener(final HttpSessionAttributeListener listener) {
 		this.getAttrListeners().add(listener);
 	}
-	
+
 	@Override
 	public long getCreationTime() {
 		return delegate.getCreationTime();
@@ -58,7 +56,7 @@ class OldHttpSessionWrapper implements HttpSession {
 	}
 
 	@Override
-	public void setMaxInactiveInterval(int interval) {
+	public void setMaxInactiveInterval(final int interval) {
 		delegate.setMaxInactiveInterval(interval);
 	}
 
@@ -68,18 +66,8 @@ class OldHttpSessionWrapper implements HttpSession {
 	}
 
 	@Override
-	public HttpSessionContext getSessionContext() {
-		return ServletUtil.oldToNew(delegate.getSessionContext());
-	}
-
-	@Override
-	public Object getAttribute(String name) {
+	public Object getAttribute(final String name) {
 		return delegate.getAttribute(name);
-	}
-
-	@Override
-	public Object getValue(String name) {
-		return delegate.getValue(name);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,12 +77,7 @@ class OldHttpSessionWrapper implements HttpSession {
 	}
 
 	@Override
-	public String[] getValueNames() {
-		return delegate.getValueNames();
-	}
-
-	@Override
-	public void setAttribute(String name, Object value) {
+	public void setAttribute(final String name, final Object value) {
 		boolean exists = Collections.list(this.getAttributeNames()).contains(name);
 		Object oldVal = delegate.getAttribute(name);
 		delegate.setAttribute(name, value);
@@ -109,22 +92,12 @@ class OldHttpSessionWrapper implements HttpSession {
 	}
 
 	@Override
-	public void putValue(String name, Object value) {
-		delegate.putValue(name, value);
-	}
-
-	@Override
-	public void removeAttribute(String name) {
+	public void removeAttribute(final String name) {
 		Object val = delegate.getAttribute(name);
 		delegate.removeAttribute(name);
 		this.getAttrListeners().forEach(listener ->
 			listener.attributeRemoved(new HttpSessionBindingEvent(this, name, val))
 		);
-	}
-
-	@Override
-	public void removeValue(String name) {
-		delegate.removeValue(name);
 	}
 
 	@Override
@@ -136,11 +109,11 @@ class OldHttpSessionWrapper implements HttpSession {
 	public boolean isNew() {
 		return delegate.isNew();
 	}
-	
+
 	// *******************************************************************************
 	// * Internal utility methods
 	// *******************************************************************************
-	
+
 	private List<HttpSessionAttributeListener> getAttrListeners() {
 		return ServletUtil.getListeners(getServletContext(), HttpSessionAttributeListener.class);
 	}

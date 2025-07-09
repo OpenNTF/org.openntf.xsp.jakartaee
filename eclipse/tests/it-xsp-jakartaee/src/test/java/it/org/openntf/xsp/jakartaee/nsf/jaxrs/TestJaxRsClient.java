@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,19 @@
 package it.org.openntf.xsp.jakartaee.nsf.jaxrs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.WebDriver;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.BrowserArgumentsProvider;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
@@ -37,11 +38,12 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestJaxRsClient extends AbstractWebClientTest {
-	
-	@Test
-	public void testJaxRsClient() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testJaxRsClient(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient");
+		WebTarget target = client.target(getRestUrl(null, db) + "/jaxrsClient");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();
@@ -50,7 +52,7 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 		
 		assertEquals("bar", output.getString("foo", null), () -> "Received incorrect JSON: " + output);
 	}
-	
+
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
 	public void testJaxRsClientXPages(WebDriver driver) {
@@ -63,14 +65,19 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 		String html = response.readEntity(String.class);
 		
 		Document doc = Jsoup.parse(html);
-		Element dd = doc.selectXpath("//div[@id='container']/span").get(0);
-		assertEquals("{\"foo\":\"bar\"}", dd.text());
+		try {
+			Element dd = doc.selectXpath("//div[@id='container']/span").get(0);
+			assertEquals("{\"foo\":\"bar\"}", dd.text());
+		} catch(Exception e) {
+			fail("Failed with HTML " + html, e);
+		}
 	}
-	
-	@Test
-	public void testJaxRsClientImplicitJson() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testJaxRsClientImplicitJson(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient/exampleObject");
+		WebTarget target = client.target(getRestUrl(null, db) + "/jaxrsClient/exampleObject");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();
@@ -79,11 +86,12 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 		
 		assertEquals("bar", output.getString("foo", null), () -> "Received incorrect JSON: " + output);
 	}
-	
-	@Test
-	public void testEchoObject() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testEchoObject(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient/echoExampleObject");
+		WebTarget target = client.target(getRestUrl(null, db) + "/jaxrsClient/echoExampleObject");
 		JsonObject obj = Json.createObjectBuilder()
 			.add("foo", "Echo me")
 			.build();
@@ -95,11 +103,12 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 		
 		assertEquals("Echo me - return value", output.getString("foo", null), () -> "Received incorrect JSON: " + output);
 	}
-	
-	@Test
-	public void testAsyncSelfEcho() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAsyncSelfEcho(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient/roundTripEcho");
+		WebTarget target = client.target(getRestUrl(null, db) + "/jaxrsClient/roundTripEcho");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();
@@ -108,11 +117,12 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 		
 		assertEquals("sending from async - return value", output.getString("foo", null), () -> "Received incorrect JSON: " + output);
 	}
-	
-	@Test
-	public void testAsyncSelfEchoAsync() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAsyncSelfEchoAsync(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient/roundTripEchoAsync");
+		WebTarget target = client.target(getRestUrl(null, db) + "/jaxrsClient/roundTripEchoAsync");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();
@@ -121,11 +131,12 @@ public class TestJaxRsClient extends AbstractWebClientTest {
 		
 		assertEquals("sending from async - return value", output.getString("foo", null), () -> "Received incorrect JSON: " + output);
 	}
-	
-	@Test
-	public void testAsyncSelfEchoDoubleAsync() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAsyncSelfEchoDoubleAsync(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsClient/roundTripEchoDoubleAsync");
+		WebTarget target = client.target(getRestUrl(null, db) + "/jaxrsClient/roundTripEchoDoubleAsync");
 		Response response = target.request()
 				.header("Host", "localhost:80")
 				.get();

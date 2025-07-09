@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@
 				<include>NOTICE.md</include>
 				<include>COMPATIBILITY.md</include>
 				<include>legal/**</include>
+				<include>docs/**</include>
 			</includes>
 			<outputDirectory>.</outputDirectory>
 		</fileSet>
@@ -56,6 +57,16 @@
 			<outputDirectory>examples</outputDirectory>
 		</fileSet>
 	</fileSets>
+	
+	<dependencySets>
+		<dependencySet>
+			<includes>
+				<include>${project.groupId}:nsf-jakartaconfig:nsf</include>
+			</includes>
+			<outputDirectory>.</outputDirectory>
+			<outputFileNameMapping>jakartaconfig.ntf</outputFileNameMapping>
+		</dependencySet>
+	</dependencySets>
 	
 	<moduleSets>
 		<moduleSet>

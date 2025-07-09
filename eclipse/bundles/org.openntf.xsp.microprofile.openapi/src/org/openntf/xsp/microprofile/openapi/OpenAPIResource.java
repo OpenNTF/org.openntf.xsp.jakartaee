@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,10 @@ import jakarta.ws.rs.core.Response;
 @Path("openapi")
 @MetricsIgnore
 public class OpenAPIResource extends AbstractOpenAPIResource {
-	
+
 	@GET
 	@Operation(hidden=true)
-	public Response get(@Context HttpHeaders headers) throws IOException {
+	public Response get(@Context final HttpHeaders headers) throws IOException {
 		OpenAPI openapi = buildOpenAPI();
 
 		// JSON wins if it's explicitly mentioned; otherwise it's YAML as text/plain

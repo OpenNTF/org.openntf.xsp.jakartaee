@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import org.openntf.xsp.cdi.context.BasicScopeContextHolder;
-import org.openntf.xsp.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
+import org.openntf.xsp.jakarta.cdi.context.BasicScopeContextHolder;
+import org.openntf.xsp.jakarta.cdi.context.BasicScopeContextHolder.BasicScopeInstance;
 
 import jakarta.enterprise.context.spi.Context;
 import jakarta.enterprise.context.spi.Contextual;
@@ -40,20 +40,20 @@ import jakarta.transaction.UserTransaction;
 /**
  * Basic implementation of {@link TransactionScoped} backed by a
  * thread-local {@link Map}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
 public class TransactionScopeContext implements Context, Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final ThreadLocal<BasicScopeContextHolder> storage = ThreadLocal.withInitial(BasicScopeContextHolder::new);
 	private static final ThreadLocal<Boolean> registeredSynchronization = ThreadLocal.withInitial(() -> false);
-	
+
 	public static BasicScopeContextHolder peekStorage() {
 		return storage.get();
 	}
-	public static void pushStorage(BasicScopeContextHolder s) {
+	public static void pushStorage(final BasicScopeContextHolder s) {
 		storage.set(s);
 	}
 
@@ -64,9 +64,9 @@ public class TransactionScopeContext implements Context, Serializable {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T get(Contextual<T> contextual, CreationalContext<T> creationalContext) {
+	public <T> T get(final Contextual<T> contextual, final CreationalContext<T> creationalContext) {
 		registerSync();
-		
+
 		Bean<T> bean = (Bean<T>) contextual;
 		return (T) storage.get().getBeans().computeIfAbsent(bean.getBeanClass().getName(), className -> {
 			BasicScopeInstance<T> instance = new BasicScopeInstance<>();
@@ -79,9 +79,9 @@ public class TransactionScopeContext implements Context, Serializable {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T get(Contextual<T> contextual) {
+	public <T> T get(final Contextual<T> contextual) {
 		registerSync();
-		
+
 		Bean<T> bean = (Bean<T>) contextual;
 		BasicScopeContextHolder holder = storage.get();
 		if(holder.getBeans().containsKey(bean.getBeanClass().getName())) {
@@ -111,7 +111,7 @@ public class TransactionScopeContext implements Context, Serializable {
 			return false;
 		}
 	}
-	
+
 	private void registerSync() {
 		// On access, add a Synchronization to clear the context on commit or rollback
 		Transaction transaction = CDI.current().select(Transaction.class).get();
@@ -125,12 +125,12 @@ public class TransactionScopeContext implements Context, Serializable {
 					}
 
 					@Override
-					public void afterCompletion(int status) {
+					public void afterCompletion(final int status) {
 						Collection<BasicScopeInstance<?>> beans = new ArrayList<>(storage.get().getBeans().values());
 						beans.forEach(storage.get()::destroyBean);
 						registeredSynchronization.set(false);
 					}
-					
+
 				});
 			} catch (IllegalStateException | RollbackException | SystemException e) {
 				// Ignore

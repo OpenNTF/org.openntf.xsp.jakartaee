@@ -12,7 +12,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.AjaxBehaviorEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.nosql.mapping.Sorts;
+import jakarta.data.Sort;
 import model.ToDo;
 
 @RequestScoped
@@ -28,9 +28,9 @@ public class ToDosController {
 	
 	public List<ToDo> list(ToDo.State status) {
 		if(status == null) {
-			return repository.findAll(Sorts.sorts().asc("created")).collect(Collectors.toList());
+			return repository.findAll(Sort.asc("created")).collect(Collectors.toList());
 		} else {
-			return repository.findByStatus(status, Sorts.sorts().asc("created")).collect(Collectors.toList());
+			return repository.findByStatus(status, Sort.asc("created")).collect(Collectors.toList());
 		}
 	}
 	

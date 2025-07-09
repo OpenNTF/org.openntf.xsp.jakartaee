@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.ibm.domino.bridge.http.jasapi.JavaSapiService;
 /**
  * This extention point interface allows for plugins to register JavaSapi
  * services that will be loaded at HTTP init.
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.12.0
  */

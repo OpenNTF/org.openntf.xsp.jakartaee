@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,27 +18,28 @@ package org.openntf.xsp.jakarta.concurrency;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import org.glassfish.enterprise.concurrent.AbstractManagedThread;
-import org.glassfish.enterprise.concurrent.ContextServiceImpl;
-import org.glassfish.enterprise.concurrent.ManagedThreadFactoryImpl;
-import org.glassfish.enterprise.concurrent.spi.ContextHandle;
+import org.glassfish.concurro.AbstractManagedThread;
+import org.glassfish.concurro.ContextServiceImpl;
+import org.glassfish.concurro.ManagedThreadFactoryImpl;
+import org.glassfish.concurro.spi.ContextHandle;
 
 import lotus.domino.NotesThread;
 
 public class NotesManagedThreadFactory extends ManagedThreadFactoryImpl {
 
-	public NotesManagedThreadFactory(String name) {
+	public NotesManagedThreadFactory(final String name) {
 		super(name);
 	}
 
-	public NotesManagedThreadFactory(String name, ContextServiceImpl contextService) {
+	public NotesManagedThreadFactory(final String name, final ContextServiceImpl contextService) {
 		super(name, contextService);
 	}
 
-	public NotesManagedThreadFactory(String name, ContextServiceImpl contextService, int priority) {
+	public NotesManagedThreadFactory(final String name, final ContextServiceImpl contextService, final int priority) {
 		super(name, contextService, priority);
 	}
-	
+
+	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected AbstractManagedThread createThread(final Runnable r, final ContextHandle contextHandleForSetup) {
         if (System.getSecurityManager() == null) {
@@ -47,7 +48,7 @@ public class NotesManagedThreadFactory extends ManagedThreadFactoryImpl {
             return (ManagedThread) AccessController.doPrivileged((PrivilegedAction) () -> new ManagedNotesThread(r, contextHandleForSetup));
         }
     }
-	
+
 	@Override
 	public void stop() {
 		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
@@ -55,20 +56,20 @@ public class NotesManagedThreadFactory extends ManagedThreadFactoryImpl {
 			return null;
 		});
 	}
-	
+
 	@Override
-	public Thread newThread(Runnable r) {
+	public Thread newThread(final Runnable r) {
 		Thread t = super.newThread(r);
 		t.setDaemon(false);
 		return t;
 	}
-	
+
 	public class ManagedNotesThread extends ManagedThread {
 
-		public ManagedNotesThread(Runnable target, ContextHandle contextHandleForSetup) {
+		public ManagedNotesThread(final Runnable target, final ContextHandle contextHandleForSetup) {
 			super(target, contextHandleForSetup);
 		}
-		
+
 		@Override
 		public void run() {
 			NotesThread.sinitThread();

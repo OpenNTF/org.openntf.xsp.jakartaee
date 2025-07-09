@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,19 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 
 @SuppressWarnings("rawtypes")
 class NewServletContextWrapper implements javax.servlet.ServletContext {
 	final ServletContext delegate;
-	
-	public NewServletContextWrapper(ServletContext delegate) {
+
+	public NewServletContextWrapper(final ServletContext delegate) {
 		this.delegate = delegate;
 	}
 
 	@Override
-	public Object getAttribute(String arg0) {
+	public Object getAttribute(final String arg0) {
 		return delegate.getAttribute(arg0);
 	}
 
@@ -46,7 +43,7 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 	}
 
 	@Override
-	public javax.servlet.ServletContext getContext(String arg0) {
+	public javax.servlet.ServletContext getContext(final String arg0) {
 		return ServletUtil.newToOld(delegate.getContext(arg0));
 	}
 
@@ -56,7 +53,7 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 	}
 
 	@Override
-	public String getInitParameter(String arg0) {
+	public String getInitParameter(final String arg0) {
 		return delegate.getInitParameter(arg0);
 	}
 
@@ -71,7 +68,7 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 	}
 
 	@Override
-	public String getMimeType(String arg0) {
+	public String getMimeType(final String arg0) {
 		return delegate.getMimeType(arg0);
 	}
 
@@ -81,32 +78,32 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 	}
 
 	@Override
-	public javax.servlet.RequestDispatcher getNamedDispatcher(String arg0) {
+	public javax.servlet.RequestDispatcher getNamedDispatcher(final String arg0) {
 		return ServletUtil.newToOld(delegate.getNamedDispatcher(arg0));
 	}
 
 	@Override
-	public String getRealPath(String arg0) {
+	public String getRealPath(final String arg0) {
 		return delegate.getRealPath(arg0);
 	}
 
 	@Override
-	public javax.servlet.RequestDispatcher getRequestDispatcher(String arg0) {
+	public javax.servlet.RequestDispatcher getRequestDispatcher(final String arg0) {
 		return ServletUtil.newToOld(delegate.getRequestDispatcher(arg0));
 	}
 
 	@Override
-	public URL getResource(String arg0) throws MalformedURLException {
+	public URL getResource(final String arg0) throws MalformedURLException {
 		return delegate.getResource(arg0);
 	}
 
 	@Override
-	public InputStream getResourceAsStream(String arg0) {
+	public InputStream getResourceAsStream(final String arg0) {
 		return delegate.getResourceAsStream(arg0);
 	}
 
 	@Override
-	public Set getResourcePaths(String arg0) {
+	public Set getResourcePaths(final String arg0) {
 		return delegate.getResourcePaths(arg0);
 	}
 
@@ -115,16 +112,10 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 		return delegate.getServerInfo();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public javax.servlet.Servlet getServlet(String arg0) throws javax.servlet.ServletException {
-		Servlet result;
-		try {
-			result = delegate.getServlet(arg0);
-		} catch (ServletException e) {
-			throw new javax.servlet.ServletException(e);
-		}
-		return ServletUtil.newToOld(result);
+	public javax.servlet.Servlet getServlet(final String arg0) throws javax.servlet.ServletException {
+		// Removed in Servlet 6
+		return null;
 	}
 
 	@Override
@@ -132,46 +123,41 @@ class NewServletContextWrapper implements javax.servlet.ServletContext {
 		return delegate.getServletContextName();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public Enumeration getServletNames() {
-		return delegate.getServletNames();
+		// Removed in Servlet 6
+		return Collections.emptyEnumeration();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public Enumeration getServlets() {
-		return Collections.enumeration(
-			Collections.list(delegate.getServlets())
-				.stream()
-				.map(ServletUtil::newToOld)
-				.collect(Collectors.toList())
-		);
+		// Removed in Servlet 6
+		return Collections.emptyEnumeration();
 	}
 
 	@Override
-	public void log(String arg0) {
+	public void log(final String arg0) {
 		delegate.log(arg0);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public void log(Exception arg0, String arg1) {
+	public void log(final Exception arg0, final String arg1) {
+		// Removed in Servlet 6
+		delegate.log(arg1, arg0);
+	}
+
+	@Override
+	public void log(final String arg0, final Throwable arg1) {
 		delegate.log(arg0, arg1);
 	}
 
 	@Override
-	public void log(String arg0, Throwable arg1) {
-		delegate.log(arg0, arg1);
-	}
-
-	@Override
-	public void removeAttribute(String arg0) {
+	public void removeAttribute(final String arg0) {
 		delegate.removeAttribute(arg0);
 	}
 
 	@Override
-	public void setAttribute(String arg0, Object arg1) {
+	public void setAttribute(final String arg0, final Object arg1) {
 		delegate.setAttribute(arg0, arg1);
 	}
 }

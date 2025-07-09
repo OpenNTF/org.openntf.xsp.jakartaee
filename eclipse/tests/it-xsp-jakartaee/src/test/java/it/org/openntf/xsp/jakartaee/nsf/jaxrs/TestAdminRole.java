@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,12 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestAdminRole extends AbstractWebClientTest {
@@ -34,13 +36,15 @@ public class TestAdminRole extends AbstractWebClientTest {
 	 * Tests rest.AdminRoleExample, which uses {@code @RolesAllowed} to
 	 * require [Admin].
 	 */
-	@Test
-	public void testAdminRole() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAdminRole(TestDatabase db) {
 		// Anonymous should get a login form
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole");
 			Response response = target.request().get();
+			checkResponse(401, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
@@ -49,8 +53,9 @@ public class TestAdminRole extends AbstractWebClientTest {
 		// Admin should get basic text
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole");
 			Response response = target.request().get();
+			checkResponse(200, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
@@ -62,27 +67,30 @@ public class TestAdminRole extends AbstractWebClientTest {
 	 * Tests rest.AdminRoleExample, which uses {@code @RolesAllowed} to
 	 * require an invalid user. 
 	 */
-	@Test
-	public void testInvalidUser() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testInvalidUser(TestDatabase db) {
 		// Anonymous should get a login form
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/invaliduser");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/invaliduser");
 			Response response = target.request().get();
+			checkResponse(401, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
-			assertTrue(html.contains("/names.nsf?Login"));
+			assertTrue(html.contains("/names.nsf?Login"), () -> "Received unexpected HTML " + html);
 		}
 		// Admin should also get a login form
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/invaliduser");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/invaliduser");
 			Response response = target.request().get();
+			checkResponse(401, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
-			assertTrue(html.contains("/names.nsf?Login"));
+			assertTrue(html.contains("/names.nsf?Login"), () -> "Received unexpected HTML " + html);
 		}
 	}
 	
@@ -90,13 +98,15 @@ public class TestAdminRole extends AbstractWebClientTest {
 	 * Tests rest.AdminRoleExample#getLoginRole, which uses {@code @RolesAllowed} to
 	 * require any authenticated user
 	 */
-	@Test
-	public void testLoginRole() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testLoginRole(TestDatabase db) {
 		// Anonymous should get a login form
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/login");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/login");
 			Response response = target.request().get();
+			checkResponse(401, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);
@@ -105,8 +115,9 @@ public class TestAdminRole extends AbstractWebClientTest {
 		// Admin should get basic text
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/adminrole/login");
+			WebTarget target = client.target(getRestUrl(null, db) + "/adminrole/login");
 			Response response = target.request().get();
+			checkResponse(200, response);
 			
 			String html = response.readEntity(String.class);
 			assertNotNull(html);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,17 @@ package org.openntf.xsp.jakarta.transaction.cdi;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.openntf.xsp.cdi.discovery.WeldBeanClassContributor;
+import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakarta.transaction.DominoUserTransaction;
 
 import jakarta.enterprise.inject.spi.Extension;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
-public class TransactionClassContributor implements WeldBeanClassContributor {
+public class TransactionClassContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {

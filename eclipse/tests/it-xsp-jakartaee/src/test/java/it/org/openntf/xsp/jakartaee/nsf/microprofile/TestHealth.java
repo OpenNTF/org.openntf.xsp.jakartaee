@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,17 +28,20 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
 @SuppressWarnings("nls")
 public class TestHealth extends AbstractWebClientTest {
-	@Test
-	public void testAll() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAll(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/health");
+		WebTarget target = client.target(getRestUrl(null, db) + "/health");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
@@ -51,11 +54,12 @@ public class TestHealth extends AbstractWebClientTest {
 			fail("Unexpected response: " + result, e);
 		}
 	}
-	
-	@Test
-	public void testReadiness() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testReadiness(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/health/ready");
+		WebTarget target = client.target(getRestUrl(null, db) + "/health/ready");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
@@ -70,17 +74,18 @@ public class TestHealth extends AbstractWebClientTest {
 			fail("Unexpected response: " + result, e);
 		}
 	}
-	
-	@Test
-	public void testLiveness() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testLiveness(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/health/live");
+		WebTarget target = client.target(getRestUrl(null, db) + "/health/live");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);
 		try {
 			JsonObject jsonObject = Json.createReader(new StringReader(result)).readObject();
-			assertEquals("UP", jsonObject.getString("status"));
+			assertEquals("UP", jsonObject.getString("status"), () -> "Unexpected status value with JSON " + result);
 			JsonArray checks = jsonObject.getJsonArray("checks");
 			assertEquals(1, checks.size());
 			
@@ -91,11 +96,12 @@ public class TestHealth extends AbstractWebClientTest {
 			fail("Unexpected response: " + result, e);
 		}
 	}
-	
-	@Test
-	public void testStarted() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testStarted(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/health/started");
+		WebTarget target = client.target(getRestUrl(null, db) + "/health/started");
 		Response response = target.request().get();
 		
 		String result = response.readEntity(String.class);

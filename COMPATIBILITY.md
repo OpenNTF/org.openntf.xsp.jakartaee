@@ -9,7 +9,3 @@ Versions of this project 2.8.0 and earlier contain a version of Apache Commons I
 ### XPages Toolbox and XPiNC
 
 Also in 2.8.0 and earlier, using the agent included in the [XPages Toolbox](https://xpages.info/main.nsf/project.xsp?r=project/XPages%20Toolbox) project or running in XPiNC will lead to a "Bean name is ambiguous" exception when loading the application. This is tracked as [Issue #342](https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/342).
-
-### Domino 14 EAP1
-
-Domino 14 EAP 1 requires changes found in 2.13.0-SNAPSHOT builds. Most tests pass, but JSP does not function due to the lack of a system compiler.

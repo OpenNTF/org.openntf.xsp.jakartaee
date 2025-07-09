@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,40 +19,48 @@ import jakarta.servlet.http.Cookie;
 
 class NewCookieWrapper extends javax.servlet.http.Cookie {
 	final Cookie delegate;
-	
-	public NewCookieWrapper(Cookie delegate) {
+
+	public NewCookieWrapper(final Cookie delegate) {
 		super(delegate.getName(), delegate.getValue());
 		this.delegate = delegate;
 	}
 
+	@Override
 	public String getComment() {
 		return delegate.getComment();
 	}
 
+	@Override
 	public String getDomain() {
 		return delegate.getDomain();
 	}
 
+	@Override
 	public int getMaxAge() {
 		return delegate.getMaxAge();
 	}
 
+	@Override
 	public String getName() {
 		return delegate.getName();
 	}
 
+	@Override
 	public String getPath() {
 		return delegate.getPath();
 	}
 
+	@Override
 	public boolean getSecure() {
 		return delegate.getSecure();
 	}
 
+	@Override
 	public String getValue() {
 		return delegate.getValue();
 	}
 
+	@Override
 	public int getVersion() {
 		return delegate.getVersion();
 	}
@@ -61,51 +69,59 @@ class NewCookieWrapper extends javax.servlet.http.Cookie {
 		return delegate.isHttpOnly();
 	}
 
-	public void setComment(String purpose) {
+	@Override
+	public void setComment(final String purpose) {
 		delegate.setComment(purpose);
 	}
 
-	public void setDomain(String domain) {
+	@Override
+	public void setDomain(final String domain) {
 		delegate.setDomain(domain);
 	}
 
-	public void setHttpOnly(boolean isHttpOnly) {
+	public void setHttpOnly(final boolean isHttpOnly) {
 		delegate.setHttpOnly(isHttpOnly);
 	}
 
-	public void setMaxAge(int expiry) {
+	@Override
+	public void setMaxAge(final int expiry) {
 		delegate.setMaxAge(expiry);
 	}
 
-	public void setPath(String uri) {
+	@Override
+	public void setPath(final String uri) {
 		delegate.setPath(uri);
 	}
 
-	public void setSecure(boolean flag) {
+	@Override
+	public void setSecure(final boolean flag) {
 		delegate.setSecure(flag);
 	}
 
-	public void setValue(String newValue) {
+	@Override
+	public void setValue(final String newValue) {
 		delegate.setValue(newValue);
 	}
 
-	public void setVersion(int v) {
+	@Override
+	public void setVersion(final int v) {
 		delegate.setVersion(v);
 	}
 
+	@Override
 	public String toString() {
 		return delegate.toString();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return delegate.hashCode() + getClass().hashCode();
 	}
-	
+
 	@Override
 	public Object clone() {
 		return new NewCookieWrapper((Cookie)delegate.clone());
 	}
-	
+
 
 }

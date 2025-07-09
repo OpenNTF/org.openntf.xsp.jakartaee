@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,26 +23,26 @@ import java.util.Random;
 import javax.transaction.xa.Xid;
 
 /**
- * 
+ *
  * @author Jesse Gallagher
  * @since 2.7.0
  */
 public class DominoXid implements Xid, Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private int formatId = 83925;
 	private byte[] globalTransactionId;
 	private byte[] branchQualifier;
-	
+
 	public DominoXid() {
 		Random rnd = new SecureRandom();
-		
+
 		this.globalTransactionId = new byte[Long.BYTES];
 		rnd.nextBytes(this.globalTransactionId);
-		
+
 		this.branchQualifier = new byte[Long.BYTES];
 		rnd.nextBytes(this.branchQualifier);
-		
+
 	}
 
 	@Override

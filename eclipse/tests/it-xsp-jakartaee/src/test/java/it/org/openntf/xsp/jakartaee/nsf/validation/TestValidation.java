@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringReader;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.ws.rs.client.Client;
@@ -31,21 +33,23 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestValidation extends AbstractWebClientTest {
-	@Test
-	public void testValid() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testValid(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/valid");
+		WebTarget target = client.target(getRestUrl(null, db) + "/validation/valid");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
 		JsonArray violations = Json.createReader(new StringReader(json)).readArray();
 		assertTrue(violations.isEmpty());
 	}
-	
-	@Test
-	public void testInvalid() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testInvalid(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/validation/invalid");
+		WebTarget target = client.target(getRestUrl(null, db) + "/validation/invalid");
 		Response response = target.request().get();
 		
 		String body = response.readEntity(String.class);

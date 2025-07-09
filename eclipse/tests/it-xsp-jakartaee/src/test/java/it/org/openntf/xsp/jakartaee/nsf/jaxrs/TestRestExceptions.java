@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,30 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.jaxrs;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.stream.Stream;
 
+import com.ibm.commons.util.StringUtil;
+
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -38,29 +53,48 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.eclipse.jetty.util.StringUtil;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ArgumentsSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-
-import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.BrowserArgumentsProvider;
-import it.org.openntf.xsp.jakartaee.TestDatabase;
-
 @SuppressWarnings("nls")
 public class TestRestExceptions extends AbstractWebClientTest {
+	public static class EnumAndForbiddenPathsProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return new MainAndModuleProvider.EnumOnly().provideArguments(context)
+				.map(args -> args.get()[0])
+				.flatMap(e -> {
+					return Stream.of(
+						Arguments.of(e, "forbidden"),
+						Arguments.of(e, "exception/NotAuthorizedException")
+					);
+				});
+		}
+	}
+	
+	public static class EnumAndExceptionsProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return new MainAndModuleProvider.EnumOnly().provideArguments(context)
+				.map(args -> args.get()[0])
+				.flatMap(e -> {
+					return Stream.of(
+						Arguments.of(e, BadRequestException.class),
+						Arguments.of(e, InternalServerErrorException.class),
+						Arguments.of(e, NotAcceptableException.class),
+						Arguments.of(e, NotAllowedException.class),
+						Arguments.of(e, NotSupportedException.class)
+					);
+				});
+		}
+	}
+	
 	/**
 	 * Tests rest.ExceptionExample, which renders an exception as JSON
 	 * @throws JsonException 
 	 */
-	@Test
-	public void testJson() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testJson(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exceptionExample");
+		WebTarget target = client.target(getRestUrl(null, db) + "/exceptionExample");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -80,9 +114,9 @@ public class TestRestExceptions extends AbstractWebClientTest {
 	 * XPages error page
 	 */
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
-	public void testHtml(WebDriver driver) {
-		driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/exceptionExample/html");
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
+	public void testHtml(TestDatabase db, WebDriver driver) {
+		driver.get(getRestUrl(driver, db) + "/exceptionExample/html");
 		
 		WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
 		assertEquals("this is expected to be rendered as HTML", span.getText());
@@ -92,10 +126,11 @@ public class TestRestExceptions extends AbstractWebClientTest {
 	 * Tests rest.ExceptionExample#html, which renders an exception as HTML using the stock
 	 * XPages error page
 	 */
-	@Test
-	public void testText() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testText(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exceptionExample/text");
+		WebTarget target = client.target(getRestUrl(null, db) + "/exceptionExample/text");
 		Response response = target.request().get();
 		
 		assertTrue(MediaType.TEXT_PLAIN_TYPE.isCompatible(response.getMediaType()));
@@ -107,17 +142,17 @@ public class TestRestExceptions extends AbstractWebClientTest {
 	 * Tests that a fake endpoint ends up with a 404 and standard error page
 	 */
 	@ParameterizedTest
-	@ArgumentsSource(BrowserArgumentsProvider.class)
-	public void testNotFound(WebDriver driver) {
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
+	public void testNotFound(TestDatabase db, WebDriver driver) {
 		{
-			driver.get(getRestUrl(driver, TestDatabase.MAIN) + "/fakeendpoint");
+			driver.get(getRestUrl(driver, db) + "/fakeendpoint");
 			
 			WebElement span = driver.findElement(By.xpath("//h2[text()=\"Exception\"]/following-sibling::span[1]"));
-			assertTrue(span.getText().startsWith("RESTEASY003210: Could not find resource for full path"));
+			assertTrue(span.getText().startsWith("RESTEASY003210: Could not find resource for full path"), () -> "Unexpected content: " + span.getText());
 		}
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/fakeendpoint");
+			WebTarget target = client.target(getRestUrl(null, db) + "/fakeendpoint");
 			Response response = target.request().get();
 			assertEquals(404, response.getStatus());
 		}
@@ -127,11 +162,11 @@ public class TestRestExceptions extends AbstractWebClientTest {
 	 * Tests that a an endpoint throwing ForbiddenException gets an appropriate error
 	 */
 	@ParameterizedTest
-	@ValueSource(strings = { "forbidden", "exception/NotAuthorizedException" })
-	public void testForbidden(String endpoint) {
+	@ArgumentsSource(EnumAndForbiddenPathsProvider.class)
+	public void testForbidden(TestDatabase db, String endpoint) {
 		{
 			Client client = getAnonymousClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/" + endpoint);
+			WebTarget target = client.target(getRestUrl(null, db) + "/sample/" + endpoint);
 			Response response = target.request().get();
 			assertEquals(401, response.getStatus());
 			
@@ -140,7 +175,7 @@ public class TestRestExceptions extends AbstractWebClientTest {
 		}
 		{
 			Client client = getAdminClient();
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/" + endpoint);
+			WebTarget target = client.target(getRestUrl(null, db) + "/sample/" + endpoint);
 			Response response = target.request().get();
 			assertEquals(401, response.getStatus());
 			
@@ -150,8 +185,8 @@ public class TestRestExceptions extends AbstractWebClientTest {
 	}
 	
 	@ParameterizedTest
-	@ValueSource(classes = { BadRequestException.class, InternalServerErrorException.class, NotAcceptableException.class, NotAllowedException.class, NotSupportedException.class })
-	public <T extends WebApplicationException> void testWebExceptions(Class<T> exceptionClass) {
+	@ArgumentsSource(EnumAndExceptionsProvider.class)
+	public <T extends WebApplicationException> void testWebExceptions(TestDatabase db, Class<T> exceptionClass) {
 		T e = null;
 		try {
 			Constructor<T> ctor = exceptionClass.getConstructor();
@@ -178,7 +213,7 @@ public class TestRestExceptions extends AbstractWebClientTest {
 		}
 		
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/exception/" + exceptionClass.getSimpleName());
+		WebTarget target = client.target(getRestUrl(null, db) + "/sample/exception/" + exceptionClass.getSimpleName());
 		Response response = target.request().get();
 		assertEquals(e.getResponse().getStatus(), response.getStatus());
 		

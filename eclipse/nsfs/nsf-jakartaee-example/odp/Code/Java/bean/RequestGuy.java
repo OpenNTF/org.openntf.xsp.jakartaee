@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2023 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  */
 package bean;
 
+import java.util.concurrent.CompletableFuture;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.concurrent.Asynchronous;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -36,4 +39,10 @@ public class RequestGuy {
 	public void postConstruct() { System.out.println("Created requestGuy!"); }
 	@PreDestroy
 	public void preDestroy() { System.out.println("Destroying requestGuy!");  }
+	
+	@Asynchronous
+	public CompletableFuture<String> getAsyncMessage() {
+		long id = Thread.currentThread().getId();
+		return Asynchronous.Result.complete("I was run on thread " + id);
+	}
 }

@@ -50,7 +50,8 @@
 			"JavaUserOptionsFile": "/local/JavaOptionsFile.txt",
 			"HTTP_ENABLE_JAVASAPI": "1",
 			"DOMINO_FORCE401_WITH_HTML_LOGIN_PAGE": "1",
-			"CSDebugAPI": "1"
+			"CSDebugAPI": "1",
+			"Jakarta_ConfigNSF": "jakartaconfig_alt.nsf"
 		},
 		"security": {
 			"ACL": {
@@ -203,6 +204,33 @@
 							"LF_ServerType": "0",
 							"LF_IP": "",
 							"$PublicAccess": "1"
+						}
+					}
+				]
+			},
+			{
+				"action": "create",
+				"filePath": "jakartaconfig_alt.nsf",
+				"title": "Jakarta Configuration",
+				"templatePath": "/local/runner/jakartaconfig.ntf",
+				"documents": [
+					{
+						"action": "create",
+						"items": {
+							"Form": "JakartaNSFModule",
+							"WebPath": "/moduleapp",
+							"NSFPath": "dev/jakartaee.nsf",
+							"Servers": "*"
+						}
+					},
+					{
+						"action": "create",
+						"items": {
+							"Form": "JakartaNSFModule",
+							"WebPath": "/moduleappdisabled",
+							"NSFPath": "dev/jakartaee.nsf",
+							"Servers": "*",
+							"Enabled": "N"
 						}
 					}
 				]
