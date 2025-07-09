@@ -1,6 +1,7 @@
 package security;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -62,6 +63,11 @@ public class JavaSapiSecurityContext implements SecurityContext {
 			}
 		}
 		return AuthenticationStatus.NOT_DONE;
+	}
+
+	@Override
+	public Set<String> getAllDeclaredCallerRoles() {
+		return Collections.emptySet();
 	}
 
 }

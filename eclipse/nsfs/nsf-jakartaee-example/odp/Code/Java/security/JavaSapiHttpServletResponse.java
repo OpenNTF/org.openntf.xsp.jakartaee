@@ -140,18 +140,6 @@ public class JavaSapiHttpServletResponse implements HttpServletResponse {
 	}
 
 	@Override
-	public String encodeUrl(String url) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String encodeRedirectUrl(String url) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void sendError(int sc, String msg) throws IOException {
 		// TODO Auto-generated method stub
 
@@ -212,12 +200,6 @@ public class JavaSapiHttpServletResponse implements HttpServletResponse {
 	}
 
 	@Override
-	public void setStatus(int sc, String sm) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public int getStatus() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -239,6 +221,13 @@ public class JavaSapiHttpServletResponse implements HttpServletResponse {
 	public Collection<String> getHeaderNames() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public void sendRedirect(String location, int sc, boolean clearBuffer) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -14,6 +14,7 @@ import org.openntf.xsp.jakartaee.jasapi.JavaSapiRequest;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConnection;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
@@ -183,11 +184,6 @@ public class JavaSapiHttpServletRequest implements HttpServletRequest {
 		return null;
 	}
 
-	@Override
-	public String getRealPath(String path) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public int getRemotePort() {
@@ -406,12 +402,6 @@ public class JavaSapiHttpServletRequest implements HttpServletRequest {
 	}
 
 	@Override
-	public boolean isRequestedSessionIdFromUrl() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
 		// TODO Auto-generated method stub
 		return false;
@@ -443,6 +433,24 @@ public class JavaSapiHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getRequestId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getProtocolRequestId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ServletConnection getServletConnection() {
 		// TODO Auto-generated method stub
 		return null;
 	}
