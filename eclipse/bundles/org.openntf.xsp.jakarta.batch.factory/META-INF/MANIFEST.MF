@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Jakarta Batch Factory Bridge
+Bundle-SymbolicName: org.openntf.xsp.jakarta.batch.factory
+Automatic-Module-Name: org.openntf.xsp.jakarta.batch.factory
+Bundle-Version: 3.5.0.qualifier
+Require-Bundle: com.ibm.jbatch.spi;bundle-version="2.0.0",
+ com.ibm.jbatch.container;bundle-version="2.0.0"
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Fragment-Host: jakarta.batch-api

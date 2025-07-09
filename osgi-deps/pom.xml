@@ -603,6 +603,11 @@
 								</artfiact>
 								
 								<!--
+									Batch
+								-->
+								<artifact><id>com.ibm.jbatch:com.ibm.jbatch.container:2.1.1</id><source>true</source></artifact>
+								
+								<!--
 									MicroProfile OpenAPI
 								-->
 								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:4.0.2</id><source>true</source></artifact>

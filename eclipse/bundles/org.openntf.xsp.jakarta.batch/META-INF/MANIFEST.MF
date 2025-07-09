@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Jakarta Batch Support
+Bundle-SymbolicName: org.openntf.xsp.jakarta.batch;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.jakarta.batch
+Bundle-ActivationPolicy: lazy
+Bundle-Version: 3.5.0.qualifier
+Require-Bundle: jakarta.batch-api;bundle-version="2.0.0";visibility:=reexport,
+ com.ibm.jbatch.spi;bundle-version="2.0.0",
+ com.ibm.jbatch.container;bundle-version="2.0.0"
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: jakarta.enterprise.concurrent;version="3.0.0",
+ jakarta.enterprise.inject.spi;version="[4.1.0,5.0.0)",
+ org.openntf.xsp.jakarta.cdi.discovery;version="3.5.0",
+ org.openntf.xsp.jakarta.concurrency.jndi;version="3.5.0",
+ org.osgi.framework;version="1.0.0"

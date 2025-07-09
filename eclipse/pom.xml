@@ -70,6 +70,10 @@
 		<!-- Persistence -->
  		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
  		
+ 		<!-- Batch -->
+ 		<module>bundles/org.openntf.xsp.jakarta.batch</module>
+ 		<module>bundles/org.openntf.xsp.jakarta.batch.factory</module>
+ 		
 		<!-- UI -->
  		<module>bundles/org.openntf.xsp.jakarta.pages</module>
  		<module>bundles/org.openntf.xsp.jakarta.faces</module>
@@ -194,12 +198,9 @@
 						<configuration>
 							<includeBinaryFeature>false</includeBinaryFeature>
 							<excludes>
-								<plugin id="org.openntf.xsp.jaxrs.factory"/>
-								<plugin id="org.openntf.xsp.jaxrs.providers"/>
 								<plugin id="jakarta.servlet.jsp-api"/>
 								<plugin id="org.eclipse.jdt.core"/>
 								<plugin id="org.antlr.antlr4-runtime.jakarta"/>
-								<plugin id="org.openntf.xsp.jsonapi.cdi"/>
 								<plugin id="org.apache.commons.codec"/>
 								<plugin id="org.apache.commons.logging"/>
 							</excludes>
