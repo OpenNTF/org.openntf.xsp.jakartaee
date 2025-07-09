@@ -355,6 +355,11 @@
    
 	<plugin id="org.antlr.antlr4-runtime" version="0.0.0" unpack="false"/>
 	
+	<!-- Security -->
+	<plugin id="jakarta.security.enterprise-api" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.security.auth.message-api" version="0.0.0" unpack="false"/>
+	<plugin id="org.openntf.xsp.jakarta.security" version="0.0.0" unpack="false"/>
+	
 	<!-- Component Modules -->
 	<plugin id="org.openntf.xsp.jakartaee.module.xspnsf" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakartaee.module.osgi" version="0.0.0" unpack="false"/>
@@ -364,9 +369,6 @@
 	<plugin id="org.openntf.jboss-classfilewriter" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.logging.jboss-logging" version="0.0.0" unpack="false"/>
 	<plugin id="javassist" version="0.0.0" unpack="false"/>
-	
-	<plugin id="jakarta.security.enterprise-api" version="0.0.0" unpack="false"/>
-	<plugin id="jakarta.security.auth.message-api" version="0.0.0" unpack="false"/>
 
 	<plugin id="org.openntf.xsp.jakartaee.core.library" version="0.0.0" unpack="false"/>
 </feature>

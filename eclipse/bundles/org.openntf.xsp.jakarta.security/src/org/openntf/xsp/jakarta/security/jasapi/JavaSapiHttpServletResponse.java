@@ -1,4 +1,4 @@
-package security;
+package org.openntf.xsp.jakarta.security.jasapi;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Locale;
 
 import org.openntf.xsp.jakartaee.jasapi.JavaSapiResponse;
-
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,213 +20,181 @@ public class JavaSapiHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public String getCharacterEncoding() {
-		// TODO Auto-generated method stub
-		return null;
+		return delegate.getCharacterEncoding();
 	}
 
 	@Override
 	public String getContentType() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return delegate.getOutputStream();
 	}
 
 	@Override
 	public PrintWriter getWriter() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return delegate.getWriter();
 	}
 
 	@Override
 	public void setCharacterEncoding(String charset) {
-		// TODO Auto-generated method stub
-
+		delegate.setCharacterEncoding(charset);
 	}
 
 	@Override
 	public void setContentLength(int len) {
-		// TODO Auto-generated method stub
-
+		// NOP
 	}
 
 	@Override
 	public void setContentLengthLong(long len) {
-		// TODO Auto-generated method stub
-
+		// NOP
 	}
 
 	@Override
 	public void setContentType(String type) {
-		// TODO Auto-generated method stub
-
+		// NOP
 	}
 
 	@Override
 	public void setBufferSize(int size) {
-		// TODO Auto-generated method stub
-
+		delegate.setBufferSize(size);
 	}
 
 	@Override
 	public int getBufferSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return delegate.getBufferSize();
 	}
 
 	@Override
 	public void flushBuffer() throws IOException {
-		// TODO Auto-generated method stub
-
+		delegate.flushBuffer();
 	}
 
 	@Override
 	public void resetBuffer() {
-		// TODO Auto-generated method stub
-
+		delegate.resetBuffer();
 	}
 
 	@Override
 	public boolean isCommitted() {
-		// TODO Auto-generated method stub
-		return false;
+		return delegate.isCommitted();
 	}
 
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
-
+		delegate.reset();
 	}
 
 	@Override
 	public void setLocale(Locale loc) {
-		// TODO Auto-generated method stub
-
+		// NOP
 	}
 
 	@Override
 	public Locale getLocale() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void addCookie(Cookie cookie) {
-		// TODO Auto-generated method stub
-
+		// NOP
 	}
 
 	@Override
 	public boolean containsHeader(String name) {
-		// TODO Auto-generated method stub
-		return false;
+		return delegate.containsHeader(name);
 	}
 
 	@Override
 	public String encodeURL(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		// NOP
+		return url;
 	}
 
 	@Override
 	public String encodeRedirectURL(String url) {
-		// TODO Auto-generated method stub
-		return null;
+		// NOP
+		return url;
 	}
 
 	@Override
 	public void sendError(int sc, String msg) throws IOException {
-		// TODO Auto-generated method stub
-
+		// NOP
 	}
 
 	@Override
 	public void sendError(int sc) throws IOException {
-		// TODO Auto-generated method stub
-
+		// NOP
 	}
 
 	@Override
 	public void sendRedirect(String location) throws IOException {
-		// TODO Auto-generated method stub
-
+		// NOP
 	}
 
 	@Override
 	public void setDateHeader(String name, long date) {
-		// TODO Auto-generated method stub
-
+		setHeader(name, new java.util.Date(date).toString());
 	}
 
 	@Override
 	public void addDateHeader(String name, long date) {
-		// TODO Auto-generated method stub
-
+		addHeader(name, new java.util.Date(date).toString());
 	}
 
 	@Override
 	public void setHeader(String name, String value) {
-		// TODO Auto-generated method stub
-
+		delegate.setHeader(name, value);
 	}
 
 	@Override
 	public void addHeader(String name, String value) {
-		// TODO Auto-generated method stub
-
+		// Soft workaround
+		delegate.setHeader(name, value);
 	}
 
 	@Override
 	public void setIntHeader(String name, int value) {
-		// TODO Auto-generated method stub
-
+		setHeader(name, Integer.toString(value));
 	}
 
 	@Override
 	public void addIntHeader(String name, int value) {
-		// TODO Auto-generated method stub
-
+		addHeader(name, Integer.toString(value));
 	}
 
 	@Override
 	public void setStatus(int sc) {
-		// TODO Auto-generated method stub
-
+		delegate.setStatus(sc);
 	}
 
 	@Override
 	public int getStatus() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public String getHeader(String name) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Collection<String> getHeaders(String name) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Collection<String> getHeaderNames() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 
 	@Override
 	public void sendRedirect(String location, int sc, boolean clearBuffer) throws IOException {
-		// TODO Auto-generated method stub
-		
+		// NOP
 	}
 
 }

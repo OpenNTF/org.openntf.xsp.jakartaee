@@ -15,9 +15,8 @@
  */
 package org.openntf.xsp.jakartaee.module.xspnsf.jasapi;
 
-import java.util.ServiceLoader;
+import java.util.List;
 import java.util.function.Function;
-import java.util.stream.StreamSupport;
 
 import javax.servlet.ServletException;
 
@@ -33,6 +32,7 @@ import com.ibm.domino.xsp.module.nsf.NotesContext;
 
 import org.openntf.xsp.jakartaee.bridge.jasapi.impl.DelegatingJavaSapiContext;
 import org.openntf.xsp.jakartaee.jasapi.JavaSapiExtension;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.PriorityComparator;
 
 /**
@@ -124,8 +124,8 @@ public class NSFComponentModuleJavaSapiService extends JavaSapiService {
 
 				NotesContext.initThread(new NotesContext(mod));
 				try {
-					ServiceLoader<JavaSapiExtension> extensions = ServiceLoader.load(JavaSapiExtension.class, mod.getModuleClassLoader());
-					return StreamSupport.stream(extensions.spliterator(), false)
+					List<JavaSapiExtension> extensions = LibraryUtil.findExtensions(JavaSapiExtension.class, mod);
+					return extensions.stream()
 						.sorted(PriorityComparator.DESCENDING)
 						.map(c::apply)
 						.filter(r -> r != null && r != JavaSapiExtension.Result.EVENT_DECLINED)

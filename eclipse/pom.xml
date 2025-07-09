@@ -70,6 +70,9 @@
 		<!-- Persistence -->
  		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
  		
+ 		<!-- Security -->
+ 		<module>bundles/org.openntf.xsp.jakarta.security</module>
+ 		
 		<!-- UI -->
  		<module>bundles/org.openntf.xsp.jakarta.pages</module>
  		<module>bundles/org.openntf.xsp.jakarta.faces</module>

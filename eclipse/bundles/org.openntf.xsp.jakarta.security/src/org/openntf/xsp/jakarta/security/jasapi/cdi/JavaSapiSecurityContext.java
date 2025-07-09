@@ -1,4 +1,4 @@
-package security;
+package org.openntf.xsp.jakarta.security.jasapi.cdi;
 
 import java.security.Principal;
 import java.util.Collections;
@@ -47,7 +47,6 @@ public class JavaSapiSecurityContext implements SecurityContext {
 			AuthenticationParameters parameters) {
 		Instance<IdentityStore> stores = CDI.current().select(IdentityStore.class);
 		if(stores.isResolvable()) {
-			System.out.println(">> found stores for credential " + parameters.getCredential());
 			CredentialValidationResult result = stores.stream()
 				.map(store -> store.validate(parameters.getCredential()))
 				.filter(res -> res.getStatus() != CredentialValidationResult.Status.NOT_VALIDATED)

@@ -9,10 +9,7 @@ import jakarta.security.enterprise.identitystore.IdentityStore;
 
 @ApplicationScoped
 public class ExampleIdentityStore implements IdentityStore {
-	public static class HeaderCredential implements Credential {
-		private final String name;
-		
-		public HeaderCredential(String name) { this.name = name; }
+	public record HeaderCredential(String name) implements Credential {
 		public String getName() { return this.name; }
 	}
 	

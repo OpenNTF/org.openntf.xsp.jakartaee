@@ -27,7 +27,8 @@ Require-Bundle: jakarta.servlet-api;bundle-version="6.0.0";visibility:=reexport,
  org.openntf.xsp.jakarta.persistence;bundle-version="3.0.0";visibility:=reexport,
  org.openntf.xsp.jakarta.servlet;bundle-version="3.0.0";visibility:=reexport,
  org.openntf.xsp.jakarta.transaction;bundle-version="3.0.0";visibility:=reexport,
- org.openntf.xsp.jakarta.nosql;bundle-version="3.0.0";visibility:=reexport
+ org.openntf.xsp.jakarta.nosql;bundle-version="3.0.0";visibility:=reexport,
+ org.openntf.xsp.jakarta.security;bundle-version="3.5.0";visibility:=reexport
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 DynamicImport-Package: *

@@ -1,4 +1,4 @@
-package security;
+package org.openntf.xsp.jakarta.security.jasapi;
 
 import java.security.Principal;
 import java.util.Set;
@@ -134,7 +134,6 @@ public class JavaSapiMessageContext implements HttpMessageContext {
 	@Override
 	public AuthenticationStatus notifyContainerAboutLogin(Principal principal, Set<String> groups) {
 		if(StringUtil.isNotEmpty(principal.getName())) {
-			System.out.println("setting user to " + principal.getName());
 			this.delegate.getRequest().setAuthenticatedUserName(principal.getName(), "Basic");
 			
 			return AuthenticationStatus.SUCCESS;

@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XPages Jakarta Security Support
+Bundle-SymbolicName: org.openntf.xsp.jakarta.security;singleton:=true
+Automatic-Module-Name: org.openntf.xsp.jakarta.security
+Bundle-Version: 3.5.0.qualifier
+Import-Package: com.ibm.commons.util,
+ jakarta.enterprise.context;version="4.1.0",
+ jakarta.enterprise.inject;version="4.1.0",
+ jakarta.enterprise.inject.spi;version="4.1.0",
+ jakarta.security.auth.message;version="3.1.0",
+ jakarta.servlet;version="6.0.0",
+ jakarta.servlet.http;version="6.0.0",
+ javax.servlet;version="2.5.0",
+ javax.servlet.http;version="2.5.0",
+ org.openntf.xsp.jakarta.cdi.discovery;version="3.5.0",
+ org.openntf.xsp.jakartaee.jasapi;version="3.5.0"
+Require-Bundle: jakarta.security.enterprise-api;bundle-version="4.0.0";visibility:=reexport
+Bundle-Vendor: OpenNTF
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+DynamicImport-Package: org.jboss.weld.*
