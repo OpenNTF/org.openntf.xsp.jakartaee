@@ -1183,8 +1183,6 @@ If your Domino Java classpath has any invalid entries in it, the CDI portion of 
 
 The workaround for this is to check your classpath (ndext, primarily) for any files that the Domino process user can't access (usually the local system on Windows, or `notes` on Linux). Additionally, look for a `JavaUserClassesExt` entry in the server's notes.ini and make sure that all of the files or directories it references exist and are readable.
 
-See [COMPATIBILITY.md](COMPATIBILITY.md) for details on known incompatibilities with specific projects.
-
 ## License
 
 The code in the project is licensed under the Apache License 2.0. The dependencies in the binary distribution are licensed under compatible licenses - see NOTICE for details.
