@@ -672,27 +672,32 @@ import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
-import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import lotus.domino.NotesException;
+import lotus.domino.Session;
 
 @Dependent
 public class NamesRepositoryBean {
+	
+	@Inject @Named("dominoSessionAsSigner")
+	private Session sessionAsSigner;
+	
 	@Produces
 	@Database(value = DatabaseType.DOCUMENT, provider = "names")
 	public DominoDocumentManager getNamesManager() {
-			
 		return new DefaultDominoDocumentCollectionManager(
 			() -> {
 				try {
-					return ComponentModuleLocator.getDefault().flatMap(ComponentModuleLocator::getSessionAsSigner).get().getDatabase("", "names.nsf");
+					return sessionAsSigner.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
 			},
-			() -> ComponentModuleLocator.getDefault().flatMap(ComponentModuleLocator::getSessionAsSigner).get()
+			() -> sessionAsSigner
 		);
 	}
 }
