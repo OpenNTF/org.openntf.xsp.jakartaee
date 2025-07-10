@@ -25,14 +25,14 @@ import lotus.domino.Database;
 import lotus.domino.Session;
 
 /**
- * This bean provides access to implicit objects from the current
- * {@link NotesContext}, when available.
+ * This bean provides access to implicit Domino objects from the current
+ * module, when available.
  *
  * @author Jesse Gallagher
  * @since 2.1.0
  */
 @ApplicationScoped
-public class DominoFacesImplicitObjectProvider {
+public class DominoImplicitObjectProvider {
 	@Produces
 	@Dependent
 	@Named("database")
