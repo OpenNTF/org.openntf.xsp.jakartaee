@@ -975,7 +975,7 @@ Four providers are currently configured:
 The [MicroProfile Rest Client](https://github.com/eclipse/microprofile-rest-client) API allows for creation of type-safe clients for remote REST services using Jakarta REST annotations. For example:
 
 ```java
-@ApplicationEScoped
+@ApplicationScoped
 public class RestClientExample {
 	public static class JsonExampleObject {
 		private String foo;
