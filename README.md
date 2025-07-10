@@ -141,7 +141,7 @@ If you don't want Jakarta EL to take over the default handling of EL in the app,
 
 ```properties
 xsp.library.depends=org.openntf.xsp.jakartaee.core
-org.openntf.xsp.el.prefix=ex
+org.openntf.xsp.jakarta.el.prefix=ex
 ```
 
 Note that Designer refuses to compile XPages with runtime-bound expressions that use a number in the prefix, so this should be letters only.
