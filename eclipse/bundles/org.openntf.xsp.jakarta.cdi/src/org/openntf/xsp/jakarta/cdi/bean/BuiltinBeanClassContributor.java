@@ -32,7 +32,7 @@ public class BuiltinBeanClassContributor implements CDIClassContributor {
 	public Collection<Class<?>> getBeanClasses() {
 		return List.of(
 			HttpContextBean.class,
-			DominoFacesImplicitObjectProvider.class
+			DominoImplicitObjectProvider.class
 		);
 	}
 
