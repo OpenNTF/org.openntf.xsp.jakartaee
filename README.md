@@ -579,7 +579,7 @@ Certain queries, namely arbitrary searches with a sort parameter, will cause the
 
 #### Accessing Views
 
-View and folder data can be accessed by writing repository methods annotated with the `org.openntf.xsp.nosql.mapping.extension.ViewEntries` and `org.openntf.xsp.nosql.mapping.extension.ViewDocuments` annotations. For example:
+View and folder data can be accessed by writing repository methods annotated with the `org.openntf.xsp.jakarta.nosql.mapping.extension.ViewEntries` and `org.openntf.xsp.jakarta.nosql.mapping.extension.ViewDocuments` annotations. For example:
 
 ```java
 public interface PersonRepository extends DominoRepository<Person, String> {
@@ -591,7 +591,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 }
 ```
 
-The `@ViewDocuments` annotation will retrieve all the documents contained in the view or folder, in entry order, while `@ViewEntries` will read only the entry data. The latter is potentially much faster, but does not provide full access to the underlying documents. Rich-text items are not available, for example, though view columns are accessible by programmatic name (e.g. `$3`). The `org.openntf.xsp.nosql.mapping.extension.ViewQuery` type can be used programmatically to define a query on the view data. For example, in a REST service finding a person entry by the last-name key from the view:
+The `@ViewDocuments` annotation will retrieve all the documents contained in the view or folder, in entry order, while `@ViewEntries` will read only the entry data. The latter is potentially much faster, but does not provide full access to the underlying documents. Rich-text items are not available, for example, though view columns are accessible by programmatic name (e.g. `$3`). The `org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery` type can be used programmatically to define a query on the view data. For example, in a REST service finding a person entry by the last-name key from the view:
 
 ```java
 @Path("byViewKey/{lastName}")
@@ -646,15 +646,15 @@ public class SomeProfileDoc {
 
 #### Document Sources
 
-By default, the driver assumes that documents are stored in the current database. This can be overridden by using the `org.openntf.xsp.nosql.mapping.extension.RepositoryProvider` annotation. For example:
+By default, the driver assumes that documents are stored in the current database. This can be overridden by using the `org.openntf.xsp.jakarta.nosql.mapping.extension.RepositoryProvider` annotation. For example:
 
 ```java
 package model;
 
 import java.util.stream.Stream;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
-import org.openntf.xsp.nosql.mapping.extension.RepositoryProvider;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.RepositoryProvider;
 
 @RepositoryProvider("names")
 public interface PersonRepository extends DominoRepository<Person, String> {
@@ -663,7 +663,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 }
 ```
 
-Then, create a CDI bean that can provide the desired database and a `sessionAsSigner` object (which is used for QueryResultsProcessor views), annotated with `jakarta.nosql.mapping.Database`. For example:
+Then, create a CDI bean that can provide the desired database and a `sessionAsSigner` object (which is used for QueryResultsProcessor views), annotated with `org.eclipse.jnosql.mapping.Database`. For example:
 
 ```java
 package bean;
