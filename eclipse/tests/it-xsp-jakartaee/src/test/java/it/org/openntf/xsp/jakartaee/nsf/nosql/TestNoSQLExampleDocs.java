@@ -959,7 +959,9 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("title", "I am testBooleanStorage guy")
 				.add("booleanStorage", expected)
 				.add("stringBooleanStorage", expected)
+				.add("stringBooleanStorage2", expected)
 				.add("doubleBooleanStorage", expected)
+				.add("convertBooleanStorage", expected)
 				.build();
 			
 			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
@@ -973,7 +975,9 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertFalse(unid.isEmpty());
 			assertEquals(expected, jsonObject.getBoolean("booleanStorage"));
 			assertEquals(expected, jsonObject.getBoolean("stringBooleanStorage"));
+			assertEquals(expected, jsonObject.getBoolean("stringBooleanStorage2"));
 			assertEquals(expected, jsonObject.getBoolean("doubleBooleanStorage"));
+			assertEquals(expected, jsonObject.getBoolean("convertBooleanStorage"));
 		}
 		
 		// Fetch the doc
@@ -1001,6 +1005,16 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertEquals(expected, jsonObject.getBoolean("stringBooleanStorage"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));
 			stored = TestDomUtil.nodes(xmlDoc, "//*[name()='item'][@name='StringBooleanStorage']/*/text()").get(0).getNodeValue();
 			assertEquals(expected ? "true" : "false", stored);
+			
+			// Stores as "yep" and "nah"
+			assertEquals(expected, jsonObject.getBoolean("stringBooleanStorage2"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));
+			stored = TestDomUtil.nodes(xmlDoc, "//*[name()='item'][@name='StringBooleanStorage2']/*/text()").get(0).getNodeValue();
+			assertEquals(expected ? "yep" : "nah", stored);
+			
+			// Stores as "totally" and "no way"
+			assertEquals(expected, jsonObject.getBoolean("convertBooleanStorage"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));
+			stored = TestDomUtil.nodes(xmlDoc, "//*[name()='item'][@name='ConvertBooleanStorage']/*/text()").get(0).getNodeValue();
+			assertEquals(expected ? "totally" : "no way", stored);
 			
 			// Stores as 0 and 1 (intentionally reversed)
 			assertEquals(expected, jsonObject.getBoolean("doubleBooleanStorage"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));

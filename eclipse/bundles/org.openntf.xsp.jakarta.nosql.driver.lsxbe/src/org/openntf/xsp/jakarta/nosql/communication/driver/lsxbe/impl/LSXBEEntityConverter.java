@@ -57,6 +57,7 @@ import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
@@ -515,7 +516,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 					Object val = DominoNoSQLUtil.toJavaFriendly(context, value, optBoolean);
 					if(itemTypes != null) {
-						if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+						if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
 							if(val instanceof String) {
 								// boolean value with defaut conversion
 								val = "Y".equals(val); //$NON-NLS-1$
@@ -697,9 +698,10 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val.get(0), optBoolean);
 						if(itemTypes != null) {
-							if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+							if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
+								System.out.println("field " + itemName + " in " + classMapping.className() + " has no converter");
 								if(valObj instanceof String) {
-									// boolean value with defaut conversion
+									// boolean value with default conversion
 									valObj = "Y".equals(valObj); //$NON-NLS-1$
 								}
 							}
@@ -708,7 +710,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					} else {
 						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val, optBoolean);
 						if(itemTypes != null) {
-							if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+							if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
+								System.out.println("field " + itemName + " in " + classMapping.className() + " has no converter");
 								if(valObj instanceof String) {
 									// boolean value with defaut conversion
 									valObj = "Y".equals(valObj); //$NON-NLS-1$
@@ -1155,5 +1158,20 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			}
 		}
 		return Optional.empty();
+	}
+	
+	private boolean isUseDefaultBooleanConversion(EntityMetadata classMapping, Map<String, Class<?>> itemTypes, String itemName) {
+		if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+			// In this case, check to see if there's a @Convert annotation
+			boolean hasConverter = classMapping.fields()
+				.stream()
+				.filter(fm -> itemName.equalsIgnoreCase(fm.name()))
+				.findFirst()
+				.map(FieldMetadata::converter)
+				.map(Optional::isPresent)
+				.orElse(false);
+			return !hasConverter;
+		}
+		return false;
 	}
 }
