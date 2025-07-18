@@ -191,7 +191,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	public void testItemStorage(TestDatabase db) {
-		Client client = getAnonymousClient();
+		// Use the admin client to allow updates
+		Client client = getAdminClient();
 		// Create a new doc
 		String unid;
 		{
@@ -222,27 +223,69 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		}
 		
 		// Fetch the doc
+		JsonObject docJson;
 		{
 			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			docJson = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.getString("unid"));
+			assertEquals(unid, docJson.getString("unid"));
 			
-			assertEquals("I am outer title", jsonObject.getString("title"));
-			assertEquals("<p>I am body HTML</p>", jsonObject.getString("body"));
-			JsonObject jsonGuy = jsonObject.getJsonObject("jsonGuy");
+			assertEquals("I am outer title", docJson.getString("title"));
+			assertEquals("<p>I am body HTML</p>", docJson.getString("body"));
+			JsonObject jsonGuy = docJson.getJsonObject("jsonGuy");
 			assertEquals("Foo", jsonGuy.getString("firstName"));
 			assertEquals("Fooson", jsonGuy.getString("lastName"));
-			JsonObject mimeGuy = jsonObject.getJsonObject("mimeGuy");
+			JsonObject mimeGuy = docJson.getJsonObject("mimeGuy");
 			assertEquals("I am the title", mimeGuy.getString("title"));
 			assertEquals("123 Road St.", mimeGuy.getString("address"));
 
 			// Make sure all the types are what we'd expect
-			String dxl = jsonObject.getString("dxl");
+			String dxl = docJson.getString("dxl");
+			assertNotNull(dxl);
+			assertFalse(dxl.isEmpty());
+		}
+		
+		// Update it with a new MIME body
+		{
+			JsonObject newMimeGuy = Json.createObjectBuilder()
+				.add("title", "I am the replacement title")
+				.add("address", "I am the replacement address")
+				.build();
+			JsonObject payload = Json.createObjectBuilder(docJson)
+				.add("mimeGuy", newMimeGuy)
+				.build();
+
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
+			Response response = target.request().put(Entity.json(payload));
+			checkResponse(200, response);
+		}
+		
+		// Fetch again to make sure it worked
+		{
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			docJson = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(unid, docJson.getString("unid"));
+			
+			assertEquals("I am outer title", docJson.getString("title"));
+			assertEquals("<p>I am body HTML</p>", docJson.getString("body"));
+			JsonObject jsonGuy = docJson.getJsonObject("jsonGuy");
+			assertEquals("Foo", jsonGuy.getString("firstName"));
+			assertEquals("Fooson", jsonGuy.getString("lastName"));
+			JsonObject mimeGuy = docJson.getJsonObject("mimeGuy");
+			assertEquals("I am the replacement title", mimeGuy.getString("title"));
+			assertEquals("I am the replacement address", mimeGuy.getString("address"));
+
+			// Make sure all the types are what we'd expect
+			String dxl = docJson.getString("dxl");
 			assertNotNull(dxl);
 			assertFalse(dxl.isEmpty());
 		}

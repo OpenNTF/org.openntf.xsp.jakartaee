@@ -975,8 +975,14 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 								item.setSummary(false);
 								break;
 							case MIME: {
+								MIMEEntity mimeEntity = target.getMIMEEntity(doc.name());
+								if(mimeEntity != null) {
+									mimeEntity.remove();
+									target.closeMIMEEntities(true, doc.name());
+								}
+								
 								target.removeItem(doc.name());
-								MIMEEntity mimeEntity = target.createMIMEEntity(doc.name());
+								mimeEntity = target.createMIMEEntity(doc.name());
 								lotus.domino.Stream mimeStream = target.getParentDatabase().getParent().createStream();
 								try {
 									mimeStream.writeText(val.toString());
@@ -985,6 +991,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									mimeStream.close();
 									mimeStream.recycle();
 								}
+
+								target.closeMIMEEntities(true, doc.name());
 								continue;
 							}
 							case MIMEBean:
@@ -1011,6 +1019,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									mimeStream.close();
 									mimeStream.recycle();
 								}
+
+								target.closeMIMEEntities(true, doc.name());
 
 								continue;
 							case Default:
@@ -1071,8 +1081,6 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				});
 			
 			target.replaceItemValue(DominoConstants.FIELD_NAME, EntityUtil.getFormName(classMapping));
-
-			target.closeMIMEEntities(true);
 		} catch(Exception e) {
 			throw e;
 		}
