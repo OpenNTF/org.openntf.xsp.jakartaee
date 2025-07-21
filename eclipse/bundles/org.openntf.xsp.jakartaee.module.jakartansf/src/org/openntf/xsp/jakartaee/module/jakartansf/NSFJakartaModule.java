@@ -15,10 +15,8 @@
  */
 package org.openntf.xsp.jakartaee.module.jakartansf;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.security.Principal;
 import java.text.MessageFormat;
@@ -31,8 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.imageio.ImageIO;
 
 import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.commons.util.io.StreamUtil;
@@ -57,9 +53,9 @@ import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider;
 import org.openntf.xsp.jakartaee.module.jakarta.AbstractJakartaModule;
-import org.openntf.xsp.jakartaee.module.jakarta.ModuleIconSet;
 import org.openntf.xsp.jakartaee.module.jakarta.DefaultModuleClassLoader;
 import org.openntf.xsp.jakartaee.module.jakarta.ModuleIcon;
+import org.openntf.xsp.jakartaee.module.jakarta.ModuleIconSet;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
