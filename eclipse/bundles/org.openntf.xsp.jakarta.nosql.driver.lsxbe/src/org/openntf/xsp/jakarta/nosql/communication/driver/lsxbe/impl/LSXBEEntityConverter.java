@@ -699,7 +699,6 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val.get(0), optBoolean);
 						if(itemTypes != null) {
 							if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
-								System.out.println("field " + itemName + " in " + classMapping.className() + " has no converter");
 								if(valObj instanceof String) {
 									// boolean value with default conversion
 									valObj = "Y".equals(valObj); //$NON-NLS-1$
@@ -711,7 +710,6 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val, optBoolean);
 						if(itemTypes != null) {
 							if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
-								System.out.println("field " + itemName + " in " + classMapping.className() + " has no converter");
 								if(valObj instanceof String) {
 									// boolean value with defaut conversion
 									valObj = "Y".equals(valObj); //$NON-NLS-1$
