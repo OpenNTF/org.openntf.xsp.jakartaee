@@ -912,13 +912,15 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									//   compilation environments, so use the raw integer value 1454
 									body.embedObject(1454, "", tempFile.toString(), null); //$NON-NLS-1$
 								} finally {
-									Files.list(tempDir).forEach(t -> {
-										try {
-											Files.deleteIfExists(t);
-										} catch (IOException e) {
-											throw new UncheckedIOException(e);
-										}
-									});
+									if(Files.isDirectory(tempDir)) {
+										Files.list(tempDir).forEach(t -> {
+											try {
+												Files.deleteIfExists(t);
+											} catch (IOException e) {
+												throw new UncheckedIOException(e);
+											}
+										});
+									}
 									Files.deleteIfExists(tempDir);
 								}
 							} catch (IOException e) {
