@@ -48,10 +48,10 @@ import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpSession;
-import com.ibm.designer.runtime.domino.adapter.util.PageNotFoundException;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
+import com.ibm.xsp.page.PageNotFoundException;
 
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
@@ -275,7 +275,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 		
 		try {
 			super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
-		} catch(PageNotFoundException e) {
+		} catch(PageNotFoundException | com.ibm.designer.runtime.domino.adapter.util.PageNotFoundException e) {
 			if(pathInfo.isEmpty() || "/".equals(pathInfo)) { //$NON-NLS-1$
 				// Check for a welcome page and re-run the request with that
 				String welcomePage = this.getWelcomePage();
