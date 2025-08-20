@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jakarta.json.cdi;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
@@ -33,8 +34,10 @@ import jakarta.json.spi.JsonProvider;
  */
 @ApplicationScoped
 public class JsonbBean {
-	@Produces
-	public Jsonb getJsonb() {
+	private Jsonb jsonb;
+	
+	@PostConstruct
+	public void buildJsonb() {
 		JsonbBuilder builder = JsonbBuilder.newBuilder();
 
 		Instance<JsonbConfig> configBean = CDI.current().select(JsonbConfig.class);
@@ -47,6 +50,11 @@ public class JsonbBean {
 			builder = builder.withProvider(providerBean.get());
 		}
 
-		return builder.build();
+		this.jsonb = builder.build();
+	}
+	
+	@Produces
+	public Jsonb getJsonb() {
+		return this.jsonb;
 	}
 }

@@ -72,6 +72,8 @@ import org.openntf.xsp.jakarta.nosql.mapping.extension.EntryType;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemFlags;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemStorage;
 
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import lotus.domino.Database;
@@ -105,7 +107,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 	public LSXBEEntityConverter(final Supplier<Database> databaseSupplier) {
 		this.databaseSupplier = databaseSupplier;
-		this.jsonb = JsonbBuilder.create();
+		Instance<Jsonb> appJsonb = CDI.current().select(Jsonb.class);
+		if(appJsonb.isResolvable()) {
+			this.jsonb = appJsonb.get();
+		} else {
+			this.jsonb = JsonbBuilder.create();
+		}
 	}
 
 	/**
