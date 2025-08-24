@@ -546,7 +546,8 @@ package model;
 
 import java.util.stream.Stream;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+// import org.openntf.xsp.nosql.mapping.extension.DominoRepository;  --> for version 2.x code base
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
 
 public interface PersonRepository extends DominoRepository<Person, String> {
 	Stream<Person> findAll();
