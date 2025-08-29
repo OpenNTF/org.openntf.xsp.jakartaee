@@ -29,6 +29,16 @@ public interface ModuleFileSystem {
 	public record FileEntry(String name, Object metadata) {}
 	
 	Optional<URL> getUrl(String res);
+	
+	/**
+	 * Retrieves the {@link FileEntry} for the given resource, if
+	 * it exists.
+	 * 
+	 * @param res the resource to open
+	 * @return an {@link Optional} describing the file resource,
+	 *        or an empty one if it does not exist
+	 */
+	Optional<FileEntry> getEntry(String res);
 
 	Optional<URL> getWebResourceUrl(String res);
 	

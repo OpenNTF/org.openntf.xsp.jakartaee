@@ -44,12 +44,12 @@ import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator.D
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 public class NSFJakartaFileSystem implements ModuleFileSystem {
-	public record NSFMetadata(int noteId, FileType fileType, String flags, String flagsExt, boolean webVisible, String itemName) {
-		public NSFMetadata(DesignEntry entry, FileType fileType) {
-			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), null);
+	public record NSFMetadata(int noteId, FileType fileType, String flags, String flagsExt, boolean webVisible, String itemName, String mimeType) {
+		public NSFMetadata(DesignEntry entry, FileType fileType, String mimeType) {
+			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), null, mimeType);
 		}
-		public NSFMetadata(DesignEntry entry, FileType fileType, String itemName) {
-			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), itemName);
+		public NSFMetadata(DesignEntry entry, FileType fileType, String itemName, String mimeType) {
+			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), itemName, mimeType);
 		}
 	}
 	public enum FileType {
@@ -77,7 +77,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 							String[] classNames = StringUtil.splitString(classNamesCat, '|');
 							for (int i = 0; i < classNames.length; i++) {
 								if(classNames[i].length() > 7) {
-									fileMap.put(classNames[i], new NSFMetadata(entry, FileType.JAVA_CLASS, "$ClassData" + i)); //$NON-NLS-1$
+									fileMap.put(classNames[i], new NSFMetadata(entry, FileType.JAVA_CLASS, "$ClassData" + i, entry.mimeType())); //$NON-NLS-1$
 								}
 							}
 						}
@@ -91,7 +91,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 							if(log.isLoggable(Level.FINEST)) {
 								log.finest(MessageFormat.format("Adding file element \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							}
-							fileMap.put(name, new NSFMetadata(entry, FileType.FILE));
+							fileMap.put(name, new NSFMetadata(entry, FileType.FILE, entry.mimeType()));
 						}
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_SCRIPTLIB_JS)) {
 						for(String name : sanitizeTitle(entry.title())) {
@@ -99,7 +99,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 							if(log.isLoggable(Level.FINEST)) {
 								log.finest(MessageFormat.format("Adding JavaScript library \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							}
-							fileMap.put(name, new NSFMetadata(entry, FileType.JAVASCRIPT));
+							fileMap.put(name, new NSFMetadata(entry, FileType.JAVASCRIPT, entry.mimeType()));
 						}
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_IMAGE_RES_WEB)) {
 						for(String name : sanitizeTitle(entry.title())) {
@@ -107,7 +107,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 							if(log.isLoggable(Level.FINEST)) {
 								log.finest(MessageFormat.format("Adding image resource \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							}
-							fileMap.put(name, new NSFMetadata(entry, FileType.IMAGE));
+							fileMap.put(name, new NSFMetadata(entry, FileType.IMAGE, entry.mimeType()));
 						}
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_STYLE_SHEETS_WEB)) {
 						for(String name : sanitizeTitle(entry.title())) {
@@ -115,7 +115,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 							if(log.isLoggable(Level.FINEST)) {
 								log.finest(MessageFormat.format("Adding stylesheet \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							}
-							fileMap.put(name, new NSFMetadata(entry, FileType.STYLESHEET));
+							fileMap.put(name, new NSFMetadata(entry, FileType.STYLESHEET, entry.mimeType()));
 						}
 					}
 					// TODO Re-add when figuring out how to read the value, or handle elsewhere
@@ -129,6 +129,17 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 
 				}
 			}
+		}
+	}
+	
+	@Override
+	public Optional<FileEntry> getEntry(String res) {
+		String path = ModuleUtil.trimResourcePath(res);
+		NSFMetadata metadata = this.fileMap.get(path);
+		if(metadata != null) {
+			return Optional.of(new FileEntry(path, metadata));
+		} else {
+			return Optional.empty();
 		}
 	}
 	
