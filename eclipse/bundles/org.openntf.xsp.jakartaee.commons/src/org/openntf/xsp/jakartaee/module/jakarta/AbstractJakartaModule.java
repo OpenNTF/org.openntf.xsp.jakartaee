@@ -48,6 +48,7 @@ import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.adapter.ServletMatch;
 import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpSession;
+import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterServletContext;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
@@ -287,6 +288,22 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 			}
 			throw e;
 		}
+	}
+	
+	@Override
+	protected LCDAdapterServletContext createServletContext() {
+		return new JakartaDelegatingServletContext(super.createServletContext());
+	}
+	
+	/**
+	 * Retrieves a MIME type for the given resource path, if applicable.
+	 * 
+	 * @param filePath the path to query
+	 * @return an {@link Optional} describing a MIME type if known
+	 * @since 3.5.0
+	 */
+	public Optional<String> getMimeType(String filePath) {
+		return Optional.empty();
 	}
 
 	// These are called by AdapterInvoker

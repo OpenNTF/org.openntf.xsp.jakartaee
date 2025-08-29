@@ -54,9 +54,11 @@ import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
 import org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider;
 import org.openntf.xsp.jakartaee.module.jakarta.AbstractJakartaModule;
 import org.openntf.xsp.jakartaee.module.jakarta.DefaultModuleClassLoader;
+import org.openntf.xsp.jakartaee.module.jakarta.ModuleFileSystem.FileEntry;
 import org.openntf.xsp.jakartaee.module.jakarta.ModuleIcon;
 import org.openntf.xsp.jakartaee.module.jakarta.ModuleIconSet;
 import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem;
+import org.openntf.xsp.jakartaee.module.jakartansf.io.NSFJakartaFileSystem.NSFMetadata;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ModuleMap;
@@ -153,6 +155,20 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 			}
 		} else {
 			return this.getModuleName();
+		}
+	}
+	
+	@Override
+	public Optional<String> getMimeType(String filePath) {
+		Optional<String> fs = getRuntimeFileSystem()
+			.getEntry(filePath)
+			.map(FileEntry::metadata)
+			.map(NSFMetadata.class::cast)
+			.map(NSFMetadata::mimeType);
+		if(fs.isPresent()) {
+			return fs;
+		} else {
+			return super.getMimeType(filePath);
 		}
 	}
 
