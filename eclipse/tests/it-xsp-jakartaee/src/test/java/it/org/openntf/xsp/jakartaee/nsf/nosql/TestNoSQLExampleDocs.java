@@ -18,6 +18,7 @@ package it.org.openntf.xsp.jakartaee.nsf.nosql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -1454,5 +1455,21 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				fail("Encountered exception with JSON " + json, e);
 			}
 		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testExampleDocAllExplain(TestDatabase db) {
+		Client client = getAnonymousClient();
+		
+		WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/allExplain");
+		Response response = target.request().get();
+		checkResponse(200, response);
+		JsonObject explain = response.readEntity(JsonObject.class);
+		
+		System.out.println("explain is: " + explain);
+		assertNotNull(explain);
+		assertFalse(explain.isEmpty());
+		assertNotEquals("", explain.getString("explain", ""));
 	}
 }
