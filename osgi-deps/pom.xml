@@ -434,30 +434,30 @@
 								<!-- MVC -->
 								<artifact><id>jakarta.mvc:jakarta.mvc-api:3.0.0</id><source>true</source></artifact>
 								<artifact>
-									<id>org.eclipse.krazo:krazo-core:4.0.0</id>
+									<id>org.eclipse.krazo:krazo-core:4.1.0-SNAPSHOT</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.krazo.core</Bundle-SymbolicName>
-										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.1.0.${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle>
 											org.jboss.weld.api,
 											org.jboss.weld.spi,
 											org.jboss.weld.core-impl
 										</Require-Bundle>
 										<DynamicImport-Package>org.openntf.xsp.jakartaee.util</DynamicImport-Package>
-										<Export-Package>*;version="4.0.0"</Export-Package>
+										<Export-Package>*;version="4.1.0"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.eclipse.krazo:krazo-resteasy:4.0.0</id>
+									<id>org.eclipse.krazo:krazo-resteasy:4.1.0-SNAPSHOT</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.krazo.resteasy</Bundle-SymbolicName>
-										<Bundle-Version>4.0.0.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.1.0.${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.org.eclipse.krazo.core</Fragment-Host>
-										<Export-Package>*;version="4.0.0"</Export-Package>
+										<Export-Package>*;version="4.1.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
