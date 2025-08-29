@@ -234,7 +234,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				DQLTerm dql = QueryConverter.getCondition(query.condition().get());
 				DominoQuery dominoQuery = database.createDominoQuery();
 				String dqlString = dql.toString();
-				logExplain(dominoQuery, dqlString);
+				EntityMetadata mapping = EntityUtil.getClassMapping(query.name());
+				logExplain(dominoQuery, dqlString, mapping.type());
 				DocumentCollection docs = dominoQuery.execute(dqlString);
 				docs.removeAll(true);
 			}
@@ -314,7 +315,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 							qrp.addColumn(itemName, itemName, null, dir, false, false);
 						}
 
-						logExplain(dominoQuery, dqlQuery);
+						logExplain(dominoQuery, dqlQuery, mapping.type());
 						view = qrp.executeToView(viewName, 24);
 					} finally {
 						recycle(qrp, dominoQuery);
@@ -326,7 +327,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			} else {
 				DominoQuery dominoQuery = database.createDominoQuery();
 				String dqlString = queryResult.getStatement().toString();
-				logExplain(dominoQuery, dqlString);
+				logExplain(dominoQuery, dqlString, mapping.type());
 				DocumentCollection docs = dominoQuery.execute(dqlString);
 				try {
 					result = entityConverter.convertDocuments(docs, mapping);
@@ -497,7 +498,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			String formName = EntityUtil.getFormName(mapping);
 			DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName);
 			String dqlString = dql.toString();
-			logExplain(dominoQuery, dqlString);
+			logExplain(dominoQuery, dqlString, mapping.type());
 			DocumentCollection result = dominoQuery.execute(dqlString);
 			return result.getCount();
 		} catch(NotesException e) {
@@ -1077,13 +1078,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		throw new IllegalStateException(MessageFormat.format("Unable to find column for formula {0} (entity property \"{1}\") in view {2}", formula, originalName, view.getName()));
 	}
 	
-	private void logExplain(DominoQuery query, String dql) throws NotesException {
+	private void logExplain(DominoQuery query, String dql, Class<?> entityType) throws NotesException {
 		if(this.configBean != null && this.configBean.emitExplainEvents()) {
 			String explain = query.explain(dql);
 			Database database = supplier.get();
 			String server = database.getServer();
 			String filePath = database.getFilePath();
-			explainEmitter.fire(new ExplainEvent(dql, server, filePath, explain));
+			explainEmitter.fire(new ExplainEvent(dql, server, filePath, explain, entityType));
 		}
 	}
 

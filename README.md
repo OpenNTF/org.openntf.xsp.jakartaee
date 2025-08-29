@@ -747,7 +747,7 @@ public class NoSQLWatcher {
 }
 ```
 
-This event contains the query being run, the database server and path, and the explain text result.
+This event contains the query being run, the database server and path, the explain text result, and the type of entity being queried.
 
 ### Persistence (JPA)
 

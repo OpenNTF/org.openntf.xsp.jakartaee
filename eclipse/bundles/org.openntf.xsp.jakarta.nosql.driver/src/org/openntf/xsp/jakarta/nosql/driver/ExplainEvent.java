@@ -6,6 +6,6 @@ package org.openntf.xsp.jakarta.nosql.driver;
  * 
  * @since 3.5.0
  */
-public record ExplainEvent(String query, String server, String filePath, String explain) {
+public record ExplainEvent(String query, String server, String filePath, String explain, Class<?> entityType) {
 
 }

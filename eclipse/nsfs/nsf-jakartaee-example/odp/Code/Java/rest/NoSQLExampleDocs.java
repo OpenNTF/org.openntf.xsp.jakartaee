@@ -29,6 +29,8 @@ import bean.TransactionBean;
 import jakarta.data.Sort;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
 import jakarta.transaction.NotSupportedException;
@@ -282,13 +284,22 @@ public class NoSQLExampleDocs {
 	@Path("allExplain")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ExplainEvent getAllExplain() {
+	public JsonObject getAllExplain() {
 		nosqlConfig.setExplainEvents(true);
 		try {
 			repository.findAll();
 			
 			ExplainEvent event = nosqlConfig.getLastEvent();
-			return event;
+			if(event == null) {
+				return null;
+			} else {
+				return Json.createObjectBuilder()
+					.add("query", event.query())
+					.add("server", event.server())
+					.add("filePath", event.filePath())
+					.add("explain", event.explain())
+					.build();
+			}
 		} finally {
 			nosqlConfig.setExplainEvents(false);
 		}
