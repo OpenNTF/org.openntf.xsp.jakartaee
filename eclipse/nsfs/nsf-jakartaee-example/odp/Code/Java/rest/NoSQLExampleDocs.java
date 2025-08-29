@@ -21,8 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.openntf.xsp.jakarta.nosql.driver.ExplainEvent;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoTemplate;
 
+import bean.NoSQLConfig;
 import bean.TransactionBean;
 import jakarta.data.Sort;
 import jakarta.inject.Inject;
@@ -75,6 +77,9 @@ public class NoSQLExampleDocs {
 	
 	@Inject
 	private Database database;
+	
+	@Inject
+	private NoSQLConfig nosqlConfig;
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -272,6 +277,21 @@ public class NoSQLExampleDocs {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ExampleDoc> getAllSorted() {
 		return repository.findAllSorted().toList();
+	}
+	
+	@Path("allExplain")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public ExplainEvent getAllExplain() {
+		nosqlConfig.setExplainEvents(true);
+		try {
+			repository.findAll();
+			
+			ExplainEvent event = nosqlConfig.getLastEvent();
+			return event;
+		} finally {
+			nosqlConfig.setExplainEvents(false);
+		}
 	}
 	
 	@Path("allSortedCustom")
