@@ -285,8 +285,8 @@ class OldServletContextWrapper implements ServletContext {
 	}
 
 	@Override
-	public String getMimeType(final String arg0) {
-		return delegate.getMimeType(arg0);
+	public String getMimeType(final String fileName) {
+		return delegate.getMimeType(fileName);
 	}
 
 	@Override
