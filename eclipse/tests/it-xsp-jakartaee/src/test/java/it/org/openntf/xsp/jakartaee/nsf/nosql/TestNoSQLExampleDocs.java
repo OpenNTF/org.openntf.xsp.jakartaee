@@ -1467,7 +1467,6 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		checkResponse(200, response);
 		JsonObject explain = response.readEntity(JsonObject.class);
 		
-		System.out.println("explain is: " + explain);
 		assertNotNull(explain);
 		assertFalse(explain.isEmpty());
 		assertNotEquals("", explain.getString("explain", ""));
