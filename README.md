@@ -722,6 +722,33 @@ public class Person {
 
 This extra layer of configuration can be useful if you want to work with documents that use the same form name in different databases.
 
+#### DQL Explain Tracking
+
+Since the driver uses DQL internally for generated method calls, it can be very important to use the [explain capability](https://help.hcl-software.com/dom_designer/14.5.0/basic/dql_explain.html) to find ways to improve the performance of queries. The driver can be configured to perform explain operations automatically and publish CDI events for each one, which you can then use to track what's happening and what to improve. To enable these events, create a bean in your application that implements the `org.openntf.xsp.jakarta.nosql.driver.NoSQLConfigurationBean` interface:
+
+```java
+@ApplicationScoped
+public class NoSQLConfig implements NoSQLConfigurationBean {
+	@Override
+	public boolean emitExplainEvents() {
+		return true;
+	}
+}
+```
+
+When this is enabled, the driver will generate explain results and publish these using the `org.openntf.xsp.jakarta.nosql.driver.ExplainEvent` type. These can be watched for by creating a CDI bean with a method with the `@Observes` annotation:
+
+```java
+@ApplicationScoped
+public class NoSQLWatcher {
+	public void listenExplain(@Observes ExplainEvent event) {
+		// Log or otherwise process the event
+	}
+}
+```
+
+This event contains the query being run, the database server and path, and the explain text result.
+
 ### Persistence (JPA)
 
 The [Persistence](https://jakarta.ee/specifications/persistence/) API (JPA) provides access and mapping to relational databases in a managed way. This feature builds on the existing [RDBMS support in XPages](https://help.hcltechsw.com/dom_designer/9.0.1/user/wpd_data_rdbms_support.html), using the same underlying configuration for the connection pools.
