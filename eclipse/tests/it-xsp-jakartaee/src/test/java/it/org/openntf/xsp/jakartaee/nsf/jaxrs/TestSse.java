@@ -28,6 +28,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
@@ -52,6 +53,7 @@ public class TestSse extends AbstractWebClientTest {
 	@SuppressWarnings("nls")
 	@ParameterizedTest
 	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	@Timeout(30)
 	public void testChat(TestDatabase db) throws InterruptedException, ExecutionException {
 		Client client = getAnonymousClient();
 
