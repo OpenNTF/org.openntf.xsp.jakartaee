@@ -33,6 +33,7 @@ import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
 import org.openntf.xsp.jakarta.rest.impl.JakartaRestServlet;
 import org.openntf.xsp.jakarta.rest.impl.NSFRestApplication;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
+import org.openntf.xsp.jakartaee.module.jakarta.AbstractJakartaModule;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
@@ -102,8 +103,14 @@ public class RestServletFactory implements JakartaIServletFactory {
 				if(this.deferToFiles && StringUtil.isNotEmpty(path) && !"/".equals(path)) { //$NON-NLS-1$
 					String resPath = path.substring(1);
 					try {
-						if(module.getResource(resPath) != null) {
-							return null;
+						if(module instanceof AbstractJakartaModule jmod) {
+							if(jmod.getWebResource(resPath) != null) {
+								return null;
+							}
+						} else {
+							if(module.getResource(resPath) != null) {
+								return null;
+							}
 						}
 					} catch (MalformedURLException e) {
 						// Ignore
