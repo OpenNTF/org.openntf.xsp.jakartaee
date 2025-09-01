@@ -76,6 +76,12 @@ import jakarta.servlet.http.HttpSessionListener;
  * @since 3.5.0
  */
 public abstract class AbstractJakartaModule extends ComponentModule {
+	/**
+	 * Module property used to house a map of MicroProfile-Config-compatible
+	 * properties from the loading environment.
+	 */
+	public static final String PROP_MPCONFIG = "org.openntf.xsp.microprofile.config.moduleprops"; //$NON-NLS-1$
+	
 	private static final Logger log = Logger.getLogger(AbstractJakartaModule.class.getPackageName());
 	
 	private DefaultModuleClassLoader moduleClassLoader;

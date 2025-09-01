@@ -183,6 +183,7 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 			attrs.clear();
 			attrs.put("javax.servlet.context.tempdir", tempDir); //$NON-NLS-1$
 			attrs.put("jakarta.servlet.context.tempdir", tempDir); //$NON-NLS-1$
+			attrs.put(PROP_MPCONFIG, mapping.configProperties());
 			
 			ServletContext servletContext = ServletUtil.oldToNew('/' + this.mapping.path(), getServletContext());
 			setJakartaServletContext(servletContext);
