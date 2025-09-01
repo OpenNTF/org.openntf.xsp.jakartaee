@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee.module;
+package org.openntf.xsp.jakartaee.module.impl;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import org.glassfish.hk2.osgiresourcelocator.ServiceLoader;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.osgiresourceloader.ContextServiceLoader;
 
 /**
