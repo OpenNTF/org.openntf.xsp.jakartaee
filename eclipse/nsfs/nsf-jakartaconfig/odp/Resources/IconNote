@@ -22,22 +22,22 @@ AAAAUEECICABAAD/////+A4DgA==
   <item name="$LaunchXPageRunOnServer">
     <text>0</text>
   </item>
-  <item name="$Daos">
-    <text>1</text>
-  </item>
-  <item name="$LargeSummary">
-    <text>0</text>
-  </item>
   <item name="$DefaultFrameset">
     <text>Outer Frame</text>
   </item>
   <item name="$TITLE">
     <text>Jakarta Config</text>
   </item>
-  <item name="$Flags">
-    <text>Jz478qNZFK</text>
-  </item>
   <item name="$FlagsNoRefresh">
     <text>rv</text>
+  </item>
+  <item name="$Daos">
+    <text>1</text>
+  </item>
+  <item name="$LargeSummary">
+    <text>0</text>
+  </item>
+  <item name="$Flags">
+    <text>Jz478qNZFK</text>
   </item>
 </note>
