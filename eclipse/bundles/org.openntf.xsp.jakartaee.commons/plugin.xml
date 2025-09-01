@@ -44,6 +44,10 @@
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.xsp.jakartaee.osgiresourceloader.ContextServiceLoader" class="org.openntf.xsp.jakartaee.module.ActiveModuleServiceLoader"/>
+		<service type="org.openntf.xsp.jakartaee.osgiresourceloader.ContextServiceLoader" class="org.openntf.xsp.jakartaee.module.impl.ActiveModuleServiceLoader"/>
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakartaee.module.ServletContainerInitializerProvider" class="org.openntf.xsp.jakartaee.module.impl.ServiceLoaderServletContainerInitializerProvider"/>
 	</extension>
 </plugin>
