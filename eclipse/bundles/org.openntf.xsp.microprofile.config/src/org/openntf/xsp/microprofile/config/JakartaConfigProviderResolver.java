@@ -5,12 +5,14 @@ import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import org.eclipse.microprofile.config.Config;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.microprofile.config.sources.ImplicitAppConfigSourceFactory;
+import org.openntf.xsp.microprofile.config.sources.ModuleConfigSource;
 import org.openntf.xsp.microprofile.config.sources.NotesEnvironmentConfigSource;
 import org.openntf.xsp.microprofile.config.sources.XspPropertiesConfigSourceFactory;
 
@@ -77,7 +79,8 @@ public class JakartaConfigProviderResolver extends SmallRyeConfigProviderResolve
 		builder.withSources(
 			new PropertiesLocationConfigSourceFactory(),
 			new XspPropertiesConfigSourceFactory(),
-			new ImplicitAppConfigSourceFactory()
+			new ImplicitAppConfigSourceFactory(),
+			ctx -> Set.of(new ModuleConfigSource())
 		);
 
 		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
