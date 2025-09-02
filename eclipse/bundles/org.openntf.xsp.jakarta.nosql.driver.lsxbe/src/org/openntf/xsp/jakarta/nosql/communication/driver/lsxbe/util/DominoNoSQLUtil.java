@@ -17,6 +17,7 @@ package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.AccessController;
@@ -205,27 +206,57 @@ public enum DominoNoSQLUtil {
 	}
 
 	public static Temporal toTemporal(final Database context, final DateTime dt) throws NotesException {
-		try {
-			String datePart = dt.getDateOnly();
-			String timePart = dt.getTimeOnly();
-			if(datePart == null || datePart.isEmpty()) {
-				lotus.domino.Document tempDoc = context.createDocument();
-				tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
-				String iso = (String)dt.getParent().evaluate(FORMULA_TOISOTIME, tempDoc).get(0);
-				Instant inst = dt.toJavaDate().toInstant();
-				int nano = inst.getNano();
-				iso += "." + nano; //$NON-NLS-1$
-				return LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(iso));
-			} else if(timePart == null || timePart.isEmpty()) {
-				lotus.domino.Document tempDoc = context.createDocument();
-				tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
-				String iso = (String)dt.getParent().evaluate(FORMULA_TOISODATE, tempDoc).get(0);
-				return LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(iso));
-			} else {
-				return dt.toJavaDate().toInstant();
+		if("lotus.domino.local.DateTime".equals(dt.getClass().getName())) { //$NON-NLS-1$
+			return toTemporalLocal(dt);
+		} else {
+			try {
+				String datePart = dt.getDateOnly();
+				String timePart = dt.getTimeOnly();
+				if(datePart == null || datePart.isEmpty()) {
+					lotus.domino.Document tempDoc = context.createDocument();
+					tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
+					String iso = (String)dt.getParent().evaluate(FORMULA_TOISOTIME, tempDoc).get(0);
+					Instant inst = dt.toJavaDate().toInstant();
+					int nano = inst.getNano();
+					iso += "." + nano; //$NON-NLS-1$
+					return LocalTime.from(DateTimeFormatter.ISO_LOCAL_TIME.parse(iso));
+				} else if(timePart == null || timePart.isEmpty()) {
+					lotus.domino.Document tempDoc = context.createDocument();
+					tempDoc.replaceItemValue(ITEM_TEMPTIME, dt);
+					String iso = (String)dt.getParent().evaluate(FORMULA_TOISODATE, tempDoc).get(0);
+					return LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(iso));
+				} else {
+					return dt.toJavaDate().toInstant();
+				}
+			} finally {
+				dt.recycle();
 			}
-		} finally {
-			dt.recycle();
+		}
+	}
+	
+	private static Field INNARDS0 = null;
+	private static Field INNARDS1 = null;
+	
+	public static Temporal toTemporalLocal(final DateTime dt) throws NotesException {
+		// Recycling a lotus.domino.local.DateTime has the interesting side effect that
+		//   it writes the innards to instance properties of the object
+		dt.recycle();
+		try {
+			Class<?> dateTimeClass = dt.getClass();
+			synchronized(dateTimeClass) {
+				if(INNARDS0 == null) {
+					INNARDS0 = dateTimeClass.getDeclaredField("mInnards0"); //$NON-NLS-1$
+					INNARDS0.setAccessible(true);
+					INNARDS1 = dateTimeClass.getDeclaredField("mInnards1"); //$NON-NLS-1$
+					INNARDS1.setAccessible(true);
+				}
+			}
+			int innards0 = INNARDS0.getInt(dt);
+			int innards1 = INNARDS1.getInt(dt);
+			
+			return InnardsConverter.decodeInnards(new int[] { innards0, innards1 });
+		} catch(Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
