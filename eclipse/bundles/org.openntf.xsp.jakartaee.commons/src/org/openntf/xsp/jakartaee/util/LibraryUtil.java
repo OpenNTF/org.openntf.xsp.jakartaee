@@ -102,6 +102,10 @@ public enum LibraryUtil {
 	 * @since 2.4.0
 	 */
 	private static final Map<Class<?>, List<?>> EXTENSION_CACHE = new ConcurrentHashMap<>();
+	// Cache the above for sorted ascending and descending, to avoid paying the cost of
+	//   .sort(...) on every call
+	private static final Map<Class<?>, List<?>> EXTENSION_CACHE_ASC = new ConcurrentHashMap<>();
+	private static final Map<Class<?>, List<?>> EXTENSION_CACHE_DESC = new ConcurrentHashMap<>();
 
 	/**
 	 * Property used to house the time that the xsp.properties resource in a ComponentModule
@@ -365,12 +369,16 @@ public enum LibraryUtil {
 	 * @return a {@link List} of service objects for the class
 	 * @since 2.7.0
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> List<T> findExtensionsSorted(final Class<T> extensionClass, final boolean ascending) {
-		return findExtensions(extensionClass)
-			.stream()
-			.filter(Objects::nonNull)
-			.sorted(ascending ? PriorityComparator.ASCENDING : PriorityComparator.DESCENDING)
-			.collect(Collectors.toList());
+		Map<Class<?>, List<?>> cache = ascending ? EXTENSION_CACHE_ASC : EXTENSION_CACHE_DESC;
+		return (List<T>)computeIfAbsent(cache, extensionClass, c -> 
+			findExtensions(c)
+				.stream()
+				.filter(Objects::nonNull)
+				.sorted(ascending ? PriorityComparator.ASCENDING : PriorityComparator.DESCENDING)
+				.collect(Collectors.toList())
+		);
 	}
 
 	/**
