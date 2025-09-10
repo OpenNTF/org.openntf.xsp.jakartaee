@@ -594,7 +594,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 }
 ```
 
-The `@ViewDocuments` annotation will retrieve all the documents contained in the view or folder, in entry order, while `@ViewEntries` will read only the entry data. The latter is potentially much faster, but does not provide full access to the underlying documents. Rich-text items are not available, for example, though view columns are accessible by programmatic name (e.g. `$3`). The `org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery` type can be used programmatically to define a query on the view data. For example, in a REST service finding a person entry by the last-name key from the view:
+The `@ViewDocuments` annotation will retrieve all the documents contained in the view or folder, in entry order, while `@ViewEntries` will read only the entry data. The latter is potentially much faster, but does not provide full access to the underlying documents. Rich-text items are not available, for example, though most view columns are accessible by programmatic name (e.g. `$3` - see note below). The `org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery` type can be used programmatically to define a query on the view data. For example, in a REST service finding a person entry by the last-name key from the view:
 
 ```java
 @Path("byViewKey/{lastName}")
@@ -606,6 +606,44 @@ public Person getPersonByViewKey(@PathParam("lastName") String lastName) {
 		.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
 }
 ```
+
+#### Document Metadata
+
+Document metadata - such as the creation date, note ID, and others - is available via special item names defined in the `org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants` type. Additionally, some of these item names are mapped to known column formulas when reading view entries. The document UNID is mapped via the `@Id` annotation instead of `@Column`, while the rest of the metadata field values, their types, and their corresponding view column formulas are as follows:
+
+| Value                                | Type                         | DominoConstants             | Column Formula              |
+| ------------------------------------ | ---------------------------- | --------------------------- | --------------------------- |
+| Creation Date                        | OffsetDateTime               | FIELD_CDATE                 | @Created                    |
+| Modified Date                        | OffsetDateTime               | FIELD_MDATE                 | @Modified                   |
+| Attachments                          | List&lt;EntityAttachment&gt; | FIELD_ATTACHMENTS           | @AttachmentNames            |
+| Document DXL                         | String                       | FIELD_DXL                   |                             |
+| Read Mark                            | boolean                      | FIELD_READ                  |                             |
+| Doc Size                             | int                          | FIELD_SIZE                  | @DocLength                  |
+| Note ID                              | int                          | FIELD_NOTEID                | @NoteID                     |
+| Parent UNID                          | String                       | FIELD_PARENTUNID            |                             |
+| Last Accessed Date                   | OffsetDateTime               | FIELD_ADATE                 | @Accessed                   |
+| Modified In This File                | OffsetDateTime               | FIELD_MODIFIED_IN_THIS_FILE | @ModifiedInThisFile         |
+| Added To This File                   | OffsetDateTime               | FIELD_ADDED                 | @AddedToThisFile            |
+| ETag (computed from ID and modified) | String                       | FIELD_ETAG                  | (Requires @Modified column) |
+| DB File Path                         | String                       | FIELD_FILEPATH              |                             |
+| DB Server                            | String                       | FIELD_SERVER                |                             |
+| DB Replica ID                        | String                       | FIELD_REPLICAID             |                             |
+| Profile Name                         | String                       | FIELD_PROFILENAME           |                             |
+| Profile User                         | String                       | FIELD_PROFILEKEY            |                             |
+| Named Note Name                      | String                       | FIELD_NOTENAME              |                             |
+| Named Note User                      | String                       | FIELD_USERNAME              |                             |
+
+Several properties are only available when using `@ViewEntries` to read view entries:
+
+| View Position          | String    | FIELD_POSITION          |
+| ---------------------- | --------- | ----------------------- |
+| Entry Type             | EntryType | FIELD_ENTRY_TYPE        |
+| Sibling Count          | int       | FIELD_SIBLINGCOUNT      |
+| Child Count            | int       | FIELD_CHILDCOUNT        |
+| Descendant Count       | int       | FIELD_DESCENDANTCOUNT   |
+| Column Indent Level    | int       | FIELD_COLUMNINDENTLEVEL |
+| Indent Level           | int       | FIELD_INDENTLEVEL       |
+| Full-Text Search Score | int       | FIELD_FTSEARCHSCORE     |
 
 #### Named and Profile Documents
 
