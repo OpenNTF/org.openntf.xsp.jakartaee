@@ -75,7 +75,11 @@ public abstract class AbstractEntityConverter {
 			byte[] digest = md.digest();
 			StringBuilder sb = new StringBuilder(digest.length * 2);
 			for (byte b : digest) {
-				sb.append(String.format("%02x", b)); //$NON-NLS-1$
+				String hex = Integer.toHexString(b & 0xFF);
+				if(hex.length() == 1) {
+					sb.append('0');
+				}
+				sb.append(hex);
 			}
 			return sb.toString();
 		} catch (NoSuchAlgorithmException e) {
