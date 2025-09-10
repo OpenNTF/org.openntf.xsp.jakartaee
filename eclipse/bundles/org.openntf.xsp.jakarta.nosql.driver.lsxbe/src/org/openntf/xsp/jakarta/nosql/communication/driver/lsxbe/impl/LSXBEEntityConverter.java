@@ -32,6 +32,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
@@ -543,7 +544,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					.map(Temporal.class::cast)
 					.findFirst();
 				if(modified.isPresent()) {
-					String etag = composeEtag(universalId, modified.get());
+					String etag = composeEtag(universalId, Instant.from(modified.get()).toEpochMilli());
 					convertedEntry.add(Element.of(DominoConstants.FIELD_ETAG, etag));
 				}
 			}
@@ -774,8 +775,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					result.add(Element.of(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE, DominoNoSQLUtil.toTemporal(database, doc.getLastModified())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_ETAG)) {
-					String etag = composeEtag(unid, DominoNoSQLUtil.toTemporal(database, doc.getInitiallyModified()));
-					result.add(Element.of(DominoConstants.FIELD_ETAG, etag));
+					DateTime mod = doc.getInitiallyModified();
+					try {
+						String etag = composeEtag(unid, mod.toJavaDate().getTime());
+						result.add(Element.of(DominoConstants.FIELD_ETAG, etag));
+					} finally {
+						mod.recycle();
+					}
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_REPLICAID)) {
 					result.add(Element.of(DominoConstants.FIELD_REPLICAID, database.getReplicaID()));

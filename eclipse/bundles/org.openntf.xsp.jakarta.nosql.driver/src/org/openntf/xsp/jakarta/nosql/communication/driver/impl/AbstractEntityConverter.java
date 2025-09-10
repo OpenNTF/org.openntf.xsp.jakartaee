@@ -19,11 +19,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.Instant;
-import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Vector;
@@ -70,9 +69,12 @@ public abstract class AbstractEntityConverter {
 			.map(Field::getGenericType);
 	}
 
-	protected String composeEtag(final String universalId, final Temporal modTime) {
-		Instant inst = Instant.from(modTime);
-		return md5(universalId + inst.getEpochSecond() + inst.getNano());
+	protected String composeEtag(final String universalId, final long modTime) {
+		BigInteger etag = new BigInteger(universalId, 16);
+		BigInteger mod = BigInteger.valueOf(modTime);
+		etag = etag.xor(mod);
+		etag = etag.xor(mod.shiftLeft(64));
+		return etag.toString(16);
 	}
 
 	public static String md5(final String value) {
