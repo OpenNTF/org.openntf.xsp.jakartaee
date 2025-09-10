@@ -42,7 +42,7 @@
 		<weld-version>6.0.3.Final</weld-version>
 		<resteasy-version>7.0.0.Beta1</resteasy-version>
 		<resteasy-mp-version>3.0.1.Final</resteasy-mp-version>
-		<nosql-version>1.1.8</nosql-version>
+		<nosql-version>1.1.10</nosql-version>
 		<nosql-version-osgi>${nosql-version}</nosql-version-osgi>
 		<tomcat-version>11.0.7</tomcat-version>
 		

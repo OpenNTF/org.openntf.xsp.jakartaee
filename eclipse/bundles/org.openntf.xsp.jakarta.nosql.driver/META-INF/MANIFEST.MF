@@ -40,4 +40,4 @@ Export-Package: org.eclipse.jnosql.communication.driver.attachment;version="1.0.
  org.openntf.xsp.jakarta.nosql.driver;version="3.5.0",
  org.openntf.xsp.jakarta.nosql.mapping.extension;version="3.5.0",
  org.openntf.xsp.jakarta.nosql.mapping.extension.impl;version="3.5.0"
-DynamicImport-Package: org.jboss.weld.*
+DynamicImport-Package: org.jboss.weld.*,org.glassfish.hk2.osgiresourcelocator
