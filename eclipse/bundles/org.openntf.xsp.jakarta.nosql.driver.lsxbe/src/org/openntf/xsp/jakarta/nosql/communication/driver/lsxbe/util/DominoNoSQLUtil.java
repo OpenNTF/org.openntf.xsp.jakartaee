@@ -167,7 +167,6 @@ public enum DominoNoSQLUtil {
 				.map(val -> toJavaFriendly(context, val, optBoolean))
 				.collect(Collectors.toList());
 		} else if(value instanceof DateTime dt) {
-			// TODO improve with a better API
 			try {
 				return toTemporal(context, dt);
 			} catch (Exception e) {
