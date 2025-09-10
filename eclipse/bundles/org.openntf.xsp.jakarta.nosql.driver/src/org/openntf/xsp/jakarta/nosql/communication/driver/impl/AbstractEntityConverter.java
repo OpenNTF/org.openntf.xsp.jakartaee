@@ -38,6 +38,13 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
  * @since 2.8.0
  */
 public abstract class AbstractEntityConverter {
+	private static final ThreadLocal<MessageDigest> MD5 = ThreadLocal.withInitial(() -> {
+		try {
+			return MessageDigest.getInstance("MD5"); //$NON-NLS-1$
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("Unable to load MD5 provider", e);
+		}
+	});
 
 	protected <T extends Annotation> Optional<T> getFieldAnnotation(final EntityMetadata classMapping, final String fieldName, final Class<T> annotation) {
 		if(classMapping == null) {
@@ -69,22 +76,18 @@ public abstract class AbstractEntityConverter {
 	}
 
 	public static String md5(final String value) {
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-			md.update(String.valueOf(value).getBytes());
-			byte[] digest = md.digest();
-			StringBuilder sb = new StringBuilder(digest.length * 2);
-			for (byte b : digest) {
-				String hex = Integer.toHexString(b & 0xFF);
-				if(hex.length() == 1) {
-					sb.append('0');
-				}
-				sb.append(hex);
+		MessageDigest md = MD5.get();
+		md.update(String.valueOf(value).getBytes());
+		byte[] digest = md.digest();
+		StringBuilder sb = new StringBuilder(digest.length * 2);
+		for (byte b : digest) {
+			String hex = Integer.toHexString(b & 0xFF);
+			if(hex.length() == 1) {
+				sb.append('0');
 			}
-			return sb.toString();
-		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException(e);
+			sb.append(hex);
 		}
+		return sb.toString();
 	}
 
 	public static Object applyPrecision(final Object dominoVal, final int precision) {
