@@ -29,13 +29,11 @@ public enum InnardsConverter {
 		}
 
 		// The Domino and Notes TIMEDATE structure consists of two long words that
-		// encode the time, the date,
-		// the time zone, and the Daylight Savings Time settings that were in effect
-		// when the structure was initialized.
+		// encode the time, the date, the time zone, and the Daylight Savings Time
+		// settings that were in effect when the structure was initialized.
 		// The TIMEDATE structure is designed to be accessed exclusively through the
-		// time and date subroutines
-		// defined in misc.h. This structure is subject to change; the description here
-		// is provided for debugging purposes.
+		// time and date subroutines defined in misc.h. This structure is subject to
+		// change; the description here is provided for debugging purposes.
 
 		final boolean hasTime = innards[0] != ALLDAY;
 		final boolean hasDate = innards[1] != ANYDAY;
@@ -45,9 +43,8 @@ public enum InnardsConverter {
 		}
 
 		// The first DWORD, Innards[0], contains the number of hundredths of seconds
-		// since midnight,
-		// Greenwich mean time. If only the date is important, not the time, this field
-		// may be set to ALLDAY.
+		// since midnight, Greenwich mean time. If only the date is important, not the
+		// time, this field may be set to ALLDAY.
 
 		final long timeInnard = Integer.toUnsignedLong(innards[0]);
 		final long hundredSecondsSinceMidnight = timeInnard;
@@ -77,21 +74,17 @@ public enum InnardsConverter {
 		// January 1, 4713 BC.
 		//
 		// Note that this is NOT the same as the Julian calendar! The Julian Day was
-		// originally devised as an aid
-		// to astronomers. Since only days are counted, weeks, months, and years are
-		// ignored in calculations.
+		// originally devised as an aid to astronomers. Since only days are counted,
+		// weeks, months, and years are ignored in calculations.
 		// The Julian Day is defined to begin at noon; for simplicity, Domino and Notes
-		// assume that the day
-		// begins at midnight. The high-order byte, bits 31-24, encodes the time zone
-		// and Daylight Savings
-		// Time information.
+		// assume that the day begins at midnight. The high-order byte, bits 31-24,
+		// encode the time zone and Daylight Savings Time information.
 		// The high-order bit, bit 31 (0x80000000), is set if Daylight Savings Time is
 		// observed.
 		// Bit 30 (0x40000000) is set if the time zone is east of Greenwich mean time.
 		// Bits 27-24 contain the number of hours difference between the time zone and
-		// Greenwich mean
-		// time, and bits 29-28 contain the number of 15-minute intervals in the
-		// difference.
+		// Greenwich mean time, and bits 29-28 contain the number of 15-minute intervals
+		// in the difference.
 
 		final int dateInnard = innards[1];
 
@@ -117,10 +110,8 @@ public enum InnardsConverter {
 			}
 
 			// Since time zone information is stored only as "normal offset" + "do they do
-			// daylight savings at all?",
-			// we it's unsafe to try to map to a real time zone. Instead, just return an
-			// OffsetDateTime that matches
-			// how it was stored
+			// daylight savings at all?", we it's unsafe to try to map to a real time zone.
+			// Instead, just return an OffsetDateTime that matches how it was stored
 			if (offsetSeconds != 0) {
 				// Then just make a generic offset
 				final ZoneOffset offset = ZoneOffset.ofTotalSeconds(offsetSeconds);
