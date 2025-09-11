@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.openntf.xsp</groupId>
 		<artifactId>xsp-jakartaee</artifactId>
-		<version>3.5.0-SNAPSHOT</version>
+		<version>3.5.0</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>nsf-jakartaee-jsonbconfig-example</artifactId>
