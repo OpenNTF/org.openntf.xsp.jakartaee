@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openntf.xsp.jakarta.concurrency;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.concurrency
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakarta.concurrency.ConcurrencyActivator
-Bundle-Version: 3.5.0.qualifier
+Bundle-Version: 3.6.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: jakarta.enterprise.concurrent-api;bundle-version="3.1.0";visibility:=reexport,
@@ -19,5 +19,5 @@ Import-Package: com.ibm.designer.runtime.domino.adapter,
  lotus.domino,
  lotus.notes.internal,
  org.osgi.framework;version="1.8.0"
-Export-Package: org.openntf.xsp.jakarta.concurrency;version="3.5.0",
- org.openntf.xsp.jakarta.concurrency.jndi;version="3.5.0"
+Export-Package: org.openntf.xsp.jakarta.concurrency;version="3.6.0",
+ org.openntf.xsp.jakarta.concurrency.jndi;version="3.6.0"

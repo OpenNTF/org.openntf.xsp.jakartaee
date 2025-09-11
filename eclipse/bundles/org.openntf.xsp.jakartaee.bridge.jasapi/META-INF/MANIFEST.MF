@@ -3,9 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta JASAPI Bridge
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.bridge.jasapi;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.bridge.jasapi
-Bundle-Version: 3.5.0.qualifier
-Export-Package: org.openntf.xsp.jakartaee.bridge.jasapi;version="3.5.0",
- org.openntf.xsp.jakartaee.bridge.jasapi.impl;version="3.5.0"
+Bundle-Version: 3.6.0.qualifier
+Export-Package: org.openntf.xsp.jakartaee.bridge.jasapi;version="3.6.0",
+ org.openntf.xsp.jakartaee.bridge.jasapi.impl;version="3.6.0"
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.ibm.commons.util,

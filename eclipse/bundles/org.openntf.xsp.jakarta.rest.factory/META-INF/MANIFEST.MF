@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta REST OSGi Service Bridge
 Bundle-SymbolicName: org.openntf.xsp.jakarta.rest.factory
 Automatic-Module-Name: org.openntf.xsp.jakarta.rest.factory
-Bundle-Version: 3.5.0.qualifier
+Bundle-Version: 3.6.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Fragment-Host: jakarta.ws.rs-api
