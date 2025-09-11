@@ -30,6 +30,7 @@ import jakarta.data.repository.DataRepository;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.LoaderClassPath;
 
@@ -61,13 +62,16 @@ public class NoSQLWeavingHook implements WeavingHook {
 		CtClass cc = defrost(c, DataRepository.class, org.eclipse.core.runtime.Platform.class, org.osgi.framework.Bundle.class);
 
 		try {
-			// Oddly, making a fragment bundle to use ServiceLoader fails when deployed in an NSF Update Site, so do it a horrible way
 			String body = """
 			{
 				return org.eclipse.core.runtime.Platform.getBundle("org.openntf.xsp.jakarta.nosql").loadClass("org.openntf.xsp.jakarta.nosql.scanner.ComponentModuleClassScanner").getConstructor(new Class[0]).newInstance(new Object[0]);
 			}"""; //$NON-NLS-1$
 			CtMethod m = cc.getDeclaredMethod("load"); //$NON-NLS-1$
 			m.setBody(body);
+			
+			// The static constructor throws an exception when it can't find an instance, so zero it out
+			CtConstructor clinit = cc.getClassInitializer();
+			clinit.setBody("{ }"); //$NON-NLS-1$
 
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
@@ -249,6 +253,10 @@ public class NoSQLWeavingHook implements WeavingHook {
 			}"""; //$NON-NLS-1$
 			CtMethod m = cc.getDeclaredMethod("load"); //$NON-NLS-1$
 			m.setBody(body);
+			
+			// The static constructor throws an exception when it can't find an instance, so zero it out
+			CtConstructor clinit = cc.getClassInitializer();
+			clinit.setBody("{ }"); //$NON-NLS-1$
 
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
@@ -298,6 +306,10 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("of"); //$NON-NLS-1$
 				m.setBody(body);
 			}
+			
+			// The static constructor throws an exception when it can't find an instance, so zero it out
+			CtConstructor clinit = cc.getClassInitializer();
+			clinit.setBody("{ }"); //$NON-NLS-1$
 
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {

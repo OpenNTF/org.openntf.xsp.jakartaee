@@ -28,12 +28,26 @@ import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemStorage;
 
 import jakarta.json.JsonObject;
 import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.nosql.AttributeConverter;
 import jakarta.nosql.Column;
+import jakarta.nosql.Convert;
 import jakarta.nosql.Entity;
 import jakarta.nosql.Id;
 
 @Entity
+@SuppressWarnings("nls")
 public class ExampleDoc {
+	public static class SpecialBooleanConverter implements AttributeConverter<Boolean, Object> {
+		@Override
+		public String convertToDatabaseColumn(Boolean attribute) {
+			return attribute == null ? "no way" : attribute ? "totally" : "no way";
+		}
+
+		@Override
+		public Boolean convertToEntityAttribute(Object dbData) {
+			return "totally".equals(dbData) || Boolean.TRUE.equals(dbData);
+		}
+	}
 	public static class JsonStorage {
 		private String firstName;
 		private String lastName;
@@ -128,6 +142,12 @@ public class ExampleDoc {
 	@Column("$CustomSort")
 	@ItemStorage(updatable = false)
 	private String customSort;
+	@Column("StringBooleanStorage2")
+	@BooleanStorage(type=BooleanStorage.Type.STRING, stringTrue="yep", stringFalse="nah")
+	private boolean stringBooleanStorage2;
+	@Column("ConvertBooleanStorage")
+	@Convert(SpecialBooleanConverter.class)
+	private boolean convertBooleanStorage;
 	
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
@@ -257,6 +277,20 @@ public class ExampleDoc {
 	}
 	public void setStringBooleanStorage(boolean stringBooleanStorage) {
 		this.stringBooleanStorage = stringBooleanStorage;
+	}
+	
+	public boolean isStringBooleanStorage2() {
+		return stringBooleanStorage2;
+	}
+	public void setStringBooleanStorage2(boolean stringBooleanStorage2) {
+		this.stringBooleanStorage2 = stringBooleanStorage2;
+	}
+	
+	public boolean isConvertBooleanStorage() {
+		return convertBooleanStorage;
+	}
+	public void setConvertBooleanStorage(boolean convertBooleanStorage) {
+		this.convertBooleanStorage = convertBooleanStorage;
 	}
 	
 	@JsonbTransient

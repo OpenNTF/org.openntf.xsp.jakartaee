@@ -67,6 +67,10 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	 * Pattern used to attempt to identify 14.5 EA builds
 	 */
 	private static final Pattern EA_145_PATTERN = Pattern.compile("^domino-container:V1450_(\\d\\d)(\\d\\d)(\\d\\d\\d\\d)prod$"); //$NON-NLS-1$
+	/**
+	 * Pattern used to identify 14.5+ official container images
+	 */
+	private static final Pattern DECIMAL_VERSION_PATTERN = Pattern.compile("^domino-container:(\\d+)\\.(\\d+)(\\.(\\d)+)?$"); //$NON-NLS-1$
 	private static final LocalDate DATE_145EA2 = LocalDate.of(2024, 12, 4);
 
 	private static class DominoImage extends ImageFromDockerfile {
@@ -298,6 +302,17 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 			LocalDate buildDate = LocalDate.of(Integer.parseInt(m.group(3)), Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
 			return !buildDate.isBefore(DATE_145EA2);
 		}
+		
+		if(baseImage != null && (m = DECIMAL_VERSION_PATTERN.matcher(baseImage)).matches()) {
+			int major = Integer.parseInt(m.group(1));
+			int minor = Integer.parseInt(m.group(2));
+			if(major > 14) {
+				return true;
+			} else if(major == 14 && minor >= 5) {
+				return true;
+			}
+		}
+		
 		return false;
 	}
 }

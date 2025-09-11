@@ -17,22 +17,25 @@ package it.org.openntf.xsp.jakartaee.nsf.jaxrs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestCors extends AbstractWebClientTest {
-	@Test
-	public void testCors() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testCors(TestDatabase db) {
 		String expected = "http://someorigin." + System.nanoTime();
 		
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample");
+		WebTarget target = client.target(getRestUrl(null, db) + "/sample");
 		Response response = target.request()
 			.header("Origin", expected)
 			.get();

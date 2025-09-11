@@ -18,15 +18,16 @@ package bean;
 import java.net.URI;
 
 import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.openntf.xsp.jakarta.json.JSONBindUtil;
 
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.json.JsonObject;
 import jakarta.json.bind.JsonbBuilder;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.client.Client;
@@ -37,6 +38,7 @@ import jakarta.ws.rs.core.Response;
 
 @RequestScoped
 @Named("restClientBean")
+@SuppressWarnings("nls")
 public class RestClientBean {
 	public static class JsonExampleObject {
 		private String foo;
@@ -54,6 +56,9 @@ public class RestClientBean {
 		@Produces(MediaType.APPLICATION_JSON)
 		JsonExampleObject get();
 	}
+	
+	@Inject
+	private HttpServletRequest request;
 	
 	public Object getObjectViaRest() {
 		URI serviceUri = getServiceUri();
@@ -82,10 +87,10 @@ public class RestClientBean {
 	}
 	
 	private URI getServiceUri() {
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		HttpServletRequest request = (HttpServletRequest)facesContext.getExternalContext().getRequest();
 		URI uri = URI.create(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/");
-		uri = uri.resolve(facesContext.getExternalContext().getRequestContextPath() + "/");
-		return uri.resolve("xsp/app/jsonExample");
+		uri = uri.resolve(request.getContextPath() + "/");
+		// TODO remove hack for Jakarta modules
+		String prefix = FacesContext.getCurrentInstance() == null ? "" : "xsp/";
+		return uri.resolve(prefix + "app/jsonExample");
 	}
 }

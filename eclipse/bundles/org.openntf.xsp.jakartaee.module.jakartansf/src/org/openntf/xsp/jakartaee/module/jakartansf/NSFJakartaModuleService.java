@@ -32,15 +32,16 @@ import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule.RestartModuleSignal;
+import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
-
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ModuleTracker;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lotus.domino.NotesThread;
 
 /**
@@ -132,6 +133,9 @@ public class NSFJakartaModuleService extends HttpService {
 				String internalPathInfo = pathInfo.substring(contextPath.length());
 				int i = 0;
 				
+				if(module.shouldRefresh()) {
+					module.refresh();
+				}
 				try(
 					var lsxbe = module.withSessions(servletRequest);
 					var xtx = ActiveRequest.with(new ActiveRequest(module, lsxbe, null));
@@ -146,6 +150,16 @@ public class NSFJakartaModuleService extends HttpService {
 					}
 				}
 				throw new IllegalStateException(MessageFormat.format("Module didn't refresh after {0} attempts", MAX_REFRESH_ATTEMPTS));
+			} catch(Exception e) {
+				// XspCmdManager performs an equivalent test to show "Item not found exception" 404 pages
+				if(e.getClass().getName().contains("PageNotFoundException")) { //$NON-NLS-1$
+					throw e;
+				}
+				
+				servletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				servletResponse.setContentType("text/html"); //$NON-NLS-1$
+				XSPErrorPage.handleException(servletResponse.getWriter(), e, "", false); //$NON-NLS-1$
+				return true;
 			} finally {
 				NotesThread.stermThread();
 				

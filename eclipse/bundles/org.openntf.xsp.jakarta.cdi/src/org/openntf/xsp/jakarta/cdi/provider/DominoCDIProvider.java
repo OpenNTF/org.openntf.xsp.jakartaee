@@ -24,11 +24,13 @@ import com.ibm.commons.util.StringUtil;
 
 import org.openntf.xsp.jakarta.cdi.ext.CDIContainerLocator;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.Bundle;
 
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.enterprise.inject.spi.CDIProvider;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Provides access to the current application's CDI context.
@@ -38,16 +40,32 @@ import jakarta.enterprise.inject.spi.CDIProvider;
  */
 public class DominoCDIProvider implements CDIProvider {
 	private static final Logger log = Logger.getLogger(DominoCDIProvider.class.getPackage().getName());
+	
+	private static final String PROP_CDI = DominoCDIProvider.class.getName() + "_cdi"; //$NON-NLS-1$
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized CDI<Object> getCDI() {
+		// If we can find an active request, check it and use it to stash the result
+		HttpServletRequest req = ComponentModuleLocator.getDefault()
+			.flatMap(ComponentModuleLocator::getServletRequest)
+			.orElse(null);
+		if(req != null) {
+			Object container = req.getAttribute(PROP_CDI);
+			if(container != null) {
+				return (CDI<Object>)container;
+			}
+		}
+		
 		// Check in any available locator extensions
 		List<CDIContainerLocator> locators = LibraryUtil.findExtensionsSorted(CDIContainerLocator.class, false);
 		try {
 			for(CDIContainerLocator locator : locators) {
 				Object container = locator.getContainer();
 				if(container != null) {
+					if(req != null) {
+						req.setAttribute(PROP_CDI, container);
+					}
 					return (CDI<Object>)container;
 				}
 
@@ -55,7 +73,11 @@ public class DominoCDIProvider implements CDIProvider {
 				if(StringUtil.isNotEmpty(bundleId)) {
 					Optional<Bundle> bundle = LibraryUtil.getBundle(bundleId);
 					if(bundle.isPresent()) {
-						return ContainerUtil.getContainer(bundle.get());
+						container = ContainerUtil.getContainer(bundle.get());
+						if(req != null) {
+							req.setAttribute(PROP_CDI, container);
+						}
+						return (CDI<Object>)container;
 					}
 				}
 			}

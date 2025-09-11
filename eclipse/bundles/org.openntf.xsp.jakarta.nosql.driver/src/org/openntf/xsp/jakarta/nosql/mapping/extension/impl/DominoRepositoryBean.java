@@ -68,12 +68,12 @@ public class DominoRepositoryBean<T, K> extends AbstractBean<DominoRepository<T,
 		if (producerAnnotation != null) {
 			template = getInstance(DominoTemplate.class, producerAnnotation.value())
 				.orElseThrow(() ->
-					new IllegalStateException("Unable to locate producer method for @Database(value = DatabaseType.DOCUMENT, provider = \""+ producerAnnotation.value() + "\")")
+					new IllegalStateException("Unable to locate produced DominoTemplate for @Database(value = DatabaseType.DOCUMENT, provider = \""+ producerAnnotation.value() + "\")")
 				);
 		} else {
 			template = getInstance(DominoTemplate.class, "") //$NON-NLS-1$
 				.orElseThrow(() ->
-					new IllegalStateException("Unable to locate producer method for @Database(value = DatabaseType.DOCUMENT, provider = \"\")")
+					new IllegalStateException("Unable to locate produced DominoTemplate for provider = \"\"")
 				);
 		}
 		// The default DocumentRepositoryProducer uses Class#getClassLoader

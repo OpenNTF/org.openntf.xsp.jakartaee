@@ -18,6 +18,7 @@ package it.org.openntf.xsp.jakartaee.nsf.nosql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -28,15 +29,14 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.w3c.dom.Element;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
 import it.org.openntf.xsp.jakartaee.TestDomUtil;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -51,8 +51,9 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestNoSQLExampleDocs extends AbstractWebClientTest {
-	@Test
-	public void testExampleDoc() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testExampleDoc(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -62,7 +63,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.putSingle("title", "foo");
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -75,7 +76,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -94,9 +95,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertEquals("foo", title);
 		}
 	}
-	
-	@Test
-	public void testExampleDocAuthors() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testExampleDocAuthors(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -107,7 +109,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			payload.put("authors", Arrays.asList("CN=foo fooson/O=Bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -120,7 +122,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -141,8 +143,9 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		}
 	}
 
-	@Test
-	public void testComputeWithForm() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testComputeWithForm(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -152,7 +155,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.putSingle("title", "foo");
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -165,7 +168,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -185,10 +188,12 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertEquals("I am the default value", val);
 		}
 	}
-	
-	@Test
-	public void testItemStorage() {
-		Client client = getAnonymousClient();
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testItemStorage(TestDatabase db) {
+		// Use the admin client to allow updates
+		Client client = getAdminClient();
 		// Create a new doc
 		String unid;
 		{
@@ -207,7 +212,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("body", "<p>I am body HTML</p>")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -219,34 +224,77 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		}
 		
 		// Fetch the doc
+		JsonObject docJson;
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
 
-			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			docJson = Json.createReader(new StringReader(json)).readObject();
 			
-			assertEquals(unid, jsonObject.getString("unid"));
+			assertEquals(unid, docJson.getString("unid"));
 			
-			assertEquals("I am outer title", jsonObject.getString("title"));
-			assertEquals("<p>I am body HTML</p>", jsonObject.getString("body"));
-			JsonObject jsonGuy = jsonObject.getJsonObject("jsonGuy");
+			assertEquals("I am outer title", docJson.getString("title"));
+			assertEquals("<p>I am body HTML</p>", docJson.getString("body"));
+			JsonObject jsonGuy = docJson.getJsonObject("jsonGuy");
 			assertEquals("Foo", jsonGuy.getString("firstName"));
 			assertEquals("Fooson", jsonGuy.getString("lastName"));
-			JsonObject mimeGuy = jsonObject.getJsonObject("mimeGuy");
+			JsonObject mimeGuy = docJson.getJsonObject("mimeGuy");
 			assertEquals("I am the title", mimeGuy.getString("title"));
 			assertEquals("123 Road St.", mimeGuy.getString("address"));
 
 			// Make sure all the types are what we'd expect
-			String dxl = jsonObject.getString("dxl");
+			String dxl = docJson.getString("dxl");
+			assertNotNull(dxl);
+			assertFalse(dxl.isEmpty());
+		}
+		
+		// Update it with a new MIME body
+		{
+			JsonObject newMimeGuy = Json.createObjectBuilder()
+				.add("title", "I am the replacement title")
+				.add("address", "I am the replacement address")
+				.build();
+			JsonObject payload = Json.createObjectBuilder(docJson)
+				.add("mimeGuy", newMimeGuy)
+				.build();
+
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
+			Response response = target.request().put(Entity.json(payload));
+			checkResponse(200, response);
+		}
+		
+		// Fetch again to make sure it worked
+		{
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
+			Response response = target.request().get();
+			checkResponse(200, response);
+			String json = response.readEntity(String.class);
+
+			docJson = Json.createReader(new StringReader(json)).readObject();
+			
+			assertEquals(unid, docJson.getString("unid"));
+			
+			assertEquals("I am outer title", docJson.getString("title"));
+			assertEquals("<p>I am body HTML</p>", docJson.getString("body"));
+			JsonObject jsonGuy = docJson.getJsonObject("jsonGuy");
+			assertEquals("Foo", jsonGuy.getString("firstName"));
+			assertEquals("Fooson", jsonGuy.getString("lastName"));
+			JsonObject mimeGuy = docJson.getJsonObject("mimeGuy");
+			assertEquals("I am the replacement title", mimeGuy.getString("title"));
+			assertEquals("I am the replacement address", mimeGuy.getString("address"));
+
+			// Make sure all the types are what we'd expect
+			String dxl = docJson.getString("dxl");
 			assertNotNull(dxl);
 			assertFalse(dxl.isEmpty());
 		}
 	}
-	
-	@Test
-	public void testJsonStorageReadViewEntries() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testJsonStorageReadViewEntries(TestDatabase db) {
 		Client client = getAnonymousClient();
 		// Create a new doc
 		String unid;
@@ -266,7 +314,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("body", "<p>I am body HTML</p>")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -279,7 +327,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it shows up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/inView");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -297,9 +345,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertEquals(jsonGuy, entryJsonGuy);
 		}
 	}
-	
-	@Test
-	public void testItemStorageJsonp() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testItemStorageJsonp(TestDatabase db) {
 		Client client = getAnonymousClient();
 		// Create a new doc
 		String unid;
@@ -314,7 +363,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("body", "<p>I am body HTML</p>")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -327,7 +376,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -352,9 +401,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			}
 		}
 	}
-	
-	@Test
-	public void testJsonpStorageReadViewEntries() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testJsonpStorageReadViewEntries(TestDatabase db) {
 		Client client = getAnonymousClient();
 		// Create a new doc
 		String unid;
@@ -374,7 +424,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("body", "<p>I am body HTML</p>")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -387,7 +437,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it shows up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/inView");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -405,74 +455,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertEquals(jsonGuy, entryJsonGuy);
 		}
 	}
-	
-	@Test
-	@Disabled("Pending issue #482")
-	public void testItemStorageJsonArray() {
-		Client client = getAnonymousClient();
-		// Create a new doc
-		String unid;
-		{
-			JsonObject jsonGuy = Json.createObjectBuilder()
-				.add("firstName", "Foo")
-				.add("lastName", "Fooson")
-				.build();
-			JsonObject mimeGuy = Json.createObjectBuilder()
-				.add("title", "I am the title")
-				.add("address", "123 Road St.")
-				.build();
-			JsonObject payloadJson = Json.createObjectBuilder()
-				.add("title", "I am outer title")
-				.add("jsonArrayGuy", Json.createArrayBuilder().add(jsonGuy).build())
-				.add("mimeGuy", mimeGuy)
-				.add("body", "<p>I am body HTML</p>")
-				.build();
-			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
-			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
-			checkResponse(200, response);
 
-			String json = response.readEntity(String.class);
-			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-			unid = jsonObject.getString("unid");
-			assertNotNull(unid);
-			assertFalse(unid.isEmpty());
-		}
-		
-		// Fetch the doc
-		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
-			Response response = target.request().get();
-			checkResponse(200, response);
-			String json = response.readEntity(String.class);
-
-			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-			
-			assertEquals(unid, jsonObject.getString("unid"));
-			
-			assertEquals("I am outer title", jsonObject.getString("title"));
-			assertEquals("<p>I am body HTML</p>", jsonObject.getString("body"));
-			try {
-				JsonArray jsonArray = jsonObject.getJsonArray("jsonArrayGuy");
-				JsonObject jsonGuy = jsonArray.getJsonObject(0);
-				assertEquals("Foo", jsonGuy.getString("firstName"));
-				assertEquals("Fooson", jsonGuy.getString("lastName"));
-			} catch(Exception e) {
-				fail("Received unexpected JSON: " + json, e);
-			}
-			JsonObject mimeGuy = jsonObject.getJsonObject("mimeGuy");
-			assertEquals("I am the title", mimeGuy.getString("title"));
-			assertEquals("123 Road St.", mimeGuy.getString("address"));
-
-			// Make sure all the types are what we'd expect
-			String dxl = jsonObject.getString("dxl");
-			assertNotNull(dxl);
-			assertFalse(dxl.isEmpty());
-		}
-	}
-	
-	@Test
-	public void testSaveToDisk() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testSaveToDisk(TestDatabase db) {
 		Client client = getAdminClient();
 		// Create a new doc
 		String unid;
@@ -482,7 +468,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("computedValue", "I am written by the test")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -495,7 +481,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -515,14 +501,14 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("computedValue", "I am written by the test again")
 				.build();
 			
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().put(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 		}
 		
 		// Fetch it again
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -535,9 +521,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertFalse(jsonObject.containsKey("computedValue"));
 		}
 	}
-	
-	@Test
-	public void testNullDate() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testNullDate(TestDatabase db) {
 		Client client = getAdminClient();
 		// Create a new doc
 		String unid;
@@ -547,7 +534,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("dateGuy", "2023-09-13")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -560,7 +547,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -580,14 +567,14 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("dateGuy", "2023-09-14")
 				.build();
 			
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().put(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 		}
 		
 		// Fetch it again
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -607,14 +594,14 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.addNull("dateGuy")
 				.build();
 			
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().put(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 		}
 
 		// Fetch it again
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -634,14 +621,14 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("dateGuy", "2023-09-15")
 				.build();
 			
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().put(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 		}
 
 		// Fetch it again
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -654,9 +641,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertEquals("2023-09-15", jsonObject.getString("dateGuy"));
 		}
 	}
-	
-	@Test
-	public void testInsertableUpdatable() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testInsertableUpdatable(TestDatabase db) {
 		Client client = getAdminClient();
 		// Create a new doc
 		String unid;
@@ -667,7 +655,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("nonUpdatable", "I should be written during insert")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -680,7 +668,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -702,14 +690,14 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("nonUpdatable", "I should not be written during update")
 				.build();
 			
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().put(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 		}
 		
 		// Fetch it again
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -723,9 +711,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertEquals("I should be written during insert", jsonObject.getString("nonUpdatable"));
 		}
 	}
-	
-	@Test
-	public void testReadViewEntries() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testReadViewEntries(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -735,7 +724,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.putSingle("title", "foo");
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -748,7 +737,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it shows up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/inView");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -761,9 +750,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertTrue(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> "CATEGORY".equals(obj.getString("entryType"))));
 		}
 	}
-	
-	@Test
-	public void testReadViewEntriesDocsOnly() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testReadViewEntriesDocsOnly(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -773,7 +763,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.putSingle("title", "foo");
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -786,7 +776,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it shows up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView?docsOnly=true");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/inView?docsOnly=true");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -800,8 +790,9 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		}
 	}
 
-	@Test
-	public void testReadViewEntriesMaxLevel() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testReadViewEntriesMaxLevel(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -811,7 +802,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.putSingle("title", "foo");
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -824,7 +815,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it shows up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/viewCategories");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/viewCategories");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -837,9 +828,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertFalse(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> "DOCUMENT".equals(obj.getString("entryType"))));
 		}
 	}
-	
-	@Test
-	public void testIntentionalRollBack() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testIntentionalRollBack(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		// Create a new doc
@@ -851,7 +843,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			payload.put("categories", Arrays.asList("foo", "bar"));
 			payload.putSingle("intentionallyRollBack", "true");
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(500, response);
 			
@@ -861,7 +853,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it doesn't show up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/inView");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -873,14 +865,15 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertFalse(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> obj.containsKey("title") && title.equals(obj.getString("title"))));
 		}
 	}
-	
-	@Test
-	public void testSequentialOperations() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testSequentialOperations(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		String unid;
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocAndPersonTransaction");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/exampleDocAndPersonTransaction");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -898,7 +891,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Make sure it shows up in the view entries
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/inView?docsOnly=true");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/inView?docsOnly=true");
 			Response response = target.request().get();
 			checkResponse(200, response);
 			
@@ -910,9 +903,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertTrue(jsonObjects.stream().map(JsonValue::asJsonObject).anyMatch(obj -> unid.equals(obj.getString("unid")) && "DOCUMENT".equals(obj.getString("entryType"))));
 		}
 	}
-	
-	@Test
-	public void testNumberPrecision() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testNumberPrecision(TestDatabase db) {
 		Client client = getAdminClient();
 		
 		// Create a new doc
@@ -924,7 +918,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("numbersGuy", Json.createArrayBuilder(Arrays.asList(4.111, 5.111)))
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -937,7 +931,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -955,8 +949,8 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 	}
 	
 	@ParameterizedTest
-	@ValueSource(booleans = { true, false })
-	public void testBooleanStorage(boolean expected) {
+	@ArgumentsSource(MainAndModuleProvider.EnumAndBoolean.class)
+	public void testBooleanStorage(TestDatabase db, boolean expected) {
 		Client client = getAdminClient();
 		
 		// Create a new doc
@@ -966,10 +960,12 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("title", "I am testBooleanStorage guy")
 				.add("booleanStorage", expected)
 				.add("stringBooleanStorage", expected)
+				.add("stringBooleanStorage2", expected)
 				.add("doubleBooleanStorage", expected)
+				.add("convertBooleanStorage", expected)
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -980,12 +976,14 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertFalse(unid.isEmpty());
 			assertEquals(expected, jsonObject.getBoolean("booleanStorage"));
 			assertEquals(expected, jsonObject.getBoolean("stringBooleanStorage"));
+			assertEquals(expected, jsonObject.getBoolean("stringBooleanStorage2"));
 			assertEquals(expected, jsonObject.getBoolean("doubleBooleanStorage"));
+			assertEquals(expected, jsonObject.getBoolean("convertBooleanStorage"));
 		}
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -1009,6 +1007,16 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			stored = TestDomUtil.nodes(xmlDoc, "//*[name()='item'][@name='StringBooleanStorage']/*/text()").get(0).getNodeValue();
 			assertEquals(expected ? "true" : "false", stored);
 			
+			// Stores as "yep" and "nah"
+			assertEquals(expected, jsonObject.getBoolean("stringBooleanStorage2"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));
+			stored = TestDomUtil.nodes(xmlDoc, "//*[name()='item'][@name='StringBooleanStorage2']/*/text()").get(0).getNodeValue();
+			assertEquals(expected ? "yep" : "nah", stored);
+			
+			// Stores as "totally" and "no way"
+			assertEquals(expected, jsonObject.getBoolean("convertBooleanStorage"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));
+			stored = TestDomUtil.nodes(xmlDoc, "//*[name()='item'][@name='ConvertBooleanStorage']/*/text()").get(0).getNodeValue();
+			assertEquals(expected ? "totally" : "no way", stored);
+			
 			// Stores as 0 and 1 (intentionally reversed)
 			assertEquals(expected, jsonObject.getBoolean("doubleBooleanStorage"), () -> "Failed round trip; dxl: " + jsonObject.getString("dxl"));
 			stored = TestDomUtil.nodes(xmlDoc, "//*[name()='item'][@name='DoubleBooleanStorage']/*/text()").get(0).getNodeValue();
@@ -1022,8 +1030,9 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 	 * 
 	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/513">Issue #513</a>
 	 */
-	@Test
-	public void testJsonbTransientField() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testJsonbTransientField(TestDatabase db) {
 		Client client = getAdminClient();
 		
 		// Create a new doc
@@ -1033,7 +1042,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("title", "I am testJsonbTransientField guy")
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payloadJson.toString()));
 			checkResponse(200, response);
 
@@ -1048,7 +1057,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the doc
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/" + unid);
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/" + unid);
 			Response response = target.request().get();
 			checkResponse(200, response);
 			String json = response.readEntity(String.class);
@@ -1074,9 +1083,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			
 		}
 	}
-	
-	@Test
-	public void testExampleDocInCategories() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testExampleDocInCategories(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		String prefix13 = "fooddddd";
@@ -1090,7 +1100,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
 			payload.putSingle("title", title1);
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -1105,7 +1115,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
 			payload.putSingle("title", title2);
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -1120,7 +1130,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
 			payload.putSingle("title", title3);
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.form(payload));
 			checkResponse(200, response);
 
@@ -1133,7 +1143,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the first two titles, which should include both
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInTitle");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/exampleDocsInTitle");
 			Response response = target.queryParam("title", title1, title2).request().get();
 			checkResponse(200, response);
 
@@ -1150,7 +1160,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the second two categories, which should also include both
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInTitle");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/exampleDocsInTitle");
 			Response response = target.queryParam("title", title2, title3).request().get();
 			checkResponse(200, response);
 
@@ -1165,9 +1175,10 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			}
 		}
 	}
-	
-	@Test
-	public void testExampleDocInNumberGuy() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testExampleDocInNumberGuy(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
 		String prefix13 = "fooddddd";
@@ -1183,7 +1194,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("numberGuy", guys[i])
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payload));
 			checkResponse(200, response);
 
@@ -1196,14 +1207,14 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Update the FT index, to make sure
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/updateExampleDocFtIndex");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/updateExampleDocFtIndex");
 			Response response = target.request().post(Entity.text(""));
 			checkResponse(204, response);
 		}
 		
 		// Fetch the first two values, which should include both
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInNumberGuy");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/exampleDocsInNumberGuy");
 			Response response = target.queryParam("numberGuy", guys[0], guys[1]).request().get();
 			checkResponse(200, response);
 
@@ -1220,7 +1231,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the second two values
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsInNumberGuy");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/exampleDocsInNumberGuy");
 			Response response = target.queryParam("numberGuy", guys[1], guys[2]).request().get();
 			checkResponse(200, response);
 
@@ -1235,14 +1246,15 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			}
 		}
 	}
-	
-	@Test
-	public void testExampleDocLikeTitle() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testExampleDocLikeTitle(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
-		final String prefix1 = "fooddddd";
+		final String prefix1 = "fooddddd" + db.name();
 		final String title1 = prefix1 + System.currentTimeMillis();
-		final String prefix2 = "dsfsdf";
+		final String prefix2 = "dsfsdf" + db.name();
 		final String title2 = prefix2 + System.currentTimeMillis();
 		
 		// Create two new docs
@@ -1252,7 +1264,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("title", title1)
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payload));
 			checkResponse(200, response);
 
@@ -1268,7 +1280,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("title", title2)
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payload));
 			checkResponse(200, response);
 
@@ -1281,21 +1293,21 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Update the FT index, to make sure
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/updateExampleDocFtIndex");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/updateExampleDocFtIndex");
 			Response response = target.request().post(Entity.text(""));
 			checkResponse(204, response);
 		}
 
 		// Fetch the first prefix
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsLikeTitle");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/exampleDocsLikeTitle");
 			Response response = target.queryParam("title", prefix1 + "*").request().get();
 			checkResponse(200, response);
 
 			String json = response.readEntity(String.class);
 			try {
 				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
-				assertEquals(1, entities.size());
+				assertFalse(entities.isEmpty());
 				assertTrue(entities.stream().map(JsonObject.class::cast).anyMatch(obj -> unid1.equals(obj.getString("unid"))));
 			} catch(Exception e) {
 				fail("Encountered exception with JSON " + json, e);
@@ -1304,7 +1316,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 
 		// Fetch the second prefix
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/exampleDocsLikeTitle");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/exampleDocsLikeTitle");
 			Response response = target.queryParam("title", prefix2 + "*").request().get();
 			checkResponse(200, response);
 
@@ -1318,12 +1330,13 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			}
 		}
 	}
-	
-	@Test
-	public void testExampleDocAllSorted() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testExampleDocAllSorted(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
-		String prefix = "allsorted";
+		String prefix = "allsorted" + db.name();
 		String[] unids = new String[2];
 		
 		// Create two docs with the same title but different numberGuy to test sorting
@@ -1333,7 +1346,7 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 				.add("numberGuy", 2-i)
 				.build();
 			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
 			Response response = postTarget.request().post(Entity.json(payload));
 			checkResponse(200, response);
 
@@ -1348,7 +1361,70 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		
 		// Fetch the first two values, which should include both
 		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/allSorted");
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/allSorted");
+			Response response = target.request().get();
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			try {
+				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
+				assertTrue(entities.size() > 2, "Received unexpected count " + entities.size());
+				
+				int index1 = -1;
+				int index2 = -1; 
+				for(int i = 0; i < entities.size(); i++) {
+					JsonObject entity = entities.getJsonObject(i);
+					if(unids[0].equals(entity.getString("unid"))) {
+						index1 = i;
+					} else if(unids[1].equals(entity.getString("unid"))) {
+						index2 = i;
+					}
+				}
+				if(index1 == -1) {
+					fail("Did not find first UNID in " + json);
+				} else if(index2 == -1) {
+					fail("Did not find second UNID in " + json);
+				} else if(index1 <= index2) {
+					fail("index1 should not be less than index2");
+				}
+				
+			} catch(Exception e) {
+				fail("Encountered exception with JSON " + json, e);
+			}
+		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testExampleDocAllSortedCustom(TestDatabase db) {
+		Client client = getAnonymousClient();
+		
+		String prefix = "allsortedcustom" + System.currentTimeMillis();
+		String[] unids = new String[2];
+		
+		// Create two docs with the same title but different numberGuy to test sorting
+		for(int i = 0; i < 2; i++) {
+			JsonObject payload = Json.createObjectBuilder()
+				.add("title", prefix)
+				.add("numberGuy", 2-i)
+				.build();
+			
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.json(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unids[i] = jsonObject.getString("unid");
+			assertNotNull(unids[i]);
+			assertFalse(unids[i].isEmpty());
+		}
+		
+		// Fetch the list and make sure that the second UNID is before the first
+		
+		// Fetch the first two values, which should include both
+		{
+			WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/allSortedCustom");
 			Response response = target.request().get();
 			checkResponse(200, response);
 
@@ -1381,67 +1457,18 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		}
 	}
 	
-
-	
-	@Test
-	public void testExampleDocAllSortedCustom() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testExampleDocAllExplain(TestDatabase db) {
 		Client client = getAnonymousClient();
 		
-		String prefix = "allsortedcustom";
-		String[] unids = new String[2];
+		WebTarget target = client.target(getRestUrl(null, db) + "/exampleDocs/allExplain");
+		Response response = target.request().get();
+		checkResponse(200, response);
+		JsonObject explain = response.readEntity(JsonObject.class);
 		
-		// Create two docs with the same title but different numberGuy to test sorting
-		for(int i = 0; i < 2; i++) {
-			JsonObject payload = Json.createObjectBuilder()
-				.add("title", prefix)
-				.add("numberGuy", 2-i)
-				.build();
-			
-			WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs");
-			Response response = postTarget.request().post(Entity.json(payload));
-			checkResponse(200, response);
-
-			String json = response.readEntity(String.class);
-			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
-			unids[i] = jsonObject.getString("unid");
-			assertNotNull(unids[i]);
-			assertFalse(unids[i].isEmpty());
-		}
-		
-		// Fetch the list and make sure that the second UNID is before the first
-		
-		// Fetch the first two values, which should include both
-		{
-			WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/exampleDocs/allSortedCustom");
-			Response response = target.request().get();
-			checkResponse(200, response);
-
-			String json = response.readEntity(String.class);
-			try {
-				JsonArray entities = Json.createReader(new StringReader(json)).readArray();
-				assertTrue(entities.size() > 2, "Received unexpected count " + entities.size());
-				
-				int index1 = -1;
-				int index2 = -1; 
-				for(int i = 0; i < entities.size(); i++) {
-					JsonObject entity = entities.getJsonObject(i);
-					if(unids[0].equals(entity.getString("unid"))) {
-						index1 = i;
-					} else if(unids[1].equals(entity.getString("unid"))) {
-						index2 = i;
-					}
-				}
-				if(index1 == -1) {
-					fail("Did not find first UNID");
-				} else if(index2 == -1) {
-					fail("Did not find second UNID");
-				} else if(index1 <= index2) {
-					fail("index1 should not be less than index2");
-				}
-				
-			} catch(Exception e) {
-				fail("Encountered exception with JSON " + json, e);
-			}
-		}
+		assertNotNull(explain);
+		assertFalse(explain.isEmpty());
+		assertNotEquals("", explain.getString("explain", ""));
 	}
 }

@@ -188,14 +188,14 @@ public enum DominoConstants {
 	 */
 	public static final String FIELD_PROFILENAME = "@profilename"; //$NON-NLS-1$
 	/**
-	 * The field used to request storage of the qualifying user name of a named or
+	 * The field used to request storage of the qualifying user name of a named
 	 * document, currently {@value #FIELD_USERNAME}
 	 * @since 2.13.0
 	 */
 	public static final String FIELD_USERNAME = "@username"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of the qualifying user name of a profile
-	 * document, currently {@value #FIELD_USERNAME}
+	 * document, currently {@value #FIELD_PROFILEKEY}
 	 * @since 2.13.0
 	 */
 	public static final String FIELD_PROFILEKEY = "@profilekey"; //$NON-NLS-1$

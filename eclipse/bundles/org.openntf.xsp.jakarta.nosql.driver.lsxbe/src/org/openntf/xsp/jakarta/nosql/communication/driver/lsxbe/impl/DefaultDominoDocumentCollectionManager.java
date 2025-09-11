@@ -65,14 +65,18 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.impl.ViewInfoImpl;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.SessionSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
+import org.openntf.xsp.jakarta.nosql.driver.ExplainEvent;
+import org.openntf.xsp.jakarta.nosql.driver.NoSQLConfigurationBean;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
 import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
+import jakarta.enterprise.event.Event;
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
+import jakarta.enterprise.util.TypeLiteral;
 import jakarta.nosql.Column;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
@@ -104,11 +108,22 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	private final Supplier<Database> supplier;
 	private final Supplier<Session> sessionSupplier;
 	private final LSXBEEntityConverter entityConverter;
+	private final NoSQLConfigurationBean configBean;
+	private final Event<ExplainEvent> explainEmitter;
 
 	public DefaultDominoDocumentCollectionManager(final Supplier<Database> supplier, final Supplier<Session> sessionSupplier) {
 		this.supplier = supplier;
 		this.sessionSupplier = sessionSupplier;
 		this.entityConverter = new LSXBEEntityConverter(supplier);
+		
+		CDI<Object> cdi = CDI.current();
+		Instance<NoSQLConfigurationBean> configInstance = cdi.select(NoSQLConfigurationBean.class);
+		if(configInstance.isResolvable()) {
+			this.configBean = configInstance.get();
+		} else {
+			this.configBean = null;
+		}
+		this.explainEmitter = cdi.select(new TypeLiteral<Event<ExplainEvent>>() {}).get();
 	}
 
 	public DefaultDominoDocumentCollectionManager(final DatabaseSupplier supplier, final SessionSupplier sessionSupplier) {
@@ -218,7 +233,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				// Then do it via DQL
 				DQLTerm dql = QueryConverter.getCondition(query.condition().get());
 				DominoQuery dominoQuery = database.createDominoQuery();
-				DocumentCollection docs = dominoQuery.execute(dql.toString());
+				String dqlString = dql.toString();
+				EntityMetadata mapping = EntityUtil.getClassMapping(query.name());
+				logExplain(dominoQuery, dqlString, mapping.type());
+				DocumentCollection docs = dominoQuery.execute(dqlString);
 				docs.removeAll(true);
 			}
 		} catch(NotesException e) {
@@ -260,7 +278,19 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 							serverName = ""; //$NON-NLS-1$
 						}
 						long dataMod = NotesSession.getLastDataModificationDateByName(serverName, database.getFilePath());
-						if(dataMod > created.toJavaDate().getTime() / 1000) {
+						boolean modified = dataMod > created.toJavaDate().getTime() / 1000;
+						if(!modified) {
+							// Do another check this way, which is more expensive but more reliable in busy situations
+							DocumentCollection modDocs = database.getModifiedDocuments(created);
+							try {
+								if(modDocs.getCount() > 0) {
+									modified = true;
+								}
+							} finally {
+								recycle(modDocs);
+							}
+						}
+						if(modified) {
 							view.remove();
 							view.recycle();
 							view = null;
@@ -272,30 +302,33 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					}
 				}
 
-				if(view != null) {
-					result = entityConverter.convertQRPViewDocuments(database, view, mapping);
-				} else {
+				if(view == null) {
 					DominoQuery dominoQuery = database.createDominoQuery();
 					QueryResultsProcessor qrp = qrpDatabase.createQueryResultsProcessor();
 					try {
 						qrp.addDominoQuery(dominoQuery, dqlQuery, null);
-						for(Sort sort : sorts) {
+						for(Sort<?> sort : sorts) {
 							String itemName = EntityUtil.findItemName(sort.property(), mapping);
 
-							int dir = sort.isDescending() ? QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
+							// QueryResultsProcessor.SORT_DESCENDING : QueryResultsProcessor.SORT_ASCENDING;
+							int dir = sort.isDescending() ? 2 : 1;
 							qrp.addColumn(itemName, itemName, null, dir, false, false);
 						}
 
+						logExplain(dominoQuery, dqlQuery, mapping.type());
 						view = qrp.executeToView(viewName, 24);
-						result = entityConverter.convertQRPViewDocuments(database, view, mapping);
 					} finally {
 						recycle(qrp, dominoQuery);
 					}
 				}
+				
+				result = entityConverter.convertQRPViewDocuments(database, view, mapping);
 
 			} else {
 				DominoQuery dominoQuery = database.createDominoQuery();
-				DocumentCollection docs = dominoQuery.execute(queryResult.getStatement().toString());
+				String dqlString = queryResult.getStatement().toString();
+				logExplain(dominoQuery, dqlString, mapping.type());
+				DocumentCollection docs = dominoQuery.execute(dqlString);
 				try {
 					result = entityConverter.convertDocuments(docs, mapping);
 				} finally {
@@ -464,7 +497,9 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			EntityMetadata mapping = EntityUtil.getClassMapping(documentCollection);
 			String formName = EntityUtil.getFormName(mapping);
 			DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName);
-			DocumentCollection result = dominoQuery.execute(dql.toString());
+			String dqlString = dql.toString();
+			logExplain(dominoQuery, dqlString, mapping.type());
+			DocumentCollection result = dominoQuery.execute(dqlString);
 			return result.getCount();
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
@@ -1041,6 +1076,16 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 
 		throw new IllegalStateException(MessageFormat.format("Unable to find column for formula {0} (entity property \"{1}\") in view {2}", formula, originalName, view.getName()));
+	}
+	
+	private void logExplain(DominoQuery query, String dql, Class<?> entityType) throws NotesException {
+		if(this.configBean != null && this.configBean.emitExplainEvents()) {
+			String explain = query.explain(dql);
+			Database database = supplier.get();
+			String server = database.getServer();
+			String filePath = database.getFilePath();
+			explainEmitter.fire(new ExplainEvent(dql, server, filePath, explain, entityType));
+		}
 	}
 
 	private static class DatabaseXAResource implements XAResource {

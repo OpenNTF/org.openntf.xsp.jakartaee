@@ -22,29 +22,46 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
+import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
-import it.org.openntf.xsp.jakartaee.TestDatabase;
-
 @SuppressWarnings("nls")
 public class TestJaxRs extends AbstractWebClientTest {
+	public static class EnumAndBasePathsProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return new MainAndModuleProvider.EnumOnly().provideArguments(context)
+				.map(args -> args.get()[0])
+				.flatMap(e -> {
+					return Stream.of(
+						Arguments.of(e, "/"),
+						Arguments.of(e, "")
+					);
+				});
+		}
+	}
 	
-	@Test
-	public void testSample() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testSample(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample");
+		WebTarget target = client.target(getRestUrl(null, db) + "/sample");
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -55,10 +72,11 @@ public class TestJaxRs extends AbstractWebClientTest {
 	/**
 	 * Tests test.Sample#xml, which uses JAX-RS, CDI, and JAX-B.
 	 */
-	@Test
-	public void testSampleXml() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testSampleXml(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/sample/xml");
+		WebTarget target = client.target(getRestUrl(null, db) + "/sample/xml");
 		Response response = target.request().get();
 		
 		Document xmlDoc = response.readEntity(Document.class);
@@ -71,10 +89,10 @@ public class TestJaxRs extends AbstractWebClientTest {
 	}
 	
 	@ParameterizedTest
-	@ValueSource(strings = { "/", "" })
-	public void testBaseResource(String path) {
+	@ArgumentsSource(EnumAndBasePathsProvider.class)
+	public void testBaseResource(TestDatabase db, String path) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + path);
+		WebTarget target = client.target(getRestUrl(null, db) + path);
 		Response response = target.request().get();
 		
 		String output = response.readEntity(String.class);
@@ -87,10 +105,11 @@ public class TestJaxRs extends AbstractWebClientTest {
 	 * 
 	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/382">Issue #382</a>
 	 */
-	@Test
-	public void testRequestFilter() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testRequestFilter(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN));
+		WebTarget target = client.target(getRestUrl(null, db));
 		Response response = target.request().get();
 		
 		assertEquals("hello", response.getHeaderString("X-ExampleHeaderFilter"));
@@ -102,10 +121,11 @@ public class TestJaxRs extends AbstractWebClientTest {
 	 * 
 	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/168">Issue #168</a>
 	 */
-	@Test
-	public void testContributedProperty() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testContributedProperty(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsConfig");
+		WebTarget target = client.target(getRestUrl(null, db) + "/jaxrsConfig");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
@@ -124,10 +144,11 @@ public class TestJaxRs extends AbstractWebClientTest {
 	 * 
 	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/469">Issue #469</a>
 	 */
-	@Test
-	public void testWebXmlProperty() {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testWebXmlProperty(TestDatabase db) {
 		Client client = getAnonymousClient();
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/jaxrsConfig/servlet");
+		WebTarget target = client.target(getRestUrl(null, db) + "/jaxrsConfig/servlet");
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);

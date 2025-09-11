@@ -43,7 +43,7 @@ Note: the term "core" is distinct from the ["Jakarta EE Core Profile"](https://j
 
 The [Jakarta Contexts and Dependency Injection](https://jakarta.ee/specifications/cdi/) specification provides for managed beans and dependency injection.
 
-Currently, this support is focused around adding annotated CDI managed bean classes in an NSF and having them picked up by the variable resolver. For example:
+In the basic case, this allows for the definition of managed beans using annotations, such as:
 
 ```java
 @ApplicationScoped
@@ -55,11 +55,7 @@ public class ApplicationGuy {
 }
 ```
 
-```xml
-<xp:text value="#{applicationGuy.foo}"/>
-```
-
-These beans are managed and instantiated by [Weld](http://weld.cdi-spec.org) and support injection with other annotated beans:
+These beans are managed and instantiated by the CDI runtime and support injection with other annotated beans:
 
 ```java
 @RequestScoped
@@ -71,6 +67,12 @@ public class RequestGuy {
   
 	// ...
 }
+```
+
+Beans annotated with `@Named` are available for use in XPages, such as:
+
+```xml
+<xp:text value="#{applicationGuy.foo}"/>
 ```
 
 Additionally, the CDI system can inject implementations of interfaces based on available concrete implementations, as well as use `@PostConstruct` and `@PreDestroy` annotations:
@@ -117,7 +119,7 @@ This implementation maps CDI `@ConversationScoped` beans to the XPages view scop
 
 #### Limitations
 
-Currently, the CDI environment for the application acts as if there is a `META-INF/beans.xml` file with `bean-discovery-mode="all"` set, but only resolves within the active NSF. So, while NSF beans and classes can reference each other, plugin and system classes are not available for CDI injection.
+Currently, the CDI environment for the application acts as if there is a `META-INF/beans.xml` file with `bean-discovery-mode="all"` set, but only resolves within the active NSF. So, while NSF beans and classes can reference each other, plugin and system classes are not available for CDI injection unless specifically provided for with an extension from this project.
 
 ### Expression Language
 
@@ -141,7 +143,7 @@ If you don't want Jakarta EL to take over the default handling of EL in the app,
 
 ```properties
 xsp.library.depends=org.openntf.xsp.jakartaee.core
-org.openntf.xsp.el.prefix=ex
+org.openntf.xsp.jakarta.el.prefix=ex
 ```
 
 Note that Designer refuses to compile XPages with runtime-bound expressions that use a number in the prefix, so this should be letters only.
@@ -546,7 +548,8 @@ package model;
 
 import java.util.stream.Stream;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
+// import org.openntf.xsp.nosql.mapping.extension.DominoRepository;  --> for version 2.x code base
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
 
 public interface PersonRepository extends DominoRepository<Person, String> {
 	Stream<Person> findAll();
@@ -579,7 +582,7 @@ Certain queries, namely arbitrary searches with a sort parameter, will cause the
 
 #### Accessing Views
 
-View and folder data can be accessed by writing repository methods annotated with the `org.openntf.xsp.nosql.mapping.extension.ViewEntries` and `org.openntf.xsp.nosql.mapping.extension.ViewDocuments` annotations. For example:
+View and folder data can be accessed by writing repository methods annotated with the `org.openntf.xsp.jakarta.nosql.mapping.extension.ViewEntries` and `org.openntf.xsp.jakarta.nosql.mapping.extension.ViewDocuments` annotations. For example:
 
 ```java
 public interface PersonRepository extends DominoRepository<Person, String> {
@@ -591,7 +594,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 }
 ```
 
-The `@ViewDocuments` annotation will retrieve all the documents contained in the view or folder, in entry order, while `@ViewEntries` will read only the entry data. The latter is potentially much faster, but does not provide full access to the underlying documents. Rich-text items are not available, for example, though view columns are accessible by programmatic name (e.g. `$3`). The `org.openntf.xsp.nosql.mapping.extension.ViewQuery` type can be used programmatically to define a query on the view data. For example, in a REST service finding a person entry by the last-name key from the view:
+The `@ViewDocuments` annotation will retrieve all the documents contained in the view or folder, in entry order, while `@ViewEntries` will read only the entry data. The latter is potentially much faster, but does not provide full access to the underlying documents. Rich-text items are not available, for example, though most view columns are accessible by programmatic name (e.g. `$3` - see note below). The `org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery` type can be used programmatically to define a query on the view data. For example, in a REST service finding a person entry by the last-name key from the view:
 
 ```java
 @Path("byViewKey/{lastName}")
@@ -603,6 +606,44 @@ public Person getPersonByViewKey(@PathParam("lastName") String lastName) {
 		.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
 }
 ```
+
+#### Document Metadata
+
+Document metadata - such as the creation date, note ID, and others - is available via special item names defined in the `org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants` type. Additionally, some of these item names are mapped to known column formulas when reading view entries. The document UNID is mapped via the `@Id` annotation instead of `@Column`, while the rest of the metadata field values, their types, and their corresponding view column formulas are as follows:
+
+| Value                                | Type                         | DominoConstants             | Column Formula              |
+| ------------------------------------ | ---------------------------- | --------------------------- | --------------------------- |
+| Creation Date                        | OffsetDateTime               | FIELD_CDATE                 | @Created                    |
+| Modified Date                        | OffsetDateTime               | FIELD_MDATE                 | @Modified                   |
+| Attachments                          | List&lt;EntityAttachment&gt; | FIELD_ATTACHMENTS           | @AttachmentNames            |
+| Document DXL                         | String                       | FIELD_DXL                   |                             |
+| Read Mark                            | boolean                      | FIELD_READ                  |                             |
+| Doc Size                             | int                          | FIELD_SIZE                  | @DocLength                  |
+| Note ID                              | int                          | FIELD_NOTEID                | @NoteID                     |
+| Parent UNID                          | String                       | FIELD_PARENTUNID            |                             |
+| Last Accessed Date                   | OffsetDateTime               | FIELD_ADATE                 | @Accessed                   |
+| Modified In This File                | OffsetDateTime               | FIELD_MODIFIED_IN_THIS_FILE | @ModifiedInThisFile         |
+| Added To This File                   | OffsetDateTime               | FIELD_ADDED                 | @AddedToThisFile            |
+| ETag (computed from ID and modified) | String                       | FIELD_ETAG                  | (Requires @Modified column) |
+| DB File Path                         | String                       | FIELD_FILEPATH              |                             |
+| DB Server                            | String                       | FIELD_SERVER                |                             |
+| DB Replica ID                        | String                       | FIELD_REPLICAID             |                             |
+| Profile Name                         | String                       | FIELD_PROFILENAME           |                             |
+| Profile User                         | String                       | FIELD_PROFILEKEY            |                             |
+| Named Note Name                      | String                       | FIELD_NOTENAME              |                             |
+| Named Note User                      | String                       | FIELD_USERNAME              |                             |
+
+Several properties are only available when using `@ViewEntries` to read view entries:
+
+| View Position          | String    | FIELD_POSITION          |
+| ---------------------- | --------- | ----------------------- |
+| Entry Type             | EntryType | FIELD_ENTRY_TYPE        |
+| Sibling Count          | int       | FIELD_SIBLINGCOUNT      |
+| Child Count            | int       | FIELD_CHILDCOUNT        |
+| Descendant Count       | int       | FIELD_DESCENDANTCOUNT   |
+| Column Indent Level    | int       | FIELD_COLUMNINDENTLEVEL |
+| Indent Level           | int       | FIELD_INDENTLEVEL       |
+| Full-Text Search Score | int       | FIELD_FTSEARCHSCORE     |
 
 #### Named and Profile Documents
 
@@ -646,15 +687,15 @@ public class SomeProfileDoc {
 
 #### Document Sources
 
-By default, the driver assumes that documents are stored in the current database. This can be overridden by using the `org.openntf.xsp.nosql.mapping.extension.RepositoryProvider` annotation. For example:
+By default, the driver assumes that documents are stored in the current database. This can be overridden by using the `org.openntf.xsp.jakarta.nosql.mapping.extension.RepositoryProvider` annotation. For example:
 
 ```java
 package model;
 
 import java.util.stream.Stream;
 
-import org.openntf.xsp.nosql.mapping.extension.DominoRepository;
-import org.openntf.xsp.nosql.mapping.extension.RepositoryProvider;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.RepositoryProvider;
 
 @RepositoryProvider("names")
 public interface PersonRepository extends DominoRepository<Person, String> {
@@ -663,36 +704,41 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 }
 ```
 
-Then, create a CDI bean that can provide the desired database and a `sessionAsSigner` object (which is used for QueryResultsProcessor views), annotated with `jakarta.nosql.mapping.Database`. For example:
+Then, create a CDI bean that can provide the desired database and a `sessionAsSigner` object (which is used for QueryResultsProcessor views), annotated with `org.eclipse.jnosql.mapping.Database`. For example:
 
 ```java
 package bean;
 
-import org.openntf.xsp.nosql.communication.driver.DominoDocumentCollectionManager;
-import org.openntf.xsp.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
-
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.inject.Produces;
 import org.eclipse.jnosql.mapping.Database;
 import org.eclipse.jnosql.mapping.DatabaseType;
-import lotus.domino.NotesException;
+import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
+import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl.DefaultDominoDocumentCollectionManager;
 
-@RequestScoped
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import lotus.domino.NotesException;
+import lotus.domino.Session;
+
+@Dependent
 public class NamesRepositoryBean {
+	
+	@Inject @Named("dominoSessionAsSigner")
+	private Session sessionAsSigner;
+	
 	@Produces
 	@Database(value = DatabaseType.DOCUMENT, provider = "names")
-	public DominoDocumentCollectionManager getNamesManager() {
+	public DominoDocumentManager getNamesManager() {
 		return new DefaultDominoDocumentCollectionManager(
 			() -> {
 				try {
-					return NotesContext.getCurrent().getSessionAsSigner().getDatabase("", "names.nsf");
+					return sessionAsSigner.getDatabase("", "names.nsf"); //$NON-NLS-1$ //$NON-NLS-2$
 				} catch (NotesException e) {
 					throw new RuntimeException(e);
 				}
 			},
-			() -> NotesContext.getCurrent().getSessionAsSigner()
+			() -> sessionAsSigner
 		);
 	}
 }
@@ -713,6 +759,33 @@ public class Person {
 ```
 
 This extra layer of configuration can be useful if you want to work with documents that use the same form name in different databases.
+
+#### DQL Explain Tracking
+
+Since the driver uses DQL internally for generated method calls, it can be very important to use the [explain capability](https://help.hcl-software.com/dom_designer/14.5.0/basic/dql_explain.html) to find ways to improve the performance of queries. The driver can be configured to perform explain operations automatically and publish CDI events for each one, which you can then use to track what's happening and what to improve. To enable these events, create a bean in your application that implements the `org.openntf.xsp.jakarta.nosql.driver.NoSQLConfigurationBean` interface:
+
+```java
+@ApplicationScoped
+public class NoSQLConfig implements NoSQLConfigurationBean {
+	@Override
+	public boolean emitExplainEvents() {
+		return true;
+	}
+}
+```
+
+When this is enabled, the driver will generate explain results and publish these using the `org.openntf.xsp.jakarta.nosql.driver.ExplainEvent` type. These can be watched for by creating a CDI bean with a method with the `@Observes` annotation:
+
+```java
+@ApplicationScoped
+public class NoSQLWatcher {
+	public void listenExplain(@Observes ExplainEvent event) {
+		// Log or otherwise process the event
+	}
+}
+```
+
+This event contains the query being run, the database server and path, the explain text result, and the type of entity being queried.
 
 ### Persistence (JPA)
 
@@ -975,7 +1048,7 @@ Four providers are currently configured:
 The [MicroProfile Rest Client](https://github.com/eclipse/microprofile-rest-client) API allows for creation of type-safe clients for remote REST services using Jakarta REST annotations. For example:
 
 ```java
-@ApplicationEScoped
+@ApplicationScoped
 public class RestClientExample {
 	public static class JsonExampleObject {
 		private String foo;
@@ -1051,9 +1124,8 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Liveness;
 
-import com.ibm.domino.xsp.module.nsf.NotesContext;
-
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import lotus.domino.Database;
 import lotus.domino.NoteCollection;
 import lotus.domino.NotesException;
@@ -1061,11 +1133,14 @@ import lotus.domino.NotesException;
 @ApplicationScoped
 @Liveness
 public class PassingHealthCheck implements HealthCheck {
+	
+	@Inject
+	private Database database;
+	
 	@Override
 	public HealthCheckResponse call() {
 		HealthCheckResponseBuilder response = HealthCheckResponse.named("I am the liveliness check");
 		try {
-			Database database = NotesContext.getCurrent().getCurrentDatabase();
 			NoteCollection notes = database.createNoteCollection(true);
 			notes.buildCollection();
 			return response
@@ -1151,7 +1226,7 @@ To build this application, first `package` the `osgi-deps` Maven project, which 
 
 Additionally, set the `notes-platform145` Maven property to a URI referencing an update site generated by the [`generate-domino-update-site` Maven plugin](https://github.com/OpenNTF/generate-domino-update-site) from Domino 14.5 or above. Note: this site must be generated by version 4.2.1 or newer of that plugin and must have been generated from either a V14.5+ Domino server or a Windows Notes client, as it requires the "xsp.http.bootstrap.jar" file present only in those installations.
 
-Finally, you should have Maven toolchain configured that provide JavaSE-17 and JavaSE-21. For example, you could have a ~/.m2/toolchains.xml file like this (for a Temurin 21 installation on macOS):
+Finally, you should have Maven toolchains configured that provide JavaSE-17 and JavaSE-21. For example, you could have a ~/.m2/toolchains.xml file like this (for a Temurin 21 installation on macOS):
 
 ```xml
 <toolchains xmlns="http://maven.apache.org/TOOLCHAINS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1182,8 +1257,6 @@ Finally, you should have Maven toolchain configured that provide JavaSE-17 and J
 If your Domino Java classpath has any invalid entries in it, the CDI portion of the tooling will complain and fail to load, which may cause XPages apps generally to throw an error 500.
 
 The workaround for this is to check your classpath (ndext, primarily) for any files that the Domino process user can't access (usually the local system on Windows, or `notes` on Linux). Additionally, look for a `JavaUserClassesExt` entry in the server's notes.ini and make sure that all of the files or directories it references exist and are readable.
-
-See [COMPATIBILITY.md](COMPATIBILITY.md) for details on known incompatibilities with specific projects.
 
 ## License
 

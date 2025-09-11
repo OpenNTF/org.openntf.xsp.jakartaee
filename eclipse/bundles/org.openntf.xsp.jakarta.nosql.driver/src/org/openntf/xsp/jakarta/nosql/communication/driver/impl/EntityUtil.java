@@ -16,13 +16,18 @@
 package org.openntf.xsp.jakarta.nosql.communication.driver.impl;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.eclipse.jnosql.communication.ValueWriter;
 import org.eclipse.jnosql.mapping.metadata.ClassInformationNotFoundException;
 import org.eclipse.jnosql.mapping.metadata.EntitiesMetadata;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
@@ -43,8 +48,11 @@ import jakarta.nosql.Column;
 public enum EntityUtil {
 	;
 
-	// For now, assumine that all implementations used AbstractFieldMetadata
+	// For now, assume that all implementations used AbstractFieldMetadata
 	private static final Field fieldField;
+	
+	private static final Method osgiLookupMethod;
+	
 	static {
 		fieldField = AccessController.doPrivileged((PrivilegedAction<Field>)() -> {
 			try {
@@ -52,6 +60,19 @@ public enum EntityUtil {
 				result.setAccessible(true);
 				return result;
 			} catch (NoSuchFieldException | SecurityException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		
+		osgiLookupMethod = AccessController.doPrivileged((PrivilegedAction<Method>)() -> {
+			try {
+				try {
+					Class<?> osgiServiceLoader = Class.forName("org.glassfish.hk2.osgiresourcelocator.ServiceLoader", true, EntityUtil.class.getClassLoader()); //$NON-NLS-1$
+					return osgiServiceLoader.getMethod("lookupProviderInstances", Class.class); //$NON-NLS-1$
+				} catch(ClassNotFoundException e) {
+					return null;
+				}
+			} catch(Exception e) {
 				throw new RuntimeException(e);
 			}
 		});
@@ -113,6 +134,23 @@ public enum EntityUtil {
 			return ann.formName();
 		} else {
 			return classMapping.name();
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<ValueWriter<Object, Object>> getValueWriters() {
+		if(osgiLookupMethod == null) {
+			// Use the usual ServiceLoader
+			return ServiceLoader.load(ValueWriter.class).stream()
+				.map(ServiceLoader.Provider::get)
+				.map(vw -> (ValueWriter<Object, Object>)vw)
+				.toList();
+		} else {
+			try {
+				return (List<ValueWriter<Object, Object>>)osgiLookupMethod.invoke(null, ValueWriter.class);
+			} catch (IllegalAccessException | InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 }

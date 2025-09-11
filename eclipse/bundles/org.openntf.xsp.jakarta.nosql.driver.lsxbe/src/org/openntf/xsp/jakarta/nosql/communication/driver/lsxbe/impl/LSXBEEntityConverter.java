@@ -32,6 +32,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.Element;
 import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
+import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
@@ -71,6 +73,8 @@ import org.openntf.xsp.jakarta.nosql.mapping.extension.EntryType;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemFlags;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ItemStorage;
 
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import lotus.domino.Database;
@@ -104,7 +108,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 	public LSXBEEntityConverter(final Supplier<Database> databaseSupplier) {
 		this.databaseSupplier = databaseSupplier;
-		this.jsonb = JsonbBuilder.create();
+		Instance<Jsonb> appJsonb = CDI.current().select(Jsonb.class);
+		if(appJsonb.isResolvable()) {
+			this.jsonb = appJsonb.get();
+		} else {
+			this.jsonb = JsonbBuilder.create();
+		}
 	}
 
 	/**
@@ -515,7 +524,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 					Object val = DominoNoSQLUtil.toJavaFriendly(context, value, optBoolean);
 					if(itemTypes != null) {
-						if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+						if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
 							if(val instanceof String) {
 								// boolean value with defaut conversion
 								val = "Y".equals(val); //$NON-NLS-1$
@@ -535,7 +544,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					.map(Temporal.class::cast)
 					.findFirst();
 				if(modified.isPresent()) {
-					String etag = composeEtag(universalId, modified.get());
+					String etag = composeEtag(universalId, Instant.from(modified.get()).toEpochMilli());
 					convertedEntry.add(Element.of(DominoConstants.FIELD_ETAG, etag));
 				}
 			}
@@ -697,9 +706,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val.get(0), optBoolean);
 						if(itemTypes != null) {
-							if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+							if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
 								if(valObj instanceof String) {
-									// boolean value with defaut conversion
+									// boolean value with default conversion
 									valObj = "Y".equals(valObj); //$NON-NLS-1$
 								}
 							}
@@ -708,7 +717,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					} else {
 						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val, optBoolean);
 						if(itemTypes != null) {
-							if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+							if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
 								if(valObj instanceof String) {
 									// boolean value with defaut conversion
 									valObj = "Y".equals(valObj); //$NON-NLS-1$
@@ -766,8 +775,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					result.add(Element.of(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE, DominoNoSQLUtil.toTemporal(database, doc.getLastModified())));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_ETAG)) {
-					String etag = composeEtag(unid, DominoNoSQLUtil.toTemporal(database, doc.getInitiallyModified()));
-					result.add(Element.of(DominoConstants.FIELD_ETAG, etag));
+					DateTime mod = doc.getInitiallyModified();
+					try {
+						String etag = composeEtag(unid, mod.toJavaDate().getTime());
+						result.add(Element.of(DominoConstants.FIELD_ETAG, etag));
+					} finally {
+						mod.recycle();
+					}
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_REPLICAID)) {
 					result.add(Element.of(DominoConstants.FIELD_REPLICAID, database.getReplicaID()));
@@ -854,8 +868,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	public void convertNoSQLEntity(final CommunicationEntity entity, final boolean retainId, final lotus.domino.Document target, final EntityMetadata classMapping) throws NotesException {
 		requireNonNull(entity, "entity is required"); //$NON-NLS-1$
 		try {
-			List<ValueWriter<Object, Object>> writers = ValueWriter.getWriters()
-				.collect(Collectors.toList());
+			List<ValueWriter<Object, Object>> writers = EntityUtil.getValueWriters();
 
 			Set<String> writtenItems = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -911,13 +924,15 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									//   compilation environments, so use the raw integer value 1454
 									body.embedObject(1454, "", tempFile.toString(), null); //$NON-NLS-1$
 								} finally {
-									Files.list(tempDir).forEach(t -> {
-										try {
-											Files.deleteIfExists(t);
-										} catch (IOException e) {
-											throw new UncheckedIOException(e);
-										}
-									});
+									if(Files.isDirectory(tempDir)) {
+										Files.list(tempDir).forEach(t -> {
+											try {
+												Files.deleteIfExists(t);
+											} catch (IOException e) {
+												throw new UncheckedIOException(e);
+											}
+										});
+									}
 									Files.deleteIfExists(tempDir);
 								}
 							} catch (IOException e) {
@@ -975,8 +990,14 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 								item.setSummary(false);
 								break;
 							case MIME: {
+								MIMEEntity mimeEntity = target.getMIMEEntity(doc.name());
+								if(mimeEntity != null) {
+									mimeEntity.remove();
+									target.closeMIMEEntities(true, doc.name());
+								}
+								
 								target.removeItem(doc.name());
-								MIMEEntity mimeEntity = target.createMIMEEntity(doc.name());
+								mimeEntity = target.createMIMEEntity(doc.name());
 								lotus.domino.Stream mimeStream = target.getParentDatabase().getParent().createStream();
 								try {
 									mimeStream.writeText(val.toString());
@@ -985,6 +1006,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									mimeStream.close();
 									mimeStream.recycle();
 								}
+
+								target.closeMIMEEntities(true, doc.name());
 								continue;
 							}
 							case MIMEBean:
@@ -1011,6 +1034,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									mimeStream.close();
 									mimeStream.recycle();
 								}
+
+								target.closeMIMEEntities(true, doc.name());
 
 								continue;
 							case Default:
@@ -1071,8 +1096,6 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				});
 			
 			target.replaceItemValue(DominoConstants.FIELD_NAME, EntityUtil.getFormName(classMapping));
-
-			target.closeMIMEEntities(true);
 		} catch(Exception e) {
 			throw e;
 		}
@@ -1147,5 +1170,20 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			}
 		}
 		return Optional.empty();
+	}
+	
+	private boolean isUseDefaultBooleanConversion(EntityMetadata classMapping, Map<String, Class<?>> itemTypes, String itemName) {
+		if(boolean.class.equals(itemTypes.get(itemName)) || Boolean.class.equals(itemTypes.get(itemName))) {
+			// In this case, check to see if there's a @Convert annotation
+			boolean hasConverter = classMapping.fields()
+				.stream()
+				.filter(fm -> itemName.equalsIgnoreCase(fm.name()))
+				.findFirst()
+				.map(FieldMetadata::converter)
+				.map(Optional::isPresent)
+				.orElse(false);
+			return !hasConverter;
+		}
+		return false;
 	}
 }

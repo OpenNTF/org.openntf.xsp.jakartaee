@@ -70,4 +70,18 @@ public enum MainAndModuleProvider {
 		}
 	}
 	
+	public static class EnumAndBoolean implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			return new MainAndModuleProvider.EnumOnly().provideArguments(context)
+				.map(args -> args.get()[0])
+				.flatMap(e -> {
+					return Stream.of(
+						Arguments.of(e, true),
+						Arguments.of(e, false)
+					);
+				});
+		}
+	}
+	
 }

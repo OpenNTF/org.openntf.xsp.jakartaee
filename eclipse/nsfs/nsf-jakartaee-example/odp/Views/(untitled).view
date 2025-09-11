@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<note class="view" default="true" xmlns="http://www.lotus.com/dxl">
-  <item name="$TITLE">
-    <text/>
-  </item>
-  <item name="$Formula" summary="true">
-    <formula compiled="true">
-HAAFAA4ACgABAAQAJCQkJAQABAAAAAgAZgADAA==
-</formula>
-  </item>
+<view default="true" noviewformat="true" publicaccess="false"
+  showinmenu="true" xmlns="http://www.lotus.com/dxl">
+  <code event="selection">
+    <formula>SELECT @All</formula>
+  </code>
   <item name="$FormulaClass">
     <text>1</text>
   </item>
-</note>
+</view>

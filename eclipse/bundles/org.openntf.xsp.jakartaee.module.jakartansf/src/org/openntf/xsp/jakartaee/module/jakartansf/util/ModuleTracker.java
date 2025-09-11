@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakartaee.module.jakartansf.util;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +58,7 @@ public enum ModuleTracker {
 	private static final String ITEM_WEBPATH = "WebPath"; //$NON-NLS-1$
 	private static final String ITEM_NSFPATH = "NSFPath"; //$NON-NLS-1$
 	private static final String ITEM_SERVERS = "Servers"; //$NON-NLS-1$
+	private static final String ITEM_MPCONFIG = "MPConfig"; //$NON-NLS-1$
 
 	private final Map<String, NSFJakartaModule> modules = new ConcurrentHashMap<>();
 	private final CountDownLatch initLatch = new CountDownLatch(1);
@@ -159,7 +163,20 @@ public enum ModuleTracker {
 							
 							String nsfPath = moduleDoc.getItemValueString(ITEM_NSFPATH);
 							if(StringUtil.isNotEmpty(nsfPath)) {
-								result.add(new ModuleMap(nsfPath, barePath));
+								// Read in any MP Config properties if present
+								Properties props = new Properties();
+								String mpConfigString = moduleDoc.getItemValueString(ITEM_MPCONFIG);
+								if(StringUtil.isNotEmpty(mpConfigString)) {
+									try {
+										props.load(new StringReader(mpConfigString));
+									} catch (IOException | IllegalArgumentException e) {
+										if(log.isLoggable(Level.WARNING)) {
+											log.log(Level.WARNING, MessageFormat.format("{0}: Unable to read MP Config properties for module path {1}", getClass().getSimpleName(), webPath), e);
+										}
+									}
+								}
+								
+								result.add(new ModuleMap(nsfPath, barePath, props));
 							} else {
 								if(log.isLoggable(Level.WARNING)) {
 									log.warning(MessageFormat.format("{0}: Skipping invalid NSF path for module \"{1}\"", getClass().getSimpleName(), webPath));

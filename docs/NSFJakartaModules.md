@@ -12,11 +12,12 @@ NSF Jakarta Modules are a specialized type of NSF-based application that focuses
 
 Jakarta Modules are configured by creating an NSF using the included jakartaconfig.ntf. By default, this database should go on the server root as "jakartaconfig.nsf", but this can be configured using the `Jakarta_ConfigNSF` notes.ini property.
 
-This database contains definitions for Jakarta NSF Modules, which consist of three settings:
+This database contains definitions for Jakarta NSF Modules, which consist of four settings:
 
 - "Web Path", which is the base HTTP path the app will be accessible from
 - "NSF Path", which is the path to the NSF containing the app
 - "Servers", which is a multi-value list of servers that will run this app. This list can include groups and globs (e.g. "*/OU=AppServers/O=MyDomain")
+- "Enabled", which can be set to "No" to disable an app without deleting it
 
 ### Developing
 
@@ -28,3 +29,25 @@ There are several techniques that are useful when developing apps of this type.
 - Similarly, though `ExtLibUtil`, `FacesContext`, etc. won't function, CDI can (and should) be used to `@Inject` beans, Servlet, REST, and Domino objects in both types of apps
 - `servletContext.getContextPath()` will return an appropriate base value for both types of apps (e.g. "/apps/foo.nsf" in a traditional context or "/foo" in a Jakarta module)
 - When using Jakarta MVC, `${mvc.basePath}` can be used in Pages to retrieve the REST base path, avoiding the need to assume the "/xsp" prefix in view code
+- Jakarta Modules don't use the "WEB-INF/jakarta" workarounds present for Faces in normal apps, since there is no XPages environment to conflict with
+
+#### Special Note: MVC
+
+Current versions of Jakarta MVC enable CSRF by default for all requests, so all POST forms should include a value like `<input type="hidden" name="${mvc.csrf.name}" value="${mvc.csrf.token}"/>`. There is a special point to note with Jakarta Modules: since they don't always create the Servlet HttpSession for every request, these POSTs may fail even in the presence of this value. To work around this, you can ensure that the session is initialized for each request with a listener class in your application:
+
+```java
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
+import jakarta.servlet.annotation.WebListener;
+import jakarta.servlet.http.HttpServletRequest;
+
+@WebListener
+public class SessionInitListener implements ServletRequestListener {
+	@Override
+	public void requestInitialized(ServletRequestEvent sre) {
+		if(sre.getServletRequest() instanceof HttpServletRequest req) {
+			req.getSession(true);
+		}
+	}
+}
+```

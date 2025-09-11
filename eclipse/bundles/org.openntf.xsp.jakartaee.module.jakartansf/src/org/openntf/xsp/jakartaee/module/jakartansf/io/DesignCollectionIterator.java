@@ -26,12 +26,14 @@ import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.util.NotesIterator;
 
 public class DesignCollectionIterator implements Iterator<DesignCollectionIterator.DesignEntry>, AutoCloseable {
-	public record DesignEntry(String flags, String title, String classIndexItem, int noteId, Runnable recycler) implements AutoCloseable {
+	public record DesignEntry(String flags, String flagsExt, String title, String classIndexItem, String mimeType, int noteId, Runnable recycler) implements AutoCloseable {
 		public DesignEntry(NotesCollectionEntry entry) {
 			this(
 				getItemValueAsString(entry, NotesConstants.DESIGN_FLAGS),
+				getItemValueAsString(entry, NotesConstants.DESIGN_FLAGS_EXTENDED),
 				getItemValueAsString(entry, NotesConstants.FIELD_TITLE),
 				getItemValueAsString(entry, "$ClassIndexItem"), //$NON-NLS-1$
+				getItemValueAsString(entry, NotesConstants.ITEM_NAME_FILE_MIMETYPE),
 				getNoteID(entry),
 				() -> {
 					try {

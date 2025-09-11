@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openntf.xsp.jakartaee.module.jakartansf.util;
+package org.openntf.xsp.jakartaee.module.jakarta;
 
 import java.io.BufferedReader;
 import java.io.IOException;

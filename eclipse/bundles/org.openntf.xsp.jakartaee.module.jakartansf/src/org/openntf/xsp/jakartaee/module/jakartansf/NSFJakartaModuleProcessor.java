@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import org.openntf.xsp.jakartaee.module.ComponentModuleProcessor;
+import org.openntf.xsp.jakartaee.module.jakarta.ModuleFileSystem.FileEntry;
 
 /**
  * @since 3.4.0
@@ -38,7 +39,9 @@ public class NSFJakartaModuleProcessor implements ComponentModuleProcessor<NSFJa
 
 	@Override
 	public Stream<String> listFiles(NSFJakartaModule module, String basePath) {
-		return module.getRuntimeFileSystem().listFiles(basePath);
+		return module.getRuntimeFileSystem()
+			.listFiles(basePath)
+			.map(FileEntry::name);
 	}
 	
 	@Override

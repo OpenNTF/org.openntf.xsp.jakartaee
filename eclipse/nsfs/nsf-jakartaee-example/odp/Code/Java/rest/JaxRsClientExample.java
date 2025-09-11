@@ -18,9 +18,6 @@ package rest;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
 
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
-
 import bean.RestClientBean;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.inject.Inject;
@@ -35,10 +32,13 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
 @Path("jaxrsClient")
+@SuppressWarnings("nls")
 public class JaxRsClientExample {
 	
 	@Inject
@@ -46,6 +46,9 @@ public class JaxRsClientExample {
 
 	@Inject @Named("java:comp/DefaultManagedExecutorService")
 	private ManagedExecutorService exec;
+	
+    @Context
+    private UriInfo uriInfo;
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -73,15 +76,14 @@ public class JaxRsClientExample {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public RestClientBean.JsonExampleObject getRoundTripEcho() {
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		HttpServletRequest request = (HttpServletRequest)facesContext.getExternalContext().getRequest();
-		
 		RestClientBean.JsonExampleObject foo = new RestClientBean.JsonExampleObject();
 		foo.setFoo("sending from async");
 		
-		URI uri = URI.create(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/");
-		uri = uri.resolve(facesContext.getExternalContext().getRequestContextPath() + "/");
-		uri = uri.resolve("xsp/app/jaxrsClient/echoExampleObject");
+		URI base = uriInfo.getBaseUri();
+		int port = base.getPort() == -1 ? (base.getScheme().equals("https") ? 443 : 80) : base.getPort();
+		URI uri = URI.create(base.getScheme() + "://" + base.getHost() + ":" + port + "/");
+		uri = uri.resolve(uriInfo.getBaseUri().getPath() + "/");
+		uri = uri.resolve("jaxrsClient/echoExampleObject");
 		
 		Client client = ClientBuilder.newBuilder().build();
 		WebTarget target = client.target(uri);
@@ -94,16 +96,16 @@ public class JaxRsClientExample {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public RestClientBean.JsonExampleObject getRoundTripEchoAsync() throws InterruptedException, ExecutionException {
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		HttpServletRequest request = (HttpServletRequest)facesContext.getExternalContext().getRequest();
-		
+		URI base = uriInfo.getBaseUri();
+		int port = base.getPort() == -1 ? (base.getScheme().equals("https") ? 443 : 80) : base.getPort();
+		String contextPath = uriInfo.getBaseUri().getPath();
 		return exec.submit(() -> {
 			RestClientBean.JsonExampleObject foo = new RestClientBean.JsonExampleObject();
 			foo.setFoo("sending from async");
-			
-			URI uri = URI.create(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/");
-			uri = uri.resolve(facesContext.getExternalContext().getRequestContextPath() + "/");
-			uri = uri.resolve("xsp/app/jaxrsClient/echoExampleObject");
+
+			URI uri = URI.create(base.getScheme() + "://" + base.getHost() + ":" + port + "/");
+			uri = uri.resolve(contextPath + "/");
+			uri = uri.resolve("jaxrsClient/echoExampleObject");
 			
 			Client client = ClientBuilder.newBuilder().build();
 			WebTarget target = client.target(uri);
@@ -117,13 +119,14 @@ public class JaxRsClientExample {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public JsonObject getRoundTripEchoDoubleAsync() throws InterruptedException, ExecutionException {
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		HttpServletRequest request = (HttpServletRequest)facesContext.getExternalContext().getRequest();
+		URI base = uriInfo.getBaseUri();
+		int port = base.getPort() == -1 ? (base.getScheme().equals("https") ? 443 : 80) : base.getPort();
+		String contextPath = uriInfo.getBaseUri().getPath();
 		
 		return exec.submit(() -> {
-			URI uri = URI.create(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/");
-			uri = uri.resolve(facesContext.getExternalContext().getRequestContextPath() + "/");
-			uri = uri.resolve("xsp/app/jaxrsClient/roundTripEchoAsync");
+			URI uri = URI.create(base.getScheme() + "://" + base.getHost() + ":" + port + "/");
+			uri = uri.resolve(contextPath + "/");
+			uri = uri.resolve("jaxrsClient/roundTripEchoAsync");
 			
 			Client client = ClientBuilder.newBuilder().build();
 			WebTarget target = client.target(uri);

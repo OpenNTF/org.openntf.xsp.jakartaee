@@ -21,12 +21,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.openntf.xsp.jakarta.nosql.driver.ExplainEvent;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoTemplate;
 
+import bean.NoSQLConfig;
 import bean.TransactionBean;
 import jakarta.data.Sort;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
 import jakarta.transaction.NotSupportedException;
@@ -75,6 +79,9 @@ public class NoSQLExampleDocs {
 	
 	@Inject
 	private Database database;
+	
+	@Inject
+	private NoSQLConfig nosqlConfig;
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -272,6 +279,30 @@ public class NoSQLExampleDocs {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ExampleDoc> getAllSorted() {
 		return repository.findAllSorted().toList();
+	}
+	
+	@Path("allExplain")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public JsonObject getAllExplain() {
+		nosqlConfig.setExplainEvents(true);
+		try {
+			repository.findAll();
+			
+			ExplainEvent event = nosqlConfig.getLastEvent();
+			if(event == null) {
+				return null;
+			} else {
+				return Json.createObjectBuilder()
+					.add("query", event.query())
+					.add("server", event.server())
+					.add("filePath", event.filePath())
+					.add("explain", event.explain())
+					.build();
+			}
+		} finally {
+			nosqlConfig.setExplainEvents(false);
+		}
 	}
 	
 	@Path("allSortedCustom")
