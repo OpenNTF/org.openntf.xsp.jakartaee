@@ -23,7 +23,7 @@ public enum InnardsConverter {
 	private static final int ANYDAY = 0xffffffff;
 
 	@SuppressWarnings("unused")
-	public static Temporal decodeInnards(final int[] innards) {
+	public static Temporal decodeInnards(final int[] innards, boolean dstActive) {
 		if (innards == null || innards.length < 2 || innards.length >= 2 && innards[0] == 0 && innards[1] == 0) {
 			return null;
 		}
@@ -111,7 +111,10 @@ public enum InnardsConverter {
 			final int hourOffset = (dateInnard & 0xF000000) >> 24; // bits 27-24
 			final int intervalCount = (dateInnard & 0x30000000) >> 28; // bits 29-28
 
-			final int offsetSeconds = (eastOfGmt ? 1 : -1) * (hourOffset * 60 * 60 + intervalCount * 15 * 60);
+			int offsetSeconds = (eastOfGmt ? 1 : -1) * (hourOffset * 60 * 60 + intervalCount * 15 * 60);
+			if(dstActive) {
+				offsetSeconds += 60 * 60;
+			}
 
 			// Since time zone information is stored only as "normal offset" + "do they do
 			// daylight savings at all?",

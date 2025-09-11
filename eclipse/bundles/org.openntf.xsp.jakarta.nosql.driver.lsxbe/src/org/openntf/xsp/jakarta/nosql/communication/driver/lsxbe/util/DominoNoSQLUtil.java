@@ -237,6 +237,7 @@ public enum DominoNoSQLUtil {
 	private static Field INNARDS1 = null;
 	
 	public static Temporal toTemporalLocal(final DateTime dt) throws NotesException {
+		boolean dstActive = dt.isDST();
 		// Recycling a lotus.domino.local.DateTime has the interesting side effect that
 		//   it writes the innards to instance properties of the object
 		dt.recycle();
@@ -253,7 +254,7 @@ public enum DominoNoSQLUtil {
 			int innards0 = INNARDS0.getInt(dt);
 			int innards1 = INNARDS1.getInt(dt);
 			
-			return InnardsConverter.decodeInnards(new int[] { innards0, innards1 });
+			return InnardsConverter.decodeInnards(new int[] { innards0, innards1 }, dstActive);
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
