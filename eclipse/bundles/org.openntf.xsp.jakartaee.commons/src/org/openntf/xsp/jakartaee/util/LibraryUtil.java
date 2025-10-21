@@ -570,6 +570,19 @@ public enum LibraryUtil {
 		String application = String.valueOf(getSystemProperty("eclipse.application")); //$NON-NLS-1$
 		return application.contains("org.eclipse.tycho"); //$NON-NLS-1$
 	}
+	
+	/**
+	 * Attempts to determine whether the running environment is Notes or
+	 * Designer.
+	 *
+	 * @return {@code true} if this seems to be running in Notes; {@code false}
+	 *         otherwise
+	 * @since 3.5.1
+	 */
+	public static boolean isNotes() {
+		String product = String.valueOf(getSystemProperty("eclipse.product")); //$NON-NLS-1$
+		return product.contains("com.ibm.notes.branding.notes"); //$NON-NLS-1$
+	}
 
 	/**
 	 * Performs an operation like {@link Map#computeIfAbsent}, but made to avoid problems

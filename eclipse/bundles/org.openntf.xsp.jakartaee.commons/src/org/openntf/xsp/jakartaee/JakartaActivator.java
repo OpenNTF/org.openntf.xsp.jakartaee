@@ -57,7 +57,7 @@ public class JakartaActivator implements BundleActivator {
 		regs.add(context.registerService(WeavingHook.class.getName(), new MailWeavingHook(), null));
 
 		// The below tries to load jnotes when run in Tycho Surefire
-		if(!LibraryUtil.isTycho()) {
+		if(!(LibraryUtil.isTycho() || LibraryUtil.isNotes())) {
 			AccessController.doPrivileged((PrivilegedExceptionAction<Void>)() -> {
 				ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(new MailcapAvoidanceClassLoader(tccl));

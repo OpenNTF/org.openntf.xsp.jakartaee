@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openntf.xsp.jakarta.mvc.weaving.MvcWeavingHook;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -32,7 +33,9 @@ public class MvcActivator implements BundleActivator {
 
 	@Override
 	public void start(final BundleContext context) throws Exception {
-		 regs.add(context.registerService(WeavingHook.class.getName(), new MvcWeavingHook(), null));
+		if (!LibraryUtil.isNotes()) {
+			regs.add(context.registerService(WeavingHook.class.getName(), new MvcWeavingHook(), null));
+		}
 	}
 
 	@Override
