@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages MicroProfile Config Support
 Bundle-SymbolicName: org.openntf.xsp.microprofile.restclient;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.microprofile.rest.client
-Bundle-Version: 3.6.0.qualifier
+Bundle-Version: 3.5.1.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.ibm.xsp.application,
