@@ -160,6 +160,8 @@ public class NSFFacesServlet extends HttpServlet {
 					//ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
 					AbstractProxyingContext.setThreadContextRequest(req);
 					if(this.doEvents) {
+						ModuleUtil.initializeSessionAsSigner(module);
+						
 						ServletUtil.getListeners(ctx, ServletRequestListener.class)
 							.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), req)));
 	
@@ -175,8 +177,10 @@ public class NSFFacesServlet extends HttpServlet {
 					delegate.service(req, resp);
 				} finally {
 					if(this.doEvents) {
-					ServletUtil.getListeners(ctx, ServletRequestListener.class)
-						.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
+						
+						
+						ServletUtil.getListeners(ctx, ServletRequestListener.class)
+							.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
 					}
 					Thread.currentThread().setContextClassLoader(current);
 					//ContainerUtil.setThreadContextDatabasePath(null);
