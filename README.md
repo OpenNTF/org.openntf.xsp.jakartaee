@@ -26,10 +26,10 @@ This project adds partial support for several Java/Jakarta EE technologies to XP
 It also provides components from [MicroProfile](https://microprofile.io/):
 
 - [Config 3.1](#microprofile-config)
-- [Rest Client 3.0](#microprofile-rest-client)
+- [Rest Client 4.0](#microprofile-rest-client)
 - [Fault Tolerance 4.0](#microprofile-fault-tolerance)
 - [Health 4.0](#microprofile-health)
-- [OpenAPI 4.0](#microprofile-openapi)
+- [OpenAPI 4.1](#microprofile-openapi)
 
 These specifications are divided into three groups: core, UI, and MicroProfile.
 
