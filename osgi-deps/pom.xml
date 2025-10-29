@@ -433,6 +433,8 @@
 								
 								<!-- MVC -->
 								<artifact><id>jakarta.mvc:jakarta.mvc-api:3.0.0</id><source>true</source></artifact>
+								<!-- 4.1.0-SNAPSHOT is published on OpenNTF with a significant performance boost, -->
+								<!-- with a PR pending acceptance in the upstream project -->
 								<artifact>
 									<id>org.eclipse.krazo:krazo-core:4.1.0-SNAPSHOT</id>
 									<source>true</source>
@@ -469,7 +471,7 @@
 								<!--
 									NoSQL
 								-->
-								<artifact><id>jakarta.nosql:jakarta.nosql-api:1.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.nosql:jakarta.nosql-api:1.0.1</id><source>true</source></artifact>
 								
 								<artifact>
 									<id>org.eclipse.jnosql.communication:jnosql-communication-core:${nosql-version}</id>
