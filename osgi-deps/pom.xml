@@ -700,9 +700,9 @@
 										<Require-Capability></Require-Capability>
 									</instructions>
 								</artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-common:3.13.0</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-core:3.13.0</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-validator:3.13.0</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-common:3.14.1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-core:3.14.1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-validator:3.14.1</id><source>true</source></artifact>
 								
 								<!--
 									MicroProfile Fault Tolerance
