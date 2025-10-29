@@ -104,6 +104,10 @@ public class TestJsf extends AbstractWebClientTest {
 					assertTrue(dd.getText().startsWith("CN="));
 				}
 				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"dominoSessionAsSigner\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().startsWith("CN="));
+				}
+				{
 					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"database\"]/following-sibling::dd[1]"));
 					assertEquals("dev/jakartaee.nsf", dd.getText());
 				}
