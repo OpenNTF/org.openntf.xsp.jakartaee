@@ -585,7 +585,9 @@
 									Jakarta Persistence
 								-->
 								<artfiact><id>jakarta.persistence:jakarta.persistence-api:3.2.0</id><source>true</source></artfiact>
-								<!-- 5.0.0-B08 leads to an NPE to do with the Transaction Manager -->
+								<!-- 5.0.0-B08+ leads to an NPE to do with the Transaction Manager. -->
+								<!-- Will take work - just trying to set the TransactionManager will hit a problem with -->
+								<!-- JTA + simple transactions at the same time-->
 								<artfiact>
 									<id>org.eclipse.persistence:eclipselink:5.0.0-B07</id>
 									<source>true</source>
