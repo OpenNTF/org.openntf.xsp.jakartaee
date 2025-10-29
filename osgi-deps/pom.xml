@@ -609,26 +609,26 @@
 								<!--
 									MicroProfile OpenAPI
 								-->
-								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:4.0.2</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:4.1.1</id><source>true</source></artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-open-api-core:4.0.10</id>
+									<id>io.smallrye:smallrye-open-api-core:4.2.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-core</Bundle-SymbolicName>
-										<Bundle-Version>4.0.10_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="4.0.10"</Export-Package>
+										<Bundle-Version>4.2.0_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="4.2.0"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-open-api-jaxrs:4.0.10</id>
+									<id>io.smallrye:smallrye-open-api-jaxrs:4.2.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-jaxrs</Bundle-SymbolicName>
-										<Bundle-Version>4.0.10_${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.2.0_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.io.smallrye.open-api-core</Fragment-Host>
-										<Export-Package>*;version="4.0.10"</Export-Package>
+										<Export-Package>*;version="4.2.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
