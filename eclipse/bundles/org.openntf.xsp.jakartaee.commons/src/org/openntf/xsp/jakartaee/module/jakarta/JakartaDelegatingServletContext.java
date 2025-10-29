@@ -83,11 +83,14 @@ public class JakartaDelegatingServletContext extends LCDAdapterServletContext {
 		
 		if(StringUtil.isEmpty(base)) {
 			Path path = Paths.get(fileName.replace("/", FileSystems.getDefault().getSeparator())); //$NON-NLS-1$
-			try {
-				return Files.probeContentType(path.getFileName());
-			} catch (IOException e) {
-				e.printStackTrace();
-				// Ignore
+			Path filePath = path.getFileName();
+			if(filePath != null) {
+				try {
+					return Files.probeContentType(filePath);
+				} catch (IOException e) {
+					e.printStackTrace();
+					// Ignore
+				}
 			}
 			
 			return null;

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta EE Classic NSF Module Bridge
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.module.xspnsf;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.module.xspnsf
-Bundle-Version: 3.5.0.qualifier
+Bundle-Version: 3.5.1.qualifier
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="3.4.0"
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17

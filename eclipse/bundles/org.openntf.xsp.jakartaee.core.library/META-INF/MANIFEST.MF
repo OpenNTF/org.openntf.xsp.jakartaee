@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.openntf.xsp.jakartaee.core.library;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.core.library
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.openntf.xsp.jakartaee.core.library.JakartaCoreActivator
-Bundle-Version: 3.5.0.qualifier
+Bundle-Version: 3.5.1.qualifier
 Import-Package: com.ibm.xsp.library,
  org.openntf.xsp.jakartaee.util;version="[3.0.0,4.0.0]",
  org.osgi.framework;version="[1.8.0,2.0.0]"

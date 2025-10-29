@@ -46,9 +46,9 @@ public class NoSQLActivator implements BundleActivator {
 
 	@Override
 	public void start(final BundleContext context) throws Exception {
-		regs.add(context.registerService(WeavingHook.class.getName(), new NoSQLWeavingHook(), null));
-
-		if(!LibraryUtil.isTycho()) {
+		if(!(LibraryUtil.isTycho() || LibraryUtil.isNotes())) {
+			regs.add(context.registerService(WeavingHook.class.getName(), new NoSQLWeavingHook(), null));
+			
 			// Check for a notes.ini property overriding the scratch directory
 
 			String iniTempDir = Os.OSGetEnvironmentString(PROP_OVERRIDEQRPDIR);

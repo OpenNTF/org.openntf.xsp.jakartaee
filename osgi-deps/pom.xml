@@ -40,11 +40,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<weld-version>6.0.3.Final</weld-version>
-		<resteasy-version>7.0.0.Beta1</resteasy-version>
+		<resteasy-version>7.0.0.Final</resteasy-version>
 		<resteasy-mp-version>3.0.1.Final</resteasy-mp-version>
 		<nosql-version>1.1.10</nosql-version>
 		<nosql-version-osgi>${nosql-version}</nosql-version-osgi>
-		<tomcat-version>11.0.7</tomcat-version>
+		<tomcat-version>11.0.13</tomcat-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
@@ -163,7 +163,7 @@
 								<!--
 									XML Binding
 								-->
-								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.2</id><source>true</source></artifact>
+								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.4</id><source>true</source></artifact>
 								<!-- EclipseLink is also a JAX-B implementation -->
 								
 								<!--
@@ -309,7 +309,7 @@
 									Jakarta Validation
 								-->
 								<artifact><id>jakarta.validation:jakarta.validation-api:3.1.1</id><source>true</source></artifact>
-								<artifact><id>org.hibernate.validator:hibernate-validator:9.0.0.Final</id><source>true</source></artifact>
+								<artifact><id>org.hibernate.validator:hibernate-validator:9.0.1.Final</id><source>true</source></artifact>
 
 								<!--
 									CDI 
@@ -383,9 +383,9 @@
 									Mail
 								-->
 								<artifact><id>jakarta.activation:jakarta.activation-api:2.1.3</id><source>true</source></artifact>
-								<artifact><id>org.eclipse.angus:angus-activation:2.0.2</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.angus:angus-activation:2.0.3</id><source>true</source></artifact>
 								<artifact>
-									<id>org.eclipse.angus:jakarta.mail:2.0.3</id>
+									<id>org.eclipse.angus:jakarta.mail:2.0.5</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
@@ -433,6 +433,8 @@
 								
 								<!-- MVC -->
 								<artifact><id>jakarta.mvc:jakarta.mvc-api:3.0.0</id><source>true</source></artifact>
+								<!-- 4.1.0-SNAPSHOT is published on OpenNTF with a significant performance boost, -->
+								<!-- with a PR pending acceptance in the upstream project -->
 								<artifact>
 									<id>org.eclipse.krazo:krazo-core:4.1.0-SNAPSHOT</id>
 									<source>true</source>
@@ -469,7 +471,7 @@
 								<!--
 									NoSQL
 								-->
-								<artifact><id>jakarta.nosql:jakarta.nosql-api:1.0.0</id><source>true</source></artifact>
+								<artifact><id>jakarta.nosql:jakarta.nosql-api:1.0.1</id><source>true</source></artifact>
 								
 								<artifact>
 									<id>org.eclipse.jnosql.communication:jnosql-communication-core:${nosql-version}</id>
@@ -583,7 +585,9 @@
 									Jakarta Persistence
 								-->
 								<artfiact><id>jakarta.persistence:jakarta.persistence-api:3.2.0</id><source>true</source></artfiact>
-								<!-- 5.0.0-B08 leads to an NPE to do with the Transaction Manager -->
+								<!-- 5.0.0-B08+ leads to an NPE to do with the Transaction Manager. -->
+								<!-- Will take work - just trying to set the TransactionManager will hit a problem with -->
+								<!-- JTA + simple transactions at the same time-->
 								<artfiact>
 									<id>org.eclipse.persistence:eclipselink:5.0.0-B07</id>
 									<source>true</source>
@@ -605,26 +609,26 @@
 								<!--
 									MicroProfile OpenAPI
 								-->
-								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:4.0.2</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:4.1.1</id><source>true</source></artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-open-api-core:4.0.10</id>
+									<id>io.smallrye:smallrye-open-api-core:4.2.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-core</Bundle-SymbolicName>
-										<Bundle-Version>4.0.10_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="4.0.10"</Export-Package>
+										<Bundle-Version>4.2.0_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="4.2.0"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-open-api-jaxrs:4.0.10</id>
+									<id>io.smallrye:smallrye-open-api-jaxrs:4.2.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-jaxrs</Bundle-SymbolicName>
-										<Bundle-Version>4.0.10_${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.2.0_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.io.smallrye.open-api-core</Fragment-Host>
-										<Export-Package>*;version="4.0.10"</Export-Package>
+										<Export-Package>*;version="4.2.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -696,9 +700,9 @@
 										<Require-Capability></Require-Capability>
 									</instructions>
 								</artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-common:3.13.0</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-core:3.13.0</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-validator:3.13.0</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-common:3.14.1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-core:3.14.1</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-validator:3.14.1</id><source>true</source></artifact>
 								
 								<!--
 									MicroProfile Fault Tolerance
@@ -720,16 +724,16 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-fault-tolerance:6.9.1</id>
+									<id>io.smallrye:smallrye-fault-tolerance:6.9.3</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.fault-tolerance</Bundle-SymbolicName>
-										<Bundle-Version>6.9.1.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>6.9.3.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>
 											org.jboss.weld.*
 										</DynamicImport-Package>
-										<Export-Package>*;version="6.9.1"</Export-Package>
+										<Export-Package>*;version="6.9.3"</Export-Package>
 									</instructions>
 								</artifact>
 								
