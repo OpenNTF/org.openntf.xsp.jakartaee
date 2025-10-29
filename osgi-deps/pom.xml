@@ -163,7 +163,7 @@
 								<!--
 									XML Binding
 								-->
-								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.2</id><source>true</source></artifact>
+								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.4</id><source>true</source></artifact>
 								<!-- EclipseLink is also a JAX-B implementation -->
 								
 								<!--
