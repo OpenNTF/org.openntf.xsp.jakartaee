@@ -31,7 +31,7 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<xsp-stubs-version>1.1.0</xsp-stubs-version>
+		<xsp-stubs-version>1.2.0</xsp-stubs-version>
 	</properties>
 	
 	<build>
@@ -66,6 +66,8 @@
 								</artifact>
 								
 								<!-- XPages stubs -->
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.notes.java.api:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.notes.java.api.win32.linux:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.pvc.jndi.provider.java:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.pvc.servlet:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.napi:${xsp-stubs-version}</id></artifact>
