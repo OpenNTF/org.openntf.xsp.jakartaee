@@ -83,7 +83,6 @@
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.extlib.controls:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.jscript:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.osgi.core:${xsp-stubs-version}</id></artifact>
-								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.osgi.core:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.xsp.adapter.osgi:${xsp-stubs-version}</id></artifact>
 								
 							</artifacts>
