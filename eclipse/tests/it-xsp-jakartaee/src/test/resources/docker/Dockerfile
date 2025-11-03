@@ -17,6 +17,8 @@
 ARG BASEIMAGE=hclcom/domino:14.0
 FROM ${BASEIMAGE}
 
+COPY --from=ibm-semeru-runtimes:open-21-jdk /opt/java/openjdk/bin/jcmd /opt/hcl/domino/notes/latest/linux/jvm/bin
+
 RUN mkdir -p /local/runner \
 	&& mkdir -p /local/eclipse/eclipse/plugins
 
