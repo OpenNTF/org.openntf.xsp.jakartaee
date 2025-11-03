@@ -70,7 +70,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	/**
 	 * Pattern used to identify 14.5+ official container images
 	 */
-	private static final Pattern DECIMAL_VERSION_PATTERN = Pattern.compile("^domino-container:(\\d+)\\.(\\d+)(\\.(\\d)+)?(FP\\d+)?$"); //$NON-NLS-1$
+	private static final Pattern DECIMAL_VERSION_PATTERN = Pattern.compile("^domino-container:(\\d+)\\.(\\d+)(\\.(\\d+))?(FP(\\d+))?$"); //$NON-NLS-1$
 	private static final LocalDate DATE_145EA2 = LocalDate.of(2024, 12, 4);
 
 	private static class DominoImage extends ImageFromDockerfile {
@@ -278,6 +278,17 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				Path output = target.resolve("jacoco.exec");
 				int port = this.getMappedPort(JACOCO_PORT);
 				JaCoCoToGo.fetchJaCoCoDataOverTcp(this.getHost(), port, output, true);
+				
+				if(useJfr()) {
+					// Dump and grab our JFR output
+					// Find the PID for http to pass to jcmd
+					String pid = this.execInContainer("pgrep", "http").getStdout();
+					if(pid != null) {
+						this.execInContainer("/opt/hcl/domino/notes/latest/linux/jvm/bin/jcmd", pid, "JFR.dump");
+						this.copyFileFromContainer("/tmp/flight.jfr", target.resolve("flight-" + System.currentTimeMillis() + ".jfr").toString());
+					}
+				}
+				
 			}
 		} catch(IOException | UnsupportedOperationException | InterruptedException e) {
 			e.printStackTrace();
@@ -309,6 +320,39 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 			if(major > 14) {
 				return true;
 			} else if(major == 14 && minor >= 5) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private static boolean useJfr() {
+		String baseImage = System.getProperty("jakarta.baseImage"); //$NON-NLS-1$
+		Matcher m;
+		if(baseImage != null && (m = EA_145_PATTERN.matcher(baseImage)).matches()) {
+			LocalDate buildDate = LocalDate.of(Integer.parseInt(m.group(3)), Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
+			return !buildDate.isBefore(DATE_145EA2);
+		}
+		
+		if(baseImage != null && (m = DECIMAL_VERSION_PATTERN.matcher(baseImage)).matches()) {
+			int major = Integer.parseInt(m.group(1));
+			int minor = Integer.parseInt(m.group(2));
+			if(major == 14) {
+				if(minor == 5) {
+					if(m.group(4) != null) {
+						// 14.5.1+
+						return true;
+					} else if(m.group(6) != null) {
+						// 14.5FP1+
+						return true;
+					}
+				} else if(minor > 5) {
+					// Hypothetical 14.6+
+					return true;
+				}
+			} else if(major > 14) {
+				// Hypothetical 15+
 				return true;
 			}
 		}

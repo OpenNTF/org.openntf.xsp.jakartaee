@@ -98,6 +98,16 @@ public class PostInstallFactory implements IServiceFactory {
 				session.recycle();
 			}
 			
+			// Try to start JFR if available
+			Path jcmd = Paths.get("/opt/hcl/domino/notes/latest/linux/jvm/bin/jcmd");
+			if(Files.isExecutable(jcmd)) {
+				long pid = ProcessHandle.current().pid();
+				System.out.println("Running JFR.start for PID " + pid);
+				ProcessBuilder pb = new ProcessBuilder(jcmd.toString(), Long.toString(pid), "JFR.start", "filename=/tmp/flight.jfr");
+				Process proc = pb.start();
+				proc.waitFor();
+			}
+			
 			System.out.println("Postinstall successful on Java " + System.getProperty("java.version") + " and OSGi version " + System.getProperty("eclipse.buildId"));
 		} catch(Throwable e) {
 			e.printStackTrace();
