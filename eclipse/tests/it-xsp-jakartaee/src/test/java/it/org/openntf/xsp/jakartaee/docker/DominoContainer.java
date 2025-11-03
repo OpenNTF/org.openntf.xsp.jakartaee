@@ -70,7 +70,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	/**
 	 * Pattern used to identify 14.5+ official container images
 	 */
-	private static final Pattern DECIMAL_VERSION_PATTERN = Pattern.compile("^domino-container:(\\d+)\\.(\\d+)(\\.(\\d)+)?$"); //$NON-NLS-1$
+	private static final Pattern DECIMAL_VERSION_PATTERN = Pattern.compile("^domino-container:(\\d+)\\.(\\d+)(\\.(\\d)+)?(FP\\d+)?$"); //$NON-NLS-1$
 	private static final LocalDate DATE_145EA2 = LocalDate.of(2024, 12, 4);
 
 	private static class DominoImage extends ImageFromDockerfile {
