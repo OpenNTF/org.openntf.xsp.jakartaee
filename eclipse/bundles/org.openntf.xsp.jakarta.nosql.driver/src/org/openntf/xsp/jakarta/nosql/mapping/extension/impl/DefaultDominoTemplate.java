@@ -30,6 +30,7 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessRights;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
@@ -200,6 +201,11 @@ public class DefaultDominoTemplate extends AbstractSemiStructuredTemplate implem
 	@Override
 	public <T> T update(final T entity, final boolean computeWithForm) {
 		return persist(entity, e -> manager().update(e, computeWithForm));
+	}
+	
+	@Override
+	public AccessRights queryEffectiveAccess() {
+		return manager().queryEffectiveAccess();
 	}
 
 	private <T> UnaryOperator<T> toUnary(final Consumer<T> consumer) {

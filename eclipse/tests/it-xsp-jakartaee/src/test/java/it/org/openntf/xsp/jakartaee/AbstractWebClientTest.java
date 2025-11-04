@@ -20,8 +20,10 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -152,5 +154,11 @@ public abstract class AbstractWebClientTest {
 		}
 		fail("Timed out waiting on condition");
 		return null;
+	}
+	
+	protected static void assertInstantsCloseEnough(String expected, String actual) {
+		Instant expectedInst = Instant.parse(expected);
+		Instant actualInst = Instant.parse(actual);
+		assertTrue(Math.abs(expectedInst.toEpochMilli() - actualInst.toEpochMilli()) <= 20, () -> "Expected " + actual + " to be within 20 ms of " + expected); 
 	}
 }
