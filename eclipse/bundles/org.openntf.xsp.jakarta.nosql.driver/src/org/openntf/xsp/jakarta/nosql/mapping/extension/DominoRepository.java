@@ -47,7 +47,7 @@ public interface DominoRepository<T, ID> extends NoSQLRepository<T, ID> {
 	enum CalendarModScope {
 		ALL, CURRENT, FUTURE, PREV
 	}
-
+	
 	/**
 	 * Adds the entity to the named folder, creating the folder if it doesn't
 	 * exist.
@@ -238,4 +238,14 @@ public interface DominoRepository<T, ID> extends NoSQLRepository<T, ID> {
      * @since 2.15.0
      */
     void removeCalendarEntry(String uid, CalendarModScope scope, String recurId);
+    
+    /**
+     * Determines the effective access rights for the current user from the underlying
+     * database.
+     * 
+     * @return an {@link AccessRights} object representing the current user's access
+     *         to the underlying database
+     * @since 3.6.0
+     */
+    AccessRights queryEffectiveAccess();
 }

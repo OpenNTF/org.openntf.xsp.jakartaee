@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ByteArrayEntityAttachment;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessRights;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
@@ -668,6 +669,20 @@ public class NoSQLExample {
 	public List<Person> queryByEmailEntries(@QueryParam("q") @NotEmpty String searchValue) {
 		ViewQuery query = ViewQuery.query().key(searchValue, true);
 		return personRepository.readViewEntries("PersonEmail", -1, false, query, null, null).collect(Collectors.toList());
+	}
+	
+	@Path("accessRights")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public AccessRights queryAccessRights() {
+		return personRepository.queryEffectiveAccess();
+	}
+	
+	@Path("accessRightsNames")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public AccessRights queryAccessRightsNames() {
+		return serverRepository.queryEffectiveAccess();
 	}
 	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty, String email) {

@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import org.eclipse.jnosql.communication.semistructured.CommunicationEntity;
 import org.eclipse.jnosql.communication.semistructured.DatabaseManager;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessRights;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
 import jakarta.data.Sort;
@@ -188,4 +189,14 @@ public interface DominoDocumentManager extends DatabaseManager {
      * @since 2.15.0
      */
     void removeCalendarEntry(String uid, CalendarModScope scope, String recurId);
+    
+    /**
+     * Determines the effective access rights for the current user from the underlying
+     * database.
+     * 
+     * @return an {@link AccessRights} object representing the current user's access
+     *         to the underlying database
+     * @since 3.6.0
+     */
+    AccessRights queryEffectiveAccess();
 }
