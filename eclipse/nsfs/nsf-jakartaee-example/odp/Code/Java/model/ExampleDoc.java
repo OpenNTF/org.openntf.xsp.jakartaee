@@ -152,6 +152,9 @@ public class ExampleDoc {
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
 	private String dxl;
+	
+	@Column(DominoConstants.FIELD_ETAG)
+	private String etag;
 
 	public String getUnid() {
 		return unid;
@@ -320,5 +323,9 @@ public class ExampleDoc {
 	}
 	public void setCustomSort(String customSort) {
 		this.customSort = customSort;
+	}
+	
+	public String getEtag() {
+		return etag;
 	}
 }

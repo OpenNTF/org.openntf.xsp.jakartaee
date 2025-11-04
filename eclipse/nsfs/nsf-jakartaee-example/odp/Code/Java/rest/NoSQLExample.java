@@ -67,6 +67,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -441,7 +442,7 @@ public class NoSQLExample {
 				.type(att.getContentType())
 				.header(HttpHeaders.CONTENT_LENGTH, att.getLength())
 				.header(HttpHeaders.LAST_MODIFIED, Instant.ofEpochMilli(att.getLastModified()))
-				.tag(att.getETag())
+				.tag(new EntityTag(att.getETag(), true))
 				.build();
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);

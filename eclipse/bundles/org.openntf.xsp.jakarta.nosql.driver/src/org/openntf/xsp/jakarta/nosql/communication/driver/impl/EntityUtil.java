@@ -18,7 +18,11 @@ package org.openntf.xsp.jakarta.nosql.communication.driver.impl;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
+import java.net.URLConnection;
 import java.security.AccessController;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +39,7 @@ import org.eclipse.jnosql.mapping.metadata.FieldMetadata;
 import org.eclipse.jnosql.mapping.reflection.DefaultFieldMetadata;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DocumentConfig;
 
+import jakarta.activation.MimetypesFileTypeMap;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.nosql.Column;
 
@@ -47,6 +52,16 @@ import jakarta.nosql.Column;
 @SuppressWarnings({ "removal", "deprecation" })
 public enum EntityUtil {
 	;
+	
+	private static final ThreadLocal<MessageDigest> MD5 = ThreadLocal.withInitial(() -> {
+		try {
+			return MessageDigest.getInstance("MD5"); //$NON-NLS-1$
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("Unable to load MD5 provider", e);
+		}
+	});
+	
+	private static final MimetypesFileTypeMap MIME_TYPES_MAP = new MimetypesFileTypeMap();
 
 	// For now, assume that all implementations used AbstractFieldMetadata
 	private static final Field fieldField;
@@ -152,5 +167,48 @@ public enum EntityUtil {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+	
+	public static String composeEtag(final String universalId, final long modTime) {
+		BigInteger etag = new BigInteger(universalId, 16);
+		BigInteger mod = BigInteger.valueOf(modTime);
+		etag = etag.xor(mod);
+		etag = etag.xor(mod.shiftLeft(64));
+		String val = etag.toString(16);
+		int len = val.length();
+		if(len < 32) {
+			return "0".repeat(32-len) + val; //$NON-NLS-1$
+		} else {
+			return val;
+		}
+	}
+
+	public static String md5(final String value) {
+		MessageDigest md = MD5.get();
+		md.update(String.valueOf(value).getBytes());
+		byte[] digest = md.digest();
+		StringBuilder sb = new StringBuilder(digest.length * 2);
+		for (byte b : digest) {
+			String hex = Integer.toHexString(b & 0xFF);
+			if(hex.length() == 1) {
+				sb.append('0');
+			}
+			sb.append(hex);
+		}
+		return sb.toString();
+	}
+	
+	public static String guessContentType(final String fileName) {
+		String contentType = URLConnection.guessContentTypeFromName(fileName);
+		if(contentType != null && !contentType.isEmpty()) {
+			return contentType;
+		}
+
+	    contentType = MIME_TYPES_MAP.getContentType(fileName);
+		if(contentType != null && !contentType.isEmpty()) {
+			return contentType;
+		}
+
+		return "application/octet-stream"; //$NON-NLS-1$
 	}
 }
