@@ -17,14 +17,11 @@ package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLConnection;
 import java.util.function.Supplier;
 
-import com.ibm.commons.util.StringUtil;
-
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
+import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
 
-import jakarta.activation.MimetypesFileTypeMap;
 import lotus.domino.Database;
 import lotus.domino.Document;
 import lotus.domino.EmbeddedObject;
@@ -42,7 +39,7 @@ public class DominoDocumentAttachment implements EntityAttachment {
 		this.databaseSupplier = databaseSupplier;
 		this.unid = unid;
 		this.attachmentName = attachmentName;
-		this.contentType = guessContentType(attachmentName);
+		this.contentType = EntityUtil.guessContentType(attachmentName);
 	}
 
 	@Override
@@ -74,6 +71,12 @@ public class DominoDocumentAttachment implements EntityAttachment {
 	public long getLength() {
 		cacheMeta();
 		return this.length;
+	}
+	
+	@Override
+	public String getETag() {
+		String unidNameHash = EntityUtil.md5(unid+attachmentName);
+		return EntityUtil.composeEtag(unidNameHash, getLastModified());
 	}
 
 	@Override
@@ -107,21 +110,6 @@ public class DominoDocumentAttachment implements EntityAttachment {
 		} catch(NotesException ne) {
 			throw new RuntimeException(ne);
 		}
-	}
-
-	private static String guessContentType(final String fileName) {
-		String contentType = URLConnection.guessContentTypeFromName(fileName);
-		if(StringUtil.isNotEmpty(contentType)) {
-			return contentType;
-		}
-
-		MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
-	    contentType = fileTypeMap.getContentType(fileName);
-		if(StringUtil.isNotEmpty(contentType)) {
-			return contentType;
-		}
-
-		return "application/octet-stream"; //$NON-NLS-1$
 	}
 
 	private static class EmbeddedObjectInputStream extends InputStream {

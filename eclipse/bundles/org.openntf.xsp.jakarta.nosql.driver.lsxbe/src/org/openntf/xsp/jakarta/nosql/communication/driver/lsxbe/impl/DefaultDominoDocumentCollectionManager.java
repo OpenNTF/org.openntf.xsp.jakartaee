@@ -54,7 +54,6 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewColumnInfo;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
-import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL.DQLTerm;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
@@ -868,7 +867,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		String filePath = database.getFilePath();
 
 		try {
-			String fileName = AbstractEntityConverter.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
+			String fileName = EntityUtil.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
 
 			Path dest = DominoNoSQLUtil.getQrpDirectory()
 				.orElseGet(() -> DominoNoSQLUtil.getTempDirectory().resolve(getClass().getPackageName()));

@@ -19,10 +19,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Vector;
@@ -37,13 +34,6 @@ import org.eclipse.jnosql.mapping.metadata.EntityMetadata;
  * @since 2.8.0
  */
 public abstract class AbstractEntityConverter {
-	private static final ThreadLocal<MessageDigest> MD5 = ThreadLocal.withInitial(() -> {
-		try {
-			return MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException("Unable to load MD5 provider", e);
-		}
-	});
 
 	protected <T extends Annotation> Optional<T> getFieldAnnotation(final EntityMetadata classMapping, final String fieldName, final Class<T> annotation) {
 		if(classMapping == null) {
@@ -67,29 +57,6 @@ public abstract class AbstractEntityConverter {
 			.findFirst()
 			.map(EntityUtil::getNativeField)
 			.map(Field::getGenericType);
-	}
-
-	protected String composeEtag(final String universalId, final long modTime) {
-		BigInteger etag = new BigInteger(universalId, 16);
-		BigInteger mod = BigInteger.valueOf(modTime);
-		etag = etag.xor(mod);
-		etag = etag.xor(mod.shiftLeft(64));
-		return etag.toString(16);
-	}
-
-	public static String md5(final String value) {
-		MessageDigest md = MD5.get();
-		md.update(String.valueOf(value).getBytes());
-		byte[] digest = md.digest();
-		StringBuilder sb = new StringBuilder(digest.length * 2);
-		for (byte b : digest) {
-			String hex = Integer.toHexString(b & 0xFF);
-			if(hex.length() == 1) {
-				sb.append('0');
-			}
-			sb.append(hex);
-		}
-		return sb.toString();
 	}
 
 	public static Object applyPrecision(final Object dominoVal, final int precision) {

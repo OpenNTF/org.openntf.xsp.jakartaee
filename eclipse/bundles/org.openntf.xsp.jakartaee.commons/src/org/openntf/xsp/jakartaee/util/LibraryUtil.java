@@ -125,6 +125,8 @@ public enum LibraryUtil {
 	 * @since 3.1.0
 	 */
 	private static Path OVERRIDE_TEMP_DIR;
+	
+	private static final MimetypesFileTypeMap MIME_TYPES_MAP = new MimetypesFileTypeMap();
 
 	/**
 	 * Attempts to determine whether the given XPages Library is active for the
@@ -625,8 +627,7 @@ public enum LibraryUtil {
 			return contentType;
 		}
 
-		MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
-	    contentType = fileTypeMap.getContentType(fileName);
+	    contentType = MIME_TYPES_MAP.getContentType(fileName);
 		if(StringUtil.isNotEmpty(contentType)) {
 			return contentType;
 		}
