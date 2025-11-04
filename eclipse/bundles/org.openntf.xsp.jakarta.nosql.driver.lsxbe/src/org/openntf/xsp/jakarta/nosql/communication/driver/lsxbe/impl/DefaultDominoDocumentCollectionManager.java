@@ -24,11 +24,14 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -67,6 +70,9 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQL
 import org.openntf.xsp.jakarta.nosql.driver.ExplainEvent;
 import org.openntf.xsp.jakarta.nosql.driver.NoSQLConfigurationBean;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessLevel;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessPrivilege;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessRights;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
@@ -736,6 +742,34 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				}
 				entry.remove(scopeVal, recurId);
 			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public AccessRights queryEffectiveAccess() {
+		try {
+			Database database = supplier.get();
+			
+			String name = database.getParent().getEffectiveUserName();
+			
+			int levelValue = database.getCurrentAccessLevel();
+			AccessLevel level = Arrays.stream(AccessLevel.values())
+				.filter(l -> l.getValue() == levelValue)
+				.findFirst()
+				.orElse(AccessLevel.NOACCESS);
+			
+			int privs = database.queryAccessPrivileges(name);
+			Set<AccessPrivilege> privileges = Arrays.stream(AccessPrivilege.values())
+				.filter(p -> (p.getValue() & privs) != 0)
+				.collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Enum::name))));
+			
+			Set<String> roles = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			roles.addAll((List<String>)database.queryAccessRoles(name));
+			
+			return new AccessRights(name, level, privileges, roles);
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
 		}
