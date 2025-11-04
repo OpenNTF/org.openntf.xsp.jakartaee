@@ -28,6 +28,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -51,6 +52,8 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestNoSQLExampleDocs extends AbstractWebClientTest {
+	public static final Pattern ETAG_PATTERN = Pattern.compile("^[\\d\\w]{32}$");
+	
 	@ParameterizedTest
 	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	public void testExampleDoc(TestDatabase db) {
@@ -93,6 +96,15 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertNotNull(xmlDoc);
 			String title = TestDomUtil.nodes(xmlDoc, "//*[name()='item'][@name='$$Title']/*[name()='text']/text()").get(0).getNodeValue();
 			assertEquals("foo", title);
+			
+			// Make sure the ETag exists and looks like what we'd expect
+			String etag = jsonObject.getString("etag");
+			assertNotNull(etag);
+			assertTrue(ETAG_PATTERN.matcher(etag).matches(), () -> "ETag didn't match format: " + etag);
+			
+			// Make sure that the header came through with this value and the wrapper
+			String etagHeader = response.getHeaderString("ETag");
+			assertEquals("W/\"" + etag + "\"", etagHeader);
 		}
 	}
 

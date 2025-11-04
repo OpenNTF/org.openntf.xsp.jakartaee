@@ -47,7 +47,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import lotus.domino.Database;
 import lotus.domino.NotesException;
 import lotus.domino.Session;
@@ -121,9 +123,12 @@ public class NoSQLExampleDocs {
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ExampleDoc getDoc(@PathParam("id") String id) {
-		return repository.findById(id)
+	public Response getDoc(@PathParam("id") String id) {
+		ExampleDoc doc = repository.findById(id)
 			.orElseThrow(() -> new NotFoundException("Could not find example doc for ID " + id));
+		return Response.ok(doc)
+			.tag(new EntityTag(doc.getEtag(), true))
+			.build();
 	}
 	
 	@Path("{id}")

@@ -15,7 +15,6 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.nosql;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -32,6 +31,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
@@ -58,6 +58,8 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestNoSQL extends AbstractWebClientTest {
+	public static final Pattern ETAG_PATTERN = Pattern.compile("^W\\/\"[\\d\\w]{32}\"$");
+	
 	@ParameterizedTest
 	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	public void testNoSql(TestDatabase db) {
@@ -565,6 +567,12 @@ public class TestNoSQL extends AbstractWebClientTest {
 
 			String html = response.readEntity(String.class);
 			assertEquals("<p>I am foo HTML</p>", html);
+			
+
+			// Make sure the ETag exists and looks like what we'd expect
+			String etag = response.getHeaderString("ETag");
+			assertNotNull(etag);
+			assertTrue(ETAG_PATTERN.matcher(etag).matches(), () -> "ETag didn't match format: " + etag);
 		}
 	}
 	
