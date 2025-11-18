@@ -207,6 +207,11 @@ public class DefaultDominoTemplate extends AbstractSemiStructuredTemplate implem
 	public AccessRights queryEffectiveAccess() {
 		return manager().queryEffectiveAccess();
 	}
+	
+	@Override
+	public <T> T send(final T entity, boolean attachForm, boolean computeWithForm, boolean save) {
+		return persist(entity, e -> manager().send(e, attachForm, computeWithForm, save));
+	}
 
 	private <T> UnaryOperator<T> toUnary(final Consumer<T> consumer) {
 		return t -> {

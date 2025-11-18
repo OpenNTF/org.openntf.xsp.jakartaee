@@ -94,6 +94,7 @@ import lotus.domino.Base;
 import lotus.domino.Database;
 import lotus.domino.DateTime;
 import lotus.domino.DbDirectory;
+import lotus.domino.Document;
 import lotus.domino.DocumentCollection;
 import lotus.domino.DominoQuery;
 import lotus.domino.NotesCalendar;
@@ -149,37 +150,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			beginTransaction(database);
 
-			// Special handling for named and profile notes
-			lotus.domino.Document target;
-			Optional<Element> maybeName = entity.find(DominoConstants.FIELD_NOTENAME);
-			Optional<Element> maybeProfileName = entity.find(DominoConstants.FIELD_PROFILENAME);
-			if(maybeName.isPresent() && StringUtil.isNotEmpty(maybeName.get().get(String.class))) {
-				Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_USERNAME);
-				if(maybeUserName.isPresent() && StringUtil.isNotEmpty(maybeUserName.get().get(String.class))) {
-					target = database.getNamedDocument(maybeName.get().get(String.class), maybeUserName.get().get(String.class));
-				} else {
-					target = database.getNamedDocument(maybeName.get().get(String.class));
-				}
-			} else if(maybeProfileName.isPresent() && StringUtil.isNotEmpty(maybeProfileName.get().get(String.class))) {
-				Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_PROFILEKEY);
-				target = database.getProfileDocument(maybeProfileName.get().get(String.class), maybeUserName.map(d -> d.get(String.class)).orElse(null));
-			} else {
-				target = database.createDocument();
-			}
-
-			Optional<String> maybeId = entity.find(DominoConstants.FIELD_ID, String.class);
-			if(maybeId.isPresent() && !StringUtil.isEmpty(maybeId.get())) {
-				target.setUniversalID(maybeId.get());
-			} else {
-				// Write the generated UNID into the entity
-				entity.add(Element.of(DominoConstants.FIELD_ID, target.getUniversalID()));
-			}
-
-			EntityMetadata mapping = EntityUtil.getClassMapping(entity.name());
-			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
-			if(computeWithForm) {
-				target.computeWithForm(false, false);
-			}
+			Document target = toDocument(entity, database, computeWithForm);
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -774,6 +745,24 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+	public CommunicationEntity send(CommunicationEntity entity, boolean attachForm, boolean computeWithForm, boolean save) {
+		try {
+			Database database = supplier.get();
+			beginTransaction(database);
+
+			Document target = toDocument(entity, database, computeWithForm);
+			target.send(attachForm);
+			if(save) {
+				target.save();
+			}
+			
+			return entity;
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	@Override
 	public void close() {
@@ -1068,6 +1057,43 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				}
 			}
 		}
+	}
+	
+	private Document toDocument(CommunicationEntity entity, Database database, boolean computeWithForm) throws NotesException {
+		// Special handling for named and profile notes
+		lotus.domino.Document target;
+		Optional<Element> maybeName = entity.find(DominoConstants.FIELD_NOTENAME);
+		Optional<Element> maybeProfileName = entity.find(DominoConstants.FIELD_PROFILENAME);
+		if(maybeName.isPresent() && StringUtil.isNotEmpty(maybeName.get().get(String.class))) {
+			Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_USERNAME);
+			if(maybeUserName.isPresent() && StringUtil.isNotEmpty(maybeUserName.get().get(String.class))) {
+				target = database.getNamedDocument(maybeName.get().get(String.class), maybeUserName.get().get(String.class));
+			} else {
+				target = database.getNamedDocument(maybeName.get().get(String.class));
+			}
+		} else if(maybeProfileName.isPresent() && StringUtil.isNotEmpty(maybeProfileName.get().get(String.class))) {
+			Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_PROFILEKEY);
+			target = database.getProfileDocument(maybeProfileName.get().get(String.class), maybeUserName.map(d -> d.get(String.class)).orElse(null));
+		} else {
+			target = database.createDocument();
+		}
+
+		Optional<String> maybeId = entity.find(DominoConstants.FIELD_ID, String.class);
+		if(maybeId.isPresent() && !StringUtil.isEmpty(maybeId.get())) {
+			target.setUniversalID(maybeId.get());
+		} else {
+			// Write the generated UNID into the entity
+			entity.add(Element.of(DominoConstants.FIELD_ID, target.getUniversalID()));
+		}
+
+		EntityMetadata mapping = EntityUtil.getClassMapping(entity.name());
+		entityConverter.convertNoSQLEntity(entity, false, target, mapping);
+
+		if(computeWithForm) {
+			target.computeWithForm(false, false);
+		}
+		
+		return target;
 	}
 
 	/**
