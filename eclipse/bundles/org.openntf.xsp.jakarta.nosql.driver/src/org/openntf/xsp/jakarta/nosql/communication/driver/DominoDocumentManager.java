@@ -199,4 +199,17 @@ public interface DominoDocumentManager extends DatabaseManager {
      * @since 3.6.0
      */
     AccessRights queryEffectiveAccess();
+    
+    /**
+     * Sends the entity as a mail memo, optionally saving the underlying document.
+     * 
+     * @param entity the entity to mail
+     * @param attachForm {@code true} to attach the form to the document
+     * @param computeWithForm {@code true} to compute the document with its form
+     *        before sending
+     * @param save {@code true} to save the document after mailing
+     * @return the original or saved entity
+     * @since 3.6.0
+     */
+    CommunicationEntity send(CommunicationEntity entity, boolean attachForm, boolean computeWithForm, boolean save);
 }

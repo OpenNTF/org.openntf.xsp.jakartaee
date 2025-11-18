@@ -247,4 +247,17 @@ public interface DominoTemplate extends DocumentTemplate {
      * @since 3.6.0
      */
     AccessRights queryEffectiveAccess();
+    
+    /**
+     * Sends the entity as a mail memo, optionally saving the underlying document.
+     * 
+     * @param entity the entity to mail
+     * @param save {@code true} to save the document during mailing
+     * @param attachForm {@code true} to attach the form to the document
+     * @param computeWithForm {@code true} to compute the document with its form
+     *        before sending
+     * @return the original or saved entity
+     * @since 3.6.0
+     */
+    <T> T send(T entity, boolean attachForm, boolean computeWithForm, boolean save);
 }
