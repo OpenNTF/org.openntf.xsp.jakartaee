@@ -101,7 +101,7 @@ public class NSFFacesServlet extends HttpServlet {
 	}
 
 	public void doInit(final HttpServletRequest req, final ServletConfig config) throws ServletException {
-		CDI<Object> cdi = CDI.current();
+		CDI<Object> cdi = ContainerUtil.getContainer(module);
 		ServletContext context = config.getServletContext();
 		Object beanManager = context.getAttribute(BeanManager.class.getName());
 		if(beanManager == null) {
