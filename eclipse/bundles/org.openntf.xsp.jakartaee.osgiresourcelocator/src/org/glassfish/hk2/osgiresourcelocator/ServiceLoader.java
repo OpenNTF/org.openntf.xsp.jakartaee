@@ -71,6 +71,7 @@ public class ServiceLoader {
 				int state = bundle.getState();
 				return state == Bundle.ACTIVE || state == Bundle.RESOLVED;
 			})
+			.filter(bundle -> bundle.getHeaders().get("Eclipse-SourceBundle") == null) //$NON-NLS-1$
 			.forEach(ServiceLoader::addBundle);
 
 		bundleContext.addBundleListener(bundleEvent -> {
