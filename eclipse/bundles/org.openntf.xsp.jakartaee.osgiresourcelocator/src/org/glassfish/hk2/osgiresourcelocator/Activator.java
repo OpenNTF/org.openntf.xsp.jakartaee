@@ -36,7 +36,10 @@ public class Activator implements BundleActivator {
 
 	@Override
 	public void start(final BundleContext bundleContext) throws Exception {
-		ServiceLoader.init(bundleContext);
+		String product = String.valueOf(getSystemProperty("eclipse.product")); //$NON-NLS-1$
+		if(!product.contains("com.ibm.notes.branding.notes")) { //$NON-NLS-1$
+			ServiceLoader.init(bundleContext);
+		}
 	}
 
 	@Override
@@ -64,5 +67,10 @@ public class Activator implements BundleActivator {
 			}
 			return result;
 		}
+	}
+	
+	@SuppressWarnings({ "deprecation", "removal" })
+	public static String getSystemProperty(final String propName) {
+		return AccessController.doPrivileged((PrivilegedAction<String>)() -> System.getProperty(propName));
 	}
 }
