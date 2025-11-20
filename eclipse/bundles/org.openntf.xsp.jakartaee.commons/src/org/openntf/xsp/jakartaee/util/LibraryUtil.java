@@ -126,7 +126,14 @@ public enum LibraryUtil {
 	 */
 	private static Path OVERRIDE_TEMP_DIR;
 	
-	private static final MimetypesFileTypeMap MIME_TYPES_MAP = new MimetypesFileTypeMap();
+	private static final MimetypesFileTypeMap MIME_TYPES_MAP;
+	static {
+		if(!isNotes()) {
+			MIME_TYPES_MAP = new MimetypesFileTypeMap();
+		} else {
+			MIME_TYPES_MAP = null;
+		}
+	}
 
 	/**
 	 * Attempts to determine whether the given XPages Library is active for the
