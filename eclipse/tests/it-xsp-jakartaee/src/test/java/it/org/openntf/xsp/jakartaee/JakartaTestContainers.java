@@ -87,12 +87,15 @@ public enum JakartaTestContainers {
 			postgres.start();
 			firefoxContainer.start();
 			firefox = new RemoteWebDriver(firefoxContainer.getSeleniumAddress(), new FirefoxOptions());
-			// The above waits for "Adding sign bit" from AdminP, but we have no
-			//   solid indication when it's done. For now, wait a couple seconds
-			try {
-				TimeUnit.SECONDS.sleep(5);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			
+			if(!DominoContainer.useNewEraAdminp()) {
+				// The above waits for "Adding sign bit" from AdminP, but we have no
+				//   solid indication when it's done. For now, wait a couple seconds
+				try {
+					TimeUnit.SECONDS.sleep(5);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		} finally {
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
