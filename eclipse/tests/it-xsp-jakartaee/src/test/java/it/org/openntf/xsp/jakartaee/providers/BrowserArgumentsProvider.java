@@ -27,7 +27,7 @@ public class BrowserArgumentsProvider implements ArgumentsProvider {
 	@Override
 	public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
 		return Stream.of(
-			JakartaTestContainers.instance.firefox.getWebDriver()
+				JakartaTestContainers.instance.firefox
 		)
 		.peek(driver -> driver.manage().deleteAllCookies())
 		.map(Arguments::of);
