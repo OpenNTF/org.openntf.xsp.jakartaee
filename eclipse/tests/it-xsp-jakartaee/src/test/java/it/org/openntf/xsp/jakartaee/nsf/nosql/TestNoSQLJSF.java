@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.openqa.selenium.By;
@@ -34,11 +33,11 @@ import it.org.openntf.xsp.jakartaee.AdminUserAuthenticator;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
 import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 
+
 @SuppressWarnings("nls")
 public class TestNoSQLJSF extends AbstractWebClientTest {
 	@ParameterizedTest
 	@ArgumentsSource(MainAndModuleProvider.EnumAndBrowser.class)
-	@Order(1)
 	public void testCrudPage(TestDatabase db, WebDriver driver) {
 		// First, log in to allow for CRUD
 		// Intentionally always MAIN for the login URL
