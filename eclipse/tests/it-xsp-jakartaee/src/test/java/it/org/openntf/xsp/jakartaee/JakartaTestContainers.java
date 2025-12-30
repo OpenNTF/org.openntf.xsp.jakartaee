@@ -24,11 +24,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import org.testcontainers.selenium.BrowserWebDriverContainer;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.testcontainers.containers.BrowserWebDriverContainer;
-import org.testcontainers.containers.GenericContainer;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testcontainers.containers.Network;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import it.org.openntf.xsp.jakartaee.docker.DominoContainer;
 
@@ -40,9 +40,10 @@ public enum JakartaTestContainers {
 	public final Network network = Network.builder()
 		.driver("bridge") //$NON-NLS-1$
 		.build();
-	public GenericContainer<?> domino;
-	public PostgreSQLContainer<?> postgres;
-	public BrowserWebDriverContainer<?> firefox;
+	public DominoContainer domino;
+	public PostgreSQLContainer postgres;
+	public BrowserWebDriverContainer firefoxContainer;
+	public RemoteWebDriver firefox;
 	
 	@SuppressWarnings("resource")
 	private JakartaTestContainers() {
@@ -71,7 +72,7 @@ public enum JakartaTestContainers {
 						break;
 					}
 				});
-			postgres = new PostgreSQLContainer<>("postgres:15.2") //$NON-NLS-1$
+			postgres = new PostgreSQLContainer("postgres:15.2") //$NON-NLS-1$
 				.withUsername("postgres") //$NON-NLS-1$
 				.withPassword("postgres") //$NON-NLS-1$
 				.withDatabaseName("jakarta") //$NON-NLS-1$
@@ -79,13 +80,13 @@ public enum JakartaTestContainers {
 				.withNetworkAliases("postgresql") //$NON-NLS-1$
 				.withStartupTimeout(Duration.of(2, ChronoUnit.MINUTES));
 			postgres.addExposedPort(5432);
-			firefox = new BrowserWebDriverContainer<>()
-				.withCapabilities(new FirefoxOptions())
+			firefoxContainer = new BrowserWebDriverContainer("selenium/standalone-firefox") //$NON-NLS-1$
 				.withNetwork(network);
 			
 			domino.start();
 			postgres.start();
-			firefox.start();
+			firefoxContainer.start();
+			firefox = new RemoteWebDriver(firefoxContainer.getSeleniumAddress(), new FirefoxOptions());
 			// The above waits for "Adding sign bit" from AdminP, but we have no
 			//   solid indication when it's done. For now, wait a couple seconds
 			try {
