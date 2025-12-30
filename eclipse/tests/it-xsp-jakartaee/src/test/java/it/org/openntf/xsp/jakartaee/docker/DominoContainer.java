@@ -301,7 +301,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	 * Attempts to glean whether the container uses the newer adminp DB-signing
 	 * output added in 14.5 EA2
 	 */
-	private boolean useNewEraAdminp() {
+	public static boolean useNewEraAdminp() {
 		String explicitUse = System.getProperty("jakarta.newAdminp"); //$NON-NLS-1$
 		if("1".equals(explicitUse)) { //$NON-NLS-1$
 			return true;
