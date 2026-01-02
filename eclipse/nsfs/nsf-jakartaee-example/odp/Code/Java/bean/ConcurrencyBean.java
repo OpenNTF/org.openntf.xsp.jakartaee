@@ -21,14 +21,29 @@ import java.util.concurrent.ExecutorService;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import jakarta.enterprise.concurrent.Asynchronous;
+import jakarta.enterprise.concurrent.Schedule;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 
 @ApplicationScoped
 @Named
 public class ConcurrencyBean {
+	private int scheduleRan = 0;
+	
 	public String getMessage() throws NamingException, InterruptedException, ExecutionException {
 		ExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
 		return exec.submit(() -> "Hello from executor").get();
+	}
+	
+	@Asynchronous(runAt = @Schedule(cron="* * * * * *"))
+	public void runScheduled() {
+		if(++scheduleRan == 5) {
+			Asynchronous.Result.complete(null);
+		}
+	}
+	
+	public int getScheduleRan() {
+		return scheduleRan;
 	}
 }

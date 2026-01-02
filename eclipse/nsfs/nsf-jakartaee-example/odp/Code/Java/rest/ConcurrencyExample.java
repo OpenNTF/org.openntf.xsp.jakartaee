@@ -24,12 +24,15 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import bean.ApplicationGuy;
+import bean.ConcurrencyBean;
 import bean.RequestGuy;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 import jakarta.enterprise.inject.literal.NamedLiteral;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -38,10 +41,14 @@ import lotus.domino.Database;
 import lotus.domino.Session;
 
 @Path("concurrency")
+@SuppressWarnings("nls")
 public class ConcurrencyExample {
 	
 	@Inject
 	private RequestGuy requestGuy;
+	
+	@Inject
+	private ConcurrencyBean concurrencyBean;
 
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
@@ -82,7 +89,7 @@ public class ConcurrencyExample {
 				w.println("Going to schedule");
 				
 				String[] val = new String[1];
-				ManagedScheduledExecutorService exec = CDI.current().select(ManagedScheduledExecutorService.class).get();
+				ManagedScheduledExecutorService exec = CDI.current().select(ManagedScheduledExecutorService.class).iterator().next();
 				exec.schedule(() -> { val[0] = "hello from scheduler"; }, 250, TimeUnit.MILLISECONDS);
 				Thread.sleep(300);
 				
@@ -144,5 +151,21 @@ public class ConcurrencyExample {
 		String result = requestGuy.getAsyncMessage().get();
 		String preamble = "I was run on " + id;
 		return preamble + "\n" + result;
+	}
+	
+	@Path("runScheduled")
+	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String runScheduled() {
+		concurrencyBean.runScheduled();
+		return "ok.";
+	}
+	
+	@Path("getScheduleRan")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getScheduleRan() {
+		return "Count: " + concurrencyBean.getScheduleRan();
 	}
 }
