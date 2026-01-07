@@ -344,7 +344,7 @@
 								<artifact><id>org.jboss.weld:weld-lite-extension-translator:${weld-version}</id><source>true</source></artifact>
 								<artifact><id>org.javassist:javassist:3.30.2-GA</id><source>true</source></artifact>
 								
-								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to jvm/lib/ext on Domino -->
+								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to ndext on Domino -->
 								<artifact>
 									<id>org.jboss.logging:jboss-logging:3.6.1.Final</id>
 									<source>true</source>
