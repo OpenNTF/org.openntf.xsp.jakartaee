@@ -300,10 +300,11 @@
 						<exclude>**/org/eclipse/jnosql/**</exclude>
 						<exclude>**/nsfs/nsf-jakartaee-primefaces-showcase/**</exclude>
 						<exclude>**/org/helmetsrequired/**</exclude>
+						<exclude>**/DominoConcurrentCDIExtension.java</exclude>
 					</excludes>
 					<properties>
 						<owner>Contributors to the XPages Jakarta EE Support Project</owner>
-						<copyrightYear>2025</copyrightYear>
+						<copyrightYear>2026</copyrightYear>
 					</properties>
 				</configuration>
 			</plugin>

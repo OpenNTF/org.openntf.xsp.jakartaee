@@ -1,6 +1,6 @@
 XPages Jakarta EE Support
 
-Portions (c) Copyright 2018-2025 Jesse Gallagher
+Portions (c) Copyright 2018-2026 Jesse Gallagher
 Portions (c) Copyright 2018 Martin Pradny
 Portions (c) Copyright 2022 Per Lausten
 
