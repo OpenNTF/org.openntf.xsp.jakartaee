@@ -412,26 +412,26 @@
 									Jakarta Faces
 								-->
 								<artifact>
-									<id>org.apache.myfaces.core:myfaces-api:4.1.1</id>
+									<id>org.apache.myfaces.core:myfaces-api:4.1.2</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.apache.myfaces.core.api</Bundle-SymbolicName>
-										<Bundle-Version>4.1.1.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.1.2.${osgi.qualifier}</Bundle-Version>
 										<Require-Bundle/>
 										<DynamicImport-Package>org.jboss.weld.*</DynamicImport-Package>
-										<Export-Package>*;version="4.1.1"</Export-Package>
+										<Export-Package>*;version="4.1.2"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>org.apache.myfaces.core:myfaces-impl:4.1.1</id>
+									<id>org.apache.myfaces.core:myfaces-impl:4.1.2</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.apache.myfaces.core.impl</Bundle-SymbolicName>
-										<Bundle-Version>4.1.1.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.1.2.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>org.jboss.weld.*,org.apache.commons.*</DynamicImport-Package>
-										<Export-Package>*;version="4.1.1"</Export-Package>
+										<Export-Package>*;version="4.1.2"</Export-Package>
 									</instructions>
 								</artifact>
 								
