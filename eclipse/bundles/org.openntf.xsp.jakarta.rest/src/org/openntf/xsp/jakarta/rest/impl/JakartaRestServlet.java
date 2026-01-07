@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.xsp.application.ApplicationEx;
 
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.jboss.weld.context.RequestContext;
@@ -75,7 +74,7 @@ public class JakartaRestServlet extends AbstractXspLifecycleServlet {
 	}
 
 	@Override
-	protected void doService(final HttpServletRequest request, final HttpServletResponse response, final ApplicationEx application) throws ServletException, IOException {
+	protected void doService(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		initCdi(request);
 		List<ServiceParticipant> participants = LibraryUtil.findExtensions(ServiceParticipant.class, getModule());
 		for(ServiceParticipant participant : participants) {
