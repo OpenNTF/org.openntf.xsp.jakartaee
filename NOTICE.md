@@ -19,6 +19,7 @@ The project contains the following third-party code:
 - Code derived from the SmallRye Config implementation, available from https://github.com/smallrye/smallrye-config and licensed under Apache 2.0
 - Code derived from jacocotogo, available from https://github.com/mattcj/jacocotogo and licensed under Apache 2.0
 - Icons from the Tango Desktop Project, which are available from https://commons.wikimedia.org/wiki/Tango_icons and are available as Public Domain
+- Code derived Eclipse Concurro, available from https://github.com/eclipse-ee4j/glassfish-concurro and licensed under the EPL 2.0
 
 The binary distribution contains the following 3rd party code:
 
