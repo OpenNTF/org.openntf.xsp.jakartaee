@@ -15,10 +15,10 @@
  */
 package org.openntf.xsp.jakarta.cdi.provider;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.commons.util.StringUtil;
 
@@ -39,7 +39,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @since 1.0.0
  */
 public class DominoCDIProvider implements CDIProvider {
-	private static final Logger log = Logger.getLogger(DominoCDIProvider.class.getPackage().getName());
+	private static final Logger log = System.getLogger(DominoCDIProvider.class.getPackage().getName());
 	
 	private static final String PROP_CDI = DominoCDIProvider.class.getName() + "_cdi"; //$NON-NLS-1$
 
@@ -85,13 +85,9 @@ public class DominoCDIProvider implements CDIProvider {
 			// Will almost definitely be "Invalid disposed application ClassLoader", which occurs
 			//   during active development of an NSF - ignore
 			// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/362
-			if(log.isLoggable(Level.INFO)) {
-				log.log(Level.INFO, "Encountered IllegalStateException when loading CDI container", e);
-			}
+			log.log(Level.INFO, "Encountered IllegalStateException when loading CDI container", e);
 		} catch(Throwable e) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered exception trying to load CDI container", e);
-			}
+			log.log(Level.ERROR, "Encountered exception trying to load CDI container", e);
 			throw e;
 		}
 

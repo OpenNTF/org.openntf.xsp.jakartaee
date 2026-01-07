@@ -15,13 +15,13 @@
  */
 package org.openntf.xsp.jakarta.rest.exceptions.handler;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import jakarta.annotation.Priority;
 import jakarta.json.Json;
@@ -51,7 +51,7 @@ import lotus.domino.NotesException;
 public class JsonExceptionHandler implements RestExceptionHandler {
 	public static final JsonExceptionHandler DEFAULT = new JsonExceptionHandler();
 
-	private static final Logger log = Logger.getLogger(JsonExceptionHandler.class.getName());
+	private static final Logger log = System.getLogger(JsonExceptionHandler.class.getName());
 
 	@Override
 	public boolean canHandle(final ResourceInfo resourceInfo, final MediaType mediaType) {
@@ -111,9 +111,9 @@ public class JsonExceptionHandler implements RestExceptionHandler {
 						json.writeEnd();
 					}
 				} catch(Throwable t) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered exception writing JSON exception output", t);
-						log.log(Level.SEVERE, "Original exception", throwable);
+					if(log.isLoggable(Level.ERROR)) {
+						log.log(Level.ERROR, "Encountered exception writing JSON exception output", t);
+						log.log(Level.ERROR, "Original exception", throwable);
 					}
 					throw t;
 				}

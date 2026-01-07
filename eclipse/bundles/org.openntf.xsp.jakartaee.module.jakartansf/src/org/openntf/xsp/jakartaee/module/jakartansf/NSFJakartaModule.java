@@ -17,6 +17,8 @@ package org.openntf.xsp.jakartaee.module.jakartansf;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.ByteBuffer;
 import java.security.Principal;
 import java.text.MessageFormat;
@@ -27,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.commons.util.io.StreamUtil;
@@ -87,7 +87,7 @@ import lotus.domino.Session;
  * @since 3.4.0
  */
 public class NSFJakartaModule extends AbstractJakartaModule {
-	private static final Logger log = Logger.getLogger(NSFJakartaModule.class.getPackageName());
+	private static final Logger log = System.getLogger(NSFJakartaModule.class.getPackageName());
 	
 	private final ModuleMap mapping;
 	private NotesSession notesSession;
@@ -272,9 +272,7 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 					Class<? extends EventListener> c = (Class<? extends EventListener>) Class.forName(listenerClassName, true, getModuleClassLoader());
 					servletContext.addListener(c);
 				} catch (ClassNotFoundException e) {
-					if(log.isLoggable(Level.WARNING)) {
-						log.log(Level.WARNING, MessageFormat.format("Encountered exception loading listener class \"{0}\"", listenerClassName), e);
-					}
+					log.log(Level.WARNING, () -> MessageFormat.format("Encountered exception loading listener class \"{0}\"", listenerClassName), e);
 				}
 			}
 			
@@ -330,9 +328,7 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 		try(var withCl = new WithClassLoader()) {
 			ServletUtil.contextDestroyed(getJakartaServletContext());
 		} catch(Exception e) {
-			if(log.isLoggable(Level.WARNING)) {
-				log.log(Level.WARNING, MessageFormat.format("Encountered exception destroying ServletContext for {0}", this), e);
-			}
+			log.log(Level.WARNING, () -> MessageFormat.format("Encountered exception destroying ServletContext for {0}", this), e);
 		}
 		
 		// TODO move to a ServletContextListener in CDI
@@ -340,9 +336,7 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 			try {
 				cdi.close();
 			} catch(Exception e) {
-				if(log.isLoggable(Level.WARNING)) {
-					log.log(Level.WARNING, MessageFormat.format("Encountered exception closing CDI container for {0}", this), e);
-				}
+				log.log(Level.WARNING, () -> MessageFormat.format("Encountered exception closing CDI container for {0}", this), e);
 			}
 		}
 		

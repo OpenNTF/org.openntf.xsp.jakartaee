@@ -19,6 +19,8 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -33,8 +35,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
@@ -82,7 +82,7 @@ import jakarta.servlet.http.HttpSessionListener;
 public class NSFFacesServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger log = Logger.getLogger(NSFFacesServlet.class.getName());
+	private static final Logger log = System.getLogger(NSFFacesServlet.class.getName());
 
 	private static final String PROP_SESSIONINIT = NSFFacesServlet.class.getName() + "_sessionInit"; //$NON-NLS-1$
 	private static final String PROP_CLASSLOADER = NSFFacesServlet.class.getName() + "_classLoader"; //$NON-NLS-1$
@@ -189,9 +189,7 @@ public class NSFFacesServlet extends HttpServlet {
 				return null;
 			});
 		} catch (Throwable t) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered unhandled exception in Servlet", t);
-			}
+			log.log(Level.ERROR, "Encountered unhandled exception in Servlet", t);
 
 			try (PrintWriter w = resp.getWriter()) {
 				resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

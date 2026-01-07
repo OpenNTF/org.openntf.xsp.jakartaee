@@ -18,11 +18,11 @@ package org.openntf.xsp.jakarta.rest.json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.jboss.weld.proxy.WeldClientProxy;
 import org.jboss.weld.proxy.WeldClientProxy.Metadata;
@@ -46,7 +46,7 @@ import jakarta.ws.rs.ext.Providers;
 @Produces({"application/json", "application/*+json", "text/json", "*/*"})
 @Consumes({"application/json", "application/*+json", "text/json", "*/*"})
 public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBodyReader<Object> {
-	private static final Logger log = Logger.getLogger(JsonBindingProvider.class.getPackage().getName());
+	private static final Logger log = System.getLogger(JsonBindingProvider.class.getPackage().getName());
 
 	public static final String PROP_STREAM = "rest.jsonb.stream"; //$NON-NLS-1$
 
@@ -82,9 +82,7 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 			Jsonb jsonb = getJsonb(type);
 			return JSONBindUtil.fromJson(entityStream, jsonb, genericType);
 		} catch(Exception e) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered exception reading JSON input", e);
-			}
+			log.log(Level.ERROR, "Encountered exception reading JSON input", e);
 			throw e;
 		}
 	}
@@ -137,9 +135,7 @@ public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBo
 				return;
 			}
 
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered exception writing JSON output", e);
-			}
+			log.log(Level.ERROR, "Encountered exception writing JSON output", e);
 			throw e;
 		}
 	}

@@ -17,11 +17,12 @@ package org.openntf.xsp.jakarta.nosql.mapping.extension.impl;
 
 import static org.eclipse.jnosql.mapping.DatabaseType.DOCUMENT;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.eclipse.jnosql.mapping.DatabaseMetadata;
 import org.eclipse.jnosql.mapping.Databases;
@@ -42,7 +43,7 @@ import jakarta.enterprise.inject.spi.ProcessProducer;
  * @since 2.5.0
  */
 public class DominoExtension implements Extension {
-	private static final Logger LOGGER = Logger.getLogger(DominoExtension.class.getName());
+	private static final Logger LOGGER = System.getLogger(DominoExtension.class.getName());
 
 	private final Set<DatabaseMetadata> databases = new HashSet<>();
 
@@ -66,7 +67,7 @@ public class DominoExtension implements Extension {
 	}
 
 	void onAfterBeanDiscovery(@Observes final AfterBeanDiscovery afterBeanDiscovery, final BeanManager beanManager) {
-		LOGGER.info("Starting the onAfterBeanDiscovery with elements number: " + crudTypes.size()); //$NON-NLS-1$
+		LOGGER.log(Level.INFO, () -> "Starting the onAfterBeanDiscovery with elements number: " + crudTypes.size()); //$NON-NLS-1$
 
 		databases.forEach(type -> {
 			final DominoTemplateBean bean = new DominoTemplateBean(beanManager, type.getProvider());
@@ -75,6 +76,6 @@ public class DominoExtension implements Extension {
 
 		crudTypes.forEach(type -> afterBeanDiscovery.addBean(new DominoRepositoryBean(type, beanManager)));
 
-		LOGGER.info("Finished the onAfterBeanDiscovery"); //$NON-NLS-1$
+		LOGGER.log(Level.INFO, "Finished the onAfterBeanDiscovery"); //$NON-NLS-1$
 	}
 }

@@ -18,9 +18,9 @@ package org.openntf.xsp.jakarta.rest.exceptions.handler;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.faces.FactoryFinder;
 import javax.faces.application.ViewHandler;
@@ -49,7 +49,7 @@ import jakarta.ws.rs.core.StreamingOutput;
  */
 @Priority(RestExceptionHandler.DEFAULT_PRIORITY)
 public class HtmlExceptionHandler implements RestExceptionHandler {
-	private static final Logger log = Logger.getLogger(HtmlExceptionHandler.class.getName());
+	private static final Logger log = System.getLogger(HtmlExceptionHandler.class.getName());
 
 	@Override
 	public boolean canHandle(final ResourceInfo resourceInfo, final MediaType mediaType) {
@@ -96,9 +96,9 @@ public class HtmlExceptionHandler implements RestExceptionHandler {
 						throw new IOException(e);
 					}
 				} catch(Throwable t) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered exception writing HTML exception output", t);
-						log.log(Level.SEVERE, "Original exception", throwable);
+					if(log.isLoggable(Level.ERROR)) {
+						log.log(Level.ERROR, "Encountered exception writing HTML exception output", t);
+						log.log(Level.ERROR, "Original exception", throwable);
 					}
 					throw t;
 				}

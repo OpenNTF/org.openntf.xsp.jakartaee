@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakartaee.util;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -25,8 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -48,7 +48,7 @@ import jakarta.servlet.annotation.HandlesTypes;
 public enum ModuleUtil {
 	;
 
-	private static final Logger log = Logger.getLogger(ModuleUtil.class.getName());
+	private static final Logger log = System.getLogger(ModuleUtil.class.getName());
 
 	public static final String PREFIX_CLASSES = "WEB-INF/classes/"; //$NON-NLS-1$
 	public static final String SUFFIX_CLASS = ".class"; //$NON-NLS-1$
@@ -66,9 +66,7 @@ public enum ModuleUtil {
 			return getProcessor(module)
 				.map(proc -> proc.getClassNames(module))
 				.orElseGet(() -> {
-					if(log.isLoggable(Level.WARNING)) {
-						log.warning(MessageFormat.format("Unable to read class names from unsupported ComponentModule type {0}", module.getClass().getName()));
-					}
+					log.log(Level.WARNING, () -> MessageFormat.format("Unable to read class names from unsupported ComponentModule type {0}", module.getClass().getName()));
 					return Stream.empty();
 				});
 		}
@@ -93,7 +91,7 @@ public enum ModuleUtil {
 					try {
 						return Class.forName(name, true, cl);
 					} catch (Throwable e) {
-						log.log(Level.SEVERE, MessageFormat.format("Encountered exception loading class {0}", name), e);
+						log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception loading class {0}", name), e);
 						return (Class<?>)null;
 					}
 				})
@@ -120,9 +118,7 @@ public enum ModuleUtil {
 			return getProcessor(module)
 				.map(proc -> proc.listFiles(module, basePath))
 				.orElseGet(() -> {
-					if(log.isLoggable(Level.WARNING)) {
-						log.warning(MessageFormat.format("Unable to read class names from unsupported ComponentModule type {0}", module.getClass().getName()));
-					}
+					log.log(Level.WARNING, () -> MessageFormat.format("Unable to read class names from unsupported ComponentModule type {0}", module.getClass().getName()));
 					return Stream.empty();
 				});
 		}
