@@ -760,16 +760,16 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-health:4.2.0</id>
+									<id>io.smallrye:smallrye-health:4.3.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.health</Bundle-SymbolicName>
-										<Bundle-Version>4.2.0.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.3.0.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>
 											org.jboss.weld.*
 										</DynamicImport-Package>
-										<Export-Package>*;version="4.2.0"</Export-Package>
+										<Export-Package>*;version="4.3.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
