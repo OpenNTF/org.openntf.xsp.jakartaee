@@ -25,9 +25,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
 import java.security.SecureRandom;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -1482,5 +1484,66 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		assertNotNull(explain);
 		assertFalse(explain.isEmpty());
 		assertNotEquals("", explain.getString("explain", ""));
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testLastModified(TestDatabase db) throws InterruptedException {
+		Client client = getAnonymousClient();
+		
+		// Check the last modified time
+		OffsetDateTime mod;
+		{
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs/lastModified");
+			Response response = postTarget.request().get();
+			checkResponse(200, response);
+			
+			String modString = response.readEntity(String.class);
+			mod = OffsetDateTime.parse(modString);
+			System.out.println("got mod " + mod);
+		}		
+		
+		// Make sure we definitely have a visible difference
+		TimeUnit.MILLISECONDS.sleep(50);
+		
+		// Check again to make sure it's the same
+		{
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs/lastModified");
+			Response response = postTarget.request().get();
+			checkResponse(200, response);
+			
+			String modString = response.readEntity(String.class);
+			OffsetDateTime newMod = OffsetDateTime.parse(modString);
+			assertEquals(mod, newMod, "DB modification time should not have changed");
+		}
+		
+		// Create a new doc to bump the mod time
+		String unid;
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.putSingle("title", "foo");
+			payload.put("categories", Arrays.asList("foo", "bar"));
+			
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.form(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Check the last modified time again to make sure it's higher
+		{
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs/lastModified");
+			Response response = postTarget.request().get();
+			checkResponse(200, response);
+			
+			String modString = response.readEntity(String.class);
+			OffsetDateTime newMod = OffsetDateTime.parse(modString);
+			assertTrue(newMod.isAfter(mod), () -> "DB modification time should have changed; mod=" + mod + ", newMod=" + newMod);
+		}
 	}
 }
