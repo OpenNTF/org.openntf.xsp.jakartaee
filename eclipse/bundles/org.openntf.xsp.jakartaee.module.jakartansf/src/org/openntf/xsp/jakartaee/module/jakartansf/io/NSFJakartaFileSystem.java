@@ -16,6 +16,8 @@
 package org.openntf.xsp.jakartaee.module.jakartansf.io;
 
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import com.ibm.commons.util.StringUtil;
@@ -56,7 +56,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 		FILE, JAVASCRIPT, IMAGE, STYLESHEET, JAVA_CLASS
 	}
 	
-	private static final Logger log = Logger.getLogger(NSFJakartaFileSystem.class.getPackageName());
+	private static final Logger log = System.getLogger(NSFJakartaFileSystem.class.getPackageName());
 	public static final String URLSCHEME = "jakartansf"; //$NON-NLS-1$
 	
 	private final Map<String, NSFMetadata> fileMap = new HashMap<>();
@@ -88,33 +88,26 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 								name = "WEB-INF/lib/" + name; //$NON-NLS-1$
 							}
 							int noteId = entry.noteId();
-							if(log.isLoggable(Level.FINEST)) {
-								log.finest(MessageFormat.format("Adding file element \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
-							}
+							String fName = name;
+							log.log(Level.DEBUG, () -> MessageFormat.format("Adding file element \"{0}\", note ID 0x{1}", fName, Integer.toHexString(noteId)));
 							fileMap.put(name, new NSFMetadata(entry, FileType.FILE, entry.mimeType()));
 						}
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_SCRIPTLIB_JS)) {
 						for(String name : sanitizeTitle(entry.title())) {
 							int noteId = entry.noteId();
-							if(log.isLoggable(Level.FINEST)) {
-								log.finest(MessageFormat.format("Adding JavaScript library \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
-							}
+							log.log(Level.DEBUG, () -> MessageFormat.format("Adding JavaScript library \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							fileMap.put(name, new NSFMetadata(entry, FileType.JAVASCRIPT, entry.mimeType()));
 						}
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_IMAGE_RES_WEB)) {
 						for(String name : sanitizeTitle(entry.title())) {
 							int noteId = entry.noteId();
-							if(log.isLoggable(Level.FINEST)) {
-								log.finest(MessageFormat.format("Adding image resource \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
-							}
+							log.log(Level.DEBUG, () -> MessageFormat.format("Adding image resource \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							fileMap.put(name, new NSFMetadata(entry, FileType.IMAGE, entry.mimeType()));
 						}
 					} else if(NotesUtils.CmemflagTestMultiple(entry.flags(), NotesConstants.DFLAGPAT_STYLE_SHEETS_WEB)) {
 						for(String name : sanitizeTitle(entry.title())) {
 							int noteId = entry.noteId();
-							if(log.isLoggable(Level.FINEST)) {
-								log.finest(MessageFormat.format("Adding stylesheet \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
-							}
+							log.log(Level.DEBUG, () -> MessageFormat.format("Adding stylesheet \"{0}\", note ID 0x{1}", name, Integer.toHexString(noteId)));
 							fileMap.put(name, new NSFMetadata(entry, FileType.STYLESHEET, entry.mimeType()));
 						}
 					}

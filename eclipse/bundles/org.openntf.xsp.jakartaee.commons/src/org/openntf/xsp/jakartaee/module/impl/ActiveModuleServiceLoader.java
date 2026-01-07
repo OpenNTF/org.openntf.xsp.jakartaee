@@ -17,13 +17,13 @@ package org.openntf.xsp.jakartaee.module.impl;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -36,7 +36,7 @@ import org.openntf.xsp.jakartaee.osgiresourceloader.ContextServiceLoader;
  * @since 3.4.0
  */
 public class ActiveModuleServiceLoader implements ContextServiceLoader {
-	private static final Logger log = Logger.getLogger(ActiveModuleServiceLoader.class.getPackageName());
+	private static final Logger log = System.getLogger(ActiveModuleServiceLoader.class.getPackageName());
 
 	@SuppressWarnings("rawtypes")
 	@Override
@@ -55,10 +55,7 @@ public class ActiveModuleServiceLoader implements ContextServiceLoader {
 			    				try {
 									return Class.forName(className, true, classLoader);
 								} catch (Exception e) {
-									String msg = MessageFormat.format("Encountered exception loading class {0} from module {1}", serviceName, optMod.get());
-									if(log.isLoggable(Level.SEVERE)) {
-										log.log(Level.SEVERE, msg, e);
-									}
+									log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception loading class {0} from module {1}", serviceName, optMod.get()), e);
 									return null;
 								}
 			    			})

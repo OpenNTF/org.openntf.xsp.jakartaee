@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakarta.concurrency;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,8 +24,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import lotus.domino.NotesThread;
 
@@ -37,7 +37,7 @@ import lotus.domino.NotesThread;
 public enum ExecutorHolder {
 	INSTANCE;
 
-	private static final Logger log = Logger.getLogger(ExecutorHolder.class.getPackage().getName());
+	private static final Logger log = System.getLogger(ExecutorHolder.class.getPackage().getName());
 
 	private final Collection<ExecutorService> executors = Collections.synchronizedSet(new HashSet<>());
 	private ScheduledExecutorService globalExecutor;
@@ -65,9 +65,7 @@ public enum ExecutorHolder {
 					exec.shutdownNow();
 					exec.awaitTermination(5, TimeUnit.MINUTES);
 				} catch (Exception e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered exception terminating scheduled executor service", e);
-					}
+					log.log(Level.ERROR, "Encountered exception terminating scheduled executor service", e);
 				}
 			}
 		});
@@ -80,9 +78,7 @@ public enum ExecutorHolder {
 					global.shutdownNow();
 					global.awaitTermination(5, TimeUnit.MINUTES);
 				} catch (Exception e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered exception terminating scheduled executor service", e);
-					}
+					log.log(Level.ERROR, "Encountered exception terminating scheduled executor service", e);
 				}
 			}
 		}

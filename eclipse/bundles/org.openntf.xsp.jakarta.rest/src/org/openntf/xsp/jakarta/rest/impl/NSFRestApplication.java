@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakarta.rest.impl;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -25,8 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.openntf.xsp.jakarta.rest.RestClassContributor;
@@ -49,7 +49,7 @@ import jakarta.ws.rs.ext.Providers;
  * @since 1.0.0
  */
 public class NSFRestApplication extends Application {
-	private static final Logger log = Logger.getLogger(NSFRestApplication.class.getPackage().getName());
+	private static final Logger log = System.getLogger(NSFRestApplication.class.getPackage().getName());
 
 	@Override
 	public Set<Object> getSingletons() {
@@ -146,7 +146,7 @@ public class NSFRestApplication extends Application {
 			return false;
 		} catch(Throwable e) {
 			// Catch Throwable because this may come through as an Error
-			log.log(Level.WARNING, MessageFormat.format("Encounterd exception processing class {0}", clazz.getName()), e);
+			log.log(Level.WARNING, () -> MessageFormat.format("Encounterd exception processing class {0}", clazz.getName()), e);
 			return false;
 		}
 	}

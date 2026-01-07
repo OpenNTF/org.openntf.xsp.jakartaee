@@ -15,12 +15,12 @@
  */
 package org.openntf.xsp.jakartaee.module.osgi;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
@@ -77,7 +77,7 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 		osgiNotesContextRequestField = request[0];
 		osgiNotesContextModuleField = module[0];
 	}
-	private static final Logger log = Logger.getLogger(OSGiComponentModuleLocator.class.getPackage().getName());
+	private static final Logger log = System.getLogger(OSGiComponentModuleLocator.class.getPackage().getName());
 
 	private boolean isAvailable() {
 		return osgiNotesContextRequestField != null;
@@ -144,9 +144,7 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 		try {
 			return Optional.ofNullable(ContextInfo.getServerDatabase());
 		} catch (NotesAPIException e) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered exception trying to open the context database", e);
-			}
+			log.log(Level.ERROR, "Encountered exception trying to open the context database", e);
 			return Optional.empty();
 		}
 	}

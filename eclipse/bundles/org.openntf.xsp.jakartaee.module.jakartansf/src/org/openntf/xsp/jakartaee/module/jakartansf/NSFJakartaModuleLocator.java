@@ -15,13 +15,13 @@
  */
 package org.openntf.xsp.jakartaee.module.jakartansf;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesDatabase;
@@ -42,7 +42,7 @@ import lotus.domino.NotesException;
 import lotus.domino.Session;
 
 public class NSFJakartaModuleLocator implements ComponentModuleLocator {
-	private static final Logger log = Logger.getLogger(NSFJakartaModuleLocator.class.getPackageName());
+	private static final Logger log = System.getLogger(NSFJakartaModuleLocator.class.getPackageName());
 
 	@Override
 	public boolean isActive() {
@@ -83,9 +83,7 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 
 					return null;
 				} catch(NotesException e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered exception trying to read the database template version", e);
-					}
+					log.log(Level.ERROR, "Encountered exception trying to read the database template version", e);
 					return null;
 				}
 			});

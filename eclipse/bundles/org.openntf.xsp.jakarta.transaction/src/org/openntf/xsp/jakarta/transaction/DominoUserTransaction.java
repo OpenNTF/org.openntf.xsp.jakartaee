@@ -16,11 +16,11 @@
 package org.openntf.xsp.jakarta.transaction;
 
 import java.io.Serializable;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -43,7 +43,7 @@ import jakarta.transaction.UserTransaction;
 @RequestScoped
 public class DominoUserTransaction implements UserTransaction, Serializable {
 	private static final long serialVersionUID = 1L;
-	private final Logger log = Logger.getLogger(DominoUserTransaction.class.getName());
+	private final Logger log = System.getLogger(DominoUserTransaction.class.getName());
 
 	/**
 	 * This shared instance may be used in any context when CDI is not yet available.
@@ -94,9 +94,7 @@ public class DominoUserTransaction implements UserTransaction, Serializable {
 				try {
 					res.setTransactionTimeout(seconds);
 				} catch (XAException e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, MessageFormat.format("Encountered exception setting transaction timeout on resource: {0}", res), e);
-					}
+					log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception setting transaction timeout on resource: {0}", res), e);
 				}
 			}
 		}

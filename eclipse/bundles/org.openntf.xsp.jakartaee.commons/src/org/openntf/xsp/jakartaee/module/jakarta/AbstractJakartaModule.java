@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -32,8 +34,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -82,7 +82,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	 */
 	public static final String PROP_MPCONFIG = "org.openntf.xsp.microprofile.config.moduleprops"; //$NON-NLS-1$
 	
-	private static final Logger log = Logger.getLogger(AbstractJakartaModule.class.getPackageName());
+	private static final Logger log = System.getLogger(AbstractJakartaModule.class.getPackageName());
 	
 	private DefaultModuleClassLoader moduleClassLoader;
 	private ServletContext servletContext;
@@ -141,9 +141,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 					}
 					
 				} catch (XMLException e) {
-					if(log.isLoggable(Level.WARNING)) {
-						log.log(Level.WARNING, MessageFormat.format("Encountered exception reading web.xml in {0}", this), e);
-					}
+					log.log(Level.WARNING, () -> MessageFormat.format("Encountered exception reading web.xml in {0}", this), e);
 				} finally {
 					StreamUtil.close(is);
 				}
@@ -274,9 +272,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	@Override
 	public void doService(String contextPath, String pathInfo, HttpSessionAdapter httpSessionAdapter, HttpServletRequestAdapter servletRequest,
 			HttpServletResponseAdapter servletResponse) throws javax.servlet.ServletException, IOException {
-		if(log.isLoggable(Level.FINER)) {
-			log.finer(MessageFormat.format("{0}#doService with contextPath={1}, pathInfo={2}", getClass().getSimpleName(), contextPath, pathInfo));
-		}
+		log.log(Level.DEBUG, () -> MessageFormat.format("{0}#doService with contextPath={1}, pathInfo={2}", getClass().getSimpleName(), contextPath, pathInfo));
 		
 		awaitInit();
 		
@@ -330,9 +326,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	@Override
 	protected void invokeServlet(javax.servlet.Servlet servlet, javax.servlet.http.HttpServletRequest req,
 			javax.servlet.http.HttpServletResponse resp) throws javax.servlet.ServletException, IOException {
-		if(log.isLoggable(Level.FINE)) {
-			log.fine(MessageFormat.format("Invoking Servlet {0}", servlet));
-		}
+		log.log(Level.TRACE, () -> MessageFormat.format("Invoking Servlet {0}", servlet));
 
 		ServletContext servletContext = getJakartaServletContext();
 		HttpServletRequest request = ServletUtil.oldToNew(getServletContext(), req);
@@ -341,9 +335,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 		try {
 			super.invokeServlet(servlet, req, resp);
 		} catch(Exception t) {
-			if(log.isLoggable(Level.WARNING)) {
-				log.log(Level.WARNING, MessageFormat.format("Encountered exception invoking Servlet {0} in {1}", servlet, this), t);
-			}
+			log.log(Level.WARNING, () -> MessageFormat.format("Encountered exception invoking Servlet {0} in {1}", servlet, this), t);
 			throw t;
 		} finally {
 			ServletUtil.getListeners(servletContext, ServletRequestListener.class)
@@ -400,9 +392,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 
 	@Override
 	public boolean refresh() {
-		if(log.isLoggable(Level.FINE)) {
-			log.fine(MessageFormat.format("Refreshing module {0}", this));
-		}
+		log.log(Level.TRACE, () -> MessageFormat.format("Refreshing module {0}", this));
 		Map<String, LCDAdapterHttpSession> sessions = this.getSessions();
 		synchronized(sessions) {
             for(LCDAdapterHttpSession var4 : sessions.values()) {
@@ -504,9 +494,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 				String mimeType = LibraryUtil.guessContentType(name);
 				return Optional.of(new ModuleIcon(mimeType, width, height, ByteBuffer.wrap(iconData)));
 			} catch (IOException e) {
-				if(log.isLoggable(Level.WARNING)) {
-					log.log(Level.WARNING, MessageFormat.format("Encountered exception reading icon {0} in {1}", name, this), e);
-				}
+				log.log(Level.WARNING, () -> MessageFormat.format("Encountered exception reading icon {0} in {1}", name, this), e);
 			}
 		}
 		

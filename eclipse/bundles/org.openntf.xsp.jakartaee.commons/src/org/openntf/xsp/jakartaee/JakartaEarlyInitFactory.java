@@ -15,10 +15,10 @@
  */
 package org.openntf.xsp.jakartaee;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.designer.runtime.domino.adapter.HttpService;
 import com.ibm.designer.runtime.domino.adapter.IServiceFactory;
@@ -37,7 +37,7 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
  * @since 2.2.0
  */
 public class JakartaEarlyInitFactory implements IServiceFactory {
-	private static final Logger log = Logger.getLogger(JakartaEarlyInitFactory.class.getName());
+	private static final Logger log = System.getLogger(JakartaEarlyInitFactory.class.getName());
 	
 	@Override
 	public HttpService[] getServices(final LCDEnvironment env) {
@@ -47,7 +47,7 @@ public class JakartaEarlyInitFactory implements IServiceFactory {
 			try {
 				l.httpInit();
 			} catch(Exception e) {
-				log.log(Level.SEVERE, e, () -> MessageFormat.format("Encountered exception running HTTP listener {0}", l));
+				log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception running HTTP listener {0}", l), e);
 			}
 		});
 		
@@ -55,7 +55,7 @@ public class JakartaEarlyInitFactory implements IServiceFactory {
 			try {
 				l.postInit();
 			} catch(Exception e) {
-				log.log(Level.SEVERE, e, () -> MessageFormat.format("Encountered exception running HTTP listener post-init {0}", l));
+				log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception running HTTP listener post-init {0}", l), e);
 			}
 		});
 		

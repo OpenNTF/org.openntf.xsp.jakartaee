@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
@@ -35,8 +37,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -57,7 +57,7 @@ import jakarta.annotation.Priority;
  * @since 2.6.0
  */
 public class ServiceLoader {
-	private static final Logger LOGGER = Logger.getLogger(ServiceLoader.class.getName());
+	private static final Logger LOGGER = System.getLogger(ServiceLoader.class.getName());
 
 	public static final String SERVICE_LOCATION = "META-INF/services"; //$NON-NLS-1$
 	private static final String COMMENT_PATTERN = "#"; //$NON-NLS-1$
@@ -168,8 +168,7 @@ public class ServiceLoader {
 							try {
 								return bundle.loadClass(className);
 							} catch(Exception e) {
-								String msg = MessageFormat.format("Encountered exception loading class {0} from bundle {1}", serviceName, bundle.getSymbolicName());
-								LOGGER.log(Level.SEVERE, msg, e);
+								LOGGER.log(Level.ERROR, () -> MessageFormat.format("Encountered exception loading class {0} from bundle {1}", serviceName, bundle.getSymbolicName()), e);
 								return null;
 							}
 						})

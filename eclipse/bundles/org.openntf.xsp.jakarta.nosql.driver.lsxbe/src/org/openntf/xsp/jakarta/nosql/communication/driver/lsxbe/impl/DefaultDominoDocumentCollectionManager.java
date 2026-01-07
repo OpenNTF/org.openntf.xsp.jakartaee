@@ -17,6 +17,8 @@ package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
@@ -38,8 +40,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -113,7 +113,7 @@ import lotus.domino.ViewEntryCollection;
 import lotus.domino.ViewNavigator;
 
 public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocumentCollectionManager {
-	private final Logger log = Logger.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
+	private final Logger log = System.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
 
 	private final Supplier<Database> supplier;
 	private final Supplier<Session> sessionSupplier;
@@ -1041,9 +1041,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				try {
 					t = tm.get().getTransaction();
 				} catch (SystemException e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered unexpected exception retrieving active transaction", e);
-					}
+					log.log(Level.ERROR, "Encountered unexpected exception retrieving active transaction", e);
 					return;
 				}
 				if(t != null) {
@@ -1064,10 +1062,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 
 					} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
-						if(log.isLoggable(Level.SEVERE)) {
+						if(log.isLoggable(Level.ERROR)) {
 							if(e instanceof NotesException ne && ne.id == 4864) {
 								// "Transactional Logging must be enabled for this function"
-								log.log(Level.SEVERE, "Transactional logging is not enabled for this server; skipping transaction registration", e);
+								log.log(Level.ERROR, "Transactional logging is not enabled for this server; skipping transaction registration", e);
 								if(res != null) {
 									try {
 										t.delistResource(res, XAResource.TMNOFLAGS);
@@ -1076,7 +1074,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 									}
 								}
 							} else {
-								log.log(Level.SEVERE, "Encountered unexpected exception enlisting the transaction resource", e);
+								log.log(Level.ERROR, "Encountered unexpected exception enlisting the transaction resource", e);
 							}
 						}
 					}
