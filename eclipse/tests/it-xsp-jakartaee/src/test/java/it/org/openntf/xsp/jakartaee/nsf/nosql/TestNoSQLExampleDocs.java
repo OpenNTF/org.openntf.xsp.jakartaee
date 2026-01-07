@@ -1500,7 +1500,6 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			
 			String modString = response.readEntity(String.class);
 			mod = OffsetDateTime.parse(modString);
-			System.out.println("got mod " + mod);
 		}		
 		
 		// Make sure we definitely have a visible difference
