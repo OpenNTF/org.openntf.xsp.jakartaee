@@ -728,16 +728,16 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-fault-tolerance:6.9.3</id>
+									<id>io.smallrye:smallrye-fault-tolerance:6.10.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.fault-tolerance</Bundle-SymbolicName>
-										<Bundle-Version>6.9.3.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>6.10.0.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>
 											org.jboss.weld.*
 										</DynamicImport-Package>
-										<Export-Package>*;version="6.9.3"</Export-Package>
+										<Export-Package>*;version="6.10.0"</Export-Package>
 									</instructions>
 								</artifact>
 								
