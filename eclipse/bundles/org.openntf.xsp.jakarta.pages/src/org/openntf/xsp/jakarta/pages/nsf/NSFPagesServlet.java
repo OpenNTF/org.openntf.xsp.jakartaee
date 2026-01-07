@@ -23,7 +23,6 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
-import com.ibm.xsp.application.ApplicationEx;
 
 import org.glassfish.wasp.Constants;
 import org.glassfish.wasp.servlet.JspServlet;
@@ -71,7 +70,7 @@ public class NSFPagesServlet extends AbstractXspLifecycleServlet {
 
 	@SuppressWarnings({ "removal", "deprecation" })
 	@Override
-	protected void doService(final HttpServletRequest request, final HttpServletResponse response, final ApplicationEx application)
+	protected void doService(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
 		HttpContextBean.setThreadResponse(response);
 		try {

@@ -33,7 +33,6 @@ import javax.servlet.Servlet;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 import com.ibm.xsp.acl.NoAccessSignal;
-import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.context.FacesContextEx;
 import com.ibm.xsp.controller.FacesController;
 import com.ibm.xsp.webapp.DesignerFacesServlet;
@@ -140,14 +139,14 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 				}
 			}
 
-			ApplicationEx application = null;
 			if(this.doFaces) {
+				// Do this for the side effects
 				facesContext = getFacesContext(request, response);
 		    	FacesContextEx exc = (FacesContextEx)facesContext;
-		    	application = exc.getApplicationEx();
+		    	exc.getApplicationEx();
 			}
 
-	    	this.doService(request, response, application);
+	    	this.doService(request, response);
 		} catch(NoAccessSignal t) {
 			throw t;
 		} catch(Throwable t) {
@@ -190,7 +189,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	 */
 	protected abstract void doInit(ServletConfig config, HttpServletRequest request) throws ServletException;
 
-	protected abstract void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application) throws ServletException, IOException;
+	protected abstract void doService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
 
 	public ComponentModule getModule() {
 		return module;
