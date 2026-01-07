@@ -79,6 +79,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 	private static final Method removeCalendarEntry;
 	private static final Method queryEffectiveAccess;
 	private static final Method send;
+	private static final Method queryLastModified;
 
 	static {
 		try {
@@ -99,6 +100,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			removeCalendarEntry = DominoRepository.class.getDeclaredMethod("removeCalendarEntry", String.class, CalendarModScope.class, String.class); //$NON-NLS-1$
 			queryEffectiveAccess = DominoRepository.class.getDeclaredMethod("queryEffectiveAccess"); //$NON-NLS-1$
 			send = DominoRepository.class.getDeclaredMethod("send", Object.class, boolean.class, boolean.class, boolean.class); //$NON-NLS-1$
+			queryLastModified = DominoRepository.class.getDeclaredMethod("queryLastModified"); //$NON-NLS-1$
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -287,6 +289,10 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 		if(method.equals(send)) {
 			Object result = template.send(args[0], (boolean)args[1], (boolean)args[2], (boolean)args[3]);
 			return convert(result, method);
+		}
+		
+		if(method.equals(queryLastModified)) {
+			return template.queryLastModified();
 		}
 
 		try {

@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jakarta.nosql.mapping.extension.impl;
 
+import java.time.OffsetDateTime;
 import java.time.temporal.TemporalAccessor;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -211,6 +212,11 @@ public class DefaultDominoTemplate extends AbstractSemiStructuredTemplate implem
 	@Override
 	public <T> T send(final T entity, boolean attachForm, boolean computeWithForm, boolean save) {
 		return persist(entity, e -> manager().send(e, attachForm, computeWithForm, save));
+	}
+	
+	@Override
+	public OffsetDateTime queryLastModified() {
+		return manager().queryLastModified();
 	}
 
 	private <T> UnaryOperator<T> toUnary(final Consumer<T> consumer) {

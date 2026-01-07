@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver;
 
+import java.time.OffsetDateTime;
 import java.time.temporal.TemporalAccessor;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -212,4 +213,15 @@ public interface DominoDocumentManager extends DatabaseManager {
      * @since 3.6.0
      */
     CommunicationEntity send(CommunicationEntity entity, boolean attachForm, boolean computeWithForm, boolean save);
+
+    /**
+     * Determines the last time the underlying database was modified.
+     * 
+     * <p>This reflects at least the last time data was modified, but the implementation
+     * may also reflect design modifications.</p>
+     * 
+     * @return an {@link OffsetDateTime} representing the last time the database was modified
+     * @since 3.6.0
+     */
+    OffsetDateTime queryLastModified();
 }

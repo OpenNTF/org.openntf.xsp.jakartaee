@@ -20,6 +20,10 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Collection;
@@ -759,6 +763,28 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 			
 			return entity;
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public OffsetDateTime queryLastModified() {
+		try {
+			Database database = supplier.get();
+			DateTime dtMod = database.getLastModified();
+			try {
+				Temporal dt = DominoNoSQLUtil.toTemporal(database, dtMod);
+				// Should definitely be an OffsetDateTime, but account for alternatives
+				if(dt instanceof OffsetDateTime odt) {
+					return odt;
+				} else {
+					Instant inst = Instant.from(dt);
+					return OffsetDateTime.ofInstant(inst, ZoneId.systemDefault());
+				}
+			} finally {
+				dtMod.recycle();
+			}
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
 		}

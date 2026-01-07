@@ -15,6 +15,7 @@
  */
 package rest;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -328,5 +329,12 @@ public class NoSQLExampleDocs {
 	public void updateExampleDocFtIndex() throws NotesException {
 		Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
 		databaseAsSigner.updateFTIndex(true);
+	}
+	
+	@Path("lastModified")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getLastModified() {
+		return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(repository.queryLastModified());
 	}
 }
