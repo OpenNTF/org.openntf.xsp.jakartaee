@@ -313,7 +313,7 @@
 									Jakarta Validation
 								-->
 								<artifact><id>jakarta.validation:jakarta.validation-api:3.1.1</id><source>true</source></artifact>
-								<artifact><id>org.hibernate.validator:hibernate-validator:9.0.1.Final</id><source>true</source></artifact>
+								<artifact><id>org.hibernate.validator:hibernate-validator:9.1.0.Final</id><source>true</source></artifact>
 
 								<!--
 									CDI 
