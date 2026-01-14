@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import lotus.domino.NotesThread;
 
@@ -39,6 +40,7 @@ public enum ExecutorHolder {
 
 	private static final Logger log = System.getLogger(ExecutorHolder.class.getPackage().getName());
 
+	private static final AtomicInteger THREAD_INDEX = new AtomicInteger();
 	private final Collection<ExecutorService> executors = Collections.synchronizedSet(new HashSet<>());
 	private ScheduledExecutorService globalExecutor;
 
@@ -51,7 +53,7 @@ public enum ExecutorHolder {
 	}
 	
 	public void initGlobalExecutor() {
-		globalExecutor = Executors.newScheduledThreadPool(10, NotesThread::new);
+		globalExecutor = Executors.newScheduledThreadPool(10, r -> new NotesThread(r, "Jakarta Concurrency Global Worker Thread " + THREAD_INDEX.incrementAndGet()));
 	}
 	
 	public ScheduledExecutorService getGlobalExecutor() {

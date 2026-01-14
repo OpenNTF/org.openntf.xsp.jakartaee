@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.ServletException;
 
@@ -52,7 +53,8 @@ public class NSFJakartaModuleService extends HttpService {
 	
 	private static final int MAX_REFRESH_ATTEMPTS = 10;
 
-	public static final ExecutorService exec = Executors.newCachedThreadPool(NotesThread::new);
+	private static final AtomicInteger THREAD_INDEX = new AtomicInteger();
+	public static final ExecutorService exec = Executors.newCachedThreadPool(r -> new NotesThread(r, "Jakarta Module Worker Thread " + THREAD_INDEX.incrementAndGet()));
 	private static NSFJakartaModuleService instance;
 	
 	public synchronized static NSFJakartaModuleService getInstance(LCDEnvironment env) {
