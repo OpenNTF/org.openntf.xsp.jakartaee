@@ -51,7 +51,6 @@ public class NoSQLWeavingHook implements WeavingHook {
 		case "org.eclipse.jnosql.mapping.metadata.ClassScanner" -> processClassScanner(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.mapping.metadata.ClassConverter" -> processClassConverter(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.ValueReaderDecorator" -> processValueReaderDecorator(c); //$NON-NLS-1$
-		case "org.eclipse.jnosql.communication.ValueWriter" -> processValueWriter(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.ValueWriterDecorator" -> processValueWriterDecorator(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.communication.TypeReferenceReaderDecorator" -> processTypeReferenceReader(c); //$NON-NLS-1$
 		case "org.eclipse.jnosql.mapping.metadata.ConstructorBuilder" -> processConstructorBuilder(c); //$NON-NLS-1$
@@ -169,24 +168,6 @@ public class NoSQLWeavingHook implements WeavingHook {
 				CtMethod m = cc.getDeclaredMethod("convert"); //$NON-NLS-1$
 				m.setBody(body);
 			}
-
-			c.setBytes(cc.toBytecode());
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-	}
-
-	private void processValueWriter(final WovenClass c) {
-		CtClass cc = defrost(c);
-
-		try {
-			String body = """
-			{
-				java.lang.Iterable instances = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.lookupProviderInstances(org.eclipse.jnosql.communication.ValueWriter.class);
-				return java.util.stream.StreamSupport.stream(instances.spliterator(), false);
-			}"""; //$NON-NLS-1$
-			CtMethod m = cc.getDeclaredMethod("getWriters"); //$NON-NLS-1$
-			m.setBody(body);
 
 			c.setBytes(cc.toBytecode());
 		} catch(Throwable t) {
