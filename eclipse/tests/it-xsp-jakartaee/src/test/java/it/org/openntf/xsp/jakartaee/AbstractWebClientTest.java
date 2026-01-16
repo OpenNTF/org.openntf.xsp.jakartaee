@@ -37,12 +37,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.ibm.commons.util.PathUtil;
 
 @SuppressWarnings("nls")
-@Testcontainers
 public abstract class AbstractWebClientTest {
 	
 	public static class AnonymousClientProvider implements ArgumentsProvider {
