@@ -3,11 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta OSGi ServiceLoader Bridge
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.osgiresourcelocator;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.osgiresourcelocator
-Bundle-Version: 3.5.1.qualifier
+Bundle-Version: 3.6.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.glassfish.hk2.osgiresourcelocator,
- org.openntf.xsp.jakartaee.osgiresourceloader;version="3.5.1"
+ org.openntf.xsp.jakartaee.osgiresourceloader;version="3.6.0"
 Import-Package: com.ibm.commons.extension,
  com.ibm.designer.runtime.domino.adapter,
  jakarta.annotation;version="2.1.0",

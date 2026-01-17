@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
@@ -36,10 +37,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.openntf.xsp.jakartaee.osgiresourceloader.ContextServiceLoader;
 import org.osgi.framework.Bundle;
@@ -57,7 +57,7 @@ import jakarta.annotation.Priority;
  * @since 2.6.0
  */
 public class ServiceLoader {
-	private static final Logger LOGGER = Logger.getLogger(ServiceLoader.class.getName());
+	private static final Logger LOGGER = System.getLogger(ServiceLoader.class.getName());
 
 	public static final String SERVICE_LOCATION = "META-INF/services"; //$NON-NLS-1$
 	private static final String COMMENT_PATTERN = "#"; //$NON-NLS-1$
@@ -71,6 +71,7 @@ public class ServiceLoader {
 				int state = bundle.getState();
 				return state == Bundle.ACTIVE || state == Bundle.RESOLVED;
 			})
+			.filter(bundle -> bundle.getHeaders().get("Eclipse-SourceBundle") == null) //$NON-NLS-1$
 			.forEach(ServiceLoader::addBundle);
 
 		bundleContext.addBundleListener(bundleEvent -> {
@@ -93,31 +94,33 @@ public class ServiceLoader {
 
 	@SuppressWarnings("unchecked")
 	public static <T> Iterable<? extends T> lookupProviderInstances(final Class<T> serviceClass) {
-		return (Iterable<? extends T>)ContextServiceLoader.getDefault()
-    		.map(loader -> loader.resolveModuleInstances(serviceClass))
-    		.orElseGet(() -> 
-    			lookupOsgiProviderClasses(serviceClass).stream()
-					.map(c -> {
-						try {
-							return c.getConstructor().newInstance();
-						} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-							throw new RuntimeException(e);
-						}
-					})
-					.collect(Collectors.toList())
-    		);
+		@SuppressWarnings("rawtypes")
+		Iterable<Class> classes = lookupProviderClasses(serviceClass);
+		return (List<? extends T>)StreamSupport.stream(classes.spliterator(), false)
+			.map(c -> {
+				try {
+					return c.newInstance();
+				} catch (InstantiationException | IllegalAccessException e) {
+					throw new RuntimeException(e);
+				}
+			})
+			.collect(Collectors.toList());
 	}
 
     @SuppressWarnings("rawtypes")
 	public static <T> Iterable<Class> lookupProviderClasses(final Class<T> serviceClass) {
-    	return ContextServiceLoader.getDefault()
-    		.map(loader -> loader.resolveModuleServices(serviceClass))
-    		.orElseGet(() -> lookupOsgiProviderClasses(serviceClass));
-    }
-    
-    @SuppressWarnings("rawtypes")
-	public static <T> List<Class> lookupOsgiProviderClasses(final Class<T> serviceClass) {
-    	return (List<Class>)computeIfAbsent(OSGI_INSTANCES, serviceClass, ServiceLoader::resolveBundleServices);
+		List<Class> result = new ArrayList<>();
+
+		Iterable<Class> osgi = computeIfAbsent(OSGI_INSTANCES, serviceClass, ServiceLoader::resolveBundleServices);
+		osgi.forEach(result::add);
+		
+		Activator.findExtensions(ContextServiceLoader.class).forEach(l -> {
+			l.resolveModuleServices(serviceClass).forEach(result::add);
+		});
+
+		return result.stream()
+			.sorted(ClassPriorityComparator.DESCENDING)
+			.toList();
     }
 
     // *******************************************************************************
@@ -146,7 +149,7 @@ public class ServiceLoader {
     }
 
     @SuppressWarnings("rawtypes")
-	private static List<Class> resolveBundleServices(final Class<?> serviceClass) {
+	private static Iterable<Class> resolveBundleServices(final Class<?> serviceClass) {
     	String serviceName = serviceClass.getName();
 
 		return OSGI_PROVIDERS.entrySet().stream()
@@ -165,8 +168,7 @@ public class ServiceLoader {
 							try {
 								return bundle.loadClass(className);
 							} catch(Exception e) {
-								String msg = MessageFormat.format("Encountered exception loading class {0} from bundle {1}", serviceName, bundle.getSymbolicName());
-								LOGGER.log(Level.SEVERE, msg, e);
+								LOGGER.log(Level.ERROR, () -> MessageFormat.format("Encountered exception loading class {0} from bundle {1}", serviceName, bundle.getSymbolicName()), e);
 								return null;
 							}
 						})
@@ -175,7 +177,6 @@ public class ServiceLoader {
 					return Stream.empty();
 				}
 			})
-			.sorted(ClassPriorityComparator.DESCENDING)
 			.collect(Collectors.toList());
     }
 

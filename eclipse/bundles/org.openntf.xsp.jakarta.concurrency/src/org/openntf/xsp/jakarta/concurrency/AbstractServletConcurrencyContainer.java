@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 package org.openntf.xsp.jakarta.concurrency;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.glassfish.concurro.AbstractManagedExecutorService.RejectPolicy;
 import org.glassfish.concurro.ContextServiceImpl;
@@ -42,7 +42,7 @@ import jakarta.servlet.ServletContext;
  * @since 2.7.0
  */
 public abstract class AbstractServletConcurrencyContainer {
-	private static final Logger log = Logger.getLogger(AbstractServletConcurrencyContainer.class.getPackage().getName());
+	private static final Logger log = System.getLogger(AbstractServletConcurrencyContainer.class.getPackage().getName());
 
 	public static final String ATTR_THREADFACTORY = AbstractServletConcurrencyContainer.class.getName() + "_threadFactory"; //$NON-NLS-1$
 
@@ -144,9 +144,7 @@ public abstract class AbstractServletConcurrencyContainer {
 					exec.shutdownNow();
 					exec.awaitTermination(5, TimeUnit.MINUTES);
 				} catch (Exception e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered exception terminating executor service", e);
-					}
+					log.log(Level.ERROR, "Encountered exception terminating executor service", e);
 				}
 				ExecutorHolder.INSTANCE.unregister(exec);
 			}
@@ -157,9 +155,7 @@ public abstract class AbstractServletConcurrencyContainer {
 					scheduledExec.shutdownNow();
 					scheduledExec.awaitTermination(5, TimeUnit.MINUTES);
 				} catch (Exception e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered exception terminating scheduled executor service", e);
-					}
+					log.log(Level.ERROR, "Encountered exception terminating scheduled executor service", e);
 				}
 				ExecutorHolder.INSTANCE.unregister(scheduledExec);
 			}

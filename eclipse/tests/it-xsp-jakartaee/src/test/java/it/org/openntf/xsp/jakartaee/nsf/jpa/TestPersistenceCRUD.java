@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import java.sql.Statement;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.JakartaTestContainers;
@@ -46,7 +46,7 @@ public class TestPersistenceCRUD extends AbstractWebClientTest {
 	
 	@BeforeAll
 	public static void createTable() throws SQLException {
-		PostgreSQLContainer<?> container = JakartaTestContainers.instance.postgres;
+		PostgreSQLContainer container = JakartaTestContainers.instance.postgres;
 		
 		try(Connection conn = container.createConnection(""); Statement stmt = conn.createStatement()) {
 			stmt.executeUpdate("CREATE TABLE IF NOT EXISTS public.companies (\n"

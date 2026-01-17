@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package org.openntf.xsp.jakarta.transaction.cdi;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.transaction.xa.Xid;
 
@@ -44,7 +44,7 @@ import jakarta.transaction.UserTransaction;
  */
 @RequestScoped
 public class DominoTransactionProducer {
-	private final Logger log = Logger.getLogger(DominoTransactionProducer.class.getName());
+	private final Logger log = System.getLogger(DominoTransactionProducer.class.getName());
 
 	// For use when opening the CDI environment is a problem
 	public static final ThreadLocal<DominoTransactionProducer> INSTANCE = new ThreadLocal<>();
@@ -107,9 +107,7 @@ public class DominoTransactionProducer {
 				try {
 					transaction.rollback();
 				} catch (IllegalStateException | SecurityException | SystemException e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered exception rolling back unclosed transaction", e);
-					}
+					log.log(Level.ERROR, "Encountered exception rolling back unclosed transaction", e);
 				}
 			}
 		}

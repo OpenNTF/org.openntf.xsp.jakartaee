@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
@@ -24,8 +26,6 @@ import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.Servlet;
@@ -33,7 +33,6 @@ import javax.servlet.Servlet;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 import com.ibm.xsp.acl.NoAccessSignal;
-import com.ibm.xsp.application.ApplicationEx;
 import com.ibm.xsp.context.FacesContextEx;
 import com.ibm.xsp.controller.FacesController;
 import com.ibm.xsp.webapp.DesignerFacesServlet;
@@ -62,7 +61,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger log = Logger.getLogger(AbstractXspLifecycleServlet.class.getName());
+	private static final Logger log = System.getLogger(AbstractXspLifecycleServlet.class.getName());
 
 	private static Method getFacesContextMethod;
 	private static Method getContextFacesControllerMethod;
@@ -140,20 +139,18 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 				}
 			}
 
-			ApplicationEx application = null;
 			if(this.doFaces) {
+				// Do this for the side effects
 				facesContext = getFacesContext(request, response);
 		    	FacesContextEx exc = (FacesContextEx)facesContext;
-		    	application = exc.getApplicationEx();
+		    	exc.getApplicationEx();
 			}
 
-	    	this.doService(request, response, application);
+	    	this.doService(request, response);
 		} catch(NoAccessSignal t) {
 			throw t;
 		} catch(Throwable t) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered unhandled exception in Servlet", t);
-			}
+			log.log(Level.ERROR, "Encountered unhandled exception in Servlet", t);
 
 			try(PrintWriter w = response.getWriter()) {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -190,7 +187,7 @@ public abstract class AbstractXspLifecycleServlet extends HttpServlet {
 	 */
 	protected abstract void doInit(ServletConfig config, HttpServletRequest request) throws ServletException;
 
-	protected abstract void doService(HttpServletRequest request, HttpServletResponse response, ApplicationEx application) throws ServletException, IOException;
+	protected abstract void doService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
 
 	public ComponentModule getModule() {
 		return module;

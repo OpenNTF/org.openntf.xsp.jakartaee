@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -544,7 +544,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					.map(Temporal.class::cast)
 					.findFirst();
 				if(modified.isPresent()) {
-					String etag = composeEtag(universalId, Instant.from(modified.get()).toEpochMilli());
+					String etag = EntityUtil.composeEtag(universalId, Instant.from(modified.get()).toEpochMilli());
 					convertedEntry.add(Element.of(DominoConstants.FIELD_ETAG, etag));
 				}
 			}
@@ -777,7 +777,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				if(fieldNames.contains(DominoConstants.FIELD_ETAG)) {
 					DateTime mod = doc.getInitiallyModified();
 					try {
-						String etag = composeEtag(unid, mod.toJavaDate().getTime());
+						String etag = EntityUtil.composeEtag(unid, mod.toJavaDate().getTime());
 						result.add(Element.of(DominoConstants.FIELD_ETAG, etag));
 					} finally {
 						mod.recycle();

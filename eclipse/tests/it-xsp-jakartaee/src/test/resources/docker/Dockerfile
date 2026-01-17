@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+# Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 ARG BASEIMAGE=hclcom/domino:14.0
 FROM ${BASEIMAGE}
+
+COPY --from=ibm-semeru-runtimes:open-21-jdk /opt/java/openjdk/bin/jcmd /opt/hcl/domino/notes/latest/linux/jvm/bin
 
 RUN mkdir -p /local/runner \
 	&& mkdir -p /local/eclipse/eclipse/plugins

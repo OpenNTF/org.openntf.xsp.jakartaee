@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakartaee.module.xspnsf;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -22,8 +24,6 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
@@ -66,7 +66,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 			}
 		});
 	}
-	private static final Logger log = Logger.getLogger(NSFComponentModuleLocator.class.getPackage().getName());
+	private static final Logger log = System.getLogger(NSFComponentModuleLocator.class.getPackage().getName());
 
 	@Override
 	public boolean isActive() {
@@ -118,9 +118,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 			try {
 				return nsfContext.getCurrentDatabase().getTitle();
 			} catch (NotesException e) {
-				if(log.isLoggable(Level.SEVERE)) {
-					log.log(Level.SEVERE, "Encountered exception trying to read the database title", e);
-				}
+				log.log(Level.ERROR, "Encountered exception trying to read the database title", e);
 				return getActiveModule().getModuleName();
 			}
 		}
@@ -154,9 +152,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 
 				return Optional.empty();
 			} catch(NotesException e) {
-				if(log.isLoggable(Level.SEVERE)) {
-					log.log(Level.SEVERE, "Encountered exception trying to read the database template version", e);
-				}
+				log.log(Level.ERROR, "Encountered exception trying to read the database template version", e);
 				return Optional.empty();
 			}
 		}
@@ -170,9 +166,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 			try {
 				return Optional.of(nsfContext.getNotesDatabase());
 			} catch (NotesAPIException e) {
-				if(log.isLoggable(Level.SEVERE)) {
-					log.log(Level.SEVERE, "Encountered exception trying to open the context database", e);
-				}
+				log.log(Level.ERROR, "Encountered exception trying to open the context database", e);
 				return Optional.empty();
 			}
 		}

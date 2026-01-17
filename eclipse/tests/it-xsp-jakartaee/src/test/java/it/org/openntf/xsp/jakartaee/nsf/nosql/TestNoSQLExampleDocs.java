@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
 import java.security.SecureRandom;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
@@ -51,6 +54,8 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestNoSQLExampleDocs extends AbstractWebClientTest {
+	public static final Pattern ETAG_PATTERN = Pattern.compile("^[\\d\\w]{32}$");
+	
 	@ParameterizedTest
 	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	public void testExampleDoc(TestDatabase db) {
@@ -93,6 +98,15 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			assertNotNull(xmlDoc);
 			String title = TestDomUtil.nodes(xmlDoc, "//*[name()='item'][@name='$$Title']/*[name()='text']/text()").get(0).getNodeValue();
 			assertEquals("foo", title);
+			
+			// Make sure the ETag exists and looks like what we'd expect
+			String etag = jsonObject.getString("etag");
+			assertNotNull(etag);
+			assertTrue(ETAG_PATTERN.matcher(etag).matches(), () -> "ETag didn't match format: " + etag);
+			
+			// Make sure that the header came through with this value and the wrapper
+			String etagHeader = response.getHeaderString("ETag");
+			assertEquals("W/\"" + etag + "\"", etagHeader);
 		}
 	}
 
@@ -1470,5 +1484,65 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 		assertNotNull(explain);
 		assertFalse(explain.isEmpty());
 		assertNotEquals("", explain.getString("explain", ""));
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testLastModified(TestDatabase db) throws InterruptedException {
+		Client client = getAnonymousClient();
+		
+		// Check the last modified time
+		OffsetDateTime mod;
+		{
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs/lastModified");
+			Response response = postTarget.request().get();
+			checkResponse(200, response);
+			
+			String modString = response.readEntity(String.class);
+			mod = OffsetDateTime.parse(modString);
+		}		
+		
+		// Make sure we definitely have a visible difference
+		TimeUnit.MILLISECONDS.sleep(50);
+		
+		// Check again to make sure it's the same
+		{
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs/lastModified");
+			Response response = postTarget.request().get();
+			checkResponse(200, response);
+			
+			String modString = response.readEntity(String.class);
+			OffsetDateTime newMod = OffsetDateTime.parse(modString);
+			assertEquals(mod, newMod, "DB modification time should not have changed");
+		}
+		
+		// Create a new doc to bump the mod time
+		String unid;
+		{
+			MultivaluedMap<String, String> payload = new MultivaluedHashMap<>();
+			payload.putSingle("title", "foo");
+			payload.put("categories", Arrays.asList("foo", "bar"));
+			
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs");
+			Response response = postTarget.request().post(Entity.form(payload));
+			checkResponse(200, response);
+
+			String json = response.readEntity(String.class);
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			unid = jsonObject.getString("unid");
+			assertNotNull(unid);
+			assertFalse(unid.isEmpty());
+		}
+		
+		// Check the last modified time again to make sure it's higher
+		{
+			WebTarget postTarget = client.target(getRestUrl(null, db) + "/exampleDocs/lastModified");
+			Response response = postTarget.request().get();
+			checkResponse(200, response);
+			
+			String modString = response.readEntity(String.class);
+			OffsetDateTime newMod = OffsetDateTime.parse(modString);
+			assertTrue(newMod.isAfter(mod), () -> "DB modification time should have changed; mod=" + mod + ", newMod=" + newMod);
+		}
 	}
 }

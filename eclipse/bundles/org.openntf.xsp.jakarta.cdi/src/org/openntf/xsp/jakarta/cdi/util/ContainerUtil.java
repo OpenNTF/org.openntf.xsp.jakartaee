@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package org.openntf.xsp.jakarta.cdi.util;
 
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
@@ -31,8 +33,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
@@ -112,7 +112,7 @@ public enum ContainerUtil {
 
 	private static final String ATTR_CONTEXTCONTAINER = "org.openntf.xsp.jakarta.cdi.cdicontainer"; //$NON-NLS-1$
 
-	private static final Logger log = Logger.getLogger(ContainerUtil.class.getPackage().getName());
+	private static final Logger log = System.getLogger(ContainerUtil.class.getPackage().getName());
 
 	/**
 	 * Retrieves or creates a CDI container specific to the provided OSGi bundle.
@@ -140,9 +140,7 @@ public enum ContainerUtil {
 					try {
 						addBundleBeans(bundle, weld, bundleNames, classNames, true);
 					} catch (BundleException e) {
-						if(log.isLoggable(Level.WARNING)) {
-							log.log(Level.WARNING, "Encountered exception loading bundle beans", e);
-						}
+						log.log(Level.WARNING, "Encountered exception loading bundle beans", e);
 					}
 
 					for(CDIClassContributor service : LibraryUtil.findExtensions(CDIClassContributor.class)) {
@@ -161,19 +159,17 @@ public enum ContainerUtil {
 					}
 					instance = weld.initialize();
 				} catch(IllegalStateException e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.severe(MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
+					if(log.isLoggable(Level.ERROR)) {
+						log.log(Level.ERROR, MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()));
 						if(e.getMessage().contains("Class path entry does not exist or cannot be read")) { //$NON-NLS-1$
 							String classpath = LibraryUtil.getSystemProperty("java.class.path"); //$NON-NLS-1$
-							log.severe(MessageFormat.format("Current class path: {0}", classpath));
+							log.log(Level.ERROR, MessageFormat.format("Current class path: {0}", classpath));
 						}
-						log.log(Level.SEVERE, "Original exception", e);
+						log.log(Level.ERROR, "Original exception", e);
 					}
 					return null;
 				} catch(Throwable t) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()), t);
-					}
+					log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception while initializing CDI container for {0}", bundle.getSymbolicName()), t);
 					throw t;
 				}
 			}
@@ -309,9 +305,7 @@ public enum ContainerUtil {
 							try {
 								addBundleBeans(bundle, weld, bundleNames, classNames, false);
 							} catch (BundleException e) {
-								if(log.isLoggable(Level.WARNING)) {
-									log.log(Level.WARNING, "Encountered exception loading bundle beans", e);
-								}
+								log.log(Level.WARNING, "Encountered exception loading bundle beans", e);
 							}
 						}
 					} else {

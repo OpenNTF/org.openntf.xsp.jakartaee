@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package org.openntf.xsp.jakarta.cdi.impl;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.ibm.xsp.application.ApplicationEx;
+
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
 import org.jboss.weld.environment.se.WeldContainer;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
@@ -36,7 +36,7 @@ import jakarta.annotation.Priority;
  */
 @Priority(0)
 public class CDIApplicationListener implements JakartaApplicationListener {
-	private static final Logger log = Logger.getLogger(CDIApplicationListener.class.getPackageName());
+	private static final Logger log = System.getLogger(CDIApplicationListener.class.getPackageName());
 
 	@Override
 	public void applicationDestroyed(final ApplicationEx application) {
@@ -53,9 +53,7 @@ public class CDIApplicationListener implements JakartaApplicationListener {
 						}
 					});
 			} catch(Throwable t) {
-				if(log.isLoggable(Level.SEVERE)) {
-					log.log(Level.SEVERE, "Encountered exception shutting down CDI container", t);
-				}
+				log.log(Level.ERROR, "Encountered exception shutting down CDI container", t);
 			}
 		}
 	}

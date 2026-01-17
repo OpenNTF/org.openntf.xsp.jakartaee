@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.nosql;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,9 +29,11 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
@@ -58,6 +60,8 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestNoSQL extends AbstractWebClientTest {
+	public static final Pattern ETAG_PATTERN = Pattern.compile("^W\\/\"[\\d\\w]{32}\"$");
+	
 	@ParameterizedTest
 	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
 	public void testNoSql(TestDatabase db) {
@@ -425,7 +429,7 @@ public class TestNoSQL extends AbstractWebClientTest {
 			String added = jsonObject.getString("addedToFile");
 			assertNotNull(added);
 			assertFalse(added.isEmpty());
-			assertEquals(created, added);
+			assertInstantsCloseEnough(created, added);
 		}
 		
 		// Find by modified
@@ -565,6 +569,12 @@ public class TestNoSQL extends AbstractWebClientTest {
 
 			String html = response.readEntity(String.class);
 			assertEquals("<p>I am foo HTML</p>", html);
+			
+
+			// Make sure the ETag exists and looks like what we'd expect
+			String etag = response.getHeaderString("ETag");
+			assertNotNull(etag);
+			assertTrue(ETAG_PATTERN.matcher(etag).matches(), () -> "ETag didn't match format: " + etag);
 		}
 	}
 	
@@ -719,6 +729,69 @@ public class TestNoSQL extends AbstractWebClientTest {
 			} catch(Exception e) {
 				fail("Unexpected JSON: " + json, e);
 			}
+		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAccessRights(TestDatabase db) {
+		{
+			Client client = getAnonymousClient();
+			WebTarget target = client.target(getRestUrl(null, db) + "/nosql/accessRights"); //$NON-NLS-1$
+
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			JsonObject result = response.readEntity(JsonObject.class);
+			assertEquals("Anonymous", result.getString("name"));
+			assertEquals("AUTHOR", result.getString("level"));
+			
+			assertIterableEquals(Json.createArrayBuilder(List.of("CREATE_DOCS","READ_PUBLIC_DOCS","REPLICATE_COPY_DOCS","WRITE_PUBLIC_DOCS")).build(), result.getJsonArray("privileges"), () -> "Unexpected privileges: " + result.getJsonArray("privileges"));
+			assertIterableEquals(Json.createArrayBuilder().build(), result.getJsonArray("roles"), () -> "Unexpected roles: " + result.getJsonArray("roles"));
+		}
+		{
+			Client client = getAdminClient();
+			WebTarget target = client.target(getRestUrl(null, db) + "/nosql/accessRights"); //$NON-NLS-1$
+
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			JsonObject result = response.readEntity(JsonObject.class);
+			assertEquals("CN=Jakarta EE Test/O=OpenNTFTest", result.getString("name"));
+			assertEquals("EDITOR", result.getString("level"));
+			assertIterableEquals(Json.createArrayBuilder(List.of("CREATE_DOCS","CREATE_PRIV_AGENTS","CREATE_PRIV_FOLDERS_VIEWS","CREATE_SCRIPT_AGENTS","CREATE_SHARED_FOLDERS_VIEWS","DELETE_DOCS","READ_PUBLIC_DOCS","REPLICATE_COPY_DOCS","WRITE_PUBLIC_DOCS")).build(), result.getJsonArray("privileges"), () -> "Unexpected privileges: " + result.getJsonArray("privileges"));
+			assertIterableEquals(Json.createArrayBuilder().add("[Admin]").build(), result.getJsonArray("roles"), () -> "Unexpected roles: " + result.getJsonArray("roles"));
+		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testAccessRightsNames(TestDatabase db) {
+		{
+			Client client = getAnonymousClient();
+			WebTarget target = client.target(getRestUrl(null, db) + "/nosql/accessRightsNames"); //$NON-NLS-1$
+
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			JsonObject result = response.readEntity(JsonObject.class);
+			assertEquals("CN=JakartaEE/O=OpenNTFTest", result.getString("name"));
+			assertEquals("EDITOR", result.getString("level"));
+			assertIterableEquals(Json.createArrayBuilder(List.of("CREATE_DOCS","CREATE_PRIV_AGENTS","CREATE_PRIV_FOLDERS_VIEWS","CREATE_SCRIPT_AGENTS","CREATE_SHARED_FOLDERS_VIEWS","DELETE_DOCS","READ_PUBLIC_DOCS","REPLICATE_COPY_DOCS","WRITE_PUBLIC_DOCS")).build(), result.getJsonArray("privileges"), () -> "Unexpected privileges: " + result.getJsonArray("privileges"));
+			assertIterableEquals(Json.createArrayBuilder(List.of("[DenyAccessRead]","[GroupCreator]","[GroupModifier]","[NetCreator]","[NetModifier]","[PolicyCreator]","[PolicyModifier]","[PolicyReader]","[ServerCreator]","[ServerModifier]","[UserCreator]","[UserModifier]")).build(), result.getJsonArray("roles"), () -> "Unexpected roles: " + result.getJsonArray("roles"));
+		}
+		{
+			Client client = getAdminClient();
+			WebTarget target = client.target(getRestUrl(null, db) + "/nosql/accessRightsNames"); //$NON-NLS-1$
+
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			JsonObject result = response.readEntity(JsonObject.class);
+			assertEquals("CN=JakartaEE/O=OpenNTFTest", result.getString("name"));
+			assertEquals("EDITOR", result.getString("level"));
+			assertIterableEquals(Json.createArrayBuilder(List.of("CREATE_DOCS","CREATE_PRIV_AGENTS","CREATE_PRIV_FOLDERS_VIEWS","CREATE_SCRIPT_AGENTS","CREATE_SHARED_FOLDERS_VIEWS","DELETE_DOCS","READ_PUBLIC_DOCS","REPLICATE_COPY_DOCS","WRITE_PUBLIC_DOCS")).build(), result.getJsonArray("privileges"), () -> "Unexpected privileges: " + result.getJsonArray("privileges"));
+			assertIterableEquals(Json.createArrayBuilder(List.of("[DenyAccessRead]","[GroupCreator]","[GroupModifier]","[NetCreator]","[NetModifier]","[PolicyCreator]","[PolicyModifier]","[PolicyReader]","[ServerCreator]","[ServerModifier]","[UserCreator]","[UserModifier]")).build(), result.getJsonArray("roles"), () -> "Unexpected roles: " + result.getJsonArray("roles"));
 		}
 	}
 }

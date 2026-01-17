@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package org.openntf.xsp.jakarta.validation;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -30,7 +30,7 @@ import org.osgi.framework.BundleContext;
 import jakarta.validation.Validation;
 
 public class ValidationActivator implements BundleActivator {
-	private static final Logger log = Logger.getLogger(ValidationActivator.class.getPackage().getName());
+	private static final Logger log = System.getLogger(ValidationActivator.class.getPackage().getName());
 
 	@Override
 	public void start(final BundleContext context) throws Exception {
@@ -42,9 +42,7 @@ public class ValidationActivator implements BundleActivator {
 					.buildValidatorFactory());
 			jndi.rebind("java:comp/Validator", new DelegatingValidator()); //$NON-NLS-1$
 		} catch(NamingException e) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered exception binding validators in JNDI", e);
-			}
+			log.log(Level.ERROR, "Encountered exception binding validators in JNDI", e);
 		}
 	}
 

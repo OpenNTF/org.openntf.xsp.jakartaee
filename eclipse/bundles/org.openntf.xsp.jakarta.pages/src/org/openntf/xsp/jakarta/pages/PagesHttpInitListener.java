@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.openntf.xsp.jakarta.pages;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -25,8 +27,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.commons.util.StringUtil;
 import com.ibm.domino.napi.NException;
@@ -52,7 +52,7 @@ public class PagesHttpInitListener implements JakartaHttpInitListener {
 	 */
 	public static final String PROP_OVERRIDEDTDDIR = "Jakarta_DTDDir"; //$NON-NLS-1$
 
-	private static final Logger log = Logger.getLogger(PagesHttpInitListener.class.getPackageName());
+	private static final Logger log = System.getLogger(PagesHttpInitListener.class.getPackageName());
 	
 	@Override
 	public void httpInit() throws Exception {
@@ -118,9 +118,7 @@ public class PagesHttpInitListener implements JakartaHttpInitListener {
 				return dtdDir;
 			}
 		} catch(NException e) {
-			if(log.isLoggable(Level.WARNING)) {
-				log.log(Level.WARNING, "Encountered exception trying to read notes.ini", e);
-			}
+			log.log(Level.WARNING, "Encountered exception trying to read notes.ini", e);
 		}
 
 		String data = Os.OSGetDataDirectory();

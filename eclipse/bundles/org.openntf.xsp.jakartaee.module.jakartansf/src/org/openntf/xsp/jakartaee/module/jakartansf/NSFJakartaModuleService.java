@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package org.openntf.xsp.jakartaee.module.jakartansf;
 
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.ServletException;
 
@@ -48,11 +49,12 @@ import lotus.domino.NotesThread;
  * @since 3.4.0
  */
 public class NSFJakartaModuleService extends HttpService {
-	private static final Logger log = Logger.getLogger(NSFJakartaModuleService.class.getPackageName());
+	private static final Logger log = System.getLogger(NSFJakartaModuleService.class.getPackageName());
 	
 	private static final int MAX_REFRESH_ATTEMPTS = 10;
 
-	public static final ExecutorService exec = Executors.newCachedThreadPool(NotesThread::new);
+	private static final AtomicInteger THREAD_INDEX = new AtomicInteger();
+	public static final ExecutorService exec = Executors.newCachedThreadPool(r -> new NotesThread(r, "Jakarta Module Worker Thread " + THREAD_INDEX.incrementAndGet()));
 	private static NSFJakartaModuleService instance;
 	
 	public synchronized static NSFJakartaModuleService getInstance(LCDEnvironment env) {
@@ -89,9 +91,7 @@ public class NSFJakartaModuleService extends HttpService {
 		exec.shutdown();
 		try {
 			if(!exec.awaitTermination(3, TimeUnit.MINUTES)) {
-				if(log.isLoggable(Level.WARNING)) {
-					log.warning(MessageFormat.format("{0} executor did not terminate in a reasonable amount of time", getClass().getSimpleName()));
-				}
+				log.log(Level.WARNING, () -> MessageFormat.format("{0} executor did not terminate in a reasonable amount of time", getClass().getSimpleName()));
 			}
 		} catch (InterruptedException e) {
 			// Ignore

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 package org.openntf.xsp.jakarta.transaction;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -44,7 +44,7 @@ import jakarta.transaction.UserTransaction;
  * @since 2.7.0
  */
 public class DominoTransaction implements Transaction {
-	private static final Logger log = Logger.getLogger(DominoTransaction.class.getName());
+	private static final Logger log = System.getLogger(DominoTransaction.class.getName());
 
 	private int status = Status.STATUS_NO_TRANSACTION;
 	private boolean rollbackOnly = false;
@@ -149,9 +149,7 @@ public class DominoTransaction implements Transaction {
 						return true;
 					}
 				} catch (XAException e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered exception matching existing resources", e);
-					}
+					log.log(Level.ERROR, "Encountered exception matching existing resources", e);
 				}
 			}
 		}
@@ -165,9 +163,7 @@ public class DominoTransaction implements Transaction {
 				try {
 					return xaRes.isSameRM(res);
 				} catch (XAException e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered exception matching existing resources", e);
-					}
+					log.log(Level.ERROR, "Encountered exception matching existing resources", e);
 					return false;
 				}
 			})) {

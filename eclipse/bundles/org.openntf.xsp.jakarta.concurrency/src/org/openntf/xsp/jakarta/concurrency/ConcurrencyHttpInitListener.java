@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package org.openntf.xsp.jakarta.concurrency;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -33,7 +33,7 @@ import jakarta.annotation.Priority;
 
 @Priority(1)
 public class ConcurrencyHttpInitListener implements JakartaHttpInitListener {
-	private static final Logger log = Logger.getLogger(ConcurrencyActivator.class.getPackage().getName());
+	private static final Logger log = System.getLogger(ConcurrencyActivator.class.getPackage().getName());
 
 	private Class<?> mqClass;
 	private Method mqOpen;
@@ -72,16 +72,12 @@ public class ConcurrencyHttpInitListener implements JakartaHttpInitListener {
 		try {
 			jndi.rebind(ConcurrencyActivator.JNDI_EXECUTORSERVICE, new DelegatingManagedExecutorService());
 		} catch(NamingException e) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered exception binding ManagedExecutorService in JNDI", e);
-			}
+			log.log(Level.ERROR, "Encountered exception binding ManagedExecutorService in JNDI", e);
 		}
 		try {
 			jndi.rebind(ConcurrencyActivator.JNDI_SCHEDULEDEXECUTORSERVICE, new DelegatingManagedScheduledExecutorService());
 		} catch(NamingException e) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered exception binding ManagedScheduledExecutorService in JNDI", e);
-			}
+			log.log(Level.ERROR, "Encountered exception binding ManagedScheduledExecutorService in JNDI", e);
 		}
 	}
 	

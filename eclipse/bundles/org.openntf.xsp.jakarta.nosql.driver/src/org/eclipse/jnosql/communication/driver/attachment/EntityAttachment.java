@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
+
 /**
  * Represents a binary attachment attached to a JNoSQL entity.
  * @since 0.0.9
@@ -49,10 +51,13 @@ public interface EntityAttachment {
     long getLength();
 
     /**
+     * Retrieves an ETag value for the attachment. Unless a specific implementation
+     * specifies otherwise, this value should be considered a weak ETag.
+     * 
      * @return an ETag value for the current version of the content
      */
     default String getETag() {
-        return getName() + "-" + Long.toString(getLastModified(), 16); //$NON-NLS-1$
+        return EntityUtil.composeEtag(EntityUtil.md5(getName()), getLastModified());
     }
 
     /**

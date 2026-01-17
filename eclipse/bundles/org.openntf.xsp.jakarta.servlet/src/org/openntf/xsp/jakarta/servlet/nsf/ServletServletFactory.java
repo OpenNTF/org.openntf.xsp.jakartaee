@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 package org.openntf.xsp.jakarta.servlet.nsf;
 
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import com.ibm.commons.util.PathUtil;
@@ -51,7 +51,7 @@ import jakarta.servlet.annotation.WebServlet;
  * @since 2.5.0
  */
 public class ServletServletFactory implements JakartaIServletFactory {
-	private static final Logger log = Logger.getLogger(ServletServletFactory.class.getName());
+	private static final Logger log = System.getLogger(ServletServletFactory.class.getName());
 
 	private ComponentModule module;
 	private Map<ServletInfo, Class<? extends Servlet>> servletClasses;
@@ -80,9 +80,7 @@ public class ServletServletFactory implements JakartaIServletFactory {
 		} catch (UncheckedIOException e) {
 			throw new javax.servlet.ServletException(e);
 		} catch(Throwable t) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, MessageFormat.format("Encountered unexpected exception finding Servlet match for {0} in {1}", path, module), t);
-			}
+			log.log(Level.ERROR, () -> MessageFormat.format("Encountered unexpected exception finding Servlet match for {0} in {1}", path, module), t);
 		}
 		return null;
 	}
@@ -203,9 +201,7 @@ public class ServletServletFactory implements JakartaIServletFactory {
 					try {
 						result.put(info, (Class<? extends Servlet>)cl.loadClass(info.def.getServletClass()));
 					} catch (ClassNotFoundException e) {
-						if(log.isLoggable(Level.SEVERE)) {
-							log.log(Level.SEVERE, MessageFormat.format("Encountered exception loading Servlet class {0}", info.def.getServletClass()), e);
-						}
+						log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception loading Servlet class {0}", info.def.getServletClass()), e);
 					}
 				});
 			}

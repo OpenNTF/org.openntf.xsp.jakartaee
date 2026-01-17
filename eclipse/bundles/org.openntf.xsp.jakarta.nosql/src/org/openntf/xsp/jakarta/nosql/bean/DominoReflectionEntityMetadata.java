@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.openntf.xsp.jakarta.nosql.bean;
 
 import static java.util.Optional.ofNullable;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.eclipse.jnosql.mapping.metadata.ClassConverter;
 import org.eclipse.jnosql.mapping.metadata.ClassScanner;
@@ -45,7 +45,7 @@ import jakarta.interceptor.Interceptor;
 @Priority(Interceptor.Priority.APPLICATION)
 public class DominoReflectionEntityMetadata implements GroupEntityMetadata {
 
-    private static final Logger LOGGER = Logger.getLogger(DominoReflectionEntityMetadata.class.getName());
+    private static final Logger LOGGER = System.getLogger(DominoReflectionEntityMetadata.class.getName());
 
     private final Map<Class<?>, EntityMetadata> entityMetadataByClass = new ConcurrentHashMap<>();
     private final Map<String, EntityMetadata> entityMetadataByEntityName = new ConcurrentHashMap<>();
@@ -62,7 +62,7 @@ public class DominoReflectionEntityMetadata implements GroupEntityMetadata {
 
     @PostConstruct
     public void scanEntitiesAndEmbeddableEntities() {
-        LOGGER.fine("Starting the scanning process for Entity and Embeddable annotations: ");
+        LOGGER.log(Level.TRACE, "Starting the scanning process for Entity and Embeddable annotations: ");
         ClassConverter converter = ClassConverter.load();
         ClassScanner scanner = ClassScanner.load();
         scanner.entities()
@@ -81,8 +81,8 @@ public class DominoReflectionEntityMetadata implements GroupEntityMetadata {
                 });
 
         ofNullable(LOGGER)
-                .filter(l -> l.isLoggable(Level.FINEST))
-                .ifPresent(l -> l.fine("Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
+                .filter(l -> l.isLoggable(Level.TRACE))
+                .ifPresent(l -> l.log(Level.TRACE, "Finishing the scanning with: %d Entity and Embeddable scanned classes and %s Named entities"
                         .formatted(entityMetadataByClass.size(), entityMetadataByEntityName.size())));
 
     }

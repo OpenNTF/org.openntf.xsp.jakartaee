@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ package org.openntf.xsp.jakarta.servlet.nsf;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
 import com.ibm.xsp.acl.NoAccessSignal;
@@ -38,7 +38,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @since 3.4.0
  */
 public class ErrorHandlingServletWrapper extends HttpServlet {
-	private static final Logger log = Logger.getLogger(ErrorHandlingServletWrapper.class.getPackageName());
+	private static final Logger log = System.getLogger(ErrorHandlingServletWrapper.class.getPackageName());
 	
 	private final HttpServlet delegate;
 	
@@ -65,9 +65,7 @@ public class ErrorHandlingServletWrapper extends HttpServlet {
 		} catch(NoAccessSignal t) {
 			throw t;
 		} catch(Throwable t) {
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered unhandled exception in Servlet", t);
-			}
+			log.log(Level.ERROR, "Encountered unhandled exception in Servlet", t);
 
 			try(PrintWriter w = response.getWriter()) {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

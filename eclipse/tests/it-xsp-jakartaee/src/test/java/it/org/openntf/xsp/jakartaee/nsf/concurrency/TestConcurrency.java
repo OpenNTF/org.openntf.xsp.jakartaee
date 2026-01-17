@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.concurrency;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,6 +31,7 @@ import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
 import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 
@@ -134,5 +137,40 @@ public class TestConcurrency extends AbstractWebClientTest {
 		String id2 = matcher.group(2);
 		
 		assertNotEquals(id1, id2, () -> "IDs should not be the same: " + output);
+	}
+
+	/**
+	 * Tests that a method annotated with {@code @Asynchronous(runAt)} will
+	 * run once a second.
+	 * 
+	 * @param db the db endpoint
+	 * @throws InterruptedException not likely
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/704">Issue #704</a>
+	 */
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testScheduledMethod(TestDatabase db) throws InterruptedException {
+		Client client = getAnonymousClient();
+		{
+			WebTarget target = client.target(getRestUrl(null, db) + "/concurrency/runScheduled");
+			Response response = target.request().post(Entity.text(""));
+			checkResponse(200, response);
+			
+			String output = response.readEntity(String.class);
+			assertEquals("ok.", output);
+		}
+		
+		// Wait a few seconds to make sure the counter is incremented
+		TimeUnit.SECONDS.sleep(2);
+		
+		{
+			WebTarget target = client.target(getRestUrl(null, db) + "/concurrency/getScheduleRan");
+			Response response = target.request().get();
+			checkResponse(200, response);
+			
+			String output = response.readEntity(String.class);
+			assertTrue(output.startsWith("Count: "), () -> "Received unexpected output: " + output);
+			assertNotEquals("Count: 0", output);
+		}
 	}
 }

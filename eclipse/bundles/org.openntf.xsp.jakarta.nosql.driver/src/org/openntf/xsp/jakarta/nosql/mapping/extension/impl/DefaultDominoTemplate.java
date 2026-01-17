@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jakarta.nosql.mapping.extension.impl;
 
+import java.time.OffsetDateTime;
 import java.time.temporal.TemporalAccessor;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -30,6 +31,7 @@ import org.eclipse.jnosql.mapping.semistructured.EventPersistManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.DominoDocumentManager;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessRights;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoTemplate;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
@@ -200,6 +202,21 @@ public class DefaultDominoTemplate extends AbstractSemiStructuredTemplate implem
 	@Override
 	public <T> T update(final T entity, final boolean computeWithForm) {
 		return persist(entity, e -> manager().update(e, computeWithForm));
+	}
+	
+	@Override
+	public AccessRights queryEffectiveAccess() {
+		return manager().queryEffectiveAccess();
+	}
+	
+	@Override
+	public <T> T send(final T entity, boolean attachForm, boolean computeWithForm, boolean save) {
+		return persist(entity, e -> manager().send(e, attachForm, computeWithForm, save));
+	}
+	
+	@Override
+	public OffsetDateTime queryLastModified() {
+		return manager().queryLastModified();
 	}
 
 	private <T> UnaryOperator<T> toUnary(final Consumer<T> consumer) {

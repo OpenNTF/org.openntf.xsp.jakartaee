@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.openntf.xsp.jakarta.nosql.mapping.extension;
 
 import static java.util.Objects.requireNonNull;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -29,8 +31,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.eclipse.jnosql.mapping.metadata.InheritanceMetadata;
@@ -51,7 +51,7 @@ import jakarta.nosql.MappedSuperclass;
  */
 @ApplicationScoped
 public class DominoReflections {
-    private static final Logger LOGGER = Logger.getLogger(DominoReflections.class.getName());
+    private static final Logger LOGGER = System.getLogger(DominoReflections.class.getName());
 
     /**
      * This Comparator defines the priority of the entity's constructor that JNoSQL will use as a priority.
@@ -93,7 +93,7 @@ public class DominoReflections {
         try {
             return field.get(object);
         } catch (Exception exception) {
-            LOGGER.log(Level.FINEST, "There is an issue with returning value from this field.", exception);
+            LOGGER.log(Level.DEBUG, "There is an issue with returning value from this field.", exception);
         }
         return null;
     }
@@ -113,7 +113,7 @@ public class DominoReflections {
             field.set(object, value);
 
         } catch (Exception exception) {
-            LOGGER.log(Level.FINEST, "There is an issue with setting value from this field.", exception);
+            LOGGER.log(Level.DEBUG, "There is an issue with setting value from this field.", exception);
             return false;
         }
         return true;
@@ -130,7 +130,7 @@ public class DominoReflections {
         try {
             return constructor.newInstance();
         } catch (Exception exception) {
-            LOGGER.log(Level.FINEST, "There is an issue to creating an entity from this constructor", exception);
+            LOGGER.log(Level.DEBUG, "There is an issue to creating an entity from this constructor", exception);
             return null;
         }
     }
@@ -148,7 +148,7 @@ public class DominoReflections {
             Constructor<T> constructor = getConstructor(type);
             return newInstance(constructor);
         } catch (Exception exception) {
-            LOGGER.log(Level.FINEST, "There is an issue to creating an entity from this constructor", exception);
+            LOGGER.log(Level.DEBUG, "There is an issue to creating an entity from this constructor", exception);
             return null;
         }
     }

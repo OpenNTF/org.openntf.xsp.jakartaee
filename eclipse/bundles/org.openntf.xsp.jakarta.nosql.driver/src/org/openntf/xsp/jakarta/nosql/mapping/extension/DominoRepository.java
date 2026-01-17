@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.openntf.xsp.jakarta.nosql.mapping.extension;
 
+import java.time.OffsetDateTime;
 import java.time.temporal.TemporalAccessor;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -47,7 +48,7 @@ public interface DominoRepository<T, ID> extends NoSQLRepository<T, ID> {
 	enum CalendarModScope {
 		ALL, CURRENT, FUTURE, PREV
 	}
-
+	
 	/**
 	 * Adds the entity to the named folder, creating the folder if it doesn't
 	 * exist.
@@ -238,4 +239,38 @@ public interface DominoRepository<T, ID> extends NoSQLRepository<T, ID> {
      * @since 2.15.0
      */
     void removeCalendarEntry(String uid, CalendarModScope scope, String recurId);
+    
+    /**
+     * Determines the effective access rights for the current user from the underlying
+     * database.
+     * 
+     * @return an {@link AccessRights} object representing the current user's access
+     *         to the underlying database
+     * @since 3.6.0
+     */
+    AccessRights queryEffectiveAccess();
+    
+    /**
+     * Sends the entity as a mail memo, optionally saving the underlying document.
+     * 
+     * @param entity the entity to mail
+     * @param save {@code true} to save the document during mailing
+     * @param attachForm {@code true} to attach the form to the document
+     * @param computeWithForm {@code true} to compute the document with its form
+     *        before sending
+     * @return the original or saved entity
+     * @since 3.6.0
+     */
+    T send(T entity, boolean attachForm, boolean computeWithForm, boolean save);
+    
+    /**
+     * Determines the last time the underlying database was modified.
+     * 
+     * <p>This reflects at least the last time data was modified, but the implementation
+     * may also reflect design modifications.</p>
+     * 
+     * @return an {@link OffsetDateTime} representing the last time the database was modified
+     * @since 3.6.0
+     */
+    OffsetDateTime queryLastModified();
 }

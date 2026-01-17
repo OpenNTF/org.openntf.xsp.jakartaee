@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.glassfish.concurro.cdi.ConcurrentCDIExtension;
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 
 import jakarta.enterprise.inject.spi.Extension;
@@ -37,7 +36,9 @@ public class ConcurrencyBeanClassContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		return Collections.singleton(new ConcurrentCDIExtension());
+		// TODO investigate replacing this with the stock version
+		// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/708
+		return Collections.singleton(new DominoConcurrentCDIExtension());
 	}
 
 }

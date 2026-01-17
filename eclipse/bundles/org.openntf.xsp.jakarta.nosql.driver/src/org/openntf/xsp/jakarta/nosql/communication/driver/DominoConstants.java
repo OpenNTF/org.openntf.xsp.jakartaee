@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,8 +116,9 @@ public enum DominoConstants {
 	public static final String FIELD_ADDED = "@added"; //$NON-NLS-1$
 	/**
 	 * The field used to request storage of an ETag-compatible value for the document, which
-	 * will represent the document's ID and last modification time. The value is currently
-	 * {@value #FIELD_ETAG}
+	 * will represent the document's ID and last modification time. Because this ETag is not
+	 * inherently unique across databases, it should be considered a weak ETag unless
+	 * amended. The value is currently {@value #FIELD_ETAG}
 	 * @since 2.8.0
 	 */
 	public static final String FIELD_ETAG = "@etag"; //$NON-NLS-1$

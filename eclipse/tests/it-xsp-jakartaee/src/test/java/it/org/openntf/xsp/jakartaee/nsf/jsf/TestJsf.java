@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,6 +101,10 @@ public class TestJsf extends AbstractWebClientTest {
 				// Make sure Domino objects are available
 				{
 					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"dominoSession\"]/following-sibling::dd[1]"));
+					assertTrue(dd.getText().startsWith("CN="));
+				}
+				{
+					WebElement dd = driver.findElement(By.xpath("//dt[text()=\"dominoSessionAsSigner\"]/following-sibling::dd[1]"));
 					assertTrue(dd.getText().startsWith("CN="));
 				}
 				{

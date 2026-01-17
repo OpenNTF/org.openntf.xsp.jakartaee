@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.openntf.xsp.jakartaee.module.jakartansf.util;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,8 +30,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.commons.util.StringUtil;
 
@@ -50,7 +50,7 @@ import lotus.domino.Session;
 public enum ModuleTracker {
 	INSTANCE;
 	
-	private static final Logger log = Logger.getLogger(ModuleTracker.class.getPackageName());
+	private static final Logger log = System.getLogger(ModuleTracker.class.getPackageName());
 	
 	private static final String ENV_NSF_PATH = "Jakarta_ConfigNSF"; //$NON-NLS-1$
 	private static final String NSF_PATH_DEFAULT = "jakartaconfig.nsf"; //$NON-NLS-1$
@@ -76,27 +76,20 @@ public enum ModuleTracker {
 			try {
 				this.modules.values().stream()
 					.map(module -> (Runnable)() -> {
-						log.fine(() -> MessageFormat.format("Initializing module {0}", module));
+						log.log(Level.TRACE, () -> MessageFormat.format("Initializing module {0}", module));
 						
 						try(var ctx = ActiveRequest.with(new ActiveRequest(module, null, null))) {
 							module.initModule();
 						} catch(Exception e) {
-							if(log.isLoggable(Level.SEVERE)) {
-								e.printStackTrace();
-								log.log(Level.SEVERE, MessageFormat.format("Encountered exception initializing module {0}", module), e);
-							}
+							log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception initializing module {0}", module), e);
 						}
-						log.fine(() -> MessageFormat.format("Finished initializing module {0}", module));
+						log.log(Level.TRACE, () -> MessageFormat.format("Finished initializing module {0}", module));
 					})
 					.forEach(NSFJakartaModuleService.exec::submit);
 				
-				if(log.isLoggable(Level.INFO)) {
-					log.info(MessageFormat.format("Initialized {0} with mappings {1}", getClass().getSimpleName(), modules));
-				}
+				log.log(Level.TRACE, () -> MessageFormat.format("Initialized {0} with mappings {1}", getClass().getSimpleName(), modules));
 			} catch(Throwable t) {
-				if(log.isLoggable(Level.SEVERE)) {
-					log.log(Level.SEVERE, "Encountered exception initializing NSFJakartaModuleService", t);
-				}
+				log.log(Level.ERROR, "Encountered exception initializing NSFJakartaModuleService", t);
 				throw t;
 			} finally {
 				initLatch.countDown();
@@ -135,9 +128,8 @@ public enum ModuleTracker {
 				Database configDb = NSFModuleUtil.openDatabase(session, configPath);
 				if(configDb == null || !configDb.isOpen()) {
 					// Exit early with a note
-					if(log.isLoggable(Level.FINE)) {
-						log.fine(MessageFormat.format("{0}: Unable to open Jakarta config NSF at path {1}; skipping module initialization", getClass().getSimpleName(), configPath));
-					}
+					String fConfigPath = configPath;
+					log.log(Level.TRACE, () -> MessageFormat.format("{0}: Unable to open Jakarta config NSF at path {1}; skipping module initialization", getClass().getSimpleName(), fConfigPath));
 					
 					return result;
 				}
@@ -170,28 +162,20 @@ public enum ModuleTracker {
 									try {
 										props.load(new StringReader(mpConfigString));
 									} catch (IOException | IllegalArgumentException e) {
-										if(log.isLoggable(Level.WARNING)) {
-											log.log(Level.WARNING, MessageFormat.format("{0}: Unable to read MP Config properties for module path {1}", getClass().getSimpleName(), webPath), e);
-										}
+										log.log(Level.WARNING, () -> MessageFormat.format("{0}: Unable to read MP Config properties for module path {1}", getClass().getSimpleName(), webPath), e);
 									}
 								}
 								
 								result.add(new ModuleMap(nsfPath, barePath, props));
 							} else {
-								if(log.isLoggable(Level.WARNING)) {
-									log.warning(MessageFormat.format("{0}: Skipping invalid NSF path for module \"{1}\"", getClass().getSimpleName(), webPath));
-								}
+								log.log(Level.WARNING, () -> MessageFormat.format("{0}: Skipping invalid NSF path for module \"{1}\"", getClass().getSimpleName(), webPath));
 							}
 							
 						} else {
-							if(log.isLoggable(Level.WARNING)) {
-								log.warning(MessageFormat.format("{0}: Skipping invalid module path \"{1}\"", getClass().getSimpleName(), webPath));
-							}
+							log.log(Level.WARNING, () -> MessageFormat.format("{0}: Skipping invalid module path \"{1}\"", getClass().getSimpleName(), webPath));
 						}
 					} else {
-						if(log.isLoggable(Level.FINEST)) {
-							log.finest(MessageFormat.format("{0}: Skipping module {1} for non-matching servers", getClass().getSimpleName(), webPath));
-						}
+						log.log(Level.DEBUG, () -> MessageFormat.format("{0}: Skipping module {1} for non-matching servers", getClass().getSimpleName(), webPath));
 					}
 					
 					Document tempDoc = moduleDoc;
@@ -204,10 +188,7 @@ public enum ModuleTracker {
 			
 			return result;
 		} catch(NotesException e) {
-			e.printStackTrace();
-			if(log.isLoggable(Level.SEVERE)) {
-				log.log(Level.SEVERE, "Encountered exception finding NSFJakartaModules", e);
-			}
+			log.log(Level.ERROR, "Encountered exception finding NSFJakartaModules", e);
 			return Collections.emptyList();
 		}
 	}

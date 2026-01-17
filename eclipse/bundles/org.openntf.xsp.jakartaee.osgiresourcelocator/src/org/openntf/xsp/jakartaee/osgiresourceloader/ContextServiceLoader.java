@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,10 @@
  */
 package org.openntf.xsp.jakartaee.osgiresourceloader;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.glassfish.hk2.osgiresourcelocator.Activator;
-
 /**
  * @since 3.4.0
  */
 public interface ContextServiceLoader {
-	static Optional<ContextServiceLoader> getDefault() {
-		return Activator.findExtensions(ContextServiceLoader.class)
-			.stream()
-			.filter(ContextServiceLoader::isActive)
-			.findFirst();
-	}
-
-	/**
-	 * Determines whether this locator is active in the current context.
-	 * It is possible for more than one locator to be active at a time.
-	 *
-	 * @return {@code true} if this locator can find its elements;
-	 *         {@code false} otherwise
-	 */
-	boolean isActive();
-	
-	List<Object> resolveModuleInstances(final Class<?> serviceClass);
-	
 	@SuppressWarnings("rawtypes")
-	List<Class> resolveModuleServices(final Class<?> serviceClass);
+	Iterable<Class> resolveModuleServices(final Class<?> serviceClass);
 }

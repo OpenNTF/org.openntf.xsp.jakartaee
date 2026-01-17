@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,6 +125,15 @@ public enum LibraryUtil {
 	 * @since 3.1.0
 	 */
 	private static Path OVERRIDE_TEMP_DIR;
+	
+	private static final MimetypesFileTypeMap MIME_TYPES_MAP;
+	static {
+		if(!isNotes()) {
+			MIME_TYPES_MAP = new MimetypesFileTypeMap();
+		} else {
+			MIME_TYPES_MAP = null;
+		}
+	}
 
 	/**
 	 * Attempts to determine whether the given XPages Library is active for the
@@ -625,8 +634,7 @@ public enum LibraryUtil {
 			return contentType;
 		}
 
-		MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
-	    contentType = fileTypeMap.getContentType(fileName);
+	    contentType = MIME_TYPES_MAP.getContentType(fileName);
 		if(StringUtil.isNotEmpty(contentType)) {
 			return contentType;
 		}

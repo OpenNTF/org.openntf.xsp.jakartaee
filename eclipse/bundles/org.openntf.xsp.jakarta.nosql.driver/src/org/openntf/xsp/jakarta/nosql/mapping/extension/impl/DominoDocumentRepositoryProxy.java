@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,6 +77,9 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 	private static final Method createCalendarEntry;
 	private static final Method updateCalendarEntry;
 	private static final Method removeCalendarEntry;
+	private static final Method queryEffectiveAccess;
+	private static final Method send;
+	private static final Method queryLastModified;
 
 	static {
 		try {
@@ -95,6 +98,9 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			createCalendarEntry = DominoRepository.class.getDeclaredMethod("createCalendarEntry", String.class, boolean.class); //$NON-NLS-1$
 			updateCalendarEntry = DominoRepository.class.getDeclaredMethod("updateCalendarEntry", String.class, String.class, String.class, boolean.class, boolean.class, String.class); //$NON-NLS-1$
 			removeCalendarEntry = DominoRepository.class.getDeclaredMethod("removeCalendarEntry", String.class, CalendarModScope.class, String.class); //$NON-NLS-1$
+			queryEffectiveAccess = DominoRepository.class.getDeclaredMethod("queryEffectiveAccess"); //$NON-NLS-1$
+			send = DominoRepository.class.getDeclaredMethod("send", Object.class, boolean.class, boolean.class, boolean.class); //$NON-NLS-1$
+			queryLastModified = DominoRepository.class.getDeclaredMethod("queryLastModified"); //$NON-NLS-1$
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
 		}
@@ -274,6 +280,19 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 		if(method.equals(removeCalendarEntry)) {
 			template.removeCalendarEntry((String)args[0], (CalendarModScope)args[1], (String)args[2]);
 			return null;
+		}
+		
+		if(method.equals(queryEffectiveAccess)) {
+			return template.queryEffectiveAccess();
+		}
+		
+		if(method.equals(send)) {
+			Object result = template.send(args[0], (boolean)args[1], (boolean)args[2], (boolean)args[3]);
+			return convert(result, method);
+		}
+		
+		if(method.equals(queryLastModified)) {
+			return template.queryLastModified();
 		}
 
 		try {

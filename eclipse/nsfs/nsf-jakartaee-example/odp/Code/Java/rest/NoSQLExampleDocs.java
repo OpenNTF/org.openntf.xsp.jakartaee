@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package rest;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import lotus.domino.Database;
 import lotus.domino.NotesException;
 import lotus.domino.Session;
@@ -121,9 +124,12 @@ public class NoSQLExampleDocs {
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public ExampleDoc getDoc(@PathParam("id") String id) {
-		return repository.findById(id)
+	public Response getDoc(@PathParam("id") String id) {
+		ExampleDoc doc = repository.findById(id)
 			.orElseThrow(() -> new NotFoundException("Could not find example doc for ID " + id));
+		return Response.ok(doc)
+			.tag(new EntityTag(doc.getEtag(), true))
+			.build();
 	}
 	
 	@Path("{id}")
@@ -323,5 +329,12 @@ public class NoSQLExampleDocs {
 	public void updateExampleDocFtIndex() throws NotesException {
 		Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
 		databaseAsSigner.updateFTIndex(true);
+	}
+	
+	@Path("lastModified")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getLastModified() {
+		return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(repository.queryLastModified());
 	}
 }

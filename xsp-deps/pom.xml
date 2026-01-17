@@ -31,7 +31,7 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<xsp-stubs-version>1.1.0</xsp-stubs-version>
+		<xsp-stubs-version>1.3.7</xsp-stubs-version>
 	</properties>
 	
 	<build>
@@ -54,6 +54,7 @@
 								<!-- Compatible implementations -->
 								<artifact><id>org.eclipse.platform:org.eclipse.core.runtime:3.24.0</id></artifact>
 								<artifact><id>com.ibm.sbt:com.ibm.commons:9.0.0</id></artifact>
+								<artifact><id>com.ibm.sbt:com.ibm.commons.xml:9.0.0</id></artifact>
 								<artifact><id>com.hcl.domino:NCSO:12.0.2</id></artifact>
 								<!-- Package to look enough like Domino's version -->
 								<artifact>
@@ -66,9 +67,12 @@
 								</artifact>
 								
 								<!-- XPages stubs -->
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.notes.java.api:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.notes.java.api.win32.linux:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.pvc.jndi.provider.java:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.pvc.servlet:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.napi:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.napi.impl:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.xsp.bootstrap:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.xsp.bridge.http:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.core:${xsp-stubs-version}</id></artifact>
@@ -77,6 +81,9 @@
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.domino:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.extlib.core:${xsp-stubs-version}</id></artifact>
 								<artifact><id>org.openntf.xsp.stubs:com.ibm.xsp.extlib.controls:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.jscript:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.osgi.core:${xsp-stubs-version}</id></artifact>
+								<artifact><id>org.openntf.xsp.stubs:com.ibm.domino.xsp.adapter.osgi:${xsp-stubs-version}</id></artifact>
 								
 							</artifacts>
 						</configuration>

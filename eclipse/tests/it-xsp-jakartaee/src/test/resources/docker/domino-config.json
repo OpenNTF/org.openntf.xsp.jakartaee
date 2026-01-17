@@ -7,7 +7,7 @@
 			"title": "XPages Jakarta EE Test",
 			"password": null,
 			"minPasswordLength": 0,
-			"serverTasks": "http"
+			"serverTasks": "http,router"
 		},
 		"network": {
 			"hostName": "xsp-jakartaee-test.openntf.org",
@@ -46,7 +46,7 @@
 			"FT_FLY_INDEX_OFF": "0",
 			"UPDATE_FULLTEXT_THREAD": "1",
 			"FTG_USE_SYS_MEMORY": "1",
-			"ServerTasks": "Update,AdminP,AMgr,HTTP,Update",
+			"ServerTasks": "Update,AdminP,AMgr,HTTP,Router",
 			"JavaUserOptionsFile": "/local/JavaOptionsFile.txt",
 			"HTTP_ENABLE_JAVASAPI": "1",
 			"DOMINO_FORCE401_WITH_HTML_LOGIN_PAGE": "1",
@@ -80,18 +80,18 @@
       "description": "Domino Lab Vault",
       "IDFile": "vault.id",
       "IDPassword": "ThisIsATestPassword",
-      "path": "IBM_ID_VAULT/endeavour_vault.nsf",
+      "path": "IBM_ID_VAULT/openntf_vault.nsf",
       "passwordReset": {
         "helpText": "See Roy or Moss for a password reset. Good luck!"
       },
   
       "securitySettingsPolicy": {
-        "name": "Endeavour Vault Security Settings Policy",
-        "description": "Endeavour Vault Security Settings"
+        "name": "OpenNTF Vault Security Settings Policy",
+        "description": "OpenNTF Vault Security Settings"
       },
   
       "masterPolicy": {
-        "description": "Endeavour Vault Master Policy Description"
+        "description": "OpenNTF Vault Master Policy Description"
       }
     },
 	"appConfiguration": {
@@ -184,6 +184,25 @@
 							"DCDO": 10000,
 							"FAEnabled": "1",
 							"FADBs": "1"
+						}
+					},
+					{
+						"action": "create",
+						"computeWithForm": true,
+						"items": {
+							"Form": "local",
+							"Destination": "CN=JakartaEE/O=OpenNTFTest",
+							"DestinationDomain": "OpenNTFTest",
+							"Enabled": "1",
+							"OptionalNetworkAddress": "localhost",
+							"PhoneNumber": "localhost",
+							"PortName": "TCPIP",
+							"Source": "CN=JakartaEE/O=OpenNTFTest",
+							"SourceDomain": "OpenNTFTest",
+							"Type": "Connection",
+							"RouterType": "3",
+							"RoutingTask": "Mail Routing",
+							"MailThreshold": 1
 						}
 					}
 				]

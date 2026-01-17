@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ByteArrayEntityAttachment;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessRights;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
@@ -67,6 +68,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -441,7 +443,7 @@ public class NoSQLExample {
 				.type(att.getContentType())
 				.header(HttpHeaders.CONTENT_LENGTH, att.getLength())
 				.header(HttpHeaders.LAST_MODIFIED, Instant.ofEpochMilli(att.getLastModified()))
-				.tag(att.getETag())
+				.tag(new EntityTag(att.getETag(), true))
 				.build();
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
@@ -667,6 +669,20 @@ public class NoSQLExample {
 	public List<Person> queryByEmailEntries(@QueryParam("q") @NotEmpty String searchValue) {
 		ViewQuery query = ViewQuery.query().key(searchValue, true);
 		return personRepository.readViewEntries("PersonEmail", -1, false, query, null, null).collect(Collectors.toList());
+	}
+	
+	@Path("accessRights")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public AccessRights queryAccessRights() {
+		return personRepository.queryEffectiveAccess();
+	}
+	
+	@Path("accessRightsNames")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public AccessRights queryAccessRightsNames() {
+		return serverRepository.queryEffectiveAccess();
 	}
 	
 	private void composePerson(Person person, String firstName, String lastName, String birthday, String favoriteTime, String added, String customProperty, String email) {

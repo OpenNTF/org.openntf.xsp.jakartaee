@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.openntf.xsp.jakartaee.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -26,8 +28,6 @@ import java.util.Enumeration;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.servlet.LCDAdapterHttpServletResponse;
@@ -58,7 +58,7 @@ public enum ServletUtil {
 
 	public static final String KEY_WEBXML = ServletUtil.class.getPackage().getName() + "_webXml"; //$NON-NLS-1$
 
-	private static final Logger log = Logger.getLogger(ServletUtil.class.getName());
+	private static final Logger log = System.getLogger(ServletUtil.class.getName());
 
 	public static javax.servlet.Servlet newToOld(final jakarta.servlet.Servlet servlet) {
 		if(servlet == null) {
@@ -541,9 +541,7 @@ public enum ServletUtil {
 
 				InputStream is = module.getResourceAsStream("/WEB-INF/web.xml"); //$NON-NLS-1$
 				if(is != null) {
-					if(log.isLoggable(Level.FINE)) {
-						log.fine(MessageFormat.format("Processing web.xml in {0}", module.getModuleName()));
-					}
+					log.log(Level.TRACE, () -> MessageFormat.format("Processing web.xml in {0}", module.getModuleName()));
 					InputSource source = new InputSource(is);
 					parser.parseWebXml(source, webXml, false);
 				}
@@ -553,9 +551,7 @@ public enum ServletUtil {
 				if(cl != null) {
 					Enumeration<URL> fragments = cl.getResources("META-INF/web-fragment.xml"); //$NON-NLS-1$
 					for(URL url : Collections.list(fragments)) {
-						if(log.isLoggable(Level.FINE)) {
-							log.fine(MessageFormat.format("Processing web-fragment.xml {0} in {1}", url, module.getModuleName()));
-						}
+						log.log(Level.TRACE, () -> MessageFormat.format("Processing web-fragment.xml {0} in {1}", url, module.getModuleName()));
 						InputStream fis = url.openStream();
 						if(fis != null) {
 							InputSource source = new InputSource(fis);
@@ -564,9 +560,7 @@ public enum ServletUtil {
 					}
 				}
 			} catch(Exception e) {
-				if(log.isLoggable(Level.WARNING)) {
-					log.log(Level.WARNING, MessageFormat.format("Encountered exception processing web.xml in {0}", module.getModuleName()), e);
-				}
+				log.log(Level.WARNING, () -> MessageFormat.format("Encountered exception processing web.xml in {0}", module.getModuleName()), e);
 			} finally {
 				Thread.currentThread().setContextClassLoader(tccl);
 			}

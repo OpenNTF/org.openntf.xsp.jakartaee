@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,10 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -35,12 +37,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.ibm.commons.util.PathUtil;
 
 @SuppressWarnings("nls")
-@Testcontainers
 public abstract class AbstractWebClientTest {
 	
 	public static class AnonymousClientProvider implements ArgumentsProvider {
@@ -152,5 +152,11 @@ public abstract class AbstractWebClientTest {
 		}
 		fail("Timed out waiting on condition");
 		return null;
+	}
+	
+	protected static void assertInstantsCloseEnough(String expected, String actual) {
+		Instant expectedInst = Instant.parse(expected);
+		Instant actualInst = Instant.parse(actual);
+		assertTrue(Math.abs(expectedInst.toEpochMilli() - actualInst.toEpochMilli()) <= 20, () -> "Expected " + actual + " to be within 20 ms of " + expected); 
 	}
 }

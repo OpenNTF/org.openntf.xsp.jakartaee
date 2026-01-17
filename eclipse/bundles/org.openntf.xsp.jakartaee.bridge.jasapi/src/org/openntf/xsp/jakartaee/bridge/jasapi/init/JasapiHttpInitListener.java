@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakartaee.bridge.jasapi.init;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -23,8 +25,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.ibm.domino.bridge.http.jasapi.JavaSapiEnvironment;
 import com.ibm.domino.bridge.http.jasapi.JavaSapiService;
@@ -34,7 +34,7 @@ import org.openntf.xsp.jakartaee.events.JakartaHttpInitListener;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 public class JasapiHttpInitListener implements JakartaHttpInitListener {
-	private static final Logger log = Logger.getLogger(JasapiHttpInitListener.class.getPackage().getName());
+	private static final Logger log = System.getLogger(JasapiHttpInitListener.class.getPackage().getName());
 	
 	@Override
 	public void httpInit() throws Exception {
@@ -60,9 +60,7 @@ public class JasapiHttpInitListener implements JakartaHttpInitListener {
 				}
 
 			} catch(Throwable t) {
-				if(log.isLoggable(Level.SEVERE)) {
-					log.log(Level.SEVERE, "Encountered exception initializing JavaSapi services", t);
-				}
+				log.log(Level.ERROR, "Encountered exception initializing JavaSapi services", t);
 			}
 
 			return null;

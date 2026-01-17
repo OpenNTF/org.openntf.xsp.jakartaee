@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+    Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@
 <feature
       id="org.openntf.xsp.microprofile.feature"
       label="XPages MicroProfile Feature"
-      version="3.5.1.qualifier">
+      version="3.6.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
-      [Enter Feature Description here.]
+      MicroProfile APIs for the XPages Jakarta EE Support project
    </description>
 
    <copyright url="http://www.example.com/copyright">
-      Copyright 2018-2025 Contributors to the XPages Jakarta EE Support Project
+      Copyright 2018-2026 Contributors to the XPages Jakarta EE Support Project
    </copyright>
 
    <license url="https://www.apache.org/licenses/LICENSE-2.0">

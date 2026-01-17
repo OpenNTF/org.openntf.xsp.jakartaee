@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,29 @@ package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -54,7 +61,6 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.DominoConstants;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewColumnInfo;
 import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
-import org.openntf.xsp.jakarta.nosql.communication.driver.impl.AbstractEntityConverter;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.DQL.DQLTerm;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
@@ -68,6 +74,9 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQL
 import org.openntf.xsp.jakarta.nosql.driver.ExplainEvent;
 import org.openntf.xsp.jakarta.nosql.driver.NoSQLConfigurationBean;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessLevel;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessPrivilege;
+import org.openntf.xsp.jakarta.nosql.mapping.extension.AccessRights;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.FTSearchOption;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.ViewQuery;
 
@@ -89,6 +98,7 @@ import lotus.domino.Base;
 import lotus.domino.Database;
 import lotus.domino.DateTime;
 import lotus.domino.DbDirectory;
+import lotus.domino.Document;
 import lotus.domino.DocumentCollection;
 import lotus.domino.DominoQuery;
 import lotus.domino.NotesCalendar;
@@ -103,7 +113,7 @@ import lotus.domino.ViewEntryCollection;
 import lotus.domino.ViewNavigator;
 
 public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocumentCollectionManager {
-	private final Logger log = Logger.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
+	private final Logger log = System.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
 
 	private final Supplier<Database> supplier;
 	private final Supplier<Session> sessionSupplier;
@@ -144,37 +154,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			beginTransaction(database);
 
-			// Special handling for named and profile notes
-			lotus.domino.Document target;
-			Optional<Element> maybeName = entity.find(DominoConstants.FIELD_NOTENAME);
-			Optional<Element> maybeProfileName = entity.find(DominoConstants.FIELD_PROFILENAME);
-			if(maybeName.isPresent() && StringUtil.isNotEmpty(maybeName.get().get(String.class))) {
-				Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_USERNAME);
-				if(maybeUserName.isPresent() && StringUtil.isNotEmpty(maybeUserName.get().get(String.class))) {
-					target = database.getNamedDocument(maybeName.get().get(String.class), maybeUserName.get().get(String.class));
-				} else {
-					target = database.getNamedDocument(maybeName.get().get(String.class));
-				}
-			} else if(maybeProfileName.isPresent() && StringUtil.isNotEmpty(maybeProfileName.get().get(String.class))) {
-				Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_PROFILEKEY);
-				target = database.getProfileDocument(maybeProfileName.get().get(String.class), maybeUserName.map(d -> d.get(String.class)).orElse(null));
-			} else {
-				target = database.createDocument();
-			}
-
-			Optional<String> maybeId = entity.find(DominoConstants.FIELD_ID, String.class);
-			if(maybeId.isPresent() && !StringUtil.isEmpty(maybeId.get())) {
-				target.setUniversalID(maybeId.get());
-			} else {
-				// Write the generated UNID into the entity
-				entity.add(Element.of(DominoConstants.FIELD_ID, target.getUniversalID()));
-			}
-
-			EntityMetadata mapping = EntityUtil.getClassMapping(entity.name());
-			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
-			if(computeWithForm) {
-				target.computeWithForm(false, false);
-			}
+			Document target = toDocument(entity, database, computeWithForm);
 			target.save();
 			return entity;
 		} catch(NotesException e) {
@@ -741,6 +721,74 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public AccessRights queryEffectiveAccess() {
+		try {
+			Database database = supplier.get();
+			
+			String name = database.getParent().getEffectiveUserName();
+			
+			int levelValue = database.getCurrentAccessLevel();
+			AccessLevel level = Arrays.stream(AccessLevel.values())
+				.filter(l -> l.getValue() == levelValue)
+				.findFirst()
+				.orElse(AccessLevel.NOACCESS);
+			
+			int privs = database.queryAccessPrivileges(name);
+			Set<AccessPrivilege> privileges = Arrays.stream(AccessPrivilege.values())
+				.filter(p -> (p.getValue() & privs) != 0)
+				.collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(Enum::name))));
+			
+			Set<String> roles = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			roles.addAll((List<String>)database.queryAccessRoles(name));
+			
+			return new AccessRights(name, level, privileges, roles);
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public CommunicationEntity send(CommunicationEntity entity, boolean attachForm, boolean computeWithForm, boolean save) {
+		try {
+			Database database = supplier.get();
+			beginTransaction(database);
+
+			Document target = toDocument(entity, database, computeWithForm);
+			target.send(attachForm);
+			if(save) {
+				target.save();
+			}
+			
+			return entity;
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	public OffsetDateTime queryLastModified() {
+		try {
+			Database database = supplier.get();
+			DateTime dtMod = database.getLastModified();
+			try {
+				Temporal dt = DominoNoSQLUtil.toTemporal(database, dtMod);
+				// Should definitely be an OffsetDateTime, but account for alternatives
+				if(dt instanceof OffsetDateTime odt) {
+					return odt;
+				} else {
+					Instant inst = Instant.from(dt);
+					return OffsetDateTime.ofInstant(inst, ZoneId.systemDefault());
+				}
+			} finally {
+				dtMod.recycle();
+			}
+		} catch(NotesException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	@Override
 	public void close() {
@@ -868,7 +916,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		String filePath = database.getFilePath();
 
 		try {
-			String fileName = AbstractEntityConverter.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
+			String fileName = EntityUtil.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
 
 			Path dest = DominoNoSQLUtil.getQrpDirectory()
 				.orElseGet(() -> DominoNoSQLUtil.getTempDirectory().resolve(getClass().getPackageName()));
@@ -993,9 +1041,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				try {
 					t = tm.get().getTransaction();
 				} catch (SystemException e) {
-					if(log.isLoggable(Level.SEVERE)) {
-						log.log(Level.SEVERE, "Encountered unexpected exception retrieving active transaction", e);
-					}
+					log.log(Level.ERROR, "Encountered unexpected exception retrieving active transaction", e);
 					return;
 				}
 				if(t != null) {
@@ -1016,10 +1062,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 
 					} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
-						if(log.isLoggable(Level.SEVERE)) {
+						if(log.isLoggable(Level.ERROR)) {
 							if(e instanceof NotesException ne && ne.id == 4864) {
 								// "Transactional Logging must be enabled for this function"
-								log.log(Level.SEVERE, "Transactional logging is not enabled for this server; skipping transaction registration", e);
+								log.log(Level.ERROR, "Transactional logging is not enabled for this server; skipping transaction registration", e);
 								if(res != null) {
 									try {
 										t.delistResource(res, XAResource.TMNOFLAGS);
@@ -1028,13 +1074,50 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 									}
 								}
 							} else {
-								log.log(Level.SEVERE, "Encountered unexpected exception enlisting the transaction resource", e);
+								log.log(Level.ERROR, "Encountered unexpected exception enlisting the transaction resource", e);
 							}
 						}
 					}
 				}
 			}
 		}
+	}
+	
+	private Document toDocument(CommunicationEntity entity, Database database, boolean computeWithForm) throws NotesException {
+		// Special handling for named and profile notes
+		lotus.domino.Document target;
+		Optional<Element> maybeName = entity.find(DominoConstants.FIELD_NOTENAME);
+		Optional<Element> maybeProfileName = entity.find(DominoConstants.FIELD_PROFILENAME);
+		if(maybeName.isPresent() && StringUtil.isNotEmpty(maybeName.get().get(String.class))) {
+			Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_USERNAME);
+			if(maybeUserName.isPresent() && StringUtil.isNotEmpty(maybeUserName.get().get(String.class))) {
+				target = database.getNamedDocument(maybeName.get().get(String.class), maybeUserName.get().get(String.class));
+			} else {
+				target = database.getNamedDocument(maybeName.get().get(String.class));
+			}
+		} else if(maybeProfileName.isPresent() && StringUtil.isNotEmpty(maybeProfileName.get().get(String.class))) {
+			Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_PROFILEKEY);
+			target = database.getProfileDocument(maybeProfileName.get().get(String.class), maybeUserName.map(d -> d.get(String.class)).orElse(null));
+		} else {
+			target = database.createDocument();
+		}
+
+		Optional<String> maybeId = entity.find(DominoConstants.FIELD_ID, String.class);
+		if(maybeId.isPresent() && !StringUtil.isEmpty(maybeId.get())) {
+			target.setUniversalID(maybeId.get());
+		} else {
+			// Write the generated UNID into the entity
+			entity.add(Element.of(DominoConstants.FIELD_ID, target.getUniversalID()));
+		}
+
+		EntityMetadata mapping = EntityUtil.getClassMapping(entity.name());
+		entityConverter.convertNoSQLEntity(entity, false, target, mapping);
+
+		if(computeWithForm) {
+			target.computeWithForm(false, false);
+		}
+		
+		return target;
 	}
 
 	/**

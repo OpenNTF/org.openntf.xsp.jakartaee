@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-2025 Contributors to the XPages Jakarta EE Support Project
+ * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.openntf.xsp.jakartaee.module.jakarta;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,8 +41,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.ibm.commons.extension.ExtensionManager.ApplicationClassLoader;
@@ -59,7 +59,7 @@ import org.openntf.xsp.jakartaee.util.ModuleUtil;
  * @since 3.5.0
  */
 public class DefaultModuleClassLoader extends URLClassLoader implements ApplicationClassLoader {
-	private static final Logger log = Logger.getLogger(DefaultModuleClassLoader.class.getPackageName());
+	private static final Logger log = System.getLogger(DefaultModuleClassLoader.class.getPackageName());
 
 	protected final List<ClassLoader> extraDepends = new ArrayList<>();
 	private final Set<Path> cleanup = new HashSet<>();
@@ -296,9 +296,7 @@ public class DefaultModuleClassLoader extends URLClassLoader implements Applicat
 			}
 			this.cleanup.clear();
 		} catch (IOException e) {
-			if (log.isLoggable(Level.WARNING)) {
-				log.log(Level.WARNING, MessageFormat.format("Encountered exception closing class loader for {0}", getModule()), e);
-			}
+			log.log(Level.WARNING, () -> MessageFormat.format("Encountered exception closing class loader for {0}", getModule()), e);
 		}
 	}
 
