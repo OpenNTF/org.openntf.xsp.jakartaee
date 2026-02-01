@@ -115,6 +115,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.release>17</maven.compiler.release>
 		
 		<tycho-version>4.0.12</tycho-version>
 		<xsp-bundles-range>0.0.0</xsp-bundles-range>
@@ -265,12 +266,6 @@
 				<artifactId>nsfodp-maven-plugin</artifactId>
 				<extensions>true</extensions>
 			</plugin>
-			
-			<plugin>
-				<groupId>org.jboss.jandex</groupId>
-				<artifactId>jandex-maven-plugin</artifactId>
-				<version>1.2.3</version>
-			</plugin>
 
 			<plugin>
 				<groupId>com.mycila</groupId>
@@ -313,7 +308,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>3.6.2</version>
 				<dependencies>
 					<dependency>
 						<groupId>de.skuzzle.enforcer</groupId>
@@ -330,7 +325,7 @@
 						<configuration>
 							<rules>
 								<requireMavenVersion>
-									<version>3.0.1</version>
+									<version>3.9.9</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
 									<version>17</version>
@@ -361,10 +356,9 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<!-- javadoc configuration -->
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.12.0</version>
 					<configuration>
 						<!-- Activated by profile below -->
 						<skip>true</skip>
@@ -431,42 +425,47 @@
 					<artifactId>nsfodp-maven-plugin</artifactId>
 					<version>4.0.8</version>
 				</plugin>
-				
+			
+				<plugin>
+					<groupId>org.jboss.jandex</groupId>
+					<artifactId>jandex-maven-plugin</artifactId>
+					<version>1.2.3</version>
+				</plugin>
 				
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.9.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
-					<version>2.5.2</version>
+					<version>3.1.4</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.5.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.8.2</version>
+					<version>3.1.4</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.7</version>
+					<version>3.21.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.8.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>3.0.2</version>
+					<version>3.4.0</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -508,7 +507,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-jarsigner-plugin</artifactId>
-						<version>3.0.0</version>
+						<version>3.1.0</version>
 						<executions>
 							<execution>
 								<id>sign</id>
