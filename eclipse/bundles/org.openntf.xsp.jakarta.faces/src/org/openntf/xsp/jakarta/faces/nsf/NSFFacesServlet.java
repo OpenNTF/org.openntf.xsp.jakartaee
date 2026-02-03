@@ -177,13 +177,10 @@ public class NSFFacesServlet extends HttpServlet {
 					delegate.service(req, resp);
 				} finally {
 					if(this.doEvents) {
-						
-						
 						ServletUtil.getListeners(ctx, ServletRequestListener.class)
 							.forEach(l -> l.requestDestroyed(new ServletRequestEvent(getServletContext(), req)));
 					}
 					Thread.currentThread().setContextClassLoader(current);
-					//ContainerUtil.setThreadContextDatabasePath(null);
 					AbstractProxyingContext.setThreadContextRequest(null);
 				}
 				return null;
@@ -316,19 +313,6 @@ public class NSFFacesServlet extends HttpServlet {
 			}
 		});
 		tempFiles.clear();
-
-		// TODO see if we can handle this differently either by moving
-		//      CDI to be based on ComponentModule and refresh that way
-		//      or by making this an AbstractXspLifecycleServlet
-		// This is not ideal if you're mixing JSF and other technologies
-		CDI<Object> container = CDI.current();
-		if(container instanceof AutoCloseable c) { //WeldContainer
-			try {
-				c.close();
-			} catch(Exception e) {
-				// Ignore - will be thrown if it was already shut down
-			}
-		}
 
 		this.initialized = false;
 	}
