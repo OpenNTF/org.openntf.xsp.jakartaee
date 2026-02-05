@@ -20,7 +20,9 @@ import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
@@ -52,6 +54,12 @@ public class DominoTransaction implements Transaction {
 	private final Collection<XAResource> resources;
 	private final Collection<Synchronization> synchronizations;
 	private final Xid id;
+	
+	/**
+	 * Used to store resources from the TransactionSynchronizationRegistry
+	 * @since 3.7.0
+	 */
+	private final Map<Object, Object> objectResources = new HashMap<>();
 
 	public DominoTransaction(final Xid id) {
 		this.resources = Collections.synchronizedList(new ArrayList<>());
@@ -131,6 +139,14 @@ public class DominoTransaction implements Transaction {
 		}
 		this.rollbackOnly = true;
 	}
+	
+	/**
+	 * @return {@code true} if this has been marked as rollbackOnly
+	 * @since 3.7.0
+	 */
+	public boolean isRollbackOnly() {
+		return rollbackOnly;
+	}
 
 	@Override
 	public int getStatus() {
@@ -188,6 +204,14 @@ public class DominoTransaction implements Transaction {
 
 	public Xid getId() {
 		return id;
+	}
+	
+	public void putResource(Object key, Object value) {
+		this.objectResources.put(key, value);
+	}
+
+	public Object getResource(Object key) {
+		return this.objectResources.get(key);
 	}
 
 }

@@ -3,6 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta Transaction Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.transaction;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.transaction
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.openntf.xsp.jakarta.transaction.TransactionActivator
 Bundle-Version: 3.7.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
@@ -26,5 +28,6 @@ Import-Package: com.ibm.designer.runtime.domino.adapter,
  org.openntf.xsp.jakarta.cdi.context;version="2.7.0",
  org.openntf.xsp.jakarta.cdi.discovery;version="2.7.0",
  org.openntf.xsp.jakarta.cdi.util;version="[3.4.0,4.0.0)",
- org.openntf.xsp.jakarta.concurrency;version="2.7.0"
+ org.openntf.xsp.jakarta.concurrency;version="2.7.0",
+ org.osgi.framework
 DynamicImport-Package: org.jboss.weld.*
