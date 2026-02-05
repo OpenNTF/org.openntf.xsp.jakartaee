@@ -19,11 +19,13 @@
 <persistence version="3.2" xmlns="https://jakarta.ee/xml/ns/persistence"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd">
-	<persistence-unit name="JPATestProj" transaction-type="JTA">
-		<jta-data-source>java:comp/env/jdbc/postgresql</jta-data-source>
+	<persistence-unit name="JPATestProj" transaction-type="RESOURCE_LOCAL">
 		<class>model.Company</class>
 		<properties>
-			<property name="jakarta.persistence.jdbc.url" value="java:comp/env/jdbc/postgresql" />
+			<property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
+			<property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://postgresql:5432/jakarta" />
+			<property name="jakarta.persistence.jdbc.user" value="postgres" />
+			<property name="jakarta.persistence.jdbc.password" value="postgres" />
 		</properties>
 	</persistence-unit>
 </persistence>
