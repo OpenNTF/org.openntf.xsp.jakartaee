@@ -24,8 +24,9 @@ import java.text.MessageFormat;
 import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModule;
 import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModuleService;
 
-public class NSFJakartaURLConnection extends URLConnection {
+import com.ibm.commons.util.StringUtil;
 
+public class NSFJakartaURLConnection extends URLConnection {
 	protected NSFJakartaURLConnection(URL url) {
 		super(url);
 	}
@@ -37,11 +38,13 @@ public class NSFJakartaURLConnection extends URLConnection {
 	
 	@Override
 	public InputStream getInputStream() throws IOException {
-		// Path format is "/someapp!/some/resource"
+		
+		// Path format is "/someapp$$/some/resource"
 		String path = url.getPath();
-		int bangIndex = path.indexOf('!');
+		int bangIndex = path.indexOf(NSFJakartaFileSystem.URLDELIM);
 		if(bangIndex < 0) {
-			throw new IllegalStateException(MessageFormat.format("Missing resource delimiter in URL {0}", url));
+			// Some libraries, like EclipseLink, will ask for input streams for invalid URLs
+			return null;
 		}
 		
 		String mappingPath = path.substring(1, bangIndex);
@@ -52,9 +55,13 @@ public class NSFJakartaURLConnection extends URLConnection {
 			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not locate {0} for path {1}", NSFJakartaModule.class.getName(), mappingPath)));
 		
 		// The raw query is the URL-encoded resource path
-		String res = path.substring(bangIndex+1);
+		// Skip the delimiter and the leading /
+		String res = path.substring(bangIndex+NSFJakartaFileSystem.URLDELIM.length()+1);
+		if(StringUtil.isEmpty(res)) {
+			return null;
+		}
 		
 		return module.getRuntimeFileSystem().openStream(res)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not open resource \"{0}\" in module {1}", res, module)));
+			.orElse(null);
 	}
 }

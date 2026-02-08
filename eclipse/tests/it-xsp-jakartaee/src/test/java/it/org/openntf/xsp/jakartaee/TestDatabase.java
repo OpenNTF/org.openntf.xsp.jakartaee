@@ -52,6 +52,12 @@ public enum TestDatabase {
 		public String getContextPath() {
 			return "/moduleappdisabled";
 		}
+	},
+	JPA_MODULE(null, null, "JPA Jakarta Module") {
+		@Override
+		public String getContextPath() {
+			return "/jpamodule";
+		}
 	}
 	;
 	
