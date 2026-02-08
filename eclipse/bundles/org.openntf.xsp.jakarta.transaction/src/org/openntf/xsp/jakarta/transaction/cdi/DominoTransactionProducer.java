@@ -32,7 +32,6 @@ import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
 import jakarta.transaction.Synchronization;
 import jakarta.transaction.SystemException;
-import jakarta.transaction.Transaction;
 import jakarta.transaction.UserTransaction;
 
 /**
@@ -57,7 +56,7 @@ public class DominoTransactionProducer {
 	}
 
 	@Produces
-	public Transaction produceTransaction() {
+	public DominoTransaction produceTransaction() {
 		return getTransaction();
 	}
 

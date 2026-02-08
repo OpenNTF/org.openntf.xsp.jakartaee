@@ -593,7 +593,7 @@
 								<!-- Will take work - just trying to set the TransactionManager will hit a problem with -->
 								<!-- JTA + simple transactions at the same time-->
 								<artfiact>
-									<id>org.eclipse.persistence:eclipselink:5.0.0-B07</id>
+									<id>org.eclipse.persistence:eclipselink:5.0.0-B13</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>

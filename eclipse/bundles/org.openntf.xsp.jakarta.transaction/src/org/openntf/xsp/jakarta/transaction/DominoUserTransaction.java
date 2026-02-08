@@ -99,5 +99,4 @@ public class DominoUserTransaction implements UserTransaction, Serializable {
 			}
 		}
 	}
-
 }
