@@ -15,6 +15,8 @@
  */
 package rest;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
+
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -32,6 +34,7 @@ public class AdminRoleExample {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@RolesAllowed("[Admin]")
+	@Operation(summary = "Test for the admin role", description = "Returns a sentence with your name if you're an admin")
 	public String get() {
 		return "I think you're an admin, " + securityContext.getUserPrincipal().getName();
 	}
