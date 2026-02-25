@@ -350,8 +350,14 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	}
 	
 	public URL getWebResource(String res) throws MalformedURLException {
+		if(res.contains("lipsum")) {
+			System.out.println("checking for " + res);
+		}
 		return getRuntimeFileSystem().getWebResourceUrl(ModuleUtil.trimResourcePath(res))
 			.orElseGet(() -> {
+				if(res.contains("lipsum")) {
+					System.out.println("didn't find " + res);
+				}
 				// Check for META-INF/resources in embedded JARs
 				// TODO skip check if the incoming path has META-INF or WEB-INF in it already
 				// moduleClassLoader may be null when it itself is being initialized and the JVM calls getResources
