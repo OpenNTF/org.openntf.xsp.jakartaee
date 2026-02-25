@@ -124,10 +124,6 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 				}
 			}
 		}
-		
-		this.fileMap.forEach((name, file) -> {
-			System.out.println(name + " => " + file);
-		});
 	}
 	
 	@Override
