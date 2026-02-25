@@ -382,7 +382,7 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	@Override
 	protected void writeResource(ServletInvoker invoker, String res) throws IOException {
 		// Do an early check here since otherwise the parent implementation will set a status of 200
-		if(getWebResource(res) == null) {
+		if(StringUtil.isEmpty(res) || "/".equals(res) || getWebResource(res) == null) { //$NON-NLS-1$
 			// TODO consider handling this differently, to avoid just "Item Not Found Exception" and a console log entry
 			throw new PageNotFoundException(MessageFormat.format("No resource found at path {0}", res));
 		} else {

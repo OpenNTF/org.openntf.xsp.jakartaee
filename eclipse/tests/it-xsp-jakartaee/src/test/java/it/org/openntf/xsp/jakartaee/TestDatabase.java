@@ -58,6 +58,12 @@ public enum TestDatabase {
 		public String getContextPath() {
 			return "/jpamodule";
 		}
+	},
+	PRIMEFACES_SHOWCASE_MODULE(null, null, "PrimeFaces Showcase Jakarta Module") {
+		@Override
+		public String getContextPath() {
+			return "/pfshowcase";
+		}
 	}
 	;
 	
