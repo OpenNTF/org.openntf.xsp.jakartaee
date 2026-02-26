@@ -21,8 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,6 +38,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
@@ -39,6 +47,7 @@ import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
@@ -80,6 +89,33 @@ public class TestJaxRs extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		Document xmlDoc = response.readEntity(Document.class);
+		
+		Element applicationGuy = xmlDoc.getDocumentElement();
+		assertEquals("application-guy", applicationGuy.getTagName());
+		Element time = (Element) applicationGuy.getElementsByTagName("time").item(0);
+		assertFalse(time.getTextContent().isEmpty());
+		Long.parseLong(time.getTextContent());
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testSampleXmlGzip(TestDatabase db) throws IOException, ParserConfigurationException, SAXException {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, db) + "/sample/xml");
+		Response response = target.request()
+			.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+			.get();
+		
+		checkResponse(200, response);
+		var encoding = response.getHeaderString(HttpHeaders.CONTENT_ENCODING);
+		assertEquals("gzip", encoding);
+		
+		Document xmlDoc;
+		var is = response.readEntity(InputStream.class);
+		DocumentBuilder builder = DocumentBuilderFactory.newDefaultInstance().newDocumentBuilder();
+		try(var zis = new GZIPInputStream(is)) {
+			xmlDoc = builder.parse(zis);
+		}
 		
 		Element applicationGuy = xmlDoc.getDocumentElement();
 		assertEquals("application-guy", applicationGuy.getTagName());

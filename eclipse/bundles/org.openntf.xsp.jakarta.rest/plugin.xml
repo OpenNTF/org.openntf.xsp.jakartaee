@@ -23,6 +23,11 @@
 		<service type="com.ibm.xsp.adapter.servletFactory" class="org.openntf.xsp.jakarta.rest.nsf.RestServletFactory" />
 	</extension>
 	
+	<!-- Provide standard filters -->
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.jakarta.rest.filter.FilterContributor" />
+	</extension>
+	
 	<!-- Standard extension to provide security information -->
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.rest.RestClassContributor" class="org.openntf.xsp.jakarta.rest.security.SecurityContributor" />
