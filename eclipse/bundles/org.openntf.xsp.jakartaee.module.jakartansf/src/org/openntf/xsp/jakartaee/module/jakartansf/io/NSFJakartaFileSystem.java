@@ -44,12 +44,12 @@ import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator.D
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 public class NSFJakartaFileSystem implements ModuleFileSystem {
-	public record NSFMetadata(int noteId, FileType fileType, String flags, String flagsExt, boolean webVisible, String itemName, String mimeType) {
+	public record NSFMetadata(int noteId, FileType fileType, String flags, String flagsExt, boolean webVisible, String itemName, String mimeType, long fileSize) implements EntryMetadata {
 		public NSFMetadata(DesignEntry entry, FileType fileType, String mimeType) {
-			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), null, mimeType);
+			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), null, mimeType, entry.fileSize());
 		}
 		public NSFMetadata(DesignEntry entry, FileType fileType, String itemName, String mimeType) {
-			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), itemName, mimeType);
+			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), itemName, mimeType, entry.fileSize());
 		}
 	}
 	public enum FileType {
@@ -153,10 +153,11 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 	}
 	
 	@Override
-	public Optional<URL> getWebResourceUrl(String res) {
-		NSFMetadata meta = this.fileMap.get(res);
-		if(meta != null && meta.webVisible()) {
-			return getUrl(res);
+	public Optional<FileEntry> getWebEntry(String res) {
+		NSFMetadata metadata = this.fileMap.get(res);
+		if(metadata != null && metadata.webVisible()) {
+			String path = ModuleUtil.trimResourcePath(res);
+			return Optional.of(new FileEntry(path, metadata));
 		} else { 
 			return Optional.empty();
 		}
@@ -181,7 +182,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 						return Optional.of(FileAccess.readFileContentAsInputStream(note));
 					}
 				} else {
-					return null;
+					return Optional.empty();
 				}
 			} catch(NotesAPIException e) {
 				throw new RuntimeException(MessageFormat.format("Encountered exception opening stream for resource \"{0}\" in {1}", res, module.getMapping().nsfPath()), e);
