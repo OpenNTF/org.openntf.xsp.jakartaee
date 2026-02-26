@@ -402,7 +402,6 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	 */
 	@Override
 	protected void writeResourceContent(ServletInvoker invoker, String res) throws IOException {
-		try {
 		var metadata = getRuntimeFileSystem().getWebEntry(ModuleUtil.trimResourcePath(res))
 			.map(FileEntry::metadata)
 			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find resource {0}", res)));
@@ -421,10 +420,6 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 			if(os instanceof DeflaterOutputStream gos) {
 				gos.finish();
 			}
-		}
-		} catch(Exception e) {
-			e.printStackTrace();
-			throw e;
 		}
 	}
 
