@@ -243,6 +243,7 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 				e.printStackTrace();
 				throw new RuntimeException(MessageFormat.format("Encountered exception 0x{0} initializing module {1}", Integer.toHexString(e.id), this), e);
 			} catch(Exception e) {
+				e.printStackTrace();
 				throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
 			}
 

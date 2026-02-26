@@ -36,6 +36,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
@@ -350,7 +352,12 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	}
 	
 	public URL getWebResource(String res) throws MalformedURLException {
-		return getRuntimeFileSystem().getWebResourceUrl(ModuleUtil.trimResourcePath(res))
+		var fs = getRuntimeFileSystem();
+		var path = ModuleUtil.trimResourcePath(res);
+		return fs.getWebEntry(path)
+			.map(entry -> {
+				return fs.getUrl(path).get();
+			})
 			.orElseGet(() -> {
 				// Check for META-INF/resources in embedded JARs
 				// TODO skip check if the incoming path has META-INF or WEB-INF in it already
@@ -387,6 +394,37 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 			throw new PageNotFoundException(MessageFormat.format("No resource found at path {0}", res));
 		} else {
 			super.writeResource(invoker, res);
+		}
+	}
+	
+	/**
+	 * This override supports GZIP based on content type and length
+	 */
+	@Override
+	protected void writeResourceContent(ServletInvoker invoker, String res) throws IOException {
+		try {
+		var metadata = getRuntimeFileSystem().getWebEntry(ModuleUtil.trimResourcePath(res))
+			.map(FileEntry::metadata)
+			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find resource {0}", res)));
+		OutputStream os;
+		if(supportsGzip(invoker) && shouldGZip(res, (int)metadata.fileSize())) {
+			invoker.setHeader("Content-Encoding", "gzip"); //$NON-NLS-1$ //$NON-NLS-2$
+			os = new GZIPOutputStream(invoker.getOutputStream());
+		} else {
+			os = invoker.getOutputStream();
+		}
+		try {
+			if (!getResourceAsStream(os, res)) {
+				throw new PageNotFoundException(MessageFormat.format("Unknown resource {0}", res));
+			}
+		} finally {
+			if(os instanceof DeflaterOutputStream gos) {
+				gos.finish();
+			}
+		}
+		} catch(Exception e) {
+			e.printStackTrace();
+			throw e;
 		}
 	}
 
