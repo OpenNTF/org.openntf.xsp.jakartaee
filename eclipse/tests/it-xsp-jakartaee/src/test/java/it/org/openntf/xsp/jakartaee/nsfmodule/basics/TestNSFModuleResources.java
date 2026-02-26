@@ -47,7 +47,7 @@ public class TestNSFModuleResources extends AbstractWebClientTest {
 		
 		var target = client.target(getRootUrl(null, TestDatabase.MAIN_MODULE) + "/chat.html");
 		var response = target.request()
-			.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+			.acceptEncoding("gzip")
 			.get();
 		
 		checkResponse(200, response);
@@ -130,7 +130,7 @@ public class TestNSFModuleResources extends AbstractWebClientTest {
 		
 		var target = client.target(getRootUrl(null, TestDatabase.MAIN_MODULE) + "/lipsum.txt");
 		var response = target.request()
-			.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+			.acceptEncoding("gzip")
 			.get();
 		
 		checkResponse(200, response);
@@ -156,7 +156,7 @@ public class TestNSFModuleResources extends AbstractWebClientTest {
 		
 		var target = client.target(getRootUrl(null, TestDatabase.MAIN_MODULE) + "/tinyfile.txt");
 		var response = target.request()
-			.header(HttpHeaders.ACCEPT_ENCODING, "gzip")
+			.acceptEncoding("gzip")
 			.get();
 		
 		checkResponse(200, response);
