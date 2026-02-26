@@ -1,4 +1,4 @@
-package it.org.openntf.xsp.jakartaee.nsfmodule;
+package it.org.openntf.xsp.jakartaee.nsfmodule.basics;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -196,5 +196,44 @@ public class TestNSFModuleResources extends AbstractWebClientTest {
 		checkResponse(404, response);
 		String content = response.readEntity(String.class);
 		assertFalse(content.contains("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""), () -> "Unexpected content: " + content);
+	}
+	
+	/**
+	 * Tests that resources in META-INF/resources in JARs are loaded
+	 */
+	@Test
+	public void testJarMetaResource() {
+		var client = getAnonymousClient();
+		
+		var target = client.target(getRootUrl(null, TestDatabase.MAIN_MODULE) + "/jarlipsum.txt");
+		var response = target.request().get();
+		
+		checkResponse(200, response);
+		String content = response.readEntity(String.class);
+		
+		assertTrue(content.contains("Maecenas nunc metus"), () -> "Unexpected content: " + content);
+	}
+	
+	/**
+	 * Tests that resources in META-INF/resources in JARs are loaded and gzip'd when requested
+	 */
+	@Test
+	public void testJarMetaResourceGzip() throws IOException {
+		var client = getAnonymousClient();
+		
+		var target = client.target(getRootUrl(null, TestDatabase.MAIN_MODULE) + "/jarlipsum.txt");
+		var response = target.request()
+			.acceptEncoding("gzip")
+			.get();
+		
+		checkResponse(200, response);
+		String contentEncoding = response.getHeaderString(HttpHeaders.CONTENT_ENCODING);
+		assertEquals("gzip", contentEncoding);
+		var is = response.readEntity(InputStream.class);
+		String content;
+		try(var zip = new GZIPInputStream(is)) {
+			content = new String(zip.readAllBytes());
+		}
+		assertTrue(content.contains("Maecenas nunc metus"), () -> "Unexpected content: " + content);
 	}
 }

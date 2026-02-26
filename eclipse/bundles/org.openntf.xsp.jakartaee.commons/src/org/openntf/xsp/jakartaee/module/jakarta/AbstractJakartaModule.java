@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -58,6 +59,7 @@ import com.ibm.xsp.page.PageNotFoundException;
 
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
+import org.openntf.xsp.jakartaee.module.jakarta.ModuleFileSystem.EntryMetadata;
 import org.openntf.xsp.jakartaee.module.jakarta.ModuleFileSystem.FileEntry;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -402,11 +404,30 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	 */
 	@Override
 	protected void writeResourceContent(ServletInvoker invoker, String res) throws IOException {
-		var metadata = getRuntimeFileSystem().getWebEntry(ModuleUtil.trimResourcePath(res))
-			.map(FileEntry::metadata)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find resource {0}", res)));
+		// Try to figure out the size
+		int len = 0;
+		// Look first for a static resource
+		var optLen = getRuntimeFileSystem().getWebEntry(ModuleUtil.trimResourcePath(res))
+				.map(FileEntry::metadata)
+				.map(EntryMetadata::fileSize);
+		if(optLen.isPresent()) {
+			len = optLen.get().intValue();
+		} else {
+			// Failing that, see if it's a JAR META-INF/resources resource
+			String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
+			var url = getModuleClassLoader().getJarResource(metaResPath);
+			if(url != null) {
+				var conn = url.openConnection();
+				if(conn instanceof JarURLConnection jconn) {
+					// Get the entry to see the length
+					var entry = jconn.getJarEntry();
+					len = (int)entry.getSize();
+				}
+			}
+		}
+		
 		OutputStream os;
-		if(supportsGzip(invoker) && shouldGZip(res, (int)metadata.fileSize())) {
+		if(supportsGzip(invoker) && shouldGZip(res, (int)len)) {
 			invoker.setHeader("Content-Encoding", "gzip"); //$NON-NLS-1$ //$NON-NLS-2$
 			os = new GZIPOutputStream(invoker.getOutputStream());
 		} else {
