@@ -19,6 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -34,6 +38,7 @@ import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -65,6 +70,30 @@ public class TestMvcJsp extends AbstractWebClientTest {
 		} catch(Exception e) {
 			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumAndAnonymousClient.class)
+	public void testHelloPageGzip(TestDatabase db, Client client) throws IOException {
+		var target = client.target(getRestUrl(null, db) + "/mvc?foo=bar");
+		
+		var response = target.request()
+			.accept(MediaType.TEXT_HTML_TYPE)
+			.acceptEncoding("gzip")
+			.get();
+		
+		checkResponse(200, response);
+		
+		var encoding = response.getHeaderString(HttpHeaders.CONTENT_ENCODING);
+		assertEquals("gzip", encoding);
+		
+		String html;
+		var is = response.readEntity(InputStream.class);
+		try(var zis = new GZIPInputStream(is)) {
+			html = new String(zis.readAllBytes());
+		}
+		
+		assertTrue(html.contains("Context from controller is s: CN="), () -> "Unexpected HTML: " + html);
 	}
 	
 	// Account for cases where only the first MVC call works and then "poisons" future ones - ensure that

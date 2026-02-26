@@ -272,6 +272,16 @@ As intimated there, it has access to the CDI environment if enabled, though it d
 
 The path within the NSF can be modified by setting the `org.openntf.xsp.jakarta.rest.path` property in the NSF's "xsp.properties" file. The value there will be appended to `/xsp`. For example, setting it to `foo` will make the above example available at `/some.nsf/xsp/foo/sample`.
 
+#### GZIP Compression
+
+By default, text/*, JSON, and XML responses will be GZIP compressed when the client requests it. To disable this behavior, set this in xsp.properties:
+
+```properties
+rest.gzip.auto=false
+```
+
+#### JSON Conversion
+
 When converting objects to JSON, this will use [JSON-B](#json-p-and-json-b) to stream the response to the client. This streaming can be disabled in favor of pre-buffering for troubleshooting purposes by setting this in xsp.properties:
 
 ```properties
