@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package it.org.openntf.xsp.jakartaee.nsf.basics;
+package it.org.openntf.xsp.jakartaee.nsfmodule.basics;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
