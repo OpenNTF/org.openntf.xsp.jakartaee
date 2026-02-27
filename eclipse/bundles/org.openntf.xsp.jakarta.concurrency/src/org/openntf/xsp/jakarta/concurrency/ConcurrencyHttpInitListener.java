@@ -26,8 +26,6 @@ import jakarta.annotation.Priority;
 
 @Priority(1)
 public class ConcurrencyHttpInitListener implements JakartaHttpInitListener {
-	private static final Logger log = System.getLogger(ConcurrencyActivator.class.getPackageName());
-
 	private Class<?> mqClass;
 	private Method mqOpen;
 	private Method isQuitPending;
