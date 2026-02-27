@@ -21,12 +21,17 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
@@ -48,15 +53,29 @@ public class TestNoSQLNamedAndProfileDocs extends AbstractWebClientTest {
 	private static final String USERNAME2_PROFILE = "CN=Profile Barson/O=SomeOrg";
 	private static final String FIELD_PROFILE = "profileName";
 	
+	public static class EnumAndProfileProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			
+			return new MainAndModuleProvider.EnumOnly().provideArguments(context)
+				.map(args -> args.get())
+				.flatMap(db ->
+					Stream.of(
+						new String[] { PART_NAMED, NAME_NAMED, USERNAME_NAMED, USERNAME2_NAMED, FIELD_NAMED },
+						new String[] { PART_PROFILE, NAME_PROFILE, USERNAME_PROFILE, USERNAME2_PROFILE, FIELD_PROFILE }
+					)
+						.map(args -> Arguments.of(db[0], args[0], args[1], args[2], args[3], args[4]))
+				);
+		}
+	}
+	
 	@ParameterizedTest
-	@CsvSource({
-		PART_NAMED + "," + NAME_NAMED + "," + USERNAME_NAMED + "," + USERNAME2_NAMED + "," + FIELD_NAMED,
-		PART_PROFILE + "," + NAME_PROFILE + "," + USERNAME_PROFILE + "," + USERNAME2_PROFILE + "," + FIELD_PROFILE
-	})
-	public void testDoc(String part, String name, String username, String username2, String field) throws UnsupportedEncodingException {
+	@ArgumentsSource(EnumAndProfileProvider.class)
+	public void testDoc(TestDatabase db, String part, String nameParam, String username, String username2, String field) throws UnsupportedEncodingException {
 		Client client = getAnonymousClient();
 
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + part + "/" + name);
+		String name = nameParam + db.name();
+		WebTarget target = client.target(getRestUrl(null, db) + "/" + part + "/" + name);
 		
 		// Make sure it exists in a blank form at first
 		{
@@ -128,7 +147,7 @@ public class TestNoSQLNamedAndProfileDocs extends AbstractWebClientTest {
 		
 		// Fetch a qualifying name to make sure that's distinct
 		{
-			WebTarget target2 = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + part + "/" + name + "/" + URLEncoder.encode(username2, "UTF-8"));
+			WebTarget target2 = client.target(getRestUrl(null, db) + "/" + part + "/" + name + "/" + URLEncoder.encode(username2, "UTF-8"));
 			Response response = target2.request().get();
 			checkResponse(200, response);
 			
@@ -141,14 +160,12 @@ public class TestNoSQLNamedAndProfileDocs extends AbstractWebClientTest {
 	}
 
 	@ParameterizedTest
-	@CsvSource({
-		PART_NAMED + "," + NAME_NAMED + "," + USERNAME_NAMED + "," + USERNAME2_NAMED + "," + FIELD_NAMED,
-		PART_PROFILE + "," + NAME_PROFILE + "," + USERNAME_PROFILE + "," + USERNAME2_PROFILE + "," + FIELD_PROFILE
-	})
-	public void testQualifiedDoc(String part, String name, String username, String username2, String field) throws UnsupportedEncodingException {
+	@ArgumentsSource(EnumAndProfileProvider.class)
+	public void testQualifiedDoc(TestDatabase db, String part, String nameParam, String username, String username2, String field) throws UnsupportedEncodingException {
 		Client client = getAnonymousClient();
 
-		WebTarget target = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + part + "/" + name + "/" + URLEncoder.encode(username, "UTF-8"));
+		String name = nameParam + db.name();
+		WebTarget target = client.target(getRestUrl(null, db) + "/" + part + "/" + name + "/" + URLEncoder.encode(username, "UTF-8"));
 		
 		// Make sure it exists in a blank form at first
 		{
@@ -220,7 +237,7 @@ public class TestNoSQLNamedAndProfileDocs extends AbstractWebClientTest {
 		
 		// Fetch a different qualifying name to make sure that's distinct
 		{
-			WebTarget target2 = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + part + "/" + name + "/" + URLEncoder.encode(username2, "UTF-8"));
+			WebTarget target2 = client.target(getRestUrl(null, db) + "/" + part + "/" + name + "/" + URLEncoder.encode(username2, "UTF-8"));
 			Response response = target2.request().get();
 			checkResponse(200, response);
 			
@@ -233,7 +250,7 @@ public class TestNoSQLNamedAndProfileDocs extends AbstractWebClientTest {
 		
 		// Fetch a the base name to make sure that's distinct
 		{
-			WebTarget target2 = client.target(getRestUrl(null, TestDatabase.MAIN) + "/" + part + "/" + name);
+			WebTarget target2 = client.target(getRestUrl(null, db) + "/" + part + "/" + name);
 			Response response = target2.request().get();
 			checkResponse(200, response);
 			
