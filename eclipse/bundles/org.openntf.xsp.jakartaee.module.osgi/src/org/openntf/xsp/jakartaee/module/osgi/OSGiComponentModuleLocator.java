@@ -77,7 +77,7 @@ public class OSGiComponentModuleLocator implements ComponentModuleLocator {
 		osgiNotesContextRequestField = request[0];
 		osgiNotesContextModuleField = module[0];
 	}
-	private static final Logger log = System.getLogger(OSGiComponentModuleLocator.class.getPackage().getName());
+	private static final Logger log = System.getLogger(OSGiComponentModuleLocator.class.getPackageName());
 
 	private boolean isAvailable() {
 		return osgiNotesContextRequestField != null;

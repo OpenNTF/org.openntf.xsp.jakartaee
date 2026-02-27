@@ -30,7 +30,7 @@ import org.osgi.framework.BundleContext;
 import jakarta.validation.Validation;
 
 public class ValidationActivator implements BundleActivator {
-	private static final Logger log = System.getLogger(ValidationActivator.class.getPackage().getName());
+	private static final Logger log = System.getLogger(ValidationActivator.class.getPackageName());
 
 	@Override
 	public void start(final BundleContext context) throws Exception {

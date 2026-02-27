@@ -33,9 +33,9 @@ import org.osgi.framework.BundleContext;
  */
 public class ConcurrencyActivator implements BundleActivator {
 
-	public static final String ATTR_SCHEDULEDEXECUTORSERVICE = ConcurrencyActivator.class.getPackage().getName() + "_scheduledExec"; //$NON-NLS-1$
+	public static final String ATTR_SCHEDULEDEXECUTORSERVICE = ConcurrencyActivator.class.getPackageName() + "_scheduledExec"; //$NON-NLS-1$
 
-	public static final String ATTR_EXECUTORSERVICE = ConcurrencyActivator.class.getPackage().getName() + "_exec"; //$NON-NLS-1$
+	public static final String ATTR_EXECUTORSERVICE = ConcurrencyActivator.class.getPackageName() + "_exec"; //$NON-NLS-1$
 
 	public static final String JNDI_SCHEDULEDEXECUTORSERVICE = "java:comp/DefaultManagedScheduledExecutorService"; //$NON-NLS-1$
 

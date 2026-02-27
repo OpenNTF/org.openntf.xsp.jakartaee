@@ -112,7 +112,7 @@ public enum ContainerUtil {
 
 	private static final String ATTR_CONTEXTCONTAINER = "org.openntf.xsp.jakarta.cdi.cdicontainer"; //$NON-NLS-1$
 
-	private static final Logger log = System.getLogger(ContainerUtil.class.getPackage().getName());
+	private static final Logger log = System.getLogger(ContainerUtil.class.getPackageName());
 
 	/**
 	 * Retrieves or creates a CDI container specific to the provided OSGi bundle.

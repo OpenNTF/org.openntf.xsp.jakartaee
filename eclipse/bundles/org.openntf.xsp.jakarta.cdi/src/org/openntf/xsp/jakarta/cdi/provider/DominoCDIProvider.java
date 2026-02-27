@@ -39,7 +39,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @since 1.0.0
  */
 public class DominoCDIProvider implements CDIProvider {
-	private static final Logger log = System.getLogger(DominoCDIProvider.class.getPackage().getName());
+	private static final Logger log = System.getLogger(DominoCDIProvider.class.getPackageName());
 	
 	private static final String PROP_CDI = DominoCDIProvider.class.getName() + "_cdi"; //$NON-NLS-1$
 

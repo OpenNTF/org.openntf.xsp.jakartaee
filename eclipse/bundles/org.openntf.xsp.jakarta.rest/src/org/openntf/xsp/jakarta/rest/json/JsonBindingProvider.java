@@ -46,7 +46,7 @@ import jakarta.ws.rs.ext.Providers;
 @Produces({"application/json", "application/*+json", "text/json", "*/*"})
 @Consumes({"application/json", "application/*+json", "text/json", "*/*"})
 public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBodyReader<Object> {
-	private static final Logger log = System.getLogger(JsonBindingProvider.class.getPackage().getName());
+	private static final Logger log = System.getLogger(JsonBindingProvider.class.getPackageName());
 
 	public static final String PROP_STREAM = "rest.jsonb.stream"; //$NON-NLS-1$
 

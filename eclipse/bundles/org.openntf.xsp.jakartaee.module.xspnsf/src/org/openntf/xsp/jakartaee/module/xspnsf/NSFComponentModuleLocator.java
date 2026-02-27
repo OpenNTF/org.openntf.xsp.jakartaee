@@ -66,7 +66,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 			}
 		});
 	}
-	private static final Logger log = System.getLogger(NSFComponentModuleLocator.class.getPackage().getName());
+	private static final Logger log = System.getLogger(NSFComponentModuleLocator.class.getPackageName());
 
 	@Override
 	public boolean isActive() {

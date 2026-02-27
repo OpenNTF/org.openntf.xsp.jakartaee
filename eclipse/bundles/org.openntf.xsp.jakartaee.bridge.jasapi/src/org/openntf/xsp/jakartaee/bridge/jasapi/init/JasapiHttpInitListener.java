@@ -34,7 +34,7 @@ import org.openntf.xsp.jakartaee.events.JakartaHttpInitListener;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 public class JasapiHttpInitListener implements JakartaHttpInitListener {
-	private static final Logger log = System.getLogger(JasapiHttpInitListener.class.getPackage().getName());
+	private static final Logger log = System.getLogger(JasapiHttpInitListener.class.getPackageName());
 	
 	@Override
 	public void httpInit() throws Exception {

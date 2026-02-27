@@ -38,7 +38,7 @@ import lotus.domino.NotesThread;
 public enum ExecutorHolder {
 	INSTANCE;
 
-	private static final Logger log = System.getLogger(ExecutorHolder.class.getPackage().getName());
+	private static final Logger log = System.getLogger(ExecutorHolder.class.getPackageName());
 
 	private static final AtomicInteger THREAD_INDEX = new AtomicInteger();
 	private final Collection<ExecutorService> executors = Collections.synchronizedSet(new HashSet<>());

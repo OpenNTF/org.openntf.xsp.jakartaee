@@ -49,7 +49,7 @@ import jakarta.ws.rs.ext.Providers;
  * @since 1.0.0
  */
 public class NSFRestApplication extends Application {
-	private static final Logger log = System.getLogger(NSFRestApplication.class.getPackage().getName());
+	private static final Logger log = System.getLogger(NSFRestApplication.class.getPackageName());
 
 	@Override
 	public Set<Object> getSingletons() {

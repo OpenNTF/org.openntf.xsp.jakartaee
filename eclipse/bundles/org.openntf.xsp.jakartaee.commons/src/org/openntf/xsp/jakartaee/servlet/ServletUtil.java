@@ -56,7 +56,7 @@ import jakarta.servlet.http.HttpSessionAttributeListener;
 public enum ServletUtil {
 	;
 
-	public static final String KEY_WEBXML = ServletUtil.class.getPackage().getName() + "_webXml"; //$NON-NLS-1$
+	public static final String KEY_WEBXML = ServletUtil.class.getPackageName() + "_webXml"; //$NON-NLS-1$
 
 	private static final Logger log = System.getLogger(ServletUtil.class.getName());
 
