@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.testcontainers.selenium.BrowserWebDriverContainer;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.UnreachableBrowserException;
 import org.testcontainers.containers.Network;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
@@ -106,7 +107,11 @@ public enum JakartaTestContainers {
 					postgres.close();
 				}
 				if(firefox != null) {
-					firefox.close();
+					try {
+						firefox.close();
+					} catch(UnreachableBrowserException e) {
+						// Ignore
+					}
 				}
 				network.close();
 				
