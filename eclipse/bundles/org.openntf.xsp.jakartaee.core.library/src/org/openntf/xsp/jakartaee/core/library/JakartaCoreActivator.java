@@ -18,7 +18,6 @@ package org.openntf.xsp.jakartaee.core.library;
 import org.openntf.xsp.jakarta.cdi.CDIActivator;
 import org.openntf.xsp.jakarta.concurrency.ConcurrencyActivator;
 import org.openntf.xsp.jakarta.persistence.PersistenceActivator;
-import org.openntf.xsp.jakarta.validation.ValidationActivator;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -31,8 +30,7 @@ public class JakartaCoreActivator implements BundleActivator {
 		Class<?>[] c = {
 			PersistenceActivator.class,
 			CDIActivator.class,
-			ConcurrencyActivator.class,
-			ValidationActivator.class
+			ConcurrencyActivator.class
 		};
 	}
 
