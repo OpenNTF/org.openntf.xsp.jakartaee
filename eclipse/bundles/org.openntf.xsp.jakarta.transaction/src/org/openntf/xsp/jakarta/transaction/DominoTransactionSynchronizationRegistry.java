@@ -9,7 +9,8 @@ import jakarta.transaction.TransactionSynchronizationRegistry;
 /**
  * @since 3.7.0
  */
-public class DominoTransactionSynchronizationRegistry implements TransactionSynchronizationRegistry {
+public enum DominoTransactionSynchronizationRegistry implements TransactionSynchronizationRegistry {
+	INSTANCE;
 
 	@Override
 	public Object getTransactionKey() {
@@ -18,7 +19,6 @@ public class DominoTransactionSynchronizationRegistry implements TransactionSync
 
 	@Override
 	public void putResource(Object key, Object value) {
-		System.out.println("putting resource " + key + "=" + value);
 		if(CDI.current().select(Transaction.class).get() instanceof DominoTransaction dt) {
 			dt.putResource(key, value);
 		}
@@ -26,7 +26,6 @@ public class DominoTransactionSynchronizationRegistry implements TransactionSync
 
 	@Override
 	public Object getResource(Object key) {
-		System.out.println("getting resource " + key);
 		if(CDI.current().select(Transaction.class).get() instanceof DominoTransaction dt) {
 			return dt.getResource(key);
 		} else {

@@ -3,8 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta Transaction Support
 Bundle-SymbolicName: org.openntf.xsp.jakarta.transaction;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakarta.transaction
-Bundle-ActivationPolicy: lazy
-Bundle-Activator: org.openntf.xsp.jakarta.transaction.TransactionActivator
 Bundle-Version: 3.7.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
