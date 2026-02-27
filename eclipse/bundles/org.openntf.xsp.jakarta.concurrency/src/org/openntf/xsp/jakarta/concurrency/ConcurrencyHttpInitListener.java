@@ -16,15 +16,9 @@
 package org.openntf.xsp.jakarta.concurrency;
 
 import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import org.openntf.xsp.jakarta.concurrency.jndi.DelegatingManagedExecutorService;
-import org.openntf.xsp.jakarta.concurrency.jndi.DelegatingManagedScheduledExecutorService;
 import org.openntf.xsp.jakartaee.events.JakartaHttpInitListener;
 import org.osgi.framework.FrameworkUtil;
 
@@ -68,18 +62,6 @@ public class ConcurrencyHttpInitListener implements JakartaHttpInitListener {
 				ExecutorHolder.INSTANCE.termAll();
 			}
 		}, 0, 10, TimeUnit.SECONDS);
-
-		InitialContext jndi = new InitialContext();
-		try {
-			jndi.rebind(ConcurrencyActivator.JNDI_EXECUTORSERVICE, new DelegatingManagedExecutorService());
-		} catch(NamingException e) {
-			log.log(Level.ERROR, "Encountered exception binding ManagedExecutorService in JNDI", e);
-		}
-		try {
-			jndi.rebind(ConcurrencyActivator.JNDI_SCHEDULEDEXECUTORSERVICE, new DelegatingManagedScheduledExecutorService());
-		} catch(NamingException e) {
-			log.log(Level.ERROR, "Encountered exception binding ManagedScheduledExecutorService in JNDI", e);
-		}
 	}
 	
 	private boolean isHttpQuitting() {

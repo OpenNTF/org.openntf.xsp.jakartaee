@@ -42,8 +42,9 @@ import jakarta.enterprise.concurrent.Trigger;
  * @author Jesse Gallagher
  * @since 2.11.0
  */
-public class DelegatingManagedScheduledExecutorService implements ManagedScheduledExecutorService {
-
+public enum DelegatingManagedScheduledExecutorService implements ManagedScheduledExecutorService {
+	INSTANCE;
+	
 	@Override
 	public void shutdown() {
 		getDelegate().shutdown();

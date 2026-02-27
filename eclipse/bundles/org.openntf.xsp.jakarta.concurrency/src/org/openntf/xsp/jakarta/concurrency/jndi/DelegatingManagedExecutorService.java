@@ -40,8 +40,9 @@ import jakarta.enterprise.concurrent.ManagedExecutorService;
  * @author Jesse Gallagher
  * @since 2.11.0
  */
-public class DelegatingManagedExecutorService implements ManagedExecutorService {
-
+public enum DelegatingManagedExecutorService implements ManagedExecutorService {
+	INSTANCE;
+	
 	@Override
 	public void shutdown() {
 		getDelegate().shutdown();

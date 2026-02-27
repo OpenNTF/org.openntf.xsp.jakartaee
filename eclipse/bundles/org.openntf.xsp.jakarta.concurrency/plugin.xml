@@ -21,4 +21,15 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakartaee.events.JakartaHttpInitListener" class="org.openntf.xsp.jakarta.concurrency.ConcurrencyHttpInitListener"/>
 	</extension>
+	
+	<extension point="com.ibm.pvc.jndi.provider.java.objectfactory">
+		<objectfactory class="org.openntf.xsp.jakarta.concurrency.jndi.ManagedExecutorServiceFactory"
+			id="org.openntf.xsp.jakarta.concurrency.jndi.ManagedExecutorServiceFactory"/>
+	</extension>
+	<extension point="com.ibm.pvc.jndi.provider.java.binding">
+		<binding jndi-name="java:comp/DefaultManagedExecutorService" objectFactory-id="org.openntf.xsp.jakarta.concurrency.jndi.ManagedExecutorServiceFactory"/>
+	</extension>
+	<extension point="com.ibm.pvc.jndi.provider.java.binding">
+		<binding jndi-name="java:comp/DefaultManagedScheduledExecutorService" objectFactory-id="org.openntf.xsp.jakarta.concurrency.jndi.ManagedExecutorServiceFactory"/>
+	</extension>
 </plugin>
