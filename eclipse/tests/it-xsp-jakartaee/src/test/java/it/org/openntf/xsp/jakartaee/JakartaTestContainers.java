@@ -123,9 +123,7 @@ public enum JakartaTestContainers {
 	private static void deltree(Path path) {
 		if(Files.isDirectory(path)) {
 			try(Stream<Path> walk = Files.list(path)) {
-				walk.forEach(p -> {
-					deltree(p);
-				});
+				walk.forEach(JakartaTestContainers::deltree);
 			} catch(IOException e) {
 				throw new UncheckedIOException(e);
 			}
