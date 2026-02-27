@@ -115,9 +115,7 @@ public enum JakartaTestContainers {
 				}
 				network.close();
 				
-				DominoContainer.tempFiles.forEach(t -> {
-					deltree(t);
-				});
+				DominoContainer.tempFiles.forEach(JakartaTestContainers::deltree);
 			}));
 		}
 	}
