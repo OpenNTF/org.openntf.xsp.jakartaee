@@ -37,6 +37,9 @@ import jakarta.validation.ValidatorFactory;
 
 public enum XPagesValidationUtil {
 	;
+	
+	public static final String JNDI_VALIDATORFACTORY = "java:comp/ValidatorFactory"; //$NON-NLS-1$
+	public static final String JNDI_VALIDATOR = "java:comp/Validator"; //$NON-NLS-1$
 
 	/**
 	 * Constructs a new {@link ValidatorFactory} instance that uses the locale

@@ -125,9 +125,9 @@ public class ConcurrencyExample {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getAsyncLookup() throws InterruptedException, ExecutionException, NamingException {
 		ExecutorService exec = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
-		return exec.submit(() -> {
-			return "I looked up: " + InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
-		}).get();
+		return exec.submit(() ->
+			"I looked up: " + InitialContext.doLookup("java:comp/DefaultManagedExecutorService").getClass().getName()
+		).get();
 	}
 	
 	@Path("doubleAsyncLookup")
@@ -138,7 +138,7 @@ public class ConcurrencyExample {
 		return exec.submit(() -> {
 			ExecutorService exec2 = InitialContext.doLookup("java:comp/DefaultManagedExecutorService");
 			return exec2.submit(() -> 
-				"I looked up: " + InitialContext.doLookup("java:comp/DefaultManagedExecutorService")
+				"I looked up: " + InitialContext.doLookup("java:comp/DefaultManagedExecutorService").getClass().getName()
 			).get();
 		}).get();
 	}
