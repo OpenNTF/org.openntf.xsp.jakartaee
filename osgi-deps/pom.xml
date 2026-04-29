@@ -396,7 +396,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.angus.jakarta.mail</Bundle-SymbolicName>
-										<Bundle-Version>2.0.3.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>2.0.5.${osgi.qualifier}</Bundle-Version>
 										<Import-Package>jakarta.*</Import-Package>
 										<Export-Package>jakarta.*;version="2.1.0"</Export-Package>
 									</instructions>
