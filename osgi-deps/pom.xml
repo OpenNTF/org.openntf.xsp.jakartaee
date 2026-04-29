@@ -44,7 +44,7 @@
 		<!-- This will need a special bridge for OSGi -->
 		<resteasy-version>7.0.1.Final</resteasy-version>
 		<resteasy-mp-version>3.0.1.Final</resteasy-mp-version>
-		<nosql-version>1.1.10</nosql-version>
+		<nosql-version>1.1.13</nosql-version>
 		<nosql-version-osgi>${nosql-version}</nosql-version-osgi>
 		<tomcat-version>11.0.21</tomcat-version>
 		
