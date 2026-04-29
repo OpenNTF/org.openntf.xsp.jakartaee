@@ -348,13 +348,13 @@
 								
 								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to ndext on Domino -->
 								<artifact>
-									<id>org.jboss.logging:jboss-logging:3.6.1.Final</id>
+									<id>org.jboss.logging:jboss-logging:3.6.3.Final</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.logging.jboss-logging</Bundle-SymbolicName>
-										<Bundle-Version>3.6.1.Final_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>org.jboss.logging;version="3.6.1.Final"</Export-Package>
+										<Bundle-Version>3.6.3.Final_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>org.jboss.logging;version="3.6.3.Final"</Export-Package>
 										<Import-Package>
 											org.apache.log4j;resolution:=optional,
 											org.apache.logging.log4j;version="[2.0,3)";resolution:=optional,
