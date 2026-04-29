@@ -40,6 +40,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<weld-version>6.0.3.Final</weld-version>
+		<!-- NB: RESTEasy 7.0.2 changed the Registry class in SPI to use a ServiceLoader lookup. -->
+		<!-- This will need a special bridge for OSGi -->
 		<resteasy-version>7.0.1.Final</resteasy-version>
 		<resteasy-mp-version>3.0.1.Final</resteasy-mp-version>
 		<nosql-version>1.1.10</nosql-version>
