@@ -591,11 +591,8 @@
 									Jakarta Persistence
 								-->
 								<artfiact><id>jakarta.persistence:jakarta.persistence-api:3.2.0</id><source>true</source></artfiact>
-								<!-- 5.0.0-B08+ leads to an NPE to do with the Transaction Manager. -->
-								<!-- Will take work - just trying to set the TransactionManager will hit a problem with -->
-								<!-- JTA + simple transactions at the same time-->
 								<artfiact>
-									<id>org.eclipse.persistence:eclipselink:5.0.0-B13</id>
+									<id>org.eclipse.persistence:eclipselink:5.0.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
@@ -606,6 +603,7 @@
 											!sun.misc,
 											org.eclipse.persistence;version="5.0.0";resolution:=optional,
 											org.eclipse.persistence.*;version="5.0.0";resolution:=optional,
+											org.objectweb.asm,
 											*;resolution:=optional
 										</Import-Package>
 										<Require-Capability></Require-Capability>
