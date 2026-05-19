@@ -45,7 +45,6 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.images.builder.Transferable;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.TestDatabase;
@@ -235,17 +234,20 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	}
 	
 	private static Path findLocalMavenArtifact(String groupId, String artifactId, String version, String type) {
-		String mavenRepo = System.getProperty("maven.repo.local"); //$NON-NLS-1$
-		if (StringUtil.isEmpty(mavenRepo)) {
-			mavenRepo = PathUtil.concat(System.getProperty("user.home"), ".m2", File.separatorChar); //$NON-NLS-1$ //$NON-NLS-2$
-			mavenRepo = PathUtil.concat(mavenRepo, "repository", File.separatorChar); //$NON-NLS-1$
+		String mavenRepoProp = System.getProperty("maven.repo.local"); //$NON-NLS-1$
+		Path mavenRepo;
+		if (mavenRepoProp == null || mavenRepoProp.isEmpty()) {
+			mavenRepo = Paths.get(System.getProperty("user.home")); //$NON-NLS-1$
+			mavenRepo = mavenRepo.resolve(".m2").resolve("repository"); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			mavenRepo = Paths.get(mavenRepoProp);
 		}
 		String groupPath = groupId.replace('.', File.separatorChar);
-		Path localPath = Paths.get(mavenRepo).resolve(groupPath).resolve(artifactId).resolve(version);
-		String fileName = StringUtil.format("{0}-{1}.{2}", artifactId, version, type); //$NON-NLS-1$
+		Path localPath = mavenRepo.resolve(groupPath).resolve(artifactId).resolve(version);
+		String fileName = String.format("%s-%s.%s", artifactId, version, type); //$NON-NLS-1$
 		Path localFile = localPath.resolve(fileName);
-		
-		if(!Files.isRegularFile(localFile)) {
+
+		if (!Files.isRegularFile(localFile)) {
 			throw new RuntimeException("Unable to locate Maven artifact: " + localFile);
 		}
 
