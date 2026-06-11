@@ -117,9 +117,18 @@ public class NSFJakartaModuleService extends HttpService {
 		ModuleTracker.INSTANCE.awaitInit();
 		
 		String chompedPath = getChompedPathInfo(pathInfo);
+		String hostName = servletRequest.getServerName();
 		Optional<NSFJakartaModule> target = ModuleTracker.INSTANCE.getModules().entrySet()
 			.stream()
-			.filter(entry -> chompedPath.equals(entry.getKey()) || chompedPath.startsWith(entry.getKey() + '/'))
+			.filter(entry -> {
+				var hostNames = entry.getValue().getMapping().hostNames();
+				if(hostNames != null && !hostNames.isEmpty()) {
+					if(!hostNames.contains(hostName)) {
+						return false;
+					}
+				}
+				return chompedPath.equals(entry.getKey()) || chompedPath.startsWith(entry.getKey() + '/');
+			})
 			.map(Map.Entry::getValue)
 			.findFirst();
 		if (target.isPresent()) {

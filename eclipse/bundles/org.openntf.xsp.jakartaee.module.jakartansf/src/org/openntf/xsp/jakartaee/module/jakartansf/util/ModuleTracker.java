@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -59,6 +61,8 @@ public enum ModuleTracker {
 	private static final String ITEM_NSFPATH = "NSFPath"; //$NON-NLS-1$
 	private static final String ITEM_SERVERS = "Servers"; //$NON-NLS-1$
 	private static final String ITEM_MPCONFIG = "MPConfig"; //$NON-NLS-1$
+	/** @since 3.7.0 */
+	private static final String ITEM_HOSTNAMES = "HostNames"; //$NON-NLS-1$
 
 	private final Map<String, NSFJakartaModule> modules = new ConcurrentHashMap<>();
 	private final CountDownLatch initLatch = new CountDownLatch(1);
@@ -166,7 +170,12 @@ public enum ModuleTracker {
 									}
 								}
 								
-								result.add(new ModuleMap(nsfPath, barePath, props));
+								@SuppressWarnings("unchecked")
+								List<String> hostNames = moduleDoc.getItemValue(ITEM_HOSTNAMES);
+								Set<String> hostNameSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+								hostNameSet.addAll(hostNames);
+								
+								result.add(new ModuleMap(nsfPath, barePath, props, hostNameSet));
 							} else {
 								log.log(Level.WARNING, () -> MessageFormat.format("{0}: Skipping invalid NSF path for module \"{1}\"", getClass().getSimpleName(), webPath));
 							}

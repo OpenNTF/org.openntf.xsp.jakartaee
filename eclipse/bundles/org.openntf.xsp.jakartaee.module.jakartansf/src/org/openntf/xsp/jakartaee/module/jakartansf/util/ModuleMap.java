@@ -15,6 +15,12 @@
  */
 package org.openntf.xsp.jakartaee.module.jakartansf.util;
 
+import java.util.Collection;
 import java.util.Properties;
 
-public record ModuleMap(String nsfPath, String path, Properties configProperties) {}
+public record ModuleMap(
+	String nsfPath,
+	String path,
+	Properties configProperties,
+	Collection<String> hostNames
+) {}

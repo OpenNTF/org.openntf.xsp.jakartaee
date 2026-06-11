@@ -15,6 +15,7 @@
  */
 package it.org.openntf.xsp.jakartaee.nsfmodule.basics;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -39,5 +40,32 @@ public class TestNSFJakartaModuleBasics extends AbstractWebClientTest {
 		checkResponse(404, response);
 		String content = response.readEntity(String.class);
 		assertTrue(content.contains("File not found or unable to read file"), () -> "Did not receive expected 404 page; got content: " + content);
+	}
+	
+	/**
+	 * Tests that a module registered to a specific host name only responds to that name
+	 */
+	@Test
+	public void testHostNameMapping() {
+		{
+			Client client = getAdminClient();
+			WebTarget target = client.target(getRootUrl(null, TestDatabase.HOST_MAPPED_MODULE) + "/chat.html");
+			Response response = target.request()
+				.header("Host", "somename.com")
+				.get();
+			checkResponse(404, response);
+			assertEquals(
+				"<HTML><HEAD><TITLE>Unable to Process Request</TITLE></HEAD><BODY><P>Http Status Code: 404</P><P>Reason: File not found or unable to read file</P></BODY></HTML>",
+				response.readEntity(String.class)
+			);
+		}
+		{
+			Client client = getAdminClient();
+			WebTarget target = client.target(getRootUrl(null, TestDatabase.HOST_MAPPED_MODULE) + "/chat.html");
+			Response response = target.request()
+				.header("Host", "foo.com")
+				.get();
+			assertEquals(200, response.getStatus(), "Host-mapped module should be available on a mapped host");
+		}
 	}
 }

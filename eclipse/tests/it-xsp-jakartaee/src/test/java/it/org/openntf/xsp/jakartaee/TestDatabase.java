@@ -64,6 +64,17 @@ public enum TestDatabase {
 		public String getContextPath() {
 			return "/pfshowcase";
 		}
+	},
+	HOST_MAPPED_MODULE(null, null, "Host-Mapped Jakarta NSF Module") {
+		@Override
+		public String getContextPath() {
+			return "/hostspecific";
+		}
+		
+		@Override
+		public String getXspPrefix() {
+			return "";
+		}
 	}
 	;
 	

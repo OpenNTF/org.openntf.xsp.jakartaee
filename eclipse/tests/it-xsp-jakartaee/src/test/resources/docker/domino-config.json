@@ -269,6 +269,16 @@
 							"NSFPath": "dev/primefaces-showcase.nsf",
 							"Servers": "*"
 						}
+					},
+					{
+						"action": "create",
+						"items": {
+							"Form": "JakartaNSFModule",
+							"WebPath": "/hostspecific",
+							"NSFPath": "dev/jakartaee.nsf",
+							"Servers": "*",
+							"HostNames": ["foo.com"]
+						}
 					}
 				]
 			}

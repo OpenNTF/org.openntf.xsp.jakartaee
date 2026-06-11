@@ -101,16 +101,26 @@ public enum JakartaTestContainers {
 		} finally {
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				if(domino != null) {
-					domino.close();
+					try {
+						domino.close();
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
 				}
 				if(postgres != null) {
-					postgres.close();
+					try {
+						postgres.close();
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
 				}
 				if(firefox != null) {
 					try {
 						firefox.close();
 					} catch(UnreachableBrowserException e) {
 						// Ignore
+					} catch(Exception e) {
+						e.printStackTrace();
 					}
 				}
 				network.close();
