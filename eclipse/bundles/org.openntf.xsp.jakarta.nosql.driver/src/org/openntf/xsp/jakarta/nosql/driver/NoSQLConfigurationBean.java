@@ -31,4 +31,32 @@ public interface NoSQLConfigurationBean {
 	 *         explain results during operations
 	 */
 	boolean emitExplainEvents();
+	
+	/**
+	 * Determines whether the DQL engine should refresh
+	 * views for the given entity type and statement
+	 * 
+	 * @param entityType the type of entity being queried
+	 * @param dqlQuery the DQL query to be executed
+	 * @return whether the DQL engine should refresh views
+	 * @since 3.7.0
+	 */
+	default boolean shouldDqlRefreshViews(Class<?> entityType, String dqlQuery) {
+		return false;
+	}
+	
+	/**
+	 * Determines whether the DQL engine should refresh
+	 * the FT index for the given entity type and statement
+	 * 
+	 * @param entityType the type of entity being queried
+	 * @param dqlQuery the DQL query to be executed
+	 * @return whether the DQL engine should refresh the FT index
+	 * @since 3.7.0
+	 */
+	default boolean shouldDqlRefreshFullText(Class<?> entityType, String dqlQuery) {
+		return false;
+	}
+	
+	
 }
