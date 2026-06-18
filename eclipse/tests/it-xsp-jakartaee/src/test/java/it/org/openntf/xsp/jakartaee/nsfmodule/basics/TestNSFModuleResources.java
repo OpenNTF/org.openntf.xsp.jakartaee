@@ -236,4 +236,20 @@ public class TestNSFModuleResources extends AbstractWebClientTest {
 		}
 		assertTrue(content.contains("Maecenas nunc metus"), () -> "Unexpected content: " + content);
 	}
+	
+	/**
+	 * Tests that resources served from the NSF use MIME type mappings from web.xml
+	 */
+	@Test
+	public void testWebXmlMimeTypes() {
+		var client = getAnonymousClient();
+
+		var target = client.target(getRootUrl(null, TestDatabase.MAIN_MODULE) + "/example.customtype");
+		var response = target.request().get();	
+		
+		checkResponse(200, response);
+		var content = response.readEntity(String.class);
+		assertEquals("I am a text file that should be served with a web.xml-defined type", content);
+		assertEquals("text/x-customtype", response.getHeaderString(HttpHeaders.CONTENT_TYPE));
+	}
 }

@@ -309,6 +309,20 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	 * @since 3.5.0
 	 */
 	public Optional<String> getMimeType(String filePath) {
+		WebXml webXml = ServletUtil.getWebXml(this);
+		var mappings = webXml.getMimeMappings();
+		if(mappings != null) {
+			var type = mappings.entrySet().stream()
+				.filter(entry -> {
+					var ext = '.' + entry.getKey();
+					return filePath.endsWith(ext);
+				})
+				.map(Map.Entry::getValue)
+				.findFirst();
+			if(type.isPresent()) {
+				return type;
+			}
+		}
 		return Optional.empty();
 	}
 

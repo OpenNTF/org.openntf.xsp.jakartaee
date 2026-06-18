@@ -69,6 +69,7 @@ public class TestSupportService extends HttpService {
 						} else {
 							anon.setLevel(ACL.LEVEL_AUTHOR);
 						}
+						anon.setPublicWriter(true);
 						
 						ACLEntry admin = acl.createACLEntry("CN=Jakarta EE Test/O=OpenNTFTest", ACL.LEVEL_MANAGER);
 						try {
@@ -79,7 +80,9 @@ public class TestSupportService extends HttpService {
 						
 						acl.save();
 						
+						// Make sure the design collection is good
 						database.getView("Persons");
+						
 						session.sendConsoleCommand("", "load updall " + nsfName);
 					}
 				}
@@ -118,13 +121,17 @@ public class TestSupportService extends HttpService {
 		try {
 			if(String.valueOf(pathInfo).contains("doFinalShutdownTasks")) {
 				new ProcessBuilder("tar", "-czvf", "/tmp/IBM_TECHNICAL_SUPPORT.tar.gz", "/local/notesdata/IBM_TECHNICAL_SUPPORT")
-					.inheritIO()
-					.start()
-					.waitFor();
+						.inheritIO()
+						.start()
+						.waitFor();
 				new ProcessBuilder("tar", "-czvf", "/tmp/workspace-logs.tar.gz", "/local/notesdata/domino/workspace/logs")
-				.inheritIO()
-					.start()
-					.waitFor();
+						.inheritIO()
+						.start()
+						.waitFor();
+				new ProcessBuilder("tar", "-czvf", "/tmp/devnsfs.tar.gz", "/local/notesdata/dev")
+						.inheritIO()
+						.start()
+						.waitFor();
 				
 				Path jcmd = Paths.get("/opt/hcl/domino/notes/latest/linux/jvm/bin/jcmd");
 				if(Files.isExecutable(jcmd)) {
@@ -150,6 +157,14 @@ public class TestSupportService extends HttpService {
 					MimeBodyPart part = new MimeBodyPart();
 					part.setFileName("workspace-logs.tar.gz");
 					Path file = Paths.get("/tmp/workspace-logs.tar.gz");
+					var content = Files.readAllBytes(file);
+					part.setContent(content, "application/octet-stream");
+					result.addBodyPart(part);
+				}
+				{
+					MimeBodyPart part = new MimeBodyPart();
+					part.setFileName("devnsfs.tar.gz");
+					Path file = Paths.get("/tmp/devnsfs.tar.gz");
 					var content = Files.readAllBytes(file);
 					part.setContent(content, "application/octet-stream");
 					result.addBodyPart(part);
