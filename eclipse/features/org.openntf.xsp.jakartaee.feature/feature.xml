@@ -19,7 +19,7 @@
 <feature
       id="org.openntf.xsp.jakartaee.feature"
       label="XPages Jakarta EE Core Feature"
-      version="3.7.0.qualifier">
+      version="3.8.0.qualifier">
 
    <description url="https://github.com/OpenNTF/org.openntf.xsp.jakartaee">
       Non-UI Jakarta EE support for NSFs
