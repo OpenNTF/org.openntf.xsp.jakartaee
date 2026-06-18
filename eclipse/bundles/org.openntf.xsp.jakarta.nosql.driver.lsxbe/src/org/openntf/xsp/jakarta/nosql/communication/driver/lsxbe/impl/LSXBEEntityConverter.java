@@ -26,6 +26,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -664,18 +666,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							encoding = encodingHeader.getHeaderVal();
 						}
 
-						try(
-							InputStream bais = new ByteArrayInputStream(serialized);
-							InputStream is = DominoNoSQLUtil.wrapInputStream(bais, encoding);
-							ObjectInputStream ois = new LoaderObjectInputStream(is)
-						) {
-							docMap.put(itemName, ois.readObject());
-							continue;
-						} catch (IOException e) {
-							throw new UncheckedIOException(e);
-						} catch (ClassNotFoundException e) {
-							throw new RuntimeException(e);
-						}
+						docMap.put(itemName, deserialize(serialized, encoding));
+						continue;
 					}
 
 					// TODO consider whether to pass this back as a Mail API MIME entity
@@ -689,6 +681,46 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						} else {
 							docMap.put(itemName, entity.toString());
 						}
+					}
+				} else if(item.getType() == Item.USERDATA) {
+					if(optStorage.isEmpty() || optStorage.get().type() != ItemStorage.Type.UserData) {
+						throw new IllegalStateException(MessageFormat.format(
+							"Encountered User Data item {0} in document {1} in {2}!!{3} that is not declared as User Data in the entity {4}",
+							item.getName(),
+							doc.getUniversalID(),
+							doc.getParentDatabase().getServer(),
+							doc.getParentDatabase().getFilePath(),
+							classMapping.className()
+						));
+					}
+					String userDataType = optStorage.get().userDataTypeName();
+					if(StringUtil.isEmpty(userDataType)) {
+						throw new IllegalArgumentException(MessageFormat.format("userDataType must be specified for item {0} in type {1}", item.getName(), classMapping.className()));
+					}
+					
+					// Slightly different handling based on target type
+					try {
+						Optional<Type> targetType = getFieldType(classMapping, itemName);
+						if(targetType.isPresent()) {
+							if(String.class.equals(targetType.get())) {
+								byte[] stringBytes = item.getValueCustomDataBytes(userDataType);
+								docMap.put(itemName, new String(stringBytes, StandardCharsets.UTF_8));
+							} else if(byte[].class.equals(targetType.get())) {
+								byte[] bytes = item.getValueCustomDataBytes(userDataType);
+								docMap.put(itemName, bytes);
+							} else if(ByteBuffer.class.equals(targetType.get())) {
+								byte[] bytes = item.getValueCustomDataBytes(userDataType);
+								docMap.put(itemName, ByteBuffer.wrap(bytes));
+							} else {
+								byte[] bytes = item.getValueCustomDataBytes(userDataType);
+								Object objectValue = deserialize(bytes, null);
+								docMap.put(itemName, objectValue);
+							}
+						} else {
+							docMap.put(itemName, item.getValueCustomDataBytes(userDataType));
+						}
+					} catch(IOException e) {
+						throw new UncheckedIOException(e);
 					}
 				} else {
 					List<?> val = item.getValues();
@@ -1011,17 +1043,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 								continue;
 							}
 							case MIMEBean:
-								byte[] serialized;
-								try(
-									ByteArrayOutputStream baos = new ByteArrayOutputStream();
-									ObjectOutputStream oos = new ObjectOutputStream(baos);
-								) {
-									oos.writeObject(val);
-									oos.flush();
-									serialized = baos.toByteArray();
-								} catch(IOException e) {
-									throw new UncheckedIOException(e);
-								}
+								byte[] serialized = serialize(val);
 								target.removeItem(doc.name());
 								MIMEEntity mimeEntity = target.createMIMEEntity(doc.name());
 								mimeEntity.createHeader(DominoConstants.HEADER_JAVA_CLASS).setHeaderVal(val.getClass().getName());
@@ -1037,6 +1059,26 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 								target.closeMIMEEntities(true, doc.name());
 
+								continue;
+							case UserData:
+								String userDataType = optStorage.get().userDataTypeName();
+								if(StringUtil.isEmpty(userDataType)) {
+									throw new IllegalArgumentException(MessageFormat.format("userDataType must be specified for field {0} in type {1}", doc.name(), classMapping.className()));
+								}
+								byte[] bytes;
+								if(val instanceof byte[] byteVal) {
+									bytes = byteVal;
+								} else if(val instanceof ByteBuffer bufVal) {
+									bytes = new byte[bufVal.remaining()];
+									bufVal.get(bytes);
+								} else if(val instanceof String stringVal) {
+									bytes = stringVal.getBytes(StandardCharsets.UTF_8);
+								} else {
+									// NB: skipping replaceItemValueCustomData to avoid ClassNotFoundException when deserializing
+									bytes = serialize(val);
+								}
+								target.replaceItemValueCustomDataBytes(doc.name(), userDataType, bytes);
+								
 								continue;
 							case Default:
 							default:
@@ -1096,6 +1138,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				});
 			
 			target.replaceItemValue(DominoConstants.FIELD_NAME, EntityUtil.getFormName(classMapping));
+		} catch(IOException e) {
+			throw new UncheckedIOException(e);
 		} catch(Exception e) {
 			throw e;
 		}
@@ -1185,5 +1229,32 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			return !hasConverter;
 		}
 		return false;
+	}
+	
+	private byte[] serialize(Object val) {
+		try(
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+		) {
+			oos.writeObject(val);
+			oos.flush();
+			return baos.toByteArray();
+		} catch(IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+	
+	private Object deserialize(byte[] serialized, String encoding) {
+		try(
+			InputStream bais = new ByteArrayInputStream(serialized);
+			InputStream is = DominoNoSQLUtil.wrapInputStream(bais, encoding);
+			ObjectInputStream ois = new LoaderObjectInputStream(is)
+		) {
+			return ois.readObject();
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

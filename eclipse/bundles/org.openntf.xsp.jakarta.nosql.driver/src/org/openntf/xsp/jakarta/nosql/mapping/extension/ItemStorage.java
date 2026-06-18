@@ -18,6 +18,7 @@ package org.openntf.xsp.jakarta.nosql.mapping.extension;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import java.io.Serializable;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -58,7 +59,32 @@ public @interface ItemStorage {
 		 * item with summary set to {@code false}. The summary flag can be
 		 * re-enabled by using the {@link ItemFlags} annotation.</p>
 		 */
-		JSON
+		JSON,
+		/**
+		 * Stores the value as "user data": up to 64K of binary data with
+		 * a developer-provided type name.
+		 * 
+		 * <p>When a field of this type is specified, it will be mapped as follows:</p>
+		 * 
+		 * <dl>
+		 * 	<dt>{@code String}</dt>
+		 * 	<dd>Stored as a byte array as with {@link String#getBytes()}.
+		 * 
+		 * 	<dt>{@code byte[]}</dt>
+		 * 	<dd>Stored directly</dd>
+		 * 
+		 * 	<dt>{@code ByteBuffer}</dt>
+		 * 	<dd>Stored as a byte array copied from the buffer</dd>
+		 * 
+		 * 	<dt>Other types</dt>
+		 * 	<dd>Stored as bytes via {@link Serializable}</dd>
+		 * </dl>
+		 * 
+		 * <p>When using this type, you must also specify {@link ItemStorage#userDataTypeName()}.</p>
+		 * 
+		 * @since 3.7.0
+		 */
+		UserData
 	}
 
 	Type type() default Type.Default;
@@ -93,4 +119,12 @@ public @interface ItemStorage {
      * @since 2.8.0
      */
     int precision() default 0;
+    
+    /**
+     * (Used with {@link Type#USERDATA}) The data type name when storing and
+     * reading user data items.
+     * 
+	 * @since 3.7.0
+     */
+    String userDataTypeName() default "";
 }
