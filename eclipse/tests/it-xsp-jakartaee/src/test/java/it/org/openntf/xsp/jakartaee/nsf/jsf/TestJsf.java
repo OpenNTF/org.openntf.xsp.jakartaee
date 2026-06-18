@@ -238,4 +238,23 @@ public class TestJsf extends AbstractWebClientTest {
 			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
 		}
 	}
+	
+	/**
+	 * Tests that a welcome-file-list entry will work for a subdirectory when
+	 * using Jakarta modules
+	 */
+	@ParameterizedTest
+	@ArgumentsSource(BrowserArgumentsProvider.class)
+	@Order(6)
+	public void testSubdirectoryWelcomeFaces(WebDriver driver) {
+		driver.get(getRootUrl(driver, TestDatabase.MAIN_MODULE) + "/somedir");
+		
+		try {
+			// Test a basic programmatic JSF element to make sure it went through the Servlet
+			WebElement dd = driver.findElement(By.xpath("//dt[text()=\"requestGuy.message\"]/following-sibling::dd[1]"));
+			assertTrue(dd.getText().startsWith("I'm request guy at "));
+		} catch(Exception e) {
+			fail("Encountered exception with page source:\n" + driver.getPageSource(), e);
+		}
+	}
 }

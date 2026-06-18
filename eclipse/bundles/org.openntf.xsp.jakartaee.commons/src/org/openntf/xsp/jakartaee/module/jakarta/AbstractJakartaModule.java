@@ -283,12 +283,47 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 		try {
 			super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
 		} catch(PageNotFoundException | com.ibm.designer.runtime.domino.adapter.util.PageNotFoundException e) {
-			if(pathInfo.isEmpty() || "/".equals(pathInfo)) { //$NON-NLS-1$
-				// Check for a welcome page and re-run the request with that
-				String welcomePage = this.getWelcomePage();
-				if(StringUtil.isNotEmpty(welcomePage)) {
-					HttpServletRequestAdapter welcomeReq = new WelcomePageRequestAdapter(servletRequest, welcomePage);
-					super.doService(contextPath, welcomePage, httpSessionAdapter, welcomeReq, servletResponse);
+			// Check for a welcome page and re-run the request with that
+			Set<String> files = ServletUtil.getWebXml(this).getWelcomeFiles();
+			if(!files.isEmpty()) {
+				String matchedWelcome = null;
+				try(var withCl = new WithClassLoader()) {
+					matchedWelcome = files.stream()
+						.filter(StringUtil::isNotEmpty)
+						.map(p -> {
+							String pathP = p;
+							if(pathP.charAt(0) != '/') {
+								pathP = '/' + pathP;
+							}
+							return pathP;
+						})
+						.map(p -> {
+							try {
+								String welcomePath = PathUtil.concat(pathInfo, p, '/');
+								ServletMatch match = this.getServlet(welcomePath);
+								if(match != null) {
+									return welcomePath;
+								}
+								URL res = this.getResource(welcomePath);
+								if(res != null) {
+									return welcomePath;
+								}
+								
+								return null;
+							} catch(javax.servlet.ServletException | IOException e2) {
+								throw new RuntimeException(e2);
+							}
+						})
+						.filter(StringUtil::isNotEmpty)
+						.findFirst()
+						.orElse(null);
+				}
+				
+				if(StringUtil.isNotEmpty(matchedWelcome)) {
+					var fMatchedWelcome = matchedWelcome;
+					log.log(Level.TRACE, () -> MessageFormat.format("Service welcome file {0} for path {1}{2}", fMatchedWelcome, contextPath, pathInfo));
+					HttpServletRequestAdapter welcomeReq = new WelcomePageRequestAdapter(servletRequest, matchedWelcome);
+					super.doService(contextPath, matchedWelcome, httpSessionAdapter, welcomeReq, servletResponse);
 					return;
 				}
 			}
