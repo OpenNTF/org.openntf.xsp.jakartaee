@@ -164,7 +164,8 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 			.getEntry(filePath)
 			.map(FileEntry::metadata)
 			.map(NSFMetadata.class::cast)
-			.map(NSFMetadata::mimeType);
+			.map(NSFMetadata::mimeType)
+			.filter(StringUtil::isNotEmpty);
 		if(fs.isPresent()) {
 			return fs;
 		} else {
