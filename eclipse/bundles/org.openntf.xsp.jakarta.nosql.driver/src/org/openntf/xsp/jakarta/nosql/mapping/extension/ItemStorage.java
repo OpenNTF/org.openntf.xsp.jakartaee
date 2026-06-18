@@ -74,7 +74,7 @@ public @interface ItemStorage {
 		 * 	<dd>Stored directly</dd>
 		 * 
 		 * 	<dt>{@code ByteBuffer}</dt>
-		 * 	<dd>Stored as a byte array via {@link java.nio.ByteBuffer#array()}</dd>
+		 * 	<dd>Stored as a byte array copied from the buffer</dd>
 		 * 
 		 * 	<dt>Other types</dt>
 		 * 	<dd>Stored as bytes via {@link Serializable}</dd>
