@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package rest;
+
+import org.eclipse.microprofile.openapi.annotations.Operation;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -32,6 +34,7 @@ public class AdminRoleExample {
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	@RolesAllowed("[Admin]")
+	@Operation(summary = "Test for the admin role", description = "Returns a sentence with your name if you're an admin")
 	public String get() {
 		return "I think you're an admin, " + securityContext.getUserPrincipal().getName();
 	}

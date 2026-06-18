@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,8 +40,9 @@ import jakarta.enterprise.concurrent.ManagedExecutorService;
  * @author Jesse Gallagher
  * @since 2.11.0
  */
-public class DelegatingManagedExecutorService implements ManagedExecutorService {
-
+public enum DelegatingManagedExecutorService implements ManagedExecutorService {
+	INSTANCE;
+	
 	@Override
 	public void shutdown() {
 		getDelegate().shutdown();

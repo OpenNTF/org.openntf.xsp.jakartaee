@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,23 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import com.ibm.commons.extension.ExtensionManager;
-import com.ibm.commons.util.io.StreamUtil;
-import com.ibm.designer.domino.napi.NotesAPIException;
-import com.ibm.designer.domino.napi.NotesConstants;
-import com.ibm.designer.domino.napi.NotesDatabase;
-import com.ibm.designer.domino.napi.NotesNote;
-import com.ibm.designer.domino.napi.NotesSession;
-import com.ibm.designer.domino.napi.design.FileAccess;
-import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
-import com.ibm.designer.runtime.domino.bootstrap.adapter.DominoHttpXspNativeContext;
-import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
-import com.ibm.domino.napi.NException;
-import com.ibm.domino.napi.c.BackendBridge;
-import com.ibm.domino.napi.c.NotesUtil;
-import com.ibm.domino.napi.c.xsp.XSPNative;
-import com.ibm.xsp.acl.NoAccessSignal;
-
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.jakarta.cdi.bean.HttpContextBean;
 import org.openntf.xsp.jakarta.cdi.util.ContainerUtil;
@@ -69,6 +52,21 @@ import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.openntf.xsp.jakartaee.util.PriorityComparator;
 
+import com.ibm.commons.extension.ExtensionManager;
+import com.ibm.commons.util.StringUtil;
+import com.ibm.commons.util.io.StreamUtil;
+import com.ibm.designer.domino.napi.NotesAPIException;
+import com.ibm.designer.domino.napi.NotesDatabase;
+import com.ibm.designer.domino.napi.NotesSession;
+import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
+import com.ibm.designer.runtime.domino.bootstrap.adapter.DominoHttpXspNativeContext;
+import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
+import com.ibm.domino.napi.NException;
+import com.ibm.domino.napi.c.BackendBridge;
+import com.ibm.domino.napi.c.NotesUtil;
+import com.ibm.domino.napi.c.xsp.XSPNative;
+import com.ibm.xsp.acl.NoAccessSignal;
+
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.ServletContainerInitializer;
@@ -78,6 +76,8 @@ import jakarta.servlet.annotation.HandlesTypes;
 import jakarta.servlet.annotation.WebListener;
 import jakarta.servlet.http.HttpServletRequest;
 import lotus.domino.Database;
+import lotus.domino.Document;
+import lotus.domino.NoteCollection;
 import lotus.domino.NotesException;
 import lotus.domino.NotesFactory;
 import lotus.domino.NotesThread;
@@ -164,7 +164,8 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 			.getEntry(filePath)
 			.map(FileEntry::metadata)
 			.map(NSFMetadata.class::cast)
-			.map(NSFMetadata::mimeType);
+			.map(NSFMetadata::mimeType)
+			.filter(StringUtil::isNotEmpty);
 		if(fs.isPresent()) {
 			return fs;
 		} else {
@@ -201,11 +202,30 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 					throw new RuntimeException(MessageFormat.format("Unable to open database {0}", this.mapping.nsfPath()));
 				}
 				
-				// Try opening any view with LSXBE first to make sure the design collection is initialized
 				Session session = NotesFactory.createSession();
 				try {
+					// Try opening any view with LSXBE first to make sure the design collection is initialized
 					Database db = NSFModuleUtil.openDatabase(session, this.mapping.nsfPath());
 					db.recycle(db.getViews());
+
+					// Use xsp.properties as our signer if available
+					NoteCollection notes = db.createNoteCollection(false);
+					notes.selectAllDesignElements(true);
+					notes.setSelectionFormula(" $TITLE='WEB-INF/xsp.properties' ");
+					notes.buildCollection();
+					
+					String noteId = notes.getFirstNoteID();
+					if(StringUtil.isNotEmpty(noteId)) {
+						Document propNote = db.getDocumentByID(noteId);
+						String signer = propNote.getSigner();
+						if(StringUtil.isNotEmpty(signer)) {
+							this.xspSigner = signer;
+						} else {
+							this.xspSigner = session.getUserName();
+						}
+					} else {
+						this.xspSigner = session.getUserName();
+					}
 				} finally {
 					session.recycle();
 				}
@@ -216,20 +236,6 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 					throw new IllegalStateException(MessageFormat.format("Module {0} is not configured for library {1}", this, LibraryUtil.LIBRARY_CORE));
 				}
 				
-				// Use xsp.properties as our signer if available
-				NotesNote xspProperties = FileAccess.getFileByPath(this.notesDatabase, "WEB-INF/xsp.properties"); //$NON-NLS-1$
-				if(xspProperties != null) {
-					List<String> updatedBy = xspProperties.getItemAsTextList(NotesConstants.FIELD_UPDATED_BY);
-					if(!updatedBy.isEmpty()) {
-						this.xspSigner = updatedBy.get(updatedBy.size()-1);
-					} else {
-						this.xspSigner = this.notesDatabase.getUserName();
-					}
-					xspProperties.recycle();
-				} else {
-					this.xspSigner = this.notesDatabase.getUserName();
-				}
-
 				setModuleClassLoader(new DefaultModuleClassLoader(this));
 			} catch (NotesAPIException e) {
 				e.printStackTrace();
@@ -238,6 +244,7 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 				e.printStackTrace();
 				throw new RuntimeException(MessageFormat.format("Encountered exception 0x{0} initializing module {1}", Integer.toHexString(e.id), this), e);
 			} catch(Exception e) {
+				e.printStackTrace();
 				throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
 			}
 

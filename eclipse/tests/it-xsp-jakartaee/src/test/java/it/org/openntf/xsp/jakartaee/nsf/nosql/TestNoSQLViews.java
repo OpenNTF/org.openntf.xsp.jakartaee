@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,14 +24,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.stream.Stream;
 
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
+import it.org.openntf.xsp.jakartaee.providers.MainAndModuleProvider;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -44,16 +48,30 @@ import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
 public class TestNoSQLViews extends AbstractWebClientTest {
-	@Test
-	public void testQueryByKey() throws UnsupportedEncodingException {
+	public static class EnumAndCategoryProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			
+			return new MainAndModuleProvider.EnumOnly().provideArguments(context)
+				.map(args -> args.get())
+				.flatMap(db ->
+					Stream.of("findCategorized", "findCategorizedManual")
+						.map(page -> Arguments.of(db[0],  page))
+				);
+		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testQueryByKey(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
-		JsonObject person = createTwoPersonDocuments(false);
+		JsonObject person = createTwoPersonDocuments(db, false);
 		
 		// Find by the last name of the second person
 		String lastName = person.getString("lastName");
 		assertNotNull(lastName);
-		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byViewKey/" + URLEncoder.encode(lastName, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/byViewKey/" + URLEncoder.encode(lastName, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -65,19 +83,20 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertEquals(person.getString("unid"), result.getString("unid"));
 		assertEquals(person.getString("lastName"), result.getString("lastName"));
 	}
-	
-	@Test
-	public void testQueryByTwoKeys() throws UnsupportedEncodingException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testQueryByTwoKeys(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
-		JsonObject person = createTwoPersonDocuments(true);
+		JsonObject person = createTwoPersonDocuments(db, true);
 		
 		// Find by the last name of the second person
 		String lastName = person.getString("lastName");
 		assertNotNull(lastName);
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
-		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byViewTwoKeys"
+		WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/byViewTwoKeys"
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 			+ "/"
 			+ URLEncoder.encode(firstName, "UTF-8")
@@ -93,19 +112,20 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertEquals(person.getString("unid"), result.getString("unid"));
 		assertEquals(person.getString("lastName"), result.getString("lastName"));
 	}
-	
-	@Test
-	public void testQueryByKeyMulti() throws UnsupportedEncodingException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testQueryByKeyMulti(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		// Create four documents with two distinct last names
-		createTwoPersonDocuments(true);
-		JsonObject person = createTwoPersonDocuments(true);
+		createTwoPersonDocuments(db, true);
+		JsonObject person = createTwoPersonDocuments(db, true);
 		
 		// Find by the last name of the second person
 		String lastName = person.getString("lastName");
 		assertNotNull(lastName);
-		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/byViewKeyMulti/" + URLEncoder.encode(lastName, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/byViewKeyMulti/" + URLEncoder.encode(lastName, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -132,11 +152,11 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/391">Issue #391</a>
 	 */
 	@ParameterizedTest
-	@ValueSource(strings = { "findCategorized", "findCategorizedManual" })
-	public void testQueryDocumentsCategorized(String endpoint) throws UnsupportedEncodingException {
+	@ArgumentsSource(EnumAndCategoryProvider.class)
+	public void testQueryDocumentsCategorized(TestDatabase db, String endpoint) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
-		JsonObject person = createTwoPersonDocuments(true);
+		JsonObject person = createTwoPersonDocuments(db, true);
 		
 		// Find by the last name of the second person
 		String lastName = person.getString("lastName");
@@ -144,7 +164,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
 		WebTarget queryTarget = client.target(
-			getRestUrl(null, TestDatabase.MAIN) + "/nosql/" + endpoint
+			getRestUrl(null, db) + "/nosql/" + endpoint
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 		);
 		
@@ -167,11 +187,12 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 	 * 
 	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/404">Issue #404</a>
 	 */
-	@Test
-	public void testQueryDocumentsCategorizedDistinct() throws UnsupportedEncodingException {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testQueryDocumentsCategorizedDistinct(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
-		JsonObject person = createTwoPersonDocuments(true);
+		JsonObject person = createTwoPersonDocuments(db, true);
 		
 		// Find by the last name of the second person
 		String lastName = person.getString("lastName");
@@ -179,7 +200,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		String firstName = person.getString("firstName");
 		assertNotNull(firstName);
 		WebTarget queryTarget = client.target(
-			getRestUrl(null, TestDatabase.MAIN) + "/nosql/findCategorizedDistinct"
+			getRestUrl(null, db) + "/nosql/findCategorizedDistinct"
 			+ "/" + URLEncoder.encode(lastName, "UTF-8")
 		);
 		
@@ -195,19 +216,20 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertEquals(person.getString("unid"), result.getString("unid"));
 		assertEquals(person.getString("lastName"), result.getString("lastName"));
 	}
-	
-	@Test
-	public void testFtSearch() throws UnsupportedEncodingException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testFtSearch(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		String prefix = "aa" + System.nanoTime();
 		
-		JsonObject person1 = createPersonDoc("Foo", prefix + "bar");
-		JsonObject person2 = createPersonDoc("Foo", prefix + "baz");
+		JsonObject person1 = createPersonDoc(db, "Foo", prefix + "bar");
+		JsonObject person2 = createPersonDoc(db, "Foo", prefix + "baz");
 		
 		String query = "[LastName]=" + prefix + "*";
 		{
-			WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearch?search=" + URLEncoder.encode(query, "UTF-8"));
+			WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/ftSearch?search=" + URLEncoder.encode(query, "UTF-8"));
 			
 			Response response = queryTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -224,7 +246,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		// Test basic pagination
 		String firstUnid;
 		{
-			WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearchPaginated?page=1&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
+			WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/ftSearchPaginated?page=1&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
 			
 			Response response = queryTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -241,7 +263,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 			firstUnid = result.getJsonObject(0).getString("unid");
 		}
 		{
-			WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearchPaginated?page=2&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
+			WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/ftSearchPaginated?page=2&size=1&search=" + URLEncoder.encode(query, "UTF-8"));
 			
 			Response response = queryTarget.request()
 				.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -259,20 +281,21 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		}
 	}	
 
-	@Test
-	public void testFtSearch2() throws UnsupportedEncodingException {
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testFtSearch2(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		String prefix = "aa" + System.nanoTime();
 		
 		@SuppressWarnings("unused")
-		JsonObject person1 = createPersonDoc("Foo", prefix + "bar");
-		JsonObject person2 = createPersonDoc("Fooness", prefix + "baz");
+		JsonObject person1 = createPersonDoc(db, "Foo", prefix + "bar");
+		JsonObject person2 = createPersonDoc(db, "Fooness", prefix + "baz");
 		
 		String query = "[LastName]=" + prefix + "*";
 		String query2 = "[FirstName]=Fooness";
 		WebTarget queryTarget = client.target(
-			getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearch?"
+			getRestUrl(null, db) + "/nosql/ftSearch?"
 			+ "search=" + URLEncoder.encode(query, "UTF-8")
 			+ "&search2=" + URLEncoder.encode(query2, "UTF-8")
 		);
@@ -287,18 +310,19 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertEquals(1, result.size());
 		assertEquals(person2.getString("unid"), result.getJsonObject(0).getString("unid"));
 	}
-	
-	@Test
-	public void testFtSearchSorted() throws UnsupportedEncodingException {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testFtSearchSorted(TestDatabase db) throws UnsupportedEncodingException {
 		Client client = getAdminClient();
 		
 		String prefix = "aa" + System.nanoTime();
 		
-		JsonObject person1 = createPersonDoc("Foo", prefix + "bar");
-		JsonObject person2 = createPersonDoc("Zarg", prefix + "baz");
+		JsonObject person1 = createPersonDoc(db, "Foo", prefix + "bar");
+		JsonObject person2 = createPersonDoc(db, "Zarg", prefix + "baz");
 		
 		String query = "[LastName]=" + prefix + "*";
-		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/ftSearchSorted?search=" + URLEncoder.encode(query, "UTF-8"));
+		WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/ftSearchSorted?search=" + URLEncoder.encode(query, "UTF-8"));
 		
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
@@ -311,11 +335,12 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		assertEquals(person2.getString("unid"), result.getJsonObject(0).getString("unid"));
 		assertEquals(person1.getString("unid"), result.getJsonObject(1).getString("unid"));
 	}
-	
-	@Test
-	public void testListViews() {
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testListViews(TestDatabase db) {
 		Client client = getAdminClient();
-		WebTarget queryTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/listViews");
+		WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/listViews");
 		Response response = queryTarget.request()
 			.accept(MediaType.APPLICATION_JSON_TYPE)
 			.get();
@@ -381,7 +406,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 	 * @return the second document created
 	 * @throws JsonException if there is a problem parsing the result
 	 */
-	private JsonObject createTwoPersonDocuments(boolean retainLastName) {
+	private JsonObject createTwoPersonDocuments(TestDatabase db, boolean retainLastName) {
 		// Create two documents to ensure that we can query by the second
 		String lastName = null;
 		JsonObject person = null;
@@ -390,15 +415,15 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 				lastName = "Fooson" + System.nanoTime();
 			}
 			
-			person = createPersonDoc("Foo" + System.nanoTime(), lastName);
+			person = createPersonDoc(db, "Foo" + System.nanoTime(), lastName);
 		}
 		
 		return person;
 	}
 	
-	private JsonObject createPersonDoc(String firstName, String lastName) {
+	private JsonObject createPersonDoc(TestDatabase db, String firstName, String lastName) {
 		Client client = getAdminClient();
-		WebTarget postTarget = client.target(getRestUrl(null, TestDatabase.MAIN) + "/nosql/create"); //$NON-NLS-1$
+		WebTarget postTarget = client.target(getRestUrl(null, db) + "/nosql/create"); //$NON-NLS-1$
 
 		MultipartFormDataOutput payload = new MultipartFormDataOutput();
 		payload.addFormData("firstName", firstName, MediaType.TEXT_PLAIN_TYPE);

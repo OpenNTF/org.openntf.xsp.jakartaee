@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.testcontainers.selenium.BrowserWebDriverContainer;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.UnreachableBrowserException;
 import org.testcontainers.containers.Network;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
@@ -106,13 +107,15 @@ public enum JakartaTestContainers {
 					postgres.close();
 				}
 				if(firefox != null) {
-					firefox.close();
+					try {
+						firefox.close();
+					} catch(UnreachableBrowserException e) {
+						// Ignore
+					}
 				}
 				network.close();
 				
-				DominoContainer.tempFiles.forEach(t -> {
-					deltree(t);
-				});
+				DominoContainer.tempFiles.forEach(JakartaTestContainers::deltree);
 			}));
 		}
 	}
@@ -120,9 +123,7 @@ public enum JakartaTestContainers {
 	private static void deltree(Path path) {
 		if(Files.isDirectory(path)) {
 			try(Stream<Path> walk = Files.list(path)) {
-				walk.forEach(p -> {
-					deltree(p);
-				});
+				walk.forEach(JakartaTestContainers::deltree);
 			} catch(IOException e) {
 				throw new UncheckedIOException(e);
 			}

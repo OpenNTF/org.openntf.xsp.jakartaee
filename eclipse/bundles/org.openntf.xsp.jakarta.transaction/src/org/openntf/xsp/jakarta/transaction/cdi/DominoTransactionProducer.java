@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,6 @@ import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
 import jakarta.transaction.Synchronization;
 import jakarta.transaction.SystemException;
-import jakarta.transaction.Transaction;
 import jakarta.transaction.UserTransaction;
 
 /**
@@ -57,7 +56,7 @@ public class DominoTransactionProducer {
 	}
 
 	@Produces
-	public Transaction produceTransaction() {
+	public DominoTransaction produceTransaction() {
 		return getTransaction();
 	}
 

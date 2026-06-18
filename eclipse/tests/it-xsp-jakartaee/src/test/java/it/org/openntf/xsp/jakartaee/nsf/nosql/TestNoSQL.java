@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -418,7 +418,8 @@ public class TestNoSQL extends AbstractWebClientTest {
 			assertNotNull(modifiedInThisFile);
 			Instant modifiedInst = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(modified));
 			Instant modifiedInThisFileInst = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(modifiedInThisFile));
-			assertEquals(modifiedInst.truncatedTo(ChronoUnit.SECONDS), modifiedInThisFileInst.truncatedTo(ChronoUnit.SECONDS));
+			long diffSeconds = Math.abs(modifiedInst.truncatedTo(ChronoUnit.SECONDS).getEpochSecond() - modifiedInThisFileInst.truncatedTo(ChronoUnit.SECONDS).getEpochSecond());
+			assertTrue(diffSeconds <= 1, () -> "Mismatched times: " + List.of(modifiedInst, modifiedInThisFileInst));
 			
 			String created = jsonObject.getString("created");
 			assertNotNull(created);

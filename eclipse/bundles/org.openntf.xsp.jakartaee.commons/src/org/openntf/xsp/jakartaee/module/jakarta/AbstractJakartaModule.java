@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -36,6 +37,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
@@ -56,6 +59,7 @@ import com.ibm.xsp.page.PageNotFoundException;
 
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.openntf.xsp.jakartaee.module.JakartaIServletFactory;
+import org.openntf.xsp.jakartaee.module.jakarta.ModuleFileSystem.EntryMetadata;
 import org.openntf.xsp.jakartaee.module.jakarta.ModuleFileSystem.FileEntry;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -279,12 +283,47 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 		try {
 			super.doService(contextPath, pathInfo, httpSessionAdapter, servletRequest, servletResponse);
 		} catch(PageNotFoundException | com.ibm.designer.runtime.domino.adapter.util.PageNotFoundException e) {
-			if(pathInfo.isEmpty() || "/".equals(pathInfo)) { //$NON-NLS-1$
-				// Check for a welcome page and re-run the request with that
-				String welcomePage = this.getWelcomePage();
-				if(StringUtil.isNotEmpty(welcomePage)) {
-					HttpServletRequestAdapter welcomeReq = new WelcomePageRequestAdapter(servletRequest, welcomePage);
-					super.doService(contextPath, welcomePage, httpSessionAdapter, welcomeReq, servletResponse);
+			// Check for a welcome page and re-run the request with that
+			Set<String> files = ServletUtil.getWebXml(this).getWelcomeFiles();
+			if(!files.isEmpty()) {
+				String matchedWelcome = null;
+				try(var withCl = new WithClassLoader()) {
+					matchedWelcome = files.stream()
+						.filter(StringUtil::isNotEmpty)
+						.map(p -> {
+							String pathP = p;
+							if(pathP.charAt(0) != '/') {
+								pathP = '/' + pathP;
+							}
+							return pathP;
+						})
+						.map(p -> {
+							try {
+								String welcomePath = PathUtil.concat(pathInfo, p, '/');
+								ServletMatch match = this.getServlet(welcomePath);
+								if(match != null) {
+									return welcomePath;
+								}
+								URL res = this.getResource(welcomePath);
+								if(res != null) {
+									return welcomePath;
+								}
+								
+								return null;
+							} catch(javax.servlet.ServletException | IOException e2) {
+								throw new RuntimeException(e2);
+							}
+						})
+						.filter(StringUtil::isNotEmpty)
+						.findFirst()
+						.orElse(null);
+				}
+				
+				if(StringUtil.isNotEmpty(matchedWelcome)) {
+					var fMatchedWelcome = matchedWelcome;
+					log.log(Level.TRACE, () -> MessageFormat.format("Service welcome file {0} for path {1}{2}", fMatchedWelcome, contextPath, pathInfo));
+					HttpServletRequestAdapter welcomeReq = new WelcomePageRequestAdapter(servletRequest, matchedWelcome);
+					super.doService(contextPath, matchedWelcome, httpSessionAdapter, welcomeReq, servletResponse);
 					return;
 				}
 			}
@@ -305,6 +344,20 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	 * @since 3.5.0
 	 */
 	public Optional<String> getMimeType(String filePath) {
+		WebXml webXml = ServletUtil.getWebXml(this);
+		var mappings = webXml.getMimeMappings();
+		if(mappings != null) {
+			var type = mappings.entrySet().stream()
+				.filter(entry -> {
+					var ext = '.' + entry.getKey();
+					return filePath.endsWith(ext);
+				})
+				.map(Map.Entry::getValue)
+				.findFirst();
+			if(type.isPresent()) {
+				return type;
+			}
+		}
 		return Optional.empty();
 	}
 
@@ -350,7 +403,12 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	}
 	
 	public URL getWebResource(String res) throws MalformedURLException {
-		return getRuntimeFileSystem().getWebResourceUrl(ModuleUtil.trimResourcePath(res))
+		var fs = getRuntimeFileSystem();
+		var path = ModuleUtil.trimResourcePath(res);
+		return fs.getWebEntry(path)
+			.map(entry -> {
+				return fs.getUrl(path).get();
+			})
 			.orElseGet(() -> {
 				// Check for META-INF/resources in embedded JARs
 				// TODO skip check if the incoming path has META-INF or WEB-INF in it already
@@ -382,11 +440,56 @@ public abstract class AbstractJakartaModule extends ComponentModule {
 	@Override
 	protected void writeResource(ServletInvoker invoker, String res) throws IOException {
 		// Do an early check here since otherwise the parent implementation will set a status of 200
-		if(getWebResource(res) == null) {
+		if(StringUtil.isEmpty(res) || "/".equals(res) || getWebResource(res) == null) { //$NON-NLS-1$
 			// TODO consider handling this differently, to avoid just "Item Not Found Exception" and a console log entry
 			throw new PageNotFoundException(MessageFormat.format("No resource found at path {0}", res));
 		} else {
 			super.writeResource(invoker, res);
+		}
+	}
+	
+	/**
+	 * This override supports GZIP based on content type and length
+	 */
+	@Override
+	protected void writeResourceContent(ServletInvoker invoker, String res) throws IOException {
+		// Try to figure out the size
+		int len = 0;
+		// Look first for a static resource
+		var optLen = getRuntimeFileSystem().getWebEntry(ModuleUtil.trimResourcePath(res))
+				.map(FileEntry::metadata)
+				.map(EntryMetadata::fileSize);
+		if(optLen.isPresent()) {
+			len = optLen.get().intValue();
+		} else {
+			// Failing that, see if it's a JAR META-INF/resources resource
+			String metaResPath = PathUtil.concat("META-INF/resources", res, '/'); //$NON-NLS-1$
+			var url = getModuleClassLoader().getJarResource(metaResPath);
+			if(url != null) {
+				var conn = url.openConnection();
+				if(conn instanceof JarURLConnection jconn) {
+					// Get the entry to see the length
+					var entry = jconn.getJarEntry();
+					len = (int)entry.getSize();
+				}
+			}
+		}
+		
+		OutputStream os;
+		if(supportsGzip(invoker) && shouldGZip(res, (int)len)) {
+			invoker.setHeader("Content-Encoding", "gzip"); //$NON-NLS-1$ //$NON-NLS-2$
+			os = new GZIPOutputStream(invoker.getOutputStream());
+		} else {
+			os = invoker.getOutputStream();
+		}
+		try {
+			if (!getResourceAsStream(os, res)) {
+				throw new PageNotFoundException(MessageFormat.format("Unknown resource {0}", res));
+			}
+		} finally {
+			if(os instanceof DeflaterOutputStream gos) {
+				gos.finish();
+			}
 		}
 	}
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +17,16 @@ package org.openntf.xsp.jakarta.validation.jndi;
 
 import java.util.Set;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+import org.openntf.xsp.jakarta.validation.XPagesValidationUtil;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import jakarta.validation.executable.ExecutableValidator;
 import jakarta.validation.metadata.BeanDescriptor;
 
-public class DelegatingValidator implements Validator {
+public enum DelegatingValidator implements Validator {
+	INSTANCE;
 
 	@Override
 	public <T> Set<ConstraintViolation<T>> validate(final T object, final Class<?>... groups) {
@@ -55,17 +56,20 @@ public class DelegatingValidator implements Validator {
 
 	@Override
 	public ExecutableValidator forExecutables() {
-		// TODO Auto-generated method stub
-		return null;
+		return delegate().forExecutables();
 	}
 
 	private Validator delegate() {
-		// TODO see if there's a good way to not re-resolve this every time
-		try {
-			InitialContext jndi = new InitialContext();
-			return (Validator)jndi.lookup("java:comp/Validator"); //$NON-NLS-1$
-		} catch (NamingException e) {
-			throw new RuntimeException(e);
-		}
+		return ComponentModuleLocator.getDefault()
+			.flatMap(ComponentModuleLocator::getServletContext)
+			.map(ctx -> {
+				var existing = (Validator)ctx.getAttribute(XPagesValidationUtil.JNDI_VALIDATOR);
+				if(existing == null) {
+					existing = XPagesValidationUtil.constructXPagesValidator();
+					ctx.setAttribute(XPagesValidationUtil.JNDI_VALIDATOR, existing);
+				}
+				return existing;
+			})
+			.orElseThrow(() -> new IllegalStateException("ServletContext not available"));
 	}
 }

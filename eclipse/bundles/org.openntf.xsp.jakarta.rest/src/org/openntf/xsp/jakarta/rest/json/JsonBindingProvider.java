@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@ import jakarta.ws.rs.ext.Providers;
 @Produces({"application/json", "application/*+json", "text/json", "*/*"})
 @Consumes({"application/json", "application/*+json", "text/json", "*/*"})
 public class JsonBindingProvider implements MessageBodyWriter<Object>, MessageBodyReader<Object> {
-	private static final Logger log = System.getLogger(JsonBindingProvider.class.getPackage().getName());
+	private static final Logger log = System.getLogger(JsonBindingProvider.class.getPackageName());
 
 	public static final String PROP_STREAM = "rest.jsonb.stream"; //$NON-NLS-1$
 

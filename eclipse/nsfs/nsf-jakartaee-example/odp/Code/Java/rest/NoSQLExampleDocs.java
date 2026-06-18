@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,9 @@
  */
 package rest;
 
+import java.nio.ByteBuffer;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +34,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import jakarta.json.bind.Jsonb;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
 import jakarta.transaction.NotSupportedException;
@@ -55,10 +58,12 @@ import lotus.domino.Database;
 import lotus.domino.NotesException;
 import lotus.domino.Session;
 import model.ExampleDoc;
+import model.ExampleDoc.MimeStorage;
 import model.ExampleDocRepository;
 import model.Person;
 import model.PersonRepository;
 
+@SuppressWarnings("nls")
 @Path("exampleDocs")
 public class NoSQLExampleDocs {
 	@Inject
@@ -85,6 +90,9 @@ public class NoSQLExampleDocs {
 	
 	@Inject
 	private NoSQLConfig nosqlConfig;
+	
+	@Inject
+	private Jsonb jsonb;
 	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -336,5 +344,73 @@ public class NoSQLExampleDocs {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getLastModified() {
 		return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(repository.queryLastModified());
+	}
+	
+	@Path("createExampleDocUserDataString")
+	@POST
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JsonObject createExampleDocUserDataString(String userData) {
+		var doc = new ExampleDoc();
+		doc.setUserDataString(userData);
+		doc = repository.save(doc);
+		// Re-fetch for DXL
+		doc = repository.findById(doc.getUnid()).get();
+		return Json.createObjectBuilder()
+			.add("unid", doc.getUnid())
+			.add("userDataString", doc.getUserDataString())
+			.add("dxl", doc.getDxl())
+			.build();
+	}
+	
+	@Path("createExampleDocUserDataBytes")
+	@POST
+	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JsonObject createExampleDocUserDataBytes(byte[] userData) {
+		var doc = new ExampleDoc();
+		doc.setUserDataBytes(userData);
+		doc = repository.save(doc);
+		// Re-fetch for DXL
+		doc = repository.findById(doc.getUnid()).get();
+		return Json.createObjectBuilder()
+			.add("unid", doc.getUnid())
+			.add("userDataBytes", Base64.getEncoder().encodeToString(doc.getUserDataBytes()))
+			.add("dxl", doc.getDxl())
+			.build();
+	}
+	
+	@Path("createExampleDocUserDataByteBuffer")
+	@POST
+	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JsonObject createExampleDocUserDataByteBuffer(byte[] userData) {
+		var doc = new ExampleDoc();
+		doc.setUserDataByteBuffer(ByteBuffer.wrap(userData));
+		doc = repository.save(doc);
+		// Re-fetch for DXL
+		doc = repository.findById(doc.getUnid()).get();
+		return Json.createObjectBuilder()
+			.add("unid", doc.getUnid())
+			.add("userDataByteBuffer", Base64.getEncoder().encodeToString(doc.getUserDataByteBuffer().array()))
+			.add("dxl", doc.getDxl())
+			.build();
+	}
+	
+	@Path("createExampleDocUserDataObject")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JsonObject createExampleDocUserDataObject(MimeStorage userData) {
+		var doc = new ExampleDoc();
+		doc.setUserDataObject(userData);
+		doc = repository.save(doc);
+		// Re-fetch for DXL
+		doc = repository.findById(doc.getUnid()).get();
+		return Json.createObjectBuilder()
+			.add("unid", doc.getUnid())
+			.add("userDataObject", jsonb.toJson(doc.getUserDataObject()))
+			.add("dxl", doc.getDxl())
+			.build();
 	}
 }

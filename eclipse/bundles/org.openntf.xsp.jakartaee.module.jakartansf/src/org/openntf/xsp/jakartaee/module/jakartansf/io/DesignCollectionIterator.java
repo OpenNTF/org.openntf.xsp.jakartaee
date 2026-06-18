@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@ package org.openntf.xsp.jakartaee.module.jakartansf.io;
 import java.text.MessageFormat;
 import java.util.Iterator;
 
+import com.ibm.commons.util.StringUtil;
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesCollection;
 import com.ibm.designer.domino.napi.NotesCollectionEntry;
@@ -26,7 +27,7 @@ import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.domino.napi.util.NotesIterator;
 
 public class DesignCollectionIterator implements Iterator<DesignCollectionIterator.DesignEntry>, AutoCloseable {
-	public record DesignEntry(String flags, String flagsExt, String title, String classIndexItem, String mimeType, int noteId, Runnable recycler) implements AutoCloseable {
+	public record DesignEntry(String flags, String flagsExt, String title, String classIndexItem, String mimeType, int noteId, long fileSize, Runnable recycler) implements AutoCloseable {
 		public DesignEntry(NotesCollectionEntry entry) {
 			this(
 				getItemValueAsString(entry, NotesConstants.DESIGN_FLAGS),
@@ -35,6 +36,7 @@ public class DesignCollectionIterator implements Iterator<DesignCollectionIterat
 				getItemValueAsString(entry, "$ClassIndexItem"), //$NON-NLS-1$
 				getItemValueAsString(entry, NotesConstants.ITEM_NAME_FILE_MIMETYPE),
 				getNoteID(entry),
+				getItemValueAsLong(entry, NotesConstants.ITEM_NAME_FILE_SIZE),
 				() -> {
 					try {
 						entry.recycle();
@@ -103,6 +105,24 @@ public class DesignCollectionIterator implements Iterator<DesignCollectionIterat
 	private static String getItemValueAsString(NotesCollectionEntry entry, String itemName) {
 		try {
 			return entry.getItemValueAsString(itemName);
+		} catch (NotesAPIException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	private static long getItemValueAsLong(NotesCollectionEntry entry, String itemName) {
+		try {
+			var item = entry.getItemByName(itemName);
+			if(item != null) {
+				// All routes parse strings
+				var value = item.getValueAsString();
+				if(StringUtil.isEmpty(value)) {
+					return 0;
+				} else {
+					return (long)Double.parseDouble(value);
+				}
+			} else {
+				return 0;
+			}
 		} catch (NotesAPIException e) {
 			throw new RuntimeException(e);
 		}

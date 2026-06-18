@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,7 +42,7 @@ import jakarta.servlet.ServletContext;
  * @since 2.7.0
  */
 public abstract class AbstractServletConcurrencyContainer {
-	private static final Logger log = System.getLogger(AbstractServletConcurrencyContainer.class.getPackage().getName());
+	private static final Logger log = System.getLogger(AbstractServletConcurrencyContainer.class.getPackageName());
 
 	public static final String ATTR_THREADFACTORY = AbstractServletConcurrencyContainer.class.getName() + "_threadFactory"; //$NON-NLS-1$
 

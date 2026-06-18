@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,13 +24,13 @@ import java.util.Set;
 
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
-import org.eclipse.microprofile.config.Config;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.microprofile.config.sources.ImplicitAppConfigSourceFactory;
 import org.openntf.xsp.microprofile.config.sources.ModuleConfigSource;
 import org.openntf.xsp.microprofile.config.sources.NotesEnvironmentConfigSource;
 import org.openntf.xsp.microprofile.config.sources.XspPropertiesConfigSourceFactory;
 
+import io.smallrye.config.Config;
 import io.smallrye.config.PropertiesLocationConfigSourceFactory;
 import io.smallrye.config.SmallRyeConfig;
 import io.smallrye.config.SmallRyeConfigBuilder;
@@ -74,6 +74,16 @@ public class JakartaConfigProviderResolver extends SmallRyeConfigProviderResolve
 		}
 		return config;
 	}
+	
+	@Override
+	public SmallRyeConfig get() {
+		return get(getContextClassLoader());
+	}
+	
+	@Override
+	public SmallRyeConfig get(ClassLoader classLoader) {
+		return (SmallRyeConfig)getConfig(classLoader);
+	}
 
 	SmallRyeConfigFactory getFactoryFor() {
 		final ServiceLoader<SmallRyeConfigFactory> serviceLoader = ServiceLoader.load(SmallRyeConfigFactory.class,
@@ -110,7 +120,7 @@ public class JakartaConfigProviderResolver extends SmallRyeConfigProviderResolve
 	}
 
 	@Override
-	public void registerConfig(Config config, ClassLoader classLoader) {
+	public void registerConfig(org.eclipse.microprofile.config.Config config, ClassLoader classLoader) {
 		Objects.requireNonNull(config, "config cannot be null");
 
 		ComponentModule module = ComponentModuleLocator.getDefault()
@@ -120,14 +130,14 @@ public class JakartaConfigProviderResolver extends SmallRyeConfigProviderResolve
 			return;
 		}
 		
-		final Config existing = (Config)module.getAttributes().putIfAbsent(KEY_CONFIG, config);
+		final org.eclipse.microprofile.config.Config existing = (org.eclipse.microprofile.config.Config)module.getAttributes().putIfAbsent(KEY_CONFIG, config);
 		if (existing != null) {
 			throw new IllegalStateException("Configuration already registered for the given class loader");
 		}
 	}
 
 	@Override
-	public void releaseConfig(Config config) {
+	public void releaseConfig(org.eclipse.microprofile.config.Config config) {
 		ComponentModule module = ComponentModuleLocator.getDefault()
 			.map(ComponentModuleLocator::getActiveModule)
 			.orElse(null);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 package it.org.openntf.xsp.jakartaee.nsf.microprofile;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -93,12 +94,20 @@ public class TestOpenAPI extends AbstractWebClientTest {
 		try {
 			JsonObject obj = Json.createReader(new StringReader(json)).readObject();
 			
-			// Check for a known resource
+			// Check for a known resource and its OpenAPI annotations
 			JsonObject paths = obj.getJsonObject("paths");
 			assertTrue(paths.containsKey("/adminrole"));
+			{
+				JsonObject adminrole = paths.getJsonObject("/adminrole");
+				JsonObject get = adminrole.getJsonObject("get");
+				assertNotNull(get, "Expected /adminrole to have a get operation");
+				assertEquals("Test for the admin role", get.getString("summary", null));
+				assertEquals("Returns a sentence with your name if you're an admin", get.getString("description", null));
+			}
 	
 			JsonObject info = obj.getJsonObject("info");
 			assertEquals("XPages JEE Example", info.getString("title"));
+			assertEquals("I am the terms", info.getString("termsOfService", null));
 			
 			// Check for the presence of a version from $TemplateBuild
 			String mavenVersion = DominoContainer.getMavenVersion();

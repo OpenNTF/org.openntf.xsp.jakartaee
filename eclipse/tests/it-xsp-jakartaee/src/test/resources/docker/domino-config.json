@@ -251,6 +251,24 @@
 							"Servers": "*",
 							"Enabled": "N"
 						}
+					},
+					{
+						"action": "create",
+						"items": {
+							"Form": "JakartaNSFModule",
+							"WebPath": "/jpamodule",
+							"NSFPath": "dev/jpa.nsf",
+							"Servers": "*"
+						}
+					},
+					{
+						"action": "create",
+						"items": {
+							"Form": "JakartaNSFModule",
+							"WebPath": "/pfshowcase",
+							"NSFPath": "dev/primefaces-showcase.nsf",
+							"Servers": "*"
+						}
 					}
 				]
 			}

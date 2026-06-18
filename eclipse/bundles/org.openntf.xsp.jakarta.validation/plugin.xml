@@ -21,4 +21,15 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor" class="org.openntf.xsp.jakarta.validation.cdi.ValidatorBeanContributor" />
 	</extension>
+	
+	<extension point="com.ibm.pvc.jndi.provider.java.objectfactory">
+		<objectfactory class="org.openntf.xsp.jakarta.validation.jndi.JndiValidatorFactory"
+			id="org.openntf.xsp.jakarta.validation.jndi.JndiValidatorFactory"/>
+	</extension>
+	<extension point="com.ibm.pvc.jndi.provider.java.binding">
+		<binding jndi-name="java:comp/ValidatorFactory" objectFactory-id="org.openntf.xsp.jakarta.validation.jndi.JndiValidatorFactory"/>
+	</extension>
+	<extension point="com.ibm.pvc.jndi.provider.java.binding">
+		<binding jndi-name="java:comp/Validator" objectFactory-id="org.openntf.xsp.jakarta.validation.jndi.JndiValidatorFactory"/>
+	</extension>
 </plugin>

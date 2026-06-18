@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -99,5 +99,4 @@ public class DominoUserTransaction implements UserTransaction, Serializable {
 			}
 		}
 	}
-
 }

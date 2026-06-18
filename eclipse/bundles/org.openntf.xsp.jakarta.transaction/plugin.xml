@@ -32,4 +32,18 @@
 	<extension point="com.ibm.commons.Extension">
 		<service type="com.ibm.xsp.RequestParameters" class="org.openntf.xsp.jakarta.transaction.nsf.TransactionRequestCustomizerFactory" />
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="jakarta.servlet.ServletContextListener" class="org.openntf.xsp.jakarta.transaction.servlet.TransactionServletContextListener" />
+	</extension>
+	
+	<extension point="com.ibm.pvc.jndi.provider.java.objectfactory">
+		<objectfactory class="org.openntf.xsp.jakarta.transaction.jndi.JndiTransactionFactory"
+			id="org.openntf.xsp.jakarta.transaction.jndi.JndiTransactionFactory"/>
+	</extension>
+	<extension point="com.ibm.pvc.jndi.provider.java.binding">
+		<binding jndi-name="java:comp/TransactionManager" objectFactory-id="org.openntf.xsp.jakarta.transaction.jndi.JndiTransactionFactory"/>
+	</extension>
+	<extension point="com.ibm.pvc.jndi.provider.java.binding">
+		<binding jndi-name="java:comp/TransactionSynchronizationRegistry" objectFactory-id="org.openntf.xsp.jakarta.transaction.jndi.JndiTransactionFactory"/>
+	</extension>
 </plugin>

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +22,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import com.ibm.commons.util.PathUtil;
-
 import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.openapi.OASFactory;
 import org.eclipse.microprofile.openapi.models.OpenAPI;
 import org.eclipse.microprofile.openapi.models.info.Info;
 import org.eclipse.microprofile.openapi.models.servers.Server;
@@ -34,9 +33,10 @@ import org.openntf.xsp.jakartaee.DelegatingClassLoader;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
+import com.ibm.commons.util.PathUtil;
+
 import io.smallrye.openapi.api.OpenApiConfig;
-import io.smallrye.openapi.api.models.servers.ServerImpl;
-import io.smallrye.openapi.runtime.OpenApiProcessor;
+import io.smallrye.openapi.api.SmallRyeOpenAPI;
 import jakarta.enterprise.inject.spi.CDI;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.Application;
@@ -73,14 +73,13 @@ public abstract class AbstractOpenAPIResource {
 
 		Config mpConfig = CDI.current().select(Config.class).get();
 		OpenApiConfig config = OpenApiConfig.fromConfig(mpConfig);
-		ClassLoader cl = new DelegatingClassLoader(OpenApiProcessor.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
-		OpenAPI openapi;
-		synchronized(OpenApiProcessor.class) {
-			// OpenApiProcessor appears to be not thread-safe
-			openapi = OpenApiProcessor.bootstrap(config, index, cl);
-		}
+		ClassLoader cl = new DelegatingClassLoader(SmallRyeOpenAPI.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
+		SmallRyeOpenAPI openapi = SmallRyeOpenAPI.builder().withConfig(mpConfig)
+			.withIndex(index)
+			.withApplicationClassLoader(cl)
+			.build();
 
-		Info info = openapi.getInfo();
+		Info info = openapi.model().getInfo();
 		String existingTitle = config.getInfoTitle();
 		if(existingTitle == null || existingTitle.isEmpty()) {
 			info.setTitle(module.map(ComponentModuleLocator::getTitle).orElse(null));
@@ -98,7 +97,7 @@ public abstract class AbstractOpenAPIResource {
 		// Build a URI to the base of JAX-RS
 		Collection<String> servers = config.servers();
 		if(servers == null || servers.isEmpty()) {
-			Server server = new ServerImpl();
+			Server server = OASFactory.createServer();
 
 			URI uri = URI.create(req.getRequestURL().toString());
 
@@ -111,9 +110,9 @@ public abstract class AbstractOpenAPIResource {
 				uriString = uriString.substring(0, uriString.length()-1);
 			}
 			server.setUrl(uriString);
-			openapi.addServer(server);
+			openapi.model().addServer(server);
 		}
 
-		return openapi;
+		return openapi.model();
 	}
 }

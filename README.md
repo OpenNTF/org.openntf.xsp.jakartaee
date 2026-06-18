@@ -272,6 +272,16 @@ As intimated there, it has access to the CDI environment if enabled, though it d
 
 The path within the NSF can be modified by setting the `org.openntf.xsp.jakarta.rest.path` property in the NSF's "xsp.properties" file. The value there will be appended to `/xsp`. For example, setting it to `foo` will make the above example available at `/some.nsf/xsp/foo/sample`.
 
+#### GZIP Compression
+
+By default, text/*, JSON, and XML responses will be GZIP compressed when the client requests it. To disable this behavior, set this in xsp.properties:
+
+```properties
+rest.gzip.auto=false
+```
+
+#### JSON Conversion
+
 When converting objects to JSON, this will use [JSON-B](#json-p-and-json-b) to stream the response to the client. This streaming can be disabled in favor of pre-buffering for troubleshooting purposes by setting this in xsp.properties:
 
 ```properties
@@ -789,7 +799,7 @@ This event contains the query being run, the database server and path, the expla
 
 ### Persistence (JPA)
 
-The [Persistence](https://jakarta.ee/specifications/persistence/) API (JPA) provides access and mapping to relational databases in a managed way. This feature builds on the existing [RDBMS support in XPages](https://help.hcltechsw.com/dom_designer/9.0.1/user/wpd_data_rdbms_support.html), using the same underlying configuration for the connection pools.
+The [Persistence](https://jakarta.ee/specifications/persistence/) API (JPA) provides access and mapping to relational databases in a managed way.
 
 Declaration of a Persistence class is done similarly to NoSQL:
 
@@ -822,24 +832,26 @@ public class Company {
 }
 ```
 
-Once you've configured the JDBC connection for XPages, you can then map your class to the connection in a file named `META-INF/persistence.xml` in your NSF's classpath (e.g. added in Code/Java):
+You can then map your class to the connection in a file named `META-INF/persistence.xml` in your NSF's classpath (e.g. added in Code/Java):
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence version="3.2" xmlns="https://jakarta.ee/xml/ns/persistence"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd">
-	<persistence-unit name="JPATestProj" transaction-type="JTA">
-		<jta-data-source>java:comp/env/jdbc/yourconnectionname</jta-data-source>
+	<persistence-unit name="JPATestProj" transaction-type="RESOURCE_LOCAL">
 		<class>model.Company</class>
 		<properties>
-			<property name="jakarta.persistence.jdbc.url" value="java:comp/env/jdbc/yourconnectionname" />
+			<property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
+			<property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://postgresql:5432/jakarta" />
+			<property name="jakarta.persistence.jdbc.user" value="postgres" />
+			<property name="jakarta.persistence.jdbc.password" value="postgres" />
 		</properties>
 	</persistence-unit>
 </persistence>
 ```
 
-This will map a JDBC configuration defined in `WebContent/WEB-INF/jdbc/yourconnectionname.jdbc` to the `model.Company` class.
+This will map a your JDBC connection to the `model.Company` class.
 
 This feature does not currently provide container-managed `EntityManager`s, but they can be built up and used explicitly. For example:
 

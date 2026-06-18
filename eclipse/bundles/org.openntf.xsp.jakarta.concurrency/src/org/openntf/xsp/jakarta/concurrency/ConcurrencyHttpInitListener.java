@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,25 +16,16 @@
 package org.openntf.xsp.jakarta.concurrency;
 
 import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import org.openntf.xsp.jakarta.concurrency.jndi.DelegatingManagedExecutorService;
-import org.openntf.xsp.jakarta.concurrency.jndi.DelegatingManagedScheduledExecutorService;
 import org.openntf.xsp.jakartaee.events.JakartaHttpInitListener;
-import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.FrameworkUtil;
 
 import jakarta.annotation.Priority;
 
 @Priority(1)
 public class ConcurrencyHttpInitListener implements JakartaHttpInitListener {
-	private static final Logger log = System.getLogger(ConcurrencyActivator.class.getPackage().getName());
-
 	private Class<?> mqClass;
 	private Method mqOpen;
 	private Method isQuitPending;
@@ -49,36 +40,26 @@ public class ConcurrencyHttpInitListener implements JakartaHttpInitListener {
 			// Ignore if it's already started or otherwise trouble
 		}
 
-		String jvmVersion = LibraryUtil.getSystemProperty("java.specification.version"); //$NON-NLS-1$
-
-		if("1.8".equals(jvmVersion)) { //$NON-NLS-1$
-			ClassLoader cl = ClassLoader.getSystemClassLoader();
-			while(cl.getParent() != null) {
-				cl = cl.getParent();
+		// Find MessageQueue reflectively because it's not exposed by com.ibm.xsp.notes.java.api
+		ClassLoader cl = ClassLoader.getSystemClassLoader();
+		while(cl.getParent() != null && this.mqClass == null) {
+			try {
+				this.mqClass = Class.forName("lotus.notes.internal.MessageQueue", true, cl); //$NON-NLS-1$
+			} catch(ClassNotFoundException e) {
+				// Ignore and continue
 			}
-			this.mqClass = Class.forName("lotus.notes.internal.MessageQueue", true, cl); //$NON-NLS-1$
-			this.mqOpen = this.mqClass.getMethod("open", String.class, int.class); //$NON-NLS-1$
-			this.isQuitPending = this.mqClass.getMethod("isQuitPending"); //$NON-NLS-1$
-			this.mqClose = this.mqClass.getMethod("close", int.class); //$NON-NLS-1$
+			cl = cl.getParent();
+		}
+		this.mqOpen = this.mqClass.getMethod("open", String.class, int.class); //$NON-NLS-1$
+		this.isQuitPending = this.mqClass.getMethod("isQuitPending"); //$NON-NLS-1$
+		this.mqClose = this.mqClass.getMethod("close", int.class); //$NON-NLS-1$
 
-			ExecutorHolder.INSTANCE.getGlobalExecutor().scheduleAtFixedRate(() -> {
-				if(isHttpQuitting()) {
-					ExecutorHolder.INSTANCE.termAll();
-				}
-			}, 0, 10, TimeUnit.SECONDS);
-		}
-
-		InitialContext jndi = new InitialContext();
-		try {
-			jndi.rebind(ConcurrencyActivator.JNDI_EXECUTORSERVICE, new DelegatingManagedExecutorService());
-		} catch(NamingException e) {
-			log.log(Level.ERROR, "Encountered exception binding ManagedExecutorService in JNDI", e);
-		}
-		try {
-			jndi.rebind(ConcurrencyActivator.JNDI_SCHEDULEDEXECUTORSERVICE, new DelegatingManagedScheduledExecutorService());
-		} catch(NamingException e) {
-			log.log(Level.ERROR, "Encountered exception binding ManagedScheduledExecutorService in JNDI", e);
-		}
+		ExecutorHolder.INSTANCE.initGlobalExecutor();
+		ExecutorHolder.INSTANCE.getGlobalExecutor().scheduleAtFixedRate(() -> {
+			if(isHttpQuitting()) {
+				ExecutorHolder.INSTANCE.termAll();
+			}
+		}, 0, 10, TimeUnit.SECONDS);
 	}
 	
 	private boolean isHttpQuitting() {

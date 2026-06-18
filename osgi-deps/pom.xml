@@ -39,12 +39,14 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
-		<weld-version>6.0.3.Final</weld-version>
+		<weld-version>6.0.4.Final</weld-version>
+		<!-- NB: RESTEasy 7.0.2 changed the Registry class in SPI to use a ServiceLoader lookup. -->
+		<!-- This will need a special bridge for OSGi -->
 		<resteasy-version>7.0.1.Final</resteasy-version>
 		<resteasy-mp-version>3.0.1.Final</resteasy-mp-version>
-		<nosql-version>1.1.10</nosql-version>
+		<nosql-version>1.1.13</nosql-version>
 		<nosql-version-osgi>${nosql-version}</nosql-version-osgi>
-		<tomcat-version>11.0.15</tomcat-version>
+		<tomcat-version>11.0.21</tomcat-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
@@ -167,7 +169,7 @@
 								<!--
 									XML Binding
 								-->
-								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.4</id><source>true</source></artifact>
+								<artifact><id>jakarta.xml.bind:jakarta.xml.bind-api:4.0.5</id><source>true</source></artifact>
 								<!-- EclipseLink is also a JAX-B implementation -->
 								
 								<!--
@@ -342,17 +344,17 @@
 								<artifact><id>org.jboss.weld:weld-spi:6.0.Final</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld.probe:weld-probe-core:5.0.1.Final</id><source>true</source></artifact>
 								<artifact><id>org.jboss.weld:weld-lite-extension-translator:${weld-version}</id><source>true</source></artifact>
-								<artifact><id>org.javassist:javassist:3.30.2-GA</id><source>true</source></artifact>
+								<artifact><id>org.javassist:javassist:3.31.0-GA</id><source>true</source></artifact>
 								
 								<!-- Weaken dependency on org.apache.log4j, as this is commonly deployed to ndext on Domino -->
 								<artifact>
-									<id>org.jboss.logging:jboss-logging:3.6.1.Final</id>
+									<id>org.jboss.logging:jboss-logging:3.6.3.Final</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.jboss.logging.jboss-logging</Bundle-SymbolicName>
-										<Bundle-Version>3.6.1.Final_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>org.jboss.logging;version="3.6.1.Final"</Export-Package>
+										<Bundle-Version>3.6.3.Final_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>org.jboss.logging;version="3.6.3.Final"</Export-Package>
 										<Import-Package>
 											org.apache.log4j;resolution:=optional,
 											org.apache.logging.log4j;version="[2.0,3)";resolution:=optional,
@@ -394,7 +396,7 @@
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.angus.jakarta.mail</Bundle-SymbolicName>
-										<Bundle-Version>2.0.3.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>2.0.5.${osgi.qualifier}</Bundle-Version>
 										<Import-Package>jakarta.*</Import-Package>
 										<Export-Package>jakarta.*;version="2.1.0"</Export-Package>
 									</instructions>
@@ -589,11 +591,8 @@
 									Jakarta Persistence
 								-->
 								<artfiact><id>jakarta.persistence:jakarta.persistence-api:3.2.0</id><source>true</source></artfiact>
-								<!-- 5.0.0-B08+ leads to an NPE to do with the Transaction Manager. -->
-								<!-- Will take work - just trying to set the TransactionManager will hit a problem with -->
-								<!-- JTA + simple transactions at the same time-->
 								<artfiact>
-									<id>org.eclipse.persistence:eclipselink:5.0.0-B07</id>
+									<id>org.eclipse.persistence:eclipselink:5.0.0</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
@@ -604,6 +603,7 @@
 											!sun.misc,
 											org.eclipse.persistence;version="5.0.0";resolution:=optional,
 											org.eclipse.persistence.*;version="5.0.0";resolution:=optional,
+											org.objectweb.asm,
 											*;resolution:=optional
 										</Import-Package>
 										<Require-Capability></Require-Capability>
@@ -615,24 +615,24 @@
 								-->
 								<artifact><id>org.eclipse.microprofile.openapi:microprofile-openapi-api:4.1.1</id><source>true</source></artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-open-api-core:4.2.3</id>
+									<id>io.smallrye:smallrye-open-api-core:4.3.1</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-core</Bundle-SymbolicName>
-										<Bundle-Version>4.2.3_${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="4.2.3"</Export-Package>
+										<Bundle-Version>4.3.1_${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="4.3.1"</Export-Package>
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-open-api-jaxrs:4.2.3</id>
+									<id>io.smallrye:smallrye-open-api-jaxrs:4.3.1</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.open-api-jaxrs</Bundle-SymbolicName>
-										<Bundle-Version>4.2.3_${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>4.3.1_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.io.smallrye.open-api-core</Fragment-Host>
-										<Export-Package>*;version="4.2.3"</Export-Package>
+										<Export-Package>*;version="4.3.1"</Export-Package>
 									</instructions>
 								</artifact>
 								
@@ -694,19 +694,19 @@
 									MicroProfile Config
 								-->
 								<artifact>
-									<id>org.eclipse.microprofile.config:microprofile-config-api:3.1</id>
+									<id>org.eclipse.microprofile.config:microprofile-config-api:3.1.1</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.org.eclipse.microprofile.config</Bundle-SymbolicName>
-										<Bundle-Version>3.1.0.${osgi.qualifier}</Bundle-Version>
-										<Export-Package>*;version="3.1.0"</Export-Package>
+										<Bundle-Version>3.1.1.${osgi.qualifier}</Bundle-Version>
+										<Export-Package>*;version="3.1.1"</Export-Package>
 										<Require-Capability></Require-Capability>
 									</instructions>
 								</artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-common:3.15.0</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-core:3.15.0</id><source>true</source></artifact>
-								<artifact><id>io.smallrye.config:smallrye-config-validator:3.15.0</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-common:3.17.2</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-core:3.17.2</id><source>true</source></artifact>
+								<artifact><id>io.smallrye.config:smallrye-config-validator:3.17.2</id><source>true</source></artifact>
 								
 								<!--
 									MicroProfile Fault Tolerance
@@ -728,16 +728,16 @@
 									</instructions>
 								</artifact>
 								<artifact>
-									<id>io.smallrye:smallrye-fault-tolerance:6.10.0</id>
+									<id>io.smallrye:smallrye-fault-tolerance:6.11.1</id>
 									<source>true</source>
 									<override>true</override>
 									<instructions>
 										<Bundle-SymbolicName>org.openntf.io.smallrye.fault-tolerance</Bundle-SymbolicName>
-										<Bundle-Version>6.10.0.${osgi.qualifier}</Bundle-Version>
+										<Bundle-Version>6.11.1.${osgi.qualifier}</Bundle-Version>
 										<DynamicImport-Package>
 											org.jboss.weld.*
 										</DynamicImport-Package>
-										<Export-Package>*;version="6.10.0"</Export-Package>
+										<Export-Package>*;version="6.11.1"</Export-Package>
 									</instructions>
 								</artifact>
 								

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,6 +46,7 @@ import jakarta.json.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 
 @SuppressWarnings("nls")
@@ -77,6 +81,32 @@ public class TestRestJson extends AbstractWebClientTest {
 		Response response = target.request().get();
 		
 		String json = response.readEntity(String.class);
+		try {
+			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
+			String jsonMessage = jsonObject.getString("jsonMessage");
+			assertTrue(jsonMessage.startsWith("I'm application guy at "));
+		} catch(Exception e) {
+			fail("Encountered exception parsing " + json, e);
+		}
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumAndAnonymousClient.class)
+	public void testJsonbCdiGzip(TestDatabase db, Client client) throws IOException {
+		WebTarget target = client.target(getRestUrl(null, db) + "/jsonExample/jsonb");
+		Response response = target.request()
+			.acceptEncoding("gzip")
+			.get();
+		
+		checkResponse(200, response);
+		var encoding = response.getHeaderString(HttpHeaders.CONTENT_ENCODING);
+		assertEquals("gzip", encoding);
+		
+		String json;
+		var is = response.readEntity(InputStream.class);
+		try(var zis = new GZIPInputStream(is)) {
+			json = new String(zis.readAllBytes());
+		}
 		try {
 			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			String jsonMessage = jsonObject.getString("jsonMessage");

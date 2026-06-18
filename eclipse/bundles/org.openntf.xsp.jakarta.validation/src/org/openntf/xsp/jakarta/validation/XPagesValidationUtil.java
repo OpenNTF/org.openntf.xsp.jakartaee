@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,9 @@ import jakarta.validation.ValidatorFactory;
 
 public enum XPagesValidationUtil {
 	;
+	
+	public static final String JNDI_VALIDATORFACTORY = "java:comp/ValidatorFactory"; //$NON-NLS-1$
+	public static final String JNDI_VALIDATOR = "java:comp/Validator"; //$NON-NLS-1$
 
 	/**
 	 * Constructs a new {@link ValidatorFactory} instance that uses the locale

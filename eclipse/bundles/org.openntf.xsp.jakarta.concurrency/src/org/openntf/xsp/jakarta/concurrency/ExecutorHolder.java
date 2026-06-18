@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@ import lotus.domino.NotesThread;
 public enum ExecutorHolder {
 	INSTANCE;
 
-	private static final Logger log = System.getLogger(ExecutorHolder.class.getPackage().getName());
+	private static final Logger log = System.getLogger(ExecutorHolder.class.getPackageName());
 
 	private static final AtomicInteger THREAD_INDEX = new AtomicInteger();
 	private final Collection<ExecutorService> executors = Collections.synchronizedSet(new HashSet<>());

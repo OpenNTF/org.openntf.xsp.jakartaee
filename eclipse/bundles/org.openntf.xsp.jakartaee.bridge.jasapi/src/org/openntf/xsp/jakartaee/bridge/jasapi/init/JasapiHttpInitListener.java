@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +34,7 @@ import org.openntf.xsp.jakartaee.events.JakartaHttpInitListener;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 
 public class JasapiHttpInitListener implements JakartaHttpInitListener {
-	private static final Logger log = System.getLogger(JasapiHttpInitListener.class.getPackage().getName());
+	private static final Logger log = System.getLogger(JasapiHttpInitListener.class.getPackageName());
 	
 	@Override
 	public void httpInit() throws Exception {

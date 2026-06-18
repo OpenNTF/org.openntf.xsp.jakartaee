@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +26,11 @@ import java.util.stream.Stream;
  * @since 3.5.0
  */
 public interface ModuleFileSystem {
-	public record FileEntry(String name, Object metadata) {}
+	public record FileEntry(String name, EntryMetadata metadata) {}
+	public interface EntryMetadata {
+		String mimeType();
+		long fileSize();
+	}
 	
 	Optional<URL> getUrl(String res);
 	
@@ -40,7 +44,7 @@ public interface ModuleFileSystem {
 	 */
 	Optional<FileEntry> getEntry(String res);
 
-	Optional<URL> getWebResourceUrl(String res);
+	Optional<FileEntry> getWebEntry(String res);
 	
 	Optional<InputStream> openStream(String res);
 	

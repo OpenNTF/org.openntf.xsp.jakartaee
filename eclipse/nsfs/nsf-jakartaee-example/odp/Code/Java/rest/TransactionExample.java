@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,8 +73,23 @@ public class TransactionExample {
 	@Path("jndi")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
+	@Transactional
 	public String getJndi() throws NamingException {
-		return "I found: " + (UserTransaction)InitialContext.doLookup("java:comp/UserTransaction");
+		return "I found: " + InitialContext.doLookup("java:comp/UserTransaction").getClass().getName();
+	}
+	
+	@Path("jndi/manager")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getJndiManager() throws NamingException {
+		return "I found: " + InitialContext.doLookup("java:comp/TransactionManager").getClass().getName();
+	}
+	
+	@Path("jndi/registry")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getJndiRegistry() throws NamingException {
+		return "I found: " + InitialContext.doLookup("java:comp/TransactionSynchronizationRegistry").getClass().getName();
 	}
 	
 	@Path("scope")

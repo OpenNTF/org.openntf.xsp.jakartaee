@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -44,13 +45,16 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.images.builder.Transferable;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.TestDatabase;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonPatchBuilder;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
+import jakarta.ws.rs.client.ClientBuilder;
 
 public class DominoContainer extends GenericContainer<DominoContainer> {
 	private static final String[] BUNDLE_DEPS = {
@@ -230,17 +234,20 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	}
 	
 	private static Path findLocalMavenArtifact(String groupId, String artifactId, String version, String type) {
-		String mavenRepo = System.getProperty("maven.repo.local"); //$NON-NLS-1$
-		if (StringUtil.isEmpty(mavenRepo)) {
-			mavenRepo = PathUtil.concat(System.getProperty("user.home"), ".m2", File.separatorChar); //$NON-NLS-1$ //$NON-NLS-2$
-			mavenRepo = PathUtil.concat(mavenRepo, "repository", File.separatorChar); //$NON-NLS-1$
+		String mavenRepoProp = System.getProperty("maven.repo.local"); //$NON-NLS-1$
+		Path mavenRepo;
+		if (mavenRepoProp == null || mavenRepoProp.isEmpty()) {
+			mavenRepo = Paths.get(System.getProperty("user.home")); //$NON-NLS-1$
+			mavenRepo = mavenRepo.resolve(".m2").resolve("repository"); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			mavenRepo = Paths.get(mavenRepoProp);
 		}
 		String groupPath = groupId.replace('.', File.separatorChar);
-		Path localPath = Paths.get(mavenRepo).resolve(groupPath).resolve(artifactId).resolve(version);
-		String fileName = StringUtil.format("{0}-{1}.{2}", artifactId, version, type); //$NON-NLS-1$
+		Path localPath = mavenRepo.resolve(groupPath).resolve(artifactId).resolve(version);
+		String fileName = String.format("%s-%s.%s", artifactId, version, type); //$NON-NLS-1$
 		Path localFile = localPath.resolve(fileName);
-		
-		if(!Files.isRegularFile(localFile)) {
+
+		if (!Files.isRegularFile(localFile)) {
 			throw new RuntimeException("Unable to locate Maven artifact: " + localFile);
 		}
 
@@ -266,31 +273,44 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 	@Override
 	protected void containerIsStopping(InspectContainerResponse containerInfo) {
 		try {
-			// If we can see the target dir, copy log files
+			// Call the in-container service to gather our materials
+			// NB: This is here because Testcontainers 2.x leads to "failed to respond" with execInContainer
+			
 			Path target = Paths.get(".").resolve("target"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			// If we can see the target dir, copy log files
 			if(Files.isDirectory(target)) {
-				this.execInContainer("tar", "-czvf", "/tmp/IBM_TECHNICAL_SUPPORT.tar.gz", "/local/notesdata/IBM_TECHNICAL_SUPPORT");
-				this.copyFileFromContainer("/tmp/IBM_TECHNICAL_SUPPORT.tar.gz", target.resolve("IBM_TECHNICAL_SUPPORT.tar.gz").toString());
+				String host = this.getHost();
+				int httpPort = this.getMappedPort(80);
+				String url = "http://" + host + ":" + httpPort + "/doFinalShutdownTasks";
+				var client = ClientBuilder.newClient();
+				var webTarget = client.target(url);
+				var response = webTarget.request().get();
 				
-				this.execInContainer("tar", "-czvf", "/tmp/workspace-logs.tar.gz", "/local/notesdata/domino/workspace/logs");
-				this.copyFileFromContainer("/tmp/workspace-logs.tar.gz", target.resolve("workspace-logs.tar.gz").toString());
+				if(response.getStatus() != 200) {
+					throw new RuntimeException("Recieved unexpected status " + response.getStatus() + ": " + response.readEntity(String.class));
+				}
+				
+				var bytes = response.readEntity(byte[].class);
+				var payload = new MimeMultipart(new ByteArrayDataSource(bytes, response.getHeaderString("Content-Type")));
+				for(int i = 0; i < payload.getCount(); i++) {
+					var part = payload.getBodyPart(i);
+					var name = part.getFileName();
+					Path file;
+					if("flight.jfr".equals(name)) {
+						file = target.resolve("flight-" + System.currentTimeMillis() + ".jfr");
+					} else {
+						file = target.resolve(name);
+					}
+					Files.copy(part.getInputStream(), file, StandardCopyOption.REPLACE_EXISTING);
+				}
 				
 				Path output = target.resolve("jacoco.exec");
 				int port = this.getMappedPort(JACOCO_PORT);
 				JaCoCoToGo.fetchJaCoCoDataOverTcp(this.getHost(), port, output, true);
 				
-				if(useJfr()) {
-					// Dump and grab our JFR output
-					// Find the PID for http to pass to jcmd
-					String pid = this.execInContainer("pgrep", "http").getStdout();
-					if(pid != null) {
-						this.execInContainer("/opt/hcl/domino/notes/latest/linux/jvm/bin/jcmd", pid, "JFR.dump");
-						this.copyFileFromContainer("/tmp/flight.jfr", target.resolve("flight-" + System.currentTimeMillis() + ".jfr").toString());
-					}
-				}
-				
 			}
-		} catch(IOException | UnsupportedOperationException | InterruptedException e) {
+		} catch(UnsupportedOperationException | MessagingException | IOException e) {
 			e.printStackTrace();
 		}
 		
@@ -320,39 +340,6 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 			if(major > 14) {
 				return true;
 			} else if(major == 14 && minor >= 5) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	private static boolean useJfr() {
-		String baseImage = System.getProperty("jakarta.baseImage"); //$NON-NLS-1$
-		Matcher m;
-		if(baseImage != null && (m = EA_145_PATTERN.matcher(baseImage)).matches()) {
-			LocalDate buildDate = LocalDate.of(Integer.parseInt(m.group(3)), Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
-			return !buildDate.isBefore(DATE_145EA2);
-		}
-		
-		if(baseImage != null && (m = DECIMAL_VERSION_PATTERN.matcher(baseImage)).matches()) {
-			int major = Integer.parseInt(m.group(1));
-			int minor = Integer.parseInt(m.group(2));
-			if(major == 14) {
-				if(minor == 5) {
-					if(m.group(4) != null) {
-						// 14.5.1+
-						return true;
-					} else if(m.group(6) != null) {
-						// 14.5FP1+
-						return true;
-					}
-				} else if(minor > 5) {
-					// Hypothetical 14.6+
-					return true;
-				}
-			} else if(major > 14) {
-				// Hypothetical 15+
 				return true;
 			}
 		}

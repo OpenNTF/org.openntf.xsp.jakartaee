@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: XPages Jakarta EE Classic NSF Module Bridge
 Bundle-SymbolicName: org.openntf.xsp.jakartaee.module.xspnsf;singleton:=true
 Automatic-Module-Name: org.openntf.xsp.jakartaee.module.xspnsf
-Bundle-Version: 3.6.0.qualifier
+Bundle-Version: 3.7.0.qualifier
 Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="3.4.0"
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
@@ -19,6 +19,7 @@ Import-Package: com.ibm.commons.util,
  jakarta.enterprise.inject;version="4.1.0",
  jakarta.inject;version="2.0.0",
  jakarta.servlet;version="5.0.0",
+ jakarta.servlet.http;version="5.0.0",
  javax.faces.application,
  javax.servlet;version="[2.5.0,3.0.0)",
  javax.servlet.http;version="[2.5.0,3.0.0)",
@@ -29,5 +30,5 @@ Import-Package: com.ibm.commons.util,
  org.openntf.xsp.jakarta.cdi.ext;version="[3.4.0,4.0.0)",
  org.openntf.xsp.jakarta.cdi.util;version="[3.4.0,4.0.0)",
  org.openntf.xsp.jakarta.concurrency;version="3.4.0",
- org.openntf.xsp.jakartaee.bridge.jasapi;version="[3.4.0,4.0.0)",
+ org.openntf.xsp.jakartaee.bridge.jasapi;version="3.4.0",
  org.openntf.xsp.jakartaee.bridge.jasapi.impl

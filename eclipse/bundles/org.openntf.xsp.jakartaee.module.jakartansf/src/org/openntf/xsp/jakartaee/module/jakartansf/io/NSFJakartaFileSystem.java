@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,12 +44,12 @@ import org.openntf.xsp.jakartaee.module.jakartansf.io.DesignCollectionIterator.D
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 
 public class NSFJakartaFileSystem implements ModuleFileSystem {
-	public record NSFMetadata(int noteId, FileType fileType, String flags, String flagsExt, boolean webVisible, String itemName, String mimeType) {
+	public record NSFMetadata(int noteId, FileType fileType, String flags, String flagsExt, boolean webVisible, String itemName, String mimeType, long fileSize) implements EntryMetadata {
 		public NSFMetadata(DesignEntry entry, FileType fileType, String mimeType) {
-			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), null, mimeType);
+			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), null, mimeType, entry.fileSize());
 		}
 		public NSFMetadata(DesignEntry entry, FileType fileType, String itemName, String mimeType) {
-			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), itemName, mimeType);
+			this(entry.noteId(), fileType, entry.flags(), entry.flagsExt(), isWebVisible(entry, fileType), itemName, mimeType, entry.fileSize());
 		}
 	}
 	public enum FileType {
@@ -58,6 +58,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 	
 	private static final Logger log = System.getLogger(NSFJakartaFileSystem.class.getPackageName());
 	public static final String URLSCHEME = "jakartansf"; //$NON-NLS-1$
+	public static final String URLDELIM = "$$"; //$NON-NLS-1$
 	
 	private final Map<String, NSFMetadata> fileMap = new HashMap<>();
 	private final NSFJakartaModule module;
@@ -141,7 +142,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 		if(this.fileMap.containsKey(res)) {
 			try {
 				// String scheme, String userInfo, String host, int port, String path, String query, String fragment
-				URI uri = new URI(URLSCHEME, null, "localhost", 1352, '/' + module.getMapping().path() + '!' + res, null, null); //$NON-NLS-1$
+				URI uri = new URI(URLSCHEME, null, "localhost", 1352, '/' + module.getMapping().path() + URLDELIM + '/' + res, null, null); //$NON-NLS-1$
 				return Optional.of(uri.toURL());
 			} catch(URISyntaxException | MalformedURLException e) {
 				throw new RuntimeException(MessageFormat.format("Encountered exception constructing URL for resource \"{0}\" in {1}", res, module.getMapping().nsfPath()), e);
@@ -152,11 +153,12 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 	}
 	
 	@Override
-	public Optional<URL> getWebResourceUrl(String res) {
-		NSFMetadata meta = this.fileMap.get(res);
-		if(meta != null && meta.webVisible()) {
-			return getUrl(res);
-		} else {
+	public Optional<FileEntry> getWebEntry(String res) {
+		NSFMetadata metadata = this.fileMap.get(res);
+		if(metadata != null && metadata.webVisible()) {
+			String path = ModuleUtil.trimResourcePath(res);
+			return Optional.of(new FileEntry(path, metadata));
+		} else { 
 			return Optional.empty();
 		}
 	}
@@ -180,7 +182,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 						return Optional.of(FileAccess.readFileContentAsInputStream(note));
 					}
 				} else {
-					return null;
+					return Optional.empty();
 				}
 			} catch(NotesAPIException e) {
 				throw new RuntimeException(MessageFormat.format("Encountered exception opening stream for resource \"{0}\" in {1}", res, module.getMapping().nsfPath()), e);
@@ -215,7 +217,7 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 	@Override
 	public URI buildURI(String path) throws URISyntaxException {
 		String innerPath = path.startsWith("/") ? path : "/" + path; //$NON-NLS-1$ //$NON-NLS-2$
-		return new URI(NSFJakartaFileSystem.URLSCHEME, null, "localhost", 1352, '/' + module.getMapping().path() + "!" + innerPath, null, null); //$NON-NLS-1$ //$NON-NLS-2$
+		return new URI(NSFJakartaFileSystem.URLSCHEME, null, "localhost", 1352, '/' + module.getMapping().path() + URLDELIM + innerPath, null, null); //$NON-NLS-1$
 	}
 	
 	private static List<String> sanitizeTitle(String title) {

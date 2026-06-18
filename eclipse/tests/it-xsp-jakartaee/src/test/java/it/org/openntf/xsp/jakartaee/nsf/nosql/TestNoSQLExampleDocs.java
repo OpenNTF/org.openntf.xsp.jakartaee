@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@ import java.io.StringReader;
 import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +36,8 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.w3c.dom.Element;
+
+import com.ibm.commons.util.StringUtil;
 
 import it.org.openntf.xsp.jakartaee.AbstractWebClientTest;
 import it.org.openntf.xsp.jakartaee.TestDatabase;
@@ -48,6 +51,7 @@ import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
@@ -1544,5 +1548,96 @@ public class TestNoSQLExampleDocs extends AbstractWebClientTest {
 			OffsetDateTime newMod = OffsetDateTime.parse(modString);
 			assertTrue(newMod.isAfter(mod), () -> "DB modification time should have changed; mod=" + mod + ", newMod=" + newMod);
 		}
+	}
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testUserDataString(TestDatabase db) {
+		Client client = getAnonymousClient();
+		
+		var val = "SomeString" + System.currentTimeMillis();
+		
+		var postTarget = client.target(getRestUrl(null, db) + "/exampleDocs/createExampleDocUserDataString");
+		var response = postTarget.request().post(Entity.text(val));
+		checkResponse(200, response);
+		
+		var json = response.readEntity(JsonObject.class);
+		assertFalse(StringUtil.isEmpty(json.getString("unid")));
+		assertEquals(val, json.getString("userDataString"));
+		
+		// Make sure the DXL looks like it's stored as user data
+		var dxl = TestDomUtil.createDocument(json.getString("dxl"));
+		var rawitemdata = (Element)TestDomUtil.selectSingleNode(dxl, "//item[@name='UserDataString']/rawitemdata");
+		assertNotNull(rawitemdata);
+		assertEquals("e", rawitemdata.getAttribute("type"));
+	}
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testUserDataBytes(TestDatabase db) {
+		Client client = getAnonymousClient();
+		
+		var val = new byte[] { 1, 5, 6, 7 };
+		
+		var postTarget = client.target(getRestUrl(null, db) + "/exampleDocs/createExampleDocUserDataBytes");
+		var response = postTarget.request().post(Entity.entity(val, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+		checkResponse(200, response);
+		
+		var json = response.readEntity(JsonObject.class);
+		assertFalse(StringUtil.isEmpty(json.getString("unid")));
+		assertEquals(Base64.getEncoder().encodeToString(val), json.getString("userDataBytes"));
+		
+		// Make sure the DXL looks like it's stored as user data
+		var dxl = TestDomUtil.createDocument(json.getString("dxl"));
+		var rawitemdata = (Element)TestDomUtil.selectSingleNode(dxl, "//item[@name='UserDataBytes']/rawitemdata");
+		assertNotNull(rawitemdata);
+		assertEquals("e", rawitemdata.getAttribute("type"));
+	}
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testUserDataByteBuffer(TestDatabase db) {
+		Client client = getAnonymousClient();
+		
+		var val = new byte[] { 1, 5, 6, 7, 10, 5 };
+		
+		var postTarget = client.target(getRestUrl(null, db) + "/exampleDocs/createExampleDocUserDataByteBuffer");
+		var response = postTarget.request().post(Entity.entity(val, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+		checkResponse(200, response);
+		
+		var json = response.readEntity(JsonObject.class);
+		assertFalse(StringUtil.isEmpty(json.getString("unid")));
+		assertEquals(Base64.getEncoder().encodeToString(val), json.getString("userDataByteBuffer"));
+		
+		// Make sure the DXL looks like it's stored as user data
+		var dxl = TestDomUtil.createDocument(json.getString("dxl"));
+		var rawitemdata = (Element)TestDomUtil.selectSingleNode(dxl, "//item[@name='UserDataByteBuffer']/rawitemdata");
+		assertNotNull(rawitemdata);
+		assertEquals("e", rawitemdata.getAttribute("type"));
+	}
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	public void testUserDataObject(TestDatabase db) {
+		Client client = getAnonymousClient();
+
+		var title = "SomeTitle" + System.currentTimeMillis();
+		var val = Json.createObjectBuilder().add("title", title).build();
+		
+		var postTarget = client.target(getRestUrl(null, db) + "/exampleDocs/createExampleDocUserDataObject");
+		var response = postTarget.request().post(Entity.json(val));
+		checkResponse(200, response);
+		
+		var json = response.readEntity(JsonObject.class);
+		assertFalse(StringUtil.isEmpty(json.getString("unid")));
+		var objectJson = json.getString("userDataObject");
+		var responseVal = Json.createReader(new StringReader(objectJson)).readObject();
+		assertEquals(val, responseVal);
+		
+		// Make sure the DXL looks like it's stored as user data
+		var dxl = TestDomUtil.createDocument(json.getString("dxl"));
+		var rawitemdata = (Element)TestDomUtil.selectSingleNode(dxl, "//item[@name='UserDataObject']/rawitemdata");
+		assertNotNull(rawitemdata);
+		assertEquals("e", rawitemdata.getAttribute("type"));
 	}
 }

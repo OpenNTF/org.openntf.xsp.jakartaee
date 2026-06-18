@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -215,7 +215,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				DominoQuery dominoQuery = database.createDominoQuery();
 				String dqlString = dql.toString();
 				EntityMetadata mapping = EntityUtil.getClassMapping(query.name());
-				logExplain(dominoQuery, dqlString, mapping.type());
+				preFireQuery(dominoQuery, dqlString, mapping.type());
 				DocumentCollection docs = dominoQuery.execute(dqlString);
 				docs.removeAll(true);
 			}
@@ -239,12 +239,14 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 			Database database = supplier.get();
 			beginTransaction(database);
+
+			String dqlQuery = queryResult.getStatement().toString();
+			
 			if(sorts != null && !sorts.isEmpty()) {
 				Session sessionAsSigner = sessionSupplier.get();
 				Database qrpDatabase = getQrpDatabase(sessionAsSigner, database);
 
 				String userName = database.getParent().getEffectiveUserName();
-				String dqlQuery = queryResult.getStatement().toString();
 				String viewName = getClass().getName() + "-" + Objects.hash(sorts, userName, dqlQuery); //$NON-NLS-1$
 				View view = qrpDatabase.getView(viewName);
 				if(view != null) {
@@ -295,7 +297,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 							qrp.addColumn(itemName, itemName, null, dir, false, false);
 						}
 
-						logExplain(dominoQuery, dqlQuery, mapping.type());
+						preFireQuery(dominoQuery, dqlQuery, mapping.type());
 						view = qrp.executeToView(viewName, 24);
 					} finally {
 						recycle(qrp, dominoQuery);
@@ -306,9 +308,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 			} else {
 				DominoQuery dominoQuery = database.createDominoQuery();
-				String dqlString = queryResult.getStatement().toString();
-				logExplain(dominoQuery, dqlString, mapping.type());
-				DocumentCollection docs = dominoQuery.execute(dqlString);
+				preFireQuery(dominoQuery, dqlQuery, mapping.type());
+				DocumentCollection docs = dominoQuery.execute(dqlQuery);
 				try {
 					result = entityConverter.convertDocuments(docs, mapping);
 				} finally {
@@ -478,7 +479,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			String formName = EntityUtil.getFormName(mapping);
 			DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(formName);
 			String dqlString = dql.toString();
-			logExplain(dominoQuery, dqlString, mapping.type());
+			preFireQuery(dominoQuery, dqlString, mapping.type());
 			DocumentCollection result = dominoQuery.execute(dqlString);
 			return result.getCount();
 		} catch(NotesException e) {
@@ -1161,13 +1162,23 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		throw new IllegalStateException(MessageFormat.format("Unable to find column for formula {0} (entity property \"{1}\") in view {2}", formula, originalName, view.getName()));
 	}
 	
-	private void logExplain(DominoQuery query, String dql, Class<?> entityType) throws NotesException {
-		if(this.configBean != null && this.configBean.emitExplainEvents()) {
-			String explain = query.explain(dql);
-			Database database = supplier.get();
-			String server = database.getServer();
-			String filePath = database.getFilePath();
-			explainEmitter.fire(new ExplainEvent(dql, server, filePath, explain, entityType));
+	private void preFireQuery(DominoQuery query, String dql, Class<?> entityType) throws NotesException {
+		if(this.configBean != null) {
+			
+			if(this.configBean.shouldDqlRefreshViews(entityType, dql)) {
+				query.setRefreshViews(true);
+			}
+			if(this.configBean.shouldDqlRefreshFullText(entityType, dql)) {
+				query.setRefreshFullText(true);
+			}
+			
+			if(this.configBean.emitExplainEvents()) {
+				String explain = query.explain(dql);
+				Database database = supplier.get();
+				String server = database.getServer();
+				String filePath = database.getFilePath();
+				explainEmitter.fire(new ExplainEvent(dql, server, filePath, explain, entityType));
+			}
 		}
 	}
 

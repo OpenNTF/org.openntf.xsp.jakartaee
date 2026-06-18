@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2018-2026 Contributors to the XPages Jakarta EE Support Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,14 @@ import jakarta.enterprise.inject.spi.Extension;
  * @since 2.2.0
  */
 public class NoSQLBeanContributor implements CDIClassContributor {
+	
+	private static final Set<String> FILTERED_CLASSES = Set.of(
+		// Remove the built-in DocumentManagerSupplier, as we use an app-contextual one
+		// TODO see if using the built-in one could work if we supply configuration
+		"org.eclipse.jnosql.mapping.document.configuration.DocumentManagerSupplier", //$NON-NLS-1$
+		// Remove DefaultDocumentTemplate to allow using bare repo types as Domino repos
+		"org.eclipse.jnosql.mapping.document.DefaultDocumentTemplate" //$NON-NLS-1$
+	);
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
@@ -59,9 +67,7 @@ public class NoSQLBeanContributor implements CDIClassContributor {
 					throw new RuntimeException(e);
 				}
 			})
-			// Remove the built-in DocumentManagerSupplier, as we use an app-contextual one
-			// TODO see if using the built-in one could work if we supply configuration
-			.filter(c -> !"org.eclipse.jnosql.mapping.document.configuration.DocumentManagerSupplier".equals(c.getName())) //$NON-NLS-1$
+			.filter(c -> !FILTERED_CLASSES.contains(c.getName()))
 			.forEach(result::add);
 
 		result.add(ContextDocumentCollectionManagerProducer.class);
@@ -84,5 +90,4 @@ public class NoSQLBeanContributor implements CDIClassContributor {
 			DominoExtension.class
 		);
 	}
-
 }
