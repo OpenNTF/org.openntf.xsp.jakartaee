@@ -16,6 +16,7 @@
 package model;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -148,7 +149,19 @@ public class ExampleDoc {
 	@Column("ConvertBooleanStorage")
 	@Convert(SpecialBooleanConverter.class)
 	private boolean convertBooleanStorage;
-	
+	@Column("UserDataString")
+	@ItemStorage(type=ItemStorage.Type.UserData, userDataTypeName="MyString")
+	private String userDataString;
+	@Column("UserDataBytes")
+	@ItemStorage(type=ItemStorage.Type.UserData, userDataTypeName="MyBytes")
+	private byte[] userDataBytes;
+	@Column("UserDataByteBuffer")
+	@ItemStorage(type=ItemStorage.Type.UserData, userDataTypeName="MyByteBuffer")
+	private ByteBuffer userDataByteBuffer;
+	@Column("UserDataObject")
+	@ItemStorage(type=ItemStorage.Type.UserData, userDataTypeName="MyObject")
+	private MimeStorage userDataObject;
+
 	@Column(DominoConstants.FIELD_DXL)
 	@DXLExport(forceNoteFormat=true, encapsulateRichText=false, outputDOCTYPE=false)
 	private String dxl;
@@ -327,5 +340,30 @@ public class ExampleDoc {
 	
 	public String getEtag() {
 		return etag;
+	}
+
+	public String getUserDataString() {
+		return userDataString;
+	}
+	public void setUserDataString(String userDataString) {
+		this.userDataString = userDataString;
+	}
+	public byte[] getUserDataBytes() {
+		return userDataBytes;
+	}
+	public void setUserDataBytes(byte[] userDataBytes) {
+		this.userDataBytes = userDataBytes;
+	}
+	public ByteBuffer getUserDataByteBuffer() {
+		return userDataByteBuffer;
+	}
+	public void setUserDataByteBuffer(ByteBuffer userDataByteBuffer) {
+		this.userDataByteBuffer = userDataByteBuffer;
+	}
+	public MimeStorage getUserDataObject() {
+		return userDataObject;
+	}
+	public void setUserDataObject(MimeStorage userDataObject) {
+		this.userDataObject = userDataObject;
 	}
 }
