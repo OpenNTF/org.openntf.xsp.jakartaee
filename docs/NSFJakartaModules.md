@@ -30,6 +30,7 @@ There are several techniques that are useful when developing apps of this type.
 - `servletContext.getContextPath()` will return an appropriate base value for both types of apps (e.g. "/apps/foo.nsf" in a traditional context or "/foo" in a Jakarta module)
 - When using Jakarta MVC, `${mvc.basePath}` can be used in Pages to retrieve the REST base path, avoiding the need to assume the "/xsp" prefix in view code
 - Jakarta Modules don't use the "WEB-INF/jakarta" workarounds present for Faces in normal apps, since there is no XPages environment to conflict with
+- If you set your REST root path (`org.openntf.xsp.jakarta.rest.path` in xsp.properties) to `/`, you can configure the module to first match URLs against static resources by setting `org.openntf.xsp.jakarta.rest.deferToFiles=true` in xsp.properties
 
 #### Special Note: MVC
 
