@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
-import com.ibm.designer.runtime.domino.adapter.util.XSPErrorPage;
+import org.openntf.xsp.jakartaee.util.JakartaErrorPage;
 
 import jakarta.annotation.Priority;
 import jakarta.json.Json;
@@ -70,7 +70,7 @@ public class NotFoundMapper implements ExceptionMapper<NotFoundException> {
 						OutputStreamWriter outWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8);
 						PrintWriter w = new PrintWriter(outWriter)
 					) {
-						XSPErrorPage.handlePageNotFound(w, uriInfo.getRequestUri().toString(), exception, null, false);
+						JakartaErrorPage.handlePageNotFound(w, uriInfo.getRequestUri().toString(), exception, null, false);
 					}
 				})
 				.build();
