@@ -103,9 +103,6 @@
 		<module>features/org.openntf.xsp.jakartaee.ui.feature</module>
 		<module>features/org.openntf.xsp.microprofile.feature</module>
 		
-		<module>tests/org.openntf.xsp.jakarta.validation.test</module>
-		<module>tests/org.openntf.xsp.jakarta.json.test</module>
-		<module>tests/org.openntf.xsp.jakartaee.test</module>
 		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
 		<module>releng/org.openntf.xsp.jakartaee.source.updatesite</module>
 		<module>releng/xsp-jakartaee-dist</module>
@@ -117,7 +114,7 @@
 		<maven.compiler.target>17</maven.compiler.target>
 		<maven.compiler.release>17</maven.compiler.release>
 		
-		<tycho-version>5.0.2</tycho-version>
+		<tycho-version>5.0.3</tycho-version>
 		<xsp-bundles-range>0.0.0</xsp-bundles-range>
 	</properties>
 
@@ -382,17 +379,6 @@
 							</goals>
 						</execution>
 					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-surefire-plugin</artifactId>
-					<version>${tycho-version}</version>
-					
-					<configuration>
-						<providerHint>junit4</providerHint>
-						<trimStackTrace>false</trimStackTrace>
-						<useJDK>BREE</useJDK>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>

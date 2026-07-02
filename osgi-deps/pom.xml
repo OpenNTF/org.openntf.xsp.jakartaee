@@ -16,13 +16,6 @@
 	
 	<repositories>
 		<repository>
-			<id>eclipse-platform</id>
-			<!--<url>https://download.eclipse.org/releases/neon/201612211000</url>-->
-			<!-- Using a mirror while download.eclipse.org is down -->
-			<url>https://mirror.umd.edu/eclipse/releases/oxygen/201706281000/</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
 			<id>artifactory.openntf.org</id>
 			<name>artifactory.openntf.org</name>
 			<url>https://artifactory.openntf.org/openntf</url>
@@ -68,18 +61,7 @@
 							<goal>site</goal>
 						</goals>
 						<configuration>
-							<p2>
-								<!-- Testing Runtime -->
-								<artifact><id>org.junit:4.12.0.v201504281640</id><source>true</source></artifact>
-								<artifact><id>org.slf4j.api:1.7.2.v20121108-1250</id><source>true</source></artifact>
-								<artifact><id>org.hamcrest.core:1.3.0.v201303031735</id><source>true</source></artifact>
-								<artifact><id>org.apache.felix.scr:2.0.10.v20170501-2007</id><source>true</source></artifact>
-								<artifact><id>org.eclipse.osgi.services:3.6.0.v20170228-1906</id><source>true</source></artifact>
-								<artifact><id>org.eclipse.osgi.util:3.4.0.v20170111-1608</id><source>true</source></artifact>
-							</p2>
 							<artifacts>
-								<!-- Testing Runtime -->
-								<artifact><id>org.eclipse.platform:org.eclipse.equinox.launcher:1.4.0</id><source>true</source></artifact>
 								<artifact><id>org.openntf.domino:org.openntf.domino.java.api.corba.patch:1.0.0</id></artifact>
 								<artifact><id>xml-resolver:xml-resolver:1.2</id></artifact>
 							
