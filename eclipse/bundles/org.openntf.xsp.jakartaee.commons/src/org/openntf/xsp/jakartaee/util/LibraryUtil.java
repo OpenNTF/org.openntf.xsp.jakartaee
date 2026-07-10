@@ -454,6 +454,7 @@ public enum LibraryUtil {
 	public static Collection<String> getUserNamesList(final Database database) throws NotesException {
 		Set<String> result = new HashSet<>();
 		Session session = database.getParent();
+		// NB: session.getUser*NameList is for the ID user, while evaluate is for the effective user
 		result.addAll(session.evaluate(" @UserNamesList ")); //$NON-NLS-1$
 		result.addAll(database.queryAccessRoles(session.getEffectiveUserName()));
 		return result;
