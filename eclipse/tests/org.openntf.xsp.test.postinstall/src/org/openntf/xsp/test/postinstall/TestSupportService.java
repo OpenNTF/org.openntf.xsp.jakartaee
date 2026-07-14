@@ -179,6 +179,21 @@ public class TestSupportService extends HttpService {
 						result.addBodyPart(part);
 					}
 				}
+				{
+					var yourkitPath = request.getParameter("yourkitPath");
+					if(yourkitPath != null && !yourkitPath.isEmpty()) {
+						Path file = Paths.get(yourkitPath);
+						if(Files.exists(file)) {
+							MimeBodyPart part = new MimeBodyPart();
+							part.setFileName("yourkit.snapshot");
+							var content = Files.readAllBytes(file);
+							part.setContent(content, "application/octet-stream");
+							result.addBodyPart(part);
+						} else {
+							System.out.println("Could not find YourKit snapshot: " + file);
+						}
+					}
+				}
 				
 				response.setContentType("multipart/form-data");
 				var os = response.getOutputStream();

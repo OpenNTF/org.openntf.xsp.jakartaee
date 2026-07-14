@@ -19,6 +19,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,6 +67,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		"org.openntf.xsp.test.jasapi" //$NON-NLS-1$
 	};
 	public static final int JACOCO_PORT = 6300;
+	public static final int YOURKIT_PORT = 10002;
 	
 	public static final Set<Path> tempFiles = new HashSet<>();
 	
@@ -135,19 +139,41 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				}
 				withFileFromTransferable("staging/jacoco.jar", Transferable.of(agentData)); //$NON-NLS-1$
 				
+				// Copy in the YourKit agent if available
+				boolean includeYourkit = false;
+				String yourkitPath = System.getProperty("jakarta.yourkitSo"); //$NON-NLS-1$
+				if(StringUtil.isNotEmpty(yourkitPath)) {
+					Path yourkitSo = Paths.get(yourkitPath);
+					if(Files.isRegularFile(yourkitSo)) {
+						withFileFromPath("staging/yourkit.so", yourkitSo); //$NON-NLS-1$
+						includeYourkit = true;
+					} else {
+						throw new IllegalArgumentException("Unable to find YourKit library at path " + yourkitPath); //$NON-NLS-1$
+					}
+				} else {
+					// Make a stub file for the Dockerfile
+					withFileFromTransferable("staging/yourkit.so", Transferable.of("")); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				
 				StringBuilder javaOptions = new StringBuilder();
 				
 				// Configure the JaCoCo listener
 				javaOptions.append("-javaagent:/local/jacoco.jar=output=tcpserver,address=*,port=" + JACOCO_PORT); //$NON-NLS-1$
-				
-				// Loosen the OSGi init timeout to account for having a large bundle footprint
-				javaOptions.append("\n-Dosgi.module.lock.timeout=30"); //$NON-NLS-1$
-				
+
 				// Add a Java options file for Apple Silicon compatibility
 				String arch = DockerClientFactory.instance().getInfo().getArchitecture();
 				if(!"x86_64".equals(arch)) { //$NON-NLS-1$
 					javaOptions.append("\n-Djava.compiler=NONE"); //$NON-NLS-1$
+				} else {
+					// Configure YourKit if present
+					// Only apply it on x64 to avoid trouble
+					if(includeYourkit) {
+						javaOptions.append("\n-agentpath:/local/yourkit.so=port=" + YOURKIT_PORT + ",listen=all,delay=10000"); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				}
+				
+				// Loosen the OSGi init timeout to account for having a large bundle footprint
+				javaOptions.append("\n-Dosgi.module.lock.timeout=30"); //$NON-NLS-1$
 				
 				withFileFromTransferable("staging/JavaOptionsFile.txt", Transferable.of(javaOptions.toString())); //$NON-NLS-1$
 				
@@ -207,7 +233,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 		addEnv("TZ", "Etc/UTC"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		withImagePullPolicy(imageName -> false);
-		withExposedPorts(80, JACOCO_PORT);
+		withExposedPorts(80, JACOCO_PORT, YOURKIT_PORT);
 		withStartupTimeout(Duration.ofMinutes(10));
 		
 		WaitAllStrategy strat = new WaitAllStrategy()
@@ -280,8 +306,40 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 			// If we can see the target dir, copy log files
 			if(Files.isDirectory(target)) {
 				String host = this.getHost();
+				
+				String yourkitPath = "";
+				
+				// Collect YourKit data if applicable
+				try {
+					String yourkitBase = "https://" + host + ":" + getMappedPort(DominoContainer.YOURKIT_PORT); //$NON-NLS-1$ //$NON-NLS-2$
+					
+					var stopCpuProfiling = URI.create(yourkitBase + "/yjp/api/v3/stopCpuProfiling").toURL(); //$NON-NLS-1$
+					HttpURLConnection conn = (HttpURLConnection)stopCpuProfiling.openConnection();
+					conn.setDoOutput(true);
+					conn.setRequestMethod("POST"); //$NON-NLS-1$
+					conn.getOutputStream().write("".getBytes()); //$NON-NLS-1$
+					int code = conn.getResponseCode();
+					if(code != 200) {
+						throw new RuntimeException("Received unexpected response for stopCpuProfiling: " + code); 
+					}
+					
+					// captureSnapshot returns the path on the remote system
+					var captureSnapshot = URI.create(yourkitBase + "/yjp/api/v3/captureSnapshot").toURL();
+					conn = (HttpURLConnection)captureSnapshot.openConnection();
+					conn.setDoOutput(true);
+					conn.setRequestMethod("POST"); //$NON-NLS-1$
+					conn.getOutputStream().write("{ \"type\" : \"performance\"}".getBytes()); //$NON-NLS-1$
+					code = conn.getResponseCode();
+					if(code != 200) {
+						throw new RuntimeException("Received unexpected response for stopCpuProfiling: " + code); 
+					}
+					var json = Json.createReader(conn.getInputStream()).readObject();
+					yourkitPath = json.getString("path");
+				} catch(Exception e) {
+				}
+				
 				int httpPort = this.getMappedPort(80);
-				String url = "http://" + host + ":" + httpPort + "/doFinalShutdownTasks";
+				String url = "http://" + host + ":" + httpPort + "/doFinalShutdownTasks?yourkitPath=" + URLEncoder.encode(yourkitPath, StandardCharsets.UTF_8);
 				var client = ClientBuilder.newClient();
 				var webTarget = client.target(url);
 				var response = webTarget.request().get();
@@ -296,18 +354,23 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 					var part = payload.getBodyPart(i);
 					var name = part.getFileName();
 					Path file;
+					long time = System.currentTimeMillis();
 					if("flight.jfr".equals(name)) {
-						file = target.resolve("flight-" + System.currentTimeMillis() + ".jfr");
+						file = target.resolve("flight-" + time + ".jfr");
+					} else if("yourkit.snapshot".equals(name)) {
+						file = target.resolve("yourkit-" + time + ".snapshot");
 					} else {
 						file = target.resolve(name);
 					}
 					Files.copy(part.getInputStream(), file, StandardCopyOption.REPLACE_EXISTING);
 				}
 				
-				Path output = target.resolve("jacoco.exec");
-				int port = this.getMappedPort(JACOCO_PORT);
-				JaCoCoToGo.fetchJaCoCoDataOverTcp(this.getHost(), port, output, true);
-				
+				// Fetch JaCoCo data
+				{
+					Path output = target.resolve("jacoco.exec");
+					int port = this.getMappedPort(JACOCO_PORT);
+					JaCoCoToGo.fetchJaCoCoDataOverTcp(this.getHost(), port, output, true);
+				}
 			}
 		} catch(UnsupportedOperationException | MessagingException | IOException e) {
 			e.printStackTrace();

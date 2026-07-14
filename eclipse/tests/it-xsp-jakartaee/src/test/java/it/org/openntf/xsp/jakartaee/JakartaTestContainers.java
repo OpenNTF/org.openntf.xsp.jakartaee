@@ -17,12 +17,21 @@ package it.org.openntf.xsp.jakartaee;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
 
 import org.testcontainers.selenium.BrowserWebDriverContainer;
 import org.openqa.selenium.firefox.FirefoxOptions;
@@ -97,6 +106,39 @@ public enum JakartaTestContainers {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+			}
+			
+			// If YourKit is available, kick off profiling
+			try {
+				HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+				SSLContext context = SSLContext.getInstance("TLS"); //$NON-NLS-1$
+				context.init(null, new X509TrustManager[] { new X509TrustManager() {
+					public void checkClientTrusted(X509Certificate[] chain,
+							String authType) throws CertificateException {
+					}
+
+					public void checkServerTrusted(X509Certificate[] chain,
+							String authType) throws CertificateException {
+					}
+
+					public X509Certificate[] getAcceptedIssuers() {
+						return new X509Certificate[0];
+					}
+				} }, new SecureRandom());
+				HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+				
+				String yourkitBase = "https://" + domino.getHost() + ":" + domino.getMappedPort(DominoContainer.YOURKIT_PORT); //$NON-NLS-1$ //$NON-NLS-2$
+				var startCpuProfiling = URI.create(yourkitBase + "/yjp/api/v3/startCpuProfiling").toURL(); //$NON-NLS-1$
+				HttpURLConnection conn = (HttpURLConnection)startCpuProfiling.openConnection();
+				conn.setDoOutput(true);
+				conn.setRequestMethod("POST"); //$NON-NLS-1$
+				conn.getOutputStream().write("{ \"mode\" : \"tracing\", \"tracingOptions\" : {\"time\": \"wall\", \"adaptive\": true, \"withLineNumbers\": true}}".getBytes()); //$NON-NLS-1$
+				var code = conn.getResponseCode();
+				if(code != 200) {
+					throw new RuntimeException("Received unexpected response for startCpuProfiling: " + code); //$NON-NLS-1$
+				}
+			} catch(Exception e) {
+				System.err.println("Skipping YourKit profiling: " + e.getLocalizedMessage());
 			}
 		} finally {
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
