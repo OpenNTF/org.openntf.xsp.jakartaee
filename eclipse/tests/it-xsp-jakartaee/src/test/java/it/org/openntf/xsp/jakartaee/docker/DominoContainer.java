@@ -121,10 +121,9 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 					
 					withFileFromPath("staging/plugins/" + bundle.getFileName().toString(), bundle); //$NON-NLS-1$
 				}
-
 				
 				// Create an Equinox link to the above
-				withFileFromClasspath("staging/container.link", "/docker/container.link"); //$NON-NLS-1$ //$NON-NLS-2$
+				withFileFromTransferable("staging/container.link", Transferable.of("path=/local/eclipse")); //$NON-NLS-1$ //$NON-NLS-2$
 				
 				// Next up, copy our Java policy to be the Notes home dir in the container
 				withFileFromClasspath("staging/.java.policy", "/docker/java.policy"); //$NON-NLS-1$ //$NON-NLS-2$
