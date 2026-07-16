@@ -46,7 +46,7 @@ public class NSFJakartaModuleProcessor implements ComponentModuleProcessor<NSFJa
 	
 	@Override
 	public String getModuleId(NSFJakartaModule module) {
-		return module.getClass().getSimpleName() + '-' + module.getMapping();
+		return module.getClass().getSimpleName() + '-' + module.getMapping().toDisplayString();
 	}
 	
 	@Override
