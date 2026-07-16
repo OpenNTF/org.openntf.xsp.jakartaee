@@ -17,4 +17,10 @@ package org.openntf.xsp.jakartaee.module.jakartansf.util;
 
 import java.util.Properties;
 
-public record ModuleMap(String nsfPath, String path, Properties configProperties) {}
+public record ModuleMap(String nsfPath, String path, Properties configProperties) {
+
+	public String toDisplayString() {
+		return String.format("[path=%s, nsfPath=%s]", path, nsfPath); //$NON-NLS-1$
+	}
+	
+}

@@ -397,7 +397,7 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 	
 	@Override
 	public String toString() {
-		return MessageFormat.format("{0}: {1}", getClass().getSimpleName(), mapping);
+		return MessageFormat.format("{0}: {1}", getClass().getSimpleName(), mapping.toDisplayString());
 	}
 	
 	public LSXBEHolder withSessions(HttpServletRequestAdapter req) {
