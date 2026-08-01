@@ -6,7 +6,8 @@ Automatic-Module-Name: org.openntf.xsp.jakartaee.commons
 Bundle-Version: 3.8.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: com.ibm.domino.xsp.adapter;visibility:=reexport,
+Require-Bundle: com.ibm.domino.xsp.bootstrap;visibility:=reexport,
+ com.ibm.domino.xsp.adapter;visibility:=reexport,
  com.ibm.xsp.designer,
  org.openntf.xsp.jakartaee.osgiresourcelocator;bundle-version="2.6.0";visibility:=reexport,
  jakarta.activation-api;bundle-version="2.0.0";visibility:=reexport,
