@@ -33,5 +33,5 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v7
       with:
-        name: Distribution
         path: eclipse/releng/xsp-jakartaee-dist/target/XPages-JakartaEE-*.zip
+        archive: false
