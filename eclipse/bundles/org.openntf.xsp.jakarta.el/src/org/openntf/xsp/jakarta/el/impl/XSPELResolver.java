@@ -27,7 +27,6 @@ import com.ibm.xsp.javascript.JavaScriptPropertyResolver;
 import com.ibm.xsp.model.DataObject;
 import com.ibm.xsp.model.ViewRowData;
 import com.ibm.xsp.model.domino.DominoDocumentPropertyResolver;
-
 import jakarta.el.ELContext;
 import jakarta.el.ELResolver;
 import lotus.domino.Document;
@@ -61,6 +60,15 @@ public class XSPELResolver extends ELResolver {
 
 	@Override
 	public Class<?> getType(final ELContext context, final Object base, final Object property) {
+		// Newer EL implementations coerce types sent to setValue based on this. Since
+		// DominoDocument returns a class based on the stored type, this will be String in cases
+		// like xp:checkBoxGroup where each is checked in turn, "poisoning" the type.
+		// See https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/767
+		if(base instanceof DataObject) {
+			context.setPropertyResolved(true);
+			return Object.class;
+		}
+		
 		PropertyResolver propertyResolver = getPropertyResolver(base);
 		if(propertyResolver != null) {
 			context.setPropertyResolved(true);
