@@ -32,7 +32,7 @@ import it.org.openntf.xsp.jakartaee.providers.BrowserArgumentsProvider;
 @SuppressWarnings("nls")
 public class TestElBasics extends AbstractWebClientTest {
 	/**
-	 * Tests basic EL bean property resolution.
+	 * Tests basic EL bean property resolution in XPages.
 	 */
 	@ParameterizedTest
 	@ArgumentsSource(BrowserArgumentsProvider.class)
@@ -59,6 +59,42 @@ public class TestElBasics extends AbstractWebClientTest {
 			WebElement dd = driver.findElement(By.xpath("//dt[text()=\"#{managedBeanGuy}\"]/following-sibling::dd[1]"));
 			assertEquals("I am ManagedBeanGuy#toString", dd.getText());
 		} catch(NoSuchElementException e) {
+			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
+		}
+	}
+	
+	/**
+	 * Tests for proper binding of multi-value input types to xp:dominoDocument sources
+	 * 
+	 * @param driver the driver to test with
+	 * @see <a href="https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/767">Issue #767</a>
+	 */
+	@ParameterizedTest
+	@ArgumentsSource(BrowserArgumentsProvider.class)
+	public void testArrayDocumentBinding(WebDriver driver) throws InterruptedException {
+		driver.get(getRootUrl(driver, TestDatabase.MAIN) + "/el_doc.xsp");
+		
+		try {
+			var checkBoxGroup = driver.findElement(By.className("checkBoxGroup"));
+			
+			checkBoxGroup.findElement(By.cssSelector("input[value='foo']")).click();
+			waitFor(() -> driver.findElement(By.className("schedule-output")).getText(), t -> !"null".equals(t));
+			
+			var val = driver.findElement(By.className("schedule-output")).getText();
+			assertEquals("\"foo\"", val);
+
+			checkBoxGroup.findElement(By.cssSelector("input[value='bar']")).click();
+			waitFor(() -> driver.findElement(By.className("schedule-output")).getText(), t -> !"\foo\"".equals(t));
+			
+			val = driver.findElement(By.className("schedule-output")).getText();
+			assertEquals("[\"foo\",\"bar\"]", val);
+			
+			checkBoxGroup.findElement(By.cssSelector("input[value='foo']")).click();
+			waitFor(() -> driver.findElement(By.className("schedule-output")).getText(), t -> !"[\"foo\",\"bar\"]".equals(t));
+
+			val = driver.findElement(By.className("schedule-output")).getText();
+			assertEquals("\"bar\"", val);
+		} catch(Exception e) {
 			fail("Encountered exception with HTML: " + driver.getPageSource(), e);
 		}
 	}

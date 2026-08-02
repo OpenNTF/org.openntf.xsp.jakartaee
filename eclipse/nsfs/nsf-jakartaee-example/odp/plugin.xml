@@ -20,6 +20,7 @@
     <import optional="true" plugin="org.openntf.xsp.jakartaee.core.library"/>
     <import optional="true" plugin="org.openntf.xsp.jakartaee.ui.library"/>
     <import optional="true" plugin="org.openntf.xsp.microprofile.library"/>
+    <import optional="true" plugin="com.ibm.xsp.extlib"/>
     <!--AUTOGEN-END-BUILDER: End of automatically generated section-->
   </requires>
 </plugin>
