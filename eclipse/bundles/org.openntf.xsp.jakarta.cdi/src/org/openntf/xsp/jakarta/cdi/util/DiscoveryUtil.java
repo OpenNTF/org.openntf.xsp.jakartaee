@@ -134,7 +134,13 @@ public enum DiscoveryUtil {
 						.map(url -> url.substring(baseUrl.length()))
 						.map(LibraryUtil::toClassName)
 						.filter(StringUtil::isNotEmpty)
-						.filter(className -> fpackages == null || fpackages.contains(className.substring(0, className.lastIndexOf('.'))))
+						.filter(className -> {
+							int dotIndex = className.lastIndexOf('.');
+							if(dotIndex == -1) {
+								return false;
+							}
+							return fpackages == null || fpackages.contains(className.substring(0, dotIndex));
+						})
 						.filter(className -> !classNames.contains(className))
 						.peek(classNames::add)
 						.sequential();

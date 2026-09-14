@@ -206,6 +206,7 @@
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.org.jboss.resteasy.core</Fragment-Host>
 										<Export-Package>*;version="${resteasy-version}"</Export-Package>
+										<DynamicImport-Package>org.eclipse.core.runtime</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>

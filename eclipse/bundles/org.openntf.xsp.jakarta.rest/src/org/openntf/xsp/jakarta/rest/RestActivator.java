@@ -15,11 +15,17 @@
  */
 package org.openntf.xsp.jakarta.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jboss.resteasy.core.providerfactory.ResteasyProviderFactoryImpl;
 import org.openntf.xsp.jakarta.rest.spi.RestActivationParticipant;
+import org.openntf.xsp.jakarta.rest.weaving.RestWeavingHook;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.hooks.weaving.WeavingHook;
 
 import jakarta.ws.rs.ext.RuntimeDelegate;
 
@@ -28,9 +34,13 @@ import jakarta.ws.rs.ext.RuntimeDelegate;
  */
 public class RestActivator implements BundleActivator {
 
+	private final List<ServiceRegistration<?>> regs = new ArrayList<>();
+
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		if(!LibraryUtil.isNotes()) {
+			regs.add(context.registerService(WeavingHook.class.getName(), new RestWeavingHook(), null));
+			
 			RuntimeDelegate.setInstance(new ResteasyProviderFactoryImpl());
 	
 			for(RestActivationParticipant p : LibraryUtil.findExtensions(RestActivationParticipant.class)) {
@@ -41,6 +51,8 @@ public class RestActivator implements BundleActivator {
 
 	@Override
 	public void stop(final BundleContext context) throws Exception {
+		regs.forEach(ServiceRegistration::unregister);
+		regs.clear();
 		for(RestActivationParticipant p : LibraryUtil.findExtensions(RestActivationParticipant.class)) {
 			p.stop(context);
 		}
