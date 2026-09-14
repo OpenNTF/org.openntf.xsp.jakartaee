@@ -40,9 +40,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<weld-version>6.0.4.Final</weld-version>
-		<!-- NB: RESTEasy 7.0.2 changed the Registry class in SPI to use a ServiceLoader lookup. -->
-		<!-- This will need a special bridge for OSGi -->
-		<resteasy-version>7.0.1.Final</resteasy-version>
+		<resteasy-version>7.0.4.Final</resteasy-version>
 		<resteasy-mp-version>3.0.1.Final</resteasy-mp-version>
 		<nosql-version>1.1.13</nosql-version>
 		<nosql-version-osgi>${nosql-version}</nosql-version-osgi>
@@ -208,6 +206,7 @@
 										<Bundle-Version>${resteasy-version}_${osgi.qualifier}</Bundle-Version>
 										<Fragment-Host>org.openntf.org.jboss.resteasy.core</Fragment-Host>
 										<Export-Package>*;version="${resteasy-version}"</Export-Package>
+										<DynamicImport-Package>org.eclipse.core.runtime</DynamicImport-Package>
 									</instructions>
 								</artifact>
 								<artifact>
