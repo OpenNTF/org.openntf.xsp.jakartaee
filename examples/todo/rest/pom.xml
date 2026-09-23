@@ -13,10 +13,10 @@
 			<plugin>
 				<groupId>org.openntf.maven</groupId>
 				<artifactId>nsfodp-maven-plugin</artifactId>
-				<version>4.0.0</version>
+				<version>4.1.0</version>
 				<extensions>true</extensions>
 				<configuration>
-					<updateSite>${project.baseDir}/../../../xsp-jakartaee/releng/org.openntf.xsp.jakartaee.updatesite/target/repository</updateSite>
+					<updateSite>${project.baseDir}/../../../../eclipse/releng/org.openntf.xsp.jakartaee.updatesite/target/repository</updateSite>
 					<executionEnvironment>JavaSE-17</executionEnvironment>
 				</configuration>
 			</plugin>

@@ -65,6 +65,7 @@
 		<!-- NoSQL -->
 		<module>bundles/org.openntf.xsp.jakarta.nosql.driver</module>
 		<module>bundles/org.openntf.xsp.jakarta.nosql.driver.lsxbe</module>
+        <module>bundles/org.openntf.xsp.jakarta.nosql.driver.drapi</module>
 		<module>bundles/org.openntf.xsp.jakarta.nosql</module>
 		 
 		<!-- Persistence -->
