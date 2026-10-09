@@ -71,6 +71,7 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.impl.ViewInfoImpl;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.DatabaseSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.SessionSupplier;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
+import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.UncheckedNotesException;
 import org.openntf.xsp.jakarta.nosql.driver.ExplainEvent;
 import org.openntf.xsp.jakarta.nosql.driver.NoSQLConfigurationBean;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.DominoRepository.CalendarModScope;
@@ -158,7 +159,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			target.save();
 			return entity;
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -192,7 +193,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			target.save();
 			return entity;
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -220,7 +221,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				docs.removeAll(true);
 			}
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -278,7 +279,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 							view = null;
 						}
 					} catch (NotesAPIException e) {
-						throw new RuntimeException(e);
+						throw new UncheckedNotesException(e);
 					} finally {
 						recycle(created);
 					}
@@ -326,7 +327,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 			return result;
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -356,7 +357,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				}
 				return Stream.of(entityConverter.convertViewEntry(entityName, entry, mapping));
 			} catch(NotesException e) {
-				throw new RuntimeException(e);
+				throw new UncheckedNotesException(e);
 			}
 		}
 
@@ -371,7 +372,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 						throw new IllegalStateException("Cannot process " + nav);
 					}
 				} catch (NotesException e) {
-					throw new RuntimeException(e);
+					throw new UncheckedNotesException(e);
 				}
 			}
 		);
@@ -404,7 +405,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(mapping);
 				return Stream.of(CommunicationEntity.of(entityName, entityConverter.convertDominoDocument(doc, mapping, itemTypes)));
 			} catch(NotesException e) {
-				throw new RuntimeException(e);
+				throw new UncheckedNotesException(e);
 			}
 		}
 
@@ -419,7 +420,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 						throw new IllegalStateException("Cannot process " + nav);
 					}
 				} catch (NotesException e) {
-					throw new RuntimeException(e);
+					throw new UncheckedNotesException(e);
 				}
 			}
 		);
@@ -442,7 +443,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				doc.putInFolder(folderName);
 			}
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -464,7 +465,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				doc.removeFromFolder(folderName);
 			}
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -483,7 +484,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			DocumentCollection result = dominoQuery.execute(dqlString);
 			return result.getCount();
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 
 	}
@@ -498,6 +499,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return doc != null;
 		} catch(NotesException e) {
 			// Assume it doesn't exist
+			log.log(Level.DEBUG, MessageFormat.format("Encountered exception checking existence of entity by UNID {0}", unid), e);
 			return false;
 		}
 	}
@@ -511,6 +513,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return processDocument(entityName, doc);
 		} catch(NotesException e) {
 			// Assume it doesn't exist
+			log.log(Level.DEBUG, MessageFormat.format("Encountered exception opening entity of type {0} with note ID {1}", entityName, noteId), e);
 			return Optional.empty();
 		}
 	}
@@ -524,6 +527,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return processDocument(entityName, doc);
 		} catch(NotesException e) {
 			// Assume it doesn't exist
+			log.log(Level.DEBUG, () -> MessageFormat.format("Encountered exception opening entity of type {0} with note UNID {1}", entityName, id), e);
 			return Optional.empty();
 		}
 	}
@@ -542,6 +546,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return processDocument(entityName, doc);
 		} catch(NotesException e) {
 			// Assume it doesn't exist
+			log.log(Level.DEBUG, () -> MessageFormat.format("Encountered exception opening entity of type {0} with document name \"{1}\" and user name \"{2}\"", entityName, name, userName), e);
 			return Optional.empty();
 		}
 	}
@@ -555,6 +560,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			return processDocument(entityName, doc);
 		} catch(NotesException e) {
 			// Assume it doesn't exist
+			log.log(Level.DEBUG, () -> MessageFormat.format("Encountered exception opening entity of type {0} with profile name \"{1}\" and user name \"{2}\"", entityName, profileName, userName), e);
 			return Optional.empty();
 		}
 	}
@@ -598,7 +604,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 									return new ViewColumnInfoImpl(columnTitle, itemName, sortOrder, resortOrders, categorized);
 
 								} catch(NotesException e) {
-									throw new RuntimeException(e);
+									throw new UncheckedNotesException(e);
 								}
 							})
 							.collect(Collectors.toList());
@@ -606,17 +612,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 						return new ViewInfoImpl(type, title, aliases, unid, selectionFormula, columnInfo);
 					} catch(NotesException e) {
-						throw new RuntimeException(e);
+						throw new UncheckedNotesException(e);
 					} finally {
-						try {
-							view.recycle();
-						} catch(NotesException e) {
-							// ignore
-						}
+						recycle(view);
 					}
 				});
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -636,7 +638,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				return cal.readRange(startDt, endDt);
 			}
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -652,10 +654,11 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				return Optional.of(entry.read());
 			} catch(NotesException e) {
 				// Accessor methods throw exceptions when the entry doesn't exist
+				log.log(Level.DEBUG, MessageFormat.format("Encountered exception reading calendar entry with UID {0}", uid), e);
 				return Optional.empty();
 			}
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -669,7 +672,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			NotesCalendarEntry entry = cal.createEntry(icalData, sendInvitations ? 0 : NotesCalendar.CS_WRITE_DISABLE_IMPLICIT_SCHEDULING);
 			return entry.getUID();
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -689,7 +692,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				entry.update(icalData, comment, flags, recurId);
 			}
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -719,7 +722,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				entry.remove(scopeVal, recurId);
 			}
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 	
@@ -747,7 +750,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			
 			return new AccessRights(name, level, privileges, roles);
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 	
@@ -765,7 +768,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			
 			return entity;
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 	
@@ -787,7 +790,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				dtMod.recycle();
 			}
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -908,7 +911,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 			return consumer.apply(nav, limit, didSkip, didKey);
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -938,7 +941,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 			return qrp;
 		} catch (IOException e) {
-			throw new UncheckedIOException(e);
+			throw new UncheckedIOException(MessageFormat.format("Encountered an IOException while creating a QRP database for {0}", database.getFilePath()), e);
 		}
 
 	}
@@ -949,7 +952,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				try {
 					b.recycle();
 				} catch (NotesException e) {
-					// Ignore
+					// Ignore, since we can't do anything about that
 				}
 			}
 		}
@@ -1061,8 +1064,21 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 							database.transactionBegin();
 						}
 
-
-					} catch (IllegalStateException | RollbackException | SystemException | NotesException e) {
+					} catch(NotesException e) {
+						if(e.id == 4864) {
+							// "Transactional Logging must be enabled for this function"
+							log.log(Level.ERROR, "Transactional logging is not enabled for this server; skipping transaction registration", e);
+							if(res != null) {
+								try {
+									t.delistResource(res, XAResource.TMNOFLAGS);
+								} catch (IllegalStateException | SystemException e1) {
+									// Ignore
+								}
+							}
+						} else {
+							log.log(Level.ERROR, MessageFormat.format("Encountered unexpected exception enlisting the transaction resource (Status 0x{0})", Integer.toHexString(e.id)), e);
+						}
+					} catch (IllegalStateException | RollbackException | SystemException e) {
 						if(log.isLoggable(Level.ERROR)) {
 							if(e instanceof NotesException ne && ne.id == 4864) {
 								// "Transactional Logging must be enabled for this function"
@@ -1200,7 +1216,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			try {
 				database.transactionCommit();
 			} catch (NotesException e) {
-				throw new RuntimeException(e);
+				throw new UncheckedNotesException(e);
 			}
 		}
 
@@ -1249,7 +1265,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			try {
 				database.transactionRollback();
 			} catch (NotesException e) {
-				throw new RuntimeException(e);
+				throw new UncheckedNotesException(e);
 			}
 		}
 

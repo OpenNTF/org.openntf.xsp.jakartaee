@@ -23,6 +23,7 @@ import com.ibm.domino.napi.c.NotesUtil;
 import com.ibm.domino.napi.c.xsp.XSPNative;
 
 import org.openntf.xsp.jakartaee.module.jakartansf.NSFJakartaModule;
+import org.openntf.xsp.jakartaee.util.UncheckedNotesException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lotus.domino.Database;
@@ -50,8 +51,10 @@ public record ActiveRequestCloner(NSFJakartaModule module, HttpServletRequest re
 			
 			LSXBEHolder lsxbe = new LSXBEHolder(session, database, sessionAsSigner, sessAsSignerFullAccess, hSigner);
 			return new ActiveRequest(module, lsxbe, request);
-		} catch(NotesException | NException e) {
-			throw new RuntimeException("Encountered exception while cloning Notes objects");
+		} catch(NotesException e) {
+			throw new UncheckedNotesException("Encountered exception while cloning Notes objects", e);
+		} catch(NException e) {
+			throw new UncheckedNotesException("Encountered exception while cloning Notes objects", e);
 		}
 	}
 }

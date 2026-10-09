@@ -46,11 +46,11 @@ import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ModuleMap;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.NSFModuleUtil;
-import org.openntf.xsp.jakartaee.module.jakartansf.util.UncheckedNotesException;
 import org.openntf.xsp.jakartaee.servlet.ServletUtil;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
 import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.openntf.xsp.jakartaee.util.PriorityComparator;
+import org.openntf.xsp.jakartaee.util.UncheckedNotesException;
 
 import com.ibm.commons.extension.ExtensionManager;
 import com.ibm.commons.util.StringUtil;
@@ -238,13 +238,10 @@ public class NSFJakartaModule extends AbstractJakartaModule {
 				
 				setModuleClassLoader(new DefaultModuleClassLoader(this));
 			} catch (NotesAPIException e) {
-				e.printStackTrace();
 				throw new RuntimeException(MessageFormat.format("Encountered exception 0x{0} initializing module {1}", Integer.toHexString(e.getNativeErrorCode()), this), e);
 			} catch(NotesException e) {
-				e.printStackTrace();
 				throw new RuntimeException(MessageFormat.format("Encountered exception 0x{0} initializing module {1}", Integer.toHexString(e.id), this), e);
 			} catch(Exception e) {
-				e.printStackTrace();
 				throw new RuntimeException(MessageFormat.format("Encountered exception initializing module {0}", this), e);
 			}
 

@@ -67,6 +67,7 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DocumentCollectionIterator;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.LoaderObjectInputStream;
+import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.UncheckedNotesException;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.ViewEntryCollectionIterator;
 import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.ViewNavigatorIterator;
 import org.openntf.xsp.jakarta.nosql.mapping.extension.BooleanStorage;
@@ -150,7 +151,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						entry.recycle(columnValues);
 					}
 				} catch(NotesException e) {
-					throw new RuntimeException(e);
+					throw new UncheckedNotesException(e);
 				}
 			})
 			.filter(Objects::nonNull);
@@ -195,7 +196,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				try {
 					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes, classMapping);
 				} catch(NotesException e) {
-					throw new RuntimeException(e);
+					throw new UncheckedNotesException(e);
 				}
 			});
 		if(limit > 0) {
@@ -244,7 +245,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				try {
 					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes, classMapping);
 				} catch(NotesException e) {
-					throw new RuntimeException(e);
+					throw new UncheckedNotesException(e);
 				}
 			});
 		if(limit > 0) {
@@ -342,7 +343,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					List<Element> documents = convertDominoDocument(doc, classMapping, itemTypes);
 					return CommunicationEntity.of(entityName, documents);
 				} catch (NotesException e) {
-					throw new RuntimeException(e);
+					throw new UncheckedNotesException(e);
 				}
 			});
 		if(limit > 0) {
@@ -385,7 +386,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		} else if(parent instanceof ViewNavigator) {
 			view = ((ViewNavigator)parent).getParentView();
 		} else {
-			throw new RuntimeException("Unable to locate parent view from " + viewEntry);
+			throw new RuntimeException(MessageFormat.format("Unable to locate parent view from {0}", viewEntry));
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1138,6 +1139,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				});
 			
 			target.replaceItemValue(DominoConstants.FIELD_NAME, EntityUtil.getFormName(classMapping));
+		} catch(NotesException e) {
+			throw new UncheckedNotesException(e);
 		} catch(IOException e) {
 			throw new UncheckedIOException(e);
 		} catch(Exception e) {

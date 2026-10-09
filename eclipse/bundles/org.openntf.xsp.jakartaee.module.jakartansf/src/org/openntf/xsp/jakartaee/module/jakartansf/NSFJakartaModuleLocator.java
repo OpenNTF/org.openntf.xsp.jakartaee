@@ -33,6 +33,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
 import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
+import org.openntf.xsp.jakartaee.util.UncheckedNotesException;
 
 import lotus.domino.Database;
 import lotus.domino.DateTime;
@@ -83,7 +84,7 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 
 					return null;
 				} catch(NotesException e) {
-					log.log(Level.ERROR, "Encountered exception trying to read the database template version", e);
+					log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception trying to read the database template version (Status: 0x{0})", Integer.toHexString(e.id)), e);
 					return null;
 				}
 			});
@@ -152,7 +153,7 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 				try {
 					return db.getTitle();
 				} catch (NotesException e) {
-					throw new RuntimeException(e);
+					throw new UncheckedNotesException(e);
 				}
 			})
 			.orElseGet(ComponentModuleLocator.super::getTitle);

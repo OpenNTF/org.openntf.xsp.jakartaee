@@ -24,6 +24,7 @@ import com.ibm.domino.xsp.module.nsf.SessionCloner;
 import org.glassfish.concurro.spi.ContextHandle;
 import org.openntf.xsp.jakarta.concurrency.AttributedContextHandle;
 import org.openntf.xsp.jakarta.concurrency.ContextSetupParticipant;
+import org.openntf.xsp.jakartaee.util.UncheckedNotesException;
 
 import jakarta.annotation.Priority;
 import lotus.domino.NotesException;
@@ -62,7 +63,7 @@ public class NSFSessionClonerSetupParticipant implements ContextSetupParticipant
 				try {
 					THREAD_SESSION.set(cloner.getSession());
 				} catch (NotesException e) {
-					throw new RuntimeException(e);
+					throw new UncheckedNotesException(e);
 				}
 
 				Session sessionAsSigner = AccessController.doPrivileged((PrivilegedAction<Session>)() -> {
@@ -75,7 +76,7 @@ public class NSFSessionClonerSetupParticipant implements ContextSetupParticipant
 							// TODO pull in session as signer name
 							return NotesFactory.createSession();
 						} catch (NotesException e) {
-							throw new RuntimeException(e);
+							throw new UncheckedNotesException(e);
 						} finally {
 							System.setSecurityManager(sm);
 							Thread.currentThread().setContextClassLoader(cl);
@@ -94,6 +95,7 @@ public class NSFSessionClonerSetupParticipant implements ContextSetupParticipant
 			try {
 				session.recycle();
 			} catch (NotesException e) {
+				// Ignore, since we can't do anything about that
 			}
 			THREAD_SESSION.remove();
 		}
@@ -102,6 +104,7 @@ public class NSFSessionClonerSetupParticipant implements ContextSetupParticipant
 			try {
 				sessionAsSigner.recycle();
 			} catch(NotesException e) {
+				// Ignore, since we can't do anything about that
 			}
 			THREAD_SESSIONASSIGNER.remove();
 		}

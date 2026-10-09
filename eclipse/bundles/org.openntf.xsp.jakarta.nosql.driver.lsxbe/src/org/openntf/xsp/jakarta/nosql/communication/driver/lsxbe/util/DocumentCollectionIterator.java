@@ -60,7 +60,7 @@ public class DocumentCollectionIterator extends AbstractCollectionIterator<Docum
 
 			return next;
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
