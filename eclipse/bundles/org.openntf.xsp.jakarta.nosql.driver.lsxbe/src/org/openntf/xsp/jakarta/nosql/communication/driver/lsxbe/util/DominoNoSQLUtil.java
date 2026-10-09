@@ -178,7 +178,7 @@ public enum DominoNoSQLUtil {
 				Temporal end = (Temporal)DominoNoSQLUtil.toDominoFriendly(context.getParent(), dr.getEndDateTime(), optBoolean);
 				return Arrays.asList(start, end);
 			} catch (NotesException e) {
-				throw new RuntimeException(e);
+				throw new UncheckedNotesException(e);
 			}
 		} else if(value instanceof Number n) {
 			if(optBoolean.isPresent()) {

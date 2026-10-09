@@ -15,7 +15,10 @@
  */
 package org.openntf.xsp.jakarta.rest.security;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.security.Principal;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -29,6 +32,8 @@ import jakarta.ws.rs.core.SecurityContext;
 import lotus.domino.NotesException;
 
 public class RestSecurityContext implements SecurityContext {
+	private static final Logger log = System.getLogger(RestSecurityContext.class.getPackageName());
+	
 	public static final String ATTR_ROLES = RestSecurityContext.class.getName() + "_roles"; //$NON-NLS-1$
 
 	private final HttpServletRequest req;
@@ -84,7 +89,7 @@ public class RestSecurityContext implements SecurityContext {
 						result.addAll(LibraryUtil.getUserNamesList(database));
 						this.req.setAttribute(ATTR_ROLES, result);
 					} catch(NotesException e) {
-						throw new RuntimeException(e);
+						log.log(Level.WARNING, () -> MessageFormat.format("Encountered exception collecting user roles from contextual database (Status: 0x{0})", Integer.toHexString(e.id)), e);
 					}
 				});
 			roles = result;

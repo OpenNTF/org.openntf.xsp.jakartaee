@@ -47,7 +47,7 @@ public class ViewEntryCollectionIterator implements Iterator<ViewEntry> {
 			try {
 				onDeck = fetchNext();
 			} catch (NotesException e) {
-				throw new RuntimeException(e);
+				throw new UncheckedNotesException(e);
 			}
 		}
 		return !done;
@@ -73,7 +73,7 @@ public class ViewEntryCollectionIterator implements Iterator<ViewEntry> {
 			onDeck = null;
 			return prev;
 		} catch(NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 

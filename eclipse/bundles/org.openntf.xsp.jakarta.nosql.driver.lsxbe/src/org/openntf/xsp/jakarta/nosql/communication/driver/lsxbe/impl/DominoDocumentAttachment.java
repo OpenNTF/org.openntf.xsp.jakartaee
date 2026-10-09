@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
+import org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.UncheckedNotesException;
 
 import lotus.domino.Database;
 import lotus.domino.Document;
@@ -63,7 +64,7 @@ public class DominoDocumentAttachment implements EntityAttachment {
 		try {
 			return new EmbeddedObjectInputStream(getEmbeddedObject());
 		} catch (NotesException e) {
-			throw new RuntimeException(e);
+			throw new UncheckedNotesException(e);
 		}
 	}
 
@@ -97,7 +98,7 @@ public class DominoDocumentAttachment implements EntityAttachment {
 				this.length = (long)eo.getFileSize();
 				eo.recycle();
 			} catch(NotesException ne) {
-				throw new RuntimeException(ne);
+				throw new UncheckedNotesException(ne);
 			}
 		}
 	}
@@ -108,7 +109,7 @@ public class DominoDocumentAttachment implements EntityAttachment {
 			Document doc = database.getDocumentByUNID(unid);
 			return doc.getAttachment(this.attachmentName);
 		} catch(NotesException ne) {
-			throw new RuntimeException(ne);
+			throw new UncheckedNotesException(ne);
 		}
 	}
 
@@ -153,7 +154,7 @@ public class DominoDocumentAttachment implements EntityAttachment {
 			try {
 				eo.recycle();
 			} catch (NotesException e) {
-
+				// Ignore, since we can't do anything about that
 			}
 		}
 
