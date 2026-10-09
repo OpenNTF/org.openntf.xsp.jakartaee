@@ -17,6 +17,10 @@ public class UncheckedNotesException extends RuntimeException {
 		super(MessageFormat.format("{0} (Status: 0x{1})", e.text, Integer.toHexString(e.id).toUpperCase()), e); //$NON-NLS-1$
 	}
 	
+	public UncheckedNotesException(String message, NotesException e) {
+		super(MessageFormat.format("{0} (Status: 0x{1})", message, Integer.toHexString(e.id)), e); //$NON-NLS-1$
+	}
+	
 	public UncheckedNotesException(NotesAPIException e) {
 		super(MessageFormat.format("{0} (Status: 0x{1}, File: \"{2}\", Line: {3})", e.getMessage(), Integer.toHexString(e.getNativeErrorCode()).toUpperCase(), e.getNativeFile(), e.getNativeLine()), e); //$NON-NLS-1$
 	}

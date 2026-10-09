@@ -297,7 +297,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					List<Element> documents = convertDominoDocument(doc, classMapping, itemTypes);
 					return CommunicationEntity.of(entityName, documents);
 				} catch (NotesException e) {
-					throw new RuntimeException(MessageFormat.format("Encountered exception converting document UNID {0} in {1}!!{2}", unid, serverName, filePath), e);
+					throw new UncheckedNotesException(MessageFormat.format("Encountered exception converting document UNID {0} in {1}!!{2}", unid, serverName, filePath), e);
 				}
 			})
 			.filter(Objects::nonNull);
