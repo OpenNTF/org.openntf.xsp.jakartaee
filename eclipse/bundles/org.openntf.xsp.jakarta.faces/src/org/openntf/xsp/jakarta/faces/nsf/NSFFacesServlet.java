@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -231,7 +232,7 @@ public class NSFFacesServlet extends HttpServlet {
 			try {
 				c.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.log(Level.WARNING, MessageFormat.format("Encountered exception cleaning Faces environment in {0}", module.getModuleName()), e);
 			}
 		}
 		ctx.removeAttribute(PROP_CLASSLOADER);
