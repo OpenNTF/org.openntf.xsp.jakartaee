@@ -35,6 +35,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -144,9 +145,13 @@ public abstract class AbstractWebClientTest {
 	protected <T> T waitFor(Supplier<T> supplier, Predicate<T> condition) throws InterruptedException {
 		T result = null;
 		for(int i = 0; i < 1000; i++) {
-			result = supplier.get();
-			if(condition.test(result)) {
-				return result;
+			try {
+				result = supplier.get();
+				if(condition.test(result)) {
+					return result;
+				}
+			} catch(StaleElementReferenceException e) {
+				// This is likely to crop up with racing conditions with partial refreshes - ignore
 			}
 			TimeUnit.MILLISECONDS.sleep(10);
 		}

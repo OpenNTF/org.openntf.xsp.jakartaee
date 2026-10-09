@@ -179,7 +179,7 @@ public class DominoContainer extends GenericContainer<DominoContainer> {
 				
 				// Add the Postgres driver to jvm/lib/ext
 				{
-					Path postgresJar = findLocalMavenArtifact("org.postgresql", "postgresql", "42.5.4", "jar"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					Path postgresJar = findLocalMavenArtifact("org.postgresql", "postgresql", "42.7.14", "jar"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					withFileFromPath("staging/postgresql.jar", postgresJar); //$NON-NLS-1$
 				}
 				

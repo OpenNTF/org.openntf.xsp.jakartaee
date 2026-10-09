@@ -610,7 +610,9 @@ public class NoSQLExample {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Person> getCategorized(@PathParam("lastName") String lastName) {
 		ViewQuery query = ViewQuery.query().key(lastName, true);
-		return personRepository.findCategorized(query).collect(Collectors.toList());
+		try(var docs = personRepository.findCategorized(query)) {
+			return docs.toList();
+		}
 	}
 	
 	@Path("findCategorizedManual/{lastName}")

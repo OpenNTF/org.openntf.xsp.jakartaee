@@ -142,7 +142,7 @@ public class TestNoSQLNamedAndProfileDocs extends AbstractWebClientTest {
 			JsonObject jsonObject = Json.createReader(new StringReader(json)).readObject();
 			assertEquals(name, jsonObject.getString(field, ""));
 			assertEquals("", jsonObject.getString("noteUserName", ""), () -> "Received unexpected JSON: " + json);
-			assertEquals("I am the patched subject", jsonObject.getString("subject", ""));
+			assertEquals("I am the patched subject", jsonObject.getString("subject", ""), () -> "Received unexpected JSON: " + json);
 		}
 		
 		// Fetch a qualifying name to make sure that's distinct

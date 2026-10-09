@@ -25,10 +25,12 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +40,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -60,6 +63,9 @@ import org.osgi.framework.Bundle;
 import jakarta.activation.MimetypesFileTypeMap;
 import jakarta.annotation.Priority;
 import lotus.domino.Database;
+import lotus.domino.DateTime;
+import lotus.domino.Document;
+import lotus.domino.NoteCollection;
 import lotus.domino.NotesException;
 import lotus.domino.Session;
 
@@ -641,5 +647,53 @@ public enum LibraryUtil {
 		}
 
 		return "application/octet-stream"; //$NON-NLS-1$
+	}
+	
+	/**
+	 * Attempts to glean version information from the provided Database, specifically from
+	 * the "$TemplateBuild" shared field.
+	 * 
+	 * @param database the {@link Database} to query.
+	 * @return an {@link Optional} describing the Database's version, or an empty
+	 *         one if it contains no version information
+	 * @throws NotesException if there is a problem processing the database
+	 * @since 3.8.0
+	 */
+	public static Optional<String> getDatabaseVersion(Database database) throws NotesException {
+		NoteCollection noteCollection = database.createNoteCollection(true);
+		try {
+			noteCollection.setSelectSharedFields(true);
+			noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\""); //$NON-NLS-1$
+			noteCollection.buildCollection();
+			String noteID = noteCollection.getFirstNoteID();
+			if(StringUtil.isNotEmpty(noteID)) {
+				Document designDoc = database.getDocumentByID(noteID);
+
+				if (designDoc != null) {
+					try {
+						String buildVersion = designDoc.getItemValueString("$TemplateBuild"); //$NON-NLS-1$
+						@SuppressWarnings("unchecked")
+						Vector<DateTime> dateTimes = designDoc.getItemValueDateTimeArray("$TemplateBuildDate"); //$NON-NLS-1$
+						try {
+							if(!dateTimes.isEmpty()) {
+								Date buildDate = dateTimes.get(0).toJavaDate();
+								String buildDateFormatted = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT).format(buildDate);
+								return Optional.of(MessageFormat.format("{0} ({1})", buildVersion, buildDateFormatted)); //$NON-NLS-1$
+							} else {
+								return Optional.of(buildVersion);
+							}
+						} finally {
+							designDoc.recycle(dateTimes);
+						}
+					} finally {
+						designDoc.recycle();
+					}
+				}
+			}
+		} finally {
+			noteCollection.recycle();
+		}
+
+		return Optional.empty();
 	}
 }

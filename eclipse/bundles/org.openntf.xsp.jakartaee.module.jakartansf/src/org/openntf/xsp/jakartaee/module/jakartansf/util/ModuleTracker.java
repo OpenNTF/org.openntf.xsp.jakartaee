@@ -183,6 +183,7 @@ public enum ModuleTracker {
 					tempDoc.recycle();
 				}
 			} finally {
+				// This also recycles several of the longer-lived objects above
 				session.recycle();
 			}
 			

@@ -2,9 +2,7 @@
 <xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex">
 	<!--  Used to test https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/767 -->
 	<xp:this.data>
-		<!-- 		<xp:dominoDocument var="doc" formName="ELTest"/> -->
-
-		<xe:objectData var="doc" createObject="#{javascript: new java.util.HashMap()}"></xe:objectData>
+		<xp:dominoDocument var="doc" formName="ELTest"/>
 	</xp:this.data>
 
 	<xp:checkBoxGroup value="#{ex:doc.schedule}" id="schedule" styleClass="checkBoxGroup">
@@ -13,7 +11,7 @@
 	</xp:checkBoxGroup>
 		
 	<xp:div id="refresher">
-		<xp:text styleClass="schedule-output" value="#{javascript:selectOptionsBean.toJson(doc.get('schedule'))}"/>
+		<xp:text styleClass="schedule-output" value="#{javascript:selectOptionsBean.toJson(doc.getValue('schedule'))}"/>
 	</xp:div>
 	
 	<xp:button id="submit" value="Save"><xp:eventHandler event="onclick" submit="true" refreshMode="complete" immediate="false" save="true"></xp:eventHandler></xp:button>

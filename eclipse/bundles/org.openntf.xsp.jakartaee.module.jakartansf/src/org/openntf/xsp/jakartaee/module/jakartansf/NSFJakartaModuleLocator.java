@@ -17,28 +17,23 @@ package org.openntf.xsp.jakartaee.module.jakartansf;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Optional;
 
-import com.ibm.commons.util.StringUtil;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
+import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+import org.openntf.xsp.jakartaee.util.UncheckedNotesException;
+
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 import com.ibm.designer.runtime.domino.adapter.IServletFactory;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
-import org.openntf.xsp.jakartaee.module.jakartansf.util.ActiveRequest;
-import org.openntf.xsp.jakartaee.module.jakartansf.util.LSXBEHolder;
-import org.openntf.xsp.jakartaee.util.UncheckedNotesException;
-
 import lotus.domino.Database;
-import lotus.domino.DateTime;
-import lotus.domino.Document;
-import lotus.domino.NoteCollection;
 import lotus.domino.NotesException;
 import lotus.domino.Session;
 
@@ -60,32 +55,19 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 	@Override
 	public Optional<String> getVersion() {
 		return ActiveRequest.get()
-			.map(req -> {
+			.flatMap(req -> {
 				try {
 					Database database = req.lsxbe().database();
 					Session sessionAsSigner = req.lsxbe().sessionAsSigner();
 					Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
-
-					NoteCollection noteCollection = databaseAsSigner.createNoteCollection(true);
-					noteCollection.setSelectSharedFields(true);
-					noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\""); //$NON-NLS-1$
-					noteCollection.buildCollection();
-					String noteID = noteCollection.getFirstNoteID();
-					if(StringUtil.isNotEmpty(noteID)) {
-						Document designDoc = databaseAsSigner.getDocumentByID(noteID);
-
-						if (null != designDoc) {
-							String buildVersion = designDoc.getItemValueString("$TemplateBuild"); //$NON-NLS-1$
-							Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate(); //$NON-NLS-1$
-							String buildDateFormatted = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT).format(buildDate);
-							return MessageFormat.format("{0} ({1})", buildVersion, buildDateFormatted); //$NON-NLS-1$
-						}
+					try {
+						return LibraryUtil.getDatabaseVersion(databaseAsSigner);
+					} finally {
+						databaseAsSigner.recycle();
 					}
-
-					return null;
 				} catch(NotesException e) {
 					log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception trying to read the database template version (Status: 0x{0})", Integer.toHexString(e.id)), e);
-					return null;
+					return Optional.empty();
 				}
 			});
 	}

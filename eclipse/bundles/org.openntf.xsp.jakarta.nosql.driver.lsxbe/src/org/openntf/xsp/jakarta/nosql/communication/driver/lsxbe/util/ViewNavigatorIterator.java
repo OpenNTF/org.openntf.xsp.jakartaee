@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util;
 
+import static org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil.recycle;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
@@ -26,7 +28,7 @@ import lotus.domino.NotesException;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewNavigator;
 
-public class ViewNavigatorIterator implements Iterator<ViewEntry> {
+public class ViewNavigatorIterator implements Iterator<ViewEntry>, AutoCloseable {
 	private final ViewNavigator nav;
 	private final boolean docsOnly;
 	private final boolean didSkip;
@@ -76,7 +78,7 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 				throw new NoSuchElementException();
 			}
 			if(prev != null) {
-				prev.recycle();
+				recycle(prev);
 			}
 			prev = onDeck;
 			onDeck = null;
@@ -84,6 +86,13 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
 		}
+	}
+	
+	@Override
+	public void close() {
+		recycle(onDeck, prev);
+		var parentView = nav.getParentView();
+		recycle(parentView, nav);
 	}
 
 	public Stream<ViewEntry> stream() {
@@ -120,8 +129,8 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 			}
 		}
 		if(next == null) {
+			close();
 			this.done = true;
-			nav.recycle();
 		}
 		return next;
 	}
@@ -129,7 +138,12 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 	private ViewEntry firstDocumentManual() throws NotesException {
 		ViewEntry first = nav.getFirst();
 		while(first != null && !first.isDocument()) {
-			first = nav.getNext();
+			ViewEntry tempEntry = first;
+			try {
+				first = nav.getNext();
+			} finally {
+				recycle(tempEntry);
+			}
 		}
 		return first;
 	}
@@ -137,7 +151,12 @@ public class ViewNavigatorIterator implements Iterator<ViewEntry> {
 	private ViewEntry nextDocumentManual() throws NotesException {
 		ViewEntry first = nav.getNext();
 		while(first != null && !first.isDocument()) {
-			first = nav.getNext();
+			ViewEntry tempEntry = first;
+			try {
+				first = nav.getNext();
+			} finally {
+				recycle(tempEntry);
+			}
 		}
 		return first;
 	}
