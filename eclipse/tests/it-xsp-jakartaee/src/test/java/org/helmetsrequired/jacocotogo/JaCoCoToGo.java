@@ -19,6 +19,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -26,8 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.jacoco.core.data.ExecutionDataWriter;
 import org.jacoco.core.runtime.RemoteControlReader;
@@ -43,7 +43,7 @@ import org.jacoco.core.runtime.RemoteControlWriter;
 @SuppressWarnings("nls")
 public class JaCoCoToGo {
 
-	private static final Logger logger = Logger.getLogger(JaCoCoToGo.class.getPackage().getName());
+	private static final Logger logger = System.getLogger(JaCoCoToGo.class.getPackageName());
 	private static final int MAX_PORT = (int) (Math.pow(2, 16) - 1);
 
 	/**
@@ -72,7 +72,7 @@ public class JaCoCoToGo {
 
 	private static void saveExecutionData(byte[] executionData, Path outputFile) {
 		if(logger.isLoggable(Level.INFO)) {
-			logger.info(MessageFormat.format("Saving JaCoCo execution data to file: \"{0}\"", outputFile));
+			logger.log(Level.INFO, MessageFormat.format("Saving JaCoCo execution data to file: \"{0}\"", outputFile));
 		}
 		Path outputFileDir = outputFile.toAbsolutePath().getParent();
 		if (!Files.exists(outputFileDir)) {
@@ -85,7 +85,7 @@ public class JaCoCoToGo {
 
 		if (executionData == null) {
 			if(logger.isLoggable(Level.WARNING)) {
-				logger.warning("executionData is null, nothing to save");
+				logger.log(Level.WARNING, "executionData is null, nothing to save");
 			}
 			return;
 		}
@@ -98,8 +98,8 @@ public class JaCoCoToGo {
 	
 	private static InetAddress checkHostname(String hostname) {
 		try {
-			if(logger.isLoggable(Level.FINER)) {
-				logger.finer(MessageFormat.format("Verifying that hostname: \"{0}\" can be resolved.", hostname));
+			if(logger.isLoggable(Level.DEBUG)) {
+				logger.log(Level.DEBUG, MessageFormat.format("Verifying that hostname: \"{0}\" can be resolved.", hostname));
 			}
 			return InetAddress.getByName(hostname);
 		} catch (UnknownHostException ex) {
@@ -129,7 +129,7 @@ public class JaCoCoToGo {
 			// 1. Open socket connection
 			socket = new Socket(address, port);
 			if(logger.isLoggable(Level.INFO)) {
-				logger.info(MessageFormat.format("Connecting to {0}", socket.getRemoteSocketAddress()));
+				logger.log(Level.INFO, MessageFormat.format("Connecting to {0}", socket.getRemoteSocketAddress()));
 			}
 			RemoteControlWriter remoteWriter = new RemoteControlWriter(socket.getOutputStream());
 			RemoteControlReader remoteReader = new RemoteControlReader(socket.getInputStream());
