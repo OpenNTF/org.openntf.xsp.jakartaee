@@ -173,13 +173,21 @@ public class NSFJakartaFileSystem implements ModuleFileSystem {
 					throw new RuntimeException(MessageFormat.format("Unable to open database {0}", db.getDatabasePath()));
 				}
 				NotesNote note = db.openNote(noteData.noteId(), 0);
-				if(note != null && note.isValidHandle()) {
-					// TODO special handling for icon note
-					String itemName = noteData.itemName();
-					if(StringUtil.isNotEmpty(itemName)) {
-						return Optional.of(FileAccess.readFileContentAsInputStream(note, itemName));
-					} else {
-						return Optional.of(FileAccess.readFileContentAsInputStream(note));
+				if(note != null) {
+					try {
+						if(note.isValidHandle()) {
+							// TODO special handling for icon note
+							String itemName = noteData.itemName();
+							if(StringUtil.isNotEmpty(itemName)) {
+								return Optional.of(FileAccess.readFileContentAsInputStream(note, itemName));
+							} else {
+								return Optional.of(FileAccess.readFileContentAsInputStream(note));
+							}
+						} else {
+							return Optional.empty();
+						}
+					} finally {
+						note.recycle();
 					}
 				} else {
 					return Optional.empty();
