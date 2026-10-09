@@ -612,154 +612,165 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 			// TODO when fieldNames is present, only loop over those names
 			Map<String, Object> docMap = new LinkedHashMap<>();
-			for(Item item : (List<Item>)doc.getItems()) {
-				String itemName = item.getName();
-				if(DominoConstants.SYSTEM_FIELDS.contains(itemName)) {
-					continue;
-				}
-
-				// If we have field information, restrict to only those fields
-				//   and match capitalization
-				if(fieldNames != null) {
-					String fItemName = itemName;
-					itemName = fieldNames.stream()
-						.filter(fieldName -> fieldName.equalsIgnoreCase(fItemName))
-						.findFirst()
-						.orElse(null);
-					if(itemName == null) {
+			Vector<Item> items = doc.getItems();
+			try {
+				for(Item item : items) {
+					String itemName = item.getName();
+					if(DominoConstants.SYSTEM_FIELDS.contains(itemName)) {
 						continue;
 					}
-				}
-
-				// Check if the item is expected to be stored specially, which may be handled down the line
-				Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, itemName, ItemStorage.class);
-				Optional<BooleanStorage> optBoolean = getFieldAnnotation(classMapping, itemName, BooleanStorage.class);
-
-				if(item instanceof RichTextItem) {
-					// Special handling here for RT -> HTML
-					String html = ((RichTextItem)item).convertToHTML(DominoConstants.HTML_CONVERSION_OPTIONS);
-					docMap.put(itemName, html);
-				} else if(item.getType() == DominoConstants.TYPE_MIME_PART) {
-					MIMEEntity entity = doc.getMIMEEntity(itemName);
-
-					// See if this is expected to be MIMEBean
-					if(optStorage.isPresent() && optStorage.get().type() == ItemStorage.Type.MIMEBean) {
-						// If so, deserialize it
-
-						byte[] serialized;
-						lotus.domino.Stream outStream = session.createStream();
+	
+					// If we have field information, restrict to only those fields
+					//   and match capitalization
+					if(fieldNames != null) {
+						String fItemName = itemName;
+						itemName = fieldNames.stream()
+							.filter(fieldName -> fieldName.equalsIgnoreCase(fItemName))
+							.findFirst()
+							.orElse(null);
+						if(itemName == null) {
+							continue;
+						}
+					}
+	
+					// Check if the item is expected to be stored specially, which may be handled down the line
+					Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, itemName, ItemStorage.class);
+					Optional<BooleanStorage> optBoolean = getFieldAnnotation(classMapping, itemName, BooleanStorage.class);
+	
+					if(item instanceof RichTextItem) {
+						// Special handling here for RT -> HTML
+						String html = ((RichTextItem)item).convertToHTML(DominoConstants.HTML_CONVERSION_OPTIONS);
+						docMap.put(itemName, html);
+					} else if(item.getType() == DominoConstants.TYPE_MIME_PART) {
+						MIMEEntity entity = doc.getMIMEEntity(itemName);
+	
+						// See if this is expected to be MIMEBean
+						if(optStorage.isPresent() && optStorage.get().type() == ItemStorage.Type.MIMEBean) {
+							// If so, deserialize it
+	
+							byte[] serialized;
+							lotus.domino.Stream outStream = session.createStream();
+							try {
+								entity.getContentAsBytes(outStream);
+								try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+									outStream.getContents(baos);
+									serialized = baos.toByteArray();
+								} catch (IOException e) {
+									throw new UncheckedIOException(e);
+								}
+							} finally {
+								outStream.close();
+								outStream.recycle();
+							}
+	
+							String encoding = null;
+							MIMEHeader encodingHeader = entity.getNthHeader("Content-Encoding"); //$NON-NLS-1$
+							if(encodingHeader != null) {
+								encoding = encodingHeader.getHeaderVal();
+							}
+	
+							docMap.put(itemName, deserialize(serialized, encoding));
+							continue;
+						}
+	
+						// TODO consider whether to pass this back as a Mail API MIME entity
+						MIMEEntity html = findEntityForType(entity, "text", "html"); //$NON-NLS-1$ //$NON-NLS-2$
+						if(html != null) {
+							docMap.put(itemName, html.getContentAsText());
+						} else {
+							MIMEEntity text = findEntityForType(entity, "text", "plain"); //$NON-NLS-1$ //$NON-NLS-2$
+							if(text != null) {
+								docMap.put(itemName, text.getContentAsText());
+							} else {
+								docMap.put(itemName, entity.toString());
+							}
+						}
+					} else if(item.getType() == Item.USERDATA) {
+						if(optStorage.isEmpty() || optStorage.get().type() != ItemStorage.Type.UserData) {
+							throw new IllegalStateException(MessageFormat.format(
+								"Encountered User Data item {0} in document {1} in {2}!!{3} that is not declared as User Data in the entity {4}",
+								item.getName(),
+								doc.getUniversalID(),
+								doc.getParentDatabase().getServer(),
+								doc.getParentDatabase().getFilePath(),
+								classMapping.className()
+							));
+						}
+						String userDataType = optStorage.get().userDataTypeName();
+						if(StringUtil.isEmpty(userDataType)) {
+							throw new IllegalArgumentException(MessageFormat.format("userDataType must be specified for item {0} in type {1}", item.getName(), classMapping.className()));
+						}
+						
+						// Slightly different handling based on target type
 						try {
-							entity.getContentAsBytes(outStream);
-							try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-								outStream.getContents(baos);
-								serialized = baos.toByteArray();
-							} catch (IOException e) {
-								throw new UncheckedIOException(e);
+							Optional<Type> targetType = getFieldType(classMapping, itemName);
+							if(targetType.isPresent()) {
+								if(String.class.equals(targetType.get())) {
+									byte[] stringBytes = item.getValueCustomDataBytes(userDataType);
+									docMap.put(itemName, new String(stringBytes, StandardCharsets.UTF_8));
+								} else if(byte[].class.equals(targetType.get())) {
+									byte[] bytes = item.getValueCustomDataBytes(userDataType);
+									docMap.put(itemName, bytes);
+								} else if(ByteBuffer.class.equals(targetType.get())) {
+									byte[] bytes = item.getValueCustomDataBytes(userDataType);
+									docMap.put(itemName, ByteBuffer.wrap(bytes));
+								} else {
+									byte[] bytes = item.getValueCustomDataBytes(userDataType);
+									Object objectValue = deserialize(bytes, null);
+									docMap.put(itemName, objectValue);
+								}
+							} else {
+								docMap.put(itemName, item.getValueCustomDataBytes(userDataType));
+							}
+						} catch(IOException e) {
+							throw new UncheckedIOException(e);
+						}
+					} else {
+						Vector<?> val = item.getValues();
+						try {
+							if(val == null || val.isEmpty()) {
+								// Skip
+							} else if(val.size() == 1) {
+								// It may be stored as JSON
+								if(val.get(0) != null && !"".equals(val.get(0))) { //$NON-NLS-1$
+									Optional<Object> jsonConverted = maybeConvertJson(val.get(0), optStorage, itemName, classMapping);
+									if(jsonConverted.isPresent()) {
+										docMap.put(itemName,  jsonConverted.get());
+										continue;
+									}
+								}
+		
+								Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val.get(0), optBoolean);
+								if(itemTypes != null) {
+									if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
+										if(valObj instanceof String) {
+											// boolean value with default conversion
+											valObj = "Y".equals(valObj); //$NON-NLS-1$
+										}
+									}
+								}
+								docMap.put(itemName, valObj);
+							} else {
+								Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val, optBoolean);
+								if(itemTypes != null) {
+									if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
+										if(valObj instanceof String) {
+											// boolean value with defaut conversion
+											valObj = "Y".equals(valObj); //$NON-NLS-1$
+										}
+									}
+								}
+								docMap.put(itemName, valObj);
 							}
 						} finally {
-							outStream.close();
-							outStream.recycle();
-						}
-
-						String encoding = null;
-						MIMEHeader encodingHeader = entity.getNthHeader("Content-Encoding"); //$NON-NLS-1$
-						if(encodingHeader != null) {
-							encoding = encodingHeader.getHeaderVal();
-						}
-
-						docMap.put(itemName, deserialize(serialized, encoding));
-						continue;
-					}
-
-					// TODO consider whether to pass this back as a Mail API MIME entity
-					MIMEEntity html = findEntityForType(entity, "text", "html"); //$NON-NLS-1$ //$NON-NLS-2$
-					if(html != null) {
-						docMap.put(itemName, html.getContentAsText());
-					} else {
-						MIMEEntity text = findEntityForType(entity, "text", "plain"); //$NON-NLS-1$ //$NON-NLS-2$
-						if(text != null) {
-							docMap.put(itemName, text.getContentAsText());
-						} else {
-							docMap.put(itemName, entity.toString());
-						}
-					}
-				} else if(item.getType() == Item.USERDATA) {
-					if(optStorage.isEmpty() || optStorage.get().type() != ItemStorage.Type.UserData) {
-						throw new IllegalStateException(MessageFormat.format(
-							"Encountered User Data item {0} in document {1} in {2}!!{3} that is not declared as User Data in the entity {4}",
-							item.getName(),
-							doc.getUniversalID(),
-							doc.getParentDatabase().getServer(),
-							doc.getParentDatabase().getFilePath(),
-							classMapping.className()
-						));
-					}
-					String userDataType = optStorage.get().userDataTypeName();
-					if(StringUtil.isEmpty(userDataType)) {
-						throw new IllegalArgumentException(MessageFormat.format("userDataType must be specified for item {0} in type {1}", item.getName(), classMapping.className()));
-					}
-					
-					// Slightly different handling based on target type
-					try {
-						Optional<Type> targetType = getFieldType(classMapping, itemName);
-						if(targetType.isPresent()) {
-							if(String.class.equals(targetType.get())) {
-								byte[] stringBytes = item.getValueCustomDataBytes(userDataType);
-								docMap.put(itemName, new String(stringBytes, StandardCharsets.UTF_8));
-							} else if(byte[].class.equals(targetType.get())) {
-								byte[] bytes = item.getValueCustomDataBytes(userDataType);
-								docMap.put(itemName, bytes);
-							} else if(ByteBuffer.class.equals(targetType.get())) {
-								byte[] bytes = item.getValueCustomDataBytes(userDataType);
-								docMap.put(itemName, ByteBuffer.wrap(bytes));
-							} else {
-								byte[] bytes = item.getValueCustomDataBytes(userDataType);
-								Object objectValue = deserialize(bytes, null);
-								docMap.put(itemName, objectValue);
-							}
-						} else {
-							docMap.put(itemName, item.getValueCustomDataBytes(userDataType));
-						}
-					} catch(IOException e) {
-						throw new UncheckedIOException(e);
-					}
-				} else {
-					List<?> val = item.getValues();
-					if(val == null || val.isEmpty()) {
-						// Skip
-					} else if(val.size() == 1) {
-						// It may be stored as JSON
-						if(val.get(0) != null && !"".equals(val.get(0))) { //$NON-NLS-1$
-							Optional<Object> jsonConverted = maybeConvertJson(val.get(0), optStorage, itemName, classMapping);
-							if(jsonConverted.isPresent()) {
-								docMap.put(itemName,  jsonConverted.get());
-								continue;
+							if(val != null) {
+								doc.recycle(val);
 							}
 						}
-
-						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val.get(0), optBoolean);
-						if(itemTypes != null) {
-							if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
-								if(valObj instanceof String) {
-									// boolean value with default conversion
-									valObj = "Y".equals(valObj); //$NON-NLS-1$
-								}
-							}
-						}
-						docMap.put(itemName, valObj);
-					} else {
-						Object valObj = DominoNoSQLUtil.toJavaFriendly(database, val, optBoolean);
-						if(itemTypes != null) {
-							if(isUseDefaultBooleanConversion(classMapping, itemTypes, itemName)) {
-								if(valObj instanceof String) {
-									// boolean value with defaut conversion
-									valObj = "Y".equals(valObj); //$NON-NLS-1$
-								}
-							}
-						}
-						docMap.put(itemName, valObj);
 					}
 				}
+			} finally {
+				doc.recycle(items);
 			}
 
 			docMap.forEach((key, value) -> result.add(Element.of(key, value)));

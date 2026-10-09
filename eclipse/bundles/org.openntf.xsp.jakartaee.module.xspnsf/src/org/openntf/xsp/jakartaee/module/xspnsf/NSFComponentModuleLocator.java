@@ -20,28 +20,22 @@ import java.lang.System.Logger.Level;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.text.DateFormat;
-import java.text.MessageFormat;
-import java.util.Date;
 import java.util.Optional;
 
-import com.ibm.commons.util.StringUtil;
+import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
+import org.openntf.xsp.jakartaee.module.xspnsf.concurrency.NSFSessionClonerSetupParticipant;
+import org.openntf.xsp.jakartaee.servlet.ServletUtil;
+import org.openntf.xsp.jakartaee.util.LibraryUtil;
+
 import com.ibm.designer.domino.napi.NotesAPIException;
 import com.ibm.designer.domino.napi.NotesDatabase;
 import com.ibm.domino.xsp.module.nsf.NSFComponentModule;
 import com.ibm.domino.xsp.module.nsf.NotesContext;
 
-import org.openntf.xsp.jakartaee.module.ComponentModuleLocator;
-import org.openntf.xsp.jakartaee.module.xspnsf.concurrency.NSFSessionClonerSetupParticipant;
-import org.openntf.xsp.jakartaee.servlet.ServletUtil;
-
 import jakarta.annotation.Priority;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lotus.domino.Database;
-import lotus.domino.DateTime;
-import lotus.domino.Document;
-import lotus.domino.NoteCollection;
 import lotus.domino.NotesException;
 import lotus.domino.Session;
 
@@ -134,23 +128,7 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 				Session sessionAsSigner = nsfContext.getSessionAsSigner();
 				Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
 
-				NoteCollection noteCollection = databaseAsSigner.createNoteCollection(true);
-				noteCollection.setSelectSharedFields(true);
-				noteCollection.setSelectionFormula("$TITLE=\"$TemplateBuild\""); //$NON-NLS-1$
-				noteCollection.buildCollection();
-				String noteID = noteCollection.getFirstNoteID();
-				if(StringUtil.isNotEmpty(noteID)) {
-					Document designDoc = databaseAsSigner.getDocumentByID(noteID);
-
-					if (null != designDoc) {
-						String buildVersion = designDoc.getItemValueString("$TemplateBuild"); //$NON-NLS-1$
-						Date buildDate = ((DateTime) designDoc.getItemValueDateTimeArray("$TemplateBuildDate").get(0)).toJavaDate(); //$NON-NLS-1$
-						String buildDateFormatted = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,DateFormat.DEFAULT).format(buildDate);
-						return Optional.of(MessageFormat.format("{0} ({1})", buildVersion, buildDateFormatted)); //$NON-NLS-1$
-					}
-				}
-
-				return Optional.empty();
+				return LibraryUtil.getDatabaseVersion(databaseAsSigner);
 			} catch(NotesException e) {
 				log.log(Level.ERROR, "Encountered exception trying to read the database template version", e);
 				return Optional.empty();
