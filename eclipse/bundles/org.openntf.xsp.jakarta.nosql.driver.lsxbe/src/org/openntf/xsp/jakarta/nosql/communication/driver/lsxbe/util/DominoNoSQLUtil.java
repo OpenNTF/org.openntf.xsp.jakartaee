@@ -44,6 +44,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.openntf.xsp.jakarta.nosql.mapping.extension.BooleanStorage;
 
+import lotus.domino.Base;
 import lotus.domino.Database;
 import lotus.domino.DateRange;
 import lotus.domino.DateTime;
@@ -348,5 +349,26 @@ public enum DominoNoSQLUtil {
 	 */
 	public static Optional<Path> getQrpDirectory() {
 		return Optional.ofNullable(OVERRIDE_QRP_DIR);
+	}
+
+	/**
+	 * Recycles any of the provided objects that are {@code lotus.domino}
+	 * instances, ignoring any {@code NotesException}s that occur during recycling.
+	 * 
+	 * @param objects the objects to recycle as necessary
+	 * @since 3.8.0
+	 */
+	public static void recycle(final Object... objects) {
+		for(Object obj : objects) {
+			if(obj instanceof Base b) {
+				try {
+					b.recycle();
+				} catch (NotesException e) {
+					// Ignore, since we can't do anything about that
+				}
+			} else if(obj instanceof Iterable<?> iterable) {
+				iterable.forEach(DominoNoSQLUtil::recycle);
+			}
+		}
 	}
 }

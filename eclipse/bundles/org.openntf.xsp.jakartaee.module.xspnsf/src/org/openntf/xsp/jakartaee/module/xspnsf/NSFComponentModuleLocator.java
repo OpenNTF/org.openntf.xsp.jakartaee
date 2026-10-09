@@ -127,8 +127,11 @@ public class NSFComponentModuleLocator implements ComponentModuleLocator {
 				Database database = nsfContext.getCurrentDatabase();
 				Session sessionAsSigner = nsfContext.getSessionAsSigner();
 				Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
-
-				return LibraryUtil.getDatabaseVersion(databaseAsSigner);
+				try {
+					return LibraryUtil.getDatabaseVersion(databaseAsSigner);
+				} finally {
+					databaseAsSigner.recycle();
+				}
 			} catch(NotesException e) {
 				log.log(Level.ERROR, "Encountered exception trying to read the database template version", e);
 				return Optional.empty();

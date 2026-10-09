@@ -60,8 +60,11 @@ public class NSFJakartaModuleLocator implements ComponentModuleLocator {
 					Database database = req.lsxbe().database();
 					Session sessionAsSigner = req.lsxbe().sessionAsSigner();
 					Database databaseAsSigner = sessionAsSigner.getDatabase(database.getServer(), database.getFilePath());
-
-					return LibraryUtil.getDatabaseVersion(databaseAsSigner);
+					try {
+						return LibraryUtil.getDatabaseVersion(databaseAsSigner);
+					} finally {
+						databaseAsSigner.recycle();
+					}
 				} catch(NotesException e) {
 					log.log(Level.ERROR, () -> MessageFormat.format("Encountered exception trying to read the database template version (Status: 0x{0})", Integer.toHexString(e.id)), e);
 					return Optional.empty();

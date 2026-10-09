@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util;
 
+import static org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil.recycle;
+
 import java.util.Iterator;
 
 import lotus.domino.Document;
@@ -32,7 +34,7 @@ import lotus.domino.NotesException;
  * @author Jesse Gallagher
  * @since 2.6.0
  */
-public class DocumentCollectionIterator extends AbstractCollectionIterator<Document> {
+public class DocumentCollectionIterator extends AbstractCollectionIterator<Document> implements AutoCloseable {
 	private final DocumentCollection docs;
 	private Document prev;
 
@@ -49,19 +51,24 @@ public class DocumentCollectionIterator extends AbstractCollectionIterator<Docum
 				next = docs.getFirstDocument();
 			} else {
 				next = docs.getNextDocument(prev);
-				prev.recycle();
+				recycle(prev);
 			}
 			prev = next;
 			fetched++;
 
 			if(!hasNext()) {
-				docs.recycle();
+				recycle(docs);
 			}
 
 			return next;
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
 		}
+	}
+
+	@Override
+	public void close() {
+		recycle(prev, docs);
 	}
 
 }

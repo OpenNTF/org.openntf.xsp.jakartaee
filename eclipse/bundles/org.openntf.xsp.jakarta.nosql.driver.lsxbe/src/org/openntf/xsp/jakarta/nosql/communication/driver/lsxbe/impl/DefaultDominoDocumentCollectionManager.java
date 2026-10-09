@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl;
 
+import static org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil.recycle;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.System.Logger;
@@ -156,7 +158,11 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			beginTransaction(database);
 
 			Document target = toDocument(entity, database, computeWithForm);
-			target.save();
+			try {
+				target.save();
+			} finally {
+				recycle(target);
+			}
 			return entity;
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
@@ -180,17 +186,27 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			beginTransaction(database);
 
-			Element id = entity.find(DominoConstants.FIELD_ID)
-				.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", DominoConstants.FIELD_ID)));
+			lotus.domino.Document target = findProfileOrNamedDocument(entity, database)
+				.orElseGet(() -> {
+					Element id = entity.find(DominoConstants.FIELD_ID)
+						.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unable to find {0} in entity", DominoConstants.FIELD_ID)));
 
-			lotus.domino.Document target = database.getDocumentByUNID((String)id.get());
-
-			EntityMetadata mapping = EntityUtil.getClassMapping(entity.name());
-			entityConverter.convertNoSQLEntity(entity, false, target, mapping);
-			if(computeWithForm) {
-				target.computeWithForm(false, false);
+					try {
+						return database.getDocumentByUNID(id.get(String.class));
+					} catch (NotesException e) {
+						throw new UncheckedNotesException(e);
+					}
+				});
+			try {
+				EntityMetadata mapping = EntityUtil.getClassMapping(entity.name());
+				entityConverter.convertNoSQLEntity(entity, false, target, mapping);
+				if(computeWithForm) {
+					target.computeWithForm(false, false);
+				}
+				target.save();
+			} finally {
+				recycle(target);
 			}
-			target.save();
 			return entity;
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
@@ -343,19 +359,27 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				beginTransaction(database);
 				View view = database.getView(viewName);
 				Objects.requireNonNull(view, () -> "Unable to open view: " + viewName);
-
-				Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
-				Vector<Object> vecKeys;
-				if(keys instanceof Vector v) {
-					vecKeys = v;
-				} else {
-					vecKeys = new Vector<>(Arrays.asList(keys));
+				try {
+					Object keys = DominoNoSQLUtil.toDominoFriendly(database.getParent(), viewQuery.getKey(), Optional.empty());
+					Vector<Object> vecKeys;
+					if(keys instanceof Vector v) {
+						vecKeys = v;
+					} else {
+						vecKeys = new Vector<>(Arrays.asList(keys));
+					}
+					ViewEntry entry = view.getEntryByKey(vecKeys, viewQuery.isExact());
+					if(entry == null) {
+						return Stream.empty();
+					} else {
+						try {
+							return Stream.of(entityConverter.convertViewEntry(entityName, entry, mapping));
+						} finally {
+							recycle(entry);
+						}
+					}
+				} finally {
+					recycle(view);
 				}
-				ViewEntry entry = view.getEntryByKey(vecKeys, viewQuery.isExact());
-				if(entry == null) {
-					return Stream.empty();
-				}
-				return Stream.of(entityConverter.convertViewEntry(entityName, entry, mapping));
 			} catch(NotesException e) {
 				throw new UncheckedNotesException(e);
 			}
@@ -368,6 +392,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 						return entityConverter.convertViewEntries(entityName, vn, didSkip, didKey, limit, docsOnly, mapping);
 					} else if(nav instanceof ViewEntryCollection vec) {
 						return entityConverter.convertViewEntries(entityName, vec, didSkip, didKey, limit, docsOnly, mapping);
+					} else if(nav instanceof Base base) {
+						String baseStr = String.valueOf(base);
+						recycle(base);
+						throw new IllegalStateException("Cannot process " + baseStr);
 					} else {
 						throw new IllegalStateException("Cannot process " + nav);
 					}
@@ -401,9 +429,14 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				lotus.domino.Document doc = view.getDocumentByKey(vecKeys, viewQuery.isExact());
 				if(doc == null) {
 					return Stream.empty();
+				} else {
+					try {
+						Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(mapping);
+						return Stream.of(CommunicationEntity.of(entityName, entityConverter.convertDominoDocument(doc, mapping, itemTypes)));
+					} finally {
+						recycle(doc);
+					}
 				}
-				Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(mapping);
-				return Stream.of(CommunicationEntity.of(entityName, entityConverter.convertDominoDocument(doc, mapping, itemTypes)));
 			} catch(NotesException e) {
 				throw new UncheckedNotesException(e);
 			}
@@ -416,6 +449,10 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 						return entityConverter.convertViewDocuments(entityName, vn, didSkip, didKey, limit, distinct, mapping);
 					} else if(nav instanceof ViewEntryCollection vec) {
 						return entityConverter.convertViewDocuments(entityName, vec, didSkip, didKey, limit, distinct, mapping);
+					} else if(nav instanceof Base base) {
+						String baseStr = String.valueOf(base);
+						recycle(base);
+						throw new IllegalStateException("Cannot process " + baseStr);
 					} else {
 						throw new IllegalStateException("Cannot process " + nav);
 					}
@@ -440,7 +477,11 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		try {
 			lotus.domino.Document doc = database.getDocumentByUNID(entityId);
 			if(doc != null) {
-				doc.putInFolder(folderName);
+				try {
+					doc.putInFolder(folderName);
+				} finally {
+					recycle(doc);
+				}
 			}
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
@@ -482,7 +523,11 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			String dqlString = dql.toString();
 			preFireQuery(dominoQuery, dqlString, mapping.type());
 			DocumentCollection result = dominoQuery.execute(dqlString);
-			return result.getCount();
+			try {
+				return result.getCount();
+			} finally {
+				recycle(result);
+			}
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
 		}
@@ -496,7 +541,12 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			beginTransaction(database);
 			lotus.domino.Document doc = database.getDocumentByUNID(unid);
 			// TODO consider checking the form
-			return doc != null;
+			if(doc != null) {
+				recycle(doc);
+				return true;
+			} else {
+				return false;
+			}
 		} catch(NotesException e) {
 			// Assume it doesn't exist
 			log.log(Level.DEBUG, MessageFormat.format("Encountered exception checking existence of entity by UNID {0}", unid), e);
@@ -628,15 +678,18 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			Session session = database.getParent();
 			NotesCalendar cal = session.getCalendar(database);
-
-			DateTime startDt = DominoNoSQLUtil.fromTemporal(session, start);
-			DateTime endDt = DominoNoSQLUtil.fromTemporal(session, end);
-
-			if(pagination != null) {
-				return cal.readRange(startDt, endDt, (int)(pagination.size() * (pagination.page()-1)), pagination.size());
-			} else {
-				return cal.readRange(startDt, endDt);
-			}
+			try {
+				DateTime startDt = DominoNoSQLUtil.fromTemporal(session, start);
+				DateTime endDt = DominoNoSQLUtil.fromTemporal(session, end);
+	
+				if(pagination != null) {
+					return cal.readRange(startDt, endDt, (int)(pagination.size() * (pagination.page()-1)), pagination.size());
+				} else {
+					return cal.readRange(startDt, endDt);
+				}
+			} finally {
+				recycle(cal);
+			}		
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
 		}
@@ -648,14 +701,19 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			Session session = database.getParent();
 			NotesCalendar cal = session.getCalendar(database);
-
-			NotesCalendarEntry entry = cal.getEntry(uid);
 			try {
-				return Optional.of(entry.read());
-			} catch(NotesException e) {
-				// Accessor methods throw exceptions when the entry doesn't exist
-				log.log(Level.DEBUG, MessageFormat.format("Encountered exception reading calendar entry with UID {0}", uid), e);
-				return Optional.empty();
+				NotesCalendarEntry entry = cal.getEntry(uid);
+				try {
+					return Optional.of(entry.read());
+				} catch(NotesException e) {
+					// Accessor methods throw exceptions when the entry doesn't exist
+					log.log(Level.DEBUG, MessageFormat.format("Encountered exception reading calendar entry with UID {0}", uid), e);
+					return Optional.empty();
+				} finally {
+					recycle(entry);
+				}
+			} finally {
+				recycle(cal);
 			}
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
@@ -668,9 +726,16 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			Session session = database.getParent();
 			NotesCalendar cal = session.getCalendar(database);
-
-			NotesCalendarEntry entry = cal.createEntry(icalData, sendInvitations ? 0 : NotesCalendar.CS_WRITE_DISABLE_IMPLICIT_SCHEDULING);
-			return entry.getUID();
+			try {
+				NotesCalendarEntry entry = cal.createEntry(icalData, sendInvitations ? 0 : NotesCalendar.CS_WRITE_DISABLE_IMPLICIT_SCHEDULING);
+				try {
+					return entry.getUID();
+				} finally {
+					recycle(entry);
+				}
+			} finally {
+				recycle(cal);
+			}
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
 		}
@@ -683,13 +748,20 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			Session session = database.getParent();
 			NotesCalendar cal = session.getCalendar(database);
-
-			NotesCalendarEntry entry = cal.getEntry(uid);
-			int flags = (sendInvitations ? 0 : NotesCalendar.CS_WRITE_DISABLE_IMPLICIT_SCHEDULING) | (overwrite ? NotesCalendar.CS_WRITE_MODIFY_LITERAL : 0);
-			if(StringUtil.isEmpty(recurId)) {
-				entry.update(icalData, comment, flags);
-			} else {
-				entry.update(icalData, comment, flags, recurId);
+			try {
+				NotesCalendarEntry entry = cal.getEntry(uid);
+				try {
+					int flags = (sendInvitations ? 0 : NotesCalendar.CS_WRITE_DISABLE_IMPLICIT_SCHEDULING) | (overwrite ? NotesCalendar.CS_WRITE_MODIFY_LITERAL : 0);
+					if(StringUtil.isEmpty(recurId)) {
+						entry.update(icalData, comment, flags);
+					} else {
+						entry.update(icalData, comment, flags, recurId);
+					}
+				} finally {
+					recycle(entry);
+				}
+			} finally {
+				recycle(cal);
 			}
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
@@ -702,24 +774,31 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			Database database = supplier.get();
 			Session session = database.getParent();
 			NotesCalendar cal = session.getCalendar(database);
-
-			NotesCalendarEntry entry = cal.getEntry(uid);
-			if(StringUtil.isEmpty(recurId)) {
-				entry.remove();
-			} else {
-				int scopeVal;
-				if(scope == null) {
-					scopeVal = 0;
-				} else {
-					scopeVal = switch (scope) {
-						case ALL -> 1;
-						case FUTURE -> 3;
-						case PREV -> 2;
-						case CURRENT -> 0;
-						default -> 0;
-					};
+			try {
+				NotesCalendarEntry entry = cal.getEntry(uid);
+				try {
+					if(StringUtil.isEmpty(recurId)) {
+						entry.remove();
+					} else {
+						int scopeVal;
+						if(scope == null) {
+							scopeVal = 0;
+						} else {
+							scopeVal = switch (scope) {
+								case ALL -> 1;
+								case FUTURE -> 3;
+								case PREV -> 2;
+								case CURRENT -> 0;
+								default -> 0;
+							};
+						}
+						entry.remove(scopeVal, recurId);
+					}
+				} finally {
+					recycle(entry);
 				}
-				entry.remove(scopeVal, recurId);
+			} finally {
+				recycle(cal);
 			}
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
@@ -761,9 +840,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			beginTransaction(database);
 
 			Document target = toDocument(entity, database, computeWithForm);
-			target.send(attachForm);
-			if(save) {
-				target.save();
+			try {
+				target.send(attachForm);
+				if(save) {
+					target.save();
+				}
+			} finally {
+				recycle(target);
 			}
 			
 			return entity;
@@ -787,7 +870,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					return OffsetDateTime.ofInstant(inst, ZoneId.systemDefault());
 				}
 			} finally {
-				dtMod.recycle();
+				recycle(dtMod);
 			}
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
@@ -870,7 +953,6 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			} else {
 				nav = view.createViewNavFromCategory(category);
 			}
-
 			// Check if the class requests count data and skip reading if not
 			boolean requestsCounts = mapping.fields()
 				.stream()
@@ -915,7 +997,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 	}
 
-	private Database getQrpDatabase(final Session session, final Database database) throws NotesException {
+	private static Database getQrpDatabase(final Session session, final Database database) throws NotesException {
 		String server = database.getServer();
 		String filePath = database.getFilePath();
 
@@ -923,15 +1005,19 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			String fileName = EntityUtil.md5(server + filePath) + ".nsf"; //$NON-NLS-1$
 
 			Path dest = DominoNoSQLUtil.getQrpDirectory()
-				.orElseGet(() -> DominoNoSQLUtil.getTempDirectory().resolve(getClass().getPackageName()));
+				.orElseGet(() -> DominoNoSQLUtil.getTempDirectory().resolve(DefaultDominoDocumentCollectionManager.class.getPackageName()));
 			Files.createDirectories(dest);
 			Path dbPath = dest.resolve(fileName);
 
 			Database qrp = session.getDatabase("", dbPath.toString()); //$NON-NLS-1$
 			if(!qrp.isOpen()) {
-				qrp.recycle();
+				recycle(qrp);
 				DbDirectory dbDir = session.getDbDirectory(null);
-				qrp = dbDir.createDatabase(dbPath.toString(), true);
+				try {
+					qrp = dbDir.createDatabase(dbPath.toString(), true);
+				} finally {
+					recycle(dbDir);
+				}
 				qrp.encrypt();
 
 				ACL acl = qrp.getACL();
@@ -946,35 +1032,38 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 
 	}
 
-	private static void recycle(final Object... objects) {
-		for(Object obj : objects) {
-			if(obj instanceof Base b) {
-				try {
-					b.recycle();
-				} catch (NotesException e) {
-					// Ignore, since we can't do anything about that
-				}
-			}
-		}
-	}
-
+	/**
+	 * Converts the provided Document to a generic NoSQL entity.
+	 * 
+	 * <p>As a side effect, this method recycles the document.</p>
+	 * 
+	 * @param entityName the name of the destination entity
+	 * @param doc the {@link Document} to convert
+	 * @return an {@link Optional} describing the NoSQL intermediate form, or an empty
+	 *         one if the Document cannot be processed
+	 * @throws NotesException if there is an unexpected exception processing the Document
+	 */
 	private Optional<CommunicationEntity> processDocument(final String entityName, final lotus.domino.Document doc) throws NotesException {
 		if(doc != null) {
-			if(doc.isDeleted()) {
-				return Optional.empty();
-			} else if(!doc.isValid()) {
-				return Optional.empty();
+			try {
+				if(doc.isDeleted()) {
+					return Optional.empty();
+				} else if(!doc.isValid()) {
+					return Optional.empty();
+				}
+				String unid = doc.getUniversalID();
+				if(unid == null || unid.isEmpty()) {
+					return Optional.empty();
+				}
+	
+				// TODO consider checking the form
+				EntityMetadata EntityMetadata = EntityUtil.getClassMapping(entityName);
+				Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(EntityMetadata);
+				List<Element> result = entityConverter.convertDominoDocument(doc, EntityMetadata, itemTypes);
+				return Optional.of(CommunicationEntity.of(entityName, result));
+			} finally {
+				recycle(doc);
 			}
-			String unid = doc.getUniversalID();
-			if(unid == null || unid.isEmpty()) {
-				return Optional.empty();
-			}
-
-			// TODO consider checking the form
-			EntityMetadata EntityMetadata = EntityUtil.getClassMapping(entityName);
-			Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(EntityMetadata);
-			List<Element> result = entityConverter.convertDominoDocument(doc, EntityMetadata, itemTypes);
-			return Optional.of(CommunicationEntity.of(entityName, result));
 		} else {
 			return Optional.empty();
 		}
@@ -1100,24 +1189,34 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 		}
 	}
 	
+	private Optional<lotus.domino.Document> findProfileOrNamedDocument(CommunicationEntity entity, Database database) throws NotesException {
+		var maybeName = entity.find(DominoConstants.FIELD_NOTENAME, String.class);
+		var maybeProfileName = entity.find(DominoConstants.FIELD_PROFILENAME, String.class);
+		if(maybeName.isPresent() && StringUtil.isNotEmpty(maybeName.get())) {
+			var maybeUserName = entity.find(DominoConstants.FIELD_USERNAME, String.class);
+			if(maybeUserName.isPresent() && StringUtil.isNotEmpty(maybeUserName.get())) {
+				return Optional.of(database.getNamedDocument(maybeName.get(), maybeUserName.get()));
+			} else {
+				return Optional.of(database.getNamedDocument(maybeName.get()));
+			}
+		} else if(maybeProfileName.isPresent() && StringUtil.isNotEmpty(maybeProfileName.get())) {
+			var maybeUserName = entity.find(DominoConstants.FIELD_PROFILEKEY, String.class);
+			return Optional.of(database.getProfileDocument(maybeProfileName.get(), maybeUserName.orElse(null)));
+		} else {
+			return Optional.empty();
+		}
+	}
+	
 	private Document toDocument(CommunicationEntity entity, Database database, boolean computeWithForm) throws NotesException {
 		// Special handling for named and profile notes
-		lotus.domino.Document target;
-		Optional<Element> maybeName = entity.find(DominoConstants.FIELD_NOTENAME);
-		Optional<Element> maybeProfileName = entity.find(DominoConstants.FIELD_PROFILENAME);
-		if(maybeName.isPresent() && StringUtil.isNotEmpty(maybeName.get().get(String.class))) {
-			Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_USERNAME);
-			if(maybeUserName.isPresent() && StringUtil.isNotEmpty(maybeUserName.get().get(String.class))) {
-				target = database.getNamedDocument(maybeName.get().get(String.class), maybeUserName.get().get(String.class));
-			} else {
-				target = database.getNamedDocument(maybeName.get().get(String.class));
-			}
-		} else if(maybeProfileName.isPresent() && StringUtil.isNotEmpty(maybeProfileName.get().get(String.class))) {
-			Optional<Element> maybeUserName = entity.find(DominoConstants.FIELD_PROFILEKEY);
-			target = database.getProfileDocument(maybeProfileName.get().get(String.class), maybeUserName.map(d -> d.get(String.class)).orElse(null));
-		} else {
-			target = database.createDocument();
-		}
+		lotus.domino.Document target = findProfileOrNamedDocument(entity, database)
+			.orElseGet(() -> {
+				try {
+					return database.createDocument();
+				} catch (NotesException e) {
+					throw new UncheckedNotesException(e);
+				}
+			});
 
 		Optional<String> maybeId = entity.find(DominoConstants.FIELD_ID, String.class);
 		if(maybeId.isPresent() && !StringUtil.isEmpty(maybeId.get())) {

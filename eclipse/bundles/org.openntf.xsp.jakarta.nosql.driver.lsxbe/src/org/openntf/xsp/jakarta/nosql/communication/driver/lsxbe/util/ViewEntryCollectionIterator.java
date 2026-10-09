@@ -15,6 +15,8 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util;
 
+import static org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil.recycle;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
@@ -26,7 +28,7 @@ import lotus.domino.NotesException;
 import lotus.domino.ViewEntry;
 import lotus.domino.ViewEntryCollection;
 
-public class ViewEntryCollectionIterator implements Iterator<ViewEntry> {
+public class ViewEntryCollectionIterator implements Iterator<ViewEntry>, AutoCloseable {
 	private final ViewEntryCollection entries;
 	private final boolean didSkip;
 	private ViewEntry prev;
@@ -67,13 +69,26 @@ public class ViewEntryCollectionIterator implements Iterator<ViewEntry> {
 				throw new NoSuchElementException();
 			}
 			if(prev != null) {
-				prev.recycle();
+				recycle(prev);
 			}
 			prev = onDeck;
 			onDeck = null;
 			return prev;
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
+		}
+	}
+	
+	@Override
+	public void close() {
+		recycle(onDeck, prev);
+		try {
+			var parentView = entries.getParent();
+			recycle(entries, parentView);
+		} catch(NotesException e) {
+			// Ignore, since we can't do anything about it
+		} finally {
+			recycle(entries);
 		}
 	}
 
@@ -96,7 +111,7 @@ public class ViewEntryCollectionIterator implements Iterator<ViewEntry> {
 		}
 		if(next == null) {
 			this.done = true;
-			entries.recycle();
+			recycle(entries);
 		}
 		return next;
 	}

@@ -17,6 +17,7 @@ package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.impl;
 
 
 import static java.util.Objects.requireNonNull;
+import static org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util.DominoNoSQLUtil.recycle;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -154,7 +155,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					throw new UncheckedNotesException(e);
 				}
 			})
-			.filter(Objects::nonNull);
+			.filter(Objects::nonNull)
+			.onClose(iter::close);
 	}
 
 	/**
@@ -198,7 +200,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				} catch(NotesException e) {
 					throw new UncheckedNotesException(e);
 				}
-			});
+			})
+			.onClose(iter::close);
 		if(limit > 0) {
 			result = result.limit(limit);
 		}
@@ -300,7 +303,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					throw new UncheckedNotesException(MessageFormat.format("Encountered exception converting document UNID {0} in {1}!!{2}", unid, serverName, filePath), e);
 				}
 			})
-			.filter(Objects::nonNull);
+			.filter(Objects::nonNull)
+			.onClose(iter::close);
 		if(limit > 0) {
 			result = result.limit(limit);
 		}
@@ -340,12 +344,17 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					}
 
 					lotus.domino.Document doc = entry.getDocument();
-					List<Element> documents = convertDominoDocument(doc, classMapping, itemTypes);
-					return CommunicationEntity.of(entityName, documents);
+					try {
+						List<Element> documents = convertDominoDocument(doc, classMapping, itemTypes);
+						return CommunicationEntity.of(entityName, documents);
+					} finally {
+						recycle(doc);
+					}
 				} catch (NotesException e) {
 					throw new UncheckedNotesException(e);
 				}
-			});
+			})
+			.onClose(iter::close);
 		if(limit > 0) {
 			result = result.limit(limit);
 		}
@@ -373,7 +382,8 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 				} catch(NotesException e) {
 					throw new RuntimeException(e);
 				}
-			});
+			})
+			.onClose(iter::close);
 	}
 
 	public CommunicationEntity convertViewEntry(final String entityName, final ViewEntry viewEntry, final EntityMetadata classMapping) throws NotesException {
@@ -643,47 +653,62 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						docMap.put(itemName, html);
 					} else if(item.getType() == DominoConstants.TYPE_MIME_PART) {
 						MIMEEntity entity = doc.getMIMEEntity(itemName);
-	
-						// See if this is expected to be MIMEBean
-						if(optStorage.isPresent() && optStorage.get().type() == ItemStorage.Type.MIMEBean) {
-							// If so, deserialize it
-	
-							byte[] serialized;
-							lotus.domino.Stream outStream = session.createStream();
-							try {
-								entity.getContentAsBytes(outStream);
-								try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-									outStream.getContents(baos);
-									serialized = baos.toByteArray();
-								} catch (IOException e) {
-									throw new UncheckedIOException(e);
+						try {
+							// See if this is expected to be MIMEBean
+							if(optStorage.isPresent() && optStorage.get().type() == ItemStorage.Type.MIMEBean) {
+								// If so, deserialize it
+		
+								byte[] serialized;
+								lotus.domino.Stream outStream = session.createStream();
+								try {
+									entity.getContentAsBytes(outStream);
+									try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+										outStream.getContents(baos);
+										serialized = baos.toByteArray();
+									} catch (IOException e) {
+										throw new UncheckedIOException(e);
+									}
+								} finally {
+									outStream.close();
+									outStream.recycle();
 								}
-							} finally {
-								outStream.close();
-								outStream.recycle();
+		
+								String encoding = null;
+								MIMEHeader encodingHeader = entity.getNthHeader("Content-Encoding"); //$NON-NLS-1$
+								if(encodingHeader != null) {
+									try {
+										encoding = encodingHeader.getHeaderVal();
+									} finally {
+										recycle(encodingHeader);
+									}
+								}
+		
+								docMap.put(itemName, deserialize(serialized, encoding));
+								continue;
 							}
-	
-							String encoding = null;
-							MIMEHeader encodingHeader = entity.getNthHeader("Content-Encoding"); //$NON-NLS-1$
-							if(encodingHeader != null) {
-								encoding = encodingHeader.getHeaderVal();
-							}
-	
-							docMap.put(itemName, deserialize(serialized, encoding));
-							continue;
-						}
-	
-						// TODO consider whether to pass this back as a Mail API MIME entity
-						MIMEEntity html = findEntityForType(entity, "text", "html"); //$NON-NLS-1$ //$NON-NLS-2$
-						if(html != null) {
-							docMap.put(itemName, html.getContentAsText());
-						} else {
-							MIMEEntity text = findEntityForType(entity, "text", "plain"); //$NON-NLS-1$ //$NON-NLS-2$
-							if(text != null) {
-								docMap.put(itemName, text.getContentAsText());
+		
+							// TODO consider whether to pass this back as a Mail API MIME entity
+							MIMEEntity html = findEntityForType(entity, "text", "html"); //$NON-NLS-1$ //$NON-NLS-2$
+							if(html != null) {
+								try {
+									docMap.put(itemName, html.getContentAsText());
+								} finally {
+									recycle(html);
+								}
 							} else {
-								docMap.put(itemName, entity.toString());
+								MIMEEntity text = findEntityForType(entity, "text", "plain"); //$NON-NLS-1$ //$NON-NLS-2$
+								if(text != null) {
+									try {
+										docMap.put(itemName, text.getContentAsText());
+									} finally {
+										recycle(text);
+									}
+								} else {
+									docMap.put(itemName, entity.toString());
+								}
 							}
+						} finally {
+							recycle(entity);
 						}
 					} else if(item.getType() == Item.USERDATA) {
 						if(optStorage.isEmpty() || optStorage.get().type() != ItemStorage.Type.UserData) {
@@ -812,8 +837,13 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					result.add(Element.of(DominoConstants.FIELD_PROFILEKEY, doc.getKey()));
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_ADDED)) {
-					DateTime added = (DateTime)session.evaluate(" @AddedToThisFile ", doc).get(0); //$NON-NLS-1$
-					result.add(Element.of(DominoConstants.FIELD_ADDED, DominoNoSQLUtil.toTemporal(database, added)));
+					Vector<?> vals = session.evaluate(" @AddedToThisFile ", doc); //$NON-NLS-1$
+					try {
+						DateTime added = (DateTime)vals.get(0);
+						result.add(Element.of(DominoConstants.FIELD_ADDED, DominoNoSQLUtil.toTemporal(database, added)));
+					} finally {
+						session.recycle(vals);
+					}
 				}
 				if(fieldNames.contains(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE)) {
 					result.add(Element.of(DominoConstants.FIELD_MODIFIED_IN_THIS_FILE, DominoNoSQLUtil.toTemporal(database, doc.getLastModified())));
@@ -851,47 +881,50 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 				if(fieldNames.contains(DominoConstants.FIELD_DXL)) {
 					DxlExporter exporter = session.createDxlExporter();
-
-					Optional<DXLExport> optSettings = getFieldAnnotation(classMapping, DominoConstants.FIELD_DXL, DXLExport.class);
-					if(optSettings.isPresent()) {
-						DXLExport settings = optSettings.get();
-
-						if(StringUtil.isNotEmpty(settings.attachmentOmittedText())) {
-							exporter.setAttachmentOmittedText(settings.attachmentOmittedText());
+					try {
+						Optional<DXLExport> optSettings = getFieldAnnotation(classMapping, DominoConstants.FIELD_DXL, DXLExport.class);
+						if(optSettings.isPresent()) {
+							DXLExport settings = optSettings.get();
+	
+							if(StringUtil.isNotEmpty(settings.attachmentOmittedText())) {
+								exporter.setAttachmentOmittedText(settings.attachmentOmittedText());
+							}
+							exporter.setConvertNotesBitmapsToGIF(settings.convertNotesBitmapsToGIF());
+							if(StringUtil.isNotEmpty(settings.doctypeSYSTEM())) {
+								exporter.setDoctypeSYSTEM(settings.doctypeSYSTEM());
+							}
+							exporter.setExitOnFirstFatalError(settings.exitOnFirstFatalError());
+							exporter.setForceNoteFormat(settings.forceNoteFormat());
+							if(settings.encapsulateMime()) {
+								exporter.setMIMEOption(DxlExporter.DXLMIMEOPTION_DXL);
+							}
+							if(StringUtil.isNotEmpty(settings.oleObjectOmittedText())) {
+								exporter.setOLEObjectOmittedText(settings.oleObjectOmittedText());
+							}
+							if(settings.omitItemNames() != null && settings.omitItemNames().length > 0) {
+								exporter.setOmitItemNames(new Vector<>(Arrays.asList(settings.omitItemNames())));
+							}
+							exporter.setOmitMiscFileObjects(settings.omitMiscFileObjects());
+							exporter.setOmitOLEObjects(settings.omitOleObjects());
+							exporter.setOmitRichtextAttachments(settings.omitRichTextAttachments());
+							exporter.setOmitRichtextPictures(settings.omitRichTextPictures());
+							exporter.setOutputDOCTYPE(settings.outputDOCTYPE());
+							if(StringUtil.isNotEmpty(settings.pictureOmittedText())) {
+								exporter.setPictureOmittedText(settings.pictureOmittedText());
+							}
+							if(settings.restrictToItemNames() != null && settings.restrictToItemNames().length > 0) {
+								exporter.setRestrictToItemNames(new Vector<>(Arrays.asList(settings.restrictToItemNames())));
+							}
+							if(!settings.encapsulateRichText()) {
+								exporter.setRichTextOption(DxlExporter.DXLRICHTEXTOPTION_RAW);
+							}
 						}
-						exporter.setConvertNotesBitmapsToGIF(settings.convertNotesBitmapsToGIF());
-						if(StringUtil.isNotEmpty(settings.doctypeSYSTEM())) {
-							exporter.setDoctypeSYSTEM(settings.doctypeSYSTEM());
-						}
-						exporter.setExitOnFirstFatalError(settings.exitOnFirstFatalError());
-						exporter.setForceNoteFormat(settings.forceNoteFormat());
-						if(settings.encapsulateMime()) {
-							exporter.setMIMEOption(DxlExporter.DXLMIMEOPTION_DXL);
-						}
-						if(StringUtil.isNotEmpty(settings.oleObjectOmittedText())) {
-							exporter.setOLEObjectOmittedText(settings.oleObjectOmittedText());
-						}
-						if(settings.omitItemNames() != null && settings.omitItemNames().length > 0) {
-							exporter.setOmitItemNames(new Vector<>(Arrays.asList(settings.omitItemNames())));
-						}
-						exporter.setOmitMiscFileObjects(settings.omitMiscFileObjects());
-						exporter.setOmitOLEObjects(settings.omitOleObjects());
-						exporter.setOmitRichtextAttachments(settings.omitRichTextAttachments());
-						exporter.setOmitRichtextPictures(settings.omitRichTextPictures());
-						exporter.setOutputDOCTYPE(settings.outputDOCTYPE());
-						if(StringUtil.isNotEmpty(settings.pictureOmittedText())) {
-							exporter.setPictureOmittedText(settings.pictureOmittedText());
-						}
-						if(settings.restrictToItemNames() != null && settings.restrictToItemNames().length > 0) {
-							exporter.setRestrictToItemNames(new Vector<>(Arrays.asList(settings.restrictToItemNames())));
-						}
-						if(!settings.encapsulateRichText()) {
-							exporter.setRichTextOption(DxlExporter.DXLRICHTEXTOPTION_RAW);
-						}
+	
+						String dxl = exporter.exportDxl(doc);
+						result.add(Element.of(DominoConstants.FIELD_DXL, dxl));
+					} finally {
+						recycle(exporter);
 					}
-
-					String dxl = exporter.exportDxl(doc);
-					result.add(Element.of(DominoConstants.FIELD_DXL, dxl));
 				}
 			}
 
@@ -948,7 +981,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					// Now attach any incoming that aren't currently in the doc
 					List<EntityAttachment> newAttachments = incoming.stream()
 						.filter(att -> !(att instanceof DominoDocumentAttachment))
-						.collect(Collectors.toList());
+						.toList();
 					if(!newAttachments.isEmpty()) {
 						RichTextItem body = (RichTextItem)target.getFirstItem(DominoConstants.FIELD_ATTACHMENTS);
 						if(body == null) {
@@ -995,7 +1028,11 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						target.removeItem("$REF"); //$NON-NLS-1$
 					} else {
 						Document parentDoc = target.getParentDatabase().getDocumentByUNID(parentUnid);
-						target.makeResponse(parentDoc);
+						try {
+							target.makeResponse(parentDoc);
+						} finally {
+							recycle(parentDoc);
+						}
 					}
 				} else if(!DominoConstants.SKIP_WRITING_FIELDS.contains(doc.name())) {
 					Optional<ItemStorage> optStorage = getFieldAnnotation(classMapping, doc.name(), ItemStorage.class);
@@ -1048,7 +1085,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									mimeEntity.setContentFromText(mimeStream, storage.mimeType(), MIMEEntity.ENC_NONE);
 								} finally {
 									mimeStream.close();
-									mimeStream.recycle();
+									recycle(mimeStream);
 								}
 
 								target.closeMIMEEntities(true, doc.name());
@@ -1089,7 +1126,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 									// NB: skipping replaceItemValueCustomData to avoid ClassNotFoundException when deserializing
 									bytes = serialize(val);
 								}
-								target.replaceItemValueCustomDataBytes(doc.name(), userDataType, bytes);
+								recycle(target.replaceItemValueCustomDataBytes(doc.name(), userDataType, bytes));
 								
 								continue;
 							case Default:
@@ -1100,16 +1137,19 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 						} else {
 							Optional<BooleanStorage> optBoolean = getFieldAnnotation(classMapping, doc.name(), BooleanStorage.class);
 							Object dominoVal = DominoNoSQLUtil.toDominoFriendly(target.getParentDatabase().getParent(), val, optBoolean);
-
-							// Set number precision if applicable
-							if(optStorage.isPresent()) {
-								int precision = optStorage.get().precision();
-								if(precision > 0) {
-									dominoVal = applyPrecision(dominoVal, precision);
+							try {
+								// Set number precision if applicable
+								if(optStorage.isPresent()) {
+									int precision = optStorage.get().precision();
+									if(precision > 0) {
+										dominoVal = applyPrecision(dominoVal, precision);
+									}
 								}
+	
+								item = target.replaceItemValue(doc.name(), dominoVal);
+							} finally {
+								recycle(dominoVal);
 							}
-
-							item = target.replaceItemValue(doc.name(), dominoVal);
 						}
 
 						// Check for a @ItemFlags annotation
@@ -1132,7 +1172,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 							item.setSaveToDisk(itemFlags.saveToDisk());
 						}
 
-						item.recycle();
+						recycle(item);
 					}
 				}
 			}
@@ -1149,7 +1189,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					}
 				});
 			
-			target.replaceItemValue(DominoConstants.FIELD_NAME, EntityUtil.getFormName(classMapping));
+			recycle(target.replaceItemValue(DominoConstants.FIELD_NAME, EntityUtil.getFormName(classMapping)));
 		} catch(NotesException e) {
 			throw new UncheckedNotesException(e);
 		} catch(IOException e) {
@@ -1176,7 +1216,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 					return result;
 				}
 
+				var tempEntity = child;
 				child = child.getNextSibling();
+				recycle(tempEntity);
 			}
 			return null;
 		} else {

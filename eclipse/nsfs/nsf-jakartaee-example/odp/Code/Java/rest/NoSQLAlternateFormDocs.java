@@ -43,7 +43,9 @@ public class NoSQLAlternateFormDocs {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ExampleAlternateFormDoc> list() {
-		return repository.listAll().toList();
+		try(var docs = repository.listAll()) {
+			return docs.toList();
+		}
 	}
 	
 	@Path("{id}")
