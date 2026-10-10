@@ -63,8 +63,8 @@ public enum ServletUtil {
 	public static javax.servlet.Servlet newToOld(final jakarta.servlet.Servlet servlet) {
 		if(servlet == null) {
 			return null;
-		} else if(servlet instanceof OldHttpServletWrapper) {
-			return ((OldHttpServletWrapper)servlet).delegate;
+		} else if(servlet instanceof OldHttpServletWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new NewHttpServletWrapper(servlet);
 		}
@@ -72,8 +72,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.Servlet oldToNew(final javax.servlet.Servlet servlet) {
 		if(servlet == null) {
 			return null;
-		} else if(servlet instanceof NewHttpServletWrapper) {
-			return ((NewHttpServletWrapper)servlet).delegate;
+		} else if(servlet instanceof NewHttpServletWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new OldHttpServletWrapper(servlet);
 		}
@@ -97,8 +97,8 @@ public enum ServletUtil {
 			return null;
 		} else if(hideBody) {
 			return new HiddenBodyHttpServletRequestWrapper(req);
-		} else if(req instanceof OldHttpServletRequestWrapper) {
-			return ((OldHttpServletRequestWrapper)req).delegate;
+		} else if(req instanceof OldHttpServletRequestWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new NewHttpServletRequestWrapper(req);
 		}
@@ -106,8 +106,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.http.HttpServletRequest oldToNew(final javax.servlet.ServletContext context, final javax.servlet.http.HttpServletRequest request) {
 		if(request == null) {
 			return null;
-		} else if(request instanceof NewHttpServletRequestWrapper) {
-			return ((NewHttpServletRequestWrapper)request).delegate;
+		} else if(request instanceof NewHttpServletRequestWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			synchronized(request) {
 				OldHttpServletRequestWrapper wrapper = (OldHttpServletRequestWrapper)request.getAttribute(OldHttpServletRequestWrapper.class.getName());
@@ -123,8 +123,8 @@ public enum ServletUtil {
 	public static javax.servlet.http.HttpServletResponse newToOld(final jakarta.servlet.http.HttpServletResponse resp) {
 		if(resp == null) {
 			return null;
-		} else if(resp instanceof OldHttpServletResponseWrapper) {
-			return ((OldHttpServletResponseWrapper)resp).delegate;
+		} else if(resp instanceof OldHttpServletResponseWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new NewHttpServletResponseWrapper(resp);
 		}
@@ -132,8 +132,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.http.HttpServletResponse oldToNew(final javax.servlet.http.HttpServletResponse resp) {
 		if(resp == null) {
 			return null;
-		} else if(resp instanceof NewHttpServletResponseWrapper) {
-			return ((NewHttpServletResponseWrapper)resp).delegate;
+		} else if(resp instanceof NewHttpServletResponseWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new OldHttpServletResponseWrapper(resp);
 		}
@@ -142,8 +142,8 @@ public enum ServletUtil {
 	public static javax.servlet.http.HttpSession newToOld(final jakarta.servlet.http.HttpSession session) {
 		if(session == null) {
 			return null;
-		} else if(session instanceof OldHttpSessionWrapper) {
-			return ((OldHttpSessionWrapper)session).delegate;
+		} else if(session instanceof OldHttpSessionWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new NewHttpSessionWrapper(session);
 		}
@@ -151,8 +151,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.http.HttpSession oldToNew(final javax.servlet.http.HttpSession session) {
 		if(session == null) {
 			return null;
-		} else if(session instanceof NewHttpSessionWrapper) {
-			return ((NewHttpSessionWrapper)session).delegate;
+		} else if(session instanceof NewHttpSessionWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			synchronized(session) {
 				OldHttpSessionWrapper wrapper = (OldHttpSessionWrapper)session.getAttribute(OldHttpSessionWrapper.class.getName());
@@ -168,8 +168,8 @@ public enum ServletUtil {
 	public static javax.servlet.RequestDispatcher newToOld(final jakarta.servlet.RequestDispatcher disp) {
 		if(disp == null) {
 			return null;
-		} else if(disp instanceof OldRequestDispatcherWrapper) {
-			return ((OldRequestDispatcherWrapper)disp).delegate;
+		} else if(disp instanceof OldRequestDispatcherWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new NewRequestDispatcherWrapper(disp);
 		}
@@ -177,8 +177,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.RequestDispatcher oldToNew(final javax.servlet.RequestDispatcher disp) {
 		if(disp == null) {
 			return null;
-		} else if(disp instanceof NewRequestDispatcherWrapper) {
-			return ((NewRequestDispatcherWrapper)disp).delegate;
+		} else if(disp instanceof NewRequestDispatcherWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new OldRequestDispatcherWrapper(disp);
 		}
@@ -187,8 +187,8 @@ public enum ServletUtil {
 	public static javax.servlet.ServletConfig newToOld(final jakarta.servlet.ServletConfig config) {
 		if(config == null) {
 			return null;
-		} else if(config instanceof OldServletConfigWrapper) {
-			return ((OldServletConfigWrapper)config).delegate;
+		} else if(config instanceof OldServletConfigWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new NewServletConfigWrapper(config);
 		}
@@ -196,8 +196,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.ServletConfig oldToNew(final javax.servlet.ServletConfig config) {
 		if(config == null) {
 			return null;
-		} else if(config instanceof NewServletConfigWrapper) {
-			return ((NewServletConfigWrapper)config).delegate;
+		} else if(config instanceof NewServletConfigWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new OldServletConfigWrapper(config);
 		}
@@ -206,8 +206,8 @@ public enum ServletUtil {
 	public static javax.servlet.ServletContext newToOld(final jakarta.servlet.ServletContext context) {
 		if(context == null) {
 			return null;
-		} else if(context instanceof OldServletContextWrapper) {
-			return ((OldServletContextWrapper)context).delegate;
+		} else if(context instanceof OldServletContextWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new NewServletContextWrapper(context);
 		}
@@ -215,8 +215,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.ServletContext oldToNew(final String contextPath, final javax.servlet.ServletContext context) {
 		if(context == null) {
 			return null;
-		} else if(context instanceof NewServletContextWrapper) {
-			return ((NewServletContextWrapper)context).delegate;
+		} else if(context instanceof NewServletContextWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			synchronized(context) {
 				String key = OldServletContextWrapper.class.getName() + contextPath;
@@ -246,8 +246,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.ServletContext oldToNew(final String contextPath, final javax.servlet.ServletContext context, final int majorVersion, final int minorVersion) {
 		if(context == null) {
 			return null;
-		} else if(context instanceof NewServletContextWrapper) {
-			return ((NewServletContextWrapper)context).delegate;
+		} else if(context instanceof NewServletContextWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			synchronized(context) {
 				String key = OldServletContextWrapper.class.getName() + contextPath + majorVersion + minorVersion;
@@ -264,8 +264,8 @@ public enum ServletUtil {
 	public static javax.servlet.ServletInputStream newToOld(final jakarta.servlet.ServletInputStream is) {
 		if(is == null) {
 			return null;
-		} else if(is instanceof OldServletInputStreamWrapper) {
-			return ((OldServletInputStreamWrapper)is).delegate;
+		} else if(is instanceof OldServletInputStreamWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new NewServletInputStreamWrapper(is);
 		}
@@ -273,8 +273,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.ServletInputStream oldToNew(final javax.servlet.ServletInputStream is) {
 		if(is == null) {
 			return null;
-		} else if(is instanceof NewServletInputStreamWrapper) {
-			return ((NewServletInputStreamWrapper)is).delegate;
+		} else if(is instanceof NewServletInputStreamWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new OldServletInputStreamWrapper(is);
 		}
@@ -283,8 +283,8 @@ public enum ServletUtil {
 	public static javax.servlet.ServletOutputStream newToOld(final jakarta.servlet.ServletOutputStream os) {
 		if(os == null) {
 			return null;
-		} else if(os instanceof OldServletOutputStreamWrapper) {
-			return ((OldServletOutputStreamWrapper)os).delegate;
+		} else if(os instanceof OldServletOutputStreamWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new NewServletOutputStreamWrapper(os);
 		}
@@ -292,8 +292,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.ServletOutputStream oldToNew(final javax.servlet.ServletOutputStream os) {
 		if(os == null) {
 			return null;
-		} else if(os instanceof NewServletOutputStreamWrapper) {
-			return ((NewServletOutputStreamWrapper)os).delegate;
+		} else if(os instanceof NewServletOutputStreamWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new OldServletOutputStreamWrapper(os);
 		}
@@ -302,8 +302,8 @@ public enum ServletUtil {
 	public static javax.servlet.http.Cookie newToOld(final jakarta.servlet.http.Cookie cookie) {
 		if(cookie == null) {
 			return null;
-		} else if(cookie instanceof OldCookieWrapper) {
-			return ((OldCookieWrapper)cookie).delegate;
+		} else if(cookie instanceof OldCookieWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new NewCookieWrapper(cookie);
 		}
@@ -311,8 +311,8 @@ public enum ServletUtil {
 	public static jakarta.servlet.http.Cookie oldToNew(final javax.servlet.http.Cookie cookie) {
 		if(cookie == null) {
 			return null;
-		} else if(cookie instanceof NewCookieWrapper) {
-			return ((NewCookieWrapper)cookie).delegate;
+		} else if(cookie instanceof NewCookieWrapper wrap) {
+			return wrap.delegate;
 		} else {
 			return new OldCookieWrapper(cookie);
 		}
@@ -347,30 +347,30 @@ public enum ServletUtil {
 		if(req == null) {
 			return;
 		}
-		if(!(req instanceof OldHttpServletRequestWrapper)) {
+		if(!(req instanceof OldHttpServletRequestWrapper wrap)) {
 			throw new IllegalArgumentException("req is not an instance of " + OldHttpServletRequestWrapper.class.getName());
 		}
-		((OldHttpServletRequestWrapper)req).addListener(listener);
+		wrap.addListener(listener);
 	}
 
 	public static void addListener(final jakarta.servlet.http.HttpSession session, final HttpSessionAttributeListener listener) {
 		if(session == null) {
 			return;
 		}
-		if(!(session instanceof OldHttpSessionWrapper)) {
+		if(!(session instanceof OldHttpSessionWrapper wrap)) {
 			throw new IllegalArgumentException("session is not an instance of " + OldHttpSessionWrapper.class.getName());
 		}
-		((OldHttpSessionWrapper)session).addListener(listener);
+		wrap.addListener(listener);
 	}
 
 	public static void addListener(final jakarta.servlet.ServletContext context, final ServletContextAttributeListener listener) {
 		if(context == null) {
 			return;
 		}
-		if(!(context instanceof OldServletContextWrapper)) {
+		if(!(context instanceof OldServletContextWrapper wrap)) {
 			throw new IllegalArgumentException("context is not an instance of " + OldServletContextWrapper.class.getName());
 		}
-		((OldServletContextWrapper)context).addListener(listener);
+		wrap.addListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -378,10 +378,10 @@ public enum ServletUtil {
 		if(context == null) {
 			return Collections.emptyList();
 		}
-		if(!(context instanceof OldServletContextWrapper)) {
+		if(!(context instanceof OldServletContextWrapper wrap)) {
 			throw new IllegalArgumentException("context is not an instance of " + OldServletContextWrapper.class.getName());
 		}
-		return (List<T>)((OldServletContextWrapper)context).getListeners(listenerClass);
+		return (List<T>)wrap.getListeners(listenerClass);
 	}
 
 	private static final String ATTR_CONTEXTINITIALIZED = ServletUtil.class.getName() + "_contextInitialized"; //$NON-NLS-1$

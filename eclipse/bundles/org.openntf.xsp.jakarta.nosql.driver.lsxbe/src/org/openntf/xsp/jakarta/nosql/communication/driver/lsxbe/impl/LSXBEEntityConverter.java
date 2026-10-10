@@ -389,12 +389,12 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	public CommunicationEntity convertViewEntry(final String entityName, final ViewEntry viewEntry, final EntityMetadata classMapping) throws NotesException {
 		Object parent = viewEntry.getParent();
 		View view;
-		if(parent instanceof View) {
-			view = (View)parent;
-		} else if(parent instanceof ViewEntryCollection) {
-			view = ((ViewEntryCollection)parent).getParent();
-		} else if(parent instanceof ViewNavigator) {
-			view = ((ViewNavigator)parent).getParentView();
+		if(parent instanceof View v) {
+			view = v;
+		} else if(parent instanceof ViewEntryCollection vec) {
+			view = vec.getParent();
+		} else if(parent instanceof ViewNavigator nav) {
+			view = nav.getParentView();
 		} else {
 			throw new RuntimeException(MessageFormat.format("Unable to locate parent view from {0}", viewEntry));
 		}

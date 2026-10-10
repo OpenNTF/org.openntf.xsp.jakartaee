@@ -823,26 +823,26 @@ public class DQL {
 				else if (m_value instanceof Temporal[] temporalValues) {
 					sb.append(Arrays.stream(temporalValues).map(DQL::formatTemporalValue).collect(Collectors.joining(", "))); //$NON-NLS-1$
 				}
-				else if (m_value instanceof String) {
+				else if (m_value instanceof String s) {
 					sb
 					.append("'")
-					.append(escapeStringValue((String) m_value))
+					.append(escapeStringValue(s))
 					.append("'");
 				}
 				else if (m_value instanceof Integer) {
 					sb.append(m_value);
 				}
-				else if (m_value instanceof Double) {
-					sb.append(formatDoubleValue((Double)m_value));
+				else if (m_value instanceof Double d) {
+					sb.append(formatDoubleValue(d));
 				}
-				else if (m_value instanceof Date) {
-					sb.append(formatDateValue((Date) m_value));
+				else if (m_value instanceof Date d) {
+					sb.append(formatDateValue(d));
 				}
 				else if (m_value instanceof Temporal) {
 					sb.append(formatTemporalValue((Temporal) m_value));
 				}
 				else {
-					throw new IllegalArgumentException("Unknown value found: "+m_value+" (type="+(m_value==null ? "null" : m_value.getClass().getName()+")"));
+					throw new IllegalArgumentException(MessageFormat.format("Unknown value found: {0} (type={1})", m_value, (m_value==null ? "null" : m_value.getClass().getName()))); //$NON-NLS-2$
 				}
 
 				if (m_relation == TermRelation.IN) {
