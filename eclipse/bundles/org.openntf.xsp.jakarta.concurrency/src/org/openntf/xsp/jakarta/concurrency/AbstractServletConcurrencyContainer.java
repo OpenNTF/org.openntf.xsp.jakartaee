@@ -130,7 +130,7 @@ public abstract class AbstractServletConcurrencyContainer {
 				ctx.setAttribute(ConcurrencyActivator.ATTR_SCHEDULEDEXECUTORSERVICE, scheduledExec);
 				ExecutorHolder.INSTANCE.register(scheduledExec);
 			} catch(Exception e) {
-				e.printStackTrace();
+				log.log(Level.ERROR, "Encountered exception initializing concurrency", e);
 				throw e;
 			}
 		});

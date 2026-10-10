@@ -17,6 +17,8 @@ package org.openntf.xsp.jakarta.pages.webapp;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -52,8 +54,9 @@ import jakarta.servlet.http.HttpServletResponse;
  * @since 2.8.0
  */
 public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
-
 	private static final long serialVersionUID = 1L;
+	
+	private static final Logger log = System.getLogger(WebappPagesServlet.class.getPackageName());
 
 	private final JspServlet delegate;
 	private ServletContext context;
@@ -130,7 +133,8 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 				return null;
 			});
 		} catch(PrivilegedActionException e) {
-			e.printStackTrace();
+			log.log(Level.WARNING, "Encountered exception handling a webapp Pages request", e);
+			
 			Throwable cause = e.getCause();
 			if(cause instanceof ServletException e2) {
 				throw ServletUtil.newToOld(e2);
@@ -140,7 +144,7 @@ public class WebappPagesServlet extends javax.servlet.http.HttpServlet {
 				throw new javax.servlet.ServletException(e);
 			}
 		} catch(Throwable t) {
-			t.printStackTrace();
+			log.log(Level.WARNING, "Encountered exception handling a webapp Pages request", t);
 			throw t;
 		}
 	}
