@@ -90,7 +90,7 @@ public class NSFFacesServlet extends HttpServlet {
 
 	private final ComponentModule module;
 	private FacesServlet delegate;
-	private boolean initialized;
+	private volatile boolean initialized;
 	private final Collection<Path> tempFiles = Collections.synchronizedList(new ArrayList<>());
 	private boolean doFaces;
 	private boolean doEvents;
@@ -141,8 +141,7 @@ public class NSFFacesServlet extends HttpServlet {
 
 	@SuppressWarnings({ "deprecation", "removal" })
 	@Override
-	// TODO see if synchronization can be handled better
-	public synchronized void service(final HttpServletRequest req, final HttpServletResponse resp)
+	public void service(final HttpServletRequest req, final HttpServletResponse resp)
 			throws ServletException, IOException {
 		ServletContext ctx = req.getServletContext();
 		HttpSession session = req.getSession(true);
@@ -153,9 +152,11 @@ public class NSFFacesServlet extends HttpServlet {
 				ClassLoader current = Thread.currentThread().getContextClassLoader();
 				Thread.currentThread().setContextClassLoader(buildJsfClassLoader(ctx, session, current));
 				try {
-					if (!initialized) {
-						this.doInit(req, getServletConfig());
-						initialized = true;
+					synchronized(this) {
+						if (!initialized) {
+							this.doInit(req, getServletConfig());
+							initialized = true;
+						}
 					}
 
 					//ContainerUtil.setThreadContextDatabasePath(req.getContextPath().substring(1));
@@ -167,11 +168,13 @@ public class NSFFacesServlet extends HttpServlet {
 							.forEach(l -> l.requestInitialized(new ServletRequestEvent(getServletContext(), req)));
 	
 						// Fire the session listener if needed
-						if (!"1".equals(session.getAttribute(PROP_SESSIONINIT))) { //$NON-NLS-1$
-							ServletUtil.getListeners(ctx, HttpSessionListener.class)
-								.forEach(l -> l.sessionCreated(new HttpSessionEvent(session)));
-							session.setAttribute(PROP_SESSIONINIT, "1"); //$NON-NLS-1$
-							// TODO add a hook for session expiration?
+						synchronized(ServletUtil.newToOld(session)) {
+							if (!"1".equals(session.getAttribute(PROP_SESSIONINIT))) { //$NON-NLS-1$
+								ServletUtil.getListeners(ctx, HttpSessionListener.class)
+									.forEach(l -> l.sessionCreated(new HttpSessionEvent(session)));
+								session.setAttribute(PROP_SESSIONINIT, "1"); //$NON-NLS-1$
+								// TODO add a hook for session expiration?
+							}
 						}
 					}
 
