@@ -88,4 +88,16 @@ public class TestTransactionContext extends AbstractWebClientTest {
 		assertTrue(content.startsWith("I found: "), () -> "Unexpected content: " + content);
 		assertTrue(content.contains("DominoTransactionSynchronizationRegistry"), () -> "Unexpected content: " + content);
 	}
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumAndAnonymousClient.class)
+	public void testSuspendResume(TestDatabase db, Client client) {
+		var target = client.target(getRestUrl(null, db) + "/transaction/suspendResume");
+		
+		var response = target.request().get();
+		checkResponse(200, response);
+		
+		String content = response.readEntity(String.class);
+		assertEquals("success!", content);
+	}
 }
