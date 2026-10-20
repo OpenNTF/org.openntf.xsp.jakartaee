@@ -24,10 +24,13 @@ import bean.TransactionScopeBean;
 import jakarta.inject.Inject;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
+import jakarta.transaction.InvalidTransactionException;
 import jakarta.transaction.NotSupportedException;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.SystemException;
+import jakarta.transaction.Transaction;
 import jakarta.transaction.Transactional;
+import jakarta.transaction.TransactionManager;
 import jakarta.transaction.UserTransaction;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -40,6 +43,9 @@ public class TransactionExample {
 	
 	@Inject
 	private UserTransaction transaction;
+	
+	@Inject
+	private TransactionManager tm;
 	
 	@Inject
 	private TransactionScopeBean transactionScopeBean;
@@ -120,5 +126,26 @@ public class TransactionExample {
 				}
 			}
 		};
+	}
+	
+	@Path("suspendResume")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getSuspendResume() throws NotSupportedException, SystemException, InvalidTransactionException, IllegalStateException, SecurityException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
+		transaction.begin();
+		Transaction suspended = tm.suspend();
+		
+		if (suspended == null) {
+			throw new IllegalStateException("suspended should have had an active transaction");
+		}
+		
+		if (tm.getTransaction() != null) {
+			throw new IllegalStateException("suspending didn't clear out the active transaction");
+		}
+		
+		tm.resume(suspended);
+		transaction.commit();
+		
+		return "success!";
 	}
 }
