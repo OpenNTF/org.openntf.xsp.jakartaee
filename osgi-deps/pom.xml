@@ -170,7 +170,7 @@
 									JSON-P and JSON-B
 								-->
 								<!-- NB: use the bundled API + impl for OSGi ease -->
-								<artifact><id>org.eclipse.parsson:jakarta.json:1.1.7</id><source>true</source></artifact>
+								<artifact><id>org.eclipse.parsson:jakarta.json:1.1.9</id><source>true</source></artifact>
 								<artifact><id>jakarta.json.bind:jakarta.json.bind-api:3.0.1</id><source>true</source></artifact>
 								<!-- Yasson 3.0.4 causes trouble resolving jakarta.json.bind-api -->
 								<artifact><id>org.eclipse:yasson:3.0.3</id><source>true</source></artifact>
