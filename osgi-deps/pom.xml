@@ -17,9 +17,7 @@
 	<repositories>
 		<repository>
 			<id>eclipse-platform</id>
-			<!--<url>https://download.eclipse.org/releases/neon/201612211000</url>-->
-			<!-- Using a mirror while download.eclipse.org is down -->
-			<url>https://mirror.umd.edu/eclipse/releases/oxygen/201706281000/</url>
+			<url>https://download.eclipse.org/releases/oxygen/201706281000/</url>
 			<layout>p2</layout>
 		</repository>
 		<repository>
@@ -44,7 +42,7 @@
 		<resteasy-mp-version>3.0.1.Final</resteasy-mp-version>
 		<nosql-version>1.1.17</nosql-version>
 		<nosql-version-osgi>${nosql-version}</nosql-version-osgi>
-		<tomcat-version>11.0.21</tomcat-version>
+		<tomcat-version>11.0.27</tomcat-version>
 		
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
