@@ -257,14 +257,14 @@
 	<plugin id="org.openntf.xsp.jakarta.cdi.extlib" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.transaction" version="0.0.0" unpack="false"/>
     
-	<plugin id="org.jboss.weld.api" version="0.0.0" unpack="false"/>
-	<plugin id="org.jboss.weld.spi" version="0.0.0" unpack="false"/>
-	<plugin id="org.jboss.weld.core-impl" version="0.0.0" unpack="false"/>
-	<plugin id="org.jboss.weld.environment.weld-environment-common" version="0.0.0" unpack="false"/>
-	<plugin id="org.jboss.weld.se.weld-se-core" version="0.0.0" unpack="false"/>
-	<plugin id="org.jboss.weld.probe.weld-probe-core" version="0.0.0" unpack="false"/>
-	<plugin id="org.jboss.weld.module.weld-web" version="0.0.0" unpack="false"/>
-	<plugin id="org.jboss.weld.lite-extension-translator" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.org.jboss.weld.weld-api" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.org.jboss.weld.weld-spi" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.org.jboss.weld.weld-core-impl" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.org.jboss.weld.environment.weld-environment-common" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.org.jboss.weld.se.weld-se-core" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.org.jboss.weld.probe.weld-probe-core" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.org.jboss.weld.module.weld-web" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.org.jboss.weld.weld-lite-extension-translator" version="0.0.0" unpack="false"/>
 	
 	<!-- Servlet -->
 	<plugin id="jakarta.servlet-api" version="0.0.0" unpack="false"/>
@@ -328,7 +328,7 @@
 	<plugin id="org.openntf.org.jboss.resteasy.multipart-provider" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.jaxb-provider" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.validator-provider" version="0.0.0" unpack="false"/>
-	<plugin id="org.jboss.resteasy.client-api" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.org.jboss.resteasy.resteasy-client-api" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.jboss.resteasy.client" version="0.0.0" unpack="false"/>
 	<plugin id="reactive-streams" version="0.0.0" unpack="false"/>
 	<plugin id="org.apache.james.apache-mime4j-core" version="0.0.0" unpack="false"/>

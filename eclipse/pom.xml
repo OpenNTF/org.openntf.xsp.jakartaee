@@ -125,11 +125,6 @@
 			<url>${notes-platform14}</url>
 		</repository>
 		<repository>
-			<id>osgi-deps</id>
-			<layout>p2</layout>
-			<url>${project.baseUri}../../../osgi-deps/target/repository</url>
-		</repository>
-		<repository>
 			<id>artifactory.openntf.org</id>
 			<name>artifactory.openntf.org</name>
 			<url>https://artifactory.openntf.org/openntf</url>
@@ -223,7 +218,9 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
-					<executionEnvironment>JavaSE-17</executionEnvironment>
+					<target>
+						<file>../../../osgi-deps.target</file>
+					</target>
 					<dependency-resolution>
 						<extraRequirements>
 							<requirement>

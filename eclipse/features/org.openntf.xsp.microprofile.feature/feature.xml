@@ -240,31 +240,31 @@
 	<!-- Config -->
 	<plugin id="org.openntf.xsp.microprofile.config" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.microprofile.config" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.config.smallrye-config" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.config.smallrye-config-common" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.config.smallrye-config-core" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.config.smallrye-config-validator" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.common.smallrye-common-annotation" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.common.smallrye-common-classloader" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.common.smallrye-common-constraint" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.common.smallrye-common-expression" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.common.smallrye-common-function" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.config.smallrye-config" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.config.smallrye-config-common" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.config.smallrye-config-core" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.config.smallrye-config-validator" version="0.0.0" unpack="false"/>
+	<plugin id="io.smallrye.common.annotation" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.common.smallrye-common-classloader" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.common.smallrye-common-constraint" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.common.smallrye-common-expression" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.common.smallrye-common-function" version="0.0.0" unpack="false"/>
 	
 	<!-- Fault Tolerance -->
 	<plugin id="org.openntf.xsp.microprofile.faulttolerance" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.microprofile.fault.tolerance" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.io.smallrye.fault-tolerance" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.fault-tolerance-api" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.fault-tolerance-apiimpl" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.fault-tolerance-core" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.fault-tolerance-autoconfig-core" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.smallrye-fault-tolerance-api" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.smallrye-fault-tolerance-apiimpl" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.smallrye-fault-tolerance-core" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.smallrye-fault-tolerance-autoconfig-core" version="0.0.0" unpack="false"/>
 	
 	<!-- Health -->
 	<plugin id="org.openntf.xsp.microprofile.health" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.org.eclipse.microprofile.health" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.io.smallrye.health" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.health-api" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.reactive.mutiny" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.smallrye-health-api" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.reactive.mutiny" version="0.0.0" unpack="false"/>
 	
 	<!-- Rest Client -->
 	<plugin id="org.openntf.xsp.microprofile.restclient" version="0.0.0" unpack="false"/>
@@ -275,7 +275,7 @@
 	<!-- OpenAPI -->
 	<plugin id="org.openntf.xsp.microprofile.openapi" version="0.0.0" fragment="true" unpack="false"/>
 	<plugin id="org.eclipse.microprofile.openapi" version="0.0.0" unpack="false"/>
-	<plugin id="io.smallrye.open-api-model" version="0.0.0" unpack="false"/>
+	<plugin id="wrapped.io.smallrye.smallrye-open-api-model" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.io.smallrye.open-api-core" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.io.smallrye.open-api-jaxrs" version="0.0.0" fragment="true" unpack="false"/>
 	<plugin id="com.fasterxml.jackson.core.jackson-core" version="0.0.0" unpack="false"/>
