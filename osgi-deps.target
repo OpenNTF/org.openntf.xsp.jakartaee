@@ -83,17 +83,17 @@
                     <type>jar</type>
                 </dependency>
                 <dependency>
+                    <groupId>jakarta.xml.soap</groupId>
+                    <artifactId>jakarta.xml.soap-api</artifactId>
+                    <version>3.0.2</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
                     <groupId>jakarta.xml.ws</groupId>
                     <artifactId>jakarta.xml.ws-api</artifactId>
                     <version>4.0.2</version>
                     <type>jar</type>
                 </dependency>
-				<dependency>
-				    <groupId>jakarta.xml.soap</groupId>
-				    <artifactId>jakarta.xml.soap-api</artifactId>
-				    <version>3.0.2</version>
-                    <type>jar</type>
-				</dependency>
                 <dependency>
                     <groupId>org.apache.aries.spifly</groupId>
                     <artifactId>org.apache.aries.spifly.dynamic.framework.extension</artifactId>
@@ -230,36 +230,36 @@ DynamicImport-Package: org.jboss.weld.*
         </location>
         <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta XML Binding: Implementation Additions" missingManifest="generate" type="Maven">
             <dependencies>
-				<dependency>
-				    <groupId>org.glassfish.jaxb</groupId>
-				    <artifactId>jaxb-runtime</artifactId>
-				    <version>4.0.9</version>
-					<type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>com.sun.istack</groupId>
-				    <artifactId>istack-commons-runtime</artifactId>
-				    <version>4.2.0</version>
-					<type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>com.sun.istack</groupId>
-				    <artifactId>istack-commons-tools</artifactId>
-				    <version>4.2.0</version>
-					<type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.glassfish.jaxb</groupId>
-				    <artifactId>txw2</artifactId>
-				    <version>4.0.9</version>
-					<type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.glassfish.jaxb</groupId>
-				    <artifactId>jaxb-core</artifactId>
-				    <version>4.0.9</version>
-					<type>jar</type>
-				</dependency>
+                <dependency>
+                    <groupId>com.sun.istack</groupId>
+                    <artifactId>istack-commons-runtime</artifactId>
+                    <version>4.2.0</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>com.sun.istack</groupId>
+                    <artifactId>istack-commons-tools</artifactId>
+                    <version>4.2.0</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-core</artifactId>
+                    <version>4.0.9</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                    <version>4.0.9</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>txw2</artifactId>
+                    <version>4.0.9</version>
+                    <type>jar</type>
+                </dependency>
             </dependencies>
         </location>
         <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta JSON-P and JSON-B: API and Implementation" missingManifest="generate" type="Maven">
@@ -315,7 +315,7 @@ version:               ${version_cleanup;${mvnVersion}}
 Bundle-SymbolicName:   org.openntf.org.jboss.resteasy.core
 Bundle-Version:        ${version}_${tstamp}
 Require-Bundle:        jakarta.ws.rs-api;visibility:=reexport
-Import-Package:        jakarta.annotation.*;version="3.0.0",*
+Import-Package:        jakarta.annotation.*;version="3.0.0",org.jboss.resteasy.tracing.api.*;resolution:=optional,*
 Export-Package:        *;version="${version}";-noimport:=true
 DynamicImport-Package: org.eclipse.persistence.*
 Eclipse-ExtensibleAPI: true
@@ -355,6 +355,7 @@ Bundle-Name:           Bundle derived from maven artifact ${mvnGroupId}:${mvnArt
 version:               ${version_cleanup;${mvnVersion}}
 Bundle-SymbolicName:   org.openntf.org.jboss.resteasy.cdi
 Bundle-Version:        ${version}_${tstamp}
+Import-Package:        org.jboss.weld.serialization.spi,*
 Require-Bundle:        org.openntf.org.jboss.resteasy.core,wrapped.org.jboss.weld.weld-api,wrapped.org.jboss.weld.weld-api,wrapped.org.jboss.weld.weld-core-impl
 Export-Package:        *;version="${version}";-noimport:=true
 ]]></instructions>
@@ -374,7 +375,7 @@ version:               ${version_cleanup;${mvnVersion}}
 Bundle-SymbolicName:   org.openntf.org.jboss.resteasy.jaxb-provider
 Bundle-Version:        ${version}_${tstamp}
 Require-Bundle:        org.openntf.org.jboss.resteasy.core
-Import-Package:        jakarta.xml.bind.*;version="3.0.0",*
+Import-Package:        jakarta.xml.bind.*;version="3.0.0",*;resolution:=optional
 Export-Package:        *;version="${version}";-noimport:=true
 ]]></instructions>
         </location>
@@ -428,6 +429,7 @@ Bundle-Name:           Bundle derived from maven artifact ${mvnGroupId}:${mvnArt
 version:               ${version_cleanup;${mvnVersion}}
 Bundle-SymbolicName:   org.openntf.org.jboss.resteasy.json-binding-provider
 Bundle-Version:        ${version}_${tstamp}
+Import-Package:        org.jboss.resteasy.tracing.api.*;resolution:=optional,*
 Require-Bundle:        org.openntf.org.jboss.resteasy.core
 Export-Package:        *;version="${version}";-noimport:=true
 ]]></instructions>
@@ -454,6 +456,24 @@ Export-Package:        *;version="${version}";-noimport:=true
         <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta REST: Implementation Utils" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
+                    <groupId>org.apache.james</groupId>
+                    <artifactId>apache-mime4j-core</artifactId>
+                    <version>0.8.15</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.james</groupId>
+                    <artifactId>apache-mime4j-dom</artifactId>
+                    <version>0.8.15</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.james</groupId>
+                    <artifactId>apache-mime4j-storage</artifactId>
+                    <version>0.8.15</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
                     <groupId>org.jboss.resteasy</groupId>
                     <artifactId>resteasy-tracing-api</artifactId>
                     <version>2.0.2.Final</version>
@@ -465,24 +485,6 @@ Export-Package:        *;version="${version}";-noimport:=true
                     <version>1.0.4</version>
                     <type>jar</type>
                 </dependency>
-				<dependency>
-				    <groupId>org.apache.james</groupId>
-				    <artifactId>apache-mime4j-core</artifactId>
-				    <version>0.8.15</version>
-                    <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.apache.james</groupId>
-				    <artifactId>apache-mime4j-dom</artifactId>
-				    <version>0.8.15</version>
-                    <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.apache.james</groupId>
-				    <artifactId>apache-mime4j-storage</artifactId>
-				    <version>0.8.15</version>
-                    <type>jar</type>
-				</dependency>
             </dependencies>
         </location>
         <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta REST: Implementation asyncutil" missingManifest="generate" type="Maven">
@@ -521,6 +523,12 @@ Export-Package:        *;version="${version}";-noimport:=true
         <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta Validation: API and Implementation" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
+                    <groupId>com.fasterxml</groupId>
+                    <artifactId>classmate</artifactId>
+                    <version>1.8.0</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
                     <groupId>jakarta.validation</groupId>
                     <artifactId>jakarta.validation-api</artifactId>
                     <version>3.1.1</version>
@@ -532,15 +540,9 @@ Export-Package:        *;version="${version}";-noimport:=true
                     <version>9.1.0.Final</version>
                     <type>jar</type>
                 </dependency>
-				<dependency>
-				    <groupId>com.fasterxml</groupId>
-				    <artifactId>classmate</artifactId>
-				    <version>1.8.0</version>
-                    <type>jar</type>
-				</dependency>
             </dependencies>
         </location>
-        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeSource="true" label="Jakarta CDI: API" missingManifest="generate" type="Maven">
+        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta CDI: API" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>jakarta.enterprise</groupId>
@@ -561,7 +563,7 @@ Require-Bundle:        jakarta.inject.jakarta.inject-api;bundle-version="2.0.0",
 DynamicImport-Package: *
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta CDI: Implementation" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta CDI: Implementation" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.javassist</groupId>
@@ -619,7 +621,7 @@ DynamicImport-Package: *
                 </dependency>
             </dependencies>
         </location>
-        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeSource="true" label="JBoss Logging: Weaken dependency on org.apache.log4j" missingManifest="generate" type="Maven">
+        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="JBoss Logging: Weaken dependency on org.apache.log4j" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.logging</groupId>
@@ -643,7 +645,7 @@ Import-Package:        org.apache.log4j;resolution:=optional,\
 Export-Package:        org.jboss.logging;version="3.6.3.Final"
 ]]></instructions>
         </location>
-        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeSource="true" label="JBoss classfilewriter: Repackage to avoid sun.misc import trouble on build" missingManifest="generate" type="Maven">
+        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="JBoss classfilewriter: Repackage to avoid sun.misc import trouble on build" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.classfilewriter</groupId>
@@ -662,7 +664,7 @@ Export-Package:        *;version="${version}";-noimport:=true
 DynamicImport-Package: sun.misc
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta Activation: API and Implementation" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta Activation: API and Implementation" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>jakarta.activation</groupId>
@@ -678,7 +680,7 @@ DynamicImport-Package: sun.misc
                 </dependency>
             </dependencies>
         </location>
-        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeSource="true" label="Jakarta Mail: API and Implementation" missingManifest="generate" type="Maven">
+        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta Mail: API and Implementation" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.angus</groupId>
@@ -696,7 +698,7 @@ Import-Package:        jakarta.*
 Export-Package:        jakarta.*;version="2.1.0"
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta Pages and Tags: API and Implementation" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta Pages and Tags: API and Implementation" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>jakarta.servlet.jsp.jstl</groupId>
@@ -718,7 +720,7 @@ Export-Package:        jakarta.*;version="2.1.0"
                 </dependency>
             </dependencies>
         </location>
-        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeSource="true" label="Jakarta Faces: API" missingManifest="generate" type="Maven">
+        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta Faces: API" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.apache.myfaces.core</groupId>
@@ -737,7 +739,7 @@ DynamicImport-Package: org.jboss.weld.*
 -removeheaders:        Require-Bundle
 ]]></instructions>
         </location>
-        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeSource="true" label="Jakarta Faces: Implementation" missingManifest="generate" type="Maven">
+        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta Faces: Implementation" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.apache.myfaces.core</groupId>
@@ -755,7 +757,7 @@ Export-Package:        *;version="${version}";-noimport:=true
 DynamicImport-Package: org.jboss.weld.*,org.apache.commons.*
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta MVC: API" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta MVC: API" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>jakarta.mvc</groupId>
@@ -876,7 +878,7 @@ Export-Package:        *;version="${version}";-noimport:=true
 DynamicImport-Package: jakarta.*,org.glassfish.hk2.osgiresourcelocator
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-communication-semistructured" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-communication-semistructured" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.jnosql.communication</groupId>
@@ -894,7 +896,7 @@ Export-Package:        *;version="${version}";-noimport:=true
 DynamicImport-Package: jakarta.*,org.glassfish.hk2.osgiresourcelocator
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-api-core" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-api-core" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
@@ -918,7 +920,7 @@ DynamicImport-Package: org.jboss.weld.*,\
 Eclipse-ExtensibleAPI: true
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-core" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-core" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
@@ -937,7 +939,7 @@ DynamicImport-Package: org.jboss.weld.*,jakarta.*
 Fragment-Host:         org.openntf.org.eclipse.jnosql.mapping.api.core
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-reflection" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-reflection" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
@@ -951,11 +953,12 @@ Bundle-Name:           Bundle derived from maven artifact ${mvnGroupId}:${mvnArt
 version:               ${version_cleanup;${mvnVersion}}
 Bundle-SymbolicName:   org.openntf.org.eclipse.jnosql.mapping.reflection
 Bundle-Version:        ${version}.${tstamp}
+Import-Package:        io.github.classgraph;resolution:=optional,*
 Export-Package:        *;version="${version}";-noimport:=true
 DynamicImport-Package: org.jboss.weld.*,jakarta.*
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-semistructured" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-semistructured" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
@@ -973,7 +976,7 @@ Export-Package:        *;version="${version}";-noimport:=true
 DynamicImport-Package: org.jboss.weld.*,jakarta.*
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-document" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-document" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
@@ -991,7 +994,7 @@ Export-Package:        *;version="${version}";-noimport:=true
 DynamicImport-Package: org.jboss.weld.*,jakarta.*
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-validation" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta NoSQL: Implementation jnosql-mapping-validation" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
@@ -1011,27 +1014,27 @@ DynamicImport-Package: org.jboss.weld.*,jakarta.*
         </location>
         <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta NoSQL: Implementation Utils" missingManifest="generate" type="Maven">
             <dependencies>
-				<dependency>
-				    <groupId>org.antlr</groupId>
-				    <artifactId>antlr4-runtime</artifactId>
-				    <version>4.13.2</version>
+                <dependency>
+                    <groupId>io.github.classgraph</groupId>
+                    <artifactId>classgraph</artifactId>
+                    <version>4.8.199</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>io.github.classgraph</groupId>
-				    <artifactId>classgraph</artifactId>
-				    <version>4.8.199</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-runtime</artifactId>
+                    <version>4.13.2</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.ow2.asm</groupId>
-				    <artifactId>asm</artifactId>
-				    <version>9.9.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm</artifactId>
+                    <version>9.9.1</version>
                     <type>jar</type>
-				</dependency>
+                </dependency>
             </dependencies>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta Persistence: API" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta Persistence: API" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>jakarta.persistence</groupId>
@@ -1041,7 +1044,7 @@ DynamicImport-Package: org.jboss.weld.*,jakarta.*
                 </dependency>
             </dependencies>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta Persistence and XML Binding: Implementation" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta Persistence and XML Binding: Implementation" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.persistence</groupId>
@@ -1064,7 +1067,7 @@ Export-Package:        *;version="${version}";-noimport:=true
 Require-Capability:
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="MicroProfile OpenAPI: API" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile OpenAPI: API" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.microprofile.openapi</groupId>
@@ -1074,7 +1077,7 @@ Require-Capability:
                 </dependency>
             </dependencies>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="MicroProfile OpenAPI: Implementation smallrye-open-api-core" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile OpenAPI: Implementation smallrye-open-api-core" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>io.smallrye</groupId>
@@ -1088,10 +1091,14 @@ Bundle-Name:           Bundle derived from maven artifact ${mvnGroupId}:${mvnArt
 version:               ${version_cleanup;${mvnVersion}}
 Bundle-SymbolicName:   org.openntf.io.smallrye.open-api-core
 Bundle-Version:        ${version}.${tstamp}
+Import-Package:        io.xlate.yamljson;resolution:=optional,\
+                       kotlin.*;resolution:=optional,\
+					   kotlinx.*;resolution:=optional,\
+					   *
 Export-Package:        *;version="${version}";-noimport:=true
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="MicroProfile OpenAPI: Implementation smallrye-open-api-jaxrs" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile OpenAPI: Implementation smallrye-open-api-jaxrs" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>io.smallrye</groupId>
@@ -1109,59 +1116,59 @@ Export-Package:        *;version="${version}";-noimport:=true
 Fragment-Host:         org.openntf.io.smallrye.open-api-core
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="MicroProfile OpenAPI: Implementation Utilities" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile OpenAPI: Implementation Utilities" missingManifest="generate" type="Maven">
             <dependencies>
-				<dependency>
-				    <groupId>com.fasterxml.jackson.core</groupId>
-				    <artifactId>jackson-core</artifactId>
-				    <version>2.22.4</version>
+                <dependency>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                    <version>2.22</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>com.fasterxml.jackson.core</groupId>
-				    <artifactId>jackson-databind</artifactId>
-				    <version>2.22.4</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                    <version>2.22.4</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>com.fasterxml.jackson.core</groupId>
-				    <artifactId>jackson-annotations</artifactId>
-				    <version>2.22</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                    <version>2.22.4</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>com.fasterxml.jackson.dataformat</groupId>
-				    <artifactId>jackson-dataformat-yaml</artifactId>
-				    <version>2.22.4</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-yaml</artifactId>
+                    <version>2.22.4</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
+                </dependency>
+                <dependency>
                     <groupId>io.smallrye</groupId>
                     <artifactId>smallrye-open-api-model</artifactId>
                     <version>4.3.1</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>io.xlate</groupId>
-				    <artifactId>yaml-json</artifactId>
-				    <version>0.2.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.xlate</groupId>
+                    <artifactId>yaml-json</artifactId>
+                    <version>0.2.1</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.jetbrains.kotlin</groupId>
-				    <artifactId>kotlin-stdlib</artifactId>
-				    <version>2.4.21</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib</artifactId>
+                    <version>2.4.21</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.jetbrains.kotlinx</groupId>
-				    <artifactId>kotlinx-metadata-jvm</artifactId>
-				    <version>0.9.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jetbrains.kotlinx</groupId>
+                    <artifactId>kotlinx-metadata-jvm</artifactId>
+                    <version>0.9.0</version>
                     <type>jar</type>
-				</dependency>
+                </dependency>
             </dependencies>
         </location>
-        <location ignoreExistingMetadata="true" includeDependencyScopes="compile" includeSource="true" label="MicroProfile Rest Client: API" missingManifest="generate" type="Maven">
+        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile Rest Client: API" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.microprofile.rest.client</groupId>
@@ -1222,15 +1229,15 @@ Fragment-Host:         org.openntf.org.jboss.resteasy.microprofile.rest-client-b
         </location>
         <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile Rest Client: Implementation Utilities" missingManifest="generate" type="Maven">
             <dependencies>
-				<dependency>
-				    <groupId>org.yaml</groupId>
-				    <artifactId>snakeyaml</artifactId>
-				    <version>2.5</version>
+                <dependency>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                    <version>2.5</version>
                     <type>jar</type>
-				</dependency>
+                </dependency>
             </dependencies>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta REST: Implementation resteasy-client" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta REST: Implementation resteasy-client" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.resteasy</groupId>
@@ -1248,7 +1255,7 @@ Import-Package:        !org.apache.http.*,!java.*,*
 Export-Package:        *;version="${version}";-noimport:=true
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Apache Commons IO (Verse Compatible)" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Apache Commons IO (Verse Compatible)" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>commons-io</groupId>
@@ -1258,7 +1265,7 @@ Export-Package:        *;version="${version}";-noimport:=true
                 </dependency>
             </dependencies>
         </location>
-        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeSource="true" label="MicroProfile Config: API" missingManifest="generate" type="Maven">
+        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile Config: API" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.microprofile.config</groupId>
@@ -1318,11 +1325,11 @@ Bundle-Name:           Bundle derived from maven artifact ${mvnGroupId}:${mvnArt
 version:               ${version_cleanup;${mvnVersion}}
 Bundle-SymbolicName:   org.openntf.org.eclipse.microprofile.fault.tolerance
 Bundle-Version:        ${version}.${tstamp}
-Import-Package:        jakarta.enterprise.util,!java.*,*
+Import-Package:        jakarta.enterprise.util,org.eclipse.microprofile.metrics.*;resolution:=optional,!java.*,*
 Export-Package:        *;version="${version}";-noimport:=true
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="MicroProfile Fault Tolerance: Implementation Utilities" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile Fault Tolerance: Implementation Utilities" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>io.smallrye</groupId>
@@ -1350,7 +1357,7 @@ Export-Package:        *;version="${version}";-noimport:=true
                 </dependency>
             </dependencies>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="MicroProfile Fault Tolerance: Implementation smallrye-fault-tolerance" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile Fault Tolerance: Implementation smallrye-fault-tolerance" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>io.smallrye</groupId>
@@ -1366,82 +1373,84 @@ Bundle-SymbolicName:   org.openntf.io.smallrye.fault-tolerance
 Bundle-Version:        ${version}.${tstamp}
 Import-Package:        org.eclipse.microprofile.config.*;version="2.0.0",\
                        org.eclipse.microprofile.faulttolerance.*;version="2.0.0",\
-					   org.eclipse.microprofile.metrics.*;version="3.0.0",\
+					   org.eclipse.microprofile.metrics.*;version="3.0.0";resolution:=optional,\
+					   io.micrometer.core.instrument;resolution:=optional,\
+					   io.opentelemetry.api.*;resolution:=optional,\
 					   *
 Export-Package:        *;version="${version}";-noimport:=true
 DynamicImport-Package: org.jboss.weld.*
 -removeheaders:        Require-Capability
 ]]></instructions>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="MicroProfile Fault Tolerance: Implementation Utilities" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile Fault Tolerance: Implementation Utilities" missingManifest="generate" type="Maven">
             <dependencies>
-				<dependency>
-				    <groupId>io.micrometer</groupId>
-				    <artifactId>micrometer-core</artifactId>
-				    <version>1.17.2</version>
+                <dependency>
+                    <groupId>io.micrometer</groupId>
+                    <artifactId>micrometer-commons</artifactId>
+                    <version>1.17.2</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>io.micrometer</groupId>
-				    <artifactId>micrometer-commons</artifactId>
-				    <version>1.17.2</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.micrometer</groupId>
+                    <artifactId>micrometer-core</artifactId>
+                    <version>1.17.2</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.jspecify</groupId>
-				    <artifactId>jspecify</artifactId>
-				    <version>1.0.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.opentelemetry</groupId>
+                    <artifactId>opentelemetry-api</artifactId>
+                    <version>1.50.0</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>io.opentelemetry</groupId>
-				    <artifactId>opentelemetry-api</artifactId>
-				    <version>1.50.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.eclipse.microprofile.metrics</groupId>
+                    <artifactId>microprofile-metrics-api</artifactId>
+                    <version>5.1.2</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.eclipse.microprofile.metrics</groupId>
-				    <artifactId>microprofile-metrics-api</artifactId>
-				    <version>5.1.2</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jspecify</groupId>
+                    <artifactId>jspecify</artifactId>
+                    <version>1.0.1</version>
                     <type>jar</type>
-				</dependency>
+                </dependency>
             </dependencies>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="MicroProfile: Implementation Utilities" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile: Implementation Utilities" missingManifest="generate" type="Maven">
             <dependencies>
-				<dependency>
-				    <groupId>io.smallrye.common</groupId>
-				    <artifactId>smallrye-common-annotation</artifactId>
-				    <version>2.21.1</version>
+                <dependency>
+                    <groupId>io.smallrye.common</groupId>
+                    <artifactId>smallrye-common-annotation</artifactId>
+                    <version>2.21.1</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>io.smallrye.common</groupId>
-				    <artifactId>smallrye-common-classloader</artifactId>
-				    <version>2.21.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.smallrye.common</groupId>
+                    <artifactId>smallrye-common-classloader</artifactId>
+                    <version>2.21.1</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>io.smallrye.common</groupId>
-				    <artifactId>smallrye-common-constraint</artifactId>
-				    <version>2.21.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.smallrye.common</groupId>
+                    <artifactId>smallrye-common-constraint</artifactId>
+                    <version>2.21.1</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>io.smallrye.common</groupId>
-				    <artifactId>smallrye-common-expression</artifactId>
-				    <version>2.21.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.smallrye.common</groupId>
+                    <artifactId>smallrye-common-expression</artifactId>
+                    <version>2.21.1</version>
                     <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>io.smallrye.common</groupId>
-				    <artifactId>smallrye-common-function</artifactId>
-				    <version>2.21.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.smallrye.common</groupId>
+                    <artifactId>smallrye-common-function</artifactId>
+                    <version>2.21.1</version>
                     <type>jar</type>
-				</dependency>
+                </dependency>
             </dependencies>
         </location>
-        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeSource="true" label="MicroProfile Health: API" missingManifest="generate" type="Maven">
+        <location ignoreExistingMetadata="true" includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile Health: API" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.eclipse.microprofile.health</groupId>
@@ -1480,15 +1489,15 @@ DynamicImport-Package: org.jboss.weld.*
         </location>
         <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile Health: Implementation Utilities" missingManifest="generate" type="Maven">
             <dependencies>
-				<dependency>
-				    <groupId>io.smallrye.reactive</groupId>
-				    <artifactId>mutiny</artifactId>
-				    <version>3.0.1</version>
+                <dependency>
+                    <groupId>io.smallrye.reactive</groupId>
+                    <artifactId>mutiny</artifactId>
+                    <version>3.0.1</version>
                     <type>jar</type>
-				</dependency>
+                </dependency>
             </dependencies>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="Jakarta REST: Implementation resteasy-client-api" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Jakarta REST: Implementation resteasy-client-api" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.resteasy</groupId>
@@ -1498,7 +1507,7 @@ DynamicImport-Package: org.jboss.weld.*
                 </dependency>
             </dependencies>
         </location>
-        <location includeDependencyDepth="none" includeSource="true" label="MicroProfile Health: Implementation smallrye-health-api" missingManifest="generate" type="Maven">
+        <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="MicroProfile Health: Implementation smallrye-health-api" missingManifest="generate" type="Maven">
             <dependencies>
                 <dependency>
                     <groupId>io.smallrye</groupId>
