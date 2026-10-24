@@ -114,7 +114,7 @@
 		<maven.compiler.target>17</maven.compiler.target>
 		<maven.compiler.release>17</maven.compiler.release>
 		
-		<tycho-version>5.0.3</tycho-version>
+		<tycho-version>5.0.4</tycho-version>
 		<xsp-bundles-range>0.0.0</xsp-bundles-range>
 	</properties>
 
