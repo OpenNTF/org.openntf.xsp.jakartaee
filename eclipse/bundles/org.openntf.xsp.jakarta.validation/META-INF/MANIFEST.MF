@@ -6,18 +6,14 @@ Automatic-Module-Name: org.openntf.xsp.jakarta.validation
 Bundle-Version: 3.8.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: org.openntf.xsp.jakartaee.commons;bundle-version="3.0.0";visibility:=reexport,
- jakarta.validation.jakarta.validation-api;bundle-version="3.0.0";visibility:=reexport,
- org.hibernate.validator;bundle-version="8.0.0";visibility:=reexport,
- org.openntf.xsp.jakarta.el;bundle-version="3.0.0";visibility:=reexport
+Require-Bundle: jakarta.validation.jakarta.validation-api;bundle-version="3.0.0";visibility:=reexport,
+ org.hibernate.validator;bundle-version="8.0.0";visibility:=reexport
 Export-Package: org.openntf.xsp.jakarta.validation;version="3.8.0"
 Import-Package: com.ibm.xsp.designer.context,
- com.ibm.xsp.library,
- jakarta.enterprise.context;version="3.0.0",
- jakarta.enterprise.inject;version="3.0.0",
- jakarta.enterprise.inject.spi;version="3.0.0",
- jakarta.servlet;version="5.0.0",
- jakarta.servlet.http;version="5.0.0",
+ jakarta.enterprise.context;version="[4.1.0,5.0.0)",
+ jakarta.enterprise.inject;version="[4.1.0,5.0.0)",
+ jakarta.servlet;version="[6.1.0,7.0.0)",
+ jakarta.servlet.http;version="[6.1.0,7.0.0)",
  javax.faces.context,
- org.openntf.xsp.jakarta.cdi.discovery;version="2.3.0",
- org.osgi.framework;version="1.8.0"
+ org.openntf.xsp.jakarta.cdi.discovery;version="3.8.0",
+ org.openntf.xsp.jakartaee.module;version="[3.8.0,4.0.0)"

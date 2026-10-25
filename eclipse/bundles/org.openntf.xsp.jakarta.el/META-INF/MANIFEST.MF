@@ -6,31 +6,29 @@ Automatic-Module-Name: org.openntf.xsp.jakarta.el
 Bundle-Version: 3.8.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: jakarta.el-api;bundle-version="4.0.0";visibility:=reexport,
- org.glassfish.expressly;bundle-version="5.0.0";visibility:=reexport,
- org.openntf.xsp.jakartaee.commons;bundle-version="1.0.0";visibility:=reexport
-Import-Package: com.ibm.commons.util,
- com.ibm.commons.util.io.json,
+Require-Bundle: jakarta.el-api;bundle-version="4.0.0";visibility:=reexport
+Import-Package: com.ibm.commons.util.io.json,
  com.ibm.designer.runtime.domino.adapter,
- com.ibm.jscript,
  com.ibm.jscript.types,
  com.ibm.xsp.application,
  com.ibm.xsp.binding,
  com.ibm.xsp.el,
  com.ibm.xsp.factory,
  com.ibm.xsp.javascript,
- com.ibm.xsp.library,
  com.ibm.xsp.model,
  com.ibm.xsp.model.domino,
  com.ibm.xsp.util,
  com.sun.faces.el,
  com.sun.faces.util,
- jakarta.annotation;version="2.0.0",
+ jakarta.annotation;version="[3.0.0,4.0.0)",
  javax.faces.application,
  javax.faces.component,
  javax.faces.context,
  javax.faces.el,
- lotus.domino
+ lotus.domino,
+ org.openntf.xsp.jakartaee.events;version="3.8.0",
+ org.openntf.xsp.jakartaee.module;version="3.8.0",
+ org.openntf.xsp.jakartaee.util;version="3.8.0"
 Export-Package: org.openntf.xsp.jakarta.el;version="3.8.0",
  org.openntf.xsp.jakarta.el.ext;version="3.8.0",
  org.openntf.xsp.jakarta.el.impl;version="3.8.0"

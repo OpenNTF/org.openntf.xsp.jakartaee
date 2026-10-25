@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.ibm.commons.util.StringUtil;
 
@@ -35,6 +36,7 @@ import jakarta.servlet.Servlet;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.osgi.util.ManifestElement;
+import org.glassfish.wasp.runtime.HttpJspBase;
 import org.openntf.xsp.jakarta.pages.PagesHttpInitListener;
 import org.openntf.xsp.jakarta.pages.nsf.PagesServletFactory;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -52,6 +54,18 @@ public enum DominoPagesUtil {
 	;
 
 	public static final String PATH_SEP = LibraryUtil.getSystemProperty("path.separator"); //$NON-NLS-1$
+	
+	/**
+	 * Collection of classes to use to build a bundle classpath for JSP compilation.
+	 */
+	private static final Set<Class<?>> BUNDLE_CLASSPATH_CLASSES = Set.of(
+		// Include our current bundle and its re-exported dependencies
+		PagesServletFactory.class,
+		// Include our current Servlet API provider
+		Servlet.class,
+		// Include Wasp
+		HttpJspBase.class
+	);
 
 	public static ClassLoader buildPagesClassLoader(final ClassLoader delegate) throws BundleException, IOException {
 		// TODO support extension points?
@@ -100,18 +114,13 @@ public enum DominoPagesUtil {
 		return result;
 	}
 
-
-
 	public static Collection<File> buildBundleClassPath() throws BundleException, IOException {
 		Collection<File> classpath = new LinkedHashSet<>();
 		
-		// Include our current bundle and its re-exported dependencies
-		Bundle bundle = FrameworkUtil.getBundle(PagesServletFactory.class);
-		toClasspathEntry(bundle, classpath);
-		
-		// Explicitly add our current Servlet provider, which is imported by package here
-		var servletBundle = FrameworkUtil.getBundle(Servlet.class);
-		toClasspathEntry(servletBundle, classpath);
+		for(var clazz : BUNDLE_CLASSPATH_CLASSES) {
+			var b = FrameworkUtil.getBundle(clazz);
+			toClasspathEntry(b, classpath);
+		}
 
 		return classpath;
 	}
