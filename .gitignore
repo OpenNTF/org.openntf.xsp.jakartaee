@@ -20,3 +20,9 @@ jitdump.*.dmp
 javacore.*.txt
 
 .DS_Store
+
+# Tycho auto-discovery
+.polyglot.META-INF
+.polyglot.pom.tycho
+pom.tycho
+.polyglot.feature.xml

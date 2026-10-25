@@ -35,63 +35,8 @@
 	</developers>
 
 	<modules>
-		<!-- General Jakarta EE platform -->
-		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
-		<module>bundles/org.openntf.xsp.jakartaee.osgiresourcelocator</module>
-		<module>bundles/org.openntf.xsp.jakartaee.bridge.jasapi</module>
-		<module>bundles/org.openntf.xsp.jakarta.concurrency</module>
-		
-		<!-- Servlet -->
-		<module>bundles/org.openntf.xsp.jakarta.servlet</module>
-		
-		<!-- CDI-->
-		<module>bundles/org.openntf.xsp.jakarta.cdi</module>
-		<module>bundles/org.openntf.xsp.jakarta.cdi.extlib</module>
-		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
-		
-		<!-- Expression Language -->
-		<module>bundles/org.openntf.xsp.jakarta.el</module>
-		
-		<!-- Bean Validation 3.0 -->
-		<module>bundles/org.openntf.xsp.jakarta.validation</module>
-		
-		<!-- JSON Processing and Binding -->
-		<module>bundles/org.openntf.xsp.jakarta.json</module>
-		
-		<!-- Jakarta REST -->
-		<module>bundles/org.openntf.xsp.jakarta.rest</module>
-		<module>bundles/org.openntf.xsp.jakarta.rest.factory</module>
-	
-		<!-- NoSQL -->
-		<module>bundles/org.openntf.xsp.jakarta.nosql.driver</module>
-		<module>bundles/org.openntf.xsp.jakarta.nosql.driver.lsxbe</module>
-		<module>bundles/org.openntf.xsp.jakarta.nosql</module>
-		 
-		<!-- Persistence -->
- 		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
- 		
-		<!-- UI -->
- 		<module>bundles/org.openntf.xsp.jakarta.pages</module>
- 		<module>bundles/org.openntf.xsp.jakarta.faces</module>
- 		<module>bundles/org.openntf.xsp.jakarta.mvc</module>
-	
-		<!-- MicroProfile -->
-		<module>bundles/org.openntf.xsp.microprofile.config</module>
-		<module>bundles/org.openntf.xsp.microprofile.restclient</module>
-		<module>bundles/org.openntf.xsp.microprofile.faulttolerance</module>
-		<module>bundles/org.openntf.xsp.microprofile.health</module>
-		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
-		
- 		<!-- XPages libraries -->
- 		<module>bundles/org.openntf.xsp.jakartaee.core.library</module>
- 		<module>bundles/org.openntf.xsp.jakartaee.ui.library</module>
- 		<module>bundles/org.openntf.xsp.microprofile.library</module>
- 		
- 		<!-- Component Modules -->
- 		<module>bundles/org.openntf.xsp.jakartaee.module.xspnsf</module>
- 		<module>bundles/org.openntf.xsp.jakartaee.module.osgi</module>
- 		<module>bundles/org.openntf.xsp.jakartaee.module.jakartansf</module>
- 		<module>bundles/org.openntf.xsp.jakartaee.module.war</module>
+		<module>bundles</module>
+		<module>features</module>
 		
 		<!-- Integration test support and examples -->
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
@@ -99,13 +44,7 @@
 		<module>tests/org.openntf.xsp.test.jasapi</module>
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		
-		<module>features/org.openntf.xsp.jakartaee.feature</module>
-		<module>features/org.openntf.xsp.jakartaee.ui.feature</module>
-		<module>features/org.openntf.xsp.microprofile.feature</module>
-		
-		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
-		<module>releng/org.openntf.xsp.jakartaee.source.updatesite</module>
-		<module>releng/xsp-jakartaee-dist</module>
+		<module>releng</module>
 	</modules>
 
 	<properties>
@@ -455,6 +394,12 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>3.4.0</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>3.6.2</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
