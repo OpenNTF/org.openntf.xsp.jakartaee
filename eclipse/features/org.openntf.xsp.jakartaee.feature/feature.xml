@@ -267,7 +267,7 @@
 	<plugin id="wrapped.org.jboss.weld.weld-lite-extension-translator" version="0.0.0" unpack="false"/>
 	
 	<!-- Servlet -->
-	<plugin id="jakarta.servlet-api" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.servlet" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.servlet" version="0.0.0" unpack="false"/>
 	
 	<!-- JSON Processing and Binding -->

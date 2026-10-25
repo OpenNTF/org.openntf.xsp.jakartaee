@@ -9,7 +9,7 @@ Bundle-Version: 3.8.0.qualifier
 Import-Package: com.ibm.xsp.library,
  org.openntf.xsp.jakartaee.util;version="[3.0.0,4.0.0]",
  org.osgi.framework;version="[1.8.0,2.0.0]"
-Require-Bundle: jakarta.servlet-api;bundle-version="6.0.0";visibility:=reexport,
+Require-Bundle: jakarta.servlet;bundle-version="6.0.0";visibility:=reexport,
  jakarta.xml.bind-api;bundle-version="4.0.0";visibility:=reexport,
  org.openntf.xsp.jakartaee.commons;bundle-version="3.0.0";visibility:=reexport,
  org.openntf.xsp.jakarta.el;bundle-version="3.0.0";visibility:=reexport,

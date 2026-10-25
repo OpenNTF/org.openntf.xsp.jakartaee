@@ -31,6 +31,8 @@ import java.util.Optional;
 
 import com.ibm.commons.util.StringUtil;
 
+import jakarta.servlet.Servlet;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.osgi.util.ManifestElement;
 import org.openntf.xsp.jakarta.pages.PagesHttpInitListener;
@@ -101,9 +103,15 @@ public enum DominoPagesUtil {
 
 
 	public static Collection<File> buildBundleClassPath() throws BundleException, IOException {
-		Bundle bundle = FrameworkUtil.getBundle(PagesServletFactory.class);
 		Collection<File> classpath = new LinkedHashSet<>();
+		
+		// Include our current bundle and its re-exported dependencies
+		Bundle bundle = FrameworkUtil.getBundle(PagesServletFactory.class);
 		toClasspathEntry(bundle, classpath);
+		
+		// Explicitly add our current Servlet provider, which is imported by package here
+		var servletBundle = FrameworkUtil.getBundle(Servlet.class);
+		toClasspathEntry(servletBundle, classpath);
 
 		return classpath;
 	}
