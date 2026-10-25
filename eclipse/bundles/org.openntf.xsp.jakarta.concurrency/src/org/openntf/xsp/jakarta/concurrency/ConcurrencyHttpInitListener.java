@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.jakarta.concurrency;
 
-import java.lang.System.Logger;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
