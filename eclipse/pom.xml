@@ -54,15 +54,9 @@
 		<maven.compiler.release>17</maven.compiler.release>
 		
 		<tycho-version>5.0.4</tycho-version>
-		<xsp-bundles-range>0.0.0</xsp-bundles-range>
 	</properties>
 
 	<repositories>
-		<repository>
-			<id>xsp-deps</id>
-			<layout>p2</layout>
-			<url>${notes-platform14}</url>
-		</repository>
 		<repository>
 			<id>artifactory.openntf.org</id>
 			<name>artifactory.openntf.org</name>
@@ -151,6 +145,7 @@
 				<configuration>
 					<target>
 						<file>../../../osgi-deps.target</file>
+						<file>../../../xsp-deps.target</file>
 					</target>
 					<dependency-resolution>
 						<extraRequirements>
@@ -173,13 +168,8 @@
 							
 							<requirement>
 								<type>eclipse-plugin</type>
-								<id>org.eclipse.core.runtime</id>
-								<versionRange>0.0.0</versionRange>
-							</requirement>
-							<requirement>
-								<type>eclipse-plugin</type>
 								<id>com.ibm.xsp.core</id>
-								<versionRange>${xsp-bundles-range}</versionRange>
+								<versionRange>0.0.0</versionRange>
 							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
@@ -411,21 +401,6 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>
-		
-		<profile>
-			<id>xsp-build-stubs</id>
-			<activation>
-				<property>
-					<name>!notes-platform14</name>
-				</property>
-			</activation>
-			
-			<properties>				
-				<xsp-bundles-range>[1.0.0,2.0.0)</xsp-bundles-range>
-				<notes-platform14>${project.baseUri}../../../xsp-deps/target/repository</notes-platform14>
-				<skipTests>true</skipTests>
-			</properties>
 		</profile>
 	</profiles>
 </project>
