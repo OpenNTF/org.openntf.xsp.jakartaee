@@ -35,63 +35,8 @@
 	</developers>
 
 	<modules>
-		<!-- General Jakarta EE platform -->
-		<module>bundles/org.openntf.xsp.jakartaee.commons</module>
-		<module>bundles/org.openntf.xsp.jakartaee.osgiresourcelocator</module>
-		<module>bundles/org.openntf.xsp.jakartaee.bridge.jasapi</module>
-		<module>bundles/org.openntf.xsp.jakarta.concurrency</module>
-		
-		<!-- Servlet -->
-		<module>bundles/org.openntf.xsp.jakarta.servlet</module>
-		
-		<!-- CDI-->
-		<module>bundles/org.openntf.xsp.jakarta.cdi</module>
-		<module>bundles/org.openntf.xsp.jakarta.cdi.extlib</module>
-		<module>bundles/org.openntf.xsp.jakarta.transaction</module>
-		
-		<!-- Expression Language -->
-		<module>bundles/org.openntf.xsp.jakarta.el</module>
-		
-		<!-- Bean Validation 3.0 -->
-		<module>bundles/org.openntf.xsp.jakarta.validation</module>
-		
-		<!-- JSON Processing and Binding -->
-		<module>bundles/org.openntf.xsp.jakarta.json</module>
-		
-		<!-- Jakarta REST -->
-		<module>bundles/org.openntf.xsp.jakarta.rest</module>
-		<module>bundles/org.openntf.xsp.jakarta.rest.factory</module>
-	
-		<!-- NoSQL -->
-		<module>bundles/org.openntf.xsp.jakarta.nosql.driver</module>
-		<module>bundles/org.openntf.xsp.jakarta.nosql.driver.lsxbe</module>
-		<module>bundles/org.openntf.xsp.jakarta.nosql</module>
-		 
-		<!-- Persistence -->
- 		<module>bundles/org.openntf.xsp.jakarta.persistence</module>
- 		
-		<!-- UI -->
- 		<module>bundles/org.openntf.xsp.jakarta.pages</module>
- 		<module>bundles/org.openntf.xsp.jakarta.faces</module>
- 		<module>bundles/org.openntf.xsp.jakarta.mvc</module>
-	
-		<!-- MicroProfile -->
-		<module>bundles/org.openntf.xsp.microprofile.config</module>
-		<module>bundles/org.openntf.xsp.microprofile.restclient</module>
-		<module>bundles/org.openntf.xsp.microprofile.faulttolerance</module>
-		<module>bundles/org.openntf.xsp.microprofile.health</module>
-		<module>bundles/org.openntf.xsp.microprofile.openapi</module>
-		
- 		<!-- XPages libraries -->
- 		<module>bundles/org.openntf.xsp.jakartaee.core.library</module>
- 		<module>bundles/org.openntf.xsp.jakartaee.ui.library</module>
- 		<module>bundles/org.openntf.xsp.microprofile.library</module>
- 		
- 		<!-- Component Modules -->
- 		<module>bundles/org.openntf.xsp.jakartaee.module.xspnsf</module>
- 		<module>bundles/org.openntf.xsp.jakartaee.module.osgi</module>
- 		<module>bundles/org.openntf.xsp.jakartaee.module.jakartansf</module>
- 		<module>bundles/org.openntf.xsp.jakartaee.module.war</module>
+		<module>bundles</module>
+		<module>features</module>
 		
 		<!-- Integration test support and examples -->
 		<module>tests/org.openntf.xsp.jakarta.example.webapp</module>
@@ -99,13 +44,7 @@
 		<module>tests/org.openntf.xsp.test.jasapi</module>
 		<module>tests/org.openntf.xsp.test.postinstall</module>
 		
-		<module>features/org.openntf.xsp.jakartaee.feature</module>
-		<module>features/org.openntf.xsp.jakartaee.ui.feature</module>
-		<module>features/org.openntf.xsp.microprofile.feature</module>
-		
-		<module>releng/org.openntf.xsp.jakartaee.updatesite</module>
-		<module>releng/org.openntf.xsp.jakartaee.source.updatesite</module>
-		<module>releng/xsp-jakartaee-dist</module>
+		<module>releng</module>
 	</modules>
 
 	<properties>
@@ -115,15 +54,9 @@
 		<maven.compiler.release>17</maven.compiler.release>
 		
 		<tycho-version>5.0.4</tycho-version>
-		<xsp-bundles-range>0.0.0</xsp-bundles-range>
 	</properties>
 
 	<repositories>
-		<repository>
-			<id>xsp-deps</id>
-			<layout>p2</layout>
-			<url>${notes-platform14}</url>
-		</repository>
 		<repository>
 			<id>artifactory.openntf.org</id>
 			<name>artifactory.openntf.org</name>
@@ -155,13 +88,12 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
-				<configuration>
-					<strictVersions>false</strictVersions>
-				</configuration>
+				<version>${tycho-version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho-version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -182,12 +114,9 @@
 						<configuration>
 							<includeBinaryFeature>false</includeBinaryFeature>
 							<excludes>
-								<plugin id="org.openntf.xsp.jaxrs.factory"/>
-								<plugin id="org.openntf.xsp.jaxrs.providers"/>
 								<plugin id="jakarta.servlet.jsp-api"/>
 								<plugin id="org.eclipse.jdt.core"/>
 								<plugin id="org.antlr.antlr4-runtime.jakarta"/>
-								<plugin id="org.openntf.xsp.jsonapi.cdi"/>
 								<plugin id="org.apache.commons.codec"/>
 								<plugin id="org.apache.commons.logging"/>
 							</excludes>
@@ -198,6 +127,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-plugin</artifactId>
+				<version>${tycho-version}</version>
 				<executions>
 					<execution>
 						<id>attached-p2-metadata</id>
@@ -211,9 +141,11 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
 				<configuration>
 					<target>
 						<file>../../../osgi-deps.target</file>
+						<file>../../../xsp-deps.target</file>
 					</target>
 					<dependency-resolution>
 						<extraRequirements>
@@ -236,13 +168,8 @@
 							
 							<requirement>
 								<type>eclipse-plugin</type>
-								<id>org.eclipse.core.runtime</id>
-								<versionRange>0.0.0</versionRange>
-							</requirement>
-							<requirement>
-								<type>eclipse-plugin</type>
 								<id>com.ibm.xsp.core</id>
-								<versionRange>${xsp-bundles-range}</versionRange>
+								<versionRange>0.0.0</versionRange>
 							</requirement>
 						</extraRequirements>
 					</dependency-resolution>
@@ -253,6 +180,18 @@
 				<groupId>org.openntf.maven</groupId>
 				<artifactId>nsfodp-maven-plugin</artifactId>
 				<extensions>true</extensions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.jboss.jandex</groupId>
+				<artifactId>jandex-maven-plugin</artifactId>
+				<version>1.2.3</version>
+				<executions>
+					<execution>
+						<id>make-index</id>
+						<goals><goal>jandex</goal></goals>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
@@ -344,54 +283,6 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.12.0</version>
-					<configuration>
-						<!-- Activated by profile below -->
-						<skip>true</skip>
-
-						<failOnError>false</failOnError>
-						<excludePackageNames>com.sun.*:com.ibm.commons.*:com.ibm.sbt.core.*:com.ibm.sbt.plugin.*:com.ibm.sbt.jslibrray.*:com.ibm.sbt.proxy.*:com.ibm.sbt.security.*:*.util.*:com.ibm.sbt.portlet.*:com.ibm.sbt.playground.*:demo.*:acme.*</excludePackageNames>
-
-						<charset>UTF-8</charset>
-						<encoding>UTF-8</encoding>
-						<docencoding>UTF-8</docencoding>
-						<breakiterator>true</breakiterator>
-						<version>true</version>
-						<author>true</author>
-						<keywords>true</keywords>
-					</configuration>
-					<executions>
-						<execution>
-							<id>attach-javadocs</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>target-platform-configuration</artifactId>
-					<version>${tycho-version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-compiler-plugin</artifactId>
-					<version>${tycho-version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-p2-plugin</artifactId>
-					<version>${tycho-version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-packaging-plugin</artifactId>
-					<version>${tycho-version}</version>
-				</plugin>
-				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-p2-repository-plugin</artifactId>
 					<version>${tycho-version}</version>
@@ -401,12 +292,6 @@
 					<groupId>org.openntf.maven</groupId>
 					<artifactId>nsfodp-maven-plugin</artifactId>
 					<version>4.1.0</version>
-				</plugin>
-			
-				<plugin>
-					<groupId>org.jboss.jandex</groupId>
-					<artifactId>jandex-maven-plugin</artifactId>
-					<version>1.2.3</version>
 				</plugin>
 				
 				<plugin>
@@ -444,6 +329,12 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>3.4.0</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>3.6.2</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -510,21 +401,6 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>
-		
-		<profile>
-			<id>xsp-build-stubs</id>
-			<activation>
-				<property>
-					<name>!notes-platform14</name>
-				</property>
-			</activation>
-			
-			<properties>				
-				<xsp-bundles-range>[1.0.0,2.0.0)</xsp-bundles-range>
-				<notes-platform14>${project.baseUri}../../../xsp-deps/target/repository</notes-platform14>
-				<skipTests>true</skipTests>
-			</properties>
 		</profile>
 	</profiles>
 </project>

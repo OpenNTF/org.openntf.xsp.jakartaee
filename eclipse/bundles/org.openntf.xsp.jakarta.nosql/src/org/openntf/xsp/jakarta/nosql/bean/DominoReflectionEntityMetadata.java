@@ -35,7 +35,7 @@ import jakarta.enterprise.inject.Alternative;
 import jakarta.interceptor.Interceptor;
 
 /**
- * This variant of {@link org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension ReflectionEntityMetadataExtension}
+ * This variant of {@code org.eclipse.jnosql.mapping.reflection.spi.ReflectionEntityMetadataExtension}
  * avoids the use of static maps for entity metadata storage.
  * 
  * @since 3.4.0

@@ -6,14 +6,11 @@ Automatic-Module-Name: org.openntf.xsp.microprofile.rest.client
 Bundle-Version: 3.8.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Import-Package: com.ibm.xsp.application,
- com.ibm.xsp.library,
- jakarta.enterprise.inject.spi;version="3.0.0",
- org.jboss.resteasy.microprofile.client,
- org.jboss.resteasy.microprofile.client.header,
- org.openntf.xsp.jakarta.cdi.discovery;version="2.2.0",
- org.openntf.xsp.jakartaee;version="2.2.0",
- org.openntf.xsp.jakartaee.util;version="2.3.0",
+Import-Package: jakarta.enterprise.inject.spi;version="[4.1.0,5.0.0)",
+ org.jboss.resteasy.microprofile.client;version="[3.0.0,4.0.0)",
+ org.jboss.resteasy.microprofile.client.header;version="[3.0.0,4.0.0)",
+ org.openntf.xsp.jakarta.cdi.discovery;version="3.8.0",
+ org.openntf.xsp.jakartaee.util;version="3.8.0",
  org.osgi.framework;version="1.8.0"
 Require-Bundle: org.yaml.snakeyaml;bundle-version="1.28.0";visibility:=reexport,
  org.openntf.org.eclipse.microprofile.rest.client;bundle-version="3.0.0";visibility:=reexport,
