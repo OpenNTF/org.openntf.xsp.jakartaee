@@ -5,10 +5,7 @@
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <repository location="https://download.eclipse.org/releases/2021-12/202112081000/"/>
             <unit id="org.slf4j.api" version="1.7.30.v20200204-2150"/>
-            <unit id="org.apache.felix.scr" version="2.1.24.v20200924-1939"/>
-            <unit id="org.eclipse.osgi.services" version="3.10.200.v20210723-0643"/>
-            <unit id="org.eclipse.osgi.util" version="3.6.100.v20210723-1119"/>
-            <unit id="org.eclipse.osgi" version="3.17.100.v20211104-1730"/>
+            <unit id="org.apache.commons.lang3" version="3.1.0.v201403281430"/>
         </location>
         <location includeDependencyDepth="none" includeDependencyScopes="compile" includeSource="true" label="Build Runtime" missingManifest="generate" type="Maven">
             <dependencies>
