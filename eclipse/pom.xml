@@ -94,13 +94,12 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
-				<configuration>
-					<strictVersions>false</strictVersions>
-				</configuration>
+				<version>${tycho-version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho-version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -121,12 +120,9 @@
 						<configuration>
 							<includeBinaryFeature>false</includeBinaryFeature>
 							<excludes>
-								<plugin id="org.openntf.xsp.jaxrs.factory"/>
-								<plugin id="org.openntf.xsp.jaxrs.providers"/>
 								<plugin id="jakarta.servlet.jsp-api"/>
 								<plugin id="org.eclipse.jdt.core"/>
 								<plugin id="org.antlr.antlr4-runtime.jakarta"/>
-								<plugin id="org.openntf.xsp.jsonapi.cdi"/>
 								<plugin id="org.apache.commons.codec"/>
 								<plugin id="org.apache.commons.logging"/>
 							</excludes>
@@ -137,6 +133,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-plugin</artifactId>
+				<version>${tycho-version}</version>
 				<executions>
 					<execution>
 						<id>attached-p2-metadata</id>
@@ -150,6 +147,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
 				<configuration>
 					<target>
 						<file>../../../osgi-deps.target</file>
@@ -197,6 +195,7 @@
 			<plugin>
 				<groupId>org.jboss.jandex</groupId>
 				<artifactId>jandex-maven-plugin</artifactId>
+				<version>1.2.3</version>
 				<executions>
 					<execution>
 						<id>make-index</id>
@@ -294,54 +293,6 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.12.0</version>
-					<configuration>
-						<!-- Activated by profile below -->
-						<skip>true</skip>
-
-						<failOnError>false</failOnError>
-						<excludePackageNames>com.sun.*:com.ibm.commons.*:com.ibm.sbt.core.*:com.ibm.sbt.plugin.*:com.ibm.sbt.jslibrray.*:com.ibm.sbt.proxy.*:com.ibm.sbt.security.*:*.util.*:com.ibm.sbt.portlet.*:com.ibm.sbt.playground.*:demo.*:acme.*</excludePackageNames>
-
-						<charset>UTF-8</charset>
-						<encoding>UTF-8</encoding>
-						<docencoding>UTF-8</docencoding>
-						<breakiterator>true</breakiterator>
-						<version>true</version>
-						<author>true</author>
-						<keywords>true</keywords>
-					</configuration>
-					<executions>
-						<execution>
-							<id>attach-javadocs</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>target-platform-configuration</artifactId>
-					<version>${tycho-version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-compiler-plugin</artifactId>
-					<version>${tycho-version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-p2-plugin</artifactId>
-					<version>${tycho-version}</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-packaging-plugin</artifactId>
-					<version>${tycho-version}</version>
-				</plugin>
-				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-p2-repository-plugin</artifactId>
 					<version>${tycho-version}</version>
@@ -351,12 +302,6 @@
 					<groupId>org.openntf.maven</groupId>
 					<artifactId>nsfodp-maven-plugin</artifactId>
 					<version>4.1.0</version>
-				</plugin>
-			
-				<plugin>
-					<groupId>org.jboss.jandex</groupId>
-					<artifactId>jandex-maven-plugin</artifactId>
-					<version>1.2.3</version>
 				</plugin>
 				
 				<plugin>
