@@ -21,8 +21,9 @@ javacore.*.txt
 
 .DS_Store
 
-# Tycho auto-discovery
+# Tycho auto-discovery and build
 .polyglot.META-INF
 .polyglot.pom.tycho
 pom.tycho
 .polyglot.feature.xml
+.tycho-consumer-pom.xml
