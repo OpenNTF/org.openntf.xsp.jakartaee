@@ -22,10 +22,7 @@ import java.io.InputStream;
 import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
 
 /**
- * This class allows for the creation of in-memory attachments in a way.
- *
- * <p>This is similar to the class used by {@link EntityAttachment#of}, but
- * is {@code public} to avoid trouble with JSON serialization via Yasson.</p>
+ * This class allows for the creation of in-memory attachments.
  *
  * @author Jesse Gallagher
  * @since 2.6.0

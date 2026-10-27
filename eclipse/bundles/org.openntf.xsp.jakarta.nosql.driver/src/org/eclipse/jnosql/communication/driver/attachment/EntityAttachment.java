@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import org.openntf.xsp.jakarta.nosql.communication.driver.ByteArrayEntityAttachment;
 import org.openntf.xsp.jakarta.nosql.communication.driver.impl.EntityUtil;
 
 /**
