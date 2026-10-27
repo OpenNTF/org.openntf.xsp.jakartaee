@@ -25,22 +25,13 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.ViewColumnInfo;
  *
  * @since 2.12.0
  */
-public class ViewColumnInfoImpl implements ViewColumnInfo {
-
-	private final String title;
-	private final String programmaticName;
-	private final SortOrder sortOrder;
-	private final Collection<SortOrder> resortOrders;
-	private final boolean categorized;
-
-	public ViewColumnInfoImpl(final String title, final String programmaticName, final SortOrder sortOrder,
-			final Collection<SortOrder> resortOrders, final boolean categorized) {
-		this.title = title;
-		this.programmaticName = programmaticName;
-		this.sortOrder = sortOrder == null ? SortOrder.NONE : sortOrder;
-		this.resortOrders = resortOrders == null ? EnumSet.noneOf(SortOrder.class) : EnumSet.copyOf(resortOrders);
-		this.categorized = categorized;
-	}
+public record ViewColumnInfoImpl(
+	String title,
+	String programmaticName,
+	SortOrder sortOrder,
+	Collection<SortOrder> resortOrders,
+	boolean categorized
+) implements ViewColumnInfo {
 
 	@Override
 	public String getTitle() {
@@ -59,7 +50,7 @@ public class ViewColumnInfoImpl implements ViewColumnInfo {
 
 	@Override
 	public Collection<SortOrder> getResortOrders() {
-		return this.resortOrders;
+		return this.resortOrders == null ? EnumSet.noneOf(SortOrder.class) : this.resortOrders;
 	}
 
 	@Override

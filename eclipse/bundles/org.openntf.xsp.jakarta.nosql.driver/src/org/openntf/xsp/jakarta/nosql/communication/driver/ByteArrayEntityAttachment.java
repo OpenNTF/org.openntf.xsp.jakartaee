@@ -27,18 +27,12 @@ import org.eclipse.jnosql.communication.driver.attachment.EntityAttachment;
  * @author Jesse Gallagher
  * @since 2.6.0
  */
-public class ByteArrayEntityAttachment implements EntityAttachment {
-    private final String name;
-    private final String contentType;
-    private final long lastModified;
-    private final byte[] data;
-
-    public ByteArrayEntityAttachment(final String name, final String contentType, final long lastModified, final byte[] data) {
-        this.name = name;
-        this.contentType = contentType;
-        this.lastModified = lastModified;
-        this.data = data;
-    }
+public record ByteArrayEntityAttachment(
+	String name,
+	String contentType,
+	long lastModified,
+	byte[] data
+) implements EntityAttachment {
 
     @Override
     public String getName() {
