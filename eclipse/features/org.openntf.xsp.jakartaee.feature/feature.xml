@@ -341,7 +341,7 @@
 	<plugin id="org.openntf.xsp.jakarta.nosql.driver" version="0.0.0" unpack="false"/>
 	<plugin id="org.openntf.xsp.jakarta.nosql.driver.lsxbe" version="0.0.0" unpack="false"/>
 	
-	<plugin id="jakarta.data.jakarta.data-api" version="0.0.0" unpack="false"/>
+	<plugin id="jakarta.data-api" version="0.0.0" unpack="false"/>
 	<plugin id="jakarta.nosql.jakarta.nosql-api" version="0.0.0" unpack="false"/>
    
 	<plugin id="org.openntf.org.eclipse.jnosql.communication.core" version="0.0.0" unpack="false"/>

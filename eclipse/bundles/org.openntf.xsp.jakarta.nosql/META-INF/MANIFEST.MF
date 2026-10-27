@@ -6,7 +6,7 @@ Automatic-Module-Name: org.openntf.xsp.jakarta.nosql
 Bundle-Version: 3.8.0.qualifier
 Bundle-Vendor: OpenNTF
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: jakarta.data.jakarta.data-api;bundle-version="1.0.0";visibility:=reexport,
+Require-Bundle: jakarta.data-api;bundle-version="1.0.0";visibility:=reexport,
  jakarta.nosql.jakarta.nosql-api;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.org.eclipse.jnosql.mapping.api.core;bundle-version="1.0.0";visibility:=reexport,
  org.openntf.org.eclipse.jnosql.communication.core;bundle-version="1.0.0";visibility:=reexport,
