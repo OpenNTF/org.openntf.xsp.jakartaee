@@ -27,13 +27,14 @@ import org.openntf.xsp.jakarta.nosql.communication.driver.ViewInfo;
  *
  * @since 2.12.0
  */
-public class ViewInfoImpl implements ViewInfo {
-	private final Type type;
-	private final String title;
-	private final List<String> aliases;
-	private final String unid;
-	private final String selectionFormula;
-	private final List<ViewColumnInfo> columnInfo;
+public record ViewInfoImpl(
+	Type type,
+	String title,
+	List<String> aliases,
+	String unid,
+	String selectionFormula,
+	List<ViewColumnInfo> columnInfo
+) implements ViewInfo {
 
 	public ViewInfoImpl(final Type type, final String title, final List<String> aliases, final String unid, final String selectionFormula, final List<ViewColumnInfo> columnInfo) {
 		this.type = type;

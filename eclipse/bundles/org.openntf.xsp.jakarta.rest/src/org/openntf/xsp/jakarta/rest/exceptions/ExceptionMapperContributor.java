@@ -15,8 +15,8 @@
  */
 package org.openntf.xsp.jakarta.rest.exceptions;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.openntf.xsp.jakarta.rest.RestClassContributor;
 
@@ -28,7 +28,7 @@ public class ExceptionMapperContributor implements RestClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {
-		return Arrays.asList(
+		return List.of(
 			GenericThrowableMapper.class,
 			NotFoundMapper.class,
 			ForbiddenExceptionHandler.class,

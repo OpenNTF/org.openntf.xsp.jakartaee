@@ -15,7 +15,6 @@
  */
 package org.openntf.xsp.microprofile.config.rest;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +67,7 @@ public class CorsContributor implements RestClassContributor {
 				filter.setCorsMaxAge(maxAge);
 
 				List<String> allowedOrigins = config.getOptionalValues(PROP_CORS_ORIGINS, String.class)
-					.orElseGet(() -> Arrays.asList("*")); //$NON-NLS-1$
+					.orElseGet(() -> List.of("*")); //$NON-NLS-1$
 				filter.getAllowedOrigins().addAll(allowedOrigins);
 
 				return Collections.singleton(filter);

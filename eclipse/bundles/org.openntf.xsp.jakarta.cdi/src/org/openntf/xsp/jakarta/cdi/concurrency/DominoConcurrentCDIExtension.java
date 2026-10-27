@@ -48,7 +48,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -188,7 +187,7 @@ public class DominoConcurrentCDIExtension implements Extension {
         Bean<T> bean = event.getBean(); //bean.getBeanClass().getName().startsWith("ee.jakarta.tck")
         Set<Type> types = bean.getTypes();
         // Check, if there is a producer method for the default beans
-        boolean defaultQualifiers = bean.getQualifiers().equals(new HashSet<>(Arrays.asList(Default.Literal.INSTANCE, Any.Literal.INSTANCE)));
+        boolean defaultQualifiers = bean.getQualifiers().equals(Set.of(Default.Literal.INSTANCE, Any.Literal.INSTANCE));
         if (defaultQualifiers) {
             isCSProduced |= types.contains(ContextService.class);
             isMTFProduced |= types.contains(ManagedThreadFactory.class);

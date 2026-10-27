@@ -17,7 +17,7 @@ package org.openntf.xsp.jakarta.validation;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -51,7 +51,7 @@ public enum XPagesValidationUtil {
 	public static ValidatorFactory constructXPagesValidatorFactory() {
 		return AccessController.doPrivileged((PrivilegedAction<ValidatorFactory>)() ->
 			Validation.byDefaultProvider()
-				.providerResolver(() -> Arrays.asList(new HibernateValidator()))
+				.providerResolver(() -> List.of(new HibernateValidator()))
 				.configure()
 				.messageInterpolator(new XSPLocaleResourceBundleMessageInterpolator())
 				.buildValidatorFactory()
@@ -79,7 +79,7 @@ public enum XPagesValidationUtil {
 	public static Validator constructGenericValidator() {
 		return AccessController.doPrivileged((PrivilegedAction<Validator>)() ->
 			Validation.byDefaultProvider()
-				.providerResolver(() -> Arrays.asList(new HibernateValidator()))
+				.providerResolver(() -> List.of(new HibernateValidator()))
 				.configure()
 				.buildValidatorFactory().getValidator()
 		);

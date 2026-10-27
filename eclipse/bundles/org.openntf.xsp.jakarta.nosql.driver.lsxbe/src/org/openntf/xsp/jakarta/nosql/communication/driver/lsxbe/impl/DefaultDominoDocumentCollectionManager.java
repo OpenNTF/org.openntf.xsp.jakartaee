@@ -365,7 +365,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					if(keys instanceof Vector v) {
 						vecKeys = v;
 					} else {
-						vecKeys = new Vector<>(Arrays.asList(keys));
+						vecKeys = new Vector<>(List.of(keys));
 					}
 					ViewEntry entry = view.getEntryByKey(vecKeys, viewQuery.isExact());
 					if(entry == null) {
@@ -424,7 +424,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 				if(keys instanceof Vector v) {
 					vecKeys = v;
 				} else {
-					vecKeys = new Vector<>(Arrays.asList(keys));
+					vecKeys = new Vector<>(List.of(keys));
 				}
 				lotus.domino.Document doc = view.getDocumentByKey(vecKeys, viewQuery.isExact());
 				if(doc == null) {
@@ -943,7 +943,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 					if(keys instanceof Vector v) {
 						vecKeys = v;
 					} else {
-						vecKeys = new Vector<>(Arrays.asList(keys));
+						vecKeys = new Vector<>(List.of(keys));
 					}
 					nav = view.createViewNavFromKey(vecKeys, viewQuery.isExact());
 					didKey = true;

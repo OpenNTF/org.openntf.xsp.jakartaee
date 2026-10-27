@@ -25,9 +25,7 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,10 +33,6 @@ import java.util.Set;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
-
-import com.ibm.commons.util.PathUtil;
-import com.ibm.commons.util.StringUtil;
-import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.osgi.util.ManifestElement;
@@ -50,6 +44,10 @@ import org.openntf.xsp.jakartaee.util.ModuleUtil;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
+
+import com.ibm.commons.util.PathUtil;
+import com.ibm.commons.util.StringUtil;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
 
 import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.spi.CDI;
@@ -97,7 +95,7 @@ public class FacesServletFactory extends MappingBasedServletFactory {
 
 	@Override
 	public Set<String> getExtensions() {
-		return new HashSet<>(Arrays.asList(".xhtml", ".jsf")); //$NON-NLS-1$ //$NON-NLS-2$
+		return Set.of(".xhtml", ".jsf"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
