@@ -797,7 +797,7 @@ Export-Package:        *;version="${version}";-noimport:=true
                 <dependency>
                     <groupId>jakarta.data</groupId>
                     <artifactId>jakarta.data-api</artifactId>
-                    <version>1.0.1</version>
+                    <version>1.0.2</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
@@ -833,7 +833,7 @@ Export-Package:        *;version="${version}";-noimport:=true
                 <dependency>
                     <groupId>org.eclipse.jnosql.communication</groupId>
                     <artifactId>jnosql-communication-core</artifactId>
-                    <version>1.1.17</version>
+                    <version>1.1.20</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
@@ -851,7 +851,7 @@ DynamicImport-Package: jakarta.*,org.glassfish.hk2.osgiresourcelocator
                 <dependency>
                     <groupId>org.eclipse.jnosql.communication</groupId>
                     <artifactId>jnosql-communication-query</artifactId>
-                    <version>1.1.17</version>
+                    <version>1.1.20</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
@@ -869,7 +869,7 @@ DynamicImport-Package: jakarta.*,org.glassfish.hk2.osgiresourcelocator
                 <dependency>
                     <groupId>org.eclipse.jnosql.communication</groupId>
                     <artifactId>jnosql-communication-semistructured</artifactId>
-                    <version>1.1.17</version>
+                    <version>1.1.20</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
@@ -887,7 +887,7 @@ DynamicImport-Package: jakarta.*,org.glassfish.hk2.osgiresourcelocator
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
                     <artifactId>jnosql-mapping-api-core</artifactId>
-                    <version>1.1.17</version>
+                    <version>1.1.20</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
@@ -911,7 +911,7 @@ Eclipse-ExtensibleAPI: true
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
                     <artifactId>jnosql-mapping-core</artifactId>
-                    <version>1.1.17</version>
+                    <version>1.1.20</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
@@ -930,7 +930,7 @@ Fragment-Host:         org.openntf.org.eclipse.jnosql.mapping.api.core
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
                     <artifactId>jnosql-mapping-reflection</artifactId>
-                    <version>1.1.17</version>
+                    <version>1.1.20</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
@@ -949,7 +949,7 @@ DynamicImport-Package: org.jboss.weld.*,jakarta.*
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
                     <artifactId>jnosql-mapping-semistructured</artifactId>
-                    <version>1.1.17</version>
+                    <version>1.1.20</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
@@ -967,7 +967,7 @@ DynamicImport-Package: org.jboss.weld.*,jakarta.*
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
                     <artifactId>jnosql-mapping-document</artifactId>
-                    <version>1.1.17</version>
+                    <version>1.1.20</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
@@ -985,7 +985,7 @@ DynamicImport-Package: org.jboss.weld.*,jakarta.*
                 <dependency>
                     <groupId>org.eclipse.jnosql.mapping</groupId>
                     <artifactId>jnosql-mapping-validation</artifactId>
-                    <version>1.1.17</version>
+                    <version>1.1.20</version>
                     <type>jar</type>
                 </dependency>
             </dependencies>
