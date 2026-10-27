@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -55,7 +55,7 @@ public class FacesModuleClassLoaderExtender implements ModuleClassLoaderExtender
 		private final Collection<ClassLoader> facesCl;
 		
 		public FacesBlockingExtension() {
-			this.facesCl = Arrays.asList(FacesContext.class.getClassLoader(), getClass().getClassLoader());
+			this.facesCl = List.of(FacesContext.class.getClassLoader(), getClass().getClassLoader());
 		}
 
 		@Override

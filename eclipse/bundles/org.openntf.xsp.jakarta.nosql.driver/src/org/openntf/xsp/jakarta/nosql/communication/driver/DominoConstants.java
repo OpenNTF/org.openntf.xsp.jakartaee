@@ -15,9 +15,9 @@
  */
 package org.openntf.xsp.jakarta.nosql.communication.driver;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -212,7 +212,7 @@ public enum DominoConstants {
 	 * Options used when converting composite data to HTML. This list is based
 	 * on the options used by XPages.
 	 */
-	public static final Vector<String> HTML_CONVERSION_OPTIONS = new Vector<>(Arrays.asList(
+	public static final Vector<String> HTML_CONVERSION_OPTIONS = new Vector<>(List.of(
 		"AutoClass=2", //$NON-NLS-1$
 		"RowAtATimeTableAlt=2", //$NON-NLS-1$
 		"SectionAlt=1", //$NON-NLS-1$
@@ -247,7 +247,7 @@ public enum DominoConstants {
 	public static final Collection<String> SKIP_WRITING_FIELDS;
 	static {
 		Set<String> systemFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-		systemFields.addAll(Arrays.asList(
+		systemFields.addAll(List.of(
 			FIELD_ID,
 			FIELD_CDATE,
 			FIELD_MDATE,

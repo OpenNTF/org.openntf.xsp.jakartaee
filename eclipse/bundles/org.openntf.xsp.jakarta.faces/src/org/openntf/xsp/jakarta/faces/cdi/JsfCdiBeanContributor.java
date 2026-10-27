@@ -15,9 +15,9 @@
  */
 package org.openntf.xsp.jakarta.faces.cdi;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -40,7 +40,7 @@ public class JsfCdiBeanContributor implements CDIClassContributor {
 	@Override
 	public Collection<Extension> getExtensions() {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
-			return Arrays.asList(
+			return List.of(
 				new org.apache.myfaces.cdi.FacesScopeExtension(),
 				new org.apache.myfaces.cdi.FacesArtifactProducerExtension(),
 				new org.apache.myfaces.cdi.FacesApplicationArtifactHolderExtension(),

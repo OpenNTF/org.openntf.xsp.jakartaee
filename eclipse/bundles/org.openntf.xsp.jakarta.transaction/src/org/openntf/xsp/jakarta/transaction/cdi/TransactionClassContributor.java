@@ -15,8 +15,8 @@
  */
 package org.openntf.xsp.jakarta.transaction.cdi;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 import org.openntf.xsp.jakarta.transaction.DominoUserTransaction;
@@ -32,7 +32,7 @@ public class TransactionClassContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		return Arrays.asList(
+		return List.of(
 			DominoTransactionProducer.class,
 			DominoUserTransaction.class,
 			DominoTransactionManager.class
@@ -41,7 +41,7 @@ public class TransactionClassContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Extension> getExtensions() {
-		return Arrays.asList(
+		return List.of(
 			new TransactionExtension()
 		);
 	}

@@ -17,8 +17,6 @@ package org.openntf.xsp.jakarta.concurrency;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +54,7 @@ public abstract class AbstractServletConcurrencyContainer {
 	public static final String PROP_QUEUECAPACITY = PROP_PREFIX + ".queueCapacity"; //$NON-NLS-1$
 	public static final String PROP_REJECTPOLICY = PROP_PREFIX + ".rejectPolicy"; //$NON-NLS-1$
 
-	protected static final List<String> CONFIG_PROPS = Collections.unmodifiableList(Arrays.asList(
+	protected static final List<String> CONFIG_PROPS = List.of(
 		PROP_HUNGTASKTHRESHOLD,
 		PROP_LONGRUNNINGTASKS,
 		PROP_COREPOOLSIZE,
@@ -65,7 +63,7 @@ public abstract class AbstractServletConcurrencyContainer {
 		PROP_THREADLIFETIMESECONDS,
 		PROP_QUEUECAPACITY,
 		PROP_REJECTPOLICY
-	));
+	);
 
 	protected abstract Optional<ServletContext> getServletContext();
 

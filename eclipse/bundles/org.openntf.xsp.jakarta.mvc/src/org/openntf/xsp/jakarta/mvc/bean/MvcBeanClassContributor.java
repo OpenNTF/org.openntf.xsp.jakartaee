@@ -15,8 +15,8 @@
  */
 package org.openntf.xsp.jakarta.mvc.bean;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.krazo.cdi.KrazoCdiExtension;
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
@@ -30,7 +30,7 @@ public class MvcBeanClassContributor implements CDIClassContributor {
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
-			return Arrays.asList(
+			return List.of(
 				DelegatingExceptionViewEngine.class
 			);
 		} else {
@@ -41,7 +41,7 @@ public class MvcBeanClassContributor implements CDIClassContributor {
 	@Override
 	public Collection<Extension> getExtensions() {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_UI)) {
-			return Arrays.asList(new KrazoCdiExtension());
+			return List.of(new KrazoCdiExtension());
 		} else {
 			return null;
 		}

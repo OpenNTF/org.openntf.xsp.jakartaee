@@ -15,8 +15,8 @@
  */
 package org.openntf.xsp.jakarta.rest.security;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.openntf.xsp.jakarta.rest.RestClassContributor;
 
@@ -24,7 +24,7 @@ public class SecurityContributor implements RestClassContributor {
 
 	@Override
 	public Collection<Class<?>> getClasses() {
-		return Arrays.asList(
+		return List.of(
 			SecurityRequestFilter.class,
 			RolesAllowedFilter.class
 		);

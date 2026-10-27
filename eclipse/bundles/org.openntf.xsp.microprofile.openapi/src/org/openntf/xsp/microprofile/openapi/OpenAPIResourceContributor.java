@@ -15,9 +15,8 @@
  */
 package org.openntf.xsp.microprofile.openapi;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 import org.openntf.xsp.jakarta.rest.RestClassContributor;
 import org.openntf.xsp.jakartaee.util.LibraryUtil;
@@ -27,13 +26,13 @@ public class OpenAPIResourceContributor implements RestClassContributor {
 	@Override
 	public Collection<Class<?>> getClasses() {
 		if(LibraryUtil.isLibraryActive(LibraryUtil.LIBRARY_MICROPROFILE)) {
-			return Arrays.asList(
+			return List.of(
 				OpenAPIResource.class,
 				OpenAPIJSONResource.class,
 				OpenAPIYAMLResource.class
 			);
 		} else {
-			return Collections.emptySet();
+			return List.of();
 		}
 	}
 

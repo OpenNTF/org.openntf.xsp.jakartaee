@@ -15,9 +15,8 @@
  */
 package org.openntf.xsp.jakarta.cdi.concurrency;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 
 import org.openntf.xsp.jakarta.cdi.discovery.CDIClassContributor;
 
@@ -31,14 +30,14 @@ public class ConcurrencyBeanClassContributor implements CDIClassContributor {
 
 	@Override
 	public Collection<Class<?>> getBeanClasses() {
-		return Arrays.asList(ConcurrencyBean.class);
+		return Set.of(ConcurrencyBean.class);
 	}
 
 	@Override
 	public Collection<Extension> getExtensions() {
 		// TODO investigate replacing this with the stock version
 		// https://github.com/OpenNTF/org.openntf.xsp.jakartaee/issues/708
-		return Collections.singleton(new DominoConcurrentCDIExtension());
+		return Set.of(new DominoConcurrentCDIExtension());
 	}
 
 }
