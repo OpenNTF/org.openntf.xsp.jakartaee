@@ -144,8 +144,8 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<target>
-						<file>../../../osgi-deps.target</file>
-						<file>../../../xsp-deps.target</file>
+						<file>../../osgi-deps.target</file>
+						<file>../../xsp-deps.target</file>
 					</target>
 					<dependency-resolution>
 						<extraRequirements>
