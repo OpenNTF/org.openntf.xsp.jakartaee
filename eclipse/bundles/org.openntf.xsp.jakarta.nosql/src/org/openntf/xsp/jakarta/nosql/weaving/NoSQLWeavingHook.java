@@ -38,7 +38,8 @@ import javassist.LoaderClassPath;
  * This {@link WeavingHook} implementation listens for attempts to load
  * {@code jakarta.nosql.ValueReaderDecorator} and, when found, replaces the
  * implementation methods with a version that dynamically looks up providers
- * at runtime instead of using a global singleton value.
+ * at runtime using our discovery mechanisms, since apps may not have the
+ * META-INF/services on the classpath.
  *
  * @author Jesse Gallagher
  * @since 2.5.0
