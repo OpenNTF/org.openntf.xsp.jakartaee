@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
@@ -117,6 +118,10 @@ public class RestClientExample {
 		@Path("/")
 		@GET
 		public String getHomePage();
+		
+		@Path("/")
+		@GET
+		public CompletionStage<String> getHomePageStage();
 	}
 	
 	@Inject
@@ -233,5 +238,12 @@ public class RestClientExample {
 	@Produces(MediaType.TEXT_HTML)
 	public String getGoogleHomePage() {
 		return googleHomePage.getHomePage();
+	}
+	
+	@Path("googleHomePageStage")
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	public String getGoogleHomePageStage() throws InterruptedException, ExecutionException {
+		return googleHomePage.getHomePageStage().toCompletableFuture().get();
 	}
 }

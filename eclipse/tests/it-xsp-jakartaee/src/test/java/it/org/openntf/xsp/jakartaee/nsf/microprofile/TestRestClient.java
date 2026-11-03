@@ -182,4 +182,17 @@ public class TestRestClient extends AbstractWebClientTest {
 		String html = response.readEntity(String.class);
 		assertTrue(html.contains("I'm Feeling Lucky"), () -> "Received unexpected response " + html);
 	}
+
+	@ParameterizedTest
+	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
+	@Disabled("Useful to see the 'Cannot create a session from an agent' output, but the remote network call is time-consuming")
+	public void testGoogleHomePageStage(TestDatabase db) {
+		Client client = getAnonymousClient();
+		WebTarget target = client.target(getRestUrl(null, db) + "/restClient/googleHomePageStage");
+		Response response = target.request().get();
+		checkResponse(200, response);
+		
+		String html = response.readEntity(String.class);
+		assertTrue(html.contains("I'm Feeling Lucky"), () -> "Received unexpected response " + html);
+	}
 }
