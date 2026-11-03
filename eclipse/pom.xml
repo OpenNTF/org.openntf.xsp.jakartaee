@@ -293,6 +293,7 @@
 					<version>${tycho-version}</version>
 					<configuration>
 						<mavenIgnoredVersions>.*[-_\\.]?(alpha|beta|Beta|rc|RC|M|MR|b)[-_\\.]?[0-9]*</mavenIgnoredVersions>
+						<mavenRulesUri>target-version-ruleset.xml</mavenRulesUri>
 					</configuration>
 				</plugin>
 			

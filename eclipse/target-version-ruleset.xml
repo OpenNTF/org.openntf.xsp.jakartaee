@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+	This file is used by tycho-version-bump-plugin to control dependency versions
+	that should be specifically ignored for various reasons.
+-->
+<ruleset xmlns="https://www.mojohaus.org/VERSIONS/RULE/3.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://www.mojohaus.org/VERSIONS/RULE/3.0.0 https://www.mojohaus.org/versions/versions-model/xsd/rule-3.0.0.xsd">
+	<rules>
+		<!--
+			2026-11-03: This version changes the behavior of CorsFilter in a breaking
+			way. While this may remain, it's worth ignoring it for now to see if they
+			revert the change upstream.
+		-->
+		<rule groupId="org.jboss.resteasy" artifactId="resteasy-*">
+			<ignoreVersions>
+				<ignoreVersion>7.0.5.Final</ignoreVersion>
+			</ignoreVersions>
+		</rule>
+		<!--
+			2026-11-03: Yasson 3.0.5 cannot be resolved by Eclipse.
+		-->
+		<rule groupId="org.eclipse" artifactId="yasson">
+			<ignoreVersions>
+				<ignoreVersion>3.0.5</ignoreVersion>
+			</ignoreVersions>
+		</rule>
+		<!--
+			We want this commons-io version specifically for Verse compatibility.
+		-->
+		<rule groupId="commons-io" artifactId="commons-io">
+			<ignoreVersions>
+				<ignoreVersion xsi:type="regex">.*</ignoreVersion>
+			</ignoreVersions>
+		</rule>
+	</rules>
+</ruleset>
