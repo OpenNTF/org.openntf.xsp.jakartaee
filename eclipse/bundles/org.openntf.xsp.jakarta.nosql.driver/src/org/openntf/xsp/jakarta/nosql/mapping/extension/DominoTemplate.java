@@ -51,7 +51,28 @@ public interface DominoTemplate extends DocumentTemplate {
 	 * @return a {@link Stream} of entities
 	 * @sine 2.6.0
 	 */
-	<T> Stream<T> viewEntryQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
+	default <T> Stream<T> viewEntryQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
+		return viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, false, viewQuery, singleResult);
+	}
+
+	/**
+	 * Reads entries from the provided view, restricted to the named category.
+	 *
+	 * @param <T> the class of object returned
+	 * @param entityName the effective entity name returned by this type
+	 * @param viewName the name of the view to query
+	 * @param pagination the pagination settings to use, or {@code null} to skip pagination
+	 * @param sorts the sorting settings to use, or {@code null} to use existing sorting
+	 * @param maxLevel the maximum view entry level to process
+	 * @param docsOnly whether to process only document entries
+     * @param processSpecialText sets whether special text in column values should be processed
+	 * @param viewQuery a {@link ViewQuery} object defining the behavior of a key-based view lookup,
+	 *                 or {@code null} to not query by key
+	 * @param singleResult whether a query performed by {@link ViewQuery} should return a single value
+	 * @return a {@link Stream} of entities
+	 * @sine 3.8.0
+	 */
+	<T> Stream<T> viewEntryQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, boolean docsOnly, boolean processSpecialText, ViewQuery viewQuery, boolean singleResult);
 
 	/**
 	 * Reads documents from the provided view, restricted to the named category.

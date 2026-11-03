@@ -119,6 +119,14 @@ public class Person {
 	@Column("Email")
 	@MvcBinding @FormParam("email")
 	private String email;
+	
+	@Column("$DocNumber") private String docNumber;
+	@Column("$DocChildren") private String docChildren;
+	@Column("$DocDescendants") private String docDescendants;
+	@Column("$DocLevel") private String docLevel;
+	@Column("$DocParentNumber") private String docParentNumber;
+	@Column("$DocSiblings") private String docSiblings;
+	@Column("$IsCategory") private String isCategory;
 
 	public String getUnid() {
 		return unid;
@@ -248,5 +256,48 @@ public class Person {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	
+	public String getDocNumber() {
+		return docNumber;
+	}
+	public void setDocNumber(String docNumber) {
+		this.docNumber = docNumber;
+	}
+	public String getDocChildren() {
+		return docChildren;
+	}
+	public void setDocChildren(String docChildren) {
+		this.docChildren = docChildren;
+	}
+	public String getDocDescendants() {
+		return docDescendants;
+	}
+	public void setDocDescendants(String docDescendants) {
+		this.docDescendants = docDescendants;
+	}
+	public String getDocLevel() {
+		return docLevel;
+	}
+	public void setDocLevel(String docLevel) {
+		this.docLevel = docLevel;
+	}
+	public String getDocParentNumber() {
+		return docParentNumber;
+	}
+	public void setDocParentNumber(String docParentNumber) {
+		this.docParentNumber = docParentNumber;
+	}
+	public String getDocSiblings() {
+		return docSiblings;
+	}
+	public void setDocSiblings(String docSiblings) {
+		this.docSiblings = docSiblings;
+	}
+	public String getIsCategory() {
+		return isCategory;
+	}
+	public void setIsCategory(String isCategory) {
+		this.isCategory = isCategory;
 	}
 }

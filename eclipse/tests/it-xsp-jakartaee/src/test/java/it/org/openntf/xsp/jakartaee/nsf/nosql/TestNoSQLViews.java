@@ -15,6 +15,7 @@
  */
 package it.org.openntf.xsp.jakartaee.nsf.nosql;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -60,6 +61,18 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 				);
 		}
 	}
+	public static class EnumAndSpecialTextProvider implements ArgumentsProvider {
+		@Override
+		public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+			
+			return new MainAndModuleProvider.EnumOnly().provideArguments(context)
+				.map(args -> args.get())
+				.flatMap(db ->
+					Stream.of("byViewKeySpecialText", "byViewKeySpecialTextProgrammatic")
+						.map(page -> Arguments.of(db[0],  page))
+				);
+		}
+	}
 	
 	@ParameterizedTest
 	@ArgumentsSource(MainAndModuleProvider.EnumOnly.class)
@@ -82,6 +95,67 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 		JsonObject result = Json.createReader(new StringReader(json)).readObject();
 		assertEquals(person.getString("unid"), result.getString("unid"));
 		assertEquals(person.getString("lastName"), result.getString("lastName"));
+	}
+	
+	@ParameterizedTest
+	@ArgumentsSource(EnumAndSpecialTextProvider.class)
+	public void testQueryByKeySpecialText(TestDatabase db, String endpoint) throws UnsupportedEncodingException {
+		Client client = getAdminClient();
+		
+		JsonObject person = createTwoPersonDocuments(db, false);
+		
+		// Find by the last name of the second person
+		String lastName = person.getString("lastName");
+		assertNotNull(lastName);
+		WebTarget queryTarget = client.target(getRestUrl(null, db) + "/nosql/" + endpoint + "/" + URLEncoder.encode(lastName, "UTF-8"));
+		
+		Response response = queryTarget.request()
+			.accept(MediaType.APPLICATION_JSON_TYPE)
+			.get();
+		checkResponse(200, response);
+		String json = response.readEntity(String.class);
+
+		JsonObject result = Json.createReader(new StringReader(json)).readObject();
+		assertEquals(person.getString("unid"), result.getString("unid"));
+		assertEquals(person.getString("lastName"), result.getString("lastName"));
+		{
+			String val = result.getString("docNumber", null);
+			assertNotNull(val, () -> "Missing docNumber in " + json);
+			String numString = val.substring("I am doc number ".length());
+			assertDoesNotThrow(() -> Integer.parseInt(numString));
+		}
+		{
+			String val = result.getString("docChildren", null);
+			assertNotNull(val, () -> "Missing docChildren in " + json);
+			String numString = val.substring("Children: ".length());
+			assertDoesNotThrow(() -> Integer.parseInt(numString));
+		}
+		{
+			String val = result.getString("docDescendants", null);
+			assertNotNull(val, () -> "Missing docDescendants in " + json);
+			assertEquals("Descendants: None", val);
+		}
+		{
+			String val = result.getString("docLevel", null);
+			assertNotNull(val, () -> "Missing docLevel in " + json);
+			assertEquals("Level: 1", val);
+		}
+		{
+			String val = result.getString("docParentNumber", null);
+			assertNotNull(val, () -> "Missing docParentNumber in " + json);
+			assertEquals("Parent: ", val);
+		}
+		{
+			String val = result.getString("docSiblings", null);
+			assertNotNull(val, () -> "Missing docSiblings in " + json);
+			String numString = val.substring("Siblings: ".length());
+			assertDoesNotThrow(() -> Integer.parseInt(numString));
+		}
+		{
+			String val = result.getString("isCategory", null);
+			assertNotNull(val, () -> "Missing isCategory in " + json);
+			assertEquals("Category? nah", val);
+		}
 	}
 
 	@ParameterizedTest
@@ -361,7 +435,7 @@ public class TestNoSQLViews extends AbstractWebClientTest {
 			assertEquals("SELECT Form=\"Person\"", view.getString("selectionFormula"));
 			
 			JsonArray columns = view.getJsonArray("columnInfo");
-			assertEquals(8, columns.size());
+			assertEquals(15, columns.size());
 			{
 				JsonObject lastName = columns.getJsonObject(0);
 				assertEquals("LastName", lastName.getString("title"));

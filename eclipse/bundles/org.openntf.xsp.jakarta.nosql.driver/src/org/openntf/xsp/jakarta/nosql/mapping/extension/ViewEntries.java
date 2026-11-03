@@ -52,4 +52,17 @@ public @interface ViewEntries {
 	 * @since 2.7.0
 	 */
 	boolean documentsOnly() default false;
+	
+	/**
+	 * Sets whether to process special text in view column data.
+	 * 
+	 * <p>This processing adds overhead and so should only be enabled if needed.</p>
+	 * 
+	 * <p>Additionally, view entries will still only include data from columns that are
+	 * included in the column values array. Columns that are considered static will not
+	 * be included.</p> 
+	 * 
+	 * @since 3.8.0
+	 */
+	boolean processSpecialText() default false;
 }

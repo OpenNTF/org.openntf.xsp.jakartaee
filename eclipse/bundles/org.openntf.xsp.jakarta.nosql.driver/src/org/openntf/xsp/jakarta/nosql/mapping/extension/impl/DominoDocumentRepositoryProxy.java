@@ -68,6 +68,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 	private static final Method getByNoteId;
 	private static final Method getByNoteIdInt;
 	private static final Method readViewEntries;
+	private static final Method readViewEntries2;
 	private static final Method readViewDocuments;
 	private static final Method getViewInfo;
 	private static final Method findNamedDocument;
@@ -89,6 +90,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 			getByNoteId = DominoRepository.class.getDeclaredMethod("findByNoteId", String.class); //$NON-NLS-1$
 			getByNoteIdInt = DominoRepository.class.getDeclaredMethod("findByNoteId", int.class); //$NON-NLS-1$
 			readViewEntries = DominoRepository.class.getDeclaredMethod("readViewEntries", String.class, int.class, boolean.class, ViewQuery.class, Sort.class, PageRequest.class); //$NON-NLS-1$
+			readViewEntries2 = DominoRepository.class.getDeclaredMethod("readViewEntries", String.class, int.class, boolean.class, boolean.class, ViewQuery.class, Sort.class, PageRequest.class); //$NON-NLS-1$
 			readViewDocuments = DominoRepository.class.getDeclaredMethod("readViewDocuments", String.class, int.class, boolean.class, ViewQuery.class, Sort.class, PageRequest.class); //$NON-NLS-1$
 			getViewInfo = DominoRepository.class.getDeclaredMethod("getViewInfo"); //$NON-NLS-1$
 			findNamedDocument = DominoRepository.class.getDeclaredMethod("findNamedDocument", String.class, String.class); //$NON-NLS-1$
@@ -144,7 +146,7 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 
 			Class<?> returnType = method.getReturnType();
 			boolean singleResult = !(Collection.class.isAssignableFrom(returnType) || Stream.class.isAssignableFrom(returnType));
-			Object result = template.viewEntryQuery(entityName, viewEntries.value(), pagination, sorts, viewEntries.maxLevel(), viewEntries.documentsOnly(), viewQuery, singleResult);
+			Object result = template.viewEntryQuery(entityName, viewEntries.value(), pagination, sorts, viewEntries.maxLevel(), viewEntries.documentsOnly(), viewEntries.processSpecialText(), viewQuery, singleResult);
 			return convert(result, method);
 		}
 		if(method.equals(readViewEntries)) {
@@ -160,6 +162,22 @@ public class DominoDocumentRepositoryProxy<T, K> extends AbstractSemiStructuredR
 				entityName = typeClass.getSimpleName();
 			}
 			Object result = template.viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, documentsOnly, viewQuery, false);
+			return convert(result, method);
+		}
+		if(method.equals(readViewEntries2)) {
+			String viewName = (String)args[0];
+			int maxLevel = (int)args[1];
+			boolean documentsOnly = (boolean)args[2];
+			boolean processSpecialText = (boolean)args[3];
+			ViewQuery viewQuery = (ViewQuery)args[4];
+			Sort<?> sorts = (Sort<?>)args[5];
+			PageRequest pagination = (PageRequest)args[6];
+
+			String entityName = typeClass.getAnnotation(Entity.class).value();
+			if(entityName == null || entityName.isEmpty()) {
+				entityName = typeClass.getSimpleName();
+			}
+			Object result = template.viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, documentsOnly, processSpecialText, viewQuery, false);
 			return convert(result, method);
 		}
 

@@ -123,6 +123,26 @@ public interface DominoRepository<T, ID> extends NoSQLRepository<T, ID> {
     Stream<T> readViewEntries(String viewName, int maxLevel, boolean documentsOnly, ViewQuery viewQuery, Sort<T> sorts, PageRequest pagination);
 
     /**
+     * Retrieves view entries from a named view or folder. This is similar
+     * to using the {@link ViewEntries} annotation but allows for the use
+     * of arbitrary view names.
+     *
+     * @param viewName the name of the view to read
+     * @param maxLevel the maximum entry level to process
+     * @param documentsOnly sets whether view reading should only process document-type entries
+     * @param processSpecialText sets whether special text in column values should be processed
+	 * @param viewQuery {@link ViewQuery} options to apply to reading the view;
+	 *        may be {@code null}
+	 * @param sorts {@link Sorts} values to apply to reading the view; may be
+	 *        {@code null}
+	 * @param pagination {@link Page} rules to apply to reading the view;
+	 *        may be {@code null}
+     * @return a {@link Stream} of {@code <T>} entities
+     * @since 3.8.0
+     */
+    Stream<T> readViewEntries(String viewName, int maxLevel, boolean documentsOnly, boolean processSpecialText, ViewQuery viewQuery, Sort<T> sorts, PageRequest pagination);
+
+    /**
      * Retrieves documents from a named view or folder. This is similar
      * to using the {@link ViewDocuments} annotation but allows for the use
      * of arbitrary view names.
