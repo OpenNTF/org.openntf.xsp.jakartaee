@@ -58,4 +58,7 @@ public interface PersonRepository extends DominoRepository<Person, String> {
 	
 	@ViewDocuments(value=VIEW_PERSONS_CAT_DUP, distinct=true)
 	Stream<Person> findCategorizedDistinct(ViewQuery viewQuery);
+	
+	@ViewEntries(value=VIEW_PERSONS, processSpecialText = true)
+	Optional<Person> findByKeySpecialText(ViewQuery viewQuery);
 }

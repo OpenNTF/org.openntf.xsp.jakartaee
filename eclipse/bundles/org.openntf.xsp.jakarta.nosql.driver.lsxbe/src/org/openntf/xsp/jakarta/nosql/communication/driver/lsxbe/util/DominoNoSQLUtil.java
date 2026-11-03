@@ -17,6 +17,8 @@ package org.openntf.xsp.jakarta.nosql.communication.driver.lsxbe.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,6 +52,7 @@ import lotus.domino.DateRange;
 import lotus.domino.DateTime;
 import lotus.domino.NotesException;
 import lotus.domino.Session;
+import lotus.domino.ViewEntry;
 
 /**
  * Contains utility methods for working with files
@@ -59,6 +62,7 @@ import lotus.domino.Session;
  */
 public enum DominoNoSQLUtil {
 	;
+	private static final Logger log = System.getLogger(DominoNoSQLUtil.class.getPackageName());
 
 	/**
 	 * Optional setting for a directory to be returned by {@link #getTempDirectory()} instead
@@ -73,6 +77,15 @@ public enum DominoNoSQLUtil {
 	 * @since 3.1.0
 	 */
 	private static Path OVERRIDE_QRP_DIR;
+	
+	/**
+	 * The character used to indicate the start of a special-text block
+	 */
+	public static final char SPECIAL_TEXT_START = (char) 127;
+	/**
+	 * The character used to indicate the end of a special-text block
+	 */
+	public static final char SPECIAL_TEXT_END = (char) 160;
 
 	/**
 	 * Returns an appropriate temp directory for the system. On Windows, this is
@@ -370,5 +383,262 @@ public enum DominoNoSQLUtil {
 				iterable.forEach(DominoNoSQLUtil::recycle);
 			}
 		}
+	}
+	
+	public static Object specialTextDecode(final Object columnValue, final ViewEntry viewEntry) throws NotesException {
+		if (!(columnValue instanceof String)) {
+			return columnValue;
+		}
+		String result = (String) columnValue;
+
+		// First, find the start and end of the special text
+		int start_pos = result.indexOf(SPECIAL_TEXT_START);
+		if (start_pos < 0) {
+			return result;
+		}
+		int end_pos = result.indexOf(SPECIAL_TEXT_END);
+		if (end_pos < 0) {
+			return result;
+		}
+		log.log(Level.TRACE, () -> MessageFormat.format("Performing specialTextDecode for value \"{0}\"", columnValue)); //$NON-NLS-1$
+
+		// This is just in case things get out of hand - no need to have broken code
+		// result in an infinite loop on the server
+		int loopStopper = 1;
+		while (start_pos > -1 && end_pos > start_pos && loopStopper < 100) {
+			loopStopper++;
+
+			// "working" holds the text we're going to replace, minus the delimiters
+			// "result" holds the text we're going to replace working and the delimiters
+			// with
+			String working = result.substring(start_pos + 1, end_pos);
+			String midResult = ""; //$NON-NLS-1$
+			String[] choices;
+			int parameterCount;
+
+			switch (working.charAt(0)) {
+				case 'C':
+					// @DocChildren
+					parameterCount = Integer.parseInt(working.substring(1, 2));
+					int childCount = viewEntry.getChildCount();
+					switch (parameterCount) {
+						case 0:
+							midResult = Integer.toString(childCount);
+							break;
+						case 1:
+							midResult = strRight(working, "=").replace("%", Integer.toString(childCount)); //$NON-NLS-1$ //$NON-NLS-2$
+							break;
+						case 2:
+							choices = parseChoices(working);
+
+							if (childCount == 0) {
+								midResult = choices[0].replace("%", "0"); //$NON-NLS-1$ //$NON-NLS-2$
+							} else {
+								midResult = choices[1].replace("%", Integer.toString(childCount)); //$NON-NLS-1$
+							}
+
+							break;
+						case 3:
+							choices = parseChoices(working);
+
+							if (childCount == 0) {
+								midResult = choices[0].replace("%", "0"); //$NON-NLS-1$ //$NON-NLS-2$
+							} else if (childCount == 1) {
+								midResult = choices[1].replace("%", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+							} else {
+								midResult = choices[2].replace("%", Integer.toString(childCount)); //$NON-NLS-1$
+							}
+
+							break;
+					}
+					break;
+				case 'D':
+					// @DocDescendants
+					parameterCount = Integer.parseInt(working.substring(1, 2));
+					int descendantCount = viewEntry.getDescendantCount();
+					switch (parameterCount) {
+						case 0:
+							midResult = Integer.toString(descendantCount);
+							break;
+						case 1:
+							midResult = strRight(working, "=").replace("%", Integer.toString(descendantCount)); //$NON-NLS-1$ //$NON-NLS-2$
+							break;
+						case 2:
+							choices = parseChoices(working);
+
+							if (descendantCount == 0) {
+								midResult = choices[0].replace("%", "0"); //$NON-NLS-1$ //$NON-NLS-2$
+							} else {
+								midResult = choices[1].replace("%", Integer.toString(descendantCount)); //$NON-NLS-1$
+							}
+
+							break;
+						case 3:
+							choices = parseChoices(working);
+
+							if (descendantCount == 0) {
+								midResult = choices[0].replace("%", "0"); //$NON-NLS-1$ //$NON-NLS-2$
+							} else if (descendantCount == 1) {
+								midResult = choices[1].replace("%", "1"); //$NON-NLS-1$ //$NON-NLS-2$
+							} else {
+								midResult = choices[2].replace("%", Integer.toString(descendantCount)); //$NON-NLS-1$
+							}
+
+							break;
+					}
+					break;
+				case 'H':
+					// @DocLevel
+					midResult = Integer.toString(viewEntry.getIndentLevel() + 1);
+					break;
+				case 'A':
+					// @DocNumber
+					/*
+					 * Three forms:
+					 * 
+					 * @DocNumber - all levels separated by "."
+					 * 
+					 * @DocNumber("") - only the least significant level
+					 * 
+					 * @DocNumber(char) - all levels separated by char. Note: the formula accepts a
+					 * multi-character string, but
+					 * displays it as just the string, not the doc level
+					 */
+					parameterCount = Integer.parseInt(working.substring(1, 2));
+					switch (parameterCount) {
+						case 0:
+							midResult = viewEntry.getPosition('.');
+							break;
+						case 1:
+							String delimiter = strRight(working, "="); //$NON-NLS-1$
+							if (delimiter.length() == 0) {
+								midResult = strRightBack(viewEntry.getPosition('.'), "."); //$NON-NLS-1$
+							} else if (delimiter.length() > 1) {
+								// Mimic formula's weird behavior for multi-character strings
+								midResult = delimiter;
+							} else {
+								midResult = viewEntry.getPosition(delimiter.charAt(0));
+							}
+							break;
+					}
+					break;
+				case 'J':
+					// @DocParentNumber
+					// Same as above, just for the parent, so do the same thing and chomp off the
+					// last bit
+					if (viewEntry.getIndentLevel() == 0) {
+						midResult = ""; //$NON-NLS-1$
+					} else {
+						parameterCount = Integer.parseInt(working.substring(1, 2));
+						switch (parameterCount) {
+							case 0:
+								midResult = strLeftBack(viewEntry.getPosition('.'), "."); //$NON-NLS-1$
+								break;
+							case 1:
+								String delimiter = strRight(working, "="); //$NON-NLS-1$
+								if (delimiter.length() == 0) {
+									midResult = strRightBack(strLeftBack(viewEntry.getPosition('.'), "."), "."); //$NON-NLS-1$
+								} else if (delimiter.length() > 1) {
+									// Mimic formula's weird behavior for multi-character strings
+									midResult = delimiter;
+								} else {
+									midResult = strLeftBack(viewEntry.getPosition(delimiter.charAt(0)), delimiter);
+								}
+								break;
+						}
+					}
+					break;
+				case 'B':
+					// @DocSiblings
+					midResult = Integer.toString(viewEntry.getSiblingCount());
+					break;
+				case 'I':
+					// @IsCategory
+					/*
+					 * Three forms:
+					 * 
+					 * @IsCategory - "*" if it's a category, "" otherwise
+					 * 
+					 * @IsCategory(string) - string if it's a category, "" otherwise
+					 * 
+					 * @IsCategory(string1, string 2) - string1 if it's a category, string2
+					 * otherwise
+					 */
+					parameterCount = Integer.parseInt(working.substring(1, 2));
+					switch (parameterCount) {
+						case 0:
+							midResult = viewEntry.isCategory() ? "*" : ""; //$NON-NLS-1$ //$NON-NLS-2$
+							break;
+						case 1:
+							midResult = viewEntry.isCategory() ? strRight(working, "=") : ""; //$NON-NLS-1$ //$NON-NLS-2$
+							break;
+						case 2:
+							choices = parseChoices(working);
+
+							midResult = viewEntry.isCategory() ? choices[0] : choices[1];
+
+							break;
+					}
+
+					break;
+				case 'G':
+					// @IsExpandable
+					// This is a UI function that changes based on the expanded/collapsed state of
+					// the entry in
+					// the Notes client. This kind of behavior could be better done without
+					// @functions on the web,
+					// so it's not really worth implementing
+					midResult = ""; //$NON-NLS-1$
+					break;
+				default:
+					midResult = working;
+					break;
+			}
+
+			result = result.replace(SPECIAL_TEXT_START + working + SPECIAL_TEXT_END, midResult);
+
+			start_pos = result.indexOf(SPECIAL_TEXT_START);
+			end_pos = result.indexOf(SPECIAL_TEXT_END);
+		}
+
+		return result;
+	}
+
+	private static String strRight(final String input, final String delimiter) {
+		return input.substring(input.indexOf(delimiter) + delimiter.length());
+	}
+
+	private static String strRightBack(final String input, final String delimiter) {
+		return input.substring(input.lastIndexOf(delimiter) + delimiter.length());
+	}
+
+	private static String strLeftBack(final String input, final String delimiter) {
+		return input.substring(0, input.lastIndexOf(delimiter));
+	}
+
+	private static String[] parseChoices(final String pattern) {
+		// First character is a type code, and is then followed by a single integer
+		// indicating number of choices.
+		// Each of those is a Pascal-ish string like "<len>=<value>" with semicolons
+		// delimiting them
+		// e.g.: D2;5=opt 1;5=opt 2;5=opt 3
+
+		final int choiceCount = Integer.parseInt(pattern.substring(1, 2));
+		final String[] result = new String[choiceCount];
+
+		String working = pattern.substring(3);
+		for (int i = 0; i < choiceCount; i++) {
+			final int eqIndex = working.indexOf('=');
+			final int choiceLen = Integer.parseInt(working.substring(0, eqIndex));
+			final String choice = working.substring(eqIndex + 1, eqIndex + 1 + choiceLen);
+			result[i] = choice;
+
+			// Move past the next semicolon
+			if (i < choiceCount - 1) {
+				working = working.substring(eqIndex + 1 + choiceLen + 1);
+			}
+		}
+
+		return result;
 	}
 }

@@ -564,6 +564,25 @@ public class NoSQLExample {
 			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
 	}
 	
+	@Path("byViewKeySpecialText/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByViewKeySpecialText(@PathParam("lastName") String lastName) {
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.findByKeySpecialText(query)
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
+	}
+	
+	@Path("byViewKeySpecialTextProgrammatic/{lastName}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Person getPersonByViewKeySpecialTextProgrammatic(@PathParam("lastName") String lastName) {
+		ViewQuery query = ViewQuery.query().key(lastName, true);
+		return personRepository.readViewEntries("Persons", 0, false, true, query, null, null)
+			.findFirst()
+			.orElseThrow(() -> new NotFoundException("Unable to find Person for last name: " + lastName));
+	}
+	
 	@Path("byViewKeyMulti/{lastName}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

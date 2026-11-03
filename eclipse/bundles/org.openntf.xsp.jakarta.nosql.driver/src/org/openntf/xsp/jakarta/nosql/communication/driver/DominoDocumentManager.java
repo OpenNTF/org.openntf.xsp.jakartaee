@@ -30,7 +30,14 @@ import jakarta.data.Sort;
 import jakarta.data.page.PageRequest;
 
 public interface DominoDocumentManager extends DatabaseManager {
-	Stream<CommunicationEntity> viewEntryQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult);
+	default Stream<CommunicationEntity> viewEntryQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
+		return viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, false, viewQuery, singleResult);
+	}
+	
+	/**
+	 * @since 3.8.0
+	 */
+	Stream<CommunicationEntity> viewEntryQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, boolean docsOnly, boolean processSpecialText, ViewQuery viewQuery, boolean singleResult);
 
 	Stream<CommunicationEntity> viewDocumentQuery(String entityName, String viewName, PageRequest pagination, Sort<?> sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult, boolean distinct);
 

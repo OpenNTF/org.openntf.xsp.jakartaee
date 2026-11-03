@@ -105,11 +105,11 @@ public class DefaultDominoTemplate extends AbstractSemiStructuredTemplate implem
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Stream<T> viewEntryQuery(final String entityName, final String viewName, final PageRequest pagination, final Sort<?> sorts,
-			final int maxLevel, final boolean docsOnly, final ViewQuery viewQuery, final boolean singleResult) {
+			final int maxLevel, final boolean docsOnly, final boolean processSpecialText, final ViewQuery viewQuery, final boolean singleResult) {
 		return manager()
-				.viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, viewQuery, singleResult)
-				.map(converter()::toEntity)
-				.map(d -> (T) d);
+			.viewEntryQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, processSpecialText, viewQuery, singleResult)
+			.map(converter()::toEntity)
+			.map(d -> (T) d);
 	}
 
 	@SuppressWarnings("unchecked")

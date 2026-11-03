@@ -170,10 +170,11 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
 	 * @param docsOnly whether to restrict processing to document entries only
 	 * @param classMapping the {@link EntityMetadata} instance for the target entity; may be {@code null}
+	 * @param processSpecialText if column value special text should be processed
 	 * @return a {@link Stream} of NoSQL {@link CommunicationEntity} objects
 	 * @throws NotesException if there is a problem reading the view
 	 */
-	public Stream<CommunicationEntity> convertViewEntries(final String entityName, final ViewNavigator nav, final boolean didSkip, final boolean didKey, final long limit, final boolean docsOnly, final EntityMetadata classMapping) throws NotesException {
+	public Stream<CommunicationEntity> convertViewEntries(final String entityName, final ViewNavigator nav, final boolean didSkip, final boolean didKey, final long limit, final boolean docsOnly, final EntityMetadata classMapping, final boolean processSpecialText) throws NotesException {
 		nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
 
 		// Read in the column names
@@ -196,7 +197,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		Stream<CommunicationEntity> result = iter.stream()
 			.map(entry -> {
 				try {
-					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes, classMapping);
+					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes, classMapping, processSpecialText);
 				} catch(NotesException e) {
 					throw new UncheckedNotesException(e);
 				}
@@ -221,10 +222,11 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 	 * @param limit the maximum number of entries to read, or {@code 0} to read all entries
 	 * @param docsOnly whether to restrict processing to document entries only
 	 * @param classMapping the {@link EntityMetadata} instance for the target entity; may be {@code null}
+	 * @param processSpecialText if special text in column values should be processed
 	 * @return a {@link Stream} of NoSQL {@link CommunicationEntity} objects
 	 * @throws NotesException if there is a problem reading the view
 	 */
-	public Stream<CommunicationEntity> convertViewEntries(final String entityName, final ViewEntryCollection entries, final boolean didSkip, final boolean didKey, final long limit, final boolean docsOnly, final EntityMetadata classMapping) throws NotesException {
+	public Stream<CommunicationEntity> convertViewEntries(final String entityName, final ViewEntryCollection entries, final boolean didSkip, final boolean didKey, final long limit, final boolean docsOnly, final EntityMetadata classMapping, final boolean processSpecialText) throws NotesException {
 		View view = entries.getParent();
 
 		// Read in the column names
@@ -246,7 +248,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 		Stream<CommunicationEntity> result = iter.stream()
 			.map(entry -> {
 				try {
-					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes, classMapping);
+					return convertViewEntryInner(view.getParent(), entry, columnNames, columnFormulas, entityName, itemTypes, classMapping, processSpecialText);
 				} catch(NotesException e) {
 					throw new UncheckedNotesException(e);
 				}
@@ -386,7 +388,7 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			.onClose(iter::close);
 	}
 
-	public CommunicationEntity convertViewEntry(final String entityName, final ViewEntry viewEntry, final EntityMetadata classMapping) throws NotesException {
+	public CommunicationEntity convertViewEntry(final String entityName, final ViewEntry viewEntry, final EntityMetadata classMapping, boolean processSpecialText) throws NotesException {
 		Object parent = viewEntry.getParent();
 		View view;
 		if(parent instanceof View v) {
@@ -413,10 +415,10 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 
 		Map<String, Class<?>> itemTypes = EntityUtil.getItemTypes(classMapping);
 
-		return convertViewEntryInner(view.getParent(), viewEntry, columnNames, columnFormulas, entityName, itemTypes, classMapping);
+		return convertViewEntryInner(view.getParent(), viewEntry, columnNames, columnFormulas, entityName, itemTypes, classMapping, processSpecialText);
 	}
 
-	private CommunicationEntity convertViewEntryInner(final Database context, final ViewEntry entry, final List<String> columnNames, final List<String> columnFormulas, final String entityName, final Map<String, Class<?>> itemTypes, final EntityMetadata classMapping) throws NotesException {
+	private CommunicationEntity convertViewEntryInner(final Database context, final ViewEntry entry, final List<String> columnNames, final List<String> columnFormulas, final String entityName, final Map<String, Class<?>> itemTypes, final EntityMetadata classMapping, boolean processSpecialText) throws NotesException {
 		Vector<?> columnValues = entry.getColumnValues();
 		try {
 
@@ -446,6 +448,9 @@ public class LSXBEEntityConverter extends AbstractEntityConverter {
 			for(int i = 0; i < columnValues.size(); i++) {
 				String itemName = columnNames.get(i);
 				Object value = columnValues.get(i);
+				if(processSpecialText) {
+					value = DominoNoSQLUtil.specialTextDecode(value, entry);
+				}
 				String columnFormula = columnFormulas.get(i);
 
 				// Check to see if we have a matching time-based or number-based field and strip

@@ -116,7 +116,7 @@ import lotus.domino.ViewEntryCollection;
 import lotus.domino.ViewNavigator;
 
 public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocumentCollectionManager {
-	private final Logger log = System.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
+	private static final Logger log = System.getLogger(DefaultDominoDocumentCollectionManager.class.getName());
 
 	private final Supplier<Database> supplier;
 	private final Supplier<Session> sessionSupplier;
@@ -350,7 +350,8 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	@SuppressWarnings("unchecked")
 	@Override
 	public Stream<CommunicationEntity> viewEntryQuery(final String entityName, final String viewName, final PageRequest pagination,
-			final Sort sorts, final int maxLevel, final boolean docsOnly, final ViewQuery viewQuery, final boolean singleResult) {
+			final Sort sorts, final int maxLevel, final boolean docsOnly, final boolean processSpecialText, final ViewQuery viewQuery, final boolean singleResult) {
+		log.log(Level.TRACE, () -> MessageFormat.format("viewEntryQuery for {0} with processSpecialText {1}", viewName, processSpecialText));
 		EntityMetadata mapping = EntityUtil.getClassMapping(entityName);
 
 		if(viewQuery != null && viewQuery.getKey() != null && singleResult) {
@@ -372,7 +373,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 						return Stream.empty();
 					} else {
 						try {
-							return Stream.of(entityConverter.convertViewEntry(entityName, entry, mapping));
+							return Stream.of(entityConverter.convertViewEntry(entityName, entry, mapping, processSpecialText));
 						} finally {
 							recycle(entry);
 						}
@@ -385,13 +386,13 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		}
 
-		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
+		return buildNavigtor(viewName, pagination, sorts, maxLevel, processSpecialText, viewQuery, singleResult, mapping,
 			(nav, limit, didSkip, didKey) -> {
 				try {
 					if(nav instanceof ViewNavigator vn) {
-						return entityConverter.convertViewEntries(entityName, vn, didSkip, didKey, limit, docsOnly, mapping);
+						return entityConverter.convertViewEntries(entityName, vn, didSkip, didKey, limit, docsOnly, mapping, processSpecialText);
 					} else if(nav instanceof ViewEntryCollection vec) {
-						return entityConverter.convertViewEntries(entityName, vec, didSkip, didKey, limit, docsOnly, mapping);
+						return entityConverter.convertViewEntries(entityName, vec, didSkip, didKey, limit, docsOnly, mapping, processSpecialText);
 					} else if(nav instanceof Base base) {
 						String baseStr = String.valueOf(base);
 						recycle(base);
@@ -442,7 +443,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			}
 		}
 
-		return buildNavigtor(viewName, pagination, sorts, maxLevel, viewQuery, singleResult, mapping,
+		return buildNavigtor(viewName, pagination, sorts, maxLevel, false, viewQuery, singleResult, mapping,
 			(nav, limit, didSkip, didKey) -> {
 				try {
 					if(nav instanceof ViewNavigator vn) {
@@ -886,7 +887,7 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 	// *******************************************************************************
 
 	@SuppressWarnings("unchecked")
-	private <T> T buildNavigtor(final String viewName, final PageRequest pagination, final Sort<?> sorts, final int maxLevel, final ViewQuery viewQuery, final boolean singleResult, final EntityMetadata mapping, final NavFunction<T> consumer) {
+	private <T> T buildNavigtor(final String viewName, final PageRequest pagination, final Sort<?> sorts, final int maxLevel, final boolean processSpecialText, final ViewQuery viewQuery, final boolean singleResult, final EntityMetadata mapping, final NavFunction<T> consumer) {
 		try {
 			if(StringUtil.isEmpty(viewName)) {
 				throw new IllegalArgumentException("viewName cannot be empty");
@@ -953,20 +954,23 @@ public class DefaultDominoDocumentCollectionManager extends AbstractDominoDocume
 			} else {
 				nav = view.createViewNavFromCategory(category);
 			}
-			// Check if the class requests count data and skip reading if not
-			boolean requestsCounts = mapping.fields()
-				.stream()
-				.map(EntityUtil::getNativeField)
-				.map(f -> f.getAnnotation(Column.class))
-				.filter(Objects::nonNull)
-				.map(Column::value)
-				.anyMatch(name ->
-					DominoConstants.FIELD_CHILDCOUNT.equals(name)
-					|| DominoConstants.FIELD_SIBLINGCOUNT.equals(name)
-					|| DominoConstants.FIELD_DESCENDANTCOUNT.equals(name)
-				);
-			if(!requestsCounts) {
-				nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
+			// Check if the class requests count data and skip reading if not.
+			// If special text needs processing, always read this data
+			if(!processSpecialText) {
+				boolean requestsCounts = mapping.fields()
+					.stream()
+					.map(EntityUtil::getNativeField)
+					.map(f -> f.getAnnotation(Column.class))
+					.filter(Objects::nonNull)
+					.map(Column::value)
+					.anyMatch(name ->
+						DominoConstants.FIELD_CHILDCOUNT.equals(name)
+						|| DominoConstants.FIELD_SIBLINGCOUNT.equals(name)
+						|| DominoConstants.FIELD_DESCENDANTCOUNT.equals(name)
+					);
+				if(!requestsCounts) {
+					nav.setEntryOptions(ViewNavigator.VN_ENTRYOPT_NOCOUNTDATA);
+				}
 			}
 
 
